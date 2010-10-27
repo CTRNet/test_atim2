@@ -12,7 +12,7 @@ $this->Structures->build($empty, array('settings' => array('top' => false)));
 </div>
 <script type="text/javascript">
 var popupSearch = function(){
-	$.post(root_url + "/codingicd/CodingIcd10s/search/<?php echo($use_icd_type); ?>/1", $("#me form").serialize(), function(data){
+	$.post(root_url + "codingicd/CodingIcd10s/search/<?php echo($use_icd_type); ?>/1", $("#me form").serialize(), function(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 	return false;

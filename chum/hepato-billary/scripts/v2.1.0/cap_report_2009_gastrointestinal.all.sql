@@ -1,3 +1,37 @@
+
+--  ------------------------------------------------------------------------------------------------------- -- 
+--       CAP REPORT - VERSION : October 2009                                                                -- 
+--          'Cancer Protocols and Checklists' from the College of American Pathologists                     -- 
+--  ------------------------------------------------------------------------------------------------------- -- 
+--                                                                                                          --   
+--  SOURCE                                                                                                  --  
+--    . http://www.cap.org/apps/cap.portal                                                                  --                                                            --  
+--                                                                                                          -- 
+--  IMPLEMENTED REPORT                                                                                      -- 
+--   # Breast                                                                                               -- 
+--   # Central Nervous System                                                                               -- 
+--   # Gastrointestinal                                                                                     -- 
+--       - Ampulla of Vater [version: October 2009, source: Ampulla_09protocol.pdf]                         -- 
+--       - Colon and Rectum [version: October 2009, source: Colon_09protocol.pdf]                           -- 
+--       - Distal Extrahepatic Bile Ducts [version: October 2009, source: DistalExBileDucts_09protocol.pdf] -- 
+--       - Gallbladder [version: October 2009, source: Gallbladder_09protocol.pdf]                          -- 
+--       - Hepatocellular Carcinoma [version: October 2009, source: Hepatocellular_09protocol.pdf]          -- 
+--       - Intrahepatic Bile Ducts [version: October 2009, source: IntrahepBileDucts_09protocol.pdf]        -- 
+--       - Pancreas (Endocrine) [version: October 2009, source: PancreasEndo_09protocol.pdf]                -- 
+--       - Pancreas (Exocrine) [version: October 2009, source: PancreasExo_09protocol.pdf]                  -- 
+--       - Perihilar Bile Ducts [version: October 2009, source: PerihilarBileDucts_09protocol.pdf]          -- 
+--       - Small Intestine [version: October 2009, source: SmIntestine_09protocol.pdf]                      -- 
+--   # Genitourinary                                                                                        -- 
+--   # Gynecologic                                                                                          -- 
+--   # Head and Neck                                                                                        -- 
+--   # Hematologic                                                                                          -- 
+--   # Ophthalmic                                                                                           -- 
+--   # Pediatric                                                                                            -- 
+--   # Skin                                                                                                 -- 
+--   # Thorax                                                                                               -- 
+--   # Other                                                                                                -- 
+--  ------------------------------------------------------------------------------------------------------- -- 
+
 -- alter table diagnosis_masters
 alter table diagnosis_masters
 
@@ -46,7 +80,8 @@ DROP TABLE IF EXISTS `dxd_cap_report_smintestines`;
 
 CREATE TABLE IF NOT EXISTS `dxd_cap_report_smintestines` (
   `id` int(10) NOT NULL auto_increment,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0, 
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
+  
   -- Specimen
   `duodenum` tinyint(1) NULL DEFAULT 0,
   `small_intestine_other_than_duodenum` tinyint(1) NULL DEFAULT 0,
@@ -527,7 +562,7 @@ and sfo.structure_id=s.id
 and s.alias='dx_cap_report_smintestines'; 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='ancillary Studies'
+set sfo.language_heading='ancillary studies'
 where sfi.id=sfo.structure_field_id
 and sfi.field='microsatellite_instability'
 and sfo.structure_id=s.id
@@ -616,7 +651,7 @@ VALUES
 ('MSH6 specify', 'MSH6 - Specify', ''),
 ('tnm descriptors', 'TNM Descriptors', ''),
 ('PMS2', 'PMS2', ''),
-('ancillary Studies', 'Ancillary Studies', ''),
+('ancillary studies', 'Ancillary Studies', ''),
 ('additional path other polyps', 'Other Polyps', ''),
 ('additional path other specify', 'Specify', ''),
 ('additional path other', 'Other', ''),
@@ -1436,7 +1471,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'primary_sclerosing_cholangitis_PSC', 'primary sclerosing cholangitis (PSC)', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'biliary_stones', 'biliary stones', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'additional_path_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'additional_path_other_specify', '', ' other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'additional_path_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'ancillary_studies_specify', 'ancillary studies specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'PSC', 'PSC', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_perihilarbileducts', 'inflammatory_bowel_disease', 'inflammatory bowel disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
@@ -1520,7 +1555,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='primary_sclerosing_cholangitis_PSC' AND `language_label`='primary sclerosing cholangitis (PSC)' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '68', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='biliary_stones' AND `language_label`='biliary stones' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '69', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='additional_path_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`=' other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='ancillary_studies_specify' AND `language_label`='ancillary studies specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='PSC' AND `language_label`='PSC' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_perihilarbileducts' AND `field`='inflammatory_bowel_disease' AND `language_label`='inflammatory bowel disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
@@ -1623,7 +1658,7 @@ where tablename='dxd_cap_report_perihilarbileducts' and field='perineural_invasi
 insert ignore into structure_permissible_values (value, language_alias) values
 ('hilar and hepatic resection','hilar and hepatic resection'),
 ('segmental resection of bile ducts(s)','segmental resection of bile ducts(s)'),
-('choledochal cyst resection (Note B)','choledochal cyst resection (Note B)'),
+('choledochal cyst resection','choledochal cyst resection'),
 ('total hepatectomy','total hepatectomy');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
@@ -1632,7 +1667,7 @@ values ('procedure_dxd_pbd', 'open', '', null);
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='hilar and hepatic resection'), 1,1, 'hilar and hepatic resection'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='segmental resection of bile ducts(s)'), 2,1, 'segmental resection of bile ducts(s)'),
-((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='choledochal cyst resection (Note B)'), 3,1, 'choledochal cyst resection (Note B)'),
+((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='choledochal cyst resection'), 3,1, 'choledochal cyst resection'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='total hepatectomy'), 4,1, 'total hepatectomy'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='other'), 5,1, 'other'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_pbd'), (select id from structure_permissible_values where value='not specified'), 6,1, 'not specified');
@@ -2559,30 +2594,30 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_pancreasendos` (
 -- World Health Organization Classification
   `world_health_organization_classification` varchar(60) DEFAULT NULL,
 -- Functional Type  
-  `functional_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `pancreatic_endocrine_tumor,_functional`  tinyint(1) NULL DEFAULT 0,
+  `functional_type_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
+  `panc_endoc_tumor_functional`  tinyint(1) NULL DEFAULT 0,
 -- heading (correlation with clinical syndrome and elevated serum levels of hormone product)
   `insulin_producing` tinyint(1) NULL DEFAULT 0, 
   `glucagon_producing` tinyint(1) NULL DEFAULT 0, 
   `somatostatin_producing` tinyint(1) NULL DEFAULT 0, 
   `gastrin_producing` tinyint(1) NULL DEFAULT 0, 
   `VIP_producing` tinyint(1) NULL DEFAULT 0, 
-  `functional_other` tinyint(1) NULL DEFAULT 0, 
-  `functional_other_specify` varchar(250) DEFAULT NULL,
+  `functional_type_other` tinyint(1) NULL DEFAULT 0, 
+  `functional_type_other_specify` varchar(250) DEFAULT NULL,
   `pancreatic_endocrine_tumor_nonfunctional` tinyint(1) NULL DEFAULT 0, 
-  `pancreatic_endocrine_tumor,_functional_status_unknown` tinyint(1) NULL DEFAULT 0, 
+  `panc_endoc_tumor_functional_status_unknown` tinyint(1) NULL DEFAULT 0, 
 -- Mototic Activity  
   `mitotic_not_applicable` tinyint(1) NULL DEFAULT 0, 
   `less_than_2_mitoses_10_high_power_fields` tinyint(1) NULL DEFAULT 0,   
-  `specify_mitoses_per_10_HPF` varchar(10) DEFAULT NULL,
+  `less_than_2_mitoses_specify_per_10_HPF` varchar(10) DEFAULT NULL,
   `greater_than_or_equal_to_2_mitoses_10_HPF_to_10_mitoses_10_HPF` tinyint(1) NULL DEFAULT 0,  
-  `great_specify_mitoses_per_10_HPF` varchar(10) DEFAULT NULL,
+  `greater_or_equal_to_2_mitoses_specify_per_10_HPF` varchar(10) DEFAULT NULL,
   `greater_than_10_mitoses_per_10_HPF` tinyint(1) NULL DEFAULT 0,  
   `mitotic_cannot_be_determined` tinyint(1) NULL DEFAULT 0,  
 -- heading Ki67 labeling index:
   `less_or_equal_2percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,    
   `3_to_20percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,
-  `great_than_20percent_Ki67-positive_cells` tinyint(1) NULL DEFAULT 0,   
+  `great_than_20percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,   
   `tumor_necrosis` varchar(30) DEFAULT NULL,
 -- Microscopic Tumor Extension  
   `microscopic_tumor_extension_cannot_be_determined` tinyint(1) NULL DEFAULT 0,  
@@ -2703,30 +2738,30 @@ CREATE TABLE `dxd_cap_report_pancreasendos_revs` (
 -- World Health Organization Classification
   `world_health_organization_classification` varchar(60) DEFAULT NULL,
 -- Functional Type  
-  `functional_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `pancreatic_endocrine_tumor,_functional`  tinyint(1) NULL DEFAULT 0,
+  `functional_type_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
+  `panc_endoc_tumor_functional`  tinyint(1) NULL DEFAULT 0,
 -- heading (correlation with clinical syndrome and elevated serum levels of hormone product)
   `insulin_producing` tinyint(1) NULL DEFAULT 0, 
   `glucagon_producing` tinyint(1) NULL DEFAULT 0, 
   `somatostatin_producing` tinyint(1) NULL DEFAULT 0, 
   `gastrin_producing` tinyint(1) NULL DEFAULT 0, 
   `VIP_producing` tinyint(1) NULL DEFAULT 0, 
-  `functional_other` tinyint(1) NULL DEFAULT 0, 
-  `functional_other_specify` varchar(250) DEFAULT NULL,
+  `functional_type_other` tinyint(1) NULL DEFAULT 0, 
+  `functional_type_other_specify` varchar(250) DEFAULT NULL,
   `pancreatic_endocrine_tumor_nonfunctional` tinyint(1) NULL DEFAULT 0, 
-  `pancreatic_endocrine_tumor,_functional_status_unknown` tinyint(1) NULL DEFAULT 0, 
+  `panc_endoc_tumor_functional_status_unknown` tinyint(1) NULL DEFAULT 0, 
 -- Mototic Activity  
   `mitotic_not_applicable` tinyint(1) NULL DEFAULT 0, 
   `less_than_2_mitoses_10_high_power_fields` tinyint(1) NULL DEFAULT 0,   
-  `specify_mitoses_per_10_HPF` varchar(10) DEFAULT NULL,
+  `less_than_2_mitoses_specify_per_10_HPF` varchar(10) DEFAULT NULL,
   `greater_than_or_equal_to_2_mitoses_10_HPF_to_10_mitoses_10_HPF` tinyint(1) NULL DEFAULT 0,  
-  `great_specify_mitoses_per_10_HPF` varchar(10) DEFAULT NULL,
+  `greater_or_equal_to_2_mitoses_specify_per_10_HPF` varchar(10) DEFAULT NULL,
   `greater_than_10_mitoses_per_10_HPF` tinyint(1) NULL DEFAULT 0,  
   `mitotic_cannot_be_determined` tinyint(1) NULL DEFAULT 0,  
 -- heading Ki67 labeling index:
   `less_or_equal_2percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,    
   `3_to_20percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,
-  `great_than_20percent_Ki67-positive_cells` tinyint(1) NULL DEFAULT 0,   
+  `great_than_20percent_Ki67_positive_cells` tinyint(1) NULL DEFAULT 0,   
   `tumor_necrosis` varchar(30) DEFAULT NULL,
 -- Microscopic Tumor Extension  
   `microscopic_tumor_extension_cannot_be_determined` tinyint(1) NULL DEFAULT 0,  
@@ -2839,27 +2874,27 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'small_cell_carcinoma', 'small cell carcinoma', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'large_cell_endocrine_carcinoma', 'large cell endocrine carcinoma', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'world_health_organization_classification', 'world health organization classification', '', 'select', '', '', NULL, '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'functional type', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'pancreatic_endocrine_tumor,_functional', 'pancreatic endocrine tumor, functional', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_type_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'functional type', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'panc_endoc_tumor_functional', 'pancreatic endocrine tumor, functional', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'insulin_producing', 'insulin_producing', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'glucagon_producing', 'glucagon_producing', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'somatostatin_producing', 'somatostatin_producing', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'gastrin_producing', 'gastrin_producing', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'VIP_producing', 'vasoactive intestinal polypeptide (VIP)-producing', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_other', 'other', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_type_other', 'other', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'functional_type_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'pancreatic_endocrine_tumor_nonfunctional', 'pancreatic endocrine tumor nonfunctional', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'pancreatic_endocrine_tumor,_functional_status_unknown', 'pancreatic endocrine tumor, functional status unknown', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'panc_endoc_tumor_functional_status_unknown', 'pancreatic endocrine tumor, functional status unknown', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'mitotic_not_applicable', 'not applicable', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'mitotic activity', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'less_than_2_mitoses_10_high_power_fields', 'less than 2 mitoses/10 high power fields (HPF)', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'greater_than_or_equal_to_2_mitoses_10_HPF_to_10_mitoses_10_HPF', 'greater than or equal to 2 mitoses/10 HPF to 10 mitoses/10 HPF', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'specify_mitoses_per_10_HPF', '', 'specify mitoses per 10 HPF', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'great_specify_mitoses_per_10_HPF', '', 'specify mitoses per 10 HPF', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'less_than_2_mitoses_specify_per_10_HPF', '', 'specify mitoses per 10 HPF', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'greater_or_equal_to_2_mitoses_specify_per_10_HPF', '', 'specify mitoses per 10 HPF', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'greater_than_10_mitoses_per_10_HPF', 'greater than 10 mitoses per 10 HPF', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'mitotic_cannot_be_determined', 'mitotic cannot be determined', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'less_or_equal_2percent_Ki67_positive_cells', 'less or equal 2% Ki67-positive cells', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'Ki67 labeling index:', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', '3_to_20percent_Ki67_positive_cells', '3%-20% Ki67-positive cells', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'great_than_20percent_Ki67-positive_cells', 'great than 20% Ki67-positive cells', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'great_than_20percent_Ki67_positive_cells', 'great than 20% Ki67-positive cells', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'tumor_necrosis', 'tumor necrosis', '', 'select', '', '', NULL, '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'microscopic_tumor_extension_cannot_be_determined', 'cannot be determined', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'microscopic tumor extension', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'no_evidence_of_primary_tumor', 'no evidence of primary tumor', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
@@ -2890,7 +2925,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'acute_pancreatitis', 'acute pancreatitis', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'adenomatosis', 'adenomatosis (multiple endocrine tumors, each less than 5 mm in greatest dimension)', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'additional_path_other', 'other', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'additional_path_other_specify', '', ' other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'additional_path_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'ancillary_studies_specify', 'ancillary studies specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'von_hippel-Lindau_disease', 'von hippel-Lindau disease', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , 'clinical history', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'multiple_endocrine_neoplasia_type_1', 'multiple endocrine neoplasia type 1', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
@@ -2900,7 +2935,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'watery_diarrhea', 'watery diarrhea', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'hypergastrinemia', 'hypergastrinemia', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'zollinger-Ellison_syndrome', 'zollinger-Ellison syndrome', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'other_clinical_history', 'other ', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'other_clinical_history', 'other', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'other_clinical_history_specify', '', 'other specify', 'input', '', '', NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'clinical_history_not_specified', 'not specified', '', 'checkbox', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_pe', 'path_nstage', 'path nstage', '', 'select', '', '', NULL, '', 'open', 'open', 'open'), 
@@ -2951,27 +2986,27 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='small_cell_carcinoma' AND `language_label`='small cell carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='large_cell_endocrine_carcinoma' AND `language_label`='large cell endocrine carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='world_health_organization_classification' AND `language_label`='world health organization classification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') ), '1', '43', 'functional type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='pancreatic_endocrine_tumor,_functional' AND `language_label`='pancreatic endocrine tumor, functional' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_type_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') ), '1', '43', 'functional type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='panc_endoc_tumor_functional' AND `language_label`='pancreatic endocrine tumor, functional' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='insulin_producing' AND `language_label`='insulin_producing' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='glucagon_producing' AND `language_label`='glucagon_producing' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='somatostatin_producing' AND `language_label`='somatostatin_producing' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='gastrin_producing' AND `language_label`='gastrin_producing' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='VIP_producing' AND `language_label`='vasoactive intestinal polypeptide (VIP)-producing' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_type_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='functional_type_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='pancreatic_endocrine_tumor_nonfunctional' AND `language_label`='pancreatic endocrine tumor nonfunctional' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='pancreatic_endocrine_tumor,_functional_status_unknown' AND `language_label`='pancreatic endocrine tumor, functional status unknown' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='panc_endoc_tumor_functional_status_unknown' AND `language_label`='pancreatic endocrine tumor, functional status unknown' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='mitotic_not_applicable' AND `language_label`='not applicable' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`='mitotic activity'), '1', '54', 'mitotic activity', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='less_than_2_mitoses_10_high_power_fields' AND `language_label`='less than 2 mitoses/10 high power fields (HPF)' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='greater_than_or_equal_to_2_mitoses_10_HPF_to_10_mitoses_10_HPF' AND `language_label`='greater than or equal to 2 mitoses/10 HPF to 10 mitoses/10 HPF' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='specify_mitoses_per_10_HPF' AND `language_label`='' AND `language_tag`='specify mitoses per 10 HPF' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='great_specify_mitoses_per_10_HPF' AND `language_label`='' AND `language_tag`='specify mitoses per 10 HPF' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='less_than_2_mitoses_specify_per_10_HPF' AND `language_label`='' AND `language_tag`='specify mitoses per 10 HPF' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='greater_or_equal_to_2_mitoses_specify_per_10_HPF' AND `language_label`='' AND `language_tag`='specify mitoses per 10 HPF' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='greater_than_10_mitoses_per_10_HPF' AND `language_label`='greater than 10 mitoses per 10 HPF' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='mitotic_cannot_be_determined' AND `language_label`='mitotic cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='less_or_equal_2percent_Ki67_positive_cells' AND `language_label`='less or equal 2% Ki67-positive cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '61', 'Ki67 labeling index:', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='less_or_equal_2percent_Ki67_positive_cells' AND `language_label`='less or equal 2% Ki67-positive cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '1', '61', 'Ki67 labeling index', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='3_to_20percent_Ki67_positive_cells' AND `language_label`='3%-20% Ki67-positive cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '62', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='great_than_20percent_Ki67-positive_cells' AND `language_label`='great than 20% Ki67-positive cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '63', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='great_than_20percent_Ki67_positive_cells' AND `language_label`='great than 20% Ki67-positive cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '63', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='tumor_necrosis' AND `language_label`='tumor necrosis' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`=''   AND `language_help`=''), '1', '64', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='microscopic_tumor_extension_cannot_be_determined' AND `language_label`='cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '2', '1', 'microscopic tumor extension', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='no_evidence_of_primary_tumor' AND `language_label`='no evidence of primary tumor' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
@@ -3008,7 +3043,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='acute_pancreatitis' AND `language_label`='acute pancreatitis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='adenomatosis' AND `language_label`='adenomatosis (multiple endocrine tumors, each less than 5 mm in greatest dimension)' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='additional_path_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`=' other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='ancillary_studies_specify' AND `language_label`='ancillary studies specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='von_hippel-Lindau_disease' AND `language_label`='von hippel-Lindau disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  ), '2', '40', 'clinical history', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='multiple_endocrine_neoplasia_type_1' AND `language_label`='multiple endocrine neoplasia type 1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
@@ -3018,7 +3053,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='watery_diarrhea' AND `language_label`='watery diarrhea' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='hypergastrinemia' AND `language_label`='hypergastrinemia' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='zollinger-Ellison_syndrome' AND `language_label`='zollinger-Ellison syndrome' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='other_clinical_history' AND `language_label`='other ' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='other_clinical_history' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='other_clinical_history_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `language_help`=''), '2', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasendos' AND `field`='clinical_history_not_specified' AND `language_label`='not specified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`=''   AND `language_help`=''), '2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '51', '', '0', '', '0', '', '1', '', '0', '', '1', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
@@ -3057,7 +3092,7 @@ and s.alias='dx_cap_report_pancreasendos';
 update structure_formats sfo inner join structure_fields sfi inner join structures s
 set sfo.language_heading='functional type'
 where sfi.id=sfo.structure_field_id
-and sfi.field='functional_cannot_be_assessed'
+and sfi.field='functional_type_cannot_be_assessed'
 and sfo.structure_id=s.id
 and s.alias='dx_cap_report_pancreasendos'; 
 
@@ -3822,8 +3857,7 @@ insert ignore into structure_permissible_values (value, language_alias) values
 ('mass-forming','mass-forming'),
 ('periductal infiltrating','periductal infiltrating'),
 ('mixed mass-forming and periductal infiltrating','mixed mass-forming and periductal infiltrating'),
-('cannot be determined','cannot be determined'),
-('insert ignore into structure_permissible_values (value, language_alias) values','insert ignore into structure_permissible_values (value, language_alias) values');
+('cannot be determined','cannot be determined');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
 values ('tumor_growth_pattern', 'open', '', null);
@@ -3832,8 +3866,7 @@ insert into structure_value_domains_permissible_values (structure_value_domain_i
 values ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='mass-forming'), 1,1, 'mass-forming'),
 ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='periductal infiltrating'), 2,1, 'periductal infiltrating'),
 ((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='mixed mass-forming and periductal infiltrating'), 3,1, 'mixed mass-forming and periductal infiltrating'),
-((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='cannot be determined'), 4,1, 'cannot be determined'),
-((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='insert ignore into structure_permissible_values (value, language_alias) values' ), 5,1, 'insert ignore into structure_permissible_values (value, language_alias) values');
+((select id from structure_value_domains where domain_name='tumor_growth_pattern'), (select id from structure_permissible_values where value='cannot be determined'), 4,1, 'cannot be determined');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='tumor_growth_pattern')
@@ -4173,7 +4206,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'alcoholic_liver_disease', 'alcoholic liver disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'obesity', 'obesity', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'hereditary_hemochromatosis', 'hereditary hemochromatosis', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'other_clinical_history', 'other ', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'other_clinical_history', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'other_clinical_history_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellulars', 'not_known', 'not known', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_hc', 'path_nstage', 'path nstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
@@ -4253,7 +4286,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='alcoholic_liver_disease' AND `language_label`='alcoholic liver disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='obesity' AND `language_label`='obesity' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='hereditary_hemochromatosis' AND `language_label`='hereditary hemochromatosis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='other_clinical_history' AND `language_label`='other ' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='other_clinical_history' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='other_clinical_history_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_hepatocellulars' AND `field`='not_known' AND `language_label`='not known' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '76', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellulars'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '77', '', '0', '', '0', '', '1', '', '0', '', '1', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
@@ -4889,7 +4922,7 @@ values ('procedure_dxd_gb', 'open', '', null);
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='procedure_dxd_gb'), (select id from structure_permissible_values where value='simple cholecystectomy (laparoscopic or open)' ), 1,1, 'simple cholecystectomy (laparoscopic or open)'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_gb'), (select id from structure_permissible_values where value='radical cholecystectomy (with liver resection and lymphadenectomy)' ), 2,1, 'radical cholecystectomy (with liver resection and lymphadenectomy)'),
-((select id from structure_value_domains where domain_name='procedure_dxd_gb'), (select id from structure_permissible_values where value='other ' ), 3,1, 'other '),
+((select id from structure_value_domains where domain_name='procedure_dxd_gb'), (select id from structure_permissible_values where value='other' ), 3,1, 'other'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_gb'), (select id from structure_permissible_values where value='not specified' ), 4,1, 'not specified');
 
 update structure_fields
@@ -5532,7 +5565,7 @@ where tablename='dxd_cap_report_distalexbileducts' and field='perineural_invasio
 insert ignore into structure_permissible_values (value, language_alias) values
 ('pancreaticoduodenectomy','pancreaticoduodenectomy'),
 ('segmental resection of bile ducts(s)','segmental resection of bile ducts(s)'),
-('choledochal cyst resection (Note B)','choledochal cyst resection (Note B)'),
+('choledochal cyst resection','choledochal cyst resection'),
 ('total hepatectomy','total hepatectomy');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
@@ -5541,7 +5574,7 @@ values ('procedure_dxd_dbd', 'open', '', null);
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='pancreaticoduodenectomy'), 1,1, 'pancreaticoduodenectomy'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='segmental resection of bile ducts(s)'), 2,1, 'segmental resection of bile ducts(s)'),
-((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='choledochal cyst resection (Note B)'), 3,1, 'choledochal cyst resection (Note B)'),
+((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='choledochal cyst resection'), 3,1, 'choledochal cyst resection'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='other'), 5,1, 'other'),
 ((select id from structure_value_domains where domain_name='procedure_dxd_dbd'), (select id from structure_permissible_values where value='not specified'), 6,1, 'not specified');
 
@@ -5734,11 +5767,11 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='diagnosis_masters_dbd' and field='path_mstage';
 
 
-/*Table structure for table 'dxd_cap_report_colon_rectum_biopsies' */
+/*Table structure for table 'dxd_cap_report_colons' */
 
-DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_biopsys`;
+DROP TABLE IF EXISTS `dxd_cap_report_colons`;
 
-CREATE TABLE IF NOT EXISTS `dxd_cap_report_colon_rectum_biopsies` (
+CREATE TABLE IF NOT EXISTS `dxd_cap_report_colons` (
   `id` int(10) NOT NULL auto_increment,
   `diagnosis_master_id` int(11) NULL DEFAULT 0,
 -- tumor_site 
@@ -5800,14 +5833,14 @@ CREATE TABLE IF NOT EXISTS `dxd_cap_report_colon_rectum_biopsies` (
   KEY `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `dxd_cap_report_colon_rectum_biopsies` ADD CONSTRAINT `FK_dxd_cap_report_colon_rectum_biopsies_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+ALTER TABLE `dxd_cap_report_colons` ADD CONSTRAINT `FK_dxd_cap_report_colons_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
 
 
-/*Table structure for table 'dxd_cap_report_colon_rectum_biopsies_revs' */
+/*Table structure for table 'dxd_cap_report_colons_revs' */
 
-DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_biopsies_revs`;
+DROP TABLE IF EXISTS `dxd_cap_report_colons_revs`;
 
-CREATE TABLE `dxd_cap_report_colon_rectum_biopsies_revs` (
+CREATE TABLE `dxd_cap_report_colons_revs` (
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NULL DEFAULT 0,
@@ -5875,91 +5908,91 @@ CREATE TABLE `dxd_cap_report_colon_rectum_biopsies_revs` (
 -- insert value in diagnosis_controls
 insert into diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename)
 values
-('CAP Report - Colon/Rectum Biopsy', 1, 'dx_cap_report_colon_rectum_biopsies', 'dxd_cap_report_colon_rectum_biopsies');
+('CAP Report - Colon/Rectum', 1, 'dx_cap_report_colons', 'dxd_cap_report_colons');
 
 -- The table structures hold all forms in the application, Add the dxd_cap_report_ in table structures. It doesn't hold the form itself but the form alias.
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
-VALUES ('dx_cap_report_colon_rectum_biopsies', '', '', '0', '0', '1', '1');
+VALUES ('dx_cap_report_colons', '', '', '0', '0', '1', '1');
 
 -- form builder
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'tumor_site_specify', 'tumor site specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'intact', 'intact', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'fragmental', 'fragmental', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'polyp_size_greatest_dimension', 'polyp size greatest dimension', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'additional_dimension_a', 'additional dimension', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'additional_dimension_b', '', 'x', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'cannot_be_determined', 'cannot be determined', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'pedunculated_with_stalk', 'pedunculated with stalk', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'stalk_length_cm', '', 'stalk length cm', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'sessile', 'sessile', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'histologic_type', 'histologic type', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'histologic_type_specify', 'histologic type specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'microscopic_tumor_extension', 'microscopic tumor extension', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'distance_of_invasive_carcinoma_from_closest_margin_mm', 'distance of invasive carcinoma from closest margin mm', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'not_applicable', 'not applicable', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'mm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'mm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'mm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'mm_involved_by_adenoma', 'involved by adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'lymph_vascular_invasion', 'lymph vascular invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'type_of_polyp_in_which_invasive_carcinoma_arose', 'type of polyp in which invasive carcinoma arose', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'additional_path_none_identified', 'none identified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'inflammatory_bowel_disease', 'inflammatory bowel disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'active', '', 'active', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'quiescent', '', 'quiescent', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'additional_path_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'additional_path_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'ancillary_studies_specify', 'ancillary studies specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'not_performed', 'not performed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_biopsies', 'tumor_site', 'tumor site', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'tumor_site_specify', 'tumor site specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'intact', 'intact', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'fragmental', 'fragmental', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'polyp_size_greatest_dimension', 'polyp size greatest dimension', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'additional_dimension_a', 'additional dimension', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'additional_dimension_b', '', 'x', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'cannot_be_determined', 'cannot be determined', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'pedunculated_with_stalk', 'pedunculated with stalk', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'stalk_length_cm', '', 'stalk length cm', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'sessile', 'sessile', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'histologic_type', 'histologic type', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'histologic_type_specify', 'histologic type specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'microscopic_tumor_extension', 'microscopic tumor extension', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'distance_of_invasive_carcinoma_from_closest_margin_mm', 'distance of invasive carcinoma from closest margin mm', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'not_applicable', 'not applicable', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'mm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'mm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'mm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'mm_involved_by_adenoma', 'involved by adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'lymph_vascular_invasion', 'lymph vascular invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'type_of_polyp_in_which_invasive_carcinoma_arose', 'type of polyp in which invasive carcinoma arose', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'additional_path_none_identified', 'none identified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'inflammatory_bowel_disease', 'inflammatory bowel disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'active', '', 'active', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'quiescent', '', 'quiescent', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'additional_path_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'additional_path_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'ancillary_studies_specify', 'ancillary studies specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'not_performed', 'not performed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colons', 'tumor_site', 'tumor site', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_c', 'tumour_grade', 'tumour grade', '', 'select', '', '',  NULL , '', 'open', 'open', 'open');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='tumor_site_specify' AND `language_label`='tumor site specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='intact' AND `language_label`='intact' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='fragmental' AND `language_label`='fragmental' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='polyp_size_greatest_dimension' AND `language_label`='polyp size greatest dimension' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='additional_dimension_a' AND `language_label`='additional dimension' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='additional_dimension_b' AND `language_label`='' AND `language_tag`='x' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='cannot_be_determined' AND `language_label`='cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='pedunculated_with_stalk' AND `language_label`='pedunculated with stalk' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='stalk_length_cm' AND `language_label`='' AND `language_tag`='stalk length cm' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='sessile' AND `language_label`='sessile' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_greatest_dimension' AND `structure_value_domain`  IS NULL  ), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_a' AND `structure_value_domain`  IS NULL  ), '1', '14', '', '1', 'additional dimension', '0', '', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_b' AND `structure_value_domain`  IS NULL  ), '1', '15', '', '0', '', '1', 'x', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='histologic_type' AND `language_label`='histologic type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='histologic_type_specify' AND `language_label`='histologic type specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='microscopic_tumor_extension' AND `language_label`='microscopic tumor extension' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cannot_be_determined' ), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='distance_of_invasive_carcinoma_from_closest_margin_mm' AND `language_label`='distance of invasive carcinoma from closest margin mm' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='not_applicable' AND `language_label`='not applicable' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='mm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='mm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='mm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='mm_involved_by_adenoma' AND `language_label`='involved by adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='lymph_vascular_invasion' AND `language_label`='lymph vascular invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='type_of_polyp_in_which_invasive_carcinoma_arose' AND `language_label`='type of polyp in which invasive carcinoma arose' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='additional_path_none_identified' AND `language_label`='none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='inflammatory_bowel_disease' AND `language_label`='inflammatory bowel disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='active' AND `language_label`='' AND `language_tag`='active' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='quiescent' AND `language_label`='' AND `language_tag`='quiescent' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='additional_path_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='ancillary_studies_specify' AND `language_label`='ancillary studies specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='not_performed' AND `language_label`='not performed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '40', '', '0', '', '0', '', '1', '', '0', '', '2', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_biopsies' AND `field`='tumor_site' AND `language_label`='tumor site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_c' AND `field`='tumour_grade' AND `language_label`='tumour grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='tumor_site_specify' AND `language_label`='tumor site specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='intact' AND `language_label`='intact' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='fragmental' AND `language_label`='fragmental' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='polyp_size_greatest_dimension' AND `language_label`='polyp size greatest dimension' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='additional_dimension_a' AND `language_label`='additional dimension' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='additional_dimension_b' AND `language_label`='' AND `language_tag`='x' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='cannot_be_determined' AND `language_label`='cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='pedunculated_with_stalk' AND `language_label`='pedunculated with stalk' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='stalk_length_cm' AND `language_label`='' AND `language_tag`='stalk length cm' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='sessile' AND `language_label`='sessile' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_greatest_dimension' AND `structure_value_domain`  IS NULL  ), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_a' AND `structure_value_domain`  IS NULL  ), '1', '14', '', '1', 'additional dimension', '0', '', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_b' AND `structure_value_domain`  IS NULL  ), '1', '15', '', '0', '', '1', 'x', '0', '', '0', '', '0', '', '1', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='histologic_type' AND `language_label`='histologic type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='histologic_type_specify' AND `language_label`='histologic type specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='microscopic_tumor_extension' AND `language_label`='microscopic tumor extension' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cannot_be_determined' ), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='distance_of_invasive_carcinoma_from_closest_margin_mm' AND `language_label`='distance of invasive carcinoma from closest margin mm' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='not_applicable' AND `language_label`='not applicable' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='mm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='mm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='mm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='mm_involved_by_adenoma' AND `language_label`='involved by adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='lymph_vascular_invasion' AND `language_label`='lymph vascular invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='type_of_polyp_in_which_invasive_carcinoma_arose' AND `language_label`='type of polyp in which invasive carcinoma arose' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='additional_path_none_identified' AND `language_label`='none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='inflammatory_bowel_disease' AND `language_label`='inflammatory bowel disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='active' AND `language_label`='' AND `language_tag`='active' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='quiescent' AND `language_label`='' AND `language_tag`='quiescent' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='additional_path_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='additional_path_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='ancillary_studies_specify' AND `language_label`='ancillary studies specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='not_performed' AND `language_label`='not performed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '40', '', '0', '', '0', '', '1', '', '0', '', '2', 'cols=40, rows=6', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colons' AND `field`='tumor_site' AND `language_label`='tumor site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colons'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_c' AND `field`='tumour_grade' AND `language_label`='tumour grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 
 
 -- update checkbox structure value domain to 185
@@ -5974,21 +6007,21 @@ set sfo.language_heading='specimen integrity'
 where sfi.id=sfo.structure_field_id
 and sfi.field='intact'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
 set sfo.language_heading='polyp size'
 where sfi.id=sfo.structure_field_id
 and sfi.field='polyp_size_greatest_dimension'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
 set sfo.language_heading='polyp configuration'
 where sfi.id=sfo.structure_field_id
 and sfi.field='pedunculated_with_stalk'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
@@ -5996,21 +6029,21 @@ set sfo.language_heading='size of invasive carcinoma'
 where sfi.id=sfo.structure_field_id
 and sfi.field='tumor_size_greatest_dimension'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
 set sfo.language_heading='deep margin'
 where sfi.id=sfo.structure_field_id
 and sfi.field='cannot_be_assessed'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
 set sfo.language_heading='mucosal/Lateral margin'
 where sfi.id=sfo.structure_field_id
 and sfi.field='not_applicable'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 
 update structure_formats sfo inner join structure_fields sfi inner join structures s
@@ -6018,13 +6051,13 @@ set sfo.language_heading='additional pathologic findings'
 where sfi.id=sfo.structure_field_id
 and sfi.field='additional_path_none_identified'
 and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_biopsies'; 
+and s.alias='dx_cap_report_colons'; 
 
 
 -- index
 UPDATE structures AS str, structure_formats AS stfo, structure_fields AS sf 
 SET stfo.flag_index = '1'
-WHERE str.alias = 'dx_cap_report_colon_rectum_biopsies'
+WHERE str.alias = 'dx_cap_report_colons'
 AND str.id = stfo.structure_id 
 AND stfo.structure_field_id = sf.id
 AND sf.field IN ('dx_date', 'tumor_site', 'tumour_grade', 'histologic_type');
@@ -6034,7 +6067,7 @@ AND sf.field IN ('dx_date', 'tumor_site', 'tumour_grade', 'histologic_type');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
-where tablename='dxd_cap_report_colon_rectum_biopsies' and field='lymph_vascular_invasion';
+where tablename='dxd_cap_report_colons' and field='lymph_vascular_invasion';
 
 -- tumor_site_c
 insert ignore into structure_permissible_values (value, language_alias) values
@@ -6059,12 +6092,12 @@ values ((select id from structure_value_domains where domain_name='tumor_site_c'
 ((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='left (descending) colon' ), 6,1, 'left (descending) colon'),
 ((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='sigmoid colon' ), 7,1, 'sigmoid colon'),
 ((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='rectum' ), 8,1, 'rectum'),
-((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='other ' ), 9,1, 'other '),
+((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='other' ), 9,1, 'other'),
 ((select id from structure_value_domains where domain_name='tumor_site_c'), (select id from structure_permissible_values where value='not specified' ), 10,1, 'not specified');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='tumor_site_c')
-where tablename='dxd_cap_report_colon_rectum_biopsies' and field='tumor_site';
+where tablename='dxd_cap_report_colons' and field='tumor_site';
 
 -- histologic_type_c
 insert ignore into structure_permissible_values (value, language_alias) values
@@ -6097,14 +6130,14 @@ values ((select id from structure_value_domains where domain_name='histologic_ty
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_type_c')
-where tablename='dxd_cap_report_colon_rectum_biopsies' and field='histologic_type';
+where tablename='dxd_cap_report_colons' and field='histologic_type';
 
 -- histologic_grade_c
 insert ignore into structure_permissible_values (value, language_alias) values
 ('not applicable','not applicable'),
 ('cannot be determined','cannot be determined'),
-('low-grade (well-differentiated to moderately differentiated)','low-grade (well-differentiated to moderately differentiated)'),
-('high-grade (poorly differentiated to undifferentiated)','high-grade (poorly differentiated to undifferentiated)');
+('low-grade','low-grade (well-differentiated to moderately differentiated)'),
+('high-grade','high-grade (poorly differentiated to undifferentiated)');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
 values ('histologic_grade_c', 'open', '', null);
@@ -6112,8 +6145,8 @@ values ('histologic_grade_c', 'open', '', null);
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='not applicable'), 1,1,'not applicable'),
 ((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='cannot be determined'), 2,1,'cannot be determined'),
-((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='low-grade (well-differentiated to moderately differentiated)'), 3,1, 'low-grade (well-differentiated to moderately differentiated)'),
-((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='high-grade (poorly differentiated to undifferentiated)'), 4,1,'high-grade (poorly differentiated to undifferentiated)');
+((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='low-grade'), 3,1, 'low-grade (well-differentiated to moderately differentiated)'),
+((select id from structure_value_domains where domain_name='histologic_grade_c'), (select id from structure_permissible_values where value='high-grade'), 4,1,'high-grade (poorly differentiated to undifferentiated)');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_grade_c')
@@ -6142,7 +6175,7 @@ values ((select id from structure_value_domains where domain_name='microscopic_t
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='microscopic_tumor_extension_c')
-where tablename='dxd_cap_report_colon_rectum_biopsies' and field='microscopic_tumor_extension';
+where tablename='dxd_cap_report_colons' and field='microscopic_tumor_extension';
 
 -- type_of_polyp_in_which_invasive_carcinoma_arose
 insert ignore into structure_permissible_values (value, language_alias) values
@@ -6169,1153 +6202,7 @@ values ((select id from structure_value_domains where domain_name='type_of_polyp
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose')
-where tablename='dxd_cap_report_colon_rectum_biopsies' and field='type_of_polyp_in_which_invasive_carcinoma_arose';
-
--- colon rectum resection
-
-/*Table structure for table 'dxd_cap_report_colon_rectum_resections' */
-
-DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_resections`;
-
-CREATE TABLE IF NOT EXISTS `dxd_cap_report_colon_rectum_resections` (
-  `id` int(10) NOT NULL auto_increment,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
--- Specimen
-  `terminal_ileum` tinyint(1) NULL DEFAULT 0,
-  `cecum` tinyint(1) NULL DEFAULT 0,
-  `appendix` tinyint(1) NULL DEFAULT 0,
-  `ascending_colon` tinyint(1) NULL DEFAULT 0,
-  `transverse_colon` tinyint(1) NULL DEFAULT 0,
-  `descending_colon` tinyint(1) NULL DEFAULT 0,
-  `sigmoid_colon` tinyint(1) NULL DEFAULT 0,
-  `rectum` tinyint(1) NULL DEFAULT 0,  
-  `anus` varchar(50) DEFAULT NULL,
-  `specimen_other` tinyint(1) NULL DEFAULT 0,
-  `specimen_other_specify` varchar(250) DEFAULT NULL,
-  `specimen_not_specified` tinyint(1) NULL DEFAULT 0,
-
--- Procedure  
-  `procedure` varchar(100) DEFAULT NULL,
-  `procedure_specify` varchar(250) DEFAULT NULL,
-  
-  `specimen_length_specify` smallint(1) DEFAULT NULL,
-
--- Tumor site  
-  `tumor_site_cecum` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_ascending_colon` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_hepatic_flexure` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_transverse_colon` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_splenic_flexure` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_descending_colon` varchar(250) DEFAULT NULL,
-  `tumor_site_sigmoid_colon` varchar(250) DEFAULT NULL,
-  `tumor_site_rectosigmoid` varchar(250) DEFAULT NULL,
-  `tumor_site_rectum` varchar(250) DEFAULT NULL,
-  `tumor_site_colon_not_otherwise_specified` tinyint(1) NULL DEFAULT 0,    
-  `tumor_site_cannot_be_determined` tinyint(1) NULL DEFAULT 0,
-
--- Tumor size
--- See Master  
-
-  `macroscopic_tumor_perforation` varchar(100) DEFAULT NULL,
-  `macroscopic_intactness_of_mesorectum` varchar(100) DEFAULT NULL,
-  
--- Histologic Type 
-  `histologic_type` varchar(100) DEFAULT NULL,
-  `histologic_type_specify` varchar(250) DEFAULT NULL,
-
--- histologic grade
--- see master tumor_grade and tumor_grade_specify
-
--- heading histologic features suggestive of microsatellite instability
-  `intratumoral_lymphocytic_response` varchar(100) DEFAULT NULL,
-  `peritumor_lymphocytic_response` varchar(100) DEFAULT NULL,
-
--- Tumor Subtype and Differentiation
-  `mucinous_tumor_component` tinyint(1) NULL DEFAULT 0,
-  `specify_percentage` smallint(1) NULL DEFAULT 0, 
-  `medullary_tumor_component` tinyint(1) NULL DEFAULT 0,
-  `high_histologic_grade` tinyint(1) NULL DEFAULT 0,
-  
--- Microscopic Tumor Extension  
-  `microscopic_tumor_extension_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,  
-  `no_evidence_of_primary_tumor` tinyint(1) NULL DEFAULT 0,
-  `intramucosal_carcinoma_invasion_of_lamina_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_submucosa` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_muscularis_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_through_the_muscularis_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_crnetrates_to_the_surface_of_visceral_peritoneum` tinyint(1) NULL DEFAULT 0,
-  `tumor_is_adherent_to_other_organs_or_structures` tinyint(1) NULL DEFAULT 0,
-  `tumor_is_adherent_to_other_organs_or_structures_specify` varchar(250) DEFAULT NULL,
-  `tumor_directly_invades_adjacent_structures` tinyint(1) NULL DEFAULT 0,
-  `tumor_directly_invades_adjacent_structures_specify` varchar(250) DEFAULT NULL,
-  `tumor_crnetrates_to_the_surface_of_the_visceral_peritoneum` tinyint(1) NULL DEFAULT 0,
-  `tumor_crnetrates_to_the_surface_specify` varchar(250) DEFAULT NULL,
-
--- Margins (select all that apply) 
--- Proximal Margin
-  `pm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `pm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `pm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `pm_intramucosal_carcinoma_adenoma_not_identified_at_proximal` tinyint(1) NULL DEFAULT 0,
-  `pm_intramucosal_carcinoma_adenoma_present_at_proximal_margin` tinyint(1) NULL DEFAULT 0,
-
--- Distal Margin
-  `dm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `dm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `dm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `dm_intramucosal_carcinoma_adenoma_not_identified_at_proximal` tinyint(1) NULL DEFAULT 0,
-  `dm_intramucosal_carcinoma_adenoma_present_at_proximal_margin` tinyint(1) NULL DEFAULT 0,
-  
--- Circumferential (Radial) or Mesenteric Margin
-  `cm_not_applicable` tinyint(1) NULL DEFAULT 0,
-  `cm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `cm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `cm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
- 
-  `distance_of_invasive_carcinoma_from_closest_margin` smallint (1) DEFAULT NULL,
-  `distance_unit` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin` varchar(250) DEFAULT NULL,
-  
--- Lateral Margin
-  `lm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `lm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `distance_of_invasive_carcinoma_from_closest_lateral_margin` decimal (3,1) DEFAULT NULL,
-  `specify_location` varchar(250) DEFAULT NULL,
-  `lm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `specify_location_if_possible` varchar(250) DEFAULT NULL,  
-  `lm_uninvolved_by_adenoma` tinyint(1) NULL DEFAULT 0,
-  `lm_involved_by_adenoma` tinyint(1) NULL DEFAULT 0,
-  
--- Treatment Effect
-  `no_prior_treatment` tinyint(1) NULL DEFAULT 0,
-  `present` tinyint(1) NULL DEFAULT 0,
-  `no_residual_tumor_grade0` tinyint(1) NULL DEFAULT 0,
-  `moderate_response_grade1` tinyint(1) NULL DEFAULT 0,
-  `minimal_response_grade2` tinyint(1) NULL DEFAULT 0,
-  `no_definite_response_identified_grade3` tinyint(1) NULL DEFAULT 0,
-  `not_known` tinyint(1) NULL DEFAULT 0,
-  
-  `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
-  `perineural_invasion` varchar(50) DEFAULT NULL,
-
-  `tumor_deposits` varchar(50) DEFAULT NULL,
-  
-  `type_of_polyp_in_which_invasive_carcinoma_arose` varchar(100) DEFAULT NULL,
-  
--- pTNM 
--- See Master
-
--- Additional Pathologic Findings
-  `additional_path_none_identified` tinyint(1) NULL DEFAULT 0,    
-  `adenoma` tinyint(1) NULL DEFAULT 0, 
-  `chronic_ulcerative_proctocolitis` tinyint(1) NULL DEFAULT 0, 
-  `crohn_disease` tinyint(1) NULL DEFAULT 0, 
-  `dysplasia_arising_in_inflammatory_bowel_disease` tinyint(1) NULL DEFAULT 0, 
-  `other_polyps` tinyint(1) NULL DEFAULT 0,   
-  `other_polyps_type` varchar(250) DEFAULT NULL,
-  `other` tinyint(1) NULL DEFAULT 0,   
-  `other_specify` varchar(250) DEFAULT NULL,
-
--- Ancillary Studies
-  `microsatellite_instability` tinyint(1) NULL DEFAULT 0, 
-  `specify_testing_method` varchar(250) DEFAULT NULL,
-  `stable` tinyint(1) NULL DEFAULT 0, 
-  `low` tinyint(1) NULL DEFAULT 0, 
-  `high` tinyint(1) NULL DEFAULT 0, 
--- Immunohistochemistry Studies for Mismatch Repair Proteins
-  `mlh1` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_pending` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_other` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_other_specify` varchar(250) DEFAULT NULL,
-  
-  `msh2` tinyint(1) NULL DEFAULT 0, 
-  `msh2_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh2_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh2_pending` tinyint(1) NULL DEFAULT 0, 
-  `msh2_other` tinyint(1) NULL DEFAULT 0, 
-  `msh2_other_specify` varchar(250) DEFAULT NULL,  
-
-  `msh6` tinyint(1) NULL DEFAULT 0, 
-  `msh6_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh6_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh6_pending` tinyint(1) NULL DEFAULT 0, 
-  `msh6_other` tinyint(1) NULL DEFAULT 0, 
-  `msh6_other_specify` varchar(250) DEFAULT NULL,  
-
-  `pms2` tinyint(1) NULL DEFAULT 0, 
-  `pms2_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `pms2_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `pms2_pending` tinyint(1) NULL DEFAULT 0, 
-  `pms2_other` tinyint(1) NULL DEFAULT 0, 
-  `pms2_other_specify` varchar(250) DEFAULT NULL,  
-  
--- Mutational Analysis
-  `BRAF_V600E_mutational_analysis` tinyint(1) NULL DEFAULT 0, 
-  `braf_specify_testing_method` varchar(250) DEFAULT NULL,
-  `mutant_BRAF_detected` tinyint(1) NULL DEFAULT 0, 
-  `no_mutant_BRAF_detected` tinyint(1) NULL DEFAULT 0, 
-  `BRAF_other` tinyint(1) NULL DEFAULT 0, 
-  `BRAF_other_specify` varchar(250) DEFAULT NULL, 
- 
-  `KRAS_mutational_analysis` tinyint(1) NULL DEFAULT 0, 
-  `kras_specify_testing_method` varchar(250) DEFAULT NULL,
-  `mutant_KRAS_detected` tinyint(1) NULL DEFAULT 0, 
-  `specify_mutation` varchar(250) DEFAULT NULL,
-  `no_mutant_KRAS_detected` tinyint(1) NULL DEFAULT 0, 
-  `KRAS_other` tinyint(1) NULL DEFAULT 0, 
-  `KRAS_other_specify` varchar(250) DEFAULT NULL, 
-  
-  `mutational_analysis_other` tinyint(1) NULL DEFAULT 0, 
-  `mutational_analysis_other_specify` varchar(250) DEFAULT NULL,   
-  `mutational_analysis_not_performed` tinyint(1) NULL DEFAULT 0,   
- 
-  `comments` varchar(250) DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  `deleted` int(11) NOT NULL DEFAULT 0,
-  `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `diagnosis_master_id` (`diagnosis_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
-ALTER TABLE `dxd_cap_report_colon_rectum_resections` ADD CONSTRAINT `FK_dxd_cap_report_colon_rectum_resections_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
-
-/*Table structure for table 'dxd_cap_report_colon_rectum_resections_revs' */
-
-DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_resections_revs`;
-
-CREATE TABLE `dxd_cap_report_colon_rectum_resections_revs` (
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `id` int(11) NOT NULL,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
--- Specimen
-  `terminal_ileum` tinyint(1) NULL DEFAULT 0,
-  `cecum` tinyint(1) NULL DEFAULT 0,
-  `appendix` tinyint(1) NULL DEFAULT 0,
-  `ascending_colon` tinyint(1) NULL DEFAULT 0,
-  `transverse_colon` tinyint(1) NULL DEFAULT 0,
-  `descending_colon` tinyint(1) NULL DEFAULT 0,
-  `sigmoid_colon` tinyint(1) NULL DEFAULT 0,
-  `rectum` tinyint(1) NULL DEFAULT 0,  
-  `anus` varchar(50) DEFAULT NULL,
-  `specimen_other` tinyint(1) NULL DEFAULT 0,
-  `specimen_other_specify` varchar(250) DEFAULT NULL,
-  `specimen_not_specified` tinyint(1) NULL DEFAULT 0,
-
--- Procedure  
-  `procedure` varchar(100) DEFAULT NULL,
-  `procedure_specify` varchar(250) DEFAULT NULL,
-  
-  `specimen_length_specify` smallint(1) DEFAULT NULL,
-
--- Tumor site  
-  `tumor_site_cecum` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_ascending_colon` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_hepatic_flexure` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_transverse_colon` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_splenic_flexure` tinyint(1) NULL DEFAULT 0,
-  `tumor_site_descending_colon` varchar(250) DEFAULT NULL,
-  `tumor_site_sigmoid_colon` varchar(250) DEFAULT NULL,
-  `tumor_site_rectosigmoid` varchar(250) DEFAULT NULL,
-  `tumor_site_rectum` varchar(250) DEFAULT NULL,
-  `tumor_site_colon_not_otherwise_specified` tinyint(1) NULL DEFAULT 0,    
-  `tumor_site_cannot_be_determined` tinyint(1) NULL DEFAULT 0,
-
--- Tumor size
--- See Master  
-
-  `macroscopic_tumor_perforation` varchar(100) DEFAULT NULL,
-  `macroscopic_intactness_of_mesorectum` varchar(100) DEFAULT NULL,
-  
--- Histologic Type 
-  `histologic_type` varchar(100) DEFAULT NULL,
-  `histologic_type_specify` varchar(250) DEFAULT NULL,
-
--- histologic grade
--- see master tumor_grade and tumor_grade_specify
-
--- heading histologic features suggestive of microsatellite instability
-  `intratumoral_lymphocytic_response` varchar(100) DEFAULT NULL,
-  `peritumor_lymphocytic_response` varchar(100) DEFAULT NULL,
-
--- Tumor Subtype and Differentiation
-  `mucinous_tumor_component` tinyint(1) NULL DEFAULT 0,
-  `specify_percentage` smallint(1) NULL DEFAULT 0, 
-  `medullary_tumor_component` tinyint(1) NULL DEFAULT 0,
-  `high_histologic_grade` tinyint(1) NULL DEFAULT 0,
-  
--- Microscopic Tumor Extension  
-  `microscopic_tumor_extension_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,  
-  `no_evidence_of_primary_tumor` tinyint(1) NULL DEFAULT 0,
-  `intramucosal_carcinoma_invasion_of_lamina_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_submucosa` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_muscularis_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_invades_through_the_muscularis_propria` tinyint(1) NULL DEFAULT 0,
-  `tumor_crnetrates_to_the_surface_of_visceral_peritoneum` tinyint(1) NULL DEFAULT 0,
-  `tumor_is_adherent_to_other_organs_or_structures` tinyint(1) NULL DEFAULT 0,
-  `tumor_is_adherent_to_other_organs_or_structures_specify` varchar(250) DEFAULT NULL,
-  `tumor_directly_invades_adjacent_structures` tinyint(1) NULL DEFAULT 0,
-  `tumor_directly_invades_adjacent_structures_specify` varchar(250) DEFAULT NULL,
-  `tumor_crnetrates_to_the_surface_of_the_visceral_peritoneum` tinyint(1) NULL DEFAULT 0,
-  `tumor_crnetrates_to_the_surface_specify` varchar(250) DEFAULT NULL,
-
--- Margins (select all that apply) 
--- Proximal Margin
-  `pm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `pm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `pm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `pm_intramucosal_carcinoma_adenoma_not_identified_at_proximal` tinyint(1) NULL DEFAULT 0,
-  `pm_intramucosal_carcinoma_adenoma_present_at_proximal_margin` tinyint(1) NULL DEFAULT 0,
-
--- Distal Margin
-  `dm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `dm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `dm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `dm_intramucosal_carcinoma_adenoma_not_identified_at_proximal` tinyint(1) NULL DEFAULT 0,
-  `dm_intramucosal_carcinoma_adenoma_present_at_proximal_margin` tinyint(1) NULL DEFAULT 0,
-  
--- Circumferential (Radial) or Mesenteric Margin
-  `cm_not_applicable` tinyint(1) NULL DEFAULT 0,
-  `cm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `cm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `cm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
- 
-  `distance_of_invasive_carcinoma_from_closest_margin` smallint (1) DEFAULT NULL,
-  `distance_unit` char(2) DEFAULT NULL, -- cm or mm
-  `specify_margin` varchar(250) DEFAULT NULL,
-  
--- Lateral Margin
-  `lm_cannot_be_assessed` tinyint(1) NULL DEFAULT 0,
-  `lm_uninvolved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `distance_of_invasive_carcinoma_from_closest_lateral_margin` decimal (3,1) DEFAULT NULL,
-  `specify_location` varchar(250) DEFAULT NULL,
-  `lm_involved_by_invasive_carcinoma` tinyint(1) NULL DEFAULT 0,
-  `specify_location_if_possible` varchar(250) DEFAULT NULL,  
-  `lm_uninvolved_by_adenoma` tinyint(1) NULL DEFAULT 0,
-  `lm_involved_by_adenoma` tinyint(1) NULL DEFAULT 0,
-  
--- Treatment Effect
-  `no_prior_treatment` tinyint(1) NULL DEFAULT 0,
-  `present` tinyint(1) NULL DEFAULT 0,
-  `no_residual_tumor_grade0` tinyint(1) NULL DEFAULT 0,
-  `moderate_response_grade1` tinyint(1) NULL DEFAULT 0,
-  `minimal_response_grade2` tinyint(1) NULL DEFAULT 0,
-  `no_definite_response_identified_grade3` tinyint(1) NULL DEFAULT 0,
-  `not_known` tinyint(1) NULL DEFAULT 0,
-  
-  `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
-  `perineural_invasion` varchar(50) DEFAULT NULL,
-
-  `tumor_deposits` varchar(50) DEFAULT NULL,
-  
-  `type_of_polyp_in_which_invasive_carcinoma_arose` varchar(100) DEFAULT NULL,
-  
--- pTNM 
--- See Master
-
--- Additional Pathologic Findings
-  `additional_path_none_identified` tinyint(1) NULL DEFAULT 0,    
-  `adenoma` tinyint(1) NULL DEFAULT 0, 
-  `chronic_ulcerative_proctocolitis` tinyint(1) NULL DEFAULT 0, 
-  `crohn_disease` tinyint(1) NULL DEFAULT 0, 
-  `dysplasia_arising_in_inflammatory_bowel_disease` tinyint(1) NULL DEFAULT 0, 
-  `other_polyps` tinyint(1) NULL DEFAULT 0,   
-  `other_polyps_type` varchar(250) DEFAULT NULL,
-  `other` tinyint(1) NULL DEFAULT 0,   
-  `other_specify` varchar(250) DEFAULT NULL,
-
--- Ancillary Studies
-  `microsatellite_instability` tinyint(1) NULL DEFAULT 0, 
-  `specify_testing_method` varchar(250) DEFAULT NULL,
-  `stable` tinyint(1) NULL DEFAULT 0, 
-  `low` tinyint(1) NULL DEFAULT 0, 
-  `high` tinyint(1) NULL DEFAULT 0, 
--- Immunohistochemistry Studies for Mismatch Repair Proteins
-  `mlh1` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_pending` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_other` tinyint(1) NULL DEFAULT 0, 
-  `mlh1_other_specify` varchar(250) DEFAULT NULL,
-  
-  `msh2` tinyint(1) NULL DEFAULT 0, 
-  `msh2_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh2_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh2_pending` tinyint(1) NULL DEFAULT 0, 
-  `msh2_other` tinyint(1) NULL DEFAULT 0, 
-  `msh2_other_specify` varchar(250) DEFAULT NULL,  
-
-  `msh6` tinyint(1) NULL DEFAULT 0, 
-  `msh6_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh6_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `msh6_pending` tinyint(1) NULL DEFAULT 0, 
-  `msh6_other` tinyint(1) NULL DEFAULT 0, 
-  `msh6_other_specify` varchar(250) DEFAULT NULL,  
-
-  `pms2` tinyint(1) NULL DEFAULT 0, 
-  `pms2_intact_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `pms2_loss_of_nuclear_positivity_tumor_cells` tinyint(1) NULL DEFAULT 0, 
-  `pms2_pending` tinyint(1) NULL DEFAULT 0, 
-  `pms2_other` tinyint(1) NULL DEFAULT 0, 
-  `pms2_other_specify` varchar(250) DEFAULT NULL,  
-  
--- Mutational Analysis
-  `BRAF_V600E_mutational_analysis` tinyint(1) NULL DEFAULT 0, 
-  `braf_specify_testing_method` varchar(250) DEFAULT NULL,
-  `mutant_BRAF_detected` tinyint(1) NULL DEFAULT 0, 
-  `no_mutant_BRAF_detected` tinyint(1) NULL DEFAULT 0, 
-  `BRAF_other` tinyint(1) NULL DEFAULT 0, 
-  `BRAF_other_specify` varchar(250) DEFAULT NULL, 
- 
-  `KRAS_mutational_analysis` tinyint(1) NULL DEFAULT 0, 
-  `kras_specify_testing_method` varchar(250) DEFAULT NULL,
-  `mutant_KRAS_detected` tinyint(1) NULL DEFAULT 0, 
-  `specify_mutation` varchar(250) DEFAULT NULL,
-  `no_mutant_KRAS_detected` tinyint(1) NULL DEFAULT 0, 
-  `KRAS_other` tinyint(1) NULL DEFAULT 0, 
-  `KRAS_other_specify` varchar(250) DEFAULT NULL, 
-  
-  `mutational_analysis_other` tinyint(1) NULL DEFAULT 0, 
-  `mutational_analysis_other_specify` varchar(250) DEFAULT NULL,   
-  `mutational_analysis_not_performed` tinyint(1) NULL DEFAULT 0,   
- 
-  `comments` varchar(250) DEFAULT NULL,
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(10) unsigned NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified_by` int(10) unsigned NOT NULL,
-  `deleted` int(11) NOT NULL DEFAULT 0,
-  `deleted_date` datetime DEFAULT NULL,
-  PRIMARY KEY (`version_id`),
-  KEY `diagnosis_master_id` (`diagnosis_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
--- insert value in diagnosis_controls
-insert into diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename)
-values
-('Cap Report - Colon/Rectum Resections', 1, 'dx_cap_report_colon_rectum_resections', 'dxd_cap_report_colon_rectum_resections');
-
--- The table structures hold all forms in the application, Add the dxd_cap_report_smintestines in table structures. It doesn't hold the form itself but the form alias.
-
-INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
-VALUES ('dx_cap_report_colon_rectum_resections', '', '', '0', '0', '1', '1');
-
-
--- form builder
-INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'terminal_ileum', 'terminal ileum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cecum', 'cecum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'appendix', 'appendix', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'ascending_colon', 'ascending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'transverse_colon', 'transverse colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'descending_colon', 'descending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'sigmoid_colon', 'sigmoid colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'rectum', 'rectum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'anus', 'anus', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_not_specified', 'specimen not specified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'procedure', 'procedure', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'procedure_specify', 'procedure specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_cecum', 'cecum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_length_specify', 'specimen length specify (cm)', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_ascending_colon', 'ascending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_hepatic_flexure', 'hepatic flexure', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_transverse_colon', 'transverse colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_splenic_flexure', 'splenic flexure', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_descending_colon', 'descending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_sigmoid_colon', 'sigmoid colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_rectosigmoid', 'rectosigmoid', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_rectum', 'rectum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_colon_not_otherwise_specified', 'colon, not otherwise specified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_cannot_be_determined', 'cannot be determined', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'macroscopic_tumor_perforation', 'macroscopic tumor perforation', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'macroscopic_intactness_of_mesorectum', 'macroscopic intactness of mesorectum', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'histologic_type', 'histologic type', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'histologic_type_specify', 'histologic type specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'intratumoral_lymphocytic_response', 'intratumoral lymphocytic response', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'peritumor_lymphocytic_response', 'peritumor lymphocytic response', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mucinous_tumor_component', 'mucinous tumor component', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_percentage', '', 'specify percentage', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'medullary_tumor_component', 'medullary tumor component', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'high_histologic_grade', 'high histologic grade', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microscopic_tumor_extension_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_evidence_of_primary_tumor', 'no evidence of primary tumor', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'intramucosal_carcinoma_invasion_of_lamina_propria', 'intramucosal carcinoma invasion of lamina propria', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_invades_submucosa', 'tumor invades submucosa', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_invades_muscularis_propria', 'tumor invades muscularis propria', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_invades_through_the_muscularis_propria', 'tumor invades through the muscularis propria', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_crnetrates_to_the_surface_of_visceral_peritoneum', 'tumor penetrates to the surface of visceral peritoneum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_is_adherent_to_other_organs_or_structures', 'tumor is adherent to other organs or structures', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_is_adherent_to_other_organs_or_structures_specify', '', 'specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_directly_invades_adjacent_structures', 'tumor directly invades adjacent structures', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_directly_invades_adjacent_structures_specify', '', 'specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_crnetrates_to_the_surface_of_the_visceral_peritoneum', 'tumor penetrates to the surface of the visceral peritoneum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_crnetrates_to_the_surface_specify', '', 'specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pm_intramucosal_carcinoma_adenoma_not_identified_at_proximal', 'intramucosal carcinoma adenoma not identified at proximal', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pm_intramucosal_carcinoma_adenoma_present_at_proximal_margin', 'intramucosal carcinoma adenoma present at proximal margin', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dm_intramucosal_carcinoma_adenoma_not_identified_at_proximal', 'intramucosal carcinoma adenoma not identified at proximal', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dm_intramucosal_carcinoma_adenoma_present_at_proximal_margin', 'intramucosal carcinoma adenoma present at proximal margin', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cm_not_applicable', 'not applicable', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_of_invasive_carcinoma_from_closest_margin', 'distance of invasive carcinoma from closest margin', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_unit', 'distance unit', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_margin', 'specify margin:', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lm_cannot_be_assessed', 'cannot be assessed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lm_uninvolved_by_invasive_carcinoma', 'uninvolved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_of_invasive_carcinoma_from_closest_lateral_margin', 'distance of invasive carcinoma from closest lateral margin', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lm_involved_by_invasive_carcinoma', 'involved by invasive carcinoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_location_if_possible', 'specify location if possible', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_location', 'specify location if possible', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lm_uninvolved_by_adenoma', 'uninvolved by adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lm_involved_by_adenoma', 'involved by adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_prior_treatment', 'no prior treatment', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'present', 'present', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_residual_tumor_grade0', 'no residual tumor grade0', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'moderate_response_grade1', 'moderate response grade1', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'minimal_response_grade2', 'minimal response grade2', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_definite_response_identified_grade3', 'no definite response identified grade3', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'not_known', 'not known', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lymph_vascular_invasion', 'lymph vascular invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'perineural_invasion', 'perineural invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_deposits', 'tumor deposits', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'type_of_polyp_in_which_invasive_carcinoma_arose', 'type of polyp in which invasive carcinoma arose', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'additional_path_none_identified', 'none identified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'adenoma', 'adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'chronic_ulcerative_proctocolitis', 'chronic ulcerative proctocolitis', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'crohn_disease', 'crohn disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dysplasia_arising_in_inflammatory_bowel_disease', 'dysplasia arising in inflammatory bowel disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_polyps', 'other polyps', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_polyps_type', '', 'other polyps type', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microsatellite_instability', 'microsatellite instability', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_testing_method', '', 'specify testing method', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'stable', 'stable', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'low', 'low', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'high', 'high', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1', 'mlh1', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1_intact_nuclear_positivity_tumor_cells', 'intact nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1_loss_of_nuclear_positivity_tumor_cells', 'loss of nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1_pending', 'pending', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mlh1_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2', 'msh2', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2_intact_nuclear_positivity_tumor_cells', 'intact nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2_loss_of_nuclear_positivity_tumor_cells', 'loss of nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2_pending', 'pending', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh2_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6', 'msh6', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6_intact_nuclear_positivity_tumor_cells', 'intact nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6_loss_of_nuclear_positivity_tumor_cells', 'loss of nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6_pending', 'pending', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'msh6_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2', 'pms2', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2_intact_nuclear_positivity_tumor_cells', 'intact nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2_loss_of_nuclear_positivity_tumor_cells', 'loss of nuclear positivity tumor cells', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2_pending', 'pending', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'pms2_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF_V600E_mutational_analysis', 'BRAF V600E mutational analysis', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'braf_specify_testing_method', '', 'specify testing method', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mutant_BRAF_detected', 'mutant BRAF detected', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_mutant_BRAF_detected', 'no mutant BRAF detected', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF_other', 'BRAF other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF_other_specify', '', 'BRAF other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS_mutational_analysis', 'KRAS mutational analysis', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'kras_specify_testing_method', '', 'specify testing method', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mutant_KRAS_detected', 'mutant KRAS detected', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_mutation', 'specify mutation', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'),
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'no_mutant_KRAS_detected', 'no mutant KRAS detected', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS_other', 'KRAS other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS_other_specify', '', 'KRAS other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mutational_analysis_other', 'mutational analysis other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mutational_analysis_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mutational_analysis_not_performed', 'mutational analysis not performed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'tumour_grade', 'histologic grade', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_tstage', 'path tstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_nstage', 'path nstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_mstage', 'path mstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open');
-
-
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='terminal_ileum' AND `language_label`='terminal ileum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cecum' AND `language_label`='cecum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='appendix' AND `language_label`='appendix' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='ascending_colon' AND `language_label`='ascending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='transverse_colon' AND `language_label`='transverse colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='descending_colon' AND `language_label`='descending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='sigmoid_colon' AND `language_label`='sigmoid colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='rectum' AND `language_label`='rectum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='anus' AND `language_label`='anus' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_not_specified' AND `language_label`='specimen not specified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='procedure' AND `language_label`='procedure' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='procedure_specify' AND `language_label`='procedure specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_cecum' AND `language_label`='cecum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_length_specify' AND `language_label`='specimen length specify (cm)' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_ascending_colon' AND `language_label`='ascending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_hepatic_flexure' AND `language_label`='hepatic flexure' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_transverse_colon' AND `language_label`='transverse colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_splenic_flexure' AND `language_label`='splenic flexure' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_descending_colon' AND `language_label`='descending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_sigmoid_colon' AND `language_label`='sigmoid colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_rectosigmoid' AND `language_label`='rectosigmoid' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_rectum' AND `language_label`='rectum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_colon_not_otherwise_specified' AND `language_label`='colon, not otherwise specified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_cannot_be_determined' AND `language_label`='cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_greatest_dimension' AND `structure_value_domain`  IS NULL  ), '1', '28', '', '1', 'greatest dimension', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_a' AND `language_label`='additional dimension' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_b' AND `language_label`='' AND `language_tag`='x' AND `structure_value_domain`  IS NULL  ), '1', '30', '', '0', '', '1', 'x', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='cannot_be_determined' ), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='macroscopic_tumor_perforation' AND `language_label`='macroscopic tumor perforation' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='macroscopic_intactness_of_mesorectum' AND `language_label`='macroscopic intactness of mesorectum' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='histologic_type' AND `language_label`='histologic type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='histologic_type_specify' AND `language_label`='histologic type specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade_specify' AND `language_label`='histologic grade specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='intratumoral_lymphocytic_response' AND `language_label`='intratumoral lymphocytic response' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='peritumor_lymphocytic_response' AND `language_label`='peritumor lymphocytic response' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mucinous_tumor_component' AND `language_label`='mucinous tumor component' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_percentage' AND `language_label`='' AND `language_tag`='specify percentage' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='medullary_tumor_component' AND `language_label`='medullary tumor component' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='high_histologic_grade' AND `language_label`='high histologic grade' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microscopic_tumor_extension_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_evidence_of_primary_tumor' AND `language_label`='no evidence of primary tumor' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='intramucosal_carcinoma_invasion_of_lamina_propria' AND `language_label`='intramucosal carcinoma invasion of lamina propria' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_invades_submucosa' AND `language_label`='tumor invades submucosa' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_invades_muscularis_propria' AND `language_label`='tumor invades muscularis propria' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_invades_through_the_muscularis_propria' AND `language_label`='tumor invades through the muscularis propria' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_crnetrates_to_the_surface_of_visceral_peritoneum' AND `language_label`='tumor penetrates to the surface of visceral peritoneum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_is_adherent_to_other_organs_or_structures' AND `language_label`='tumor is adherent to other organs or structures' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_is_adherent_to_other_organs_or_structures_specify' AND `language_label`='' AND `language_tag`='specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_directly_invades_adjacent_structures' AND `language_label`='tumor directly invades adjacent structures' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_directly_invades_adjacent_structures_specify' AND `language_label`='' AND `language_tag`='specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_crnetrates_to_the_surface_of_the_visceral_peritoneum' AND `language_label`='tumor penetrates to the surface of the visceral peritoneum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_crnetrates_to_the_surface_specify' AND `language_label`='' AND `language_tag`='specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pm_intramucosal_carcinoma_adenoma_not_identified_at_proximal' AND `language_label`='intramucosal carcinoma adenoma not identified at proximal' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pm_intramucosal_carcinoma_adenoma_present_at_proximal_margin' AND `language_label`='intramucosal carcinoma adenoma present at proximal margin' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '62', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '63', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '64', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dm_intramucosal_carcinoma_adenoma_not_identified_at_proximal' AND `language_label`='intramucosal carcinoma adenoma not identified at proximal' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '65', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dm_intramucosal_carcinoma_adenoma_present_at_proximal_margin' AND `language_label`='intramucosal carcinoma adenoma present at proximal margin' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '66', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cm_not_applicable' AND `language_label`='not applicable' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '67', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '68', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '69', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_margin' AND `language_label`='distance of invasive carcinoma from closest margin' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_unit' AND `language_label`='distance unit' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_margin' AND `language_label`='specify margin:' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lm_cannot_be_assessed' AND `language_label`='cannot be assessed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lm_uninvolved_by_invasive_carcinoma' AND `language_label`='uninvolved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_lateral_margin' AND `language_label`='distance of invasive carcinoma from closest lateral margin' AND `language_tag`='' AND `type`='float' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '76', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lm_involved_by_invasive_carcinoma' AND `language_label`='involved by invasive carcinoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '78', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_location_if_possible' AND `language_label`='specify location if possible' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '79', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_location' AND `language_label`='specify location if possible' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '77', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lm_uninvolved_by_adenoma' AND `language_label`='uninvolved by adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lm_involved_by_adenoma' AND `language_label`='involved by adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_prior_treatment' AND `language_label`='no prior treatment' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '78', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='present' AND `language_label`='present' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '79', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_residual_tumor_grade0' AND `language_label`='no residual tumor grade0' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='moderate_response_grade1' AND `language_label`='moderate response grade1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='minimal_response_grade2' AND `language_label`='minimal response grade2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_definite_response_identified_grade3' AND `language_label`='no definite response identified grade3' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='not_known' AND `language_label`='not known' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lymph_vascular_invasion' AND `language_label`='lymph vascular invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='perineural_invasion' AND `language_label`='perineural invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '86', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_deposits' AND `language_label`='tumor deposits' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '87', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='type_of_polyp_in_which_invasive_carcinoma_arose' AND `language_label`='type of polyp in which invasive carcinoma arose' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '88', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_m' ), '2', '89', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_r' ), '2', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_y' ), '2', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_examined' AND `language_label`='number node examined' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '94', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_involved' AND `language_label`='number node involved' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '95', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage_metastasis_site_specify' AND `language_label`='metastasis site specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '97', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='additional_path_none_identified' AND `language_label`='none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '98', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='adenoma' AND `language_label`='adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='chronic_ulcerative_proctocolitis' AND `language_label`='chronic ulcerative proctocolitis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='crohn_disease' AND `language_label`='crohn disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dysplasia_arising_in_inflammatory_bowel_disease' AND `language_label`='dysplasia arising in inflammatory bowel disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_polyps' AND `language_label`='other polyps' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_polyps_type' AND `language_label`='' AND `language_tag`='other polyps type' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '105', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '106', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microsatellite_instability' AND `language_label`='microsatellite instability' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '107', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_testing_method' AND `language_label`='' AND `language_tag`='specify testing method' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '108', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='stable' AND `language_label`='stable' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '109', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='low' AND `language_label`='low' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='high' AND `language_label`='high' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1' AND `language_label`='mlh1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '112', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1_intact_nuclear_positivity_tumor_cells' AND `language_label`='intact nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '113', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1_loss_of_nuclear_positivity_tumor_cells' AND `language_label`='loss of nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '114', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1_pending' AND `language_label`='pending' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '116', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mlh1_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '117', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2' AND `language_label`='msh2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '118', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2_intact_nuclear_positivity_tumor_cells' AND `language_label`='intact nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '119', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2_loss_of_nuclear_positivity_tumor_cells' AND `language_label`='loss of nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2_pending' AND `language_label`='pending' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '121', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '122', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh2_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '123', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6' AND `language_label`='msh6' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '124', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6_intact_nuclear_positivity_tumor_cells' AND `language_label`='intact nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6_loss_of_nuclear_positivity_tumor_cells' AND `language_label`='loss of nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '126', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6_pending' AND `language_label`='pending' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '127', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '128', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='msh6_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '129', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2' AND `language_label`='pms2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '130', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2_intact_nuclear_positivity_tumor_cells' AND `language_label`='intact nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '131', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2_loss_of_nuclear_positivity_tumor_cells' AND `language_label`='loss of nuclear positivity tumor cells' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '132', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2_pending' AND `language_label`='pending' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '133', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '134', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='pms2_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '135', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF_V600E_mutational_analysis' AND `language_label`='BRAF V600E mutational analysis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '136', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='braf_specify_testing_method' AND `language_label`='' AND `language_tag`='specify testing method' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '137', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mutant_BRAF_detected' AND `language_label`='mutant BRAF detected' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '138', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_mutant_BRAF_detected' AND `language_label`='no mutant BRAF detected' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '139', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF_other' AND `language_label`='BRAF other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '140', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF_other_specify' AND `language_label`='' AND `language_tag`='BRAF other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '141', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS_mutational_analysis' AND `language_label`='KRAS mutational analysis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '142', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='kras_specify_testing_method' AND `language_label`='' AND `language_tag`='specify testing method' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '143', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mutant_KRAS_detected' AND `language_label`='mutant KRAS detected' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '144', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_mutation' AND `language_label`='specify mutation' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '145', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'),
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='no_mutant_KRAS_detected' AND `language_label`='no mutant KRAS detected' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '147', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS_other' AND `language_label`='KRAS other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '148', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS_other_specify' AND `language_label`='' AND `language_tag`='KRAS other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '149', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mutational_analysis_other' AND `language_label`='mutational analysis other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '150', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mutational_analysis_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '151', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mutational_analysis_not_performed' AND `language_label`='mutational analysis not performed' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '152', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '153', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='tumour_grade' AND `language_label`='histologic grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_tstage' AND `language_label`='path tstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '92', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_nstage' AND `language_label`='path nstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '93', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_mstage' AND `language_label`='path mstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '96', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
-
--- update checkbox structure value domain to 185
-update structure_fields
-set structure_value_domain=185
-where type='checkbox'
-and structure_value_domain is null;
-
--- add heading
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='specimen'
-where sfi.id=sfo.structure_field_id
-and sfi.field='terminal_ileum'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='tumor site'
-where sfi.id=sfo.structure_field_id
-and sfi.field='tumor_site_cecum'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='tumor size'
-where sfi.id=sfo.structure_field_id
-and sfi.field='tumor_size_greatest_dimension'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections';
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='tumor subtype and differentiation'
-where sfi.id=sfo.structure_field_id
-and sfi.field='mucinous_tumor_component'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='microscopic tumor extension'
-where sfi.id=sfo.structure_field_id
-and sfi.field='microscopic_tumor_extension_cannot_be_assessed'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='proximal margin'
-where sfi.id=sfo.structure_field_id
-and sfi.field='pm_cannot_be_assessed'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='distal margin'
-where sfi.id=sfo.structure_field_id
-and sfi.field='dm_cannot_be_assessed'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='circumferential (radial) or mesenteric margin'
-where sfi.id=sfo.structure_field_id
-and sfi.field='cm_not_applicable'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='lateral margin'
-where sfi.id=sfo.structure_field_id
-and sfi.field='lm_cannot_be_assessed'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='treatment effect'
-where sfi.id=sfo.structure_field_id
-and sfi.field='no_prior_treatment'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='pathologic staging (pTNM)'
-where sfi.id=sfo.structure_field_id
-and sfi.field='path_tnm_descriptor_m'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='additional pathologic findings'
-where sfi.id=sfo.structure_field_id
-and sfi.field='additional_path_none_identified'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='ancillary studies'
-where sfi.id=sfo.structure_field_id
-and sfi.field='microsatellite_instability'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='immunohistochemistry studies for mismatch repair proteins'
-where sfi.id=sfo.structure_field_id
-and sfi.field='mlh1'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
-update structure_formats sfo inner join structure_fields sfi inner join structures s
-set sfo.language_heading='mutational analysis'
-where sfi.id=sfo.structure_field_id
-and sfi.field='BRAF_V600E_mutational_analysis'
-and sfo.structure_id=s.id
-and s.alias='dx_cap_report_colon_rectum_resections'; 
-
--- index
-UPDATE structures AS str, structure_formats AS stfo, structure_fields AS sf 
-SET stfo.flag_index = '1'
-WHERE str.alias = 'dx_cap_report_colon_rectum_resections'
-AND str.id = stfo.structure_id 
-AND stfo.structure_field_id = sf.id
-AND sf.field IN ('dx_date', 'tumor_site', 'tumour_grade', 'histologic_type');
-
--- dropdown list
-
--- procedure_dxd_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('right hemicolectomy','right hemicolectomy'),
-('transverse colectomy','transverse colectomy'),
-('left hemicolectomy','left hemicolectomy'),
-('sigmoidectomy','sigmoidectomy'),
-('rectal/rectosigmoid colon (low anterior resection)','rectal/rectosigmoid colon (low anterior resection)'),
-('total abdominal colectomy','total abdominal colectomy'),
-('abdominoperineal resection','abdominoperineal resection'),
-('transanal disk excision (local excision)','transanal disk excision (local excision)');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('procedure_dxd_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='right hemicolectomy'), 1,1, 'right hemicolectomy'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='transverse colectomy'), 2,1, 'transverse colectomy'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='left hemicolectomy'), 3,1, 'left hemicolectomy'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='sigmoidectomy'), 4,1, 'sigmoidectomy'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='rectal/rectosigmoid colon (low anterior resection)'), 5,1, 'rectal/rectosigmoid colon (low anterior resection)'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='total abdominal colectomy'), 6,1, 'total abdominal colectomy'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='abdominoperineal resection'), 7,1, 'abdominoperineal resection'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='transanal disk excision (local excision)'), 8,1, 'transanal disk excision (local excision)'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='other'), 9,1, 'other'),
-((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='not specified'), 10,1, 'not specified');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='procedure_dxd_cr')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='procedure';
-
--- macroscopic_tumor_perforation
-insert ignore into structure_permissible_values (value, language_alias) values
-('present','present'),
-('not identified','not identified'),
-('cannot be determined','cannot be determined');
-
--- insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
--- values ('macroscopic_tumor_perforation', 'open', '', null);
-
-insert ignore into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='present'), 1,1, 'present'),
-((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='not identified'), 2,1, 'not identified'),
-((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='cannot be determined'), 3,1, 'cannot be determined');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='macroscopic_tumor_perforation')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='macroscopic_tumor_perforation';
-
--- macroscopic_intactness_of_mesorectum
-insert ignore into structure_permissible_values (value, language_alias) values
-('not applicable','not applicable'),
-('complete','complete'),
-('near complete','near complete'),
-('incomplete','incomplete'),
-('cannot be determined','cannot be determined');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('macroscopic_intactness_of_mesorectum', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='complete'), 2,1, 'complete'),
-((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='near complete'), 3,1, 'near complete'),
-((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='incomplete'), 4,1, 'incomplete'),
-((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='cannot be determined'), 5,1, 'cannot be determined');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='macroscopic_intactness_of_mesorectum';
-
--- histologic_type_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('adenocarcinoma','adenocarcinoma'),
-('mucinous adenocarcinoma','mucinous adenocarcinoma'),
-('signet-ring cell carcinoma','signet-ring cell carcinoma'),
-('small cell carcinoma','small cell carcinoma'),
-('squamous cell carcinoma','squamous cell carcinoma'),
-('adenosquamous carcinoma','adenosquamous carcinoma'),
-('medullary carcinoma','medullary carcinoma'),
-('undifferentiated carcinoma','undifferentiated carcinoma'),
-('carcinoma, type cannot be determined','carcinoma, type cannot be determined');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('histologic_type_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='adenocarcinoma'), 1,1, 'adenocarcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='mucinous adenocarcinoma'), 2,1, 'mucinous adenocarcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='signet-ring cell carcinoma'), 3,1, 'signet-ring cell carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='small cell carcinoma'), 4,1, 'small cell carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='squamous cell carcinoma'), 5,1, 'squamous cell carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='adenosquamous carcinoma'), 6,1, 'adenosquamous carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='medullary carcinoma'), 7,1, 'medullary carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='undifferentiated carcinoma'), 8,1, 'undifferentiated carcinoma'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='other'), 9,1, 'other'),
-((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='carcinoma, type cannot be determined'), 10,1, 'carcinoma, type cannot be determined');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_type_cr')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='histologic_type';
-
--- histologic_grade_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('not applicable','not applicable'),
-('cannot be assessed','cannot be assessed'),
-('low-grade (well-differentiated to moderately differentiated)','low-grade (well-differentiated to moderately differentiated)'),
-('high-grade (poorly differentiated to undifferentiated)','high-grade (poorly differentiated to undifferentiated)');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('histologic_grade_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='cannot be assessed'), 2,1, 'cannot be assessed'),
-((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='low-grade (well-differentiated to moderately differentiated)'), 3,1, 'low-grade (well-differentiated to moderately differentiated)'),
-((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='high-grade (poorly differentiated to undifferentiated)'), 4,1, 'high-grade (poorly differentiated to undifferentiated)'),
-((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='other'), 5,1, 'other');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_grade_cr')
-where tablename='diagnosis_masters_cr' and field='tumour_grade';
-
--- intratumoral_lymphocytic_response
-insert ignore into structure_permissible_values (value, language_alias) values
-('none','none'),
-('mild to moderate (0-2 per high-power [X400] field)','mild to moderate (0-2 per high-power [X400] field)'),
-('marked (3 or more per high-power field)','marked (3 or more per high-power field)');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('intratumoral_lymphocytic_response', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='none'), 1,1, 'none'),
-((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='mild to moderate (0-2 per high-power [X400] field)'), 2,1, 'mild to moderate (0-2 per high-power [X400] field)'),
-((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='marked (3 or more per high-power field)'), 4,1, 'marked (3 or more per high-power field)');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='intratumoral_lymphocytic_response';
-
--- peritumor_lymphocytic_response
-insert ignore into structure_permissible_values (value, language_alias) values
-('none','none'),
-('mild to moderate','mild to moderate'),
-('marked','marked');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('peritumor_lymphocytic_response', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='none'), 1,1, 'none'),
-((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='mild to moderate'), 2,1, 'mild to moderate'),
-((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='marked'), 4,1, 'marked');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='peritumor_lymphocytic_response')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='peritumor_lymphocytic_response';
-
---  lymph_vascular_invasion 
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='lymph_vascular_invasion';
-
--- perineural_invasion  use lymph_vascular_invasion drop down same
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='perineural_invasion';
-
--- tumor_deposits  use lymph_vascular_invasion drop down same
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='tumor_deposits';
-
--- type_of_polyp_in_which_invasive_carcinoma_arose
-insert ignore into structure_permissible_values (value, language_alias) values
-('none identified','none identified'),
-('tubular adenoma','tubular adenoma'),
-('villous adenoma','villous adenoma'),
-('tubulovillous adenoma','tubulovillous adenoma'),
-('traditional serrated adenoma','traditional serrated adenoma'),
-('sessile serrated adenoma','sessile serrated adenoma'),
-('hamartomatous polyp','hamartomatous polyp'),
-('indeterminate','indeterminate');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('type_of_polyp_in_which_invasive_carcinoma_arose', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='none identified'), 1,1, 'none identified'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='tubular adenoma'), 2,1, 'tubular adenoma'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='villous adenoma'), 3,1, 'villous adenoma'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='tubulovillous adenoma'), 4,1, 'tubulovillous adenoma'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='traditional serrated adenoma'), 5,1, 'traditional serrated adenoma'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='sessile serrated adenoma'), 6,1, 'sessile serrated adenoma'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='hamartomatous polyp'), 7,1, 'hamartomatous polyp'),
-((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose'), (select id from structure_permissible_values where value='indeterminate'), 8,1, 'indeterminate');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='type_of_polyp_in_which_invasive_carcinoma_arose';
-
--- path_tstage_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('ptx','ptx: cannot be assessed'),
-('pt0','pt0: no evidence of primary tumor'),
-('ptis','ptis: carcinoma in situ, intraepithelial (no invasion)'),
-('ptis','ptis: carcinoma in situ, invasion of lamina propria'),
-('pt1','pt1: tumor invades submucosa'),
-('pt2','pt2: tumor invades muscularis propria'),
-('pt3','pt3: tumor invades through the muscularis propria into pericolorectal tissues'),
-('pt4a','pt4a: tumor penetrates the visceral peritoneum'),
-('pt4b','pt4b: tumor directly invades or is adherent to other organs or structures');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('path_tstage_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptx' and language_alias='ptx: Cannot be assessed'), 1,1, 'ptx: Cannot be assessed'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt0' and language_alias='pt0: no evidence of primary tumor'), 2,1, 'pt0: no evidence of primary tumor'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptis' and language_alias='ptis: carcinoma in situ, intraepithelial (no invasion)'), 3,1, 'ptis: carcinoma in situ, intraepithelial (no invasion)'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptis' and language_alias='ptis: carcinoma in situ, invasion of lamina propria'), 4,1, 'ptis: carcinoma in situ, invasion of lamina propria'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt1' and language_alias='pt1: tumor invades submucosa'), 5,1, 'pt1: tumor invades submucosa'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt2' and language_alias='pt2: tumor invades muscularis propria'), 6,1, 'pt2: tumor invades muscularis propria'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt3' and language_alias='pt3: tumor invades through the muscularis propria into pericolorectal tissues'), 7,1, 'pt3: tumor invades through the muscularis propria into pericolorectal tissues'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt4a' and language_alias='pt4a: tumor penetrates the visceral peritoneum'), 8,1, 'pt4a: tumor penetrates the visceral peritoneum'),
-((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt4b' and language_alias='pt4b: tumor directly invades or is adherent to other organs or structures'), 9,1, 'pt4b: tumor directly invades or is adherent to other organs or structures');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='path_tstage_cr')
-where tablename='diagnosis_masters_cr' and field='path_tstage';
-
--- path_nstage_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('pnx','pnx: cannot be assessed'),
-('pn0','pn0: no regional lymph node metastasis'),
-('pn1a','pn1a: metastasis in 1 regional lymph node'),
-('pn1b', 'pn1b: metastasis in 2 to 3 regional lymph nodes'),
-('pn1c', 'pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'),
-('pn2a', 'pn2a: metastasis in 4 to 6 regional lymph nodes'),
-('pn2b', 'pn2b: metastasis in 7 or more regional lymph nodes');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('path_nstage_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pnx' and language_alias='pnx: cannot be assessed'), 1,1, 'pnx: cannot be assessed'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn0' and language_alias='pn0: no regional lymph node metastasis'), 2,1, 'pn0: no regional lymph node metastasis'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1a' and language_alias='pn1a: metastasis in 1 regional lymph node'), 3,1, 'pn1a: metastasis in 1 regional lymph node'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1b' and language_alias='pn1b: metastasis in 2 to 3 regional lymph nodes'), 4,1, 'pn1b: metastasis in 2 to 3 regional lymph nodes'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1c' and language_alias='pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'), 5,1, 'pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn2a' and language_alias='pn2a: metastasis in 4 to 6 regional lymph nodes'), 6,1, 'pn2a: metastasis in 4 to 6 regional lymph nodes'),
-((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn2b' and language_alias='pn2b: metastasis in 7 or more regional lymph nodes'), 7,1, 'pn2b: metastasis in 7 or more regional lymph nodes');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='path_nstage_cr')
-where tablename='diagnosis_masters_cr' and field='path_nstage';
-
--- path_mstage_cr
-insert ignore into structure_permissible_values (value, language_alias) values
-('not applicable', 'not applicable'),
-('pm1','pm1: distant metastasis'),
-('pm1a','pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'),
-('pm1b','pm1b: metastasis to more than one organ/site or to the peritoneum');
-
-insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
-values ('path_mstage_cr', 'open', '', null);
-
-insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='not applicable' and language_alias='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1' and language_alias='pm1: distant metastasis'), 2,1, 'pm1: distant metastasis'),
-((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1a' and language_alias='pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'), 3,1, 'pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'),
-((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1b' and language_alias='pm1b: metastasis to more than one organ/site or to the peritoneum'), 4,1, 'pm1b: metastasis to more than one organ/site or to the peritoneum');
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_cr')
-where tablename='diagnosis_masters_cr' and field='path_mstage';
-
-update structure_fields
-set structure_value_domain=(select id from structure_value_domains where domain_name='distance_unit')
-where tablename='dxd_cap_report_colon_rectum_resections' and field='distance_unit';                  
-
+where tablename='dxd_cap_report_colons' and field='type_of_polyp_in_which_invasive_carcinoma_arose';
 
 /*Table structure for table 'dxd_cap_report_ampullas' */
 
@@ -7966,7 +6853,7 @@ INSERT IGNORE INTO i18n (id, en, fr)
 VALUES
 ('hilar and hepatic resection', 'Hilar and hepatic resection', ''),
 ('segmental resection of bile ducts(s)', 'Segmental resection of bile ducts(s)', ''),
-('choledochal cyst resection (Note B)', 'Choledochal cyst resection (Note B)', ''),
+('choledochal cyst resection', 'Choledochal cyst resection', ''),
 ('total hepatectomy', 'Total hepatectomy', ''),
 ('papillary adenocarcinoma', 'Papillary adenocarcinoma', ''),
 ('mucinous adenocarcinoma', 'Mucinous adenocarcinoma', ''),
@@ -7991,7 +6878,6 @@ VALUES
 ('mass-forming', 'Mass-forming', ''),
 ('periductal infiltrating', 'Periductal infiltrating', ''),
 ('mixed mass-forming and periductal infiltrating', 'Mixed mass-forming and periductal infiltrating', ''),
-('insert ignore into structure_permissible_values (value, language_alias) values', 'Insert ignore into structure_permissible_values (value, language_alias) values', ''),
 ('hepatocellular carcinoma', 'Hepatocellular carcinoma', ''),
 ('fibrolamellar hepatocellular carcinoma', 'Fibrolamellar hepatocellular carcinoma', ''),
 ('simple cholecystectomy (laparoscopic or open)', 'Simple cholecystectomy (laparoscopic or open)', ''),
@@ -8030,42 +6916,6 @@ VALUES
 ('other (specify)', 'Other (specify)', ''),
 ('not applicable (histologic type not usually graded)', 'Not applicable (histologic type not usually graded)', ''),
 ('intramucosal carcinoma /adenoma not identified at proximal margin', 'Intramucosal carcinoma /adenoma not identified at proximal margin', ''),
-('right hemicolectomy','Right hemicolectomy'),
-('transverse colectomy','Transverse colectomy'),
-('left hemicolectomy','Left hemicolectomy'),
-('sigmoidectomy','Sigmoidectomy'),
-('rectal/rectosigmoid colon (low anterior resection)','Rectal/rectosigmoid colon (low anterior resection)'),
-('total abdominal colectomy','Total abdominal colectomy'),
-('abdominoperineal resection','Abdominoperineal resection'),
-('transanal disk excision (local excision)','Transanal disk excision (local excision)'),
-('not applicable','Not applicable', ''),
-('complete','Complete', ''),
-('near complete','Near complete', ''),
-('incomplete','Incomplete', ''),
-('cannot be determined','Cannot be determined', ''),
-('adenocarcinoma','Adenocarcinoma', ''),
-('mucinous adenocarcinoma','Mucinous adenocarcinoma', ''),
-('signet-ring cell carcinoma','Signet-ring cell carcinoma', ''),
-('small cell carcinoma','Small cell carcinoma', ''),
-('squamous cell carcinoma','Squamous cell carcinoma', ''),
-('adenosquamous carcinoma','Adenosquamous carcinoma', ''),
-('medullary carcinoma','Medullary carcinoma', ''),
-('undifferentiated carcinoma','Undifferentiated carcinoma', ''),
-('carcinoma, type cannot be determined','Carcinoma, type cannot be determined', ''),
-('low-grade (well-differentiated to moderately differentiated)','Low-grade (well-differentiated to moderately differentiated)', ''),
-('high-grade (poorly differentiated to undifferentiated)','High-grade (poorly differentiated to undifferentiated)', ''),
-('mild to moderate (0-2 per high-power [X400] field)','Mild to moderate (0-2 per high-power [X400] field)', ''),
-('marked (3 or more per high-power field)','Marked (3 or more per high-power field)', ''),
-('mild to moderate','Mild to moderate', ''),
-('marked','Marked', ''),
-('none identified','None identified', ''),
-('tubular adenoma','Tubular adenoma', ''),
-('villous adenoma','Villous adenoma', ''),
-('tubulovillous adenoma','Tubulovillous adenoma', ''),
-('traditional serrated adenoma','Traditional serrated adenoma', ''),
-('sessile serrated adenoma','Sessile serrated adenoma', ''),
-('hamartomatous polyp','Hamartomatous polyp', ''),
-('indeterminate','Indeterminate', ''),
 ('g1: well differentiated', 'G1: Well differentiated', ''),
 ('g2: moderately differentiated', 'G2: Moderately differentiated', ''),
 ('g3: poorly differentiated', 'G3: Poorly differentiated', ''),
@@ -8125,31 +6975,3100 @@ VALUES
 ('pt4b: tumor directly invades other organs or structures', 'pT4b: Tumor directly invades other organs or structures', ''),
 ('ptis: carcinoma in situ', 'pTis: Carcinoma in situ', ''),
 ('ptis: carcinoma in situ (intraductal tumor)', 'pTis: Carcinoma in situ (intraductal tumor)', ''),
-('ptx: cannot be assessed', 'pTX: Cannot be assessed', ''),
-('ptis','pTis: Carcinoma in situ, intraepithelial (no invasion)', ''),
-('ptis','pTis: Carcinoma in situ, invasion of lamina propria', ''),
-('pt1','pT1: Tumor invades submucosa', ''),
-('pt2','pT2: Tumor invades muscularis propria', ''),
-('pt3','pT3: Tumor invades through the muscularis propria into pericolorectal tissues', ''),
-('pt4a','pT4a: Tumor penetrates the visceral peritoneum', ''),
-('pt4b','pT4b: Tumor directly invades or is adherent to other organs or structures', ''),
-('pn1a','pN1a: Metastasis in 1 regional lymph node', ''),
-('pn1b', 'pN1b: Metastasis in 2 to 3 regional lymph nodes', ''),
-('pn1c', 'pN1c: Tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis', ''),
-('pn2a', 'pN2a: Metastasis in 4 to 6 regional lymph nodes', ''),
-('pn2b', 'pN2b: Metastasis in 7 or more regional lymph nodes', ''),
-('pm1a','pM1a: Metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)', ''),
-('pm1b','pM1b: Metastasis to more than one organ/site or to the peritoneum', '');
+('ptx: cannot be assessed', 'pTX: Cannot be assessed', '');
 
 insert ignore into i18n (id, en, fr) VALUES
 ('cap report - small intestine', 'Cap Report - Small Intestine', ''),
 ('cap peport - perihilar bile duct', 'CAP Report - Perihilar Bile Duct', ''),
 ('cap report - pancreas exo', 'CAP Report - Pancreas Exo', ''),
 ('cap report - pancreas endo', 'CAP Report - Pancreas Endo', ''),
-('cap report - Intrahep bile duct', 'CAP Report - Intrahep Bile Duct', ''),
+('cap report - intrahep bile duct', 'CAP Report - Intrahep Bile Duct', ''),
 ('cap report - hepato cellular', 'CAP Report - Hepato Cellular', ''),
 ('cap report - gallbladders', 'CAP Report - Gallbladders', ''),
 ('cap report - distal ex bile duct', 'CAP Report - Distal Ex Bile Duct', ''),
-('cap report - colon/rectum biopsy', 'CAP Report - Colon/Rectum Biopsy', ''),
-('cap report - colon/rectum resection', 'CAP Report - Colon/Rectum Resection', ''),
+('cap report - colon/rectum', 'CAP Report - Colon/Rectum', ''),
 ('cap report - ampulla', 'CAP Report - Ampulla', '');
+
+-- #### revision smintestines #### 
+
+ALTER TABLE dxd_cap_report_smintestines
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL;
+
+ALTER TABLE dxd_cap_report_smintestines_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL;
+
+UPDATE structure_fields SET field = 'other_specimen' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'other';
+UPDATE structure_fields SET field = 'other_specimen_specify' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'other_specify';
+  
+ALTER TABLE dxd_cap_report_smintestines
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+  
+  CHANGE `distance_unit` `distance_unit_from_closest_margin` char(2) DEFAULT NULL,
+  CHANGE `specify_margin` `specify_distance_from_closest_margin` varchar(250) DEFAULT NULL,
+
+  CHANGE `distance_unit_bile_duct` `distance_unit_from_closest_margin_bile_duct` char(2) DEFAULT NULL,
+  CHANGE `specify_margin_bile_duct` `specify_distance_from_closest_margin_bile_duct` varchar(250) DEFAULT NULL,  
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) NOT NULL DEFAULT '0';
+  
+ALTER TABLE dxd_cap_report_smintestines_revs
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+  
+  CHANGE `distance_unit` `distance_unit_from_closest_margin` char(2) DEFAULT NULL,
+  CHANGE `specify_margin` `specify_distance_from_closest_margin` varchar(250) DEFAULT NULL,
+
+  CHANGE `distance_unit_bile_duct` `distance_unit_from_closest_margin_bile_duct` char(2) DEFAULT NULL,
+  CHANGE `specify_margin_bile_duct` `specify_distance_from_closest_margin_bile_duct` varchar(250) DEFAULT NULL,  
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) NOT NULL DEFAULT '0';
+  
+UPDATE structure_fields SET field = 'specimen_not_specified' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'not_specified';
+
+UPDATE structure_fields SET field = 'distance_unit_from_closest_margin' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'distance_unit';
+UPDATE structure_fields SET field = 'specify_distance_from_closest_margin' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'specify_margin';
+
+UPDATE structure_fields SET field = 'distance_unit_from_closest_margin_bile_duct' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'distance_unit_bile_duct';
+UPDATE structure_fields SET field = 'specify_distance_from_closest_margin_bile_duct' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'specify_margin_bile_duct';
+
+UPDATE structure_fields SET field = 'clinical_history_not_known' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'not_known';
+
+insert ignore into i18n (id, en, fr)
+VALUES ('additional dimension', 'Additional Dimension', '');
+
+UPDATE structure_fields SET language_label = '', language_tag = 'microsatellite instability testing method' WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'microsatellite_instability_testing_method';
+
+UPDATE structure_formats SET language_heading = 'margins : segmental resection or pancreaticoduodenectomy' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_smintestines') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_smintestines' 
+AND field = 'proximal_margin'); 
+
+insert ignore into i18n  (id, en) values ('margins : segmental resection or pancreaticoduodenectomy', 'Margins : Segmental Resection or Pancreaticoduodenectomy');
+
+UPDATE structure_formats SET language_heading = 'margins : other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_smintestines') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_smintestines' 
+AND field = 'bile_duct_margin'); 
+
+insert ignore into i18n  (id, en) values ('margins : other', 'Margins : Other');
+
+ALTER TABLE dxd_cap_report_smintestines
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_bile_duct` `other_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `distance_unit_from_closest_margin_bile_duct` `other_distance_unit_from_closest_margin` char(2) DEFAULT NULL,
+  CHANGE `specify_distance_from_closest_margin_bile_duct` `other_specify_distance_from_closest_margin` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_smintestines_revs
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_bile_duct` `other_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `distance_unit_from_closest_margin_bile_duct` `other_distance_unit_from_closest_margin` char(2) DEFAULT NULL,
+  CHANGE `specify_distance_from_closest_margin_bile_duct` `other_specify_distance_from_closest_margin` varchar(250) DEFAULT NULL;
+
+UPDATE structure_fields SET field = 'other_distance_of_invasive_carcinoma_from_closest_margin' WHERE field = 'distance_of_invasive_carcinoma_from_closest_margin_bile_duct' and tablename = 'dxd_cap_report_smintestines';
+UPDATE structure_fields SET field = 'other_distance_unit_from_closest_margin' WHERE field = 'distance_unit_from_closest_margin_bile_duct' and tablename = 'dxd_cap_report_smintestines';
+UPDATE structure_fields SET field = 'other_specify_distance_from_closest_margin' WHERE field = 'specify_distance_from_closest_margin_bile_duct' and tablename = 'dxd_cap_report_smintestines';
+
+ALTER TABLE dxd_cap_report_smintestines
+  CHANGE `specify_distance_from_closest_margin` `specify_margin` varchar(250) DEFAULT NULL,
+  CHANGE `other_specify_distance_from_closest_margin` `specify_other_margin` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_smintestines_revs
+  CHANGE `specify_distance_from_closest_margin` `specify_margin` varchar(250) DEFAULT NULL,
+  CHANGE `other_specify_distance_from_closest_margin` `specify_other_margin` varchar(250) DEFAULT NULL;
+UPDATE structure_fields 
+SET field = 'specify_margin', `language_label` = 'specify margins', `language_tag` = ''
+WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'specify_distance_from_closest_margin'; 
+UPDATE structure_fields 
+SET field = 'specify_other_margin', `language_label` = 'specify margins', `language_tag` = ''
+WHERE tablename = 'dxd_cap_report_smintestines' AND field = 'other_specify_distance_from_closest_margin'; 
+
+-- #### revision ampulla of vater ####
+
+UPDATE diagnosis_controls SET controls_type = 'CAP Report - Ampulla of Vater' WHERE controls_type = 'CAP Report - Ampulla';
+
+INSERT IGNORE into i18n (id, en) VALUES ('ampulla of vater','Ampulla Of Vater');
+INSERT IGNORE into i18n (id, en) VALUES ('ancillary studies specify','Specify');
+INSERT IGNORE into i18n (id, en) VALUES ('carcinoma in situ','Carcinoma In Situ');
+INSERT IGNORE into i18n (id, en) VALUES ('distal pancreatic resection margin','Distal Pancreatic Resection Margin');
+INSERT IGNORE into i18n (id, en) VALUES ('dysplasia adenoma','Dysplasia Adenoma');
+INSERT IGNORE into i18n (id, en) VALUES ('greatest dimension','Greatest Dimension');
+INSERT IGNORE into i18n (id, en) VALUES ('intra ampullary','Intra Ampullary');
+INSERT IGNORE into i18n (id, en) VALUES ('magins pancreaticoduodenal resection specimen','Magins : Pancreaticoduodenal Resection Specimen');
+INSERT IGNORE into i18n (id, en) VALUES ('margins ampullectomy specimen','Margins : Ampullectomy Specimen');
+INSERT IGNORE into i18n (id, en) VALUES ('margins involved by invasive carcinoma','Margins Involved By Invasive Carcinoma');
+INSERT IGNORE into i18n (id, en) VALUES ('margins uninvolved by invasive carcinoma','Margins Uninvolved By Invasive Carcinoma');
+INSERT IGNORE into i18n (id, en) VALUES ('none identified','None Identified');
+INSERT IGNORE into i18n (id, en) VALUES ('not performed','Not Performed');
+INSERT IGNORE into i18n (id, en) VALUES ('other organ received','Other Organ Received');
+INSERT IGNORE into i18n (id, en) VALUES ('pancreatic retroperitoneal margin','Pancreatic Retroperitoneal Margin');
+INSERT IGNORE into i18n (id, en) VALUES ('papilla of vater','Papilla Of Vater');
+INSERT IGNORE into i18n (id, en) VALUES ('Participant Identifier','Participant Identifier');
+INSERT IGNORE into i18n (id, en) VALUES ('peri ampullary','Peri Ampullary');
+INSERT IGNORE into i18n (id, en) VALUES ('perineural invasion','Perineural Invasion');
+INSERT IGNORE into i18n (id, en) VALUES ('proximal mucosal margin','Proximal Mucosal Margin');
+INSERT IGNORE into i18n (id, en) VALUES ('specify','Specify');
+INSERT IGNORE into i18n (id, en) VALUES ('specify margins','Specify');
+INSERT IGNORE into i18n (id, en) VALUES ('tumor invades duodenal wall','Tumor Invades Duodenal Wall');
+INSERT IGNORE into i18n (id, en) VALUES ('tumor invades extrapancreatic common bile duct','Tumor Invades Extrapancreatic Common Bile Duct');
+INSERT IGNORE into i18n (id, en) VALUES ('tumor invades other adjacent organ or structures','Tumor Invades Other Adjacent Organ Or Structures');
+INSERT IGNORE into i18n (id, en) VALUES ('tumor invades pancreas','Tumor Invades Pancreas');
+INSERT IGNORE into i18n (id, en) VALUES ('tumor invades peripancreatic soft tissues','Tumor Invades Peripancreatic Soft Tissues');
+
+INSERT IGNORE into i18n (id, en) VALUES ('tumor limited to ampulla of vater or sphincter of oddi','Tumor Limited To Ampulla Of Vater Or sphincter Of Oddi');
+INSERT IGNORE into i18n (id, en) VALUES ('distance of invasive carcinoma from closest margin mm','Distance Of invasive Carcinoma From Closest Margin (mm)');
+
+INSERT IGNORE into i18n (id, en) VALUES ('CAP Report - Ampulla of Vater','CAP Report - Ampulla of Vater');
+
+UPDATE structure_formats SET language_heading = '' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'stomach');
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'procedure');
+
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0';
+  
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0';
+  
+UPDATE structure_fields SET field = 'other_specimen' WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'other';
+UPDATE structure_fields SET field = 'other_specimen_specify' WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'other_specify';
+UPDATE structure_fields SET field = 'specimen_not_specified' WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'not_specified';
+   
+UPDATE structure_fields SET language_label = 'additional dimension (cm)' WHERE field = 'additional_dimension_a';
+UPDATE structure_fields SET language_label = 'tumor size greatest dimension (cm)' WHERE field = 'tumor_size_greatest_dimension';
+  
+INSERT IGNORE into i18n (id, en) VALUES ('tumor size greatest dimension (cm)', 'Tumor Size Greatest Dimension (cm)');  
+INSERT IGNORE into i18n (id, en) VALUES ('additional dimension (cm)', 'Additional Dimension (cm)');  
+
+ALTER TABLE dxd_cap_report_ampullas
+  ADD `tumor_site` varchar(50) DEFAULT NULL AFTER `procedure_specify`,
+   DROP COLUMN  `intra_ampullary`,
+   DROP COLUMN  `peri_ampullary`,
+   DROP COLUMN  `papilla_of_vater`,
+   DROP COLUMN  `tumor_site_other`,
+   DROP COLUMN  `tumor_site_cannot_be_determined`,
+   DROP COLUMN  `tumor_site_not_specified`;
+
+ALTER TABLE dxd_cap_report_ampullas_revs
+  ADD `tumor_site` varchar(50) DEFAULT NULL AFTER `procedure_specify`,
+   DROP COLUMN  `intra_ampullary`,
+   DROP COLUMN  `peri_ampullary`,
+   DROP COLUMN  `papilla_of_vater`,
+   DROP COLUMN  `tumor_site_other`,
+   DROP COLUMN  `tumor_site_cannot_be_determined`,
+   DROP COLUMN  `tumor_site_not_specified`;
+ 
+DELETE FROM structure_formats WHERE structure_field_id IN (
+SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' 
+AND field IN ('intra_ampullary', 'peri_ampullary', 'papilla_of_vater', 'tumor_site_other', 'tumor_site_cannot_be_determined', 'tumor_site_not_specified') 
+);
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' 
+AND field IN ('intra_ampullary', 'peri_ampullary', 'papilla_of_vater', 'tumor_site_other', 'tumor_site_cannot_be_determined', 'tumor_site_not_specified');   
+   
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) 
+VALUES ('tumour_site_av', '', '', NULL);
+
+SET @value_domain_id = LAST_INSERT_ID();
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('intra ampullary', 'intra ampullary'),
+('peri ampullary', 'peri ampullary'),
+('papilla of vater', 'papilla of vater'),
+('other', 'other'),
+('cannot be determined', 'cannot be determined'),
+('not specified', 'not specified');
+
+insert into structure_value_domains_permissible_values 
+(structure_value_domain_id, structure_permissible_value_id, display_order, flag_active)
+values 
+(@value_domain_id, (select id from structure_permissible_values where value='intra ampullary'), 1,1),
+(@value_domain_id, (select id from structure_permissible_values where value='peri ampullary'), 2,1),
+(@value_domain_id, (select id from structure_permissible_values where value='papilla of vater'), 3,1),
+(@value_domain_id, (select id from structure_permissible_values where value='other'), 4,1),
+(@value_domain_id, (select id from structure_permissible_values where value='cannot be determined'), 5,1),
+(@value_domain_id, (select id from structure_permissible_values where value='not specified'), 6,1);
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_ampullas', 'tumor_site', 'tumor site', '', 'select', '', '', @value_domain_id, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_ampullas'), 
+(SELECT id FROM structure_fields WHERE `tablename`='dxd_cap_report_ampullas' AND `field`='tumor_site'), 
+'1', '13', 'tumor site', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+UPDATE structure_fields set language_tag = '', language_label = 'tumor site specify'
+WHERE `tablename`='dxd_cap_report_ampullas' AND `field`='tumor_site_other_specify';
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_ampullas')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename`='diagnosis_masters' AND `field` IN ('tumor_size_greatest_dimension', 'additional_dimension_a'));
+
+ALTER TABLE diagnosis_masters
+  CHANGE `cannot_be_determined` `tumor_size_cannot_be_determined` tinyint(1) DEFAULT '0';
+ALTER TABLE diagnosis_masters_revs
+  CHANGE `cannot_be_determined` `tumor_size_cannot_be_determined` tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields SET field = 'tumor_size_cannot_be_determined'   
+WHERE `model` LIKE 'DiagnosisMaster'
+AND `field` LIKE 'cannot_be_determined';
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' 
+AND field = 'histologic_type');
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_a' 
+AND field = 'tumour_grade');
+  
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0';
+  
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0';
+  
+UPDATE structure_fields SET field = 'tumor_extension_cannot_be_assessed' WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'cannot_be_assessed';
+  
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `margin_cannot_be_assessed` `ampull_spec_margin_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `margins_uninvolved_by_invasive_carcinoma` `ampull_spec_margins_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_mm` `ampull_spec_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `specify_margin` `ampull_spec_specify_margins_uninvolved` varchar(250) DEFAULT NULL,
+  CHANGE `margins_involved_by_invasive_carcinoma` `ampull_spec_margins_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margins` `ampull_spec_specify_margins_involved` varchar(250) DEFAULT NULL,
+  CHANGE `not_applicable` `ampull_spec_margins_not_applicable` tinyint(1) DEFAULT '0';
+  
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `margin_cannot_be_assessed` `ampull_spec_margin_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `margins_uninvolved_by_invasive_carcinoma` `ampull_spec_margins_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_mm` `ampull_spec_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `specify_margin` `ampull_spec_specify_margins_uninvolved` varchar(250) DEFAULT NULL,
+  CHANGE `margins_involved_by_invasive_carcinoma` `ampull_spec_margins_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margins` `ampull_spec_specify_margins_involved` varchar(250) DEFAULT NULL,
+  CHANGE `not_applicable` `ampull_spec_margins_not_applicable` tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields 
+SET field = 'ampull_spec_margin_cannot_be_assessed' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'margin_cannot_be_assessed';
+UPDATE structure_fields 
+SET field = 'ampull_spec_margins_uninvolved_by_invasive_carcinoma' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'margins_uninvolved_by_invasive_carcinoma';
+UPDATE structure_fields 
+SET field = 'ampull_spec_distance_of_invasive_carcinoma_from_closest_margin' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'distance_of_invasive_carcinoma_from_closest_margin_mm';
+UPDATE structure_fields 
+SET field = 'ampull_spec_specify_margins_uninvolved' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'specify_margin';
+UPDATE structure_fields 
+SET field = 'ampull_spec_margins_involved_by_invasive_carcinoma' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'margins_involved_by_invasive_carcinoma';
+UPDATE structure_fields 
+SET field = 'ampull_spec_specify_margins_involved' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'specify_margins';
+UPDATE structure_fields 
+SET field = 'ampull_spec_margins_not_applicable' 
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'not_applicable';
+
+UPDATE structure_fields 
+SET language_label = '', language_tag = 'specify margins'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'ampull_spec_specify_margins_involved'; 
+UPDATE structure_fields 
+SET language_label = '', language_tag = 'specify margins'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'ampull_spec_specify_margins_uninvolved'; 
+UPDATE structure_fields 
+SET language_label = '', language_tag = 'distance from closest margin mm'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'ampull_spec_distance_of_invasive_carcinoma_from_closest_margin'; 
+   
+INSERT IGNORE into i18n (id, en) VALUES ('distance from closest margin mm', 'Distance From Closest Margin (mm)'); 
+  
+UPDATE structure_fields 
+SET language_label = '', language_tag = 'unit'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'distance_unit'; 
+
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `distance_unit` `distance_unit_of_inv_carc_from_clos_marg` char(2) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `distance_unit` `distance_unit_of_inv_carc_from_clos_marg` char(2) DEFAULT NULL;
+UPDATE structure_fields 
+SET field = 'distance_unit_of_inv_carc_from_clos_marg'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'distance_unit'; 
+
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `n_specify_margin` `specify_inv_carc_from_clos_marg` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `n_specify_margin` `specify_inv_carc_from_clos_marg` varchar(250) DEFAULT NULL;
+UPDATE structure_fields 
+SET field = 'specify_inv_carc_from_clos_marg', language_label = '', language_tag = 'specify'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'n_specify_margin'; 
+
+UPDATE structure_formats SET language_heading = 'invasion' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' 
+AND field = 'lymph_vascular_invasion'); 
+ 
+INSERT IGNORE into i18n (id, en) VALUES ('invasion', 'Invasion'); 
+  
+UPDATE structure_formats SET language_heading = 'ancillary studies' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_ampullas' 
+AND field = 'ancillary_studies_specify'); 
+
+DELETE FROM i18n where id = 'ancillary studies';
+INSERT IGNORE into i18n (id, en) VALUES ('ancillary studies', 'Ancillary Studies');
+
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+UPDATE structure_fields 
+SET field = 'ancillary_studies_not_performed'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'not_performed'; 
+
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) DEFAULT '0';
+UPDATE structure_fields 
+SET field = 'clinical_history_not_known'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'not_known'; 
+  
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_ampullas') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field = 'notes');   
+
+UPDATE structure_fields SET language_label = '', language_tag = 'distance of invasive carcinoma from closest margin mm' where tablename = 'dxd_cap_report_ampullas' AND field = 'ampull_spec_distance_of_invasive_carcinoma_from_closest_margin';
+  
+ALTER TABLE dxd_cap_report_ampullas
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin` `pr_spec_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,  
+  CHANGE `distance_unit_of_inv_carc_from_clos_marg` `pr_spec_distance_unit_of_inv_carc_from_clos_marg` char(2) DEFAULT NULL, 
+  CHANGE `specify_inv_carc_from_clos_marg` `pr_spec_specify_inv_carc_from_clos_marg` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin` `pr_spec_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,  
+  CHANGE `distance_unit_of_inv_carc_from_clos_marg` `pr_spec_distance_unit_of_inv_carc_from_clos_marg` char(2) DEFAULT NULL, 
+  CHANGE `specify_inv_carc_from_clos_marg` `pr_spec_specify_inv_carc_from_clos_marg` varchar(250) DEFAULT NULL;
+UPDATE structure_fields 
+SET field = 'pr_spec_distance_of_invasive_carcinoma_from_closest_margin'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'distance_of_invasive_carcinoma_from_closest_margin'; 
+UPDATE structure_fields 
+SET field = 'pr_spec_distance_unit_of_inv_carc_from_clos_marg'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'distance_unit_of_inv_carc_from_clos_marg'; 
+UPDATE structure_fields 
+SET field = 'pr_spec_specify_inv_carc_from_clos_marg'
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'specify_inv_carc_from_clos_marg'; 
+ 
+UPDATE structure_fields 
+SET `language_label` = 'specify margins', `language_tag` = ''
+WHERE tablename = 'dxd_cap_report_ampullas' AND field = 'pr_spec_specify_inv_carc_from_clos_marg';   
+  
+-- #### revision colon and rectum ####
+
+UPDATE diagnosis_controls SET controls_type = 'cap report - small intestine' WHERE controls_type = 'Cap Report - Small Intestine';
+UPDATE diagnosis_controls SET controls_type = 'cap peport - perihilar bile duct' WHERE controls_type = 'CAP Report - Perihilar Bile Duct';
+UPDATE diagnosis_controls SET controls_type = 'cap report - pancreas exo' WHERE controls_type = 'CAP Report - Pancreas Exo';
+UPDATE diagnosis_controls SET controls_type = 'cap report - pancreas endo' WHERE controls_type = 'CAP Report - Pancreas Endo';
+UPDATE diagnosis_controls SET controls_type = 'cap report - intrahep bile duct' WHERE controls_type = 'CAP Report - Intrahep Bile Duct';
+UPDATE diagnosis_controls SET controls_type = 'cap report - hepato cellular' WHERE controls_type = 'CAP Report - Hepato Cellular';
+UPDATE diagnosis_controls SET controls_type = 'cap report - gallbladders' WHERE controls_type = 'CAP Report - Gallbladders';
+UPDATE diagnosis_controls SET controls_type = 'cap report - distal ex bile duct' WHERE controls_type = 'CAP Report - Distal Ex Bile Duct';
+UPDATE diagnosis_controls SET controls_type = 'cap report - colon/rectum - excisional biopsy' WHERE controls_type = 'CAP Report - Colon/Rectum';
+UPDATE diagnosis_controls SET controls_type = 'cap report - ampulla of vater' WHERE controls_type = 'CAP Report - Ampulla of Vater';
+
+INSERT IGNORE into i18n (id, en) VALUES ('cap report - colon/rectum - excisional biopsy', 'CAP Report - Colon/Rectum (Excisional Biopsy)');
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='tumor site'
+where sfi.id=sfo.structure_field_id
+and sfi.field='tumor_site'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colons'; 
+
+RENAME TABLE `dxd_cap_report_colons` TO `dxd_cap_report_colon_biopsies` ;
+RENAME TABLE `dxd_cap_report_colons_revs` TO `dxd_cap_report_colon_biopsies_revs` ;
+
+UPDATE diagnosis_controls 
+SET form_alias = 'dx_cap_report_colon_biopsies', detail_tablename = 'dxd_cap_report_colon_biopsies'
+WHERE controls_type = 'cap report - colon/rectum - excisional biopsy';
+
+UPDATE structures SET alias = 'dx_cap_report_colon_biopsies' WHERE alias = 'dx_cap_report_colons';
+
+INSERT IGNORE into i18n (id, en) VALUES ('adenocarcinoma','Adenocarcinoma');
+INSERT IGNORE into i18n (id, en) VALUES ('deep margin','Deep Margin');
+INSERT IGNORE into i18n (id, en) VALUES ('fragmental','Fragmental');
+INSERT IGNORE into i18n (id, en) VALUES ('inflammatory bowel disease','Inflammatory Bowel Disease');
+INSERT IGNORE into i18n (id, en) VALUES ('intact','Intact');
+INSERT IGNORE into i18n (id, en) VALUES ('involved by adenoma','Involved by Adenoma');
+INSERT IGNORE into i18n (id, en) VALUES ('mucosal/Lateral margin','Mucosal/Lateral Margin');
+INSERT IGNORE into i18n (id, en) VALUES ('pedunculated with stalk','Pedunculated With Stalk');
+INSERT IGNORE into i18n (id, en) VALUES ('polyp configuration','Polyp Configuration');
+INSERT IGNORE into i18n (id, en) VALUES ('polyp size','Polyp Size');
+INSERT IGNORE into i18n (id, en) VALUES ('polyp size greatest dimension','Polyp Size Greatest Dimension (cm)');
+INSERT IGNORE into i18n (id, en) VALUES ('quiescent','Quiescent');
+INSERT IGNORE into i18n (id, en) VALUES ('sessile','Sessile');
+INSERT IGNORE into i18n (id, en) VALUES ('size of invasive carcinoma','Size of Invasive Carcinoma');
+INSERT IGNORE into i18n (id, en) VALUES ('specimen integrity','Specimen Integrity');
+INSERT IGNORE into i18n (id, en) VALUES ('stalk length cm','Stalk Length (cm)');
+INSERT IGNORE into i18n (id, en) VALUES ('type of polyp in which invasive carcinoma arose','Type of Polyp In Which Invasive Carcinoma Arose');
+
+ALTER TABLE dxd_cap_report_colon_biopsies
+  CHANGE `additional_dimension_a` `polyp_size_additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  CHANGE `additional_dimension_b` `polyp_size_additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `polyp_size_cannot_be_determined` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+  CHANGE `additional_dimension_a` `polyp_size_additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  CHANGE `additional_dimension_b` `polyp_size_additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `polyp_size_cannot_be_determined` tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields set tablename = 'dxd_cap_report_colon_biopsies' where tablename = 'dxd_cap_report_colons';
+
+UPDATE structure_fields set field = 'polyp_size_additional_dimension_a' where field = 'additional_dimension_a' and  tablename = 'dxd_cap_report_colon_biopsies';
+UPDATE structure_fields set field = 'polyp_size_additional_dimension_b' where field = 'additional_dimension_b' and  tablename = 'dxd_cap_report_colon_biopsies';
+UPDATE structure_fields set field = 'polyp_size_cannot_be_determined' where field = 'cannot_be_determined' and  tablename = 'dxd_cap_report_colon_biopsies';
+
+UPDATE structure_fields SET language_label = 'polyp_size_greatest_dimension (cm)' WHERE field = 'polyp_size_greatest_dimension';
+INSERT IGNORE into i18n (id, en) VALUES ('polyp_size_greatest_dimension (cm)','Polyp Size Greatest Dimension (cm)');
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field = 'additional_dimension_a');  
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='histologic type '
+where sfi.id=sfo.structure_field_id
+and sfi.field='tumor_site'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colons'; 
+
+UPDATE structure_formats SET language_heading='histologic type'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field = 'histologic_type');  
+
+UPDATE structure_formats SET language_heading='microscopic tumor extension'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field = 'microscopic_tumor_extension'); 
+
+UPDATE structure_formats SET language_heading='lymph vascular invasion'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field = 'lymph_vascular_invasion'); 
+
+UPDATE structure_formats SET language_heading='type of polyp in which invasive carcinoma arose'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field = 'type_of_polyp_in_which_invasive_carcinoma_arose'); 
+
+ALTER TABLE dxd_cap_report_colon_biopsies
+  CHANGE `cannot_be_assessed` `dm_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `uninvolved_by_invasive_carcinoma` `dm_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `involved_by_invasive_carcinoma` `dm_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+
+  CHANGE `not_applicable` `mm_not_applicable` tinyint(1) DEFAULT '0';
+
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+  CHANGE `cannot_be_assessed` `dm_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `uninvolved_by_invasive_carcinoma` `dm_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `involved_by_invasive_carcinoma` `dm_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+
+  CHANGE `not_applicable` `mm_not_applicable` tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields SET field = 'dm_cannot_be_assessed' WHERE field = 'cannot_be_assessed' and tablename = 'dxd_cap_report_colon_biopsies';
+UPDATE structure_fields SET field = 'dm_uninvolved_by_invasive_carcinoma' WHERE field = 'uninvolved_by_invasive_carcinoma' and tablename = 'dxd_cap_report_colon_biopsies';
+UPDATE structure_fields SET field = 'dm_involved_by_invasive_carcinoma' WHERE field = 'involved_by_invasive_carcinoma' and tablename = 'dxd_cap_report_colon_biopsies';
+
+UPDATE structure_fields SET field = 'mm_not_applicable' WHERE field = 'not_applicable' and tablename = 'dxd_cap_report_colon_biopsies';
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field = 'notes'); 
+
+UPDATE structure_formats SET language_heading = 'ancillary studies' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field = 'ancillary_studies_specify'); 
+
+ALTER TABLE dxd_cap_report_colon_biopsies
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields SET field = 'ancillary_studies_not_performed' WHERE field = 'not_performed' and tablename = 'dxd_cap_report_colon_biopsies';
+
+UPDATE structure_fields SET language_label = 'histologic grade' WHERE tablename = 'diagnosis_masters_c' and field = 'tumour_grade';
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_c' 
+AND field = 'tumour_grade'); 
+ 	
+DELETE FROM i18n WHERE id = 'CAP Report - Ampulla of Vater';
+INSERT IGNORE into i18n (id, en) VALUES ('cap report - ampulla of vater','CAP Report - Ampulla of Vater');
+
+ALTER TABLE dxd_cap_report_colon_biopsies
+  ADD `deep_margin` varchar(50) DEFAULT NULL AFTER `microscopic_tumor_extension`,
+  ADD `mucosal_lateral_margin` varchar(50) DEFAULT NULL AFTER `distance_of_invasive_carcinoma_from_closest_margin_mm`,
+  DROP COLUMN  `dm_cannot_be_assessed`,
+  DROP COLUMN  `dm_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN  `dm_involved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_not_applicable`,
+  DROP COLUMN  `mm_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_involved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_involved_by_adenoma`,
+  DROP COLUMN  `mm_cannot_be_assessed`;
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+  ADD `deep_margin` varchar(50) DEFAULT NULL AFTER `microscopic_tumor_extension`,
+  ADD `mucosal_lateral_margin` varchar(50) DEFAULT NULL AFTER `distance_of_invasive_carcinoma_from_closest_margin_mm`,
+  DROP COLUMN  `dm_cannot_be_assessed`,
+  DROP COLUMN  `dm_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN  `dm_involved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_not_applicable`,
+  DROP COLUMN  `mm_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_involved_by_invasive_carcinoma`,
+  DROP COLUMN  `mm_involved_by_adenoma`,
+  DROP COLUMN  `mm_cannot_be_assessed`;
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field IN ('dm_cannot_be_assessed', 'dm_uninvolved_by_invasive_carcinoma', 'dm_involved_by_invasive_carcinoma', 
+'mm_not_applicable', 'mm_uninvolved_by_invasive_carcinoma', 'mm_involved_by_invasive_carcinoma', 'mm_involved_by_adenoma', 'mm_cannot_be_assessed')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_biopsies' 
+AND field IN ('dm_cannot_be_assessed', 'dm_uninvolved_by_invasive_carcinoma', 'dm_involved_by_invasive_carcinoma', 
+'mm_not_applicable', 'mm_uninvolved_by_invasive_carcinoma', 'mm_involved_by_invasive_carcinoma', 'mm_involved_by_adenoma', 'mm_cannot_be_assessed');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_biopsies', 'deep_margin', 'deep margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_cannot') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies'), @id, 
+'2', '22', 'margins', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+insert ignore into structure_permissible_values (value, language_alias) values ('involved by adenoma','involved by adenoma');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('margin_0_2', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='margin_0_2'), 
+(select id from structure_permissible_values where value='not applicable' ), 1,1, 'not applicable'),
+((select id from structure_value_domains where domain_name='margin_0_2'), 
+(select id from structure_permissible_values where value='cannot be assessed' ), 2,1, 'cannot be assessed'),
+((select id from structure_value_domains where domain_name='margin_0_2'), 
+(select id from structure_permissible_values where value='uninvolved by invasive carcinoma' ), 3,1, 'uninvolved by invasive carcinoma'),
+((select id from structure_value_domains where domain_name='margin_0_2'), 
+(select id from structure_permissible_values where value='involved by invasive carcinoma' ), 4,1, 'involved by invasive carcinoma'),
+((select id from structure_value_domains where domain_name='margin_0_2'), 
+(select id from structure_permissible_values where value='involved by adenoma' ), 5,1, 'involved by adenoma');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_biopsies', 'mucosal_lateral_margin', 'mucosal lateral margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_0_2') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_biopsies'), @id, 
+'2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+insert ignore into i18n  (id, en) values ('mucosal lateral margin', 'Mucosal Lateral Margin');
+
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' WHERE tablename = 'dxd_cap_report_colon_biopsies' and field = 'distance_of_invasive_carcinoma_from_closest_margin_mm';
+
+-- #### revision of bile ducts ####
+
+ALTER TABLE dxd_cap_report_distalexbileducts
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+  CHANGE `other` `other_organ_other` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_organ_other_specify` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+  CHANGE `other` `other_organ_other` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_organ_other_specify` varchar(250) DEFAULT NULL;
+
+UPDATE structure_fields SET field = 'specimen_not_specified' WHERE field = 'not_specified' and tablename = 'dxd_cap_report_distalexbileducts';
+UPDATE structure_fields SET field = 'other_organ_other' WHERE field = 'other' and tablename = 'dxd_cap_report_distalexbileducts';
+UPDATE structure_fields SET field = 'other_organ_other_specify' WHERE field = 'other_specify' and tablename = 'dxd_cap_report_distalexbileducts';
+
+UPDATE structure_formats SET language_heading = 'other organs received' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field = 'stomach'); 
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field = 'tumor_size_greatest_dimension');  
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field = 'additional_dimension_a');  
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field = 'histologic_type');  
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_dbd' 
+AND field = 'tumour_grade'); 
+
+insert ignore into i18n  (id, en) values ('right hepatic duct','Right Hepatic Duct');
+insert ignore into i18n  (id, en) values ('left hepatic duct','Left Hepatic Duct');
+insert ignore into i18n  (id, en) values ('junction of right and left hepatic ducts','Junction of Right and Left Hepatic Ducts');
+insert ignore into i18n  (id, en) values ('common hepatic duct','Common Hepatic Duct');
+insert ignore into i18n  (id, en) values ('cystic duct','Cystic Duct');
+insert ignore into i18n  (id, en) values ('other organs received','Other Organs Received');
+insert ignore into i18n  (id, en) values ('pancreas','Pancreas');
+insert ignore into i18n  (id, en) values ('extrapancreatic','Extrapancreatic');
+insert ignore into i18n  (id, en) values ('intrapancreatic','Intrapancreatic');
+insert ignore into i18n  (id, en) values ('tumor confined to the bile duct histologically','Tumor Confined to The Bile Duct Histologically');
+insert ignore into i18n  (id, en) values ('tumor invades beyond the wall of the bile duct','Tumor Invades Beyond The Wall of The Bile Duct');
+insert ignore into i18n  (id, en) values ('tumor invades other adjacent structures','Tumor Invades Other Adjacent Structures');
+insert ignore into i18n  (id, en) values ('tumor invades the duodenum','Tumor Invades The Duodenum');
+insert ignore into i18n  (id, en) values ('tumor invades the gallbladder','Tumor Invades The Gallbladder');
+insert ignore into i18n  (id, en) values ('tumor invades the pancreas','Tumor Invades The Pancreas');
+insert ignore into i18n  (id, en) values (' specify',' Specify');
+insert ignore into i18n  (id, en) values ('proximal bile duct margin','Proximal Bile Duct Margin');
+insert ignore into i18n  (id, en) values ('distal bile duct margin','Distal Bile Duct Margin');
+insert ignore into i18n  (id, en) values ('dysplasia carcinoma in situ not identified at bile duct margin','Dysplasia carcinoma in situ not identified at bile duct margin');
+insert ignore into i18n  (id, en) values ('dysplasia carcinoma in situ present at bile duct margin','Dysplasia carcinoma in situ present at bile duct margin');
+insert ignore into i18n  (id, en) values ('pancreaticoduodenal resection specimen','Pancreaticoduodenal Resection Specimen');
+insert ignore into i18n  (id, en) values ('distal pancreatic margin','Distal Pancreatic Margin');
+insert ignore into i18n  (id, en) values ('biliary stones','Biliary Stones');
+insert ignore into i18n  (id, en) values ('choledochal cyst','Choledochal Cyst');
+insert ignore into i18n  (id, en) values ('dysplasia','Dysplasia');
+insert ignore into i18n  (id, en) values ('primary sclerosing cholangitis','Primary Sclerosing Cholangitis');
+insert ignore into i18n  (id, en) values ('primary sclerosing cholangitis PSC','Primary Sclerosing Cholangitis PSC');
+insert ignore into i18n  (id, en) values ('stones','Stones');
+
+ALTER TABLE dxd_cap_report_distalexbileducts
+  CHANGE `cannot_be_assessed` `seg_res_margins_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `margins_uninvolved_by_invasive_carcinoma` `seg_res_margins_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_mm` `seg_res_distance_of_invasive_carcinoma_from_closest_margin_mm` decimal(3,1) DEFAULT NULL,
+  CHANGE `specify_margin` `seg_res_specify_uninvolved_margin` varchar(250) DEFAULT NULL,
+  CHANGE `margins_involved_by_invasive_carcinoma` `seg_res_margins_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `proximal_bile_duct_margin` `seg_res_proximal_bile_duct_margin` tinyint(1) DEFAULT '0',
+  CHANGE `distal_bile_duct_margin` `seg_res_distal_bile_duct_margin` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other` `seg_res_involved_margin_other` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other_specify` `seg_res_involved_margin_other_specify` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+  CHANGE `cannot_be_assessed` `seg_res_margins_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `margins_uninvolved_by_invasive_carcinoma` `seg_res_margins_uninvolved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin_mm` `seg_res_distance_of_invasive_carcinoma_from_closest_margin_mm` decimal(3,1) DEFAULT NULL,
+  CHANGE `specify_margin` `seg_res_specify_uninvolved_margin` varchar(250) DEFAULT NULL,
+  CHANGE `margins_involved_by_invasive_carcinoma` `seg_res_margins_involved_by_invasive_carcinoma` tinyint(1) DEFAULT '0',
+  CHANGE `proximal_bile_duct_margin` `seg_res_proximal_bile_duct_margin` tinyint(1) DEFAULT '0',
+  CHANGE `distal_bile_duct_margin` `seg_res_distal_bile_duct_margin` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other` `seg_res_involved_margin_other` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other_specify` `seg_res_involved_margin_other_specify` varchar(250) DEFAULT NULL;
+  
+UPDATE structure_fields SET field = 'seg_res_margins_cannot_be_assessed' 
+WHERE field = 'cannot_be_assessed' and tablename = 'dxd_cap_report_distalexbileducts';
+
+UPDATE structure_fields SET field = 'seg_res_margins_uninvolved_by_invasive_carcinoma' 
+WHERE field = 'margins_uninvolved_by_invasive_carcinoma' and tablename = 'dxd_cap_report_distalexbileducts'; 
+UPDATE structure_fields SET field = 'seg_res_distance_of_invasive_carcinoma_from_closest_margin_mm' , language_tag = language_label, language_label = ''
+WHERE field = 'distance_of_invasive_carcinoma_from_closest_margin_mm' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'seg_res_specify_uninvolved_margin', language_tag = language_label, language_label = '' 
+WHERE field = 'specify_margin' and tablename = 'dxd_cap_report_distalexbileducts';  
+
+UPDATE structure_fields SET field = 'seg_res_margins_involved_by_invasive_carcinoma' 
+WHERE field = 'margins_involved_by_invasive_carcinoma' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'seg_res_proximal_bile_duct_margin', language_tag = language_label, language_label = ''  
+WHERE field = 'proximal_bile_duct_margin' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'seg_res_distal_bile_duct_margin' , language_tag = language_label, language_label = ''  
+WHERE field = 'distal_bile_duct_margin' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'seg_res_involved_margin_other' , language_tag = language_label, language_label = ''  
+WHERE field = 'margin_other' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'seg_res_involved_margin_other_specify' 
+WHERE field = 'margin_other_specify' and tablename = 'dxd_cap_report_distalexbileducts';   
+  
+UPDATE structure_formats SET language_heading = 'margins : segmental resection specimen' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field = 'seg_res_margins_cannot_be_assessed'); 
+
+insert ignore into i18n (id,en) values ('margins : segmental resection specimen', 'Margins : segmental Resection Specimen'); 
+  
+UPDATE structure_formats SET display_column = '2' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field IN ('seg_res_margins_cannot_be_assessed', 'seg_res_margins_uninvolved_by_invasive_carcinoma', 'seg_res_distance_of_invasive_carcinoma_from_closest_margin_mm',
+'seg_res_specify_uninvolved_margin', 'seg_res_margins_involved_by_invasive_carcinoma')); 
+  
+ALTER TABLE dxd_cap_report_distalexbileducts
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin` `other_margins_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `distance_unit` `other_margins_distance_unit` char(2) DEFAULT NULL,
+  CHANGE `n_specify_margin` `other_margins_specify` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+  CHANGE `distance_of_invasive_carcinoma_from_closest_margin` `other_margins_distance_of_invasive_carcinoma_from_closest_margin` decimal(3,1) DEFAULT NULL,
+  CHANGE `distance_unit` `other_margins_distance_unit` char(2) DEFAULT NULL,
+  CHANGE `n_specify_margin` `other_margins_specify` varchar(250) DEFAULT NULL;
+   
+UPDATE structure_formats SET language_heading = 'margins : pancreaticoduodenal resection specimen' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field IN ('proximal_margin')); 
+insert ignore into i18n (id,en) values ('margins : pancreaticoduodenal resection specimen', 'Margins : Pancreaticoduodenal Resection Specimen');  
+
+UPDATE structure_fields SET field = 'other_margins_distance_of_invasive_carcinoma_from_closest_margin' 
+WHERE field = 'distance_of_invasive_carcinoma_from_closest_margin' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'other_margins_distance_unit' , language_tag = language_label, language_label = ''
+WHERE field = 'distance_unit' and tablename = 'dxd_cap_report_distalexbileducts';  
+UPDATE structure_fields SET field = 'other_margins_specify' 
+WHERE field = 'n_specify_margin' and tablename = 'dxd_cap_report_distalexbileducts';  
+
+UPDATE structure_formats SET language_heading = '' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field IN ('other_margins_distance_of_invasive_carcinoma_from_closest_margin')); 
+
+UPDATE structure_formats SET language_heading = 'invasions' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field IN ('lymph_vascular_invasion')); 
+
+insert ignore into i18n (id,en) values ('invasions', 'Invasions');
+
+UPDATE structure_formats
+SET structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' AND field = 'additional_path_other_specify')
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' AND field = 'other_clinical_history_specify')
+AND display_order = '75';
+
+UPDATE structure_formats SET language_heading = 'ancillary studies' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_distalexbileducts' 
+AND field IN ('ancillary_studies_specify')); 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_distalexbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+-- #### revision of gallblader ####
+
+ALTER TABLE dxd_cap_report_gallbladders
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_gallbladders_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0'; 
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_gallbladders';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_gallbladders';
+UPDATE structure_fields SET field = 'specimen_not_specified' 
+WHERE field = 'not_specified' and tablename = 'dxd_cap_report_gallbladders';
+
+ALTER TABLE dxd_cap_report_gallbladders
+  CHANGE `cannot_be_determined` `tumor_site_cannot_be_determined` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_gallbladders_revs
+  CHANGE `cannot_be_determined` `tumor_site_cannot_be_determined` tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET field = 'tumor_site_cannot_be_determined' 
+WHERE field = 'cannot_be_determined' and tablename = 'dxd_cap_report_gallbladders';
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic type'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_gallbladders' 
+AND field = 'histologic_type');  
+
+UPDATE structure_formats SET language_heading = 'histologic grade'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_gb' 
+AND field = 'tumour_grade');  
+
+UPDATE structure_formats SET language_heading = 'microscopic tumor extension'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_gallbladders' 
+AND field = 'microscopic_tumor_extension');  
+
+ALTER TABLE dxd_cap_report_gallbladders
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margin` `specify_uninvolved_margin` varchar(250) DEFAULT NULL,
+  CHANGE `specify_margins` `specify_involved_margin` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_gallbladders_revs
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margin` `specify_uninvolved_margin` varchar(250) DEFAULT NULL,
+  CHANGE `specify_margins` `specify_involved_margin` varchar(250) DEFAULT NULL;
+UPDATE structure_fields SET field = 'margin_cannot_be_assessed' 
+WHERE field = 'cannot_be_assessed' and tablename = 'dxd_cap_report_gallbladders';
+UPDATE structure_fields SET field = 'specify_uninvolved_margin' 
+WHERE field = 'specify_margin' and tablename = 'dxd_cap_report_gallbladders';
+UPDATE structure_fields SET field = 'specify_involved_margin' 
+WHERE field = 'specify_margins' and tablename = 'dxd_cap_report_gallbladders';
+UPDATE structure_formats SET language_heading = 'margins'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_gallbladders' 
+AND field = 'margin_cannot_be_assessed');  
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_gallbladders' AND 
+field IN ('distance_of_invasive_carcinoma_from_closest_margin_mm', 'specify_uninvolved_margin', 'specify_involved_margin');
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_gallbladders' 
+AND field = 'lymph_vascular_invasion');  
+
+ALTER TABLE dxd_cap_report_gallbladders
+  CHANGE `none_identified` `additional_path_none_identified` tinyint(1) DEFAULT '0',
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_gallbladders_revs
+  CHANGE `none_identified` `additional_path_none_identified` tinyint(1) DEFAULT '0',
+  CHANGE `not_performed` `ancillary_studies_not_performed` tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET field = 'additional_path_none_identified' 
+WHERE field = 'none_identified' and tablename = 'dxd_cap_report_gallbladders';
+ UPDATE structure_fields SET field = 'ancillary_studies_not_performed' 
+WHERE field = 'not_performed' and tablename = 'dxd_cap_report_gallbladders';
+   
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_gallbladders' 
+AND field = 'ancillary_studies_specify');  
+  
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_gallbladders') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes'));   
+  
+insert ignore into i18n (id,en) values
+('liver', 'Liver'),
+('extrahepatic bile duct', 'Extrahepatic Bile Duct'),
+('fundus', 'Fundus'),
+('body', 'Body'),
+('neck', 'Neck'),
+('free peritoneal side of gallbladder', 'Free Peritoneal Side of Gallbladder'),
+('hepatic side of gallbladder', 'Hepatic Side of Gallbladder'),
+('cystic duct margin uninvolved by intramucosal carcinoma', 'Cystic Duct Margin Uninvolved By Intramucosal Carcinoma'),
+('cystic duct margin involved by intramucosal carcinoma', 'Cystic Duct Margin Involved By Intramucosal Carcinoma'),
+('cholelithiasis', 'Cholelithiasis'),
+('chronic cholecystitis', 'Chronic Cholecystitis'),
+('acute cholecystitis', 'Acute Cholecystitis'),
+('intestinal metaplasia', 'Intestinal Metaplasia'),
+('diffuse calcification porcelain gallbladder', 'Diffuse Calcification Porcelain Gallbladder'),
+('cholelithiasis', 'Cholelithiasis');
+
+-- #### revision of hepatocellular carcinoma ####
+
+RENAME TABLE `dxd_cap_report_hepatocellulars` TO `dxd_cap_report_hepatocellular_carcinomas` ;
+RENAME TABLE `dxd_cap_report_hepatocellulars_revs` TO `dxd_cap_report_hepatocellular_carcinomas_revs` ;
+
+UPDATE diagnosis_controls 
+SET form_alias = 'dx_cap_report_hepatocellular_carcinomas', detail_tablename = 'dxd_cap_report_hepatocellular_carcinomas', controls_type = 'cap report - hepato cellular carcinoma'
+WHERE controls_type = 'cap report - hepato cellular';
+
+UPDATE structures SET alias = 'dx_cap_report_hepatocellular_carcinomas' WHERE alias = 'dx_cap_report_hepatocellulars';
+
+UPDATE structure_fields set tablename = 'dxd_cap_report_hepatocellular_carcinomas' where tablename = 'dxd_cap_report_hepatocellulars';
+
+insert ignore into i18n (id,en) values
+('cap report - hepato cellular carcinoma', 'CAP Report - Hepato Cellular Carcinoma');
+
+insert ignore into i18n (id,en) values
+('alcoholic liver disease','Alcoholic Liver Disease'),
+('chronic hepatitis','Chronic Hepatitis'),
+('cirrhosis','Cirrhosis'),
+('cirrhosis severe fibrosis','Cirrhosis Severe Fibrosis'),
+('hepatitis b infection','Hepatitis B Infection'),
+('hepatitis c infection','Hepatitis C Infection'),
+('hepatocellular dysplasia','Hepatocellular Dysplasia'),
+('hereditary hemochromatosis','Hereditary Hemochromatosis'),
+('high grade dysplastic nodule','High Grade Dysplastic Nodule'),
+('iron overload','Iron Overload'),
+('low grade dysplastic nodule','Low Grade Dysplastic Nodule'),
+('lymph vascular large vessel invasion','Lymph Vascular Large Vessel Invasion'),
+('lymph vascular small vessel invasion','Lymph Vascular Small Vessel Invasion'),
+('major hepatectomy 3 segments or more','Major Hepatectomy (3 segments or more)'),
+('minor hepatectomy less than 3 segments','Minor Hepatectomy (Less than 3 segments)'),
+('multiple','Multiple'),
+('none to moderate fibrosis','None To Moderate Fibrosis'),
+('obesity','Obesity'),
+('other','Other'),
+('other margin','Other Margin'),
+('parenchymal margin','Parenchymal Margin'),
+('partial hepatectomy','Partial Hepatectomy'),
+('procedure not specified','Procedure Not Specified'),
+('solitary','solitary'),
+('specify etiology','Specify Etiology'),
+('specify location','Specify Location'),
+('specify locations','Specify Locations'),
+('steatosis','Steatosis'),
+('tumor confined to liver','Tumor Confined To Liver'),
+('tumor directly invades gallbladder','Tumor Directly Invades Gallbladder'),
+('tumor directly invades other adjacent organs','Tumor Directly Invades Other Adjacent Organs'),
+('tumor focality','Tumor Focality'),
+('tumor involves 1 or more hepatic veins','Tumor Involves 1 or More Hepatic Veins'),
+('tumor involves a major branch of the portal vein','Tumor Involves a Major Branch of The Portal Vein'),
+('tumor involves visceral peritoneum','Tumor Involves Visceral Peritoneum'),
+('wedge resection','Wedge Resection');
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0';
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'specimen_not_specified' 
+WHERE field = 'not_specified' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' AND 
+field IN ('major_hepatectomy_3_segments_or_more', 'minor_hepatectomy_less_than_3_segments');
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE i18n set en = 'Solitary' where id = 'solitary';
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+  CHANGE `solitary` `solitary_focality` tinyint(1) DEFAULT '0',
+  CHANGE `specify_location`  `specify_solitary_focality_location` varchar(250) DEFAULT NULL,
+  CHANGE `multiple` `multiple_focality` tinyint(1) DEFAULT '0',
+  CHANGE `specify_locations` `specify_multiple_focality_location`  varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+  CHANGE `solitary` `solitary_focality` tinyint(1) DEFAULT '0',
+  CHANGE `specify_location`  `specify_solitary_focality_location` varchar(250) DEFAULT NULL,
+  CHANGE `multiple` `multiple_focality` tinyint(1) DEFAULT '0',
+  CHANGE `specify_locations` `specify_multiple_focality_location`  varchar(250) DEFAULT NULL; 
+UPDATE structure_fields SET field = 'solitary_focality' 
+WHERE field = 'solitary' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'specify_solitary_focality_location' 
+WHERE field = 'specify_location' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'multiple_focality' 
+WHERE field = 'multiple' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'specify_multiple_focality_location' 
+WHERE field = 'specify_locations' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+  
+UPDATE structure_formats SET language_heading = 'histologic type'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' 
+AND field = 'histologic_type');  
+
+UPDATE structure_formats SET language_heading = 'histologic grade'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_hc' 
+AND field = 'tumour_grade');   
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas  
+  DROP COLUMN `cannot_be_assessed`,
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN `involved_by_invasive_carcinoma`,
+  DROP COLUMN `special_margin_cannot_be_assessed`,
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs  
+  DROP COLUMN `cannot_be_assessed`,
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN `involved_by_invasive_carcinoma`,
+  DROP COLUMN `special_margin_cannot_be_assessed`,
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`;      
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' 
+AND field IN ('cannot_be_assessed','uninvolved_by_invasive_carcinoma','involved_by_invasive_carcinoma','special_margin_cannot_be_assessed','special_margin_uninvolved_by_invasive_carcinoma','special_margin_involved_by_invasive_carcinoma')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' 
+AND field IN ('cannot_be_assessed','uninvolved_by_invasive_carcinoma','involved_by_invasive_carcinoma','special_margin_cannot_be_assessed','special_margin_uninvolved_by_invasive_carcinoma','special_margin_involved_by_invasive_carcinoma');
+  
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas   
+  ADD `parenchymal_margin` varchar(50) DEFAULT NULL AFTER other_adjacent_organs_specify,
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER specify_margin;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs   
+  ADD `parenchymal_margin` varchar(50) DEFAULT NULL AFTER other_adjacent_organs_specify,
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER specify_margin;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellular_carcinomas', 'parenchymal_margin', 'parenchymal margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_cannot') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas'), @id, 
+'1', '35', 'parenchymal margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_hepatocellular_carcinomas', 'other_margin', 'other margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'margin_cannot') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas'), @id, 
+'1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+  CHANGE `p_specify_margin` `parenchymal_margin_specify` varchar(250) DEFAULT NULL,
+  CHANGE `specify_margin` `other_margin_specify` varchar(250) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+  CHANGE `p_specify_margin` `parenchymal_margin_specify` varchar(250) DEFAULT NULL,
+  CHANGE `specify_margin` `other_margin_specify` varchar(250) DEFAULT NULL;
+UPDATE structure_fields SET field = 'parenchymal_margin_specify' 
+WHERE field = 'p_specify_margin' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET field = 'other_margin_specify' 
+WHERE field = 'specify_margin' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+ 
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' AND 
+field IN ('low_grade_dysplastic_nodule', 'high_grade_dysplastic_nodule');
+  
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_hepatocellular_carcinomas' 
+AND field = 'ancillary_studies_specify'); 
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+  CHANGE `not_known` `clinical_history_not_known` tinyint(1) NOT NULL DEFAULT '0';
+UPDATE structure_fields SET field = 'clinical_history_not_known' 
+WHERE field = 'not_known' and tablename = 'dxd_cap_report_hepatocellular_carcinomas';
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_hepatocellular_carcinomas') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes'));   
+
+-- #### revision of pancreas exo ####
+
+ALTER TABLE dxd_cap_report_pancreasexos
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `specimen_cannot_be_determined` tinyint(1) DEFAULT '0',
+  CHANGE `noninvasive` `muc_cys_neo_noninvasive` tinyint(1) DEFAULT '0',
+  CHANGE `invasive` `muc_cys_neo_invasive` tinyint(1) DEFAULT '0',
+  CHANGE `i_noninvasive` `int_pap_muc_carc_noninvasive` tinyint(1) DEFAULT '0',
+  CHANGE `i_invasive` `int_pap_muc_carc_invasive` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margin_if_possible` `margins_uninvolved_by_invasive_carcinoma_specify` varchar(50) DEFAULT NULL,
+  CHANGE `margin_other` `other_margins_involved_by_invas_carc` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other_specify` `other_margins_involved_by_invas_carc_specify` varchar(250) DEFAULT NULL,
+  CHANGE `present` `trt_effect_present` tinyint(1) DEFAULT '0',
+  CHANGE `not_known` `trt_effect_not_known`  tinyint(1) DEFAULT '0';
+ 
+ALTER TABLE dxd_cap_report_pancreasexos_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `specimen_cannot_be_determined` tinyint(1) DEFAULT '0',
+  CHANGE `noninvasive` `muc_cys_neo_noninvasive` tinyint(1) DEFAULT '0',
+  CHANGE `invasive` `muc_cys_neo_invasive` tinyint(1) DEFAULT '0',
+  CHANGE `i_noninvasive` `int_pap_muc_carc_noninvasive` tinyint(1) DEFAULT '0',
+  CHANGE `i_invasive` `int_pap_muc_carc_invasive` tinyint(1) DEFAULT '0',
+  CHANGE `specify_margin_if_possible` `margins_uninvolved_by_invasive_carcinoma_specify` varchar(50) DEFAULT NULL,
+  CHANGE `margin_other` `other_margins_involved_by_invas_carc` tinyint(1) DEFAULT '0',
+  CHANGE `margin_other_specify` `other_margins_involved_by_invas_carc_specify` varchar(250) DEFAULT NULL,
+  CHANGE `present` `trt_effect_present` tinyint(1) DEFAULT '0',
+  CHANGE `not_known` `trt_effect_not_known`  tinyint(1) DEFAULT '0';
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'specimen_cannot_be_determined' 
+WHERE field = 'cannot_be_determined' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'muc_cys_neo_noninvasive' 
+WHERE field = 'noninvasive' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'muc_cys_neo_invasive' 
+WHERE field = 'invasive' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'int_pap_muc_carc_noninvasive' 
+WHERE field = 'i_noninvasive' and tablename = 'dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET field = 'int_pap_muc_carc_invasive' 
+WHERE field = 'i_invasive' and tablename = 'dxd_cap_report_pancreasexos';
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasexos' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic grade'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_pex' 
+AND field = 'tumour_grade');   
+
+UPDATE structure_formats SET language_heading = 'margins'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasexos' 
+AND field = 'margin_cannot_be_assessed'); 
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('distance_of_invasive_carcinoma_from_closest_margin_mm'); 
+  
+UPDATE structure_fields SET language_tag = 'specify', language_label = '', field = 'margins_uninvolved_by_invasive_carcinoma_specify' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('specify_margin_if_possible');   
+  
+UPDATE structure_fields SET field = 'other_margins_involved_by_invas_carc' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('margin_other');  
+UPDATE structure_fields SET field = 'other_margins_involved_by_invas_carc_specify' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('margin_other_specify');  
+UPDATE structure_fields SET field = 'trt_effect_present' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('present');  
+UPDATE structure_fields SET field = 'trt_effect_not_known' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('not_known');  
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasexos' 
+AND field = 'lymph_vascular_invasion');  
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_pancreasexos' AND 
+field IN ('highest_grade_PanIN', 'additional_path_other_specify'); 
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasexos' 
+AND field = 'ancillary_studies_specify');  
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes'));   
+
+insert ignore into i18n (id,en,fr) values
+('body of pancreas','Body of Pancreas',''),
+('tail of pancreas','Tail of Pancreas',''),
+('spleen','Spleen',''),
+('acinar cell carcinoma','Acinar Cell Carcinoma',''),
+('acinar cell cystadenocarcinoma','Acinar Cell Cystadenocarcinoma',''),
+('acute pancreatitis','Acute Pancreatitis',''),
+('adjacent large vessels','Adjacent Large Vessels',''),
+('chronic pancreatitis','Chronic Pancreatitis',''),
+('common bile duct margin','Common Bile Duct Margin',''),
+('ductal adenocarcinoma','Ductal Adenocarcinoma',''),
+('familial pancreatic cancer syndrome','Familial Pancreatic Cancer Syndrome',''),
+('familial pancreatitis','Familial Pancreatitis',''),
+('highest grade: PanIN','Highest Grade: PanIN',''),
+('intraductal papillary mucinous carcinoma','Intraductal Papillary Mucinous Carcinoma',''),
+('invasive','Invasive',''),
+('margins involved by carcinoma in situ','Margins involved by carcinoma in situ',''),
+('margins uninvolved by carcinoma in situ','Margins uninvolved by carcinoma in situ',''),
+('marked response (grade 1, minimal residual cancer)','Marked response (grade 1, minimal residual cancer)',''),
+('mixed acinar endocrine carcinoma','Mixed Acinar Endocrine Carcinoma',''),
+('mixed ductal endocrine carcinoma','Mixed Ductal Endocrine Carcinoma',''),
+('moderate response (grade 2)','Moderate response (grade 2)',''),
+('mucinous cystic neoplasm','Mucinous Cystic Neoplasm',''),
+('mucinous noncystic carcinoma','Mucinous Noncystic Carcinoma',''),
+('neoadjuvant therapy','Neoadjuvant Therapy',''),
+('no prior treatment','No Prior Treatment',''),
+('no residual tumor (complete response grade 0)','No residual tumor (complete response grade 0)',''),
+('noninvasive','Noninvasive',''),
+('other large vessels','Other Large Vessels',''),
+('pancreatic body','Pancreatic Body',''),
+('pancreatic head','Pancreatic Head',''),
+('pancreatic intraepithelial neoplasia','Pancreatic Intraepithelial Neoplasia',''),
+('pancreatic tail','Pancreatic Tail',''),
+('portal vein','Portal Vein',''),
+('promimal pancreatic margin','Promimal Pancreatic Margin',''),
+('serous cystadenocarcinoma','Serous Cystadenocarcinoma',''),
+('signet ring cell carcinoma','Signet Ring Cell Carcinoma',''),
+('superior mesenteric vein','Superior mesenteric vein',''),
+('treatment effect','Treatment Effect',''),
+('tumor invades mesenteric adipose tissue','Tumor invades mesenteric adipose tissue',''),
+('tumor invades mesocolon','Tumor invades mesocolon',''),
+('tumor invades other adjacent organs or structures','Tumor invades other adjacent organs or structures',''),
+('tumor invades other peripancreatic soft tissue','Tumor invades other peripancreatic soft tissue',''),
+('tumor invades retroperitoneal soft tissue','Tumor invades retroperitoneal soft tissue',''),
+('tumor is confined to pancreas','Tumor is confined to pancreas',''),
+('uncinate process','Uncinate Process',''),
+('uncinate process margin','Uncinate Process Margin',''),
+('undifferentiated (anaplastic) carcinoma','Undifferentiated (Anaplastic) Carcinoma',''),
+('carcinoma in situ present at common bile duct margin', 'Carcinoma in situ present at common bile duct margin', ''),
+('carcinoma in situ present at pancreatic parenchymal margin', 'Carcinoma in situ present at pancreatic parenchymal margin', ''),
+('invasive carcinoma involves posterior retroperitoneal surface of', 'Invasive carcinoma involves posterior retroperitoneal surface of', ''),
+('no definite response identified (grade 3, poor or no response)', 'No definite response identified (grade 3, poor or no response)', ''),
+('tumor invades ampulla of vater or sphincter of oddi', 'Tumor invades ampulla of vater or sphincter of oddi', ''),
+('undifferentiated carcinoma with osteoclast like giant cells','Undifferentiated carcinoma with osteoclast like giant cells','');
+
+-- #### revision of pancreas endo ####
+
+ALTER TABLE dxd_cap_report_pancreasendos
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `specimen_cannot_be_determined` tinyint(1) DEFAULT '0',
+  
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `tumor_site_not_specified`,
+  DROP COLUMN `tumor_unifocal`,
+  DROP COLUMN `tumor_multifocal`,
+  DROP COLUMN `tumor_cannot_be_determined`,
+  DROP COLUMN `tumor_not_specified`,
+  
+  ADD `carcinoma_precision` varchar(50) DEFAULT NULL AFTER `histologic_type`,
+  DROP COLUMN `small_cell_carcinoma`,
+  DROP COLUMN `large_cell_endocrine_carcinoma`;
+
+ALTER TABLE dxd_cap_report_pancreasendos_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `cannot_be_determined` `specimen_cannot_be_determined` tinyint(1) DEFAULT '0',
+  
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `tumor_site_not_specified`,
+  DROP COLUMN `tumor_unifocal`,
+  DROP COLUMN `tumor_multifocal`,
+  DROP COLUMN `tumor_cannot_be_determined`,
+  DROP COLUMN `tumor_not_specified`,
+  
+  ADD `carcinoma_precision` varchar(50) DEFAULT NULL AFTER `histologic_type`,
+  DROP COLUMN `small_cell_carcinoma`,
+  DROP COLUMN `large_cell_endocrine_carcinoma`;
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_pancreasendos';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_pancreasendos';
+UPDATE structure_fields SET field = 'specimen_cannot_be_determined' 
+WHERE field = 'cannot_be_determined' and tablename = 'dxd_cap_report_pancreasendos';
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('unifocal', 'unifocal'),
+('multifocal', 'multifocal'),
+('cannot be determined', 'cannot be determined'),
+('not specified', 'not specified');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('pancreas_endo_tumor_focality', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='unifocal' and language_alias = 'unifocal'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='multifocal' and language_alias = 'multifocal'), 2,1, ''),
+(@id, (select id from structure_permissible_values where value='cannot be determined' and language_alias = 'cannot be determined'), 3,1, ''),
+(@id, (select id from structure_permissible_values where value='not specified' and language_alias = 'not specified'), 4,1, '');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'tumor_focality', 'tumor focality', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'pancreas_endo_tumor_focality') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), @id, 
+'1', '33', 'tumor focality', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+UPDATE structure_fields SET language_label = language_tag, language_tag = '' WHERE tablename = 'dxd_cap_report_pancreasendos' AND field = 'specify_number_of_tumors';
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field IN ('tumor_unifocal', 'tumor_multifocal', 'tumor_cannot_be_determined', 'tumor_not_specified')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field IN ('tumor_unifocal', 'tumor_multifocal', 'tumor_cannot_be_determined', 'tumor_not_specified');
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'histologic_type'); 
+
+UPDATE structure_formats SET language_heading = 'WHO classification' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'world_health_organization_classification');
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field IN ('small_cell_carcinoma', 'large_cell_endocrine_carcinoma')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field IN ('small_cell_carcinoma', 'large_cell_endocrine_carcinoma');
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+('small cell carcinoma', 'small cell carcinoma'),
+('large cell endocrine carcinoma', 'large cell endocrine carcinoma');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('panc_endo_histo_type_carcinoma_precision', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='small cell carcinoma' and language_alias = 'small cell carcinoma'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='large cell endocrine carcinoma' and language_alias = 'large cell endocrine carcinoma'), 2,1, '');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasendos', 'carcinoma_precision', 'carcinoma precision', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'panc_endo_histo_type_carcinoma_precision') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos'), @id, 
+'1', '39', 'tumor focality', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+UPDATE structure_formats SET language_heading = 'tumor necrosis' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'tumor_necrosis');
+
+UPDATE structure_formats SET language_heading = 'margins' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'margin_cannot_be_assessed');
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_pancreasendos' AND 
+field IN ('specify_margin_if_possible', 'distance_of_tumor_from_closest_margin_mm'); 
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'lymph_vascular_invasion');  
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_pancreasendos' 
+AND field = 'ancillary_studies_specify');  
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_pancreasendos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+insert ignore into i18n (id,en,fr) values
+('other large vessels specify', 'Specify', ''),
+('specimen not specified', 'Not Specified', ''),
+('unifocal', 'Unifocal', ''),
+('WHO classification' ,'WHO Classification' ,''),
+('world health organization classification', 'World Health Organization Classification', ''),
+('functional type', 'Functional Type', ''),
+('other specify','Specify',''),
+('recurrent','Eecurrent',''),
+('3%-20% Ki67-positive cells','3%-20% Ki67-positive Xells',''),
+('carcinoma precision','Carcinoma precision',''),
+('distance of tumor from closest margin mm','Distance of Tumor from Closest Margin (mm)',''),
+('functional type','Functional Type',''),
+('gastrin_producing','Gastrin Producing',''),
+('glucagon_producing','Glucagon Producing',''),
+('great than 20% Ki67-positive cells','>20% Ki67-positive cells',''),
+('greater than 10 mitoses per 10 HPF','Greater than 10 mitoses per 10 HPF',''),
+('hypergastrinemia','Hypergastrinemia',''),
+('hypoglycemic syndrome','Hypoglycemic Syndrome',''),
+('insulin_producing','Insulin Producing',''),
+('Ki67 labeling index','Ki67 Labeling Index',''),
+('less or equal 2% Ki67-positive cells','<=2% Ki67-positive cells',''),
+('less than 2 mitoses/10 high power fields (HPF)','Less than 2 mitoses/10 high power fields (HPF)',''),
+('margin','Margin',''),
+('margin other','Margin Other',''),
+('margin(s) involved by tumor','Margin(s) involved by tumor',''),
+('margins uninvolved by tumor','Margins uninvolved by tumor',''),
+('mitotic activity','Mitotic Activity',''),
+('mitotic cannot be determined','Mitotic Cannot Be Determined',''),
+('multiple endocrine neoplasia type 1','Multiple Endocrine Neoplasia Type 1',''),
+('necrolytic migratory erythema','Necrolytic Migratory Erythema',''),
+('other large vessels specify','Other Large Vessels Specify',''),
+('pancreatic endocrine tumor nonfunctional','Pancreatic Endocrine Tumor Nonfunctional',''),
+('pancreatic endocrine tumor, functional','Pancreatic Endocrine Tumor, Functional',''),
+('path tnm descriptor','path tnm descriptor',''),
+('somatostatin_producing','Somatostatin Producing',''),
+('specify margin (if possible)','Specify margin (if possible)',''),
+('specify mitoses per 10 HPF','Specify mitoses per 10 HPF',''),
+('specify number of tumors','Specify number of tumors',''),
+('specimen not specified','Specimen not specified',''),
+('tumor invades ampulla of vater','Tumor invades ampulla of vater',''),
+('tumor invades common bile duct','Tumor invades common bile duct',''),
+('tumor necrosis','Tumor Necrosis',''),
+('uncinate process (retroperitoneal) margin','Uncinate Process (Retroperitoneal) Margin',''),
+('unifocal','unifocal',''),
+('vasoactive intestinal polypeptide (VIP)-producing','Vasoactive Intestinal Polypeptide (VIP)-Producing',''),
+('von hippel-Lindau disease','Von Hippel-Lindau Disease',''),
+('watery diarrhea','Watery Diarrhea',''),
+('zollinger-Ellison syndrome','zollinger-Ellison syndrome',''),
+('adenomatosis (multiple endocrine tumors, each less than 5 mm in greatest dimension)','adenomatosis (multiple endocrine tumors, each less than 5 mm in greatest dimension)',''),
+('greater than or equal to 2 mitoses/10 HPF to 10 mitoses/10 HPF','Greater than or equal to 2 mitoses/10 HPF to 10 mitoses/10 HPF',''),
+('pancreatic endocrine tumor, functional status unknown','pancreatic endocrine tumor, functional status unknown',''),
+('large cell endocrine carcinoma','Large Cell Endocrine Carcinoma',''),
+('tumor involves posterior retroperitoneal surface of pancreas','Tumor involves posterior retroperitoneal surface of pancreas','');
+
+-- #### revision of perihilar bile duct ####
+
+ALTER TABLE dxd_cap_report_perihilarbileducts
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  
+  CHANGE `unilateral` `sec_ord_biliary_radical_unilateral` tinyint(1) DEFAULT '0',
+  CHANGE `bilateral` `sec_ord_biliary_radical_bilateral` tinyint(1) DEFAULT '0',
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0'; 
+
+ALTER TABLE dxd_cap_report_perihilarbileducts_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  
+  CHANGE `unilateral` `sec_ord_biliary_radical_unilateral` tinyint(1) DEFAULT '0',
+  CHANGE `bilateral` `sec_ord_biliary_radical_bilateral` tinyint(1) DEFAULT '0',
+  CHANGE `cannot_be_assessed` `margin_cannot_be_assessed` tinyint(1) DEFAULT '0';
+
+UPDATE structure_formats SET language_heading = '' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field IN ('right_hepatic_duct')); 
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_perihilarbileducts';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_perihilarbileducts';
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET language_heading = 'tumor site' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'tumor_site_right_hepatic_duct'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'histologic_type'); 
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_pbd' 
+AND field = 'tumour_grade'); 
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' , field ='sec_ord_biliary_radical_unilateral'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='unilateral'; 	
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' , field ='sec_ord_biliary_radical_bilateral'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='bilateral'; 		
+
+UPDATE structure_fields SET field ='margin_cannot_be_assessed'
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field ='cannot_be_assessed'; 
+
+UPDATE structure_fields SET language_tag = language_label, language_label = '' 
+WHERE tablename = 'dxd_cap_report_perihilarbileducts' AND 
+field IN ('distance_of_invasive_carcinoma_from_closest_margin','specify_margin'); 	
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'lymph_vascular_invasion');  
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_perihilarbileducts' 
+AND field = 'ancillary_studies_specify'); 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_perihilarbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+insert ignore into i18n (id,en,fr) values
+('bilateral','Bilateral',''),
+('unilateral', 'Unilateral', ''),
+('hepatic parenchymal margin','Hepatic Parenchymal Margin',''),
+('primary sclerosing cholangitis (PSC)','Primary Sclerosing Cholangitis (PSC)',''),
+('PSC','PSC',''),
+('tumor invades common hepatic artery','Tumor invades common hepatic artery',''),
+('tumor invades into surrounding connective tissue','Tumor invades into surrounding connective tissue',''),
+('tumor invades second order biliary radicals','Tumor invades second order biliary radicals',''),
+('tumor invades the adjacent liver parenchyma','Tumor invades the adjacent liver parenchyma',''),
+('tumor invades main portal vein or its branches bilaterally', 'Tumor invades main portal vein or its branches bilaterally',''),
+('tumor invades the unilateral branches of the hepatic artery', 'Tumor invades the unilateral branches of the hepatic artery',''),
+('tumor invades the unilateral branches of the portal vein', 'Tumor invades the unilateral branches of the portal vein','');
+
+-- #### revision of intrahep bile duct ####
+
+ALTER TABLE dxd_cap_report_intrahepbileducts
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `procedure_not_specified`,
+  ADD `specify_tumor_focality` varchar(250) DEFAULT NULL AFTER `tumor_focality`,
+  DROP COLUMN `solitary`,  
+  DROP COLUMN `specify_location`,     
+  DROP COLUMN `multiple`,   
+  DROP COLUMN `specify_locations`,    
+
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  
+  ADD `hepatic_parenchymal_margin` varchar(50) DEFAULT NULL AFTER `tumor_extension_specify`,
+  DROP COLUMN `hp_margin_cannot_be_assessed`,  
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `involved_by_invasive_carcinoma`,  
+
+  ADD `bile_duct_margin` varchar(50) DEFAULT NULL AFTER `hp_specify_margin`,
+  ADD `dysplasia_carcinoma_in_situ_data` varchar(50) DEFAULT NULL AFTER `bile_duct_margin`,
+
+  DROP COLUMN `bd_margin_cannot_be_assessed`,  
+  DROP COLUMN `db_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `bd_involved_by_invasive_carcinoma`,  
+
+  DROP COLUMN `dysplasia_carcinoma_in_situ_not_identified`,  
+  DROP COLUMN `dysplasia_carcinoma_in_situ_present`,  
+
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER `dysplasia_carcinoma_in_situ_data`,
+  CHANGE `specify_margin` `specify_other_margin` varchar(250) DEFAULT NULL,
+
+  DROP COLUMN `special_margin_cannot_be_assessed`,  
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`; 
+  
+ALTER TABLE dxd_cap_report_intrahepbileducts_revs
+  CHANGE `other` `other_specimen` tinyint(1) DEFAULT '0',
+  CHANGE `other_specify` `other_specimen_specify` varchar(250) DEFAULT NULL,
+  CHANGE `not_specified` `specimen_not_specified` tinyint(1) DEFAULT '0',
+
+  ADD `tumor_focality` varchar(50) DEFAULT NULL AFTER `procedure_not_specified`,
+  ADD `specify_tumor_focality` varchar(250) DEFAULT NULL AFTER `tumor_focality`,
+  DROP COLUMN `solitary`,  
+  DROP COLUMN `specify_location`,     
+  DROP COLUMN `multiple`,   
+  DROP COLUMN `specify_locations`,    
+
+  CHANGE `cannot_be_assessed` `tumor_extension_cannot_be_assessed` tinyint(1) DEFAULT '0',
+  
+  ADD `hepatic_parenchymal_margin` varchar(50) DEFAULT NULL AFTER `tumor_extension_specify`,
+  DROP COLUMN `hp_margin_cannot_be_assessed`,  
+  DROP COLUMN `uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `involved_by_invasive_carcinoma`,  
+
+  ADD `bile_duct_margin` varchar(50) DEFAULT NULL AFTER `hp_specify_margin`,
+  ADD `dysplasia_carcinoma_in_situ_data` varchar(50) DEFAULT NULL AFTER `bile_duct_margin`,
+
+  DROP COLUMN `bd_margin_cannot_be_assessed`,  
+  DROP COLUMN `db_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `bd_involved_by_invasive_carcinoma`,  
+
+  DROP COLUMN `dysplasia_carcinoma_in_situ_not_identified`,  
+  DROP COLUMN `dysplasia_carcinoma_in_situ_present`,  
+
+  ADD `other_margin` varchar(50) DEFAULT NULL AFTER `dysplasia_carcinoma_in_situ_data`,
+  CHANGE `specify_margin` `specify_other_margin` varchar(250) DEFAULT NULL,
+
+  DROP COLUMN `special_margin_cannot_be_assessed`,  
+  DROP COLUMN `special_margin_uninvolved_by_invasive_carcinoma`,  
+  DROP COLUMN `special_margin_involved_by_invasive_carcinoma`; 
+
+UPDATE structure_fields SET field = 'other_specimen' 
+WHERE field = 'other' and tablename = 'dxd_cap_report_intrahepbileducts';
+UPDATE structure_fields SET field = 'other_specimen_specify' 
+WHERE field = 'other_specify' and tablename = 'dxd_cap_report_intrahepbileducts';
+UPDATE structure_fields SET field = 'specimen_not_specified' 
+WHERE field = 'not_specified' and tablename = 'dxd_cap_report_intrahepbileducts';
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'histologic_type'); 
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_ibd' 
+AND field = 'tumour_grade'); 
+ 	
+UPDATE structure_formats SET language_heading = 'tumor growth pattern' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'tumor_growth_pattern'); 
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('solitary', 'specify_location', 'multiple', 'specify_locations')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('solitary', 'specify_location', 'multiple', 'specify_locations');
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('solitary', 'solitary'),
+('multiple', 'multiple');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('intra_hepat_bile_ducts_tumor_focality', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='solitary' and language_alias = 'solitary'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='multiple' and language_alias = 'multiple'), 2,1, '');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'tumor_focality', 'tumor focality', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hepat_bile_ducts_tumor_focality') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '20', 'tumor focality', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'specify_tumor_focality', 'specify', '', 'input', '', '', NULL, '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+  
+UPDATE structure_fields SET field = 'tumor_extension_cannot_be_assessed' 
+WHERE field = 'cannot_be_assessed' and tablename = 'dxd_cap_report_intrahepbileducts';
+ 	
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed', 'cannot be assessed'),
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),
+('involved by invasive carcinoma', 'involved by invasive carcinoma');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('intra_hep_bile_duct_margin_value', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 2,1, ''),
+(@id, (select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 3,1, '');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'hepatic_parenchymal_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '36', 'hepatic parenchymal margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'bile_duct_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '41', 'bile duct margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+insert ignore into structure_permissible_values (value, language_alias) values
+('not identified', 'not identified'),
+('present', 'present');
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('dysplasia_carcinoma_in_situ_data', 'open', '', null);
+SET @id = LAST_INSERT_ID();
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+(@id, (select id from structure_permissible_values where value='not identified' and language_alias = 'not identified'), 1,1, ''),
+(@id, (select id from structure_permissible_values where value='present' and language_alias = 'present'), 2,1, '');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'dysplasia_carcinoma_in_situ_data', 'dysplasia carcinoma in situ', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'dysplasia_carcinoma_in_situ_data') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
+VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_intrahepbileducts', 'other_margin', 'margin', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'intra_hep_bile_duct_margin_value') , '', 'open', 'open', 'open'); 
+SET @id = LAST_INSERT_ID();
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts'), @id, 
+'1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+ 
+UPDATE structure_fields SET field = 'specify_other_margin' 
+WHERE field = 'specify_margin' and tablename = 'dxd_cap_report_intrahepbileducts';
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('hp_margin_cannot_be_assessed', 'uninvolved_by_invasive_carcinoma', 'involved_by_invasive_carcinoma', 
+'bd_margin_cannot_be_assessed', 'db_margin_uninvolved_by_invasive_carcinoma', 'bd_involved_by_invasive_carcinoma', 
+'special_margin_cannot_be_assessed', 'special_margin_uninvolved_by_invasive_carcinoma', 'special_margin_involved_by_invasive_carcinoma',
+'dysplasia_carcinoma_in_situ_not_identified', 'dysplasia_carcinoma_in_situ_present')); 
+DELETE FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field IN ('hp_margin_cannot_be_assessed', 'uninvolved_by_invasive_carcinoma', 'involved_by_invasive_carcinoma', 
+'bd_margin_cannot_be_assessed', 'db_margin_uninvolved_by_invasive_carcinoma', 'bd_involved_by_invasive_carcinoma', 
+'special_margin_cannot_be_assessed', 'special_margin_uninvolved_by_invasive_carcinoma', 'special_margin_involved_by_invasive_carcinoma',
+'dysplasia_carcinoma_in_situ_not_identified', 'dysplasia_carcinoma_in_situ_present');
+
+UPDATE structure_formats SET language_heading = 'invasions'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'lymph_vascular_major_vessel_invasion'); 
+
+UPDATE structure_formats SET language_heading = 'ancillary studies'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_intrahepbileducts' 
+AND field = 'ancillary_studies_specify'); 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_intrahepbileducts') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+insert ignore into i18n (id,en) values
+('dysplasia carcinoma in situ', 'Dysplasia Carcinoma In Situ'),
+('lymph vascular major vessel invasion', 'Lymph Vascular Major Vessel Invasion'),
+('procedure other', 'Other'),
+('procedure other specify', 'Specify'),
+('specify type', 'Specify'),
+('tumor confined to hepatic parenchyma', 'Tumor confined to hepatic parenchyma'),
+('tumor confined to the intrahepatic bile ducts histologically', 'Tumor confined to the intrahepatic bile ducts histologically'),
+('tumor directly invades adjacent organs other than gallbladder', 'Tumor directly invades adjacent organs other than gallbladder'),
+('tumor extension specify', 'Specify'),
+('tumor growth pattern', 'Tumor Growth Pattern'),
+('tumor involves visceral peritoneal surface', 'Tumor involves visceral peritoneal surface');
+
+
+-- colon rectum resection
+
+/*Table structure for table 'dxd_cap_report_colon_rectum_resections' */
+
+DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_resections`;
+
+CREATE TABLE IF NOT EXISTS `dxd_cap_report_colon_rectum_resections` (
+  `id` int(10) NOT NULL auto_increment,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
+-- Specimen
+  `terminal_ileum` tinyint(1) NULL DEFAULT 0,
+  `cecum` tinyint(1) NULL DEFAULT 0,
+  `appendix` tinyint(1) NULL DEFAULT 0,
+  `ascending_colon` tinyint(1) NULL DEFAULT 0,
+  `transverse_colon` tinyint(1) NULL DEFAULT 0,
+  `descending_colon` tinyint(1) NULL DEFAULT 0,
+  `sigmoid_colon` tinyint(1) NULL DEFAULT 0,
+  `rectum` tinyint(1) NULL DEFAULT 0,  
+  `anus` varchar(50) DEFAULT NULL,
+  `specimen_other` tinyint(1) NULL DEFAULT 0,
+  `specimen_other_specify` varchar(250) DEFAULT NULL,
+  `specimen_not_specified` tinyint(1) NULL DEFAULT 0,
+
+-- Procedure  
+  `procedure` varchar(100) DEFAULT NULL,
+  `procedure_specify` varchar(250) DEFAULT NULL,
+  
+  `specimen_length_specify` smallint(1) DEFAULT NULL,
+
+-- Tumor site  
+  `tumor_site_cecum` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_ascending_colon` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_hepatic_flexure` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_transverse_colon` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_splenic_flexure` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_descending_colon` varchar(250) DEFAULT NULL,
+  `tumor_site_sigmoid_colon` varchar(250) DEFAULT NULL,
+  `tumor_site_rectosigmoid` varchar(250) DEFAULT NULL,
+  `tumor_site_rectum` varchar(250) DEFAULT NULL,
+  `tumor_site_colon_not_otherwise_specified` tinyint(1) NULL DEFAULT 0,    
+  `tumor_site_cannot_be_determined` tinyint(1) NULL DEFAULT 0,
+
+-- Tumor size
+-- See Master  
+
+  `macroscopic_tumor_perforation` varchar(100) DEFAULT NULL,
+  `macroscopic_intactness_of_mesorectum` varchar(100) DEFAULT NULL,
+  
+-- Histologic Type 
+  `histologic_type` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,
+
+-- histologic grade
+-- see master tumor_grade and tumor_grade_specify
+
+-- heading histologic features suggestive of microsatellite instability
+  `intratumoral_lymphocytic_response` varchar(100) DEFAULT NULL,
+  `peritumor_lymphocytic_response` varchar(100) DEFAULT NULL,
+
+-- Tumor Subtype and Differentiation
+  `mucinous_tumor_component` tinyint(1) NULL DEFAULT 0,
+  `specify_percentage` smallint(1) NULL DEFAULT 0, 
+  `medullary_tumor_component` tinyint(1) NULL DEFAULT 0,
+  `high_histologic_grade` tinyint(1) NULL DEFAULT 0,
+  
+-- Microscopic Tumor Extension  
+
+  `microscopic_tumor_extension` varchar(250) DEFAULT NULL,
+  `microscopic_tumor_extension_specify` varchar(250) DEFAULT NULL,
+
+-- Margins (select all that apply) 
+  `proximal_margin` varchar(250) DEFAULT NULL,
+  `distal_margin` varchar(250) DEFAULT NULL,
+  `circumferential_margin` varchar(250) DEFAULT NULL,
+  `distance_of_invasive_carcinoma_from_closest_margin` smallint (1) DEFAULT NULL,
+  `distance_unit` char(2) DEFAULT NULL, -- cm or mm
+  `specify_margin` varchar(250) DEFAULT NULL,
+  `lateral_margin` varchar(250) DEFAULT NULL,
+  `distance_of_invasive_carcinoma_from_closest_lateral_margin` decimal (3,1) DEFAULT NULL,
+  `specify_location` varchar(250) DEFAULT NULL,
+  
+-- Treatment Effect
+  `treatment_effect` varchar(250) DEFAULT NULL,
+  `treatment_effect_precision` varchar(250) DEFAULT NULL,
+
+  `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
+  `perineural_invasion` varchar(50) DEFAULT NULL,
+
+  `tumor_deposits` varchar(50) DEFAULT NULL,
+  
+  `type_of_polyp_in_which_invasive_carcinoma_arose` varchar(100) DEFAULT NULL,
+  
+-- pTNM 
+-- See Master
+
+-- Additional Pathologic Findings
+  `additional_path_none_identified` tinyint(1) NULL DEFAULT 0,    
+  `adenoma` tinyint(1) NULL DEFAULT 0, 
+  `chronic_ulcerative_proctocolitis` tinyint(1) NULL DEFAULT 0, 
+  `crohn_disease` tinyint(1) NULL DEFAULT 0, 
+  `dysplasia_arising_in_inflammatory_bowel_disease` tinyint(1) NULL DEFAULT 0, 
+  `other_polyps` tinyint(1) NULL DEFAULT 0,   
+  `other_polyps_type` varchar(250) DEFAULT NULL,
+  `other` tinyint(1) NULL DEFAULT 0,   
+  `other_specify` varchar(250) DEFAULT NULL,
+
+  -- Ancillary Studies
+  `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
+  `microsatellite_instability_testing_method` varchar(250) DEFAULT NULL,
+  `microsatellite_instability_grade` varchar(10) DEFAULT NULL,
+  `MLH1` tinyint(1) NOT NULL DEFAULT 0,  
+  `MLH1_result` varchar(60) DEFAULT NULL,
+  `MLH1_specify` varchar(250) DEFAULT NULL,  
+  `MSH2` tinyint(1) NOT NULL DEFAULT 0,  
+  `MSH2_result` varchar(60) DEFAULT NULL,
+  `MSH2_specify` varchar(250) DEFAULT NULL,    
+  `MSH6` tinyint(1) NOT NULL DEFAULT 0,  
+  `MSH6_result` varchar(60) DEFAULT NULL,
+  `MSH6_specify` varchar(250) DEFAULT NULL,  
+  `PMS2` tinyint(1) NOT NULL DEFAULT 0,  
+  `PMS2_result` varchar(60) DEFAULT NULL,
+  `PMS2_specify` varchar(250) DEFAULT NULL, 
+  
+  `BRAF` tinyint(1) NOT NULL DEFAULT 0,    
+  `BRAF_result` varchar(60) DEFAULT NULL,
+  `BRAF_specify` varchar(250) DEFAULT NULL,   
+  `KRAS` tinyint(1) NOT NULL DEFAULT 0,    
+  `KRAS_result` varchar(60) DEFAULT NULL,
+  `KRAS_specify` varchar(250) DEFAULT NULL, 
+  `ancillary_other_specify` varchar(250) DEFAULT NULL,
+  `ancillary_not_performed` tinyint(1) NOT NULL DEFAULT 0,  
+ 
+  `comments` varchar(250) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` int(11) NOT NULL DEFAULT 0,
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+ALTER TABLE `dxd_cap_report_colon_rectum_resections` ADD CONSTRAINT `FK_dxd_cap_report_colon_rectum_resections_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT; 
+
+/*Table structure for table 'dxd_cap_report_colon_rectum_resections_revs' */
+
+DROP TABLE IF EXISTS `dxd_cap_report_colon_rectum_resections_revs`;
+
+
+CREATE TABLE `dxd_cap_report_colon_rectum_resections_revs` (
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT 0,
+-- Specimen
+  `terminal_ileum` tinyint(1) NULL DEFAULT 0,
+  `cecum` tinyint(1) NULL DEFAULT 0,
+  `appendix` tinyint(1) NULL DEFAULT 0,
+  `ascending_colon` tinyint(1) NULL DEFAULT 0,
+  `transverse_colon` tinyint(1) NULL DEFAULT 0,
+  `descending_colon` tinyint(1) NULL DEFAULT 0,
+  `sigmoid_colon` tinyint(1) NULL DEFAULT 0,
+  `rectum` tinyint(1) NULL DEFAULT 0,  
+  `anus` varchar(50) DEFAULT NULL,
+  `specimen_other` tinyint(1) NULL DEFAULT 0,
+  `specimen_other_specify` varchar(250) DEFAULT NULL,
+  `specimen_not_specified` tinyint(1) NULL DEFAULT 0,
+
+-- Procedure  
+  `procedure` varchar(100) DEFAULT NULL,
+  `procedure_specify` varchar(250) DEFAULT NULL,
+  
+  `specimen_length_specify` smallint(1) DEFAULT NULL,
+
+-- Tumor site  
+  `tumor_site_cecum` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_ascending_colon` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_hepatic_flexure` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_transverse_colon` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_splenic_flexure` tinyint(1) NULL DEFAULT 0,
+  `tumor_site_descending_colon` varchar(250) DEFAULT NULL,
+  `tumor_site_sigmoid_colon` varchar(250) DEFAULT NULL,
+  `tumor_site_rectosigmoid` varchar(250) DEFAULT NULL,
+  `tumor_site_rectum` varchar(250) DEFAULT NULL,
+  `tumor_site_colon_not_otherwise_specified` tinyint(1) NULL DEFAULT 0,    
+  `tumor_site_cannot_be_determined` tinyint(1) NULL DEFAULT 0,
+
+-- Tumor size
+-- See Master  
+
+  `macroscopic_tumor_perforation` varchar(100) DEFAULT NULL,
+  `macroscopic_intactness_of_mesorectum` varchar(100) DEFAULT NULL,
+  
+-- Histologic Type 
+  `histologic_type` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,
+
+-- histologic grade
+-- see master tumor_grade and tumor_grade_specify
+
+-- heading histologic features suggestive of microsatellite instability
+  `intratumoral_lymphocytic_response` varchar(100) DEFAULT NULL,
+  `peritumor_lymphocytic_response` varchar(100) DEFAULT NULL,
+
+-- Tumor Subtype and Differentiation
+  `mucinous_tumor_component` tinyint(1) NULL DEFAULT 0,
+  `specify_percentage` smallint(1) NULL DEFAULT 0, 
+  `medullary_tumor_component` tinyint(1) NULL DEFAULT 0,
+  `high_histologic_grade` tinyint(1) NULL DEFAULT 0,
+  
+-- Microscopic Tumor Extension  
+
+  `microscopic_tumor_extension` varchar(250) DEFAULT NULL,
+  `microscopic_tumor_extension_specify` varchar(250) DEFAULT NULL,
+
+-- Margins (select all that apply) 
+  `proximal_margin` varchar(250) DEFAULT NULL,
+  `distal_margin` varchar(250) DEFAULT NULL,
+  `circumferential_margin` varchar(250) DEFAULT NULL,
+  `distance_of_invasive_carcinoma_from_closest_margin` smallint (1) DEFAULT NULL,
+  `distance_unit` char(2) DEFAULT NULL, -- cm or mm
+  `specify_margin` varchar(250) DEFAULT NULL,
+  `lateral_margin` varchar(250) DEFAULT NULL,
+  `distance_of_invasive_carcinoma_from_closest_lateral_margin` decimal (3,1) DEFAULT NULL,
+  `specify_location` varchar(250) DEFAULT NULL,
+  
+-- Treatment Effect
+  `treatment_effect` varchar(250) DEFAULT NULL,
+  `treatment_effect_precision` varchar(250) DEFAULT NULL,
+
+  `lymph_vascular_invasion` varchar(50) DEFAULT NULL,
+  `perineural_invasion` varchar(50) DEFAULT NULL,
+
+  `tumor_deposits` varchar(50) DEFAULT NULL,
+  
+  `type_of_polyp_in_which_invasive_carcinoma_arose` varchar(100) DEFAULT NULL,
+  
+-- pTNM 
+-- See Master
+
+-- Additional Pathologic Findings
+  `additional_path_none_identified` tinyint(1) NULL DEFAULT 0,    
+  `adenoma` tinyint(1) NULL DEFAULT 0, 
+  `chronic_ulcerative_proctocolitis` tinyint(1) NULL DEFAULT 0, 
+  `crohn_disease` tinyint(1) NULL DEFAULT 0, 
+  `dysplasia_arising_in_inflammatory_bowel_disease` tinyint(1) NULL DEFAULT 0, 
+  `other_polyps` tinyint(1) NULL DEFAULT 0,   
+  `other_polyps_type` varchar(250) DEFAULT NULL,
+  `other` tinyint(1) NULL DEFAULT 0,   
+  `other_specify` varchar(250) DEFAULT NULL,
+
+  -- Ancillary Studies
+  `microsatellite_instability` tinyint(1) NOT NULL DEFAULT 0, 
+  `microsatellite_instability_testing_method` varchar(250) DEFAULT NULL,
+  `microsatellite_instability_grade` varchar(10) DEFAULT NULL,
+  `MLH1` tinyint(1) NOT NULL DEFAULT 0,  
+  `MLH1_result` varchar(60) DEFAULT NULL,
+  `MLH1_specify` varchar(250) DEFAULT NULL,  
+  `MSH2` tinyint(1) NOT NULL DEFAULT 0,  
+  `MSH2_result` varchar(60) DEFAULT NULL,
+  `MSH2_specify` varchar(250) DEFAULT NULL,    
+  `MSH6` tinyint(1) NOT NULL DEFAULT 0,  
+  `MSH6_result` varchar(60) DEFAULT NULL,
+  `MSH6_specify` varchar(250) DEFAULT NULL,  
+  `PMS2` tinyint(1) NOT NULL DEFAULT 0,  
+  `PMS2_result` varchar(60) DEFAULT NULL,
+  `PMS2_specify` varchar(250) DEFAULT NULL, 
+  
+  `BRAF` tinyint(1) NOT NULL DEFAULT 0,    
+  `BRAF_result` varchar(60) DEFAULT NULL,
+  `BRAF_specify` varchar(250) DEFAULT NULL,   
+  `KRAS` tinyint(1) NOT NULL DEFAULT 0,    
+  `KRAS_result` varchar(60) DEFAULT NULL,
+  `KRAS_specify` varchar(250) DEFAULT NULL, 
+  `ancillary_other_specify` varchar(250) DEFAULT NULL,
+  `ancillary_not_performed` tinyint(1) NOT NULL DEFAULT 0,  
+ 
+  `comments` varchar(250) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` int(11) NOT NULL DEFAULT 0,
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- insert value in diagnosis_controls
+DELETE FROM diagnosis_controls WHERE controls_type = 'cap report - colon/rectum resection';
+insert into diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename)
+values
+('cap report - colon/rectum resection', 1, 'dx_cap_report_colon_rectum_resections', 'dxd_cap_report_colon_rectum_resections');
+
+-- The table structures hold all forms in the application, Add the dxd_cap_report_smintestines in table structures. It doesn't hold the form itself but the form alias.
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_cap_report_colon_rectum_resections');
+DELETE FROM structures WHERE alias = 'dx_cap_report_colon_rectum_resections';
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES ('dx_cap_report_colon_rectum_resections', '', '', '0', '0', '1', '1');
+
+-- form builder
+DELETE FROM structure_fields WHERE tablename IN ('dxd_cap_report_colon_rectum_resections', 'diagnosis_masters_cr');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'terminal_ileum', 'terminal ileum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'cecum', 'cecum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'appendix', 'appendix', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'ascending_colon', 'ascending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'transverse_colon', 'transverse colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'descending_colon', 'descending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'sigmoid_colon', 'sigmoid colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'rectum', 'rectum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'anus', 'anus', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_not_specified', 'specimen not specified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'procedure', 'procedure', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'procedure_specify', 'procedure specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_cecum', 'cecum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specimen_length_specify', 'specimen length specify (cm)', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_ascending_colon', 'ascending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_hepatic_flexure', 'hepatic flexure', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_transverse_colon', 'transverse colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_splenic_flexure', 'splenic flexure', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_descending_colon', 'descending colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_sigmoid_colon', 'sigmoid colon', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_rectosigmoid', 'rectosigmoid', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_rectum', 'rectum', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_colon_not_otherwise_specified', 'colon, not otherwise specified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_site_cannot_be_determined', 'cannot be determined', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'macroscopic_tumor_perforation', 'macroscopic tumor perforation', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'macroscopic_intactness_of_mesorectum', 'macroscopic intactness of mesorectum', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'histologic_type', 'histologic type', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'histologic_type_specify', 'histologic type specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'intratumoral_lymphocytic_response', 'intratumoral lymphocytic response', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'peritumor_lymphocytic_response', 'peritumor lymphocytic response', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'mucinous_tumor_component', 'mucinous tumor component', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_percentage', '', 'specify percentage', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'medullary_tumor_component', 'medullary tumor component', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'high_histologic_grade', 'high histologic grade', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microscopic_tumor_extension', 'microscopic tumor extension', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microscopic_tumor_extension_specify', 'specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'proximal_margin', 'proximal margin', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distal_margin', 'distal margin', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'circumferential_margin', 'circumferential margin', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_of_invasive_carcinoma_from_closest_margin', 'distance of invasive carcinoma from closest margin', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_unit', '', 'distance unit', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_margin', 'specify margin', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lateral_margin', 'lateral margin', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'distance_of_invasive_carcinoma_from_closest_lateral_margin', 'distance of invasive carcinoma from closest lateral margin', '', 'float', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'specify_location', 'specify location if possible', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'treatment_effect', 'treatment effect', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'treatment_effect_precision', 'treatment effect precision', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+  
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'lymph_vascular_invasion', 'lymph vascular invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'perineural_invasion', 'perineural invasion', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'tumor_deposits', 'tumor deposits', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'type_of_polyp_in_which_invasive_carcinoma_arose', 'type of polyp in which invasive carcinoma arose', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'additional_path_none_identified', 'none identified', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'adenoma', 'adenoma', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'chronic_ulcerative_proctocolitis', 'chronic ulcerative proctocolitis', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'crohn_disease', 'crohn disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'dysplasia_arising_in_inflammatory_bowel_disease', 'dysplasia arising in inflammatory bowel disease', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_polyps', 'other polyps', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_polyps_type', '', 'other polyps type', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other', 'other', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'other_specify', '', 'other specify', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microsatellite_instability', 'microsatellite instability', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microsatellite_instability_testing_method', 'microsatellite instability testing method', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'microsatellite_instability_grade', 'microsatellite instability grade', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MLH1', 'MLH1', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MLH1_result', 'MLH1 result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MLH1_specify', 'MLH1 specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH2', 'MSH2', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH2_result', 'MSH2 result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH2_specify', 'MSH2 specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH6', 'MSH6', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH6_result', 'MSH6 result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'MSH6_specify', 'MSH6 specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'PMS2', 'PMS2', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'PMS2_result', 'PMS2 result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'PMS2_specify', 'PMS2 specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF', 'BRAF', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF_result', 'BRAF result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'BRAF_specify', 'BRAF specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS', 'KRAS', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS_result', 'KRAS result', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'KRAS_specify', 'KRAS specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'ancillary_other_specify', 'ancillary other specify', '', 'input', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_colon_rectum_resections', 'ancillary_not_performed', 'ancillary not performed', '', 'checkbox', '', '',  NULL , '', 'open', 'open', 'open'), 
+
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'tumour_grade', 'histologic grade', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_tstage', 'path tstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_nstage', 'path nstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters_cr', 'path_mstage', 'path mstage', '', 'select', '', '',  NULL , '', 'open', 'open', 'open');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_cap_report_colon_rectum_resections');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='terminal_ileum' AND `language_label`='terminal ileum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='cecum' AND `language_label`='cecum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='appendix' AND `language_label`='appendix' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='ascending_colon' AND `language_label`='ascending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='transverse_colon' AND `language_label`='transverse colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='descending_colon' AND `language_label`='descending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='sigmoid_colon' AND `language_label`='sigmoid colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='rectum' AND `language_label`='rectum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='anus' AND `language_label`='anus' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_not_specified' AND `language_label`='specimen not specified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='procedure' AND `language_label`='procedure' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='procedure_specify' AND `language_label`='procedure specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_cecum' AND `language_label`='cecum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specimen_length_specify' AND `language_label`='specimen length specify (cm)' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_ascending_colon' AND `language_label`='ascending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_hepatic_flexure' AND `language_label`='hepatic flexure' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_transverse_colon' AND `language_label`='transverse colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_splenic_flexure' AND `language_label`='splenic flexure' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_descending_colon' AND `language_label`='descending colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_sigmoid_colon' AND `language_label`='sigmoid colon' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_rectosigmoid' AND `language_label`='rectosigmoid' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_rectum' AND `language_label`='rectum' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_colon_not_otherwise_specified' AND `language_label`='colon, not otherwise specified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_site_cannot_be_determined' AND `language_label`='cannot be determined' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_greatest_dimension'), '1', '28', '', '1', 'greatest dimension', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_a'), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='additional_dimension_b'), '1', '30', '', '0', '', '1', 'x', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumor_size_cannot_be_determined' ), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='macroscopic_tumor_perforation' AND `language_label`='macroscopic tumor perforation' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='macroscopic_intactness_of_mesorectum' AND `language_label`='macroscopic intactness of mesorectum' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='histologic_type' AND `language_label`='histologic type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='histologic_type_specify' AND `language_label`='histologic type specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade_specify'), '1', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='intratumoral_lymphocytic_response' AND `language_label`='intratumoral lymphocytic response' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '38', 'intratumoral lymphocytic response', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='peritumor_lymphocytic_response' AND `language_label`='peritumor lymphocytic response' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '39', 'peritumor lymphocytic response', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='mucinous_tumor_component' AND `language_label`='mucinous tumor component' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_percentage' AND `language_label`='' AND `language_tag`='specify percentage' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='medullary_tumor_component' AND `language_label`='medullary tumor component' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='high_histologic_grade' AND `language_label`='high histologic grade' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microscopic_tumor_extension'), '1', '44', 'microscopic tumor extension', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microscopic_tumor_extension_specify'), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='proximal_margin'), '1', '57', 'proximal margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distal_margin'), '1', '58', 'distal margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='circumferential_margin'), '1', '59', 'circumferential margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_margin'), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_unit'), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_margin'), '1', '62', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lateral_margin'), '1', '63', 'lateral margin', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='distance_of_invasive_carcinoma_from_closest_lateral_margin'), '1', '63', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='specify_location'), '1', '63', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='treatment_effect'), '2', '78', 'treatment effect', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='treatment_effect_precision'), '2', '79', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='lymph_vascular_invasion' AND `language_label`='lymph vascular invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='perineural_invasion' AND `language_label`='perineural invasion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '86', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='tumor_deposits' AND `language_label`='tumor deposits' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '87', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='type_of_polyp_in_which_invasive_carcinoma_arose' AND `language_label`='type of polyp in which invasive carcinoma arose' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '88', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_m' ), '2', '89', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_r' ), '2', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tnm_descriptor_y' ), '2', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_examined'), '2', '94', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage_nbr_node_involved'), '2', '95', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage_metastasis_site_specify'), '2', '97', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='additional_path_none_identified' AND `language_label`='none identified' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '98', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='adenoma' AND `language_label`='adenoma' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='chronic_ulcerative_proctocolitis' AND `language_label`='chronic ulcerative proctocolitis' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='crohn_disease' AND `language_label`='crohn disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='dysplasia_arising_in_inflammatory_bowel_disease' AND `language_label`='dysplasia arising in inflammatory bowel disease' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_polyps' AND `language_label`='other polyps' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_polyps_type' AND `language_label`='' AND `language_tag`='other polyps type' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other' AND `language_label`='other' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '105', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='other_specify' AND `language_label`='' AND `language_tag`='other specify' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '106', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microsatellite_instability' AND `language_label`='microsatellite instability' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '107', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microsatellite_instability_testing_method' AND `language_label`='microsatellite instability testing method' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '108', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='microsatellite_instability_grade' AND `language_label`='microsatellite instability grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '109', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MLH1' AND `language_label`='MLH1' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MLH1_result' AND `language_label`='MLH1 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MLH1_specify' AND `language_label`='MLH1 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '112', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH2' AND `language_label`='MSH2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '113', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH2_result' AND `language_label`='MSH2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '114', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH2_specify' AND `language_label`='MSH2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH6' AND `language_label`='MSH6' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '116', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH6_result' AND `language_label`='MSH6 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '117', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='MSH6_specify' AND `language_label`='MSH6 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '118', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='PMS2' AND `language_label`='PMS2' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '119', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='PMS2_result' AND `language_label`='PMS2 result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='PMS2_specify' AND `language_label`='PMS2 specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '121', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF' ), '2', '124', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF_result' ), '2', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='BRAF_specify' ), '2', '126', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS' ), '2', '127', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS_result' ), '2', '128', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='KRAS_specify' ), '2', '129', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='ancillary_other_specify' AND `language_label`='ancillary other specify' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '130', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_colon_rectum_resections' AND `field`='ancillary_not_performed'), '2', '131', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  ), '2', '153', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='tumour_grade' AND `language_label`='histologic grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_tstage' AND `language_label`='path tstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '92', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_nstage' AND `language_label`='path nstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '93', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters_cr' AND `field`='path_mstage' AND `language_label`='path mstage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '96', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
+
+-- update checkbox structure value domain to 185
+update structure_fields
+set structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name = 'yes_no_checkbox')
+where type='checkbox'
+and structure_value_domain is null
+and tablename = 'dxd_cap_report_colon_rectum_resections';
+
+-- add heading
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='specimen'
+where sfi.id=sfo.structure_field_id
+and sfi.field='terminal_ileum'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='invasions'
+where sfi.id=sfo.structure_field_id
+and sfi.field='lymph_vascular_invasion'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='tumor deposits'
+where sfi.id=sfo.structure_field_id
+and sfi.field='tumor_deposits'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='type of polyp'
+where sfi.id=sfo.structure_field_id
+and sfi.field='type_of_polyp_in_which_invasive_carcinoma_arose'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='tumor site'
+where sfi.id=sfo.structure_field_id
+and sfi.field='tumor_site_cecum'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='tumor size'
+where sfi.id=sfo.structure_field_id
+and sfi.field='tumor_size_greatest_dimension'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections';
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='tumor subtype and differentiation'
+where sfi.id=sfo.structure_field_id
+and sfi.field='mucinous_tumor_component'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='treatment effect'
+where sfi.id=sfo.structure_field_id
+and sfi.field='no_prior_treatment'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+UPDATE structure_formats SET language_heading = 'other' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' 
+AND field IN ('notes')); 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='pathologic staging (pTNM)'
+where sfi.id=sfo.structure_field_id
+and sfi.field='path_tnm_descriptor_m'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='additional pathologic findings'
+where sfi.id=sfo.structure_field_id
+and sfi.field='additional_path_none_identified'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+update structure_formats sfo inner join structure_fields sfi inner join structures s
+set sfo.language_heading='ancillary studies'
+where sfi.id=sfo.structure_field_id
+and sfi.field='microsatellite_instability'
+and sfo.structure_id=s.id
+and s.alias='dx_cap_report_colon_rectum_resections'; 
+
+-- index
+UPDATE structures AS str, structure_formats AS stfo, structure_fields AS sf 
+SET stfo.flag_index = '1'
+WHERE str.alias = 'dx_cap_report_colon_rectum_resections'
+AND str.id = stfo.structure_id 
+AND stfo.structure_field_id = sf.id
+AND sf.field IN ('dx_date', 'tumor_site', 'tumour_grade', 'histologic_type');
+
+-- dropdown list
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed', 'cannot be assessed'),  	     	  
+('no evidence of primary tumor', 'no evidence of primary tumor'), 		 
+('intramucosal carcinoma invasion of lamina propria', 'intramucosal carcinoma invasion of lamina propria'), 		 
+('tumor invades submucosa', 'tumor invades submucosa'), 		 
+('tumor invades muscularis propria', 'tumor invades muscularis propria'), 		 
+('tumor invades through the muscularis propria', 'tumor invades through the muscularis propria'), 		 
+('tumor penetrates to the surface of visceral peritoneum', 'tumor penetrates to the surface of visceral peritoneum'), 		 
+('tumor is adherent to other organs or structures', 'tumor is adherent to other organs or structures'),
+('tumor directly invades adjacent structures', 'tumor directly invades adjacent structures'),
+('tumor penetrates to the surface of the visceral peritoneum', 'tumor penetrates to the surface of the visceral peritoneum');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rec_resec_microscopic_tumor_extension', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='no evidence of primary tumor' and language_alias = 'no evidence of primary tumor'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='intramucosal carcinoma invasion of lamina propria' and language_alias = 'intramucosal carcinoma invasion of lamina propria'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor invades submucosa' and language_alias = 'tumor invades submucosa'), 4,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor invades muscularis propria' and language_alias = 'tumor invades muscularis propria'), 5,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor invades through the muscularis propria' and language_alias = 'tumor invades through the muscularis propria'), 6,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor penetrates to the surface of visceral peritoneum' and language_alias = 'tumor penetrates to the surface of visceral peritoneum'), 7,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor is adherent to other organs or structures' and language_alias = 'tumor is adherent to other organs or structures'), 8,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor directly invades adjacent structures' and language_alias = 'tumor directly invades adjacent structures'), 9,1,''),
+((select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension'), 
+(select id from structure_permissible_values where value='tumor penetrates to the surface of the visceral peritoneum' and language_alias = 'tumor penetrates to the surface of the visceral peritoneum'), 10,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rec_resec_microscopic_tumor_extension')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='microscopic_tumor_extension';
+
+
+-- procedure_dxd_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('right hemicolectomy','right hemicolectomy'),
+('transverse colectomy','transverse colectomy'),
+('left hemicolectomy','left hemicolectomy'),
+('sigmoidectomy','sigmoidectomy'),
+('rectal/rectosigmoid colon (low anterior resection)','rectal/rectosigmoid colon (low anterior resection)'),
+('total abdominal colectomy','total abdominal colectomy'),
+('abdominoperineal resection','abdominoperineal resection'),
+('transanal disk excision (local excision)','transanal disk excision (local excision)');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('procedure_dxd_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='right hemicolectomy'), 1,1, 'right hemicolectomy'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='transverse colectomy'), 2,1, 'transverse colectomy'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='left hemicolectomy'), 3,1, 'left hemicolectomy'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='sigmoidectomy'), 4,1, 'sigmoidectomy'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='rectal/rectosigmoid colon (low anterior resection)'), 5,1, 'rectal/rectosigmoid colon (low anterior resection)'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='total abdominal colectomy'), 6,1, 'total abdominal colectomy'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='abdominoperineal resection'), 7,1, 'abdominoperineal resection'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='transanal disk excision (local excision)'), 8,1, 'transanal disk excision (local excision)'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='other'), 9,1, 'other'),
+((select id from structure_value_domains where domain_name='procedure_dxd_cr'), (select id from structure_permissible_values where value='not specified'), 10,1, 'not specified');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='procedure_dxd_cr')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='procedure';
+
+-- macroscopic_tumor_perforation
+insert ignore into structure_permissible_values (value, language_alias) values
+('present','present'),
+('not identified','not identified'),
+('cannot be determined','cannot be determined');
+
+-- insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+-- values ('macroscopic_tumor_perforation', 'open', '', null);
+
+insert ignore into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='present'), 1,1, 'present'),
+((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='not identified'), 2,1, 'not identified'),
+((select id from structure_value_domains where domain_name='macroscopic_tumor_perforation'), (select id from structure_permissible_values where value='cannot be determined'), 3,1, 'cannot be determined');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='macroscopic_tumor_perforation')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='macroscopic_tumor_perforation';
+
+-- macroscopic_intactness_of_mesorectum
+insert ignore into structure_permissible_values (value, language_alias) values
+('not applicable','not applicable'),
+('complete','complete'),
+('near complete','near complete'),
+('incomplete','incomplete'),
+('cannot be determined','cannot be determined');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('macroscopic_intactness_of_mesorectum', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
+((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='complete'), 2,1, 'complete'),
+((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='near complete'), 3,1, 'near complete'),
+((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='incomplete'), 4,1, 'incomplete'),
+((select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum'), (select id from structure_permissible_values where value='cannot be determined'), 5,1, 'cannot be determined');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='macroscopic_intactness_of_mesorectum')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='macroscopic_intactness_of_mesorectum';
+
+-- histologic_type_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('adenocarcinoma','adenocarcinoma'),
+('mucinous adenocarcinoma','mucinous adenocarcinoma'),
+('signet-ring cell carcinoma','signet-ring cell carcinoma'),
+('small cell carcinoma','small cell carcinoma'),
+('squamous cell carcinoma','squamous cell carcinoma'),
+('adenosquamous carcinoma','adenosquamous carcinoma'),
+('medullary carcinoma','medullary carcinoma'),
+('undifferentiated carcinoma','undifferentiated carcinoma'),
+('carcinoma, type cannot be determined','carcinoma, type cannot be determined');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('histologic_type_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='adenocarcinoma'), 1,1, 'adenocarcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='mucinous adenocarcinoma'), 2,1, 'mucinous adenocarcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='signet-ring cell carcinoma'), 3,1, 'signet-ring cell carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='small cell carcinoma'), 4,1, 'small cell carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='squamous cell carcinoma'), 5,1, 'squamous cell carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='adenosquamous carcinoma'), 6,1, 'adenosquamous carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='medullary carcinoma'), 7,1, 'medullary carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='undifferentiated carcinoma'), 8,1, 'undifferentiated carcinoma'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='other'), 9,1, 'other'),
+((select id from structure_value_domains where domain_name='histologic_type_cr'), (select id from structure_permissible_values where value='carcinoma, type cannot be determined'), 10,1, 'carcinoma, type cannot be determined');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_type_cr')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='histologic_type';
+
+-- histologic_grade_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('not applicable','not applicable'),
+('cannot be assessed','cannot be assessed'),
+('low-grade (well-differentiated to moderately differentiated)','low-grade (well-differentiated to moderately differentiated)'),
+('high-grade (poorly differentiated to undifferentiated)','high-grade (poorly differentiated to undifferentiated)');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('histologic_grade_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
+((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='cannot be assessed'), 2,1, 'cannot be assessed'),
+((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='low-grade (well-differentiated to moderately differentiated)'), 3,1, 'low-grade (well-differentiated to moderately differentiated)'),
+((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='high-grade (poorly differentiated to undifferentiated)'), 4,1, 'high-grade (poorly differentiated to undifferentiated)'),
+((select id from structure_value_domains where domain_name='histologic_grade_cr'), (select id from structure_permissible_values where value='other'), 5,1, 'other');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='histologic_grade_cr')
+where tablename='diagnosis_masters_cr' and field='tumour_grade';
+
+-- intratumoral_lymphocytic_response
+insert ignore into structure_permissible_values (value, language_alias) values
+('none','none'),
+('mild to moderate (0-2 per high-power [X400] field)','mild to moderate (0-2 per high-power [X400] field)'),
+('marked (3 or more per high-power field)','marked (3 or more per high-power field)');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('intratumoral_lymphocytic_response', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='none'), 1,1, 'none'),
+((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='mild to moderate (0-2 per high-power [X400] field)'), 2,1, 'mild to moderate (0-2 per high-power [X400] field)'),
+((select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response'), (select id from structure_permissible_values where value='marked (3 or more per high-power field)'), 4,1, 'marked (3 or more per high-power field)');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='intratumoral_lymphocytic_response')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='intratumoral_lymphocytic_response';
+
+-- peritumor_lymphocytic_response
+insert ignore into structure_permissible_values (value, language_alias) values
+('none','none'),
+('mild to moderate','mild to moderate'),
+('marked','marked');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('peritumor_lymphocytic_response', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='none'), 1,1, 'none'),
+((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='mild to moderate'), 2,1, 'mild to moderate'),
+((select id from structure_value_domains where domain_name='peritumor_lymphocytic_response'), (select id from structure_permissible_values where value='marked'), 4,1, 'marked');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='peritumor_lymphocytic_response')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='peritumor_lymphocytic_response';
+
+--  lymph_vascular_invasion 
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='lymph_vascular_invasion';
+
+-- perineural_invasion  use lymph_vascular_invasion drop down same
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='perineural_invasion';
+
+-- tumor_deposits  use lymph_vascular_invasion drop down same
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='lymph_vascular_invasion')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='tumor_deposits';
+
+-- type_of_polyp_in_which_invasive_carcinoma_arose
+insert ignore into structure_permissible_values (value, language_alias) values
+('none identified','none identified'),
+('tubular adenoma','tubular adenoma'),
+('villous adenoma','villous adenoma'),
+('tubulovillous adenoma','tubulovillous adenoma'),
+('traditional serrated adenoma','traditional serrated adenoma'),
+('sessile serrated adenoma','sessile serrated adenoma'),
+('hamartomatous polyp','hamartomatous polyp'),
+('indeterminate','indeterminate');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('type_of_polyp_in_which_invasive_carcinoma_arose_2', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='none identified'), 1,1, 'none identified'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='tubular adenoma'), 2,1, 'tubular adenoma'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='villous adenoma'), 3,1, 'villous adenoma'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='tubulovillous adenoma'), 4,1, 'tubulovillous adenoma'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='traditional serrated adenoma'), 5,1, 'traditional serrated adenoma'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='sessile serrated adenoma'), 6,1, 'sessile serrated adenoma'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='hamartomatous polyp'), 7,1, 'hamartomatous polyp'),
+((select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2'), (select id from structure_permissible_values where value='indeterminate'), 8,1, 'indeterminate');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='type_of_polyp_in_which_invasive_carcinoma_arose_2')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='type_of_polyp_in_which_invasive_carcinoma_arose';
+
+-- path_tstage_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('ptx','ptx: cannot be assessed'),
+('pt0','pt0: no evidence of primary tumor'),
+('ptis','ptis: carcinoma in situ, intraepithelial (no invasion)'),
+('ptis','ptis: carcinoma in situ, invasion of lamina propria'),
+('pt1','pt1: tumor invades submucosa'),
+('pt2','pt2: tumor invades muscularis propria'),
+('pt3','pt3: tumor invades through the muscularis propria into pericolorectal tissues'),
+('pt4a','pt4a: tumor penetrates the visceral peritoneum'),
+('pt4b','pt4b: tumor directly invades or is adherent to other organs or structures');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('path_tstage_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptx' and language_alias='ptx: Cannot be assessed'), 1,1, 'ptx: Cannot be assessed'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt0' and language_alias='pt0: no evidence of primary tumor'), 2,1, 'pt0: no evidence of primary tumor'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptis' and language_alias='ptis: carcinoma in situ, intraepithelial (no invasion)'), 3,1, 'ptis: carcinoma in situ, intraepithelial (no invasion)'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='ptis' and language_alias='ptis: carcinoma in situ, invasion of lamina propria'), 4,1, 'ptis: carcinoma in situ, invasion of lamina propria'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt1' and language_alias='pt1: tumor invades submucosa'), 5,1, 'pt1: tumor invades submucosa'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt2' and language_alias='pt2: tumor invades muscularis propria'), 6,1, 'pt2: tumor invades muscularis propria'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt3' and language_alias='pt3: tumor invades through the muscularis propria into pericolorectal tissues'), 7,1, 'pt3: tumor invades through the muscularis propria into pericolorectal tissues'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt4a' and language_alias='pt4a: tumor penetrates the visceral peritoneum'), 8,1, 'pt4a: tumor penetrates the visceral peritoneum'),
+((select id from structure_value_domains where domain_name='path_tstage_cr'), (select id from structure_permissible_values where value='pt4b' and language_alias='pt4b: tumor directly invades or is adherent to other organs or structures'), 9,1, 'pt4b: tumor directly invades or is adherent to other organs or structures');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='path_tstage_cr')
+where tablename='diagnosis_masters_cr' and field='path_tstage';
+
+-- path_nstage_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('pnx','pnx: cannot be assessed'),
+('pn0','pn0: no regional lymph node metastasis'),
+('pn1a','pn1a: metastasis in 1 regional lymph node'),
+('pn1b', 'pn1b: metastasis in 2 to 3 regional lymph nodes'),
+('pn1c', 'pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'),
+('pn2a', 'pn2a: metastasis in 4 to 6 regional lymph nodes'),
+('pn2b', 'pn2b: metastasis in 7 or more regional lymph nodes');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('path_nstage_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pnx' and language_alias='pnx: cannot be assessed'), 1,1, 'pnx: cannot be assessed'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn0' and language_alias='pn0: no regional lymph node metastasis'), 2,1, 'pn0: no regional lymph node metastasis'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1a' and language_alias='pn1a: metastasis in 1 regional lymph node'), 3,1, 'pn1a: metastasis in 1 regional lymph node'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1b' and language_alias='pn1b: metastasis in 2 to 3 regional lymph nodes'), 4,1, 'pn1b: metastasis in 2 to 3 regional lymph nodes'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn1c' and language_alias='pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'), 5,1, 'pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn2a' and language_alias='pn2a: metastasis in 4 to 6 regional lymph nodes'), 6,1, 'pn2a: metastasis in 4 to 6 regional lymph nodes'),
+((select id from structure_value_domains where domain_name='path_nstage_cr'), (select id from structure_permissible_values where value='pn2b' and language_alias='pn2b: metastasis in 7 or more regional lymph nodes'), 7,1, 'pn2b: metastasis in 7 or more regional lymph nodes');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='path_nstage_cr')
+where tablename='diagnosis_masters_cr' and field='path_nstage';
+
+-- path_mstage_cr
+insert ignore into structure_permissible_values (value, language_alias) values
+('not applicable', 'not applicable'),
+('pm1','pm1: distant metastasis'),
+('pm1a','pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'),
+('pm1b','pm1b: metastasis to more than one organ/site or to the peritoneum');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('path_mstage_cr', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values ((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='not applicable' and language_alias='not applicable'), 1,1, 'not applicable'),
+((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1' and language_alias='pm1: distant metastasis'), 2,1, 'pm1: distant metastasis'),
+((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1a' and language_alias='pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'), 3,1, 'pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'),
+((select id from structure_value_domains where domain_name='path_mstage_cr'), (select id from structure_permissible_values where value='pm1b' and language_alias='pm1b: metastasis to more than one organ/site or to the peritoneum'), 4,1, 'pm1b: metastasis to more than one organ/site or to the peritoneum');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_cr')
+where tablename='diagnosis_masters_cr' and field='path_mstage';
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='distance_unit')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='distance_unit';                  
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed ', 'cannot be assessed '),  	     	  
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'), 
+('involved by invasive carcinoma', 'involved by invasive carcinoma'), 
+('intramucosal carcinoma adenoma not identified at proximal', 'intramucosal carcinoma adenoma not identified at proximal'), 
+('intramucosal carcinoma adenoma present at proximal margin', 'intramucosal carcinoma adenoma present at proximal margin'); 
+ 	     	  
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_proximal_margin', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_proximal_margin'), 
+(select id from structure_permissible_values where value='cannot be assessed ' and language_alias = 'cannot be assessed '), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_proximal_margin'), 
+(select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_proximal_margin'), 
+(select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_proximal_margin'), 
+(select id from structure_permissible_values where value='intramucosal carcinoma adenoma not identified at proximal' and language_alias = 'intramucosal carcinoma adenoma not identified at proximal'), 4,1,''),
+((select id from structure_value_domains where domain_name='col_rect_proximal_margin'), 
+(select id from structure_permissible_values where value='intramucosal carcinoma adenoma present at proximal margin' and language_alias = 'intramucosal carcinoma adenoma present at proximal margin'), 5,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_proximal_margin')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='proximal_margin';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed', 'cannot be assessed'),  	     	  
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),  	     	  
+('involved by invasive carcinoma', 'involved by invasive carcinoma'),  	     	  
+('intramucosal carcinoma adenoma not identified at distal', 'intramucosal carcinoma adenoma not identified at distal'),  	     	  
+('intramucosal carcinoma adenoma present at distal margin', 'intramucosal carcinoma adenoma present at distal margin'); 	     	  
+  	     
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_distal_margin', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_distal_margin'), 
+(select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_distal_margin'), 
+(select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_distal_margin'), 
+(select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_distal_margin'), 
+(select id from structure_permissible_values where value='intramucosal carcinoma adenoma not identified at distal' and language_alias = 'intramucosal carcinoma adenoma not identified at distal'), 4,1,''),
+((select id from structure_value_domains where domain_name='col_rect_distal_margin'), 
+(select id from structure_permissible_values where value='intramucosal carcinoma adenoma present at distal margin' and language_alias = 'intramucosal carcinoma adenoma present at distal margin'), 5,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_distal_margin')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='distal_margin';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('not applicable ', 'not applicable '),  	     	  
+('cannot be assessed', 'cannot be assessed'),  	     	  
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),  	     	  
+('involved by invasive carcinoma', 'involved by invasive carcinoma');  	     	  
+ 
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_circumferential_margin', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_circumferential_margin'), 
+(select id from structure_permissible_values where value='not applicable ' and language_alias = 'not applicable '), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_circumferential_margin'), 
+(select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_circumferential_margin'), 
+(select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_circumferential_margin'), 
+(select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 4,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_circumferential_margin')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='circumferential_margin';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('cannot be assessed', 'cannot be assessed'),  	     	  
+('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),  	     	  
+('involved by invasive carcinoma', 'involved by invasive carcinoma'),  	     	  
+('uninvolved by adenoma', 'uninvolved by adenoma'),  	     	  
+('involved by adenoma', 'involved by adenoma');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_lateral_margin', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_lateral_margin'), 
+(select id from structure_permissible_values where value='cannot be assessed' and language_alias = 'cannot be assessed'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_lateral_margin'), 
+(select id from structure_permissible_values where value='uninvolved by invasive carcinoma' and language_alias = 'uninvolved by invasive carcinoma'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_lateral_margin'), 
+(select id from structure_permissible_values where value='involved by invasive carcinoma' and language_alias = 'involved by invasive carcinoma'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_lateral_margin'), 
+(select id from structure_permissible_values where value='uninvolved by adenoma' and language_alias = 'uninvolved by adenoma'), 4,1,''),
+((select id from structure_value_domains where domain_name='col_rect_lateral_margin'), 
+(select id from structure_permissible_values where value='involved by adenoma' and language_alias = 'involved by adenoma'), 5,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_lateral_margin')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='lateral_margin';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('no prior treatment', 'no prior treatment'),
+('present', 'present'),
+('no definite response identified grade3', 'no definite response identified grade3'),
+('not known', 'not known');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_trt_effect', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_trt_effect'), 
+(select id from structure_permissible_values where value='no prior treatment' and language_alias = 'no prior treatment'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_trt_effect'), 
+(select id from structure_permissible_values where value='present' and language_alias = 'present'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_trt_effect'), 
+(select id from structure_permissible_values where value='no definite response identified grade3' and language_alias = 'no definite response identified grade3'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_trt_effect'), 
+(select id from structure_permissible_values where value='not known' and language_alias = 'not known'), 4,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_trt_effect')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='treatment_effect';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('no residual tumor grade0', 'no residual tumor grade0'),
+('moderate response grade1', 'moderate response grade1'),
+('minimal response grade2', 'minimal response grade2');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values ('col_rect_trt_effect_precision', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_trt_effect_precision'), 
+(select id from structure_permissible_values where value='no residual tumor grade0' and language_alias = 'no residual tumor grade0'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_trt_effect_precision'), 
+(select id from structure_permissible_values where value='moderate response grade1' and language_alias = 'moderate response grade1'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_trt_effect_precision'), 
+(select id from structure_permissible_values where value='minimal response grade2' and language_alias = 'minimal response grade2'), 3,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_trt_effect_precision')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='treatment_effect_precision';
+
+insert ignore into structure_permissible_values (value, language_alias) values
+('intact nuclear positivity, tumor cells', 'intact nuclear positivity, tumor cells'),
+('loss of nuclear positivity, tumor cells', 'loss of nuclear positivity, tumor cells'),
+('pending', 'pending'),
+('other', 'other'),
+('mutant BRAF detected', 'mutant BRAF detected'),
+('no mutant BRAF detected', 'no mutant BRAF detected'),
+('mutant KRAS detected', 'mutant KRAS detected'),
+('no mutant KRAS detected', 'no mutant KRAS detected');
+
+insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
+values 
+('col_rect_ancillary_stud_immuno', 'open', '', null), 
+('col_rect_ancillary_stud_mutation_braf', 'open', '', null), 
+('col_rect_ancillary_stud_mutation_kras', 'open', '', null);
+
+insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
+values 
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_immuno'), 
+(select id from structure_permissible_values where value='intact nuclear positivity, tumor cells' and language_alias = 'intact nuclear positivity, tumor cells'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_immuno'), 
+(select id from structure_permissible_values where value='loss of nuclear positivity, tumor cells' and language_alias = 'loss of nuclear positivity, tumor cells'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_immuno'), 
+(select id from structure_permissible_values where value='pending' and language_alias = 'pending'), 3,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_immuno'), 
+(select id from structure_permissible_values where value='other' and language_alias = 'other'), 4,1,''),
+
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_braf'), 
+(select id from structure_permissible_values where value='mutant BRAF detected' and language_alias = 'mutant BRAF detected'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_braf'), 
+(select id from structure_permissible_values where value='no mutant BRAF detected' and language_alias = 'no mutant BRAF detected'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_braf'), 
+(select id from structure_permissible_values where value='other' and language_alias = 'other'), 3,1,''),
+
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_kras'), 
+(select id from structure_permissible_values where value='mutant KRAS detected' and language_alias = 'mutant KRAS detected'), 1,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_kras'), 
+(select id from structure_permissible_values where value='no mutant KRAS detected' and language_alias = 'no mutant KRAS detected'), 2,1,''),
+((select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_kras'), 
+(select id from structure_permissible_values where value='other' and language_alias = 'other'), 3,1, '');
+
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='microsatellite_instability_grade')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='microsatellite_instability_grade';
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_ancillary_stud_immuno')
+where tablename='dxd_cap_report_colon_rectum_resections' and field IN ('MLH1_result', 'MSH2_result', 'MSH6_result', 'PMS2_result');
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_braf')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='BRAF_result';
+update structure_fields
+set structure_value_domain=(select id from structure_value_domains where domain_name='col_rect_ancillary_stud_mutation_kras')
+where tablename='dxd_cap_report_colon_rectum_resections' and field='KRAS_result';
+
+-- revision --
+
+UPDATE structure_formats SET language_heading = 'procedure' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_rectum_resections' 
+AND field = 'procedure'); 
+
+UPDATE structure_formats SET language_heading = 'specimen length' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_rectum_resections' 
+AND field = 'specimen_length_specify'); 
+
+UPDATE structure_formats SET flag_override_label = '0', language_label = ''
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters' 
+AND field IN ('additional_dimension_a', 'tumor_size_greatest_dimension'));  
+
+UPDATE structure_formats SET language_heading = 'macroscopic tumor perforation' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_rectum_resections' 
+AND field = 'macroscopic_tumor_perforation'); 
+
+UPDATE structure_formats SET language_heading = 'macroscopic intactness of mesorectum' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_rectum_resections' 
+AND field = 'macroscopic_intactness_of_mesorectum'); 
+
+UPDATE structure_formats SET language_heading = 'histologic type' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'dxd_cap_report_colon_rectum_resections' 
+AND field = 'histologic_type');  
+
+UPDATE structure_formats SET language_heading = 'histologic grade' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_cr' 
+AND field = 'tumour_grade'); 
+
+UPDATE structure_formats SET language_heading = 'intratumoral lymphocytic response' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_cr' 
+AND field = 'intratumoral_lymphocytic_response'); 
+
+UPDATE structure_formats SET language_heading = 'peritumor lymphocytic response' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_cap_report_colon_rectum_resections') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE tablename = 'diagnosis_masters_cr' 
+AND field = 'peritumor_lymphocytic_response'); 
+
+INSERT IGNORE INTO i18n (id,en) VALUES
+('right hemicolectomy','Right Hemicolectomy'),
+('transverse colectomy','Transverse Colectomy'),
+('left hemicolectomy','Left Hemicolectomy'),
+('sigmoidectomy','Sigmoidectomy'),
+('rectal/rectosigmoid colon (low anterior resection)','Rectal/Rectosigmoid Colon (low anterior resection)'),
+('total abdominal colectomy','Total Abdominal Colectomy'),
+('abdominoperineal resection','Abdominoperineal Resection'),
+('transanal disk excision (local excision)','Transanal Disk Excision (local excision)'),
+('near complete','Near Complete'),
+('incomplete','Incomplete'),
+('mild to moderate (0-2 per high-power [X400] field)','Mild to Moderate (0-2 per high-power [X400] field)'),
+('marked (3 or more per high-power field)','Marked (3 or more per high-power field)'),
+('mild to moderate','Mild to Moderate'),
+('marked','Marked'),
+('adenoma', 'Adenoma'),
+('ancillary not performed', 'Ancillary not performed'),
+('anus', 'Anus'),
+('appendix', 'Appendix'),
+('ascending colon', 'Ascending Colon'),
+('BRAF', 'BRAF'),
+('BRAF result', 'BRAF - Result'),
+('BRAF specify', 'BRAF - Specify'),
+('cap report - colon/rectum resection', 'CAP Report - Colon/Rectum (Resection)'),
+('chronic ulcerative proctocolitis', 'Chronic Ulcerative Proctocolitis'),
+('circumferential margin', 'Circumferential Margin'),
+('colon, not otherwise specified', 'Colon, not otherwise specified'),
+('descending colon', 'Descending Colon'),
+('distance of invasive carcinoma from closest lateral margin', 'Distance of invasive carcinoma from closest lateral margin'),
+('dysplasia arising in inflammatory bowel disease', 'Dysplasia arising in inflammatory bowel disease'),
+('high histologic grade', 'High Histologic Grade'),
+('intact nuclear positivity, tumor cells', 'Intact nuclear positivity, tumor cells'),
+('intramucosal carcinoma adenoma not identified at distal', 'Intramucosal carcinoma adenoma not identified at distal'),
+('intramucosal carcinoma adenoma not identified at proximal', 'Intramucosal carcinoma adenoma not identified at proximal'),
+('intramucosal carcinoma adenoma present at distal margin', 'Intramucosal carcinoma adenoma present at distal margin'),
+('intramucosal carcinoma adenoma present at proximal margin', 'Intramucosal carcinoma adenoma present at proximal margin'),
+('intramucosal carcinoma invasion of lamina propria', 'Intramucosal carcinoma invasion of lamina propria'),
+('intratumoral lymphocytic response', 'Intratumoral lymphocytic response'),
+('KRAS', 'KRAS'),
+('KRAS result', 'KRAS - Result'),
+('KRAS specify', 'KRAS - Specify'),
+('lateral margin', 'Lateral Margin'),
+('loss of nuclear positivity, tumor cells', 'Loss of nuclear positivity, tumor cells'),
+('macroscopic intactness of mesorectum', 'Macroscopic intactness of mesorectum'),
+('medullary tumor component', 'Medullary Tumor Component'),
+('minimal response grade2', 'Minimal Response Grade2'),
+('moderate response grade1', 'Moderate Response Grade1'),
+('mucinous tumor component', 'Mucinous Tumor Component'),
+('mutant BRAF detected', 'Mutant BRAF detected'),
+('mutant KRAS detected', 'Mutant KRAS detected'),
+('no definite response identified grade3', 'No definite response identified grade3'),
+('no mutant BRAF detected', 'No mutant BRAF detected'),
+('no mutant KRAS detected', 'No mutant KRAS detected'),
+('no residual tumor grade0', 'No residual tumor grade0'),
+('other polyps', 'Other polyps'),
+('other polyps type', 'Other polyps type'),
+('peritumor lymphocytic response', 'Peritumor lymphocytic response'),
+('pm1a: metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)', 'PM1a: Metastasis to single organ or site (eg, liver, lung, ovary, nonregional lymph node)'),
+('pm1b: metastasis to more than one organ/site or to the peritoneum', 'PM1b: Metastasis to more than one organ/site or to the peritoneum'),
+('pn1a: metastasis in 1 regional lymph node', 'PN1a: Metastasis in 1 regional lymph node'),
+('pn1b: metastasis in 2 to 3 regional lymph nodes', 'PN1b: Metastasis in 2 to 3 regional lymph nodes'),
+('pn1c: tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis', 'PN1c: Tumor deposit(s) in the subserosa, or non-peritonealized pericolic or perirectal tissues without regional lymph node metastasis'),
+('pn2a: metastasis in 4 to 6 regional lymph nodes', 'PN2a: Metastasis in 4 to 6 regional lymph nodes'),
+('pn2b: metastasis in 7 or more regional lymph nodes', 'PN2b: Metastasis in 7 or more regional lymph nodes'),
+('pt1: tumor invades submucosa', 'PT1: Tumor invades submucosa'),
+('pt3: tumor invades through the muscularis propria into pericolorectal tissues', 'PT3: Tumor invades through the muscularis propria into pericolorectal tissues'),
+('pt4b: tumor directly invades or is adherent to other organs or structures', 'PT4b: Tumor directly invades or is adherent to other organs or structures'),
+('ptis: carcinoma in situ, intraepithelial (no invasion)', 'PTis: Carcinoma in situ, intraepithelial (no invasion)'),
+('ptis: carcinoma in situ, invasion of lamina propria', 'PTis: Carcinoma in situ, invasion of lamina propria'),
+('rectosigmoid', 'Rectosigmoid'),
+('specify location if possible', 'Specify'),
+('specify percentage', 'Specify'),
+('specimen length', 'Specimen Length'),
+('specimen length specify (cm)', 'Specimen Length Specify (cm)'),
+('terminal ileum', 'Terminal Ileum'),
+('treatment effect precision', 'precision'),
+('tumor deposits', 'Tumor Deposits'),
+('tumor invades through the muscularis propria', 'Tumor invades through the muscularis propria'),
+('tumor is adherent to other organs or structures', 'Tumor is adherent to other organs or structures'),
+('tumor penetrates to the surface of the visceral peritoneum', 'Tumor penetrates to the surface of the visceral peritoneum'),
+('tumor penetrates to the surface of visceral peritoneum', 'Tumor penetrates to the surface of visceral peritoneum'),
+('tumor subtype and differentiation', 'Tumor subtype and differentiation'),
+('type of polyp', 'Type of Polyp'),
+('uninvolved by adenoma', 'Uninvolved by adenoma');
+
+-- Manage index and search form for databrowser
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_search_readonly = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias LIKE 'dx_cap_report_%'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_search_readonly = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.plugin = 'Clinicalannotation'
+AND sfi.model IN ('DiagnosisMaster', 'DiagnosisDetail')
+AND sfi.field IN ('histologic_type', 'tumour_grade', 'dx_date', 'path_tstage', 'path_nstage', 'path_mstage')
+AND s.alias LIKE 'dx_cap_report_%'; 
+
+UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE form_alias LIKE 'dx_cap_report_%';
+
+-- Fix issue 1172
+
+ALTER TABLE diagnosis_masters
+	MODIFY COLUMN `tumour_grade` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas
+	MODIFY COLUMN `proximal_mucosal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `distal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_gallbladders
+	MODIFY COLUMN `microscopic_tumor_extension` varchar(150) DEFAULT NULL;
+	
+ALTER TABLE diagnosis_masters_revs
+	MODIFY COLUMN `tumour_grade` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+	MODIFY COLUMN `proximal_mucosal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `distal_margin` varchar(150) DEFAULT NULL,
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+	MODIFY COLUMN `pancreatic_retroperitoneal_margin` varchar(150) DEFAULT NULL;
+ALTER TABLE dxd_cap_report_gallbladders_revs
+	MODIFY COLUMN `microscopic_tumor_extension` varchar(150) DEFAULT NULL;
+
