@@ -131,11 +131,12 @@ class OrderItemsController extends OrderAppController {
   	function addAliquotsInBatch($aliquot_master_id = null){
   		
   		// MANAGE SET OF ALIQUOT IDS TO WORK ON
-		$aliquot_ids_to_add = null;
+		$order_line_id = null;
+  		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
 		$launch_save_process = false;
-		
-		if(empty($this->data)) {
+
+		if(empty($this->data) || isset($this->data['BatchSet'])) {
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -153,24 +154,30 @@ class OrderItemsController extends OrderAppController {
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
 				
 					
-			} else if(isset($_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'])){
+			} else if(isset($this->data['BatchSet'])){
 				// Add aliquots from batchset
-				
+						
 				// Get batchset id
-				$batch_set_id = $_SESSION['ctrapp_core']['datamart']['process']['BatchSet']['id'];
+				$batch_set_id = $this->data['BatchSet']['id'];
 				
 				// Build redirect url
 				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
 			
-				//TODO Add following lines to patch bug on the array of ids sent by the batchset process
-				// $studied_aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
-				$aliquot_master_ids = $_SESSION['ctrapp_core']['datamart']['process']['AliquotMaster']['id'];
+				$aliquot_master_ids = array();
+				if(isset($this->data['AliquotMaster'])) {
+					$aliquot_master_ids = $this->data['AliquotMaster']['id'];
+				} else if(isset($this->data['ViewAliquot'])) {
+					$aliquot_master_ids = $this->data['ViewAliquot']['aliquot_master_id'];
+				} else {
+					$this->redirect('/pages/err_order_system_errorsss', null, true); 
+				}
 				foreach($aliquot_master_ids as $new_id){ 
 					if(!empty($new_id)){ 
 						$studied_aliquot_master_ids[] = $new_id; 
 					}
 				}
 				$aliquot_master_ids = null;
+				$this->data = null;
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
@@ -220,20 +227,17 @@ class OrderItemsController extends OrderAppController {
 				// Set data to session
 				$aliquot_ids_to_add = $studied_aliquot_master_ids;
 				$_SESSION['Order']['AliquotIdsToAddToOrder'] = $studied_aliquot_master_ids;
+				$_SESSION['Order']['url_to_redirect'] = $url_to_redirect;
 			}	
 					
 		} else {
-			// B- User should have selected an order line: get ids from session and launch save process
-			if(isset($this->data['order_line_ids']) && strpos($this->data['order_line_ids'], "_") !== false){
-				$splitted_ids = split("_", $this->data['order_line_ids']);
-				$order_id = $splitted_ids[0];
-				$order_line_id = $splitted_ids[1];
-			}
+			$order_line_id = $this->data['OrderLine']['id'];
 			if(!isset($_SESSION['Order']['AliquotIdsToAddToOrder'])) { 
 				$this->redirect('/pages/err_order_system_error', null, true); 
 			}
 			$aliquot_ids_to_add = $_SESSION['Order']['AliquotIdsToAddToOrder'];
 			$launch_save_process = true;
+			$url_to_redirect = isset($_SESSION['Order']['url_to_redirect'])? $_SESSION['Order']['url_to_redirect']: '/menus';
 		}
 		
 		// MANAGE DATA
@@ -243,17 +247,14 @@ class OrderItemsController extends OrderAppController {
 		$this->set('aliquots_data' , $aliquots_data);	
 				
 		// Build data for order line selection
-		$order_line_data_for_tree_view = $this->Order->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed')))));
-		foreach($order_line_data_for_tree_view as &$var){
-			$var['children'] = $var['OrderLine'];
-			unset($var['OrderLine']);
-			foreach($var['children'] as $key => &$var2){
-				$var['children'][$key] = array('OrderLine' => $var2);
-			}
-			unset($var['Shipment']);
+		$this->OrderLine->unbindModel(array('hasMany' => array('OrderItem')));		
+		$order_line_data = $this->OrderLine->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC, OrderLine.date_required ASC'));
+		if(!$order_line_data) {
+			$this->flash('no order line to complete is actually defined', $url_to_redirect);
+			return;
 		}
-		$this->set('order_line_data_for_tree_view', $order_line_data_for_tree_view);
-
+		$this->set('order_line_data', $order_line_data);
+		
 		// Set url for cancel button
 		$this->set('url_to_cancel', $url_to_redirect);	
 		
@@ -262,11 +263,7 @@ class OrderItemsController extends OrderAppController {
 		// Structures
 		$this->Structures->set('view_aliquot_joined_to_sample_and_collection', 'atim_structure_for_aliquots_list');
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
-		
-		$atim_structure = array();
-		$atim_structure['Order'] = $this->Structures->get('form', 'orders');
-		$atim_structure['OrderLine'] = $this->Structures->get('form', 'orderlines');
-		$this->set('atim_structure', $atim_structure);
+		$this->Structures->set('order_lines_to_addAliquotsInBatch', 'atim_structure');
 		
 		// Menu
 		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
@@ -283,16 +280,12 @@ class OrderItemsController extends OrderAppController {
 			$submitted_data_validates = true;			
 
 			// Get aliquot data
-			if(isset($order_line_id) && isset($order_id)){
-				$order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id, 'OrderLine.order_id' => $order_id), 'recursive' => '-1'));
-				if(empty($order_line_data)) {
-					$this->redirect( '/pages/err_order_system_error', null, true );
-				}
-			}else{
+			$selected_order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => '-1'));
+			if(empty($selected_order_line_data)) {
 				$submitted_data_validates = false;
 				$this->OrderItem->validationErrors[] = __("invalid order line", true);
 			}
-				
+			$order_id = $selected_order_line_data['OrderLine']['order_id'];		
 			
 			// Launch validation on order item data
 			$this->OrderItem->set($this->data);

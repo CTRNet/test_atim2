@@ -41,7 +41,7 @@ SELECT id, sample_type, notes FROM `sample_masters` WHERE `sample_control_id` =1
 SELECT sample_label, received_volume, collected_volume 
 FROM sample_masters 
 INNER JOIN `sd_spe_urines` ON sample_masters.id = sd_spe_urines.sample_master_id
-WHERE `received_volume` != `collected_volume` 
+WHERE `received_volume` != `collected_volume`;
 -- -> 0 records
 
 -- check #9 : Test unused collection fields that will be dropped
@@ -97,8 +97,8 @@ SELECT DISTINCT `date_captured` , `age_at_menopause` , `menopause_age_certainty`
 FROM reproductive_histories;
 -- -> 0 records
 
--- check #16 : Check no source block has been difined
-SELECT DISTINCT `block_aliquot_master_id` FROM `ad_tissue_slides`;
+-- check #16 : Check no source block has been defined
+SELECT DISTINCT `ad_block_id` FROM `ad_tissue_slides`;
 -- -> 0 records
 
 -- check #17 : Check no error into the derivative sample label creation

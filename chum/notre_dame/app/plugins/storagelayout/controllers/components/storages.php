@@ -86,7 +86,7 @@ class StoragesComponent extends Object {
 	 * 	['storage_definition_error'] => storage defintion error (empty when no error)
 	 */
 	
-	function validateStorageIdVersusSelectionLabel($recorded_selection_label, $selected_storage_master_id) {
+	function validateStorageIdVersusSelectionLabel($recorded_selection_label, $selected_storage_master_id, $is_sample_core = false) {
 		$matching_storage_list = array();
 		$storage_definition_error = '';
 		$check_tma = false;
@@ -140,8 +140,8 @@ class StoragesComponent extends Object {
 		} 	// else if { $selected_storage_master_id and $recorded_selection_label empty: Nothing to do }
 		
 		// Check defined storage is not a TMA
-		if($check_tma && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
-			$storage_definition_error = 'the defined storage is a tma';
+		if($check_tma && (!$is_sample_core) && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+			$storage_definition_error = 'only sample core can be stored into tma block';
 		}
 		
 		return array(

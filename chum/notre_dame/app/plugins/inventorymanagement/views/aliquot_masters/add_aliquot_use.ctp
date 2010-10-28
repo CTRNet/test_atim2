@@ -18,21 +18,3 @@
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );			
 ?>
-<div id="popup" class="std_popup question">
-	<div style="background: #FFF;">
-		<h4><?php __("the used volume is higher than the remaining volume"); ?></h4>
-		<p>
-		<?php __("do you wish to proceed?"); ?>
-		</p>
-		<span class="button confirm">
-			<a class="form detail">Yes</a>
-		</span>
-		<span class="button close">
-			<a class="form delete">No</a>
-		</span>
-	</div>
-</div>
-
-<script type="text/javascript">
-aliquotVolumeCheck = true;
-</script>

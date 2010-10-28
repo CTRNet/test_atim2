@@ -58,8 +58,11 @@ class PreferencesController extends AdministrateAppController {
 			}
 		
 		if ( !empty($this->data) ) {
-		
+			// Set the user and group to the id's of the selected user, not currently logged in user.
 			$this->User->id = $user_id;
+			$this->data['User']['id'] = $user_id; 
+			$this->data['User']['group_id'] = $group_id; 
+			$this->data['Group']['id'] = $group_id;
 			
 			$this->Config->id = $config_id;
 			$this->data['Config']['bank_id'] = 0;

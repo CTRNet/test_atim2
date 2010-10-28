@@ -8,18 +8,18 @@
 # ALIQUOT ----------------------------------------------------------------
 
 ALTER TABLE ad_tubes
-    ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
-    ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
-    ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
---    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,sourc
-    ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
-    ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
-    MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
+   ADD cell_count decimal(10,2) NULL DEFAULT NULL COMMENT '' AFTER concentration_unit,
+   ADD cell_count_unit varchar(20) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER cell_count,
+   ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
+--   ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,
+   ADD deleted tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '' AFTER modified_by,
+   ADD deleted_date datetime NULL DEFAULT NULL COMMENT '' AFTER deleted,
+   MODIFY aliquot_master_id int(11) NULL DEFAULT NULL COMMENT '';
     
-ALTER TABLE ad_tubes_revs
-    ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
-    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,    
-    ADD tmp_storage_solution varchar(30) NULL DEFAULT NULL AFTER tmp_storage_method;
+-- ALTER TABLE ad_tubes_revs
+--    ADD cell_passage_number varchar(10) NULL DEFAULT NULL AFTER cell_count_unit,
+--    ADD tmp_storage_method varchar(30) NULL DEFAULT NULL AFTER cell_passage_number,    
+--    ADD tmp_storage_solution varchar(30) NULL DEFAULT NULL AFTER tmp_storage_method;
 
 #mode ad_cell_culture_tubes to ad_tubes
 INSERT INTO ad_tubes (aliquot_master_id, lot_number, concentration, concentration_unit, cell_count, cell_count_unit, tmp_storage_solution, cell_passage_number, created, created_by, modified, modified_by)
@@ -77,8 +77,8 @@ ALTER TABLE aliquot_controls
     MODIFY detail_tablename varchar(255) NOT NULL DEFAULT '' COMMENT '' COLLATE latin1_swedish_ci;
 
 #Delete unused aliquot_controls that have not been defined into 2.0 (check #1)
-DELETE FROM sample_aliquot_control_links WHERE aliquot_control_id IN ('3', '7', '9');
-DELETE FROM aliquot_controls WHERE id IN ('3', '7', '9');
+#DELETE FROM sample_aliquot_control_links WHERE aliquot_control_id IN ('3', '7', '9');
+#DELETE FROM aliquot_controls WHERE id IN ('3', '7', '9');
 
 ALTER TABLE aliquot_masters
     CHANGE status in_stock varchar(30) NULL DEFAULT NULL COMMENT '' COLLATE latin1_swedish_ci AFTER aliquot_volume_unit,

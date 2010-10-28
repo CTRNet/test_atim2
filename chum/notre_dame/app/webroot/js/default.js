@@ -1,3 +1,5 @@
+var toolTarget = null;
+
 function initSummary(){
 	var open = function(){
 		var summary_hover = $(this);
@@ -18,27 +20,28 @@ function initSummary(){
 	$('#menu #summary').hover(open, close);
 }
 
-//Slide down animation for action menu. Kills other displayed action menus
+//Slide down animation (show) for action menu
 var actionMenuShow = function(){
 	var action_hover = $(this);
 	var action_popup = action_hover.find('div.filter_menu');
 	if ( action_popup.length > 0 ) {
-		//kill other menus
-		$('div.actions ul ul.filter li div.filter_menu').stop(true, true).hide();
 		//show current menu
-		action_popup.stop(true, true).slideDown(100);
+		action_popup.slideDown(100);
 	}
 };
 	
-//Slide up animation for action menu.
+//Slide up (hide) animation for action menu.
 var actionMenuHide = function(){
 	var action_hover = $(this);
 	var action_popup = action_hover.find('div.filter_menu');
-	if ( action_popup.length>0 ) {
-		action_popup.delay(101).slideUp(100);
+	if (action_popup.length > 0) {
+		action_popup.slideUp(100).queue(function(){
+			$(this).clearQueue();
+		});
 	}
 };
 
+var menuMoveDistance = 174;
 var actionClickUp = function() {
 	var span_up = $(this);
 	var move_ul = span_up.parent('div.filter_menu').find('ul');
@@ -50,7 +53,7 @@ var actionClickUp = function() {
 		
 		move_ul.animate(
 			{
-				top: '+=203'
+				top: '+=' + menuMoveDistance
 			},
 			150,
 			'linear'
@@ -70,10 +73,10 @@ var actionClickDown = function() {
 	
 	
 	// only scroll if not already at edge...
-	if ( (position.top - 203) > (-1 * move_ul.height()) ) {
+	if ( (position.top - menuMoveDistance) > (-1 * move_ul.height()) ) {
 		move_ul.animate(
 			{
-				top: '-=203'
+				top: '-=' + menuMoveDistance
 			},
 			150,
 			'linear'
@@ -232,10 +235,10 @@ function uncheckAll( $div ) {
 	/**
 	 * Advanced controls are search OR options and RANGE buttons
 	 */
-	function initAdvancedControls(){
+	function initAdvancedControls(scope){
 		//for each add or button
-		$(".btn_add_or").each(function(){
-			var $field = $(this).parent().parent().find("span:first");
+		$(scope).find(".btn_add_or").each(function(){
+			var $field = $(this).prev();
 			if($($field).find("input, select").length == 1){
 				$($field).find("input, select").each(function(){
 					$(this).attr("name", $(this).attr("name") + "[]");
@@ -252,9 +255,9 @@ function uncheckAll( $div ) {
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().parent().append("<span class='adv_ctrl'>" + STR_OR + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
 					//find the newly generated input
-					var $newField = $(this).parent().parent().find("span.adv_ctrl:last");
+					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					//update its id
 					$($newField).find("input, select").each(function(){
 						$(this).attr("id", $(this).attr("id") + "_" + idIncrement);
@@ -265,13 +268,15 @@ function uncheckAll( $div ) {
 						initDatepicker(this);
 					});
 					
+					initAutocomplete($newField);
+					initToolPopup($newField);
 					
 					//bind the remove command to the remove button
-					$(this).parent().parent().find(".btn_rmv_or:last").click(function(){
+					$(this).parent().find(".btn_rmv_or:last").click(function(){
 						$(this).parent().remove();
 					});
 					//move the add button to the end
-					$(this).parent().parent().append($(this).parent());
+					$(this).parent().append($(this));
 					
 					//reset the highlighting
 					$('form').highlight('tr');
@@ -282,16 +287,18 @@ function uncheckAll( $div ) {
 			}
 		});
 		
-		$(".range").each(function(){
+		$(scope).find(".range").each(function(){
 			//uses .btn_add_or to know if this is a search form and if advanced controls are on
 			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
 		});
-		$(".range_btn").toggle(function(){
+		$(scope).find(".range_btn").toggle(function(){
 			var cell = getParentElement(this, "TD");
 			$(cell).find("input").val("");
 			if($(cell).find(".range_span").length == 0){
+				var baseName = $(cell).find("input").attr("name");
+				baseName = baseName.substr(0, baseName.length - 3);
 				$(cell).find("span:first").addClass("adv_ctrl");
-				$(cell).prepend("<span class='range_span'><input type='text' name='data[MiscIdentifier][identifier_value_start]'/> " + STR_TO + " <input type='text' name='data[MiscIdentifier][identifier_value_end]'/></span>");
+				$(cell).prepend("<span class='range_span'><input type='text' name='" + baseName + "_start]'/> " + STR_TO + " <input type='text' name='" + baseName + "_end]'/></span>");
 			}else{
 				$(cell).find(".range_span").show();
 				//restore names
@@ -355,8 +362,8 @@ function uncheckAll( $div ) {
 		return getParentElement(element, "TR");
 	}
 	
-	function initAutocomplete(){
-		$(".jqueryAutocomplete").each(function(){
+	function initAutocomplete(scope){
+		$(scope).find(".jqueryAutocomplete").each(function(){
 			var json = getJsonFromClass($(this).attr("class"));
 			var fct = eval("(" + json.callback + ")");
 			fct.apply(this, [this, json]);
@@ -364,19 +371,25 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAliquotVolumeCheck(){
-		$(".form.submit").unbind('click').attr("onclick", "return false;");
-		$(".form.submit").click(function(){
-			var denom = $("#AliquotMasterCurrentVolume").val().replace(/,/g, ".");
-			var nom = $("#AliquotUseUsedVolume").val().replace(/,/g, ".");
-			if(nom.length > 0 && nom > denom){
+		var checkFct = function(){
+			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")) };
+			var denom = fctMod($("#AliquotMasterCurrentVolume").val());
+			var nom = fctMod($("#AliquotUseUsedVolume").val());
+			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
+				$("input, textarea, a").blur();
 				$("#popup").popup();
+				return false;
 			}else{
 				$("#submit_button").click();
 			}
-			return false;
-		});
+		};
+		
+		$("form").submit(checkFct);
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
+		$(".form.submit").click(checkFct);
 
 		$(".button.confirm").click(function(){
+			$("#popup").popup('close');
 			$("#submit_button").click();
 		});
 		$(".button.close").click(function(){
@@ -396,12 +409,87 @@ function uncheckAll( $div ) {
 		refreshTopBaseOnAction(actionControl);
 	}
 	
+	/**
+	 * Initialises check/uncheck all controls
+	 * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
+	 */
+	function initCheckAll(scope){
+		var elem = $(scope).find(".checkAll");
+		if(elem.length > 0){
+			parent = getParentElement(elem, "TBODY");
+			$(elem).click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", true);
+				return false;
+			});
+			$(scope).find(".uncheckAll").click(function(){
+				$(parent).find('input[type=checkbox]').attr("checked", false);
+				return false;
+			});
+		}
+	}
+	
 	function getParentElement(currElement, parentName){
 		do{
 			currElement = $(currElement).parent();
 			nodeName = currElement[0].nodeName;
 		}while(nodeName != parentName && nodeName != "undefined");
 		return currElement;
+	}
+	
+	//Delete confirmation dialog
+	function initDeleteConfirm(){
+		if($(".action .form.delete").length > 0){
+			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
+				'<div style="background: #FFF;">' +
+					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
+					'<span class="button deleteConfirm">' +
+						'<a class="form detail">' + STR_YES + '</a>' +
+					'</span>' +
+					'<span class="button deleteClose">' +
+						'<a class="form delete">' + STR_NO + '</a>' +
+					'</span>' +
+				'</div>' +
+				'<input type="hidden" id="deleteLink" value=""/>' +
+			'</div>');
+			
+			$(".form.delete").click(function(){
+				$("#deleteConfirmPopup").popup();
+				$("#deleteLink").val($(this).attr("href"));
+				return false;
+			});
+			$("#deleteConfirmPopup .deleteConfirm").click(function(){
+				document.location = $("#deleteLink").val(); 
+			});
+			$("#deleteConfirmPopup .deleteClose, #deleteConfirmPopup .delete").click(function(){
+				$("#deleteConfirmPopup").popup('close');
+			});
+		}
+	}
+	
+	//tool_popup
+	function initToolPopup(scope){
+		$(scope).find(".tool_popup").click(function(){
+			var parent_elem = $(this).parent().children();
+			toolTarget = null;
+			for(i = 0; i < parent_elem.length; i ++){
+				//find the current element
+				if(parent_elem[i] == this){
+					for(j = i - 1; j >= 0; j --){
+						//find the previous input
+						if(parent_elem[j].nodeName == "INPUT"){
+							toolTarget = parent_elem[j];
+							break;
+						}
+					}
+					break;
+				}
+			}
+			$.get($(this).attr("href"), null, function(data){
+				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+				$("#default_popup input[type=text]").first().focus();
+			});
+			return false;
+		});
 	}
 	
 	function initJsControls(){
@@ -420,6 +508,17 @@ function uncheckAll( $div ) {
 		if(typeof(actionControl) != 'undefined'){
 			initActionControl(actionControl);
 		}
+		if(typeof(ccl) != 'undefined'){
+			initCcl();
+		}
+		if(typeof(batchSetControls) != 'undefined'){
+			initBatchSetControls();
+		}
+		if(typeof(pathReviewEditRemoveLastLine) != 'undefined'){
+			var elem = $(getParentElement($(".addLineCount"), "TABLE")).find("tbody tr:last").remove();
+		}
+		
+		initDeleteConfirm();
 		
 		//field highlighting
 		if($("#table1row0").length == 1){
@@ -454,8 +553,9 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		
-		initAutocomplete();
-		initAdvancedControls();
+		initAutocomplete(document);
+		initAdvancedControls(document);
+		initToolPopup(document);
 		initTooltips();
 		initActions();
 		initSummary();
@@ -465,6 +565,10 @@ function uncheckAll( $div ) {
 		$(".datepicker").each(function(){
 			initDatepicker(this);
 		});
+		
+		
+		
+		initCheckAll(document);
 	}
 
 	function debug(str){

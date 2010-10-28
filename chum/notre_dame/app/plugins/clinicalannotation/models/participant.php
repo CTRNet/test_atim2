@@ -1,12 +1,6 @@
 <?php
 
 class Participant extends ClinicalannotationAppModel {
-	var $belongsTo = array(
-		'CodingIcd10' => array(
-			'className'   => 'codingicd10.CodingIcd10',
-			 	'foreignKey'  => 'cod_icd10_code',
-			 	'dependent' => true)
-	);
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -31,11 +25,6 @@ class Participant extends ClinicalannotationAppModel {
 		}
 		
 		return $return;
-	}
-   
-	function validateIcd10Code(&$check){
-		$values = array_values($check);
-		return CodingIcd10::id_blank_or_exists($values[0]);
 	}
 	
 	/**
