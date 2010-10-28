@@ -204,9 +204,16 @@ class MasterDetailBehavior extends ModelBehavior {
 			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
 				// use CONTROL_ID to get control row
 				$associated = $model->$control_class->find('first',array('conditions' => array($control_class.'.id' => $model->data[$master_class][$control_foreign])));
-			} else {
+			} else if(isset($model->id) && is_numeric($model->id)){
 				// else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
-				$associated = $model->find('first',array($master_class.'.id' => $model->id));
+				$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id)));
+			}else if(isset($model->data[$master_class]['id'])){
+				// else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
+				$associated = $model->find('first',array('conditions' => array($master_class.'.id' => $model->data[$master_class]['id'])));
+			}else{
+				//FAIL!, we ABSOLUTELY WANT validations
+				AppController::getInstance()->redirect( '/pages/err_internal?p[]='.__CLASS__." @ line ".__LINE__, NULL, TRUE );
+				exit;
 			}
 			
 			$use_form_alias = $associated[$control_class][$form_alias];
