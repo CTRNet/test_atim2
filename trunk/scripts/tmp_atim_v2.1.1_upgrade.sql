@@ -8,3 +8,8 @@ SET `version_number` = 'v2.1.1', `date_installed` = CURDATE(), `build_number` = 
 WHERE `versions`.`id` =1;
 
 TRUNCATE `acos`;
+
+-- Fix issue 1178: Mismatch between main tables and revs tables
+
+ALTER TABLE diagnosis_masters_revs
+  MODIFY `path_mstage` varchar(15) DEFAULT NULL;
