@@ -690,24 +690,12 @@ UPDATE structure_fields SET model = 'SampleDetail' WHERE field IN ('qc_hb_nb_cel
 
 ALTER TABLE sd_der_pbmcs
   MODIFY `qc_hb_nb_cells` float unsigned;
-ALTER TABLE sd_der_pbmcs_revs
-  MODIFY `qc_hb_nb_cells` float unsigned;
+ALTER TABLE `sd_der_pbmcs_revs` ADD `qc_hb_nb_cells` FLOAT UNSIGNED,
+ADD `qc_hb_nb_cell_unit` VARCHAR( 50 ) NOT NULL DEFAULT '';
     
 UPDATE storage_controls SET flag_active = '0' WHERE storage_type NOT IN (  
-'room',
-'cupboard',
-'nitrogen locator',
-'fridge',
-'freezer',
-'box',
-'box81',
-'rack16',
-'rack10',
-'rack24',
-'shelf',
-'rack11',
-'rack9',
-'ice');
+'room','cupboard','nitrogen locator','fridge','freezer','box','box81','rack16',
+'rack10','rack24','shelf','rack11','rack9','ice');
 
 INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, 
 `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, 
@@ -743,7 +731,7 @@ SET link.flag_active = '0'
 WHERE samp.id = link.sample_control_id
 AND al.id = link.aliquot_control_id
 AND al.form_alias = 'ad_spec_tubes'
-AND samp.sample_type = 'tissue'
+AND samp.sample_type = 'tissue';
 
 UPDATE aliquot_controls SET form_alias = 'ad_spec_qc_hb_tissue_tubes', aliquot_type = 'tube', databrowser_label = 'tube', aliquot_type_precision = 'tissue'
 WHERE form_alias = 'ad_spec_conical_tubes';
@@ -761,12 +749,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE tablename = 'ad_tubes' AND field LIKE 'qc_hb_is_conic_tube'), 
 '0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
 
-'conic tube'
-
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('box100', '', 'Box100 1-100', 'Boîte100 1-100'),
 ('box27', '', 'Box27 1-27', 'Boîte27 1-27'),
-('conic tube', 'Conic Tube', 'Tube conique');
+('conic tube', '', 'Conic Tube', 'Tube conique');
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
