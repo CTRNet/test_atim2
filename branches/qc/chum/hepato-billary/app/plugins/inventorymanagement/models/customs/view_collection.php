@@ -17,9 +17,8 @@ class ViewCollectionCustom extends ViewCollection {
 					'title' => array(null, __('collection', true) . ' : ' . $collection_data['ViewCollection']['acquisition_label']),
 					
 					'description'=> array(
-						__('participant identifier', true) => $collection_data['ViewCollection']['participant_identifier'],
-						__('collection bank', true) => $collection_data['ViewCollection']['bank_name'],
 						__('hepato_bil_bank_participant_id', true) => $collection_data['ViewCollection']['hepato_bil_bank_participant_id'],
+						__('collection bank', true) => $collection_data['ViewCollection']['bank_name'],
 						__('collection datetime', true) => $collection_data['ViewCollection']['collection_datetime'],
 						__('collection site', true) => $collection_data['ViewCollection']['collection_site'].'too'
 					)

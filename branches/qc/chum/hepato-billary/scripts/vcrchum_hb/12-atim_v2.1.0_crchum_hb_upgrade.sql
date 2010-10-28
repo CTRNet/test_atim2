@@ -674,6 +674,99 @@ AND sfi.field  = 'sample_code';
 
 UPDATE i18n SET en = 'Sample System Code', fr = 'Code systême échantillon' WHERE id = 'sample code';
 	 	
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_override_label = '1', sfo.language_label = 'aliquot code'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field  = 'barcode'
+AND model IN ('AliquotMaster', 'ViewAliquot');
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('aliquot code','Aliquot System Code','Code systême aliquot'),
+('qc hb label', 'Label', 'Étiquette');
+
+UPDATE structure_fields SET model = 'SampleDetail' WHERE field IN ('qc_hb_nb_cells', 'qc_hb_nb_cell_unit');
+
+ALTER TABLE sd_der_pbmcs
+  MODIFY `qc_hb_nb_cells` float unsigned;
+ALTER TABLE sd_der_pbmcs_revs
+  MODIFY `qc_hb_nb_cells` float unsigned;
+    
+UPDATE storage_controls SET flag_active = '0' WHERE storage_type NOT IN (  
+'room',
+'cupboard',
+'nitrogen locator',
+'fridge',
+'freezer',
+'box',
+'box81',
+'rack16',
+'rack10',
+'rack24',
+'shelf',
+'rack11',
+'rack9',
+'ice');
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, 
+`display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, 
+`set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`, `databrowser_label`) 
+VALUES
+(null, 'box27', 'B27', 'position', 'integer', 27, NULL, NULL, NULL, 
+3, 9, 0, 0, 1, 
+'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs', 'box27'),
+(null, 'box100', 'B100', 'position', 'integer', 100, NULL, NULL, NULL, 
+10, 10, 0, 0, 1, 
+'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs', 'box100');
+ 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_edit_readonly = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field  = 'qc_hb_label'
+AND sfo.flag_edit = '1' AND sfo.flag_edit_readonly = '0'; 
+
+SET @structure_id = ( SELECT id FROM structures WHERE alias='ad_spec_conical_tubes');
+DELETE FROM structure_formats WHERE structure_id = @structure_id;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+SELECT @structure_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`
+FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_conical_tubes'), 
+(SELECT id FROM structure_fields WHERE tablename = 'ad_tubes' AND field LIKE 'qc_hb_milieu' AND structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_conical_tube_milieu')), 
+'0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+ 
+UPDATE sample_to_aliquot_controls as link,sample_controls AS samp,aliquot_controls AS al
+SET link.flag_active = '0'
+WHERE samp.id = link.sample_control_id
+AND al.id = link.aliquot_control_id
+AND al.form_alias = 'ad_spec_tubes'
+AND samp.sample_type = 'tissue'
+
+UPDATE aliquot_controls SET form_alias = 'ad_spec_qc_hb_tissue_tubes', aliquot_type = 'tube', databrowser_label = 'tube', aliquot_type_precision = 'tissue'
+WHERE form_alias = 'ad_spec_conical_tubes';
+
+UPDATE structures SET alias = 'ad_spec_qc_hb_tissue_tubes' WHERE alias = 'ad_spec_conical_tubes';
+
+ALTER TABLE `ad_tubes` ADD `qc_hb_is_conic_tube` tinyint(3) unsigned NOT NULL DEFAULT '0';
+ALTER TABLE `ad_tubes_revs` ADD `qc_hb_is_conic_tube` tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_is_conic_tube', 'conic tube', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open'); 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_qc_hb_tissue_tubes'), 
+(SELECT id FROM structure_fields WHERE tablename = 'ad_tubes' AND field LIKE 'qc_hb_is_conic_tube'), 
+'0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+
+'conic tube'
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('box100', '', 'Box100 1-100', 'Boîte100 1-100'),
+('box27', '', 'Box27 1-27', 'Boîte27 1-27'),
+('conic tube', 'Conic Tube', 'Tube conique');
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
@@ -684,20 +777,4 @@ IN ('blood', 'tissue', 'cap report - intrahep bile duct', 'cap report - pancreas
 INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
 WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs));
 
-DELETE FROM i18n WHERE id LIKE 'cap report%';	
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('cap report - ampulla', '', 'CAP Report - Ampulla', ''),
-('cap report - ampulla of vater', '', 'CAP Report - Ampulla of Vater', ''),
-('cap report - colon/rectum', '', 'CAP Report - Colon/Rectum', ''),
-('cap report - colon/rectum - excisional biopsy', '', 'CAP Report - Col/Rec Biopsy', ''),
-('cap report - distal ex bile duct', '', 'CAP Report - Distal Ex Bile Duct', ''),
-('cap report - gallbladders', '', 'CAP Report - Gallbladders', ''),
-('cap report - hepato cellular', '', 'CAP Report - Hepato Cellular', ''),
-('cap report - hepato cellular carcinoma', '', 'CAP Report - Hep-Cel Carcinoma', ''),
-('cap report - intrahep bile duct', '', 'CAP Report - Intrahep Bile Duct', ''),
-('cap report - pancreas endo', '', 'CAP Report - Pancreas Endo', ''),
-('cap report - pancreas exo', '', 'CAP Report - Pancreas Exo', ''),
-('cap report - small intestine', '', 'Cap Report - Small Intestine', '') ;	
- 	
- 	
- 
+
