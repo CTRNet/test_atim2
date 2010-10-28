@@ -90,7 +90,7 @@ LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.
 LEFT JOIN ad_tubes AS tubes ON tubes.aliquot_master_id=al.id
 WHERE al.deleted != 1;
 
-UPDATE users SET active = '1';
+UPDATE users SET flag_active = '1';
 
 UPDATE tx_controls SET flag_active = '0';
 UPDATE protocol_controls SET flag_active = '0';
@@ -100,8 +100,8 @@ UPDATE users SET password = 'b23665e49d6bbc824143ba6c09490c781cb94370' WHERE use
 UPDATE users SET flag_active=true;
 
 -- PROCURE report
-INSERT INTO `datamart_reports` (`id`, `name`, `description`, `datamart_structure_id`, `function`, `serialized_representation`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
-(NULL, 'procure consents statistics', '', NULL, 'procure_consent_stat', NULL, '0000-00-00 00:00:00', '', NULL, '');
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `function`, `created`, `created_by`, `modified`, `modified_by`) VALUES 
+(NULL, 'procure consents statistics', '', 'procure_consent_stat', '0000-00-00 00:00:00', '', NULL, '');
 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
 ('', '', '0', '', 'questionnaire', 'questionnaire', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
@@ -133,3 +133,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='denied' AND `language_label`='denied' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 
 
+DELETE FROM structure_formats WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND type='datetime' AND field='created' AND language_label='date created') AND structure_id=(SELECT id FROM structures WHERE alias='participants') LIMIT 1; # double participants created field

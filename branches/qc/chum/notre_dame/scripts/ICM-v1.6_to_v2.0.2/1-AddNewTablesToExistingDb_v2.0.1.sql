@@ -1,5 +1,9 @@
-Ajouter sample type = LB pour Urszula et convertiser tous les PBMC qui devrait être des LB. (Leur aliquot label like 'LB-PBMC%')
-Supprimer aliquot dans boite quand ils n'existenet plus masi garder les données dans l'hitorique
+#Ajouter sample type = LB pour Urszula et convertiser tous les PBMC qui devrait ï¿½tre des LB. (Leur aliquot label like 'LB-PBMC%')
+#Supprimer aliquot dans boite quand ils n'existenet plus masi garder les donnï¿½es dans l'hitorique
+#Dans script #1 vÃ©rifier lignes 14, 19-22, 80, 81
+#Dans script #7 vÃ©rifier lingnes 3377, 3389, 3416
+
+CRASHHHH! (il faut s'occuper des points ci-dessus)
 
 #Drop all unused or unmigrated existing tables 
 

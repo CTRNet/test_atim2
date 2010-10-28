@@ -71,7 +71,7 @@ class SampleControl extends InventorymanagementAppModel {
 		}
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 		if($by_id){
-		foreach($controls as $control){
+			foreach($controls as $control){
 				$tmp_result[$control['DerivativeControl']['id']] = __($control['DerivativeControl']['sample_type'], true);
 			}
 		}else{
@@ -90,7 +90,7 @@ class SampleControl extends InventorymanagementAppModel {
 	}
 	
 	/**
-	 * Gets a list of aliquot types that could be created from a sample type.
+	 * Gets a list of sample types that could be created from a sample type.
 	 *
 	 * @param $sample_control_id ID of the sample control linked to the studied sample.
 	 * 

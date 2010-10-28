@@ -8,10 +8,10 @@
 Fmlh::launch();
 
 class Fmlh{
-	public static $database_schema = "ATiM2-Test";
+	public static $database_schema = "atim_nd";
 	public static $server = "localhost";
 	public static $user = "root";
-	public static $password = "";
+	public static $password = "root";
 	public static $table_name = "storage_masters";
 	
 	private static $mysqli;//db_conn array

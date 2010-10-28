@@ -64,35 +64,54 @@ class MasterDetailBehavior extends ModelBehavior {
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
 				foreach ($results as $key => $result) {
-					
-					$associated = array();
-					
-					$detail_model = new AppModel( array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
-					
-					$associated = $detail_model->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
-					$results[$key][$detail_class] = $associated[$detail_class];
+					if(!isset($results[$key][$detail_class])){//the detail model is already defined if it was a find on a specific control_id
+						$associated = array();
+						
+						$detail_model = new AppModel( array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+						
+						$associated = $detail_model->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
+						$results[$key][$detail_class] = $associated[$detail_class];
+					}
 				}
 			} 
 			
 			// set DETAIL if ONLY one result
-			else if( isset($results[$control_class][$detail_field]) ) {
-				
+			else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])) {
 				$associated = array();
 				
 				$detail_model = new AppModel( array('table'=>$results[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
 				
 				$associated = $detail_model->find(array($master_foreign => $results[0][$model->alias]['id']), null, null, -1);
 				$results[$detail_class] = $associated[$detail_class];
-				
 			}
 			
+			if($model->previous_model != null){
+				//a detailed search occured, restore the original model in case it contained some variables that were not copied in the
+				//model associated with details
+				$model = $model->previous_model;
+			}
 		}
 		
 		return $results;
 	}
 	
-	function beforeSave (&$model) {
-		return $this->beforeValidateAndSave($model);
+	function beforeFind(&$model, $query){
+		// make all SETTINGS into individual VARIABLES, with the KEYS as names
+		extract($this->__settings[$model->alias]);
+		
+		if ( $is_master_model ) {
+			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
+			$base_name = str_replace("Master", "", $model->name);
+			if(isset($query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])){
+				$detail_control = new $model->belongsTo[$base_name."Control"]['className']();
+				$detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])));
+				$model = new $model->name($model->id, $model->table, null, $base_name, $detail_info[$base_name."Control"]['detail_tablename'], $model);
+			}
+		}
+	}
+	
+	function beforeSave (&$model, $params){
+		return $this->beforeValidateAndSave($model, $params);
 	}
 	
 	function afterSave (&$model, $created) {
@@ -173,7 +192,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $this->beforeValidateAndSave($model);
 	}
 	
-	private function beforeValidateAndSave(&$model){
+	private function beforeValidateAndSave(&$model, $params = array()){
 	// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
@@ -195,7 +214,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			if ( $use_form_alias ) {
 				$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-				if(isset(AppController::getInstance()->{$detail_class})){
+				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
 					$detail_class_instance->set($model->data);
 					$valid_detail_class = $detail_class_instance->validates();

@@ -4,24 +4,28 @@ class DropdownsController extends AdministrateAppController {
 		'StructurePermissibleValuesCustom',
 		'StructurePermissibleValuesCustomControl'
 		);
+		
+	var $paginate = array('StructurePermissibleValuesCustomControl'=>array('limit' => pagination_amount,'order'=>'StructurePermissibleValuesCustomControl.name ASC')); 		
 	
 	function index(){
-		$this->data = $this->StructurePermissibleValuesCustomControl->find('all');
+		$this->data = $this->paginate($this->StructurePermissibleValuesCustomControl, array('StructurePermissibleValuesCustomControl.flag_active' => '1'));
 		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
 	}
 	
 	function view($control_id){
-		$this->set("control_id", $control_id);
-		$this->set("control_data", $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id))));
+		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
+		if(empty($control_data)) { $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); } 
+		$this->set("control_data", $control_data);
+		
 		$this->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id)));
-		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
 		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
 	}
 	
 	function add($control_id){
-		$this->set("control_id", $control_id);
-		$this->set("control_data", $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id))));
-		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
+		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
+		if(empty($control_data)) { $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); } 
+		$this->set("control_data", $control_data);
+		
 		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
 		if(empty($this->data)){
 			$this->data = array(array(
@@ -45,13 +49,34 @@ class DropdownsController extends AdministrateAppController {
 			if(empty($this->StructurePermissibleValuesCustom->validationErrors)){
 				while($data_unit = array_pop($this->data)){
 					if(strlen($data_unit['StructurePermissibleValuesCustom']['value']) > 0){
-						unset($this->StructurePermissibleValuesCustom->id);
+						$this->StructurePermissibleValuesCustom->id = null;
 						$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
-						$this->StructurePermissibleValuesCustom->save($data_unit);
+						if(!$this->StructurePermissibleValuesCustom->save($data_unit)) { $this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); }
 					}
 				}
 				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 			}
+		}
+	}
+	
+	function edit($control_id, $value_id){
+		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
+		if(empty($control_data)) { $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); } 
+		$this->set("control_data", $control_data);
+		
+		$this->set( 'atim_menu_variables', array('StructurePermissibleValuesCustom.id'=>$value_id, 'StructurePermissibleValuesCustom.control_id'=>$control_id));
+		
+		$value_data = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id, 'StructurePermissibleValuesCustom.id' => $value_id)));
+		if(empty($value_data)) { $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); } 
+		
+		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
+		
+		if(empty($this->data)) {
+			$this->data = $value_data;
+		} else {
+			$this->StructurePermissibleValuesCustom->id = $value_id;
+			if(!$this->StructurePermissibleValuesCustom->save($this->data)) { $this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); }
+			$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 		}
 	}
 }

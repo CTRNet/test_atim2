@@ -20,7 +20,7 @@
 	}				
 	echo(mysql_client_encoding($connection)."\n");
 	//Selects the languages database
-	@mysql_select_db("atim_new")
+	@mysql_select_db("atim_nd")
 					or die("Could not select database");
     
 	//Executes query

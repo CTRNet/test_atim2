@@ -3,6 +3,11 @@
 <head>
 
 	<?php
+		//cookie manipulation to counter cake problems. see eventum #1032
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100), "/");
+		}
+		
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
 		
@@ -33,6 +38,9 @@
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
 			var STR_TO = "<?php __('to'); ?>";
+			var STR_DELETE_CONFIRM = "<?php __( 'core_are you sure you want to delete this data?') ?>";
+			var STR_YES = "<?php __('yes'); ?>";
+			var STR_NO = "<?php __('no'); ?>";
 		</script>
 	<!--[if IE 7]>
 	<?php
@@ -46,8 +54,13 @@
 <?php 
 	echo $header;
 	
-	// $session->flash();
+	//TODO: In future version see if $session->flash and $session->flash('auth') works as expected in http://book.cakephp.org/view/1252/Displaying-Auth-Error-Messages
+	$session->flash();
 	$session->flash('auth');
+	//homemade hack because the core seems bugged
+	if(!empty($msg_auth)){
+		echo('<div id="authMessage" class="message">' . $msg_auth['message'] . '</div>');
+	}
 	
 	echo $content_for_layout;
 	
@@ -67,6 +80,7 @@
 	echo $javascript->link('storage_layout')."\n";
 	echo $javascript->link('browser')."\n";
 	echo $javascript->link('copyControl')."\n";
+	echo $javascript->link('ccl')."\n";
 	?>
 	
 	<script type="text/javascript">
@@ -75,6 +89,6 @@
 		});
 	</script>
 	
-	<div id="dimForActionPopup"></div>
+	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>

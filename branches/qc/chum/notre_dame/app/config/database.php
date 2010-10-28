@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '1qaz1qaz',
-		'database' => 'cake',
+		'password' => 'root',
+		'database' => 'atim_nd',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
