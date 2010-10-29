@@ -9,7 +9,7 @@ Fmlh::launch();
 
 class Fmlh{
 	public static $database_schema = "atim_nd";
-	public static $server = "localhost";
+	public static $server = "127.0.0.1:8889";
 	public static $user = "root";
 	public static $password = "root";
 	public static $table_name = "storage_masters";

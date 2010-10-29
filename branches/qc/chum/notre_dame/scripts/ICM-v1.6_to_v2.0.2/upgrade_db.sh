@@ -49,7 +49,7 @@ do
 done
 
 echo "~~~~Done with upgrade scripts~~~~"
-echo "Run rebuildLeftRight.php if you have problems with the permissions"
+echo "Run rebuildLeftRight.php on StorageMaster"
 echo "Run create_language.php to create the languages files"
 echo "~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~"
 

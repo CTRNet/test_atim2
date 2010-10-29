@@ -134,3 +134,21 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 DELETE FROM structure_formats WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND type='datetime' AND field='created' AND language_label='date created') AND structure_id=(SELECT id FROM structures WHERE alias='participants') LIMIT 1; # double participants created field
+
+-- update view_collection
+DROP VIEW view_collections;
+CREATE VIEW `view_collections` AS SELECT `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,
+`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
+`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,
+`col`.`created` AS `created`, ident.identifier_name, ident.identifier_value
+FROM (((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) 
+LEFT JOIN `participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
+LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1))))
+LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1 
+WHERE (`col`.`deleted` <> 1);
+
+UPDATE `versions` 
+SET `version_number` = '1.6', `date_installed` = '0000-00-00', `build_number` = '?'
+WHERE `versions`.`id` =1;
