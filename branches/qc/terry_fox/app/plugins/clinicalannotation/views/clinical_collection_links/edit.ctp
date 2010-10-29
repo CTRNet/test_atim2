@@ -43,7 +43,7 @@
 	$structures->build( $final_atim_structure, $final_options );
 	$checkNA = true;
 	foreach($consent_data as $c_data){
-		if($c_data['ConsentMaster']['id'] == $c_data['ClinicalCollectionLink']['consent_master_id']){
+		if($c_data['ConsentMaster']['id'] == $this->data['ClinicalCollectionLink']['consent_master_id']){
 			$checkNA = false;		
 			break;
 		}

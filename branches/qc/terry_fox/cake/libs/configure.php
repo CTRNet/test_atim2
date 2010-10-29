@@ -904,10 +904,15 @@ class App extends Object {
 					$_this->__overload($type, $name . $ext['class'], $parent);
 
 					//ATIM2: include custom files, if they exist
-					$atim_custom_file = str_replace("/controllers/", "/controllers/customs/", $load);
+					$atim_custom_file = str_replace(DS."controllers".DS, DS."controllers".DS."customs".DS, $load);
 					if($atim_custom_file != $load && file_exists($atim_custom_file)){
 						include_once ($atim_custom_file);
 					}
+					$atim_custom_file = str_replace(DS."models".DS, DS."models".DS."customs".DS, $load);
+					if($atim_custom_file != $load && file_exists($atim_custom_file)){
+						include_once ($atim_custom_file);
+					}
+			
 					if ($_this->return) {
 						return include($load);
 					}
@@ -917,6 +922,7 @@ class App extends Object {
 					$_this->__cache = true;
 				}
 			}
+		
 			if (!empty($search)) {
 				$_this->search = $search;
 			} elseif ($plugin) {
@@ -925,7 +931,7 @@ class App extends Object {
 				$_this->search = $_this->__paths($type);
 			}
 			$find = $file;
-
+			
 			if ($find === null) {
 				$find = Inflector::underscore($name . $ext['suffix']).'.php';
 
@@ -936,7 +942,7 @@ class App extends Object {
 					}
 				}
 			}
-
+			
 			if (strtolower($type) !== 'vendor' && empty($search) && $_this->__load($file)) {
 				$directory = false;
 			} else {

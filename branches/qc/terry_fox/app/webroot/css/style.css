@@ -6,7 +6,7 @@ style.css for ATiM2
 	* ross at visuallizard dot com
 	* wil at visuallizard dot com 
 	
-	(c) 2009  - visuallizard.com and CTRNET
+	(c) 2010  - visuallizard.com and CTRNET
 */
 
 
@@ -77,6 +77,7 @@ body {
 	background-color: #f2f2ff;
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
+
 div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
@@ -234,14 +235,15 @@ div.wrapper div.actions {
 	
 	div.wrapper div.actions div.search-result-div {
 		padding: 0;
-		width: 50px;
 		float: left;
+		min-height: 23px;
 	}
 	
 	div.wrapper div.actions a.search_results {
 		background-position: 7px center;
 		padding: 5px 10px 5px 25px;
 		float: left;
+		min-height: 15px;
 	}
 	
 	div.wrapper div.actions ul ul.filter {
@@ -253,107 +255,195 @@ div.wrapper div.actions {
 		right: 0;
 		text-align: right;
 	}
+	
 	div.wrapper div.actions ul ul.filter li {
 		background: none;
 		padding: 0;
 		margin: 0;
 		position: relative;
-	}
-	div.wrapper div.actions ul ul.filter li a.form.popup {
 		
+		padding-top: 4px;
+		margin-top: -4px;
 	}
-	
 	
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
-	div.wrapper div.actions ul ul.filter li div.filter_menu {
-		display: none;
-	}
 	
-	div.wrapper div.actions ul ul.filter:hover a {
-		/*background-color: #486680;
-		color: #fff;*/
-	}
-
-/*
-	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
-		display: block;
-		width: 200px;
-		top: -270px;
-		right: 45px;
-		height: 275px;
-		overflow: hidden;
-		line-height: 14px;
-		position: absolute;
-		background: #486680;
-		margin: 0;
-		text-align: left;
-		border-color: #000000;
-		-moz-border-radius: 5px; -webkit-border-radius: 5px;
-	}
-*/
-	div.wrapper div.actions ul ul.filter li:hover div.filter_menu {
-		display: block;
-		position: absolute;
-		width: 200px;
-		top: 5px;
-		right: 55px;
+	div.wrapper div.actions ul ul.filter li div.filter_menu {
 		
-		/* height: 275px; no scrollable menu */
-		overflow: hidden;
-		line-height: 14px;
-		background: #486680;
+		display: none;
+		position: absolute;
+		/*min-width: 400px*/;
+		bottom: 36px;
+		right: 0px;
+		
 		margin: 0;
+		padding: 15px 2px;
+		border: 0;
+		
+		/* overflow: hidden; */
+		line-height: 14px;
+		background: #374d61;
 		text-align: left;
-		border-color: #000000;
-		-moz-border-radius: 5px; -webkit-border-radius: 5px;
+		
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		z-index: 1000;
 	}
+		
+		div.wrapper div.actions ul ul.filter li div.filter_menu.scroll {
+			padding: 4px 2px;
+		}
+	
+		div.wrapper div.actions ul ul.filter li div.filter_menu span.arrow {
+			position: absolute;
+			right: 30px;
+			bottom: -13px;
+			width: 16px;
+			height: 13px;
+			background: url("../img/filter-arrow-down.png") center center no-repeat;
+		}
+	
 	div.wrapper div.actions ul ul.filter li:hover span,
 	div.wrapper div.actions ul ul.filter li:hover span a {
 		color: #fff;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul {
-		/* padding: 30px 0; */
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div {
+		-moz-border-radius: 0; -webkit-border-radius: 0;
+		background: #486680;
+		
+		overflow: hidden;
+		border: none;
 		padding: 0;
-	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li {
-		width: 200px;
 		margin: 0;
-/*
-		padding-left: 10px;
-		padding-right: 10px;
-		w\idth: 180px;
-*/
-		border: 0;
-		border-top: 1px dotted #ccc;
-		background: none;
-		color: #999;
-		/* background-image: url("../img/btnBack.png"); */
-	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li:hover {
-		/* background-image: url("../img/btnBackSel.png"); */
+		
+		max-height: 197px;
+		/*width: 200px*/;
+		
+		position: relative;
 	}
 	
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul {
+		-moz-border-radius: 0; -webkit-border-radius: 0;
+		background: #486680;
+	}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div {
+			height: 197px;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu.scroll div ul {
+			top: 0;
+			padding: 11px 0;
+			position: relative;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu span.up {
+			position: absolute;
+			display: block;
+			
+			top: 2px;
+			left: 0px;
+			
+			background: rgb(55,77,97);/* primary background for IE */
+			background: rgba(55,77,97,0.8);
+			width: 100%;
+			height: 15px;
+		}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu span.down {
+			position: absolute;
+			display: block;
+			
+			bottom: 6px;
+
+			left: 0px;
+			background: rgb(55,77,97);/* primary background for IE */
+			background: rgba(55,77,97,0.8);
+			width: 100%;
+			height: 15px;
+		}
+		
+		div.wrapper div.actions ul ul.filter div.filter_menu a.up {
+			position: absolute;
+			display: block;
+			
+			padding: 3px 0;
+			margin: 0;
+			
+			top: 0px;
+			height: 12px;
+			width: 100%;
+			
+			color: #ccc;
+			text-align: center;
+			font-size: 125%;
+		}
+	
+		div.wrapper div.actions ul ul.filter div.filter_menu a.down {
+			position: absolute;
+			display: block;
+			
+			padding: 0;
+			margin: 0;
+			
+			bottom: 0px;
+			width: 100%;
+			height: 18px;
+			
+			color: #ccc;
+			text-align: center;
+			font-size: 125%;
+		}
+
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul{
+		max-width: 100%; /* IE gymnastic */
+	}
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li {
+		white-space: nowrap;
+		width: 100%;
+		min-width: 200px;
+		padding: 0;
+		margin: 0;
+		
+		border: 0;
+		border-top: 1px dotted #374d61;
+		background: none;
+		color: #999;
+	}
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
 		color: #fff;
 		display: none;
 		-moz-border-radius: 0; -webkit-border-radius: 0;
 	}
 
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_0 {
-		border: 0;
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_0 {
+		border-top: 1px solid #374d61;
 		margin: 0;
 		-moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li.count_last_line {
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_last_line {
 		margin: 0;
 		-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
 		-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a {
+
+		div.wrapper div.actions ul ul.filter div.filter_menu div ul li:hover,
+		div.wrapper div.actions ul ul.filter div.filter_menu div ul li.count_0:hover {
+			/* background-image: url("../img/btnBackSel.png"); */
+			
+			/*
+			border-top: 1px dotted #ccc;
+			border-bottom: 1px dotted #ccc;
+			*/
+		}
+
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a {
 		background-color: #486680;
-		line-height: 18px;
+		line-height: 19px;
 		float: none;
 		display: block;
 		text-transform: none;
@@ -361,8 +451,9 @@ div.wrapper div.actions {
 		font-size: 11px;
 		cursor: pointer;
 	}
-	div.wrapper div.actions ul ul.filter div.filter_menu ul li a:hover {
-		background-color: #293B49;
+	
+	div.wrapper div.actions ul ul.filter div.filter_menu div ul li a:hover {
+		background-color: #283b4a;
 		color: #fff;
 	}
 	
@@ -454,7 +545,10 @@ div#menu {
 
 div.menu.level_0 {
 	position: relative;
-	z-index: 20;
+
+	/*
+		z-index: 20;
+	*/
 	
 	list-style-type: none;
 	padding: 0;
@@ -550,6 +644,8 @@ div.menu.level_1 {
 	border: 0;
 	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
 	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
+	
+	z-index: 100;
 }
 	div.menu li.count_0 div.menu.level_1 {
 		background: #486680;
@@ -618,7 +714,9 @@ div.menu ul#summary li {
 	padding: 0;
 	margin: 0;
 }
-div.menu ul#summary li span:not(.untranslated) {
+
+
+.summaryBtn{
 	position: relative;
 	
 	display: block;
@@ -628,42 +726,44 @@ div.menu ul#summary li span:not(.untranslated) {
 	text-decoration: none;
 	color: #fff;
 	margin-top: 5px;
-	padding: 28px 20px 5px 10px;
+	padding: 28px 10px 5px 12px;
 	background: url("../img/icons/summary_icon_bk.png") no-repeat left bottom;
-	/*
-		background-color: #293B49;
-		-moz-border-radius-topleft: 7px; -webkit-border-top-left-radius: 7px;
-		-moz-border-radius-topright: 7px; -webkit-border-top-right-radius: 7px;
-	*/
-	z-index: 30;
 }
-	div.menu ul#summary li:hover ul {
-		display: block;
-	}
+
+
 	div.menu ul#summary li:hover span {
 		color: #fff;
 	}
+	
 div.menu ul#summary li ul {
 	display: none;
-	top: 40px;
+	top: 50px;
 	right: 20px;
 	position: absolute;
 	background: #293B49;
 	margin: 0;
 	padding: 10px;
+	z-index: 1000;
 	-moz-border-radius: 7px; -webkit-border-radius: 7px;
-	z-index: 20;
-}	
-	div.menu ul#summary ul li:not(.list_header) {
-		width: 300px;
-		margin: 0;
-		padding: 5px 10px 15px 10px;
-		border: 0;
-		border-top: 1px dotted #eee;
-		background: none;
-		color: #fff;
-		height: auto;
-	}
+	
+	/*
+		z-index: 20;
+	*/
+}
+
+
+div.menu ul#summary ul li{
+	width: 300px;
+	margin: 0;
+	padding: 5px 10px 15px 10px;
+	border: 0;
+	border-top: 1px dotted #eee;
+	background: none;
+	color: #fff;
+	height: auto;
+}
+
+
 		div.menu ul#summary ul li.count_0 {
 			border: 0;
 		}
@@ -677,11 +777,12 @@ div.menu ul#summary ul li dl {
 	display: block;
 	clear: both;
 }
-div.menu ul#summary ul dl li.list_header {
+div.menu ul#summary ul span.list_header {
 	display: block;
 	margin: 0.25em 0 0.5em 0;
 	font-size: 1.5em;
 	color: #fff;
+	padding-bottom: 10px;
 }
 	div.menu ul#summary ul dl dt {
 		margin: 0; 
@@ -757,7 +858,7 @@ span.help:hover {
 			-moz-border-radius: 15px; -webkit-border-radius: 15px;
 			-moz-border-radius-topright: 0; -webkit-border-top-right-radius: 0;
 		
-			z-index: 6;
+			z-index: 200;
 		}
 		div.wrapper span.help div p {
 			margin: 0 0 1em 0;
@@ -816,7 +917,8 @@ span.help:hover {
 			background-color: #f00;
 			color: #fff;
 		}
-		div.wrapper table.structure table:not(.databrowser) td { 
+		
+		div.wrapper table.columns.index td, div.wrapper table.columns.detail td{ 
 			padding: 0.5em 1em; 
 			border-top: 1px solid #eaedf2; 
 		}
@@ -991,7 +1093,7 @@ span.help:hover {
 					border-top: none; 
 					padding: 1em; 
 				}
-			div.wrapper table.structure table.columns.detail td {}
+			
 			div.wrapper table.structure table.columns.tree td {
 				padding: 0.25em 0 0 0;
 				border-top: 3px solid #eaedf2;
@@ -1005,31 +1107,23 @@ span.help:hover {
 				div.wrapper table.structure table.columns.tree ul li {
 					text-align: left;
 					vertical-align: top;
-					padding-left: 1em;
-					line-height: 2em;
-					border-bottom: 1px solid #eaedf2;
+					padding: 3px 0 2px 3px;
+					line-height: 16px;
+					border-bottom: 1px solid #cacdf2;
 				}
 				div.wrapper table.structure table.columns.tree span.divider {
-					padding: 0 0.5em;
-					font-size: 12px;
-					color: #eaedf2;
-				}
-				div.wrapper table.structure table.columns.tree ul#tree_root {
-					
+					font-size: 120%;
+					font-weight: bolder;
 				}
 				ul#tree_root li { background-color: #fff; }
 				ul#tree_root li.at { background-color: #ffc; }
-				
-				div.wrapper table.structure table.columns.tree ul#tree_root li a {
-					
-				}
-				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal {
+				ul#tree_root li a.reveal {
 					display: block;
 					float: left;
 					width: 20px;
 					text-indent: -9999px;
 				}
-				div.wrapper table.structure table.columns.tree ul#tree_root li a.reveal.not_allowed {
+				ul#tree_root li a.reveal.not_allowed {
 					display: block;
 					float: left;
 					text-indent: -9999px;
@@ -1039,8 +1133,11 @@ span.help:hover {
 					-khtml-opacity: 0.3;
 					opacity: 0.3;
 				}
+				#tree_root div{
+					padding-left: 20px;
+				}
 				a.form { 
-					padding: 1px 0px 1px 20px;
+					padding: 1px 0px 1px 16px;
 				}
 				
 /*===========================================================*
@@ -1135,7 +1232,7 @@ div.wrapper table.structure table.columns.tree ul ul {
 	margin-top: 1em;
 	margin-left: 1em;
 	margin-bottom: 2em;
-	border: 3px solid #eaedf2;
+	border: 3px solid #cacdf2;
 	border-left: 1px dotted #ddf;
 	border-right: none;
 }
@@ -1256,18 +1353,22 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		div#validation li {
+		div#validation li, ul.error li {
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; -webkit-border-radius: 5px;
 			color: #fff;
 		}
 		
-		div#validation ul.error li {
+		ul.error li {
 			background-color: #933;
 		}
 	
 		div#validation ul.confirm li {
 			background-color: #393;
+		}
+		
+		div#validation ul.warning li {
+			background-color: #EB0;
 		}
 	
 		
@@ -1431,6 +1532,10 @@ body.flash div.wrapper a:hover {
 	text-decoration: underline;
 }
 
+body.flash table caption{
+	color: #FFF;	
+}
+
 a.form:focus{
 	text-decoration:underline;
 }
@@ -1445,7 +1550,7 @@ a.form:focus{
 
 img.fake_datepicker{
 	position: absolute; 
-	left: 3px; 
+	left: -1px; 
 	top: -1px; 
 	z-index: 1;
 	cursor: pointer;
@@ -1557,28 +1662,138 @@ div.wrapper table.structure td .databrowser td .info td{
 	background-image: url(../img/icons/fam_fam_silk_help.png);
 }
 
+/* databrowser search table icons */
 .databrowser td.aliquots div.container{
-	background-image: url(../img/icons/aliquot_16x16.png);
+	background: url(../img/icons/aliquot_16x16.png) center no-repeat;
 }
-
 .databrowser td.collections div.container{
-	background-image: url(../img/icons/collection_16x16.png);
+	background: url(../img/icons/collection_16x16.png) center no-repeat;
 }
-
 .databrowser td.samples div.container{
-	background-image: url(../img/icons/flask_16x16.png);
+	background: url(../img/icons/flask_16x16.png) center no-repeat;
 }
-
 .databrowser td.participants div.container{
-	background-image: url(../img/icons/Contact_16x16.png);
+	background: url(../img/icons/Contact_16x16.png) center no-repeat;
 }
 
 .databrowser td.storages div.container{
-	background-image: url(../img/icons/storage_16x16.png);
+	background: url(../img/icons/storage_16x16.png) center no-repeat;
 }
 
 .databrowser td.identification div.container{
+	background: url(../img/icons/identifiers_16x16.png) center no-repeat;
+}
+.databrowser td.aliquot.uses div.container{
+	background: url(../img/icons/aliquotUse_16x16.png) center no-repeat;
+}
+.databrowser td.consents div.container{
+	background: url(../img/icons/consent_16x16.png) center no-repeat;
+}
+.databrowser td.diagnosis div.container{
+	background: url(../img/icons/dx_16x16.png) center no-repeat;
+}
+.databrowser td.treatments div.container{
+	background: url(../img/icons/seringue_16x16.png) center no-repeat;
+}
+.databrowser td.family.histories div.container{
+	background: url(../img/icons/family_16x16.png) center no-repeat;
+}
+.databrowser td.quality.controls div.container{
+	background: url(../img/icons/qualityControl_16x16.png) center no-repeat;
+}
+.databrowser td.participant.messages div.container{
+	background: url(../img/icons/post_it_16x16.png) center no-repeat;
+}
+.databrowser td.annotation div.container{
+	background: url(../img/icons/annotation_16x16.png) center no-repeat;
+}
+.databrowser td.specimen.review div.container{
+	background: url(../img/icons/path_review_16x16.png) center no-repeat;
+}
+
+/* databrowser action dropdown icons */
+ul.actionDropdown a.aliquots{
+	background-image: url(../img/icons/aliquot_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.collections{
+	background-image: url(../img/icons/collection_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.samples{
+	background-image: url(../img/icons/flask_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.participants{
+	background-image: url(../img/icons/Contact_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.storages{
+	background-image: url(../img/icons/storage_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.identification{
 	background-image: url(../img/icons/identifiers_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.aliquot.uses{
+	background-image: url(../img/icons/aliquotUse_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.consents{
+	background-image: url(../img/icons/consent_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.diagnosis{
+	background-image: url(../img/icons/dx_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.treatments{
+	background-image: url(../img/icons/seringue_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.family.histories{
+	background-image: url(../img/icons/family_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.quality.controls{
+	background-image: url(../img/icons/qualityControl_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.participant.messages{
+	background-image: url(../img/icons/post_it_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.annotation{
+	background-image: url(../img/icons/annotation_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+ul.actionDropdown a.specimen.review{
+	background-image: url(../img/icons/path_review_16x16.png);
+	background-position: left center;
+	background-repeat: no-repeat;
+}
+
+
+ul.actionDropdown a, ul.actionDropdown li:hover a{
+	text-indent: 14px;
+}
+ul.actionDropdown li a{
+	padding-left: 20px;
 }
 
 .databrowser div.info{
@@ -1634,5 +1849,58 @@ table.index tr td:first-child{
 
 input.datepicker[type=button]{
 	width: 1px;
-	height: 1px;	
+	height: 1px;
+}
+
+fieldset.submit{
+	background-color: #f2f2ff;
+	text-align: left;	
+}
+
+ul.error{
+	border: solid black;
+	border-width: 0 1px 0 1px;
+}
+
+.popup_container div.frame{
+	max-height: 500px;
+	overflow: auto;
+}
+.popup_container{
+	text-align: center;
+}
+
+.tool_popup{
+	background-image: url(../img/icons/Preview_16x16.png);
+	padding-left: 14px;
+}
+
+table.browserBubble th{
+	white-space: nowrap;
+	vertical-align: middle;	
+}
+
+span.button a{
+	text-decoration: none;
+	color: #000;
+}
+
+.content.empty div{
+	margin: 2px 0;
+}
+
+.nowrap{
+	white-space: nowrap;	
+}
+
+.storageLayout{
+	margin: 10px; 
+	width: 98%;
+}
+div.wrapper table.structure td .storageLayout td{
+	border-style:solid; 
+	border-width:1px; 
+	min-width: 30px; 
+	border-color: #000;
+	padding: 0 0 5px 0;
 }

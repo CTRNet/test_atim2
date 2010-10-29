@@ -62,6 +62,8 @@ class SamplesComponent extends Object {
 			$formatted_sample_data['SampleMaster'] = $new_sample['SampleMaster'];
 			if($new_sample['SampleMaster']['sample_type'] == "blood"){
 				$formatted_sample_data['SampleMaster']['sample_type'] = __("blood", true)." (".__($new_sample['SampleDetail']['blood_type'], true).")"; 
+			}else if($new_sample['SampleMaster']['sample_type'] == "tissue"){
+				$formatted_sample_data['SampleMaster']['sample_type'] = __("tissue", true)." (".__($new_sample['SampleDetail']['tissue_source'], true).")";
 			}
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
 			

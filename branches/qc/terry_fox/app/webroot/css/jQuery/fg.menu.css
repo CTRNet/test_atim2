@@ -3,7 +3,7 @@ Author:	Maggie Wachs, maggie@filamentgroup.com
 Date:		September 2008
 */
 /* ATiM */
-.fg-button, .positionHelper{ font-size: 70%;}
+.fg-button, .positionHelper{ font-size: 90%;}
 .fg-button { clear:left; margin:0 4px 40px 20px; padding: .4em 1em; text-decoration:none !important; cursor:pointer; position: relative; text-align: center; zoom: 1; }
 .fg-button .ui-icon { position: absolute; top: 50%; margin-top: -8px; left: 50%; margin-left: -8px; }
 .fg-button-icon-left { padding-left: 2.1em; }
@@ -84,7 +84,7 @@ Date:		September 2008
 .fg-menu a:hover,
 .fg-menu a:active { float:left; width:92%; padding:.3em 3%; text-decoration:none; outline: 0 !important; }
 
-.fg-menu a { border: 1px dashed transparent; }
+.fg-menu a { border: 1px dashed transparent; font-size: 110%;}
 
 .fg-menu a.ui-state-default:link,
 .fg-menu a.ui-state-default:visited,

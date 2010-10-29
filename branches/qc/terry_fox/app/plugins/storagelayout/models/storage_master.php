@@ -55,7 +55,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	*/
 	
 	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
-			
+		
 		// Get all storage records according to following exclusion criteria
 		$criteria = array();
 		
@@ -69,12 +69,11 @@ class StorageMaster extends StoragelayoutAppModel {
 		//2-The storage defined as 'exclued' plus all its childrens will be removed from the array 
 		if(!is_null($excluded_storage_master_id)){
 			$excluded_storage = $this->find('first', array('conditions' => array('StorageMaster.id' => $excluded_storage_master_id), 'recursive' => '-1'));
-			$criteria[] = "StorageMaster.lft < ".$excluded_storage['StorageMaster']['lft'];
-			$criteria[] = "StorageMaster.rght < ".$excluded_storage['StorageMaster']['rght'];			
+			$criteria[] =  "StorageMaster.lft NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
+			$criteria[] =  "StorageMaster.rght NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
 		}
 		
 		$arr_storages_list = $this->atim_list(array('conditions' => $criteria, 'order' => array('StorageMaster.selection_label'), 'recursive' => '-1'));			
-
 		if(empty($arr_storages_list)) {
 			// No Storage exists in the system
 			return array(array('value' => '0', 'default' => __('n/a', true)));	

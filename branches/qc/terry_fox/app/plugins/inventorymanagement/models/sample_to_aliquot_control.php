@@ -22,11 +22,24 @@ class SampleToAliquotControl extends InventoryManagementAppModel {
 	 * @updated N. Luc
 	 */  	
 	function getSampleAliquotTypesPermissibleValues() {
+		// Get list of active sample type
+		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
+
+		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
+		$this->ParentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
+	
+		$specimen_sample_control_ids_list = array();
+		foreach($controls as $control){
+			$specimen_sample_control_ids_list[] = $control['DerivativeControl']['id'];
+		}		
+		
+		// Build final list
 		$result = 
 			$this->find('all', array(
-				'conditions' => array('SampleToAliquotControl.flag_active' => '1',
-						'SampleControl.flag_active' => '1',
-						'AliquotControl.flag_active' => '1'),
+				'conditions' => array(
+					'SampleToAliquotControl.flag_active' => '1',
+					'SampleControl.id' => $specimen_sample_control_ids_list),
 				'order' => array('SampleControl.sample_type' => 'asc', 'AliquotControl.aliquot_type' => 'asc')));	
 
 		$working_array = array();
