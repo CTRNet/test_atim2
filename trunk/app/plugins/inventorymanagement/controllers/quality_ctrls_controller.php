@@ -282,6 +282,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as used
 
+					// Get child aliquot master id
+					if(!isset($aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+					$new_studied_aliquot['AliquotMaster']['id'] = $aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']];
+					
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
@@ -295,6 +299,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->set($new_studied_aliquot);
+					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
 					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
 					
@@ -302,10 +307,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$this->AliquotUse->set($new_studied_aliquot);
 					$submitted_data_validates = ($this->AliquotUse->validates())? $submitted_data_validates: false;
 					foreach($this->AliquotUse->invalidFields() as $field => $error) { $errors['AliquotUse'][$field][$error] = '-'; }					
-					
-					// Get child aliquot master id
-					if(!isset($aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-					$new_studied_aliquot['AliquotMaster']['id'] = $aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']];
 					
 					// Add record to array of tested aliquots
 					$aliquots_defined_as_tested[] = $new_studied_aliquot;		
