@@ -378,6 +378,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			if($submitted_data_validates) {
 								
 				$this->StorageMaster->set($this->data);	
+				$this->StorageMaster->id = $storage_master_id;
 				if($this->StorageMaster->validates()) {
 				
 					if($this->data['StorageMaster']['parent_id'] == '0') { 
