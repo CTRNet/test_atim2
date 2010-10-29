@@ -3,18 +3,18 @@
 
 -- participants --
 ALTER TABLE participants
- ADD bank_id INT UNSIGNED NOT NULL,
- ADD suspected_date_of_death date,
- ADD sdod_accuracy VARCHAR(50) NOT NULL DEFAULT '',
- ADD family_history VARCHAR(50) NOT NULL DEFAULT '',
- ADD brca_status VARCHAR(50) NOT NULL DEFAULT '';
+ ADD qc_tf_bank_id INT UNSIGNED NOT NULL,
+ ADD qc_tf_suspected_date_of_death date,
+ ADD qc_tf_sdod_accuracy VARCHAR(50) NOT NULL DEFAULT '',
+ ADD qc_tf_family_history VARCHAR(50) NOT NULL DEFAULT '',
+ ADD qc_tf_brca_status VARCHAR(50) NOT NULL DEFAULT '';
 
 ALTER TABLE participants_revs
- ADD bank_id INT UNSIGNED NOT NULL,
- ADD suspected_date_of_death date,
- ADD sdod_accuracy VARCHAR(50) NOT NULL DEFAULT '',
- ADD family_history VARCHAR(50) NOT NULL DEFAULT '',
- ADD brca_status VARCHAR(50) NOT NULL DEFAULT '';
+ ADD qc_tf_bank_id INT UNSIGNED NOT NULL,
+ ADD qc_tf_suspected_date_of_death date,
+ ADD qc_tf_sdod_accuracy VARCHAR(50) NOT NULL DEFAULT '',
+ ADD qc_tf_family_history VARCHAR(50) NOT NULL DEFAULT '',
+ ADD qc_tf_brca_status VARCHAR(50) NOT NULL DEFAULT '';
 
 REPLACE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ('no', 'no'),
@@ -62,17 +62,17 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 (value='unknown' AND language_alias='unknown'));
  
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
-('', 'Clinicalannotation', 'Participant', 'participants', 'suspected_date_of_death', 'suspected date of death', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'Participant', 'participants', 'sdod_accuracy', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'Participant', 'participants', 'bank_id', 'bank', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'Participant', 'participants', 'brca_status', 'brca status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca') , '', 'open', 'open', 'open'), 
-('', 'Clinicalannotation', 'Participant', 'participants', 'family_history', 'family history', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fam_hist') , '', 'open', 'open', 'open');
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_suspected_date_of_death', 'suspected date of death', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_sdod_accuracy', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_bank_id', 'bank', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_brca_status', 'brca status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_family_history', 'family history', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fam_hist') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='suspected_date_of_death' AND `language_label`='suspected date of death' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '3', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sdod_accuracy' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `language_help`=''), '3', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bank_id' AND `language_label`='bank' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='brca_status' AND `language_label`='brca status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca')  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='family_history' AND `language_label`='family history' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fam_hist')  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_suspected_date_of_death' AND `language_label`='suspected date of death' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '3', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_sdod_accuracy' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `language_help`=''), '3', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_bank_id' AND `language_label`='bank' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_brca_status' AND `language_label`='brca status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca')  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_family_history' AND `language_label`='family history' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fam_hist')  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
 UPDATE structure_fields SET  `language_label`='registered date of death' WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND `type`='date' AND structure_value_domain  IS NULL ;
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_datagrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='title' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='person title'));
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_datagrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='first_name' AND type='input' AND structure_value_domain  IS NULL );
@@ -89,6 +89,12 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='health_status'));
 UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='health_status'));
 UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='participant_identifier' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+
+INSERT INTO structure_validations (structure_field_id, rule, flag_empty, flag_required, on_action, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_bank_id' AND `language_label`='bank' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')), 'notEmpty', 0, 1, '', 'bank is required');
+
 
 
 -- end of participants --
@@ -621,7 +627,7 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_tf_tx_eocs', 'ca125_precision', 'ca125 precision', '', 'float_positive', '', '',  NULL , '', 'open', 'open', 'open'), 
 ('', 'Clinicalannotation', 'TreatmentDetail', 'qc_tf_tx_eocs', 'ct_scan_precision', 'ct scan precision', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ct_scan_precision') , '', 'open', 'open', 'open');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_tf_tx_eocs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `language_label`='start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_tx_eocs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `language_label`='start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='qc_tf_tx_eocs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date_accuracy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  ), '1', '2', '', '0', '', '1', 'accuracy', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='qc_tf_tx_eocs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_tx_eocs' AND `field`='ca125_precision' AND `language_label`='ca125 precision' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='qc_tf_tx_eocs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_tx_eocs' AND `field`='ct_scan_precision' AND `language_label`='ct scan precision' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ct_scan_precision')  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
@@ -767,7 +773,6 @@ UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_26';
 UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_25';
 
 -- inventory --
-UPDATE sample_controls SET flag_active = 0 WHERE id NOT IN(1, 2, 3);
 UPDATE parent_to_derivative_sample_controls SET flag_active = 0 WHERE parent_sample_control_id = 1;
 UPDATE sample_to_aliquot_controls SET flag_active = 0 WHERE sample_control_id = 1;
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_ascites') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SpecimenDetail' AND tablename='' AND field='supplier_dept' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept'));
