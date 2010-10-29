@@ -1,4 +1,4 @@
-DROP VIEW `view_collections`;
+﻿DROP VIEW `view_collections`;
 CREATE VIEW `view_collections` AS SELECT 
 `col`.`id` AS `collection_id`,
 `col`.`bank_id` AS `bank_id`,
@@ -753,6 +753,25 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('box100', '', 'Box100 1-100', 'Boîte100 1-100'),
 ('box27', '', 'Box27 1-27', 'Boîte27 1-27'),
 ('conic tube', '', 'Conic Tube', 'Tube conique');
+
+ALTER TABLE dxd_liver_metastases_revs ADD `version_created` datetime NOT NULL AFTER `version_id`;
+ALTER TABLE dxd_liver_metastases  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE ed_score_child_pugh MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE ed_score_child_pugh_revs MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs  MODIFY `id` int(11) NOT NULL ;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs  MODIFY `id` int(11) NOT NULL ;
+ALTER TABLE qc_hb_txd_portal_vein_embolizations  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE qc_hb_txd_portal_vein_embolizations_revs  MODIFY `id` int(11) NOT NULL ;
+ALTER TABLE qc_hb_txd_surgery_livers  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE qc_hb_txd_surgery_livers_revs  MODIFY `id` int(11) NOT NULL ;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE qc_hb_txd_surgery_pancreas  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE qc_hb_txd_surgery_pancreas_revs  MODIFY `id` int(11) NOT NULL ;
+ALTER TABLE sd_der_pbmcs  MODIFY `qc_hb_nb_cells` float unsigned DEFAULT NULL;
+ALTER TABLE sd_der_pbmcs_revs  MODIFY `qc_hb_nb_cells` float unsigned DEFAULT NULL;
 
 -----------------------------------------------------------------------
 - - Script to test custom list - -
