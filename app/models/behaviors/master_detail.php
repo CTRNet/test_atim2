@@ -212,7 +212,7 @@ class MasterDetailBehavior extends ModelBehavior {
 				$associated = $model->find('first',array('conditions' => array($master_class.'.id' => $model->data[$master_class]['id'])));
 			}else{
 				//FAIL!, we ABSOLUTELY WANT validations
-				AppController::getInstance()->redirect( '/pages/err_internal?p[]='.__CLASS__." @ line ".__LINE__." (the detail control id was not found)", NULL, TRUE );
+				AppController::getInstance()->redirect( '/pages/err_internal?p[]='.__CLASS__." @ line ".__LINE__." (the detail control id was not found for ".$master_class.")", NULL, TRUE );
 				exit;
 			}
 			
