@@ -218,7 +218,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_liver_metastases' AND `field`='adjacent_liver_parenchyma_specify'), 
 '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
   -- notes
-((SELECT id FROM structures WHERE alias='dx_cap_report_smintestines'), 
+((SELECT id FROM structures WHERE alias='dx_liver_metastases'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), 
 '1', '44', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1');
 

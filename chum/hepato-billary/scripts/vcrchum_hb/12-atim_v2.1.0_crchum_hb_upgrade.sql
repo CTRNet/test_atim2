@@ -76,7 +76,7 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
-UPDATE `qc_chum_hb`.`users` SET `flag_active` = '1' WHERE `users`.`id` =1;
+UPDATE `users` SET `flag_active` = '1' WHERE `users`.`id` =1;
 
 TRUNCATE structure_permissible_values_customs;
 TRUNCATE structure_permissible_values_customs_revs;
@@ -638,8 +638,10 @@ UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_v
 WHERE tablename = 'dxd_liver_metastases' AND field = 'tumor_site';
 
 DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'saint_luc_hospital_nbr', 'hepato_bil_bank_participant_id');
-
-UPDATE i18n SET en = 'RAMQ', fr = 'RAMQ' WHERE id = 'health_insurance_card';
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('health_insurance_card', 'global', 'RAMQ', 'RAMQ'),
+('saint_luc_hospital_nbr', 'global', 'St-Luc Hospital Number', 'No Hôpital St-Luc'),
+('hepato_bil_bank_participant_id', 'global', 'Bank Nbr', 'No Banque');
 
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
 SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
@@ -773,13 +775,40 @@ ALTER TABLE qc_hb_txd_surgery_pancreas_revs  MODIFY `id` int(11) NOT NULL ;
 ALTER TABLE sd_der_pbmcs  MODIFY `qc_hb_nb_cells` float unsigned DEFAULT NULL;
 ALTER TABLE sd_der_pbmcs_revs  MODIFY `qc_hb_nb_cells` float unsigned DEFAULT NULL;
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.model IN ('AliquotMaster', 'TmaSlide', 'SampleMaster', 'Collection', 'StorageDetail', 'ViewCollection')
+AND sfi.field  = 'sop_master_id'; 
+
+UPDATE specimen_review_controls SET flag_active = '0';
+
+UPDATE protocol_controls SET flag_active = '0' WHERE type != 'chemotherapy';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.model = 'StudySummary'
+AND sfi.field  NOT IN ('title', 'start_date', 'end_date', 'summary')
+AND s.alias = 'studysummaries'; 
+
 -----------------------------------------------------------------------
 - - Script to test custom list - -
 
-UPDATE diagnosis_controls SET flag_active = '0' WHERE controls_type 
-IN ('blood', 'tissue', 'cap report - intrahep bile duct', 'cap report - pancreas endo', 'cap report - pancreas exo', 'cap peport - perihilar bile duct');
+- pas d'access a forms, protocol, mat and equipemtn, sopo
+- limite access to study
 
 INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
 WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs));
 
-
+- 
