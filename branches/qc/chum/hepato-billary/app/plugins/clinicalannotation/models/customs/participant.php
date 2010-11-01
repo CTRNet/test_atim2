@@ -2,6 +2,7 @@
 
 class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
+	var $name = 'Participant';
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -15,19 +16,19 @@ class ParticipantCustom extends Participant {
 					'conditions' => array("MiscIdentifier.identifier_name LIKE 'hepato_bil_bank_participant_id'"))));			
 			
 			$this->bindModel($has_many_details, false);			
-			$result = $this->find('first', array('conditions'=>array('ParticipantCustom.id'=>$variables['Participant.id'], )));
+			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'], )));
 			$this->unbindModel(array('hasMany' => array('MiscIdentifier')), false);
 						
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, ($result['ParticipantCustom']['first_name'].' - '.$result['ParticipantCustom']['last_name']) ),
-					'title'			=>	array( NULL, __('participant', TRUE) . ': ' . ($result['ParticipantCustom']['first_name'].' - '.$result['ParticipantCustom']['last_name']) ),
+					'menu'			=>	array( NULL, ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
+					'title'			=>	array( NULL, __('participant', TRUE) . ': ' . ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
 					
 					'description'		=>	array(
-						__('participant code', TRUE)	=>	$result['ParticipantCustom']['participant_identifier'],
-						__('date of birth', TRUE)			=>	$result['ParticipantCustom']['date_of_birth'],
-						__('vital status', TRUE)			=>	array($result['ParticipantCustom']['vital_status'], 'vital_status'), // select-option
-						__('sex', TRUE)						=>	array($result['ParticipantCustom']['sex'], 'sex') // select-option
+						__('participant code', TRUE)	=>	$result['Participant']['participant_identifier'],
+						__('date of birth', TRUE)			=>	$result['Participant']['date_of_birth'],
+						__('vital status', TRUE)			=>	array($result['Participant']['vital_status'], 'vital_status'), // select-option
+						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex') // select-option
 					)
 				)
 			);
