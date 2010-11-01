@@ -685,6 +685,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$submitted_data_validates = true;
 			
 			$this->SampleMaster->set($this->data);
+			$this->SampleMaster->id = $sample_master_id;
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
 			
 			//for error field highlight in detail
@@ -705,7 +706,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				
 			if($submitted_data_validates) {
 				// Save sample data
-				$this->SampleMaster->id = $sample_master_id;
 				if($this->SampleMaster->save($this->data, false)) {				
 					//Save either Specimen or Derivative Details
 					if($bool_is_specimen){
