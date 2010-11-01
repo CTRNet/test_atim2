@@ -581,6 +581,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			//  --> AliquotMaster
 			$this->data['AliquotMaster']['aliquot_control_id'] = $aliquot_data['AliquotMaster']['aliquot_control_id'];
 			$this->AliquotMaster->set($this->data);
+			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
 			foreach($this->AliquotMaster->invalidFields() as $field => $error){
 				$errors['AliquotMaster'][$field][$error] = '-';
@@ -970,7 +971,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($this->data as $key => $new_studied_aliquot){
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as source
-					
+				
+					// Get child aliquot master id
+					if(!isset($aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+					$new_studied_aliquot['AliquotMaster']['id'] = $aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']];
+
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
@@ -984,6 +989,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->set($new_studied_aliquot);
+					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
 					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
 					
@@ -991,10 +997,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotUse->set($new_studied_aliquot);
 					$submitted_data_validates = ($this->AliquotUse->validates())? $submitted_data_validates: false;
 					foreach($this->AliquotUse->invalidFields() as $field => $error) { $errors['AliquotUse'][$field][$error] = '-'; }
-					
-					// Get child aliquot master id
-					if(!isset($aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-					$new_studied_aliquot['AliquotMaster']['id'] = $aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']];
 					
 					// Add record to array of tested aliquots
 					$aliquots_defined_as_source[] = $new_studied_aliquot;		
@@ -1640,6 +1642,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function realiquot($batch_set_id, $save = false){
 		//TODO realiquot in batch process should be defined into datamart_batch_processes
+		//TODO check eventum 1176 if should be applied
 		// Review and validate process before to use
 		$this->redirect('/pages/err_inv_system_error', null, true);
 		
