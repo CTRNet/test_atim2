@@ -3,13 +3,14 @@
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
 -- Update version information
-UPDATE `versions` 
-SET `version_number` = 'v2.1.1', `date_installed` = CURDATE(), `build_number` = ''
-WHERE `versions`.`id` =1;
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.1dev', NOW(), '> 2071');
 
 TRUNCATE `acos`;
 
--- Fix issue 1178: Mismatch between main tables and revs tables
-
 ALTER TABLE diagnosis_masters_revs
   MODIFY `path_mstage` varchar(15) DEFAULT NULL;
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_permissible_value_id NOT IN (SELECT id FROM structure_permissible_values);
+ALTER TABLE structure_value_domains_permissible_values MODIFY structure_permissible_value_id int(11) NOT NULL;
+ALTER TABLE structure_value_domains_permissible_values ADD FOREIGN KEY (`structure_permissible_value_id`) REFERENCES `structure_permissible_values`(`id`);=======
+TRUNCATE `acos`;
