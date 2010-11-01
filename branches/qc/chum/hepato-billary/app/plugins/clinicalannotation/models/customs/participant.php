@@ -19,16 +19,24 @@ class ParticipantCustom extends Participant {
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'], )));
 			$this->unbindModel(array('hasMany' => array('MiscIdentifier')), false);
 						
+		  	//Add No Labs to description
+			$bank_identifier = '';
+			if((!empty($result['MiscIdentifier'])) && ($result['MiscIdentifier'][0]['identifier_name'] == 'hepato_bil_bank_participant_id')) {
+				$bank_identifier = $result['MiscIdentifier'][0]['identifier_value'];
+			}			
+			
 			$return = array(
 				'Summary'	 => array(
 					'menu'			=>	array( NULL, ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
 					'title'			=>	array( NULL, __('participant', TRUE) . ': ' . ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
 					
 					'description'		=>	array(
-						__('participant code', TRUE)	=>	$result['Participant']['participant_identifier'],
+						__('hepato_bil_bank_participant_id', true) => $bank_identifier,
+						'' => '&nbsp;',
 						__('date of birth', TRUE)			=>	$result['Participant']['date_of_birth'],
 						__('vital status', TRUE)			=>	array($result['Participant']['vital_status'], 'vital_status'), // select-option
-						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex') // select-option
+						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex'), // select-option
+						__('participant code', TRUE)	=>	$result['Participant']['participant_identifier']
 					)
 				)
 			);
