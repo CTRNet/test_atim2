@@ -15,3 +15,5 @@ ALTER TABLE structure_value_domains_permissible_values MODIFY structure_permissi
 ALTER TABLE structure_value_domains_permissible_values ADD FOREIGN KEY (`structure_permissible_value_id`) REFERENCES `structure_permissible_values`(`id`);
 
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''quality control tools'')' WHERE `domain_name` LIKE 'custom_laboratory_qc_tool';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('announcements', 'Announcements', 'Annonces');
