@@ -48,17 +48,24 @@ class StructureField extends AppModel {
 			if ( $value ) {
 				
 				$conditions = array();
-				$conditions['StructureField.field']							= $field;
-				if ( $model ) $conditions['StructureField.model']		= $model;
+				$conditions['StructureField.field'] = $field;
+				if ( $model ) $conditions['StructureField.model'] = $model;
 				if ( $plugin ) $conditions['StructureField.plugin']	= $plugin;
 				
 				$results = $this->find('first',array( 'conditions'=>$conditions, 'limit'=>1, 'recursive'=>3 ));
 				
 				$return = $results;
 				
-				if ( $results && isset($results['StructureValueDomain']) && isset($results['StructureValueDomain']['StructurePermissibleValue']) ) {
-					foreach ( $results['StructureValueDomain']['StructurePermissibleValue'] as $option ) {
-						if ( $option['value']==$value ) $return = __($option['language_alias'],true);
+				if ( $results && isset($results['StructureValueDomain'])) {
+					if(!empty($results['StructureValueDomain']['StructurePermissibleValue'])) {
+						foreach ( $results['StructureValueDomain']['StructurePermissibleValue'] as $option ) {
+							if ( $option['value']==$value ) $return = __($option['language_alias'],true);
+						}	
+					} else if(!empty($results['StructureValueDomain']['source'])) {
+						$pull_down = StructuresComponent::getPulldownFromSource($results['StructureValueDomain']['source']);
+						foreach ( $pull_down as $option ) {
+							if ( $option['value']==$value ) $return = $option['default'];
+						}
 					}
 				}
 				
