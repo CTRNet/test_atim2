@@ -32,7 +32,7 @@ class QualityCtrl extends InventoryManagementAppModel {
 					'description' => array(
 						__('qc run number', true) => __($qc_data['QualityCtrl']['run_id'], true),
 						__('qc type', true) => __($qc_data['QualityCtrl']['type'], true),
-						__('qc tool', true) => __($qc_data['QualityCtrl']['tool'], true),
+						__('qc tool', true) => array($qc_data['QualityCtrl']['tool'], 'tool'),
 						__('date', true) => $qc_data['QualityCtrl']['date']
 					)
 				)
