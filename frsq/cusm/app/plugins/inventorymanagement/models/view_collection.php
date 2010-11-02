@@ -2,7 +2,6 @@
 
 class ViewCollection extends InventorymanagementAppModel {
 	
-	
 	function summary($variables=array()) {
 		$return = false;
 		
@@ -18,7 +17,7 @@ class ViewCollection extends InventorymanagementAppModel {
 						__('participant identifier', true) => $collection_data['ViewCollection']['participant_identifier'],
 						__('collection bank', true) => $collection_data['ViewCollection']['bank_name'],
 						__('collection datetime', true) => $collection_data['ViewCollection']['collection_datetime'],
-						__('collection site', true) => $collection_data['ViewCollection']['collection_site']
+						__('collection site', true) => array($collection_data['ViewCollection']['collection_site'], 'collection_site')
 					)
 				)
 			);			
