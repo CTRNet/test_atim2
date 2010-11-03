@@ -28,3 +28,7 @@ UPDATE structure_permissible_values_custom_controls SET values_max_length=20;
 INSERT INTO structure_validations (structure_field_id, rule, flag_empty, flag_required, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='en'), 'notEmpty', 0, 1, 'value is required'),
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='fr'), 'notEmpty', 0, 1, 'value is required');
+
+ALTER TABLE datamart_structures
+ ADD COLUMN flag_active BOOLEAN NOT NULL DEFAULT true;
+ 
