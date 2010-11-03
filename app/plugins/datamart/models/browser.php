@@ -42,15 +42,22 @@ class Browser extends DatamartAppModel {
 			//the query contains a useless CONCAT to counter a cakephp behavior
 			$data = $this->query(
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
-				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` "
+				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` AS dbc "
+				."INNER JOIN datamart_structures AS ds1 ON dbc.id1=ds1.id AND ds1.flag_active=1 "
+				."INNER JOIN datamart_structures AS ds2 ON dbc.id1=ds2.id AND ds2.flag_active=1 "
+				."WHERE dbc.flag_active_1_to_2=1 "
 				."UNION "
-				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` ) AS data GROUP BY main_id ");
+				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` AS dbc "
+				."INNER JOIN datamart_structures AS ds1 ON dbc.id1=ds1.id AND ds1.flag_active=1 "
+				."INNER JOIN datamart_structures AS ds2 ON dbc.id1=ds2.id AND ds2.flag_active=1 "
+				."WHERE dbc.flag_active_2_to_1=1 "
+				.") AS data GROUP BY main_id ");
 			$options = array();
 			foreach($data as $data_unit){
 				$options[$data_unit[0]['main_id']] = explode(",", $data_unit[0]['to_id']);
 			}
 			
-			$browsing_structures = $DatamartStructure->find('all');
+			$browsing_structures = $DatamartStructure->find('all', array('conditions' => array("DatamartStructure.flag_active" => 1)));
 			$tmp_arr = array();
 			foreach($browsing_structures as $unit){
 				$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
@@ -81,7 +88,7 @@ class Browser extends DatamartAppModel {
 				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
 			);
 		}else{
-			$data = $DatamartStructure->find('all');
+			$data = $DatamartStructure->find('all', array('conditions' => array("DatamartStructure.flag_active" => 1)));
 			$to_sort = array();
 			foreach($data as $k => $v){
 				$to_sort[$k] = __($v['DatamartStructure']['display_name'], true);
