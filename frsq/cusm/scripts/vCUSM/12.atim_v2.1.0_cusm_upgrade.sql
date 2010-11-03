@@ -191,3 +191,10 @@ UPDATE menus SET flag_active = '0' WHERE id IN ('tool_CAN_106', 'tool_CAN_105');
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `field`='title' ), 'notEmpty', '0', '0', '', 'value is required', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_override_label = '1', sfo.language_label = 'sample code'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field  = 'sample_code';
+
+UPDATE i18n SET en = 'Sample System Code', fr = 'Code systême échantillon' WHERE id = 'sample code';
