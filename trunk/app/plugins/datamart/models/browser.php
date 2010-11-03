@@ -44,12 +44,12 @@ class Browser extends DatamartAppModel {
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
 				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` AS dbc "
 				."INNER JOIN datamart_structures AS ds1 ON dbc.id1=ds1.id AND ds1.flag_active=1 "
-				."INNER JOIN datamart_structures AS ds2 ON dbc.id1=ds2.id AND ds2.flag_active=1 "
+				."INNER JOIN datamart_structures AS ds2 ON dbc.id2=ds2.id AND ds2.flag_active=1 "
 				."WHERE dbc.flag_active_1_to_2=1 "
 				."UNION "
 				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` AS dbc "
 				."INNER JOIN datamart_structures AS ds1 ON dbc.id1=ds1.id AND ds1.flag_active=1 "
-				."INNER JOIN datamart_structures AS ds2 ON dbc.id1=ds2.id AND ds2.flag_active=1 "
+				."INNER JOIN datamart_structures AS ds2 ON dbc.id2=ds2.id AND ds2.flag_active=1 "
 				."WHERE dbc.flag_active_2_to_1=1 "
 				.") AS data GROUP BY main_id ");
 			$options = array();
@@ -181,8 +181,24 @@ class Browser extends DatamartAppModel {
 		}
 		$control_model = new $main_model_info['DatamartStructure']['control_model']();
 		$conditions = array();
+		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
+			//hardcoded SampleControl filtering
+			if(!App::import('Model', 'Inventorymanagement.ParentToDerivativeSampleControl')){
+				$app_controller->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.ParentToDerivativeSampleControl', NULL, TRUE );
+			}
+			$parentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
+			if($ids_filter == null){
+				$ids_filter = $tmp_ids;
+			}else{
+				array_intersect($ids_filter, $tmp_ids);
+			}
+		}
 		if($ids_filter != null){
-			$conditions = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+		}
+		if(isset($control_model->_schema['flag_active'])){
+			$conditions[$main_model_info['DatamartStructure']['control_model'].'.flag_active'] = 1;
 		}
 		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions));
 		$children_arr = array();
@@ -483,12 +499,12 @@ class Browser extends DatamartAppModel {
 		$sub_models_id_filter = array();
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
-			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field doesnt match anymore
+			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
 			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
 				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
 			}
 			$stac = new SampleToAliquotControl();
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
 				$ids[] = $unit['SampleToAliquotControl']['aliquot_control_id'];
@@ -501,7 +517,7 @@ class Browser extends DatamartAppModel {
 				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
 			}
 			$stac = new SampleToAliquotControl();
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
 				$ids[] = $unit['SampleToAliquotControl']['sample_control_id'];
