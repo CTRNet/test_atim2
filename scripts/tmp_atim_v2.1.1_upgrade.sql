@@ -1,9 +1,9 @@
--- Version: v2.1.1
--- Description: This SQL script is an upgrade for ATiM v2.1.0 to 2.1.1 and must be run against
+-- Version: v2.1.0A
+-- Description: This SQL script is an upgrade for ATiM v2.1.0 to 2.1.0A and must be run against
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.1dev', NOW(), '> 2071');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.0A', NOW(), '> 2071');
 
 TRUNCATE `acos`;
 
