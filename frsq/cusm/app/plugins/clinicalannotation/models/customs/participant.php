@@ -32,12 +32,10 @@ class ParticipantCustom extends Participant {
 					
 					'description'		=>	array(
 						__('prostate_bank_participant_id', true) => $bank_identifier,
-						'' => '&nbsp;',
 						__('name', TRUE)					=>	($result['Participant']['first_name'].' '.$result['Participant']['last_name']),
 						__('date of birth', TRUE)			=>	$result['Participant']['date_of_birth'],
 						__('vital status', TRUE)			=>	array($result['Participant']['vital_status'], 'vital_status'), // select-option
-						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex'), // select-option
-						__('participant code', TRUE)	=>	$result['Participant']['participant_identifier']
+						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex')
 					)
 				)
 			);
