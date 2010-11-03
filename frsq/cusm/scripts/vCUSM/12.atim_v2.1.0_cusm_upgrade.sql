@@ -198,3 +198,17 @@ AND sfo.structure_id = s.id
 AND sfi.field  = 'sample_code';
 
 UPDATE i18n SET en = 'Sample System Code', fr = 'Code systême échantillon' WHERE id = 'sample code';
+
+UPDATE aliquot_review_controls SET flag_active = '0';
+UPDATE protocol_controls SET flag_active = '0';
+-- sop_controls
+UPDATE specimen_review_controls SET flag_active = '0';
+UPDATE tx_controls SET flag_active = '0';
+
+SET @trt_id = (SELECT id FROM datamart_structures WHERE plugin = 'Clinicalannotation' AND model = 'TreatmentMaster' AND display_name = 'treatments');
+SET @spec_rev_id = (SELECT id FROM datamart_structures WHERE plugin = 'Inventorymanagement' AND model = 'SpecimenReviewMaster' AND display_name = 'specimen review');
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 IN (@trt_id, @spec_rev_id)
+OR id2 IN (@trt_id, @spec_rev_id);
