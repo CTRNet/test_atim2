@@ -15,6 +15,27 @@ DROP TABLE IF EXISTS `acos`, `ad_bags`, `ad_bags_revs`, `ad_blocks`, `ad_blocks_
 DROP TABLE IF EXISTS `std_freezers_revs`, `std_fridges`, `std_fridges_revs`, `std_incubators`, `std_incubators_revs`, `std_nitro_locates`, `std_nitro_locates_revs`, `std_racks`, `std_racks_revs`, `std_rooms`, `std_rooms_revs`, `std_shelfs`, `std_shelfs_revs`, `std_tma_blocks`, `std_tma_blocks_revs`, `storage_controls`, `storage_coordinates`, `storage_coordinates_revs`, `storage_masters`, `storage_masters_revs`, `structures`, `structure_fields`, `structure_formats`, `structure_permissible_values`, `structure_permissible_values_customs`, `structure_permissible_values_customs_revs`, `structure_permissible_values_custom_controls`, `structure_validations`, `structure_value_domains`, `structure_value_domains_permissible_values`, `study_contacts`, `study_contacts_revs`, `study_ethics_boards`, `study_ethics_boards_revs`, `study_fundings`, `study_fundings_revs`, `study_investigators`, `study_investigators_revs`, `study_related`, `study_related_revs`, `study_results`, `study_results_revs`, `study_reviews`, `study_reviews_revs`, `study_summaries`, `study_summaries_revs`, `tma_slides`, `tma_slides_revs`, `txd_chemos`, `txd_chemos_revs`, `txd_radiations`, `txd_radiations_revs`, `txd_surgeries`, `txd_surgeries_revs`, `txe_chemos`, `txe_chemos_revs`, `txe_radiations`, `txe_radiations_revs`, `txe_surgeries`, `txe_surgeries_revs`, `tx_controls`, `tx_masters`, `tx_masters_revs`, `users`, `user_login_attempts`, `user_logs`, `versions`;
 DROP VIEW IF EXISTS `view_aliquots`, `view_collections`, `view_samples`, `view_structures`;
 DROP TABLE  IF EXISTS `coding_icd10_ca`, `coding_icd10_who`, `coding_icd_o_3_morphology`, `coding_icd_o_3_topography`, `ed_all_adverse_events_adverse_events`, `ed_all_adverse_events_adverse_events_revs`, `ed_all_clinical_followups`, `ed_all_clinical_followups_revs`, `ed_all_clinical_presentations`, `ed_all_clinical_presentations_revs`, `ed_all_lifestyle_smokings`, `ed_all_lifestyle_smokings_revs`, `ed_all_protocol_followups`, `ed_all_protocol_followups_revs`, `ed_all_study_researches`, `ed_all_study_researches_revs`, `ed_breast_lab_pathologies`, `ed_breast_lab_pathologies_revs`, `ed_breast_screening_mammograms`, `ed_breast_screening_mammograms_revs`, `sopd_general_alls`, `sopd_general_alls_revs`, `sopd_inventory_alls`, `sopd_inventory_alls_revs`;
+DROP TABLE IF EXISTS `coding_icdo_3` ,
+`path_collection_reviews` ,
+`path_collection_reviews_revs` ,
+`rd_bloodcellcounts` ,
+`rd_bloodcellcounts_revs` ,
+`rd_blood_cells` ,
+`rd_blood_cells_revs` ,
+`rd_breastcancertypes` ,
+`rd_breastcancertypes_revs` ,
+`rd_breast_cancers` ,
+`rd_breast_cancers_revs` ,
+`rd_coloncancertypes` ,
+`rd_coloncancertypes_revs` ,
+`rd_genericcancertypes` ,
+`rd_genericcancertypes_revs` ,
+`rd_ovarianuteruscancertypes` ,
+`rd_ovarianuteruscancertypes_revs` ,
+`review_controls` ,
+`review_masters` ,
+`review_masters_revs` ;
+
 SET FOREIGN_KEY_CHECKS=1;
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
