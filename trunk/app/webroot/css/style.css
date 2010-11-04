@@ -1787,7 +1787,10 @@ ul.actionDropdown a.specimen.review{
 	background-position: left center;
 	background-repeat: no-repeat;
 }
-
+ul.actionDropdown a.disabled{
+	font-style: italic;
+	color: grey;
+}
 
 ul.actionDropdown a, ul.actionDropdown li:hover a{
 	text-indent: 14px;
