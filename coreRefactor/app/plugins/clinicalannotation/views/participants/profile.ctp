@@ -16,7 +16,7 @@
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('settings' => array('actions' => false));
+	$final_options = array('type' => 'detail', 'settings' => array('actions' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
