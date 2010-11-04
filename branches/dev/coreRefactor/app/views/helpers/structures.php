@@ -6,31 +6,8 @@ class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
 	private static $last_tabindex = 0; 
-
-
-/********************************************************************************************************************************************************************************/
-
-	
-	function hook( $hook_extension='' ) {
-		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
-		
-		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'views' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
-		if ( !file_exists($hook_file) ) $hook_file=false;
-		
-		return $hook_file;
-	}
-
-
-/********************************************************************************************************************************************************************************/
-
-	
-	function build( $atim_structure=array(), $options=array() ) {
-		
-		$return_string = ''; 
-
-		// DEFAULT set of options, overridden by PASSED options
-		$defaults = array(
-			'type'		=>	$this->params['action'], // defaults to ACTION
+	private static $defaults = array(
+			'type'		=>	NULL, 
 			
 			'data'	=> false, // override $this->data values, will not work properly for EDIT forms
 			
@@ -80,8 +57,55 @@ class StructuresHelper extends Helper {
 			
 			'extras'		=> array() // HTML added to structure blindly, each in own COLUMN
 		);
+
+
+/********************************************************************************************************************************************************************************/
+
+	
+	function hook( $hook_extension='' ) {
+		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
 		
-		$options = $this->array_merge_recursive_distinct($defaults,$options);
+		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'views' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
+		if ( !file_exists($hook_file) ) $hook_file=false;
+		
+		return $hook_file;
+	}
+
+
+/********************************************************************************************************************************************************************************/
+
+	
+	function build( $atim_structure=array(), $options=array() ) {
+		// DEFAULT set of options, overridden by PASSED options
+		$options = $this->array_merge_recursive_distinct(self::$defaults,$options);
+		if(!isset($options['type'])){
+			$options['type'] = $this->params['action'];//no type, default to action
+		}
+		
+		//print warning when unknown stuff and debug is on
+		if(Configure::read('debug') > 0){
+			foreach($options as $k => $foo){
+				if(!array_key_exists($k, $defaults)){
+					AppController::addWarningMsg(sprintf(__("unknown function [%s] in structure build", true), $k));
+				}
+			}
+			foreach($options['settings'] as $k => $foo){
+				if(!array_key_exists($k, $defaults['settings'])){
+					AppController::addWarningMsg(sprintf(__("unknown setting [%s] in structure build", true), $k));
+				}
+			}
+			foreach($options['links'] as $k => $foo){
+				if(!array_key_exists($k, $defaults['links'])){
+					AppController::addWarningMsg(sprintf(__("unknown link [%s] in structure build", true), $k));
+				}
+			}
+		}
+		
+		if ($options['settings']['return']){
+			//the result needs to be returned as a string, turn output buffering on
+			ob_start();
+		}
+		
 		
 		if ( count($options['settings']['tree']) ) {
 			foreach ( $atim_structure as $key=>$val ) {
@@ -91,10 +115,9 @@ class StructuresHelper extends Helper {
 			$atim_structure = $this->sort_structure( $atim_structure );
 		}
 			
-		if ( $options['links']['top'] && $options['settings']['form_top'] ) {
-			
+		if ($options['links']['top'] && $options['settings']['form_top']) {
 			if ( isset($options['links']['ajax']['top']) && $options['links']['ajax']['top'] ) {
-				$return_string .= $this->Ajax->form(
+				echo($this->Ajax->form(
 					array(
 						'type'		=> 'post',    
 						'options'	=> array(
@@ -102,81 +125,77 @@ class StructuresHelper extends Helper {
 							'url'			=> $options['links']['top']
 						)
 					)
+				));
+			}else {
+				echo('
+					<form action="'.$this->generate_links_list( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
+						<fieldset>
+				');
+			}
+		}
+		
+		// display grey-box HEADING with descriptive form info
+		if( $options['settings']['header'] ){
+			if ( !is_array($options['settings']['header']) ) {
+				$options['settings']['header'] = array(
+					'title'			=> $options['settings']['header'],
+					'description'	=> ''
 				);
 			}
 			
-			else {
-				$return_string .= '
-					<form action="'.$this->generate_links_list( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
-						<fieldset>
-				';
-			}
+			echo('<table class="structure" cellspacing="0">
+				<tbody class="descriptive_heading">
+					<tr>
+						<td>
+							<h4>'.$options['settings']['header']['title'].'</h4>
+							<p>'.$options['settings']['header']['description'].'</p>
+						</td>
+					</tr>
+				</tbody>
+				</table>
+			');
+			
 		}
-		
-		// SEPARATOR option is deprecated, should use HEADING instead to better describe separated elements
-		
-			/*
-			if( $options['settings']['separator'] ){
-				$return_string .= '<table class="structure" cellspacing="0">
-					<tbody>
-					<tr><td>
-						<hr/>
-					</td></tr>
-					</tbody></table>';
-			}
-			*/
-		
-		// display grey-box HEADING with descriptive form info
-		
-			if( $options['settings']['header'] ){
-				
-				if ( !is_array($options['settings']['header']) ) {
-					$options['settings']['header'] = array(
-						'title'			=> $options['settings']['header'],
-						'description'	=> ''
-					);
-				}
-				
-				$return_string .= '<table class="structure" cellspacing="0">
-					<tbody class="descriptive_heading">
-						<tr>
-							<td>
-								<h4>'.$options['settings']['header']['title'].'</h4>
-								<p>'.$options['settings']['header']['description'].'</p>
-							</td>
-						</tr>
-					</tbody>
-					</table>
-					
-				';
-				
-			}
 		
 		// run specific TYPE function to build structure
-		switch ( $options['type'] ) {
-			case 'index':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'table':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'list':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'listall':		$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+		$type = $options['type'];
+		if($type == 'index' 
+		|| $type == 'table'
+		|| $type == 'list'
+		|| $type == 'listall'
+		|| $type == 'checklist'
+		|| $type == 'radiolist'){
+			$options['type'] = 'index';		
+			echo($this->build_table( $atim_structure, $options ));
 			
-			case 'checklist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'radiolist':	$options['type'] = 'index';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+		}else if($type == 'grid'
+		|| $type == 'addgrid'
+		|| $type == 'editgrid'
+		|| $type == 'datagrid'){
+			$options['type'] = 'datagrid';	
+			echo($this->build_table( $atim_structure, $options ));
 			
-			case 'grid':		$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'addgrid':		$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'editgrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
-			case 'datagrid':	$options['type'] = 'datagrid';	$return_string .= $this->build_table( $atim_structure, $options );	break;
+		}else if($type == 'csv'){
+			$options['type'] = 'index';
+			echo($this->build_csv( $atim_structure, $options));
+			$options['settings']['actions'] = false;
 			
-			case 'csv':			$options['type'] = 'index';	$return_string .= $this->build_csv( $atim_structure, $options ); $options['settings']['actions'] = false;		break;
+		}else if($type == 'add'
+		|| $type == 'edit'
+		|| $type == 'search'){
+			echo($this->build_detail( $atim_structure, $options ));
 			
-			case 'add':			$options['type'] = 'add';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
-			case 'edit':		$options['type'] = 'edit';		$return_string .= $this->build_detail( $atim_structure, $options );	break;
-			case 'search':		$options['type'] = 'search';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
+		}else if($type == 'tree'){
+			$this->build_tree( $atim_structure, $options );
 			
-			case 'tree':		$options['type'] = 'tree';		$return_string .= $this->build_tree( $atim_structure, $options );	break;
-			
-			default:			$options['type'] = 'detail';	$return_string .= $this->build_detail( $atim_structure, $options );	break;
+		}else{
+			if($type != 'detail'){
+				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
+			}
+			$options['type'] = 'detail';
+			echo($this->build_detail( $atim_structure, $options ));
 		}
+
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
@@ -187,7 +206,7 @@ class StructuresHelper extends Helper {
 				$link_label = __("submit", null);
 				$exact_search = "";
 			}
-			$return_string .= '
+			echo('
 				</fieldset>
 				
 				<fieldset class="submit">
@@ -198,21 +217,29 @@ class StructuresHelper extends Helper {
 						</span>
 						'.$exact_search.'
 					</div>
-			';
+			');
 		}
 		
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
-			$return_string .= '
+			echo('
 					</fieldset>
 				</form>
-			';
+			');
 		}
 				
 		if ( $options['settings']['actions'] ) {
-			$return_string .= $this->generate_links_list(  $this->data, $options, 'bottom' );
+			echo($this->generate_links_list(  $this->data, $options, 'bottom' ));
 		}
-		// RETURN or ECHO resulting structure
-		if ( $options['settings']['return'] ) { return $return_string; } else { echo $return_string; }
+		
+		$result = null;
+		if ($options['settings']['return']){
+			//the result needs to be returned as a string, take the output buffer
+			$result = ob_get_contents();
+			ob_end_clean();
+		}else{
+			$result = true;
+		}
+		return $result;
 				
 	} // end FUNCTION build()
 
