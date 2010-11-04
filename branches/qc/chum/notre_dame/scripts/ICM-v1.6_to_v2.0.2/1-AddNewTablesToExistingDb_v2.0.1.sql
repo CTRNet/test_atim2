@@ -2,6 +2,7 @@
 #Supprimer aliquot dans boite quand ils n'existenet plus masi garder les donn�es dans l'hitorique
 #Dans script #1 vérifier lignes 14, 19-22, 80, 81
 #Dans script #7 vérifier lingnes 3377, 3389, 3416
+#Il faut créer les formulaires de recherches spécifiques (consentement FRSQ, PROCURE, etc.) pourle databrowser
 
 CRASHHHH! (il faut s'occuper des points ci-dessus)
 
