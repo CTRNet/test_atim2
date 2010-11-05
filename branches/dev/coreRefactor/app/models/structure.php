@@ -3,8 +3,22 @@
 class Structure extends AppModel {
 
 	var $name = 'Structure';
+	var $actsAs = array('Containable');
 
-	var $hasMany = array('StructureFormat');
+	var $hasMany = array('StructureFormat', 'Sfs');
+	
+	function __construct(){
+		parent::__construct();
+		$this->setModeSimplified();
+	}
+	
+	function setModeComplete(){
+		$this->contain(array('StructureFormat' => array('StructureField' => array('StructureValidation', 'StructureValueDomain'))));
+	}
+	
+	function setModeSimplified(){
+		$this->contain(array('Sfs' => array('StructureValidation', 'StructureValueDomain')));
+	}
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -34,16 +48,13 @@ class Structure extends AppModel {
 		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
 		
 		if ( $result ) {
-			
 			if ( $conditions=='rule' || $conditions=='rules' ) {
-				
 				$return = array();
-				foreach ( $result['StructureFormat'] as $structure_format  ) {
-					
-					if ( !isset($return[ $structure_format['StructureField']['model'] ]) ) {
-						$return[ $structure_format['StructureField']['model'] ] = array();
+				foreach ( $result['Sfs'] as $sfs  ) {
+					if ( !isset($return[ $sfs['model'] ]) ) {
+						$return[ $sfs['model'] ] = array();
 					}
-					$tmp_type = $structure_format['flag_override_type'] ? $structure_format['type'] : $structure_format['StructureField']['type'];
+					$tmp_type = $sfs['type'];
 					$tmp_rule = NULL;
 					$tmp_msg = NULL;
 					if($tmp_type == "integer"){
@@ -67,15 +78,15 @@ class Structure extends AppModel {
 					}
 					if($tmp_rule != NULL){
 						$structure_format['StructureField']['StructureValidation'][] = array(
-							'structure_field_id' => $structure_format['StructureField']['id'],
+							'structure_field_id' => $sfs['structure_field_id'],
 							'rule' => $tmp_rule, 
 							'flag_empty' => 1, 
 							'flag_required' => 0, 
 							'on_action' => NULL,
 							'language_message' => $tmp_msg);
 					}
-//					pr($structure_format['StructureField']['StructureValidation']);
-					foreach ( $structure_format['StructureField']['StructureValidation'] as $validation ) {
+
+					foreach ( $sfs['StructureValidation'] as $validation ) {
 						$rule = array();
 						if(($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
 							// To support coma as decimal separator
@@ -102,11 +113,11 @@ class Structure extends AppModel {
 						if($on_action) $rule_array['on'] = $on_action;
 						if($language_message) $rule_array['message'] = $language_message;
 						
-						if ( !isset($return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ]) ) {
-							$return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ] = array();
+						if ( !isset($return[ $sfs['model'] ][ $sfs['field'] ]) ) {
+							$return[ $sfs['model'] ][ $sfs['field'] ] = array();
 						}
 						
-						$return[ $structure_format['StructureField']['model'] ][ $structure_format['StructureField']['field'] ][] = $rule_array;
+						$return[ $sfs['model'] ][ $sfs['field'] ][] = $rule_array;
 						
 					}
 				}

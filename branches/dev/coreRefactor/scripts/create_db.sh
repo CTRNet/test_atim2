@@ -8,12 +8,12 @@ if [ "$1" == "" -o "$2" == "" -o "$3" == "" ]; then
 fi
 
 echo running tmp_atim_v2.1.0_script_FULL.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_full_2.1.0_script.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.0_script_FULL.sql
 
 echo running tmp_atim_v2.1.1_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_upgrade.sql
 
 echo running tmp_atim_v2.1.1_demo_data.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_v2.1.1_demo_data.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_demo_data.sql
 
 echo done

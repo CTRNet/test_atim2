@@ -17,13 +17,15 @@ class StructuresComponent extends Object {
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
 	 */
 	function set( $alias=NULL, $structure_name = 'atim_structure' ) {
-		foreach ( $this->get('rules', $alias) as $model=>$rules ) $this->controller->{ $model }->validate = $rules;
-		$this->controller->set( $structure_name, $this->get('form', $alias) );
+		foreach ($this->get('rules', $alias) as $model=>$rules){
+			$this->controller->{ $model }->validate = $rules;
+		}
+		$this->controller->set($structure_name, $this->get('form', $alias));
 	}
 	
 	function get( $mode=NULL, $alias=NULL ) {
 		$return = array();
-		$mode		= strtolower($mode);
+		$mode	= strtolower($mode);
 		$alias	= $alias ? strtolower($alias) : str_replace('_','',$this->controller->params['controller']);
 		
 		$structure_cache_directory = "../tmp/cache/structures/";
@@ -100,10 +102,10 @@ class StructuresComponent extends Object {
 		if ( $atim_structure===NULL ){
 			$atim_structure = $this->get();
 		}
-		$simplified_structure = self::simplifyForm($atim_structure);
+		
 		// format structure data into SEARCH CONDITONS format
-		if ( isset($simplified_structure['SimplifiedField']) ) {
-			foreach ($simplified_structure['SimplifiedField'] as $value) {
+		if ( isset($atim_structure['Ssf']) ) {
+			foreach ($atim_structure['Ssf'] as $value) {
 				if(!$value['flag_search']){
 					//don't waste cpu cycles on non search parameters
 					continue;
@@ -372,48 +374,6 @@ class StructuresComponent extends Object {
 		}
 		$data = $this->Component_Structure->find('first', array('conditions' => array('Structure.id' => $id), 'recursive' => -1));
 		return $this->get('form', $data['Structure']['alias']);
-	}
-	
-	function getSimplifiedFormById($id){
-		$form = $this->getFormById($id);
-		foreach($form['StructureFormat'] as &$sfo){
-			if(isset($sfo['StructureField']['StructureValueDomain']['source']) && strlen($sfo['StructureField']['StructureValueDomain']['source']) > 0){
-				$sfo['StructureField']['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sfo['StructureField']['StructureValueDomain']['source']); 
-			}
-		}
-		return StructuresComponent::simplifyForm($form);
-	}
-	
-	/**
-	 * Flattens a form so that all information is on the same level and that there is no need to evaluate override flags all the time
-	 * @param array $form The form to simplify
-	 */
-	static function simplifyForm(array $form){
-		$result['Structure'] = $form['Structure'];
-		$sfo_to_copy = array("structure_id", "structure_field_id", "display_column", "display_order", "language_heading", "flag_add", "flag_add_readonly",
-			"flag_edit", "flag_edit_readonly", "flag_search", "flag_search_readonly", "flag_datagrid", "flag_datagrid_readonly", "flag_index",
-			"flag_detail");
-		$sfi_to_copy = array("public_identifier", "plugin", "model", "tablename", "field", "structure_value_domain", "StructureValueDomain",
-			"StructureValidation");
-		foreach($form['StructureFormat'] as $sfo){
-			$ssfield = array();
-			$ssfield["structure_format_id"] = $sfo['id'];
-			foreach($sfo_to_copy as $unit){
-				$ssfield[$unit] = $sfo[$unit];
-			}
-			foreach($sfi_to_copy as $unit){
-				$ssfield[$unit] = $sfo['StructureField'][$unit];
-			}
-			$ssfield['language_label'] = $sfo['flag_override_label'] ? $sfo['language_label'] : $sfo['StructureField']['language_label'];
-			$ssfield['language_tag'] = $sfo['flag_override_tag'] ? $sfo['language_tag'] : $sfo['StructureField']['language_tag'];
-			$ssfield['language_help'] = $sfo['flag_override_help'] ? $sfo['language_help'] : $sfo['StructureField']['language_help'];
-			$ssfield['type'] = $sfo['flag_override_type'] ? $sfo['type'] : $sfo['StructureField']['type'];
-			$ssfield['setting'] = $sfo['flag_override_setting'] ? $sfo['setting'] : $sfo['StructureField']['setting'];
-			$ssfield['default'] = $sfo['flag_override_default'] ? $sfo['default'] : $sfo['StructureField']['default'];
-			$result['SimplifiedField'][] = $ssfield;
-		}
-		
-		return $result;
 	}
 	
 	/**
