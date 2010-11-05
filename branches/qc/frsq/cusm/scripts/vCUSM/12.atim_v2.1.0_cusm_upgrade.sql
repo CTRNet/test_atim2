@@ -212,3 +212,35 @@ UPDATE datamart_browsing_controls
 SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
 WHERE id1 IN (@trt_id, @spec_rev_id)
 OR id2 IN (@trt_id, @spec_rev_id);
+
+ALTER TABLE diagnosis_masters
+  MODIFY `path_mstage` varchar(15) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs
+  MODIFY `path_mstage` varchar(15) DEFAULT NULL;
+
+RENAME TABLE qc_cusm_cd_undetailled TO qc_cusm_cd_undetailleds;
+RENAME TABLE qc_cusm_cd_undetailled_revs TO qc_cusm_cd_undetailleds_revs;
+UPDATE consent_controls SET detail_tablename = 'qc_cusm_cd_undetailleds' WHERE detail_tablename = 'qc_cusm_cd_undetailled';
+
+RENAME TABLE qc_cusm_dxd_procure TO qc_cusm_dxd_procures;
+RENAME TABLE qc_cusm_dxd_procure_revs TO qc_cusm_dxd_procures_revs;
+UPDATE diagnosis_controls SET detail_tablename = 'qc_cusm_dxd_procures' WHERE detail_tablename = 'qc_cusm_dxd_procure';
+
+RENAME TABLE qc_cusm_ed_procure_lifestyle TO qc_cusm_ed_procure_lifestyles;
+RENAME TABLE qc_cusm_ed_procure_lifestyle_revs TO qc_cusm_ed_procure_lifestyles_revs;
+UPDATE event_controls SET detail_tablename = 'qc_cusm_ed_procure_lifestyles' WHERE detail_tablename = 'qc_cusm_ed_procure_lifestyle';
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE str.alias = 'qc_cusm_dxd_procure'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.field IN ('dx_date', 'morphology', 'primary_grade', 'secondary_grade', 'tertiary_grade', 'gleason_score', 
+'path_tstage', 'path_nstage', 'path_mstage', 'path_stage_summary') 
+AND str.alias = 'qc_cusm_dxd_procure'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+review all search form and index form including master for databrowser
+
