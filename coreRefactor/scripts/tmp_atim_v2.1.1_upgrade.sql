@@ -30,3 +30,26 @@ INSERT INTO structure_validations (structure_field_id, rule, flag_empty, flag_re
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='en'), 'notEmpty', 0, 1, 'value is required'),
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='fr'), 'notEmpty', 0, 1, 'value is required');
 
+ALTER TABLE `structure_formats` ADD `flag_addgrid` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_datagrid_readonly` ,
+ADD `flag_addgrid_readonly` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_addgrid` ,
+ADD `flag_editgrid` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_addgrid_readonly` ,
+ADD `flag_editgrid_readonly` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_editgrid`;
+
+UPDATE structure_formats SET flag_addgrid=flag_datagrid, flag_editgrid=flag_datagrid, 
+flag_addgrid_readonly=flag_datagrid_readonly, flag_editgrid_readonly=flag_datagrid_readonly;
+
+CREATE VIEW view_structure_formats_simplified AS 
+SELECT sfo.id AS structure_format_id, sfi.id AS structure_field_id, sfo.structure_id AS structure_id,
+sfi.plugin AS plugin, sfi.model AS model, sfi.tablename AS tablename, sfi.field AS field, sfi.structure_value_domain AS structure_value_domain,
+IF(sfo.flag_override_label = '1', sfo.language_label, sfi.language_label) AS language_label,
+IF(sfo.flag_override_tag = '1', sfo.language_tag, sfi.language_tag) AS language_tag,
+IF(sfo.flag_override_help = '1', sfo.language_help, sfi.language_help) AS language_help,
+IF(sfo.flag_override_type = '1', sfo.type, sfi.type) AS `type`,
+IF(sfo.flag_override_setting = '1', sfo.setting, sfi.setting) AS setting,
+IF(sfo.flag_override_default = '1', sfo.default, sfi.default) AS `default`,
+sfo.flag_add AS flag_add, sfo.flag_add_readonly AS flag_add_readonly, sfo.flag_edit AS flag_edit, sfo.flag_edit_readonly AS flag_edit_readonly,
+sfo.flag_search AS flag_search, sfo.flag_search_readonly AS flag_search_readonly, sfo.flag_addgrid AS flag_addgrid, sfo.flag_addgrid_readonly AS flag_addgrid_readonly,
+sfo.flag_editgrid AS flag_editgrid, sfo.flag_editgrid_readonly AS flag_editgrid_readonly, sfo.flag_index AS flag_index, sfo.flag_detail AS flag_detail,  
+sfo.display_column AS display_column, sfo.display_order AS display_order, sfo.language_heading AS language_heading
+FROM structure_formats AS sfo
+INNER JOIN structure_fields AS sfi ON sfo.structure_field_id=sfi.id;

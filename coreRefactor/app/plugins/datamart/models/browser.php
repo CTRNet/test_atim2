@@ -430,7 +430,7 @@ class Browser extends DatamartAppModel {
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
 		$structures_component = StructuresComponent::$singleton;
-		$sf = $structures_component->getSimplifiedFormById($structure_id);
+		$sf = $structures_component->getFormById($structure_id);
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can ben a string or an array
 		foreach($params as $key => $value_element){
@@ -460,7 +460,7 @@ class Browser extends DatamartAppModel {
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf['SimplifiedField'] as $sf_unit){
+			foreach($sf['Ssf'] as $sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){

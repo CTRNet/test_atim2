@@ -75,7 +75,7 @@ class StructuresHelper extends Helper {
 /********************************************************************************************************************************************************************************/
 
 	
-	function build( $atim_structure=array(), $options=array() ) {
+	function build($atim_structure=array(), $options=array()){
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->array_merge_recursive_distinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -85,17 +85,17 @@ class StructuresHelper extends Helper {
 		//print warning when unknown stuff and debug is on
 		if(Configure::read('debug') > 0){
 			foreach($options as $k => $foo){
-				if(!array_key_exists($k, $defaults)){
+				if(!array_key_exists($k, self::$defaults)){
 					AppController::addWarningMsg(sprintf(__("unknown function [%s] in structure build", true), $k));
 				}
 			}
 			foreach($options['settings'] as $k => $foo){
-				if(!array_key_exists($k, $defaults['settings'])){
+				if(!array_key_exists($k, self::$defaults['settings'])){
 					AppController::addWarningMsg(sprintf(__("unknown setting [%s] in structure build", true), $k));
 				}
 			}
 			foreach($options['links'] as $k => $foo){
-				if(!array_key_exists($k, $defaults['links'])){
+				if(!array_key_exists($k, self::$defaults['links'])){
 					AppController::addWarningMsg(sprintf(__("unknown link [%s] in structure build", true), $k));
 				}
 			}
@@ -154,7 +154,25 @@ class StructuresHelper extends Helper {
 				</tbody>
 				</table>
 			');
-			
+		}
+		
+		$data = &$this->data;
+		if(isset($options['stack']['key'])){
+			$tab_key = $options['stack']['key'];
+			$model_prefix = $options['stack']['key'].'.';
+
+			// use DATA passed in through OPTIONS from VIEW
+			// OR use DATA juggled in STACKS in this class' BUILD TREE functions
+			if(is_array($options['data'])){
+				$data = &$options['data'][$options['stack']['key']];
+			}else{
+				// use THIS->DATA by default
+				$data = &$this->data[$options['stack']['key']];
+			}
+		}else{
+			if(is_array($options['data'])){
+				$data = $options['data'];
+			}
 		}
 		
 		// run specific TYPE function to build structure
@@ -165,35 +183,37 @@ class StructuresHelper extends Helper {
 		|| $type == 'listall'
 		|| $type == 'checklist'
 		|| $type == 'radiolist'){
+			//TODO: if they're really all the same, deprecate all but index and add warning
 			$options['type'] = 'index';		
-			echo($this->build_table( $atim_structure, $options ));
+			$this->build_table( $atim_structure, $options, $data);
 			
 		}else if($type == 'grid'
 		|| $type == 'addgrid'
 		|| $type == 'editgrid'
 		|| $type == 'datagrid'){
+			//TODO if they're all the same, deprecate grid and datagrid, separate add and edit
 			$options['type'] = 'datagrid';	
-			echo($this->build_table( $atim_structure, $options ));
+			$this->build_table( $atim_structure, $options, $data);
 			
 		}else if($type == 'csv'){
 			$options['type'] = 'index';
-			echo($this->build_csv( $atim_structure, $options));
+			$this->build_csv( $atim_structure, $options, $data);
 			$options['settings']['actions'] = false;
 			
 		}else if($type == 'add'
 		|| $type == 'edit'
 		|| $type == 'search'){
-			echo($this->build_detail( $atim_structure, $options ));
+			$this->build_detail( $atim_structure, $options, $data);
 			
 		}else if($type == 'tree'){
-			$this->build_tree( $atim_structure, $options );
+			$this->build_tree( $atim_structure, $options, $data);
 			
 		}else{
 			if($type != 'detail'){
 				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
 			}
 			$options['type'] = 'detail';
-			echo($this->build_detail( $atim_structure, $options ));
+			$this->build_detail( $atim_structure, $options, $data);
 		}
 
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
@@ -244,161 +264,148 @@ class StructuresHelper extends Helper {
 	} // end FUNCTION build()
 
 
-/********************************************************************************************************************************************************************************/
-
-	
 	function sort_structure( $atim_structure ) {
-		
-		if ( count($atim_structure['StructureFormat']) ) {
+		if ( count($atim_structure['Sfs']) ) {
 			// Sort the data with ORDER descending, FIELD ascending 
-				foreach ( $atim_structure['StructureFormat'] as $key=>$row ) {
+				foreach ( $atim_structure['Sfs'] as $key=>$row ) {
 					$sort_order_0[$key] = $row['display_column'];
 					$sort_order_1[$key] = $row['display_order'];
-					$sort_order_2[$key] = $row['StructureField']['model'];
+					$sort_order_2[$key] = $row['model'];
 				}
 			
 			// multisort, PHP array 
-				array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['StructureFormat'] );
+				array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
 		}
-		
 		return $atim_structure;
 	}
 	
-
-/********************************************************************************************************************************************************************************/
-
-
-	// FUNCTION 
-	function build_detail( $atim_structure, $options ) {
-		$return_string = '';
-			
+//TODO FMLHHHHHHHHH
+//WE'RE HERE!
+//build a function that takes the data and returns it in the proper container
+	function build_detail($atim_structure, $options, $data){
 		$table_index = $this->build_stack( $atim_structure, $options );
-		
-			// display table...
-			$return_string .= '
-				<table class="structure" cellspacing="0">
-				<tbody>
-					<tr>
-			';
-				
-				// tack on EXTRAS end, if any
-				// $return_string .= $this->display_extras( 'edit', $extras, 'start', count($table_index) );
-				
-				// each column in table 
-				$count_columns = 0;
-				foreach ( $table_index as $table_column_key=>$table_column ) {
+		// display table...
+		echo('
+			<table class="structure" cellspacing="0">
+			<tbody>
+				<tr>
+		');
+				pr($data);
+		// each column in table 
+		$count_columns = 0;
+		foreach($table_index as $table_column_key => $table_column){
+			$count_columns ++;
+			
+			// for each FORM/DETAIL element...
+			if(is_array($table_column)){
+				echo('
+					<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
 					
-					$count_columns++;
-					
-					// for each FORM/DETAIL element...
-					if ( is_array($table_column) ) {
-						
-						$return_string .= '
-							<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
-							
-								<table class="columns detail" cellspacing="0">
-						';
+						<table class="columns detail" cellspacing="0">
+				');
 
-						if(!empty($options['settings']['columns_names'])){
-							$return_string .= '<thead><tr><td></td><th>'.implode("</th><th>", $options['settings']['columns_names']).'</th></tr></thead>';
-						}
-						$return_string .= '		<tbody>
-						';
-					
-						// each row in column 
-						$table_row_count = 0;
-						foreach ( $table_column as $table_row_key=>$table_row ) {
-							
-							// display heading row, if any...
-							if ( $table_row['heading'] ) {
-								$return_string .= '
-									<tr>
-										<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
-											<h4>'.$table_row['heading'].'</h4>
-										</td>
-									</tr>
-								';
+				if(!empty($options['settings']['columns_names'])){
+					echo('<thead><tr><td></td><th>'.implode("</th><th>", $options['settings']['columns_names']).'</th></tr></thead>');
+				}
+				echo('<tbody>');
+			
+				// each row in column 
+				$table_row_count = 0;
+				echo("<tr>");
+				$new_line = true;
+				$end_of_line = "";
+				$display = "";
+				foreach ( $table_column as $table_row ) {
+					foreach($table_row as $table_row_part){
+						if($table_row_part['heading']){
+							if(!$new_line){
+								echo('<td class="content">'.$display."</td>".$end_of_line."</tr><tr>");
+								$display = "";
+								$end_of_line = "";
 							}
-							
-							$return_string .= '
-									<tr class="'.$table_row['type'].'">
-										<td class="label'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-											'.$table_row['label'].'
-										</td>
-							';
-							
-							$td_open = '<td class="content'.( $table_row['empty'] ? ' empty' : '' ).( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">';
-							if(!empty($options['settings']['columns_names'])){
-								if(is_array($table_row['content'])){
-									foreach($options['settings']['columns_names'] as $col_name){
-										$return_string .= $td_open.(isset($table_row['content'][$col_name]) ? $table_row['content'][$col_name] : "")."</td>"; 
-									}
-								}else{
-									$return_string .= str_repeat($td_open."</td>", count($options['settings']['columns_names']));
+							echo('<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
+										<h4>'.$table_row_part['heading'].'</h4>
+									</td>
+								</tr><tr>
+							');
+						}
+						
+						if($table_row_part['label']){
+							if(!$new_line){
+								echo('<td class="content">'.$display."</td>".$end_of_line."</tr><tr>");
+								$display = "";
+								$end_of_line = "";
+							}
+							echo('<td class="label">
+										'.$table_row_part['label'].'
+								</td>
+							');
+						}
+						
+						//value
+						if(!empty($options['settings']['columns_names'])){
+							//TODO
+							if(is_array($table_row_part['content'])){
+								foreach($options['settings']['columns_names'] as $col_name){
+									echo($td_open.(isset($table_row_part['content'][$col_name]) ? $table_row_part['content'][$col_name] : "")."</td>"); 
 								}
 							}else{
-								$return_string .= $td_open											
-												.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'
-											</td>
-								';
+								echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
 							}
-							
-							if ( show_help ) {
-								$return_string .= '
-										<td class="help'.( !$table_row_count && !$table_row['heading'] ? ' no_border' : '' ).'">
-											'.$table_row['help'].'
-										</td>
-								';
+						}else{
+							if($options['links']['top'] && $options['settings']['form_inputs']){
+								//TODO not good!
+								$display .= $data[$table_row_part['model']][$table_row_part['field']]." ";
+							}else{
+								$display .= $data[$table_row_part['model']][$table_row_part['field']]." ";
 							}
-							
-							$return_string .= '
-									</tr>
-							';
-							
-							
-							$table_row_count++;
-							
-						} // end ROW 
-						$return_string .= '
-								</tbody>
-								</table>
-								
-							</td>
-						';
+						}
 						
+						
+						if(show_help) {
+							$end_of_line = '
+									<td class="help">
+										'.$table_row_part['help'].'
+									</td>';
+						}
+						
+						$new_line = false;
 					}
-					
-					// otherwise display EXTRAs...
-					else {
+					$table_row_count++;
+				} // end ROW 
+				echo('<td class="content">'.$display.'</td>'.$end_of_line.'</tr>
+						</tbody>
+						</table>
 						
-						$return_string .= '
-							<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
-							
-								<table class="columns extra" cellspacing="0">
-								<tbody>
-									<tr>
-										<td>
-											'.$table_column.'
-										</td>
-									</tr>
-								</tbody>
-								</table>
-								
-							</td>
-						';
-						
-					}
-						
-				} // end COLUMN 
+					</td>
+				');
 				
-			$return_string .= '
-					</tr>
-				</tbody>
-				</table>
-			';
-			
-		return $return_string;
+			}else {
+				// 	otherwise display EXTRAs...
+				echo('
+					<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
+					
+						<table class="columns extra" cellspacing="0">
+						<tbody>
+							<tr>
+								<td>
+									'.$table_column.'
+								</td>
+							</tr>
+						</tbody>
+						</table>
+						
+					</td>
+				');
+			}
+				
+		} // end COLUMN 
 		
+	echo('
+			</tr>
+		</tbody>
+		</table>
+	');
 	}
 
 
@@ -406,35 +413,36 @@ class StructuresHelper extends Helper {
 
 
 	function build_table( $atim_structure, $options ) {
-		$return_string = '';
-		// display table...
-		$return_string .= '
+		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
 				<tr>
-		';
+		');
 			
-			// attach PER PAGE pagination param to PASSED params array...
-			if ( isset($this->params['named']) && isset($this->params['named']['per']) ) {
-				$this->params['pass']['per'] = $this->params['named']['per'];
-			}
+		// attach PER PAGE pagination param to PASSED params array...
+		if(isset($this->params['named']) && isset($this->params['named']['per'])){
+			$this->params['pass']['per'] = $this->params['named']['per'];
+		}
+		
+		$this->Paginator->options(array('url' => $this->params['pass']));
 			
-			$this->Paginator->options(array('url' => $this->params['pass']));
-			
-				if ( is_array($options['data']) ) { $data=$options['data']; }
-				else { $data=$this->data; }
-				
-				$table_structure = array();
-				foreach ( $data as $key=>$val ) {
-					$options['stack']['key'] = $key.($options['settings']['name_prefix'] ? ".".$options['settings']['name_prefix'] : "");
-					$table_structure[$key] = $this->build_stack( $atim_structure, $options );
-					unset($options['stack']);
-				}
-				$structure_count = 0;
-				$structure_index = array( 1 => $table_structure ); 
-				
-				// add EXTRAS, if any
-				$structure_index = $this->display_extras( $structure_index, $options );
+		if(is_array($options['data'])){
+			$data=$options['data']; 
+		}else{
+			$data=$this->data; 
+		}
+		
+		$table_structure = array();
+		foreach($data as $key => $val){
+			$options['stack']['key'] = $key.($options['settings']['name_prefix'] ? ".".$options['settings']['name_prefix'] : "");
+			$table_structure[$key] = $this->build_stack( $atim_structure, $options );
+			unset($options['stack']);
+		}
+		$structure_count = 0;
+		$structure_index = array( 1 => $table_structure ); 
+		
+		// add EXTRAS, if any
+		$structure_index = $this->display_extras( $structure_index, $options );
 				
 				foreach ( $structure_index as $table_key=>$table_index ) {				
 					
@@ -444,15 +452,15 @@ class StructuresHelper extends Helper {
 					if ( is_array($table_index) ) {
 					
 						// start table...
-						$return_string .= '
+						echo('
 							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
 								
 								<table class="columns index" cellspacing="0">
 								<tbody>
-						';
+						');
 						
 						// header row
-						$return_string .= $this->display_header( $table_index, $options );
+						echo($this->display_header( $table_index, $options ));
 						
 						$column_count = 0;
 						if ( count($data) ) {
@@ -460,35 +468,35 @@ class StructuresHelper extends Helper {
 							// each column in table 
 							foreach ( $data as $key=>$val ) {
 								
-								$return_string .= '
+								echo('
 									<tr id="table'.$table_key.'row'.$key.'">
-								';
+								');
 									
 								$column_count = 0;
 								
 								if ( count($options['links']['checklist']) ) {
-									$return_string .= '
+									echo('
 										<td class="checkbox">
-									';
+									');
 									
 									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
 										$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
 											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
  											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
-										$return_string .= $checkbox_form_element;
+										echo($checkbox_form_element);
 									}
 									
-									$return_string .= '
+									echo('
 										</td>
-									';
+									');
 									
 									$column_count++;
 								}
 								
 								if ( count($options['links']['radiolist']) ) {
-									$return_string .= '
+									echo('
 										<td class="radiobutton">
-									';
+									');
 									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
 										list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
 										$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
@@ -496,20 +504,20 @@ class StructuresHelper extends Helper {
 										if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
 											$tmp_attributes['checked'] = 'checked';
 										}
-										$return_string .= $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes);
+										echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
 									}
 									
-									$return_string .= '
+									echo('
 										</td>
-									';
+									');
 									
 									$column_count++;
 								}
 								
 								if ( count($options['links']['index']) ) {
-									$return_string .= '
+									echo('
 										<td class="id">'.$this->generate_links_list(  $data[$key], $options, 'index' ).'</td>
-									';
+									');
 									
 									$column_count++;
 								}
@@ -517,9 +525,9 @@ class StructuresHelper extends Helper {
 								// each column/row in table 
 								foreach ( $table_index[$key] as $table_column ) {
 									foreach ( $table_column as $table_row ) {
-										$return_string .= '
+										echo('
 											<td>'.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'</td>
-										';
+										');
 										
 										$column_count++;
 									}
@@ -527,18 +535,18 @@ class StructuresHelper extends Helper {
 								
 								// if OPTIONS set to allow rows to be removed from a GRID, provide link
 								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
-									$return_string .= '
+									echo('
 											<td class="right">
 												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
 											</td>
-									';
+									');
 									
 									$column_count++;
 								}
 								
-								$return_string .= '
+								echo('
 									</tr>
-								';
+								');
 								
 							} // end FOREACH
 							
@@ -633,11 +641,11 @@ class StructuresHelper extends Helper {
 						
 						// display something nice for NO ROWS msg...
 						else {
-							$return_string .= '
+							echo('
 									<tr>
 											<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
 									</tr>
-							';
+							');
 						}
 		
 						// if OPTIONS set to allow rows to be added to a GRID, provide link
@@ -654,7 +662,7 @@ class StructuresHelper extends Helper {
 							$add_another_unique_next_variable = 'next_'.$add_another_unique;
 							$add_another_unique_link_id = 'add_'.$add_another_unique;
 							
-							$return_string .= '
+							echo('
 							</tbody><tfoot>
 								<tr id="'.$add_another_unique_link_id.'">
 									<td class="right" colspan="'.$column_count.'">
@@ -696,12 +704,12 @@ class StructuresHelper extends Helper {
 										return false;
 									}
 								</script>
-							';
+							');
 							
 						}
 						
 						if ( $options['settings']['pagination'] ) {
-							$return_string .= '
+							echo('
 									<tr class="pagination">
 										<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
 											
@@ -722,26 +730,26 @@ class StructuresHelper extends Helper {
 											
 										</th>
 									</tr>
-							';
+							');
 						}
 						
 						if ( count($options['links']['checklist']) ) {
-							$return_string .= "<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>";
+							echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
 						}
 						
-						$return_string .= '
+						echo('
 								</tfoot>
 								</table>
 								
 							</td>
-						';
+						');
 						
 					}
 					
 					// otherwise display EXTRAs...
 					else {
 						
-						$return_string .= '
+						echo('
 							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
 							
 								<table class="columns extra" cellspacing="0">
@@ -755,21 +763,16 @@ class StructuresHelper extends Helper {
 								</table>
 								
 							</td>
-						';
+						');
 						
 					}
 					
 				} // end FOREACH
 				
-		$return_string .= '</tr>';
-		
-				
-		$return_string .= '	</tbody>
+		echo('		</tr>
+				</tbody>
 			</table>
-		';
-				
-		return $return_string;
-		
+		');
 	}
 
 
@@ -821,7 +824,7 @@ class StructuresHelper extends Helper {
 				$this->Csv->addRow($line);
 			}
 		}
-		return $this->Csv->render();
+		echo($this->Csv->render());
 	}
 
 
@@ -829,17 +832,18 @@ class StructuresHelper extends Helper {
 
 
 	function build_tree( $atim_structure, $options ) {
-		$return_string = '';
-		
-		if ( is_array($options['data']) ) { $data=$options['data']; }
-		else { $data=$this->data; }
+		if ( is_array($options['data']) ){ 
+			$data=$options['data']; 
+		}else{
+			$data=$this->data; 
+		}
 		
 		// display table...
-		$return_string .= '
+		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
 				<tr>
-		';
+		');
 		
 		$structure_count = 0;
 		$structure_index = array( 1 => array() ); 
@@ -863,57 +867,53 @@ class StructuresHelper extends Helper {
 			// for each FORM/DETAIL element...
 			if ( is_array($table_index) ) {
 			
-				$return_string .= '
+				echo('
 					<td column_key="'.$column_key.'" '.$column_inline_styles.' class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
-				';
+				');
 				
 					// start table...
-					$return_string .= '
+					echo('
 						<table class="columns tree" cellspacing="0">
 						<tbody>
-					';
+					');
 					
 					if ( count($data) ) {
 						
 						// start root level of UL tree, and call NODE function
-						$return_string .= '
+						echo('
 							<tr><td>
 								<ul id="tree_root">
-						';
+						');
 						
-						$return_string .= $this->build_tree_node( $atim_structure, $options, $data );
+						$this->build_tree_node( $atim_structure, $options, $data );
 						
-						$return_string .= '
+						echo('
 								</ul>
 							</td></tr>
-						';
+						');
 						
 					}
 					
 					// display something nice for NO ROWS msg...
 					else {
-						$return_string .= '
+						echo('
 								<tr>
 										<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
 								</tr>
-						';
+						');
 					}
 					
-					$return_string .= '
-						</tbody>
-						</table>
-					';
-					
-				$return_string .= '
-					</td>
-				';
+					echo('
+								</tbody>
+							</table>
+						</td>
+					');
 						
 			}
 			
 			// otherwise display EXTRAs...
 			else {
-				
-				$return_string .= '
+				echo('
 					<td column_key="'.$column_key.'" class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
 					
 						<table class="columns extra" cellspacing="0">
@@ -927,26 +927,20 @@ class StructuresHelper extends Helper {
 						</table>
 						
 					</td>
-				';
+				');
 				
 			}
 			
 		} // end FOREACH
 				
-		$return_string .= '
+		echo('
 				</tr>
 			</tbody>
 			</table>
-		';   
-			
-		return $return_string;
-		
+		');   
 	}
 	
 	function build_tree_node( $atim_structure, $options, $data=array()) {
-		
-		$return_string = '';
-		
 		foreach ( $data as $data_key=>$data_val ) { 
 			
 			// unset CHILDREN from data, to not confuse STACK function
@@ -956,31 +950,35 @@ class StructuresHelper extends Helper {
 				unset($data_val['children']);
 			}
 			
-			$return_string .= '
+			echo('
 				<li>
-			';
+			');
 				
 				// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
 				
-				$return_string_collect = '';
-					
+			$unique_id = mt_rand(1000000, 9999999);//TODO WTH RANDOM UNIQUE???
+				// reveal sub ULs if sub ULs exist
+	
+				if ( count($children) ) {
+					echo('<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ');
+				} else {
+					echo('<a class="reveal not_allowed" onclick="return false;">+</a> ');
+				}
+				
+				echo('<div><span class="divider">|</span> ');	
 					if ( count($options['links']['tree']) ) {
 						foreach ( $data_val as $model_name=>$model_array ) {
 							if ( isset($options['links']['tree'][$model_name]) ) {
 								$tree_options = $options;
 								$tree_options['links']['index'] = $options['links']['tree'][$model_name];
 								
-								$return_string_collect .= $this->generate_links_list(  $data_val, $tree_options, 'index' );
+								echo($this->generate_links_list(  $data_val, $tree_options, 'index' ));
 							}
 						}
+					}else if ( count($options['links']['index']) ) {
+						echo($this->generate_links_list(  $data_val, $options, 'index' ));
 					}
 				
-					else if ( count($options['links']['index']) ) {
-						$return_string_collect .= $this->generate_links_list(  $data_val, $options, 'index' );
-					}
-				
-					$unique_id = mt_rand(1000000, 9999999);
-					
 					$tree_node_structure = $atim_structure;
 					if ( count($options['settings']['tree']) ) {
 						foreach ( $data_val as $model_name=>$model_array ) {
@@ -1002,41 +1000,30 @@ class StructuresHelper extends Helper {
 					foreach ( $table_index as $table_column_key=>$table_column ) {
 						foreach ( $table_column as $table_row_key=>$table_row ) {
 							//carefull with the white spaces as removing them the can break the display in IE
-							$return_string_collect .= ' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>&nbsp;";
+							echo(' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>&nbsp;");
 						}
 					}
-				
-				// reveal sub ULs if sub ULs exist
-				
-					if ( count($children) ) {
-//						$return_string .= '<a class="reveal" href="#" onclick="Effect.toggle(\'tree_'.$unique_id.'\',\'slide\',{duration:0.25}); return false;">+</a> ';
-						$return_string .= '<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ';
-					} else {
-						$return_string .= '<a class="reveal not_allowed" onclick="return false;">+</a> ';
-					}
 					
-				$return_string .= '<div><span class="divider">|</span> '.$return_string_collect.'</div>';
+				echo('</div>');
 				
 				// create sub-UL, calling this NODE function again, if model has any CHILDREN
 				if ( count($children) ) { 
-					$return_string .= '
+					echo('
 						<ul id="tree_'.$unique_id.'" style="display:none;">
-					';
+					');
 					
-					$return_string .= $this->build_tree_node( $atim_structure, $options, $children );
+					$this->build_tree_node( $atim_structure, $options, $children );
 					
-					$return_string .= '
+					echo('
 						</ul>
-					';
+					');
 				}
 			
-			$return_string .= '
+			echo('
 				</li>
-			';
+			');
 			
 		}
-		
-		return $return_string; 
 	}
 
 
@@ -1149,38 +1136,61 @@ class StructuresHelper extends Helper {
 		
 	}
 
-
-
-/********************************************************************************************************************************************************************************/
-
-	
-	// FUNCTION 
 	function display_extras( $return_array=array(), $options ) {
-	
-		if ( count($options['extras']) ) {
-			foreach ( $options['extras'] as $key=>$val ) {
-				
-				while ( isset($return_array[$key]) ) {
+		if(count($options['extras'])){
+			foreach($options['extras'] as $key=>$val){
+				while(isset($return_array[$key])){
 					$key = $key+1;
 				}
-				
 				$return_array[ $key ] = $val;
-				
 			}
 		}
-		
 		ksort($return_array);
-		
 		return $return_array;
-		
 	}
-	
-
-/********************************************************************************************************************************************************************************/
 
 
-	// FUNCTION 
-	function build_stack( $atim_structure, $options=array() ) {
+	/**
+	 * Builds the structure part containing the data
+	 * @param array $atim_structure
+	 * @param array $options
+	 * @param boolean $use_data If true, data is placed directly into the stack, othewise replacable strings are placed
+	 */
+	//TODO: complete description
+	function build_stack(array $atim_structure, array $options){
+		$stack = array();//the stack array represents the display x => array(y => array(field data))
+		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
+		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
+		foreach($atim_structure['Sfs'] AS $sfs){
+			if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
+				$current = array(
+					"model" => $sfs['model'],
+					"field" => $sfs['field'],
+					"heading" => __($sfs['language_heading'], true),
+					"label" => __($sfs['language_label'], true),
+					"tag" => __($sfs['language_tag'], true),
+					"type" => $sfs['type'],
+					"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet
+				);
+				if($options['type'] == "add"
+				|| $options['type'] == "edit"
+				|| $options['type'] == "addgrid"
+				|| $options['type'] == "editgrid"
+				|| $options['type'] == "search"){
+					//show inputs
+				}else{
+					//show straight value
+				}
+				if(!isset($stack[$sfs['display_column']][$sfs['display_order']])){
+					$stack[$sfs['display_column']][$sfs['display_order']] = array();
+				}
+				$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
+			}
+			
+		}
+		return $stack;
+	}
+	function build_stack_old(array $atim_structure, array $options, $use_data = true){
 		// for hidden fields, at end of form...
 		$model_names_for_hidden_fields = array();
 		
@@ -1195,164 +1205,133 @@ class StructuresHelper extends Helper {
 		// by default use THIS->DATA, but if data provided through OPTIONS, use that instead
 		// data provided through OPTIONS only really useful for display (not for FORMS)
 		
-			$data = &$this->data;
+		
+		$data = null;
 
-			$model_prefix = '';
-			$model_suffix = '.';
-			
-			if ( isset($options['stack']['key']) ) {
+		$model_prefix = '';
+		$model_suffix = '.';
+		
+		if($use_data){
+			$data = &$this->data;
+			if(isset($options['stack']['key'])){
 				$tab_key = $options['stack']['key'];
-				
 				$model_prefix = $options['stack']['key'].'.';
-				// $model_suffix = '.'.$options['stack']['key'].'.';
 				
 				// use DATA passed in through OPTIONS from VIEW
 				// OR use DATA juggled in STACKS in this class' BUILD TREE functions
-				if ( is_array($options['data']) ) {
+				if(is_array($options['data'])){
 					$data = &$options['data'][$options['stack']['key']];
-				} 
-				
-				// use THIS->DATA by default
-				else {
+				}else{
+					// use THIS->DATA by default
 					$data = &$this->data[$options['stack']['key']];
 				}
-			}
-			
-			else {
-				if ( is_array($options['data']) ) {
+			}else{
+				if(is_array($options['data'])){
 					$data = $options['data'];
 				}
 			}
+		}
 			
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
-		foreach ( $atim_structure['StructureFormat'] as $field ) {
-			
+		
+		foreach($atim_structure['Sfs'] as $field){
 			// if STRUCTURE does not allows multi-columns, display STRUCTURE in one column only
-			if ( !isset($atim_structure['Structure']['flag_'.$options['type'].'_columns']) ) $atim_structure['Structure']['flag_'.$options['type'].'_columns'] = 0;
-			if ( !$atim_structure['Structure']['flag_'.$options['type'].'_columns'] ) $field['display_column'] = 0;
+			if(!isset($atim_structure['Structure']['flag_'.$options['type'].'_columns'])){
+				$atim_structure['Structure']['flag_'.$options['type'].'_columns'] = 0;
+			}
+			if(!$atim_structure['Structure']['flag_'.$options['type'].'_columns'] ){
+				$field['display_column'] = 0;
+			}
 			
 			// if table column doesn't already exist, create it 
-			if ( !isset( $table_index[ $field['display_column'] ] ) ) $table_index[ $field['display_column'] ] = array();
+			if(!isset($table_index[$field['display_column']])){
+				$table_index[ $field['display_column']] = array();
+			}
 			
 			// display only if flagged for this type of form in the FORMS datatable...
-			if ( $options['settings']['all_fields']==true || $field[ 'flag_'.$options['type'] ] ) {
-			
+			if($options['settings']['all_fields'] == true || $field['flag_'.$options['type']]){
 				// label and help/info marker, if available...
-				if (($field['flag_override_label'] && $field['language_label']) 
-					|| (!$field['flag_override_label'] && $field['StructureField']['language_label']) 
-					|| $field['flag_override_type']=='hidden' 
-					|| $field['StructureField']['type']=='hidden' ){
+				if(($field['language_label']) 
+				|| $field['type']=='hidden'){
 					// increment row_count, next row of information
 					$row_count++;
-					$table_index[ $field['display_column'] ][ $row_count ] = array();
+					$table_index[$field['display_column']][$row_count] = array();
 					
 					// intialize variables...
-					$table_index[ $field['display_column'] ][ $row_count ]['model'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['field'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['empty'] = 0;
+					$table_index[$field['display_column']][$row_count]['model'] = '';
+					$table_index[$field['display_column']][$row_count]['field'] = '';
+					$table_index[$field['display_column']][$row_count]['empty'] = 0;
 					
-					$table_index[ $field['display_column'] ][ $row_count ]['heading'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['label'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['help'] = '';
+					$table_index[$field['display_column']][$row_count]['heading'] = '';
+					$table_index[$field['display_column']][$row_count]['label'] = '';
+					$table_index[$field['display_column']][$row_count]['tag'] = '';
+					$table_index[$field['display_column']][$row_count]['help'] = '';
 					
-					$table_index[ $field['display_column'] ][ $row_count ]['type'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['input'] = '';
+					$table_index[$field['display_column']][$row_count]['type'] = '';
+					$table_index[$field['display_column']][$row_count]['input'] = '';
 					
-					$table_index[ $field['display_column'] ][ $row_count ]['content'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['plain'] = '';
+					$table_index[$field['display_column']][$row_count]['content'] = '';
+					$table_index[$field['display_column']][$row_count]['plain'] = '';
 					
 					// place BASIC form info into stack
-					$table_index[ $field['display_column'] ][ $row_count ]['model'] = $field['StructureField']['model'];
-					$table_index[ $field['display_column'] ][ $row_count ]['field'] = $field['StructureField']['field'];
-					$table_index[ $field['display_column'] ][ $row_count ]['type'] = $field['StructureField']['type'];
+					$table_index[$field['display_column']][$row_count]['model'] = $field['model'];
+					$table_index[$field['display_column']][$row_count]['field'] = $field['field'];
+					$table_index[$field['display_column']][$row_count]['type'] = $field['type'];
 					// place translated HEADING in label column of new row 
 					if ( $field['language_heading'] ){
-						$table_index[ $field['display_column'] ][ $row_count ]['heading'] = __( $field['language_heading'], true );
+						$table_index[$field['display_column']][$row_count]['heading'] = __( $field['language_heading'], true );
 					}
 					
 					// place translated LABEL in label column of new row 
 					// use FIELD's LABEL, or use FORMAT's LABEL if override FLAG is set
-					if ( $field['flag_override_label'] ){
-						$field['StructureField']['language_label'] = $field['language_label'];
-					}
-					if ( $field['StructureField']['language_label'] ){
-						$table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['StructureField']['language_label'], true );
+					if ( $field['language_label'] ){
+						$table_index[ $field['display_column'] ][ $row_count ]['label'] = __( $field['language_label'], true );
 					}
 					
-					/*
-					// add CHECK/UNCHECK links to appropriate FORM/FIELD types
-					if ( ($options['type']=='add' || $options['type']=='edit' || $options['type']=='search') && ($field['StructureField']['type']=='checklist') ) {
-						$table_index[ $field['display_column'] ][ $row_count ]['label'] .= '
-							<a href="#" onclick="checkAll(\'form_helper_checklist\'); return false;">'.__( 'core_check', true ).'</a>/<a href="#" onclick="uncheckAll(\'form_helper_checklist\'); return false;">'.__( 'core_uncheck', true ).'</a>
-						';
-					}
-					*/
 				}else if($row_count == 0){
 					//we need to initializse some $table_indexes
-					$table_index[ $field['display_column'] ][ $row_count ]['plain'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '';
-					$table_index[ $field['display_column'] ][ $row_count ]['input'] = '';
+					$table_index[$field['display_column']][$row_count]['plain'] = '';
+					$table_index[$field['display_column']][$row_count]['tag'] = '';
+					$table_index[$field['display_column']][$row_count]['input'] = '';
 				}
 				
 				// display TAG, sub label, use FIELD's TAG, or use FORMAT's TAG if override FLAG is set
-					if ( $field['flag_override_tag'] ){
-						$field['StructureField']['language_tag'] = $field['language_tag'];
-					}
-					if ( $field['StructureField']['language_tag'] ){
-						$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['StructureField']['language_tag'], true).'</span> ';
-					}
+				if ( $field['language_tag'] ){
+					$table_index[ $field['display_column'] ][ $row_count ]['tag'] = '<span class="tag">'.__( $field['language_tag'], true).'</span> ';
+				}
 					
 				// LABEL and HELP marker, if available...
-					if ( $field['flag_override_label'] && $field['language_label'] ){
-						$field['StructureField']['language_label'] = $field['language_label'];
-					}
-					if ( $field['StructureField']['language_label'] ||  $table_index[ $field['display_column'] ][ $row_count ]['help'] == $empty_help_bullet ) {
-						
-						// include jTip link or no-help type indicator
-							if ( $field['flag_override_help'] && $field['language_help'] ){
-								$field['StructureField']['language_help'] = $field['language_help'];
-							}
-							
-							if (  $field['StructureField']['language_help'] ) {
-								$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['StructureField']['language_help'],true).'</div></span> ';
-							} else {
-								$table_index[ $field['display_column'] ][ $row_count ]['help'] = $empty_help_bullet;
-							}
-						
-					}
+				if ( $field['language_label'] 
+				|| (isset($table_index[ $field['display_column'] ][ $row_count ]['help']) && $table_index[ $field['display_column'] ][ $row_count ]['help'] == $empty_help_bullet )) {
 					
-				// if FORMAT overrides FIELD type/setting/default, then set that now...
-					if ( $field['flag_override_type'] ){
-						$field['StructureField']['type'] = $field['type'];
-					}
-					if ( $field['flag_override_setting'] ){
-						$field['StructureField']['setting'] = $field['setting'];
-					}
-					if ( $field['flag_override_default'] ){
-						$field['StructureField']['default'] = $field['default'];
-					}
-				
+					// include jTip link or no-help type indicator
+						if (  $field['language_help'] ) {
+							$table_index[ $field['display_column'] ][ $row_count ]['help'] = '<span class="help">&nbsp;<div>'.__($field['language_help'],true).'</div></span> ';
+						} else {
+							$table_index[ $field['display_column'] ][ $row_count ]['help'] = $empty_help_bullet;
+						}
+				}
+					
 				// to avoid PHP ERRORS, set value to NULL if combo not in array...
-					if ( !isset($data[$field['StructureField']['model']][$field['StructureField']['field']]) ){
-						$data[$field['StructureField']['model']][$field['StructureField']['field']] = NULL;
-					}
+				if ( !isset($data[$field['model']][$field['field']]) ){
+					$data[$field['model']][$field['field']] = NULL;
+				}
 					
 				// get CONTENT to DISPLAY
-				
-					// set display VALUE, or NO VALUE indicator 
-						
-					$display_value_raw = $data[ $field['StructureField']['model'] ][ $field['StructureField']['field'] ];
-					if(is_array($display_value_raw)){
-						$display_value_raw_was_arr = true;
-					}else{
-						$display_value_raw = array("" => $display_value_raw);
-					}
+				// set display VALUE, or NO VALUE indicator 
 					
+				$display_value_raw = $data[ $field['model'] ][ $field['field'] ];
+				if(is_array($display_value_raw)){
+					$display_value_raw_was_arr = true;
+				}else{
+					$display_value_raw = array("" => $display_value_raw);
+				}
+					
+				if($use_data){
 					//CodingIcd magic, adding description to a displayed field
 					if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
 						foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
-							if(strpos($field['StructureField']['setting'], $trigger) !== false){
+							if(strpos($field['setting'], $trigger) !== false){
 								foreach($display_value_raw as &$value){
 									eval('$instance = '.$key.'::getInstance();');
 									$value .= " - ".$instance->getDescription($value);
@@ -1360,598 +1339,553 @@ class StructuresHelper extends Helper {
 							}
 						}
 					}
-					foreach($display_value_raw as $display_value_key => $display_value){
-							// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
-							if ( isset( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
-								
-								// from ARRAY item...
-								if ( is_array($options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ]) ) {
-									foreach ( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] as $key=>$value ) {
-										
-										if ( $key == $display_value ) {
-											$display_value = $value;
-										}
-										
-									}
-								} 
-								
-								// for STRING items...
-								else if ( !is_array( $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ] ) ) {
-									$display_value = $options['override'][ $field['StructureField']['model'].'.'.$field['StructureField']['field'] ];
+				}
+				
+				foreach($display_value_raw as $display_value_key => $display_value){
+					// swap out VALUE for OVERRIDE choice for SELECTS, NO TRANSLATION 
+					if ( isset( $options['override'][ $field['model'].'.'.$field['field'] ] ) ) {
+						if ( is_array($options['override'][ $field['model'].'.'.$field['field'] ]) ) {
+							// from ARRAY item...
+							foreach ( $options['override'][ $field['model'].'.'.$field['field'] ] as $key=>$value ) {
+								if ( $key == $display_value ) {
+									$display_value = $value;
 								}
+							}
+						}else if ( !is_array( $options['override'][ $field['model'].'.'.$field['field'] ] ) ) {
+							// for STRING items...
+							$display_value = $options['override'][ $field['model'].'.'.$field['field'] ];
+						}
+					} else if ( count($field['StructureValueDomain']) ) {
+						// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+						if ( $field['StructureValueDomain']['source'] ) {
+							$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureValueDomain']['source']);
 								
-							// swap out VALUE for LANG LOOKUP choice for SELECTS 
-							// } else if ( $field['type']=='select' ) {
-							} else if ( count($field['StructureField']['StructureValueDomain']) ) {
-								
-								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
-								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
-									$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureField']['StructureValueDomain']['source']);
-										
-									// find MATCH in results (it is assumed any translations have happened in the MODEL already)
-									foreach ( $pulldown_result as $lookup ) {
-										if ( $lookup['value'] == $display_value ) {
-											if ( isset($lookup[$options['type']]) ) {
-												$display_value = $lookup[$options['type']]; 
-											}else { 
-												$display_value = $lookup['default']; 
-											}
-										}
+							// find MATCH in results (it is assumed any translations have happened in the MODEL already)
+							foreach ( $pulldown_result as $lookup ) {
+								if ( $lookup['value'] == $display_value ) {
+									if ( isset($lookup[$options['type']]) ) {
+										$display_value = $lookup[$options['type']]; 
+									}else { 
+										$display_value = $lookup['default']; 
 									}
-									
 								}
-								
-								// use permissible values associated with this value domain instead
-								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-								
-									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-										if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
-											$display_value = __( $lookup['language_alias'], true );
-										}
-									}
-									
-								}
-								
 							}
 							
-							// format date values a bit...
-							if ( $display_value=='0000-00-00' || $display_value=='0000-00-00 00:00:00' || $display_value=='' ) {
-								
-								// set ZERO date fields to blank
-								$display_value = '';
-								
-							} else if ($field['StructureField']['type']=='date' || $field['StructureField']['type']=='datetime') {
-								if ( !is_array($display_value) ) {
-									// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
-									
-										$calc_date_string = explode( ' ', $display_value );
-										if ( $field['StructureField']['type']=='datetime' ) {
-											$calc_time_string = $calc_date_string[1];
-											if(time_format == 12){
-												$hours = substr($calc_time_string, 0, 2);
-												if($hours >= 12){
-													$meridian = "pm"; 
-													if($hours > 12){
-														$hours -= 12;
-													}
-												}else{
-													$meridian = "am";
-												}
-												$calc_time_string = ($hours == "00" ? "12" : $hours).substr($calc_time_string, 2).$meridian;
-											}
-										}
-										
-										$calc_date_string = explode( '-', $calc_date_string[0] );
-								
-										
-									// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
-										
-										$calc_date_day = $calc_date_string[2];
-										$calc_date_month = $calc_date_string[1];
-										$calc_date_year = $calc_date_string[0];
-										
-										$display_value = AppController::getFormatedDateString($calc_date_year, $calc_date_month, $calc_date_day, $options['type']!='csv');										
-										
-									if ( $field['StructureField']['type']=='datetime' ) {
-										
-										// attach TIME to display
-										$display_value .= ' '.$calc_time_string;
-										
-									}
-									
-								} 
-								
-								// when DATE fields are validated, different array is returned, but since we don't need a DISPLAY value for FORM date, cheat and just zero it out 
-								else {
-									$display_value = '';
+						}else if ( isset($field['StructureValueDomain']['StructurePermissibleValue']) ) {
+							// use permissible values associated with this value domain instead
+							foreach ( $field['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+								if ( $lookup['value'] == $display_value && $lookup['language_alias'] ) {
+									$display_value = __( $lookup['language_alias'], true );
 								}
-								
-							}else if($field['StructureField']['type'] == "number"
-							|| $field['StructureField']['type'] == "integer"
-							|| $field['StructureField']['type'] == "integer_positive"
-							|| $field['StructureField']['type'] == "float"
-							|| $field['StructureField']['type'] == "float_positive"){
-								$display_value = StructuresHelper::format_number($display_value);
 							}
 							
+						}
+						
+					}
+					
+					// format date values a bit...
+					if ( $display_value=='0000-00-00' || $display_value=='0000-00-00 00:00:00' || $display_value=='' ) {
+						
+						// set ZERO date fields to blank
+						$display_value = '';
+						
+					} else if ($field['type']=='date' || $field['type']=='datetime') {
+						if ( !is_array($display_value) ) {
+							// format date STRING manually, using PHP's month name array, becuase of UnixTimeStamp's 1970 - 2038 limitation
+							$calc_date_string = explode( ' ', $display_value );
+							if ( $field['type']=='datetime' ) {
+								$calc_time_string = $calc_date_string[1];
+								if(time_format == 12){
+									$hours = substr($calc_time_string, 0, 2);
+									if($hours >= 12){
+										$meridian = "pm"; 
+										if($hours > 12){
+											$hours -= 12;
+										}
+									}else{
+										$meridian = "am";
+									}
+									$calc_time_string = ($hours == "00" ? "12" : $hours).substr($calc_time_string, 2).$meridian;
+								}
+							}
+							$calc_date_string = explode( '-', $calc_date_string[0] );
+						
+								
+							// format month INTEGER into an abbreviated month name, lowercase, to use for translation alias
+							$calc_date_day = $calc_date_string[2];
+							$calc_date_month = $calc_date_string[1];
+							$calc_date_year = $calc_date_string[0];
+							$display_value = AppController::getFormatedDateString($calc_date_year, $calc_date_month, $calc_date_day, $options['type']!='csv');										
+								
+							if ( $field['type']=='datetime' ) {
+								// attach TIME to display
+								$display_value .= ' '.$calc_time_string;
+							}
+						}else {
+						// when DATE fields are validated, different array is returned, but since we don't need a DISPLAY value for FORM date, cheat and just zero it out 
+							$display_value = '';
+						}
+						
+					}else if($field['type'] == "number"
+					|| $field['type'] == "integer"
+					|| $field['type'] == "integer_positive"
+					|| $field['type'] == "float"
+					|| $field['type'] == "float_positive"){
+						$display_value = StructuresHelper::format_number($display_value);
+					}
+					
 					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
 
-							$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
-						
-						if(isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key])){
-							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = "";
-						}else if(!isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'])){
-							$table_index[ $field['display_column'] ][ $row_count ]['content'] = "";
-						}
-						if ( trim($display_value)!='' ) {
-							if(isset($display_value_raw_was_arr)){
-								$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
-							}else{
-								$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
-							}
-						} else {
-							if(isset($display_value_raw_was_arr)){
-								$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
-							}else{
-								$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
-							}
-							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
-						}
-				}
-				// get INPUT for FORM
-					$current_table_index = $table_index[$field['display_column']][$row_count];
+					$table_index[ $field['display_column'] ][ $row_count ]['plain'] .= str_replace('&nbsp;',' ',$display_value).' ';
+				
+					if(isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key])){
+						$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] = "";
+					}else if(!isset($display_value_raw_was_arr) && !isset($table_index[ $field['display_column'] ][ $row_count ]['content'])){
+						$table_index[ $field['display_column'] ][ $row_count ]['content'] = "";
+					}
 					
-					// var TOOLS/APPENDS, if any 
-					$append_field_tool = '';
-					$append_field_tool_label = '&nbsp;';
-					$append_field_display = '';
-					$append_field_display_value = '';
 					
-					// var for html helper array
-					$html_element_array = array();
-					$html_element_array['class'] = '';
-					
-					//set default value
-					//we use $field['StructureField'] instead of $table_index as there might be more than a field in the same $table_row
-					if(isset($data[$field['StructureField']['model']]) && isset($data[$field['StructureField']['model']][$field['StructureField']['field']])){
-						if($field['StructureField']['type'] == 'select'){
-							$html_element_array['selected'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
-						}else if($field['StructureField']['type'] == "datetime" && !is_array($data[$field['StructureField']['model']][$field['StructureField']['field']])){
-							$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$field['StructureField']['model']][$field['StructureField']['field']]);
+					if ( trim($display_value)!='' ) {
+						if(isset($display_value_raw_was_arr)){
+							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
 						}else{
-							$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']];
+							$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+						}
+					} else {
+						if(isset($display_value_raw_was_arr)){
+							$table_index[ $field['display_column'] ][ $row_count ]['content'][$display_value_key] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
+						}else{
+							$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">&ndash;</span> ';
+						}
+						$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
+					}
+				}
+				
+				// get INPUT for FORM
+				$current_table_index = $table_index[$field['display_column']][$row_count];
+				
+				// var TOOLS/APPENDS, if any 
+				$append_field_tool = '';
+				$append_field_tool_label = '&nbsp;';
+				$append_field_display = '';
+				$append_field_display_value = '';
+				
+				// var for html helper array
+				$html_element_array = array();
+				$html_element_array['class'] = '';
+				
+				//set default value
+				//we use $field instead of $table_index as there might be more than a field in the same $table_row
+				if(isset($data[$field['model']]) && isset($data[$field['model']][$field['field']])){
+					if($field['type'] == 'select'){
+						$html_element_array['selected'] = $data[$field['model']][$field['field']];
+					}else if($field['type'] == "datetime" && !is_array($data[$field['model']][$field['field']])){
+						$html_element_array['value'] = StructuresHelper::datetime_to_array($data[$field['model']][$field['field']]);
+					}else{
+						$html_element_array['value'] = $data[$field['model']][$field['field']];
+					}
+				}
+				$html_element_array['tabindex'] = $options['settings']['tabindex'] * 10 + $field_count;
+				StructuresHelper::$last_tabindex = $html_element_array['tabindex'];
+				
+				//--fix a cake bug by setting values manually
+				//--when displaying many grids, the reloaded data of the grid 2+ is not ok
+				if(strpos($model_prefix, ".") !== false){
+					list($row, $name_prefix) = explode(".", $model_prefix);
+				}
+				if(isset($name_prefix) && isset($this->data[$row][$name_prefix][$field['model']][$field['field']])){
+					$html_element_array['name'] = "data[".str_replace(".", "][", $model_prefix.$field['model'].$model_suffix.$field['field'])."]";
+					$html_element_array['id'] = str_replace(".", "", $model_prefix.$field['model'].$model_suffix.$field['field']);
+					$html_element_array['value'] = $this->data[$row][$name_prefix][$field['model']][$field['field']];
+				}
+				//--------
+					
+				$field['setting'] = trim($field['setting']);
+				if($field['setting']){	
+					// parse through FORM_FIELDS setting value, and add to helper array 
+					$field['setting'] = explode( ',', $field['setting'] );
+					foreach ($field['setting'] as $setting){
+						$setting = explode('=', $setting);
+						
+						// treat some settings different, ELSE use as HTML ATTRIBUTE 
+						if ( $setting[0]=='tool' ) {
+							$append_field_tool = $setting[1];
+						} else if ( $setting[0]=='append' ) {
+							$append_field_display = $setting[1];
+						} else if ( $setting[0] == 'tool_label'){
+							$append_field_tool_label = $setting[1];
+						} else {
+							$html_element_array[ $setting[0] ] = $setting[1];
 						}
 					}
-					$html_element_array['tabindex'] = $options['settings']['tabindex'] * 10 + $field_count;
-					StructuresHelper::$last_tabindex = $html_element_array['tabindex'];
-					//--fix a cake bug by setting values manually
-					//--when displaying many grids, the reloaded data of the grid 2+ is not ok
-					if(strpos($model_prefix, ".") !== false){
-						list($row, $name_prefix) = explode(".", $model_prefix);
-					}
-					if(isset($name_prefix) && isset($this->data[$row][$name_prefix][$field['StructureField']['model']][$field['StructureField']['field']])){
-						$html_element_array['name'] = "data[".str_replace(".", "][", $model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'])."]";
-						$html_element_array['id'] = str_replace(".", "", $model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']);
-						$html_element_array['value'] = $this->data[$row][$name_prefix][$field['StructureField']['model']][$field['StructureField']['field']];
-					}
-					//--------
 					
-					$field['StructureField']['setting'] = trim($field['StructureField']['setting']);
-					if ( $field['StructureField']['setting'] ) {	
+				}
+					
+				// reset VALUE for form element, display ID value of FORM/FIELD row at HTML comment
+				$html_element_array['div'] = false;
+				$html_element_array['label'] = false;
+				$html_element_array['type'] = $field['type'];
+					
+					
+				// set error class, based on validators helper info
+				$master_model_name = str_replace("Detail", "Master", $field['model']);//errors are all in master
+				if( isset($this->validationErrors[$master_model_name][$field['field']])){
+					$html_element_array['class'] .= 'error ';
+				}
+					
+				if (isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly']) {
+					$html_element_array['disabled'] = 'disabled';
+					$html_element_array['readonly'] = 'readonly';
+					$html_element_array['class'] .= 'readonly ';
+				}
+					
+				if(count($field['StructureValidation'])){
+					$required = false;
+					foreach($field['StructureValidation'] as $validation){
+						if($validation['rule'] == 'notEmpty'){
+							$required = true;
+							break;
+						}
+					}
+					if($required){
+						$html_element_array['class'] .= ' required ';
+					}else if(Configure::read('debug') > 0){
+						$html_element_array['class'] .= ' validation ';
+					} 
+				}
+					
+				if ( $options['type']=='add' && $field['default'] ) { 
+					$html_element_array['value'] = $field['default']; 
+				}
+				if ( $options['type']=='editgrid' ) { 
+					$html_element_array['value'] = $this->data[$field['model']][$field['field']]; 
+				}
+				if ( count($options['settings']['tree']) ) { 
+					$html_element_array['value'] = $data[$field['model']][$field['field']]; 
+				}
+				if ( !isset( $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] ) && isset( $options['override'][$field['model'].'.'.$field['field']] ) ) {
+					$options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] = $options['override'][$field['model'].'.'.$field['field']];
+				}
+				if ( isset( $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] ) ) { 
+					$html_element_array['value'] = $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']]; 
+				}
+					
+				$use_cakephp_form_helper = true;
+				switch ($field['type']) {
+					
+					case 'display':
 						
-						// parse through FORM_FIELDS setting value, and add to helper array 
-						$field['StructureField']['setting'] = explode( ',', $field['StructureField']['setting'] );
-						foreach ( $field['StructureField']['setting'] as $setting ) {
-							$setting = explode('=', $setting);
-							
-							// treat some settings different, ELSE use as HTML ATTRIBUTE 
-							if ( $setting[0]=='tool' ) {
-								$append_field_tool = $setting[1];
-							} else if ( $setting[0]=='append' ) {
-								$append_field_display = $setting[1];
-							} else if ( $setting[0] == 'tool_label'){
-								$append_field_tool_label = $setting[1];
-							} else {
-								$html_element_array[ $setting[0] ] = $setting[1];
-							}
+						// [ $options['stack']['key'] ]
+						
+						if ( count($options['settings']['tree']) ) {
+							$display_value .= '<span>'.$data[$field['model']][$field['field']].'</span>';
+						} else {
+							$display_value .= '<span>'.$this->data[$field['model']][$field['field']].'</span>';
 						}
 						
-					}
-					
-					/*
-					// tack on APPEND tool value to display value (if any)...
-					if ( $options['type']=='detail' && $append_field_display && $display_value ) {
-						$append_field_display_value = $this->requestAction( $append_field_display.$display_value );
-						$table_index[ $field['display_column'] ][ $row_count ]['content'] .= $append_field_display_value;
-					}
-					*/
-					
-					// reset VALUE for form element, display ID value of FORM/FIELD row at HTML comment
-					$display_value =  '
-							<!-- '.$field['StructureField']['type'].' '.$field['id'].' -->
-							';
-							
-					$html_element_array['div'] = false;
-					$html_element_array['label'] = false;
-					$html_element_array['type'] = $field['StructureField']['type'];
-					
-					
-					// set error class, based on validators helper info
-					 $master_model_name = str_replace("Detail", "Master", $field['StructureField']['model']);//errors are all in master
-					if ( isset($this->validationErrors[$master_model_name][ $field['StructureField']['field'] ]) ){
-						$html_element_array['class'] .= 'error ';
-					}
-					
-					if (isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly']) {
-						$html_element_array['disabled'] = 'disabled';
-						$html_element_array['readonly'] = 'readonly';
-						$html_element_array['class'] .= 'readonly ';
-					}
-					
-					if ( count($field['StructureField']['StructureValidation']) ) {
-						$required = false;
-						foreach($field['StructureField']['StructureValidation'] as $validation){
-							if($validation['rule'] == 'notEmpty'){
-								$required = true;
-								break;
-							}
-						}
-						if($required){
-							$html_element_array['class'] .= ' required ';
-						}else if(Configure::read('debug') > 0){
-							$html_element_array['class'] .= ' validation ';
-						} 
-					}
-					
-					if ( $options['type']=='add' && $field['StructureField']['default'] ) { 
-						$html_element_array['value'] = $field['StructureField']['default']; 
-					}
-					
-					if ( $options['type']=='editgrid' ) { 
-						$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-					}
-					
-					if ( count($options['settings']['tree']) ) { 
-						$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-					}
-					
-					if ( !isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && isset( $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']] ) ) {
-						$options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] = $options['override'][$field['StructureField']['model'].'.'.$field['StructureField']['field']];
-					}
-					
-					if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-						$html_element_array['value'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]; 
-					}
-					
-					$use_cakephp_form_helper = true;
-					switch ($field['StructureField']['type']) {
+						$use_cakephp_form_helper = FALSE;
+						break;
 						
-						case 'display':
-							
-							// [ $options['stack']['key'] ]
-							
-							if ( count($options['settings']['tree']) ) {
-								$display_value .= '<span>'.$data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
-							} else {
-								$display_value .= '<span>'.$this->data[$field['StructureField']['model']][$field['StructureField']['field']].'</span>';
-							}
-							
-							$use_cakephp_form_helper = FALSE;
-							break;
-							
-						case 'hidden':
-							
-							$html_element_array['class'] .= 'hidden ';
-							break;
-							
-						case 'number':
-						case 'integer':
-						case 'integer_positive':
-						case 'float':
-						case 'float_positive':	
-							if(isset($html_element_array['value'])) $html_element_array['value'] = StructuresHelper::format_number($html_element_array['value']);
-							$html_element_array['type'] = 'text';
-							if(Configure::read('debug') > 0){
-								$html_element_array['class'] .= " validation ";
-							}
-							
-							if ( $options['type']=='search' ) {
-								
-								$display_value .= $this->Form->input(
-									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_start',
-									$html_element_array
-								);
-								
-								$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
-								$display_value .= $this->Form->input(
-									$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'].'_end',
-									$html_element_array
-								);
-								
-								$use_cakephp_form_helper = FALSE;
-							}
-							
-							break;
-							
-						case 'input':
-							
-							$html_element_array['type'] = 'text';
-							break;
-							
-						case 'select':
-							
-							$html_element_array['options'] = array();
-							
-							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
-								$html_element_array['empty'] = true;
-							}
-							
-							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
-								unset($html_element_array['value']);
-								
-								if ( $options['type']=='editgrid' ) { 
-									$html_element_array['value'] = $this->data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-								}
-								
-								if ( count($options['settings']['tree']) ) { 
-									$html_element_array['value'] = $data[$field['StructureField']['model']][$field['StructureField']['field']]; 
-								}
-							}
-							
-							else if ( count($field['StructureField']['StructureValueDomain']) ) {
-								
-								// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
-								if ( $field['StructureField']['StructureValueDomain']['source'] ) {
-									// run model::function
-									$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureField']['StructureValueDomain']['source']);
-									
-									// it is assumed any translations have happened in the MODEL already
-									foreach ( $pulldown_result as $lookup ) {
-										if ( isset($lookup[$options['type']])){
-											$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
-										}else { 
-											$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
-										}
-									}
-								}
-								
-								// use permissible values associated with this value domain instead
-								else if ( isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-									foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-										$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ), ENT_QUOTES, "UTF-8");
-									}
-								}
-								
-							}
-								
-							// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
-								if ( isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']])
-								&& $this->data[$field['StructureField']['model']][$field['StructureField']['field']] != "" 
-								&& !is_array($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) 
-								&& !array_key_exists($this->data[$field['StructureField']['model']][$field['StructureField']['field']], $html_element_array['options']) ) {
-									$html_element_array['options'] = array(
-										html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
-										html_entity_decode( __( 'Unmatched Value', true ), ENT_QUOTES, "UTF-8" ) => array(
-											$this->data[$field['StructureField']['model']][$field['StructureField']['field']] => $this->data[$field['StructureField']['model']][$field['StructureField']['field']]
-										)
-									);
-									
-								}
-							
-							break;
-							
-						case 'radio':
-							$html_element_array['options'] = array();
-							
-							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
-								$html_element_array['empty'] = true;
-							}
-							
-							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
-								unset($html_element_array['value']);
-							}
-							
-							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
-								}
-							}
-							
-							if(!isset($html_element_array['legend'])){
-								$html_element_array['legend'] = "";
-							}
-							break;
-							
-						case 'checkbox':
-							
-							$html_element_array['options'] = array();
-							
-							if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
-								$html_element_array['empty'] = true;
-							}
-							
-							if ( isset( $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) && is_array( $options['override'][$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']] ) ) { 
-								$html_element_array['options'] = $options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']];
-								unset($html_element_array['value']);
-							}
-							
-							if ( count($field['StructureField']['StructureValueDomain']) && isset($field['StructureField']['StructureValueDomain']['StructurePermissibleValue']) ) {
-								foreach ( $field['StructureField']['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
-									$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
-								}
-							}
-							
-							break;
-							
-						case 'date':
-						case 'datetime':
-							// if( !isset($field['flag_'.$options['type'].'_readonly']) ) {
-								//use this only if we are not in readonly
-								if ( $options['type']=='search' || !count($field['StructureField']['StructureValidation']) ) {
-									$html_element_array['empty'] = TRUE;
-								}
-								
-								$model_prefix_css = 'row'.str_replace('.','',$model_prefix);
-								$model_suffix_css = str_replace('.','',$model_suffix);
-								
-								if ( $options['type']=='search' ) {
-									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'], $html_element_array, $model_prefix_css, $model_suffix_css, "_start", array());
-									$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
-									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'], $html_element_array, $model_prefix_css, $model_suffix_css, "_end", array());
-								}else{
-									$datetime_array = array();
-									if ( isset($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]) ) {
-										$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field']]);
-									}else if(isset($html_element_array['value']) && $html_element_array['value'] != "NULL"){
-										$datetime_array = (is_array($html_element_array['value']) ? $html_element_array['value'] : StructuresHelper::datetime_to_array($html_element_array['value']));
-									}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])&& isset($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) && gettype($this->data[$field['StructureField']['model']][$field['StructureField']['field']]) == "Array"){
-										$datetime_array = $this->data[$field['StructureField']['model']][$field['StructureField']['field']];
-									}
-									$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field['StructureField'],
-									$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
-								}
-
-								$use_cakephp_form_helper = FALSE;
-							// }
-							break;
-							
-						case 'autocomplete':
-							$html_element_array['type'] = 'text';
-							break;
-							
-						default:
-							
-							break;
-							
-					}
-					if ( $use_cakephp_form_helper ) {
-						if($field['StructureField']['type'] == "autocomplete" 
-							&& (!isset($field['flag_'.$options['type'].'_readonly']) || !$field['flag_'.$options['type'].'_readonly'])){
-							//autocomplete field, use cakephp autocomplete
-							$settings_tmp['tabindex'] = $html_element_array['tabindex'];
-							$autocomplete_url = "";
-							foreach($field['StructureField']['setting'] as $setting_item){
-								if(strpos($setting_item, "url=") === 0){
-									//get the url setting
-									$autocomplete_url = substr($setting_item, 4);
-								}else if(strpos($setting_item, "tool=") === false && strpos($setting_item, "append=") === false){
-									//settings that are not url, tool nor append are input settings
-									$index = strpos($setting_item, "=");
-									if($index > 0){
-										$settings_tmp[substr($setting_item, 0, $index)] = substr($setting_item, $index + 1);
-									}
-								}
-							}
-							$html_element_array['class'] .= " jqueryAutocomplete {'callback' : 'autoComplete'}";
+					case 'hidden':
+						
+						$html_element_array['class'] .= 'hidden ';
+						break;
+						
+					case 'number':
+					case 'integer':
+					case 'integer_positive':
+					case 'float':
+					case 'float_positive':	
+						if(isset($html_element_array['value'])) $html_element_array['value'] = StructuresHelper::format_number($html_element_array['value']);
+						$html_element_array['type'] = 'text';
+						if(Configure::read('debug') > 0){
+							$html_element_array['class'] .= " validation ";
 						}
 						
-						$my_model_prefix = strlen($model_prefix) > 0 ? str_replace(".", "][", $model_prefix) : "";
-						$display_value .= $this->Form->input(
-							$my_model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
-							$html_element_array
-						);
-
-						// when a field is DISABLED, pass a HIDDEN field with value to be submitted...
-						if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
-							$html_element_array['type'] = 'hidden';
-							$html_element_array['class'] = 'hidden';
-							unset($html_element_array['disabled']);
+						if ( $options['type']=='search' ) {
 							
-							if(isset($html_element_array['selected'])){
-								$html_element_array['value'] = $html_element_array['selected'];
-							}
 							$display_value .= $this->Form->input(
-								$my_model_prefix.$field['StructureField']['model'].$model_suffix.$field['StructureField']['field'],
+								$model_prefix.$field['model'].$model_suffix.$field['field'].'_start',
 								$html_element_array
 							);
-						}
-					}
-					
-					// if there is a TOOL for this field, APPEND! 
-					if ( $append_field_tool ) {
-						
-						// multiple INPUT entries, using uploaded CSV file
-						if ( $append_field_tool=='csv' ) {
-							if ( $options['type']=='search' ) {
 							
-								// replace NAME of input with ARRAY format name
-								// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-								$display_value = str_replace(']"','][]"',$display_value);
-								
-								// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-								$display_value = '
-									<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
-										'.$display_value.'
-										<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
-									</div>
-								';
-								
+							$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
+							$display_value .= $this->Form->input(
+								$model_prefix.$field['model'].$model_suffix.$field['field'].'_end',
+								$html_element_array
+							);
+							
+							$use_cakephp_form_helper = FALSE;
+						}
+						
+						break;
+						
+					case 'input':
+						
+						$html_element_array['type'] = 'text';
+						break;
+						
+					case 'select':
+						
+						$html_element_array['options'] = array();
+						
+						if ( $options['type']=='search' || !count($field['StructureValidation']) ) {
+							$html_element_array['empty'] = true;
+						}
+						
+						if ( isset( $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] ) && is_array( $options['override'][$field['model'].$model_suffix.$field['field']] ) ) { 
+							$html_element_array['options'] = $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']];
+							unset($html_element_array['value']);
+							
+							if ( $options['type']=='editgrid' ) { 
+								$html_element_array['value'] = $this->data[$field['model']][$field['field']]; 
+							}
+							
+							if ( count($options['settings']['tree']) ) { 
+								$html_element_array['value'] = $data[$field['model']][$field['field']]; 
 							}
 						}
 						
-						// multiple INPUT entries, with JS add/remove links
-						else if ( $append_field_tool=='multiple' ) {
-							if ( $options['type']=='search' ) {
+						else if ( count($field['StructureValueDomain']) ) {
 							
-								// replace NAME of input with ARRAY format name
-								// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-								$display_value = str_replace(']"','][]"',$display_value);
+							// if SOURCE is provided, use provided MODEL::FUNCTION call to retrieve pulldown values
+							if ( $field['StructureValueDomain']['source'] ) {
+								// run model::function
+								$pulldown_result = StructuresComponent::getPulldownFromSource($field['StructureValueDomain']['source']);
 								
-								// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-								$display_value = '
-									<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js">
-										<p class="clone">
-											'.$display_value.'
-											<a href="#" class="ajax_tool clone_remove" onclick="remove_fields(this); return false;">Remove</a>
-										</p>
-									</div>
-									
-									<a href="#" class="ajax_tool clone_add" onclick="clone_fields(\''.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_clone_fields_js\'); return false;">Add Another</a>
-								';
-								
-							}
-						}
-						
-						// any other TOOL
-						else {
-							$append_field_tool_id = '';
-							$append_field_tool_id = str_replace( '.', ' ', $append_field_tool );
-							$append_field_tool_id = trim($append_field_tool_id);
-							$append_field_tool_id = str_replace( ' ', '_', $append_field_tool_id );
-							
-							$javascript_inline = '';
-							$javascript_inline .= "new Ajax.Updater( '".$append_field_tool_id."', '".$this->Html->Url( $append_field_tool )."', {asynchronous:false, evalScripts:true} );";
-							$javascript_inline .= "Effect.toggle('".$append_field_tool_id."','appear',{duration:0.25});";
-							$javascript_inline .= "return false;";
-							
-							
-							
-							$display_value .= '
-								<a href="'.$this->Html->Url( $append_field_tool ).'" class="tool_popup">'.__($append_field_tool_label, true).'</a>
-							';
-						}
-						
-					}
-					
-					//$tmp_advanced = "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span>";
-					//$display_value .= "<span><a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></span><br/>";
-					
-					// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
-						if (trim($display_value) != '') {
-							$tmp_input = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
-							if($options['type'] != 'datagrid'){
-								$tmp_input = "<span style='white-space: nowrap;'>".$tmp_input."</span>";
-								if($options['type'] == 'search'){
-									$tmp_input = "<div>".$tmp_input."<a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></div>";
+								// it is assumed any translations have happened in the MODEL already
+								foreach ( $pulldown_result as $lookup ) {
+									if ( isset($lookup[$options['type']])){
+										$html_element_array['options'][ $lookup['value'] ] = $lookup[$options['type']]; 
+									}else { 
+										$html_element_array['options'][ $lookup['value'] ] = $lookup['default']; 
+									}
 								}
 							}
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmp_input;
-						} else {
-							$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
-							$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
+							
+							// use permissible values associated with this value domain instead
+							else if ( isset($field['StructureValueDomain']['StructurePermissibleValue']) ) {
+								foreach ( $field['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+									$html_element_array['options'][ $lookup['value'] ] = html_entity_decode(__( $lookup['language_alias'], true ), ENT_QUOTES, "UTF-8");
+								}
+							}
+							
 						}
+							
+						// if existing DATA VALUE does not exist in the SELECT OPTIONS, add EXISTING DATA into the options using OPTGROUP to make the addition clear
+							if ( isset($this->data[$field['model']][$field['field']])
+							&& $this->data[$field['model']][$field['field']] != "" 
+							&& !is_array($this->data[$field['model']][$field['field']]) 
+							&& !array_key_exists($this->data[$field['model']][$field['field']], $html_element_array['options']) ) {
+								$html_element_array['options'] = array(
+									html_entity_decode( __( 'Supported Value', true ), ENT_QUOTES, "UTF-8" ) => $html_element_array['options'],
+									html_entity_decode( __( 'Unmatched Value', true ), ENT_QUOTES, "UTF-8" ) => array(
+										$this->data[$field['model']][$field['field']] => $this->data[$field['model']][$field['field']]
+									)
+								);
+								
+							}
+						
+						break;
+						
+					case 'radio':
+						$html_element_array['options'] = array();
+						
+						if ( $options['type']=='search' || !count($field['StructureValidation']) ) {
+							$html_element_array['empty'] = true;
+						}
+						
+						if ( isset( $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] ) && is_array( $options['override'][$field['model'].$model_suffix.$field['field']] ) ) { 
+							$html_element_array['options'] = $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']];
+							unset($html_element_array['value']);
+						}
+						
+						if ( count($field['StructureValueDomain']) && isset($field['StructureValueDomain']['StructurePermissibleValue']) ) {
+							foreach ( $field['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+								$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
+							}
+						}
+						
+						if(!isset($html_element_array['legend'])){
+							$html_element_array['legend'] = "";
+						}
+						break;
+						
+					case 'checkbox':
+						
+						$html_element_array['options'] = array();
+						
+						if ( $options['type']=='search' || !count($field['StructureValidation']) ) {
+							$html_element_array['empty'] = true;
+						}
+						
+						if ( isset( $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']] ) && is_array( $options['override'][$field['model'].$model_suffix.$field['field']] ) ) { 
+							$html_element_array['options'] = $options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']];
+							unset($html_element_array['value']);
+						}
+						
+						if ( count($field['StructureValueDomain']) && isset($field['StructureValueDomain']['StructurePermissibleValue']) ) {
+							foreach ( $field['StructureValueDomain']['StructurePermissibleValue'] as $lookup ) {
+								$html_element_array['options'][ $lookup['value'] ] = __( $lookup['language_alias'], true );
+							}
+						}
+						
+						break;
+						
+					case 'date':
+					case 'datetime':
+						// if( !isset($field['flag_'.$options['type'].'_readonly']) ) {
+							//use this only if we are not in readonly
+							if ( $options['type']=='search' || !count($field['StructureValidation']) ) {
+								$html_element_array['empty'] = TRUE;
+							}
+							
+							$model_prefix_css = 'row'.str_replace('.','',$model_prefix);
+							$model_suffix_css = str_replace('.','',$model_suffix);
+							
+							if ( $options['type']=='search' ) {
+								$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field, $html_element_array, $model_prefix_css, $model_suffix_css, "_start", array());
+								$display_value .= ' <span class="tag">'.__('to',TRUE).'</span> ';
+								$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field, $html_element_array, $model_prefix_css, $model_suffix_css, "_end", array());
+							}else{
+								$datetime_array = array();
+								if ( isset($options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']]) ) {
+									$datetime_array = StructuresHelper::datetime_to_array($options['override'][$model_prefix.$field['model'].$model_suffix.$field['field']]);
+								}else if(isset($html_element_array['value']) && $html_element_array['value'] != "NULL"){
+									$datetime_array = (is_array($html_element_array['value']) ? $html_element_array['value'] : StructuresHelper::datetime_to_array($html_element_array['value']));
+								}else if(isset($this->data) && !empty($this->data) && !isset($this->data[0])&& isset($this->data[$field['model']][$field['field']]) && gettype($this->data[$field['model']][$field['field']]) == "Array"){
+									$datetime_array = $this->data[$field['model']][$field['field']];
+								}
+								$display_value .= $this->get_date_fields($model_prefix, $model_suffix, $field,
+								$html_element_array, $model_prefix_css, $model_suffix_css, "", $datetime_array);
+							}
+
+							$use_cakephp_form_helper = FALSE;
+						// }
+						break;
+						
+					case 'autocomplete':
+						$html_element_array['type'] = 'text';
+						break;
+						
+					default:
+						
+						break;
+						
+				}
+				if ( $use_cakephp_form_helper ) {
+					if($field['type'] == "autocomplete" 
+						&& (!isset($field['flag_'.$options['type'].'_readonly']) || !$field['flag_'.$options['type'].'_readonly'])){
+						//autocomplete field, use cakephp autocomplete
+						$settings_tmp['tabindex'] = $html_element_array['tabindex'];
+						$autocomplete_url = "";
+						foreach($field['setting'] as $setting_item){
+							if(strpos($setting_item, "url=") === 0){
+								//get the url setting
+								$autocomplete_url = substr($setting_item, 4);
+							}else if(strpos($setting_item, "tool=") === false && strpos($setting_item, "append=") === false){
+								//settings that are not url, tool nor append are input settings
+								$index = strpos($setting_item, "=");
+								if($index > 0){
+									$settings_tmp[substr($setting_item, 0, $index)] = substr($setting_item, $index + 1);
+								}
+							}
+						}
+						$html_element_array['class'] .= " jqueryAutocomplete {'callback' : 'autoComplete'}";
+					}
+					
+					$my_model_prefix = strlen($model_prefix) > 0 ? str_replace(".", "][", $model_prefix) : "";
+					$display_value .= $this->Form->input(
+						$my_model_prefix.$field['model'].$model_suffix.$field['field'],
+						$html_element_array
+					);
+
+					// when a field is DISABLED, pass a HIDDEN field with value to be submitted...
+					if ( isset($field['flag_'.$options['type'].'_readonly']) && $field['flag_'.$options['type'].'_readonly'] && $options['type']!='search' ) {
+						$html_element_array['type'] = 'hidden';
+						$html_element_array['class'] = 'hidden';
+						unset($html_element_array['disabled']);
+						
+						if(isset($html_element_array['selected'])){
+							$html_element_array['value'] = $html_element_array['selected'];
+						}
+						$display_value .= $this->Form->input(
+							$my_model_prefix.$field['model'].$model_suffix.$field['field'],
+							$html_element_array
+						);
+					}
+				}
+				
+				// if there is a TOOL for this field, APPEND! 
+				if($append_field_tool){
+					// multiple INPUT entries, using uploaded CSV file
+					if ( $append_field_tool=='csv' ) {
+						if ( $options['type']=='search' ) {
+							// replace NAME of input with ARRAY format name
+							// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
+							$display_value = str_replace(']"','][]"',$display_value);
+							
+							// wrap FIELD in DIV/P and add JS links to clone/remove P tags
+							$display_value = '
+								<div id="'.strtolower($field['model'].'_'.$field['field']).'_with_file_upload">
+									'.$display_value.'
+									<input class="file" type="file" name="data['.$field['model'].']['.$field['field'].'_with_file_upload]" />
+								</div>
+							';
+							
+						}
+					}else if ( $append_field_tool=='multiple' ) {
+						// multiple INPUT entries, with JS add/remove links
+						if ( $options['type']=='search' ) {
+							// replace NAME of input with ARRAY format name
+							// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
+							$display_value = str_replace(']"','][]"',$display_value);
+							
+							// wrap FIELD in DIV/P and add JS links to clone/remove P tags
+							$display_value = '
+								<div id="'.strtolower($field['model'].'_'.$field['field']).'_with_clone_fields_js">
+									<p class="clone">
+										'.$display_value.'
+										<a href="#" class="ajax_tool clone_remove" onclick="remove_fields(this); return false;">Remove</a>
+									</p>
+								</div>
+								
+								<a href="#" class="ajax_tool clone_add" onclick="clone_fields(\''.strtolower($field['model'].'_'.$field['field']).'_with_clone_fields_js\'); return false;">Add Another</a>
+							';
+						}
+					}else {
+						// any other TOOL
+						$append_field_tool_id = '';
+						$append_field_tool_id = str_replace( '.', ' ', $append_field_tool );
+						$append_field_tool_id = trim($append_field_tool_id);
+						$append_field_tool_id = str_replace( ' ', '_', $append_field_tool_id );
+						
+						$javascript_inline = '';
+						$javascript_inline .= "new Ajax.Updater( '".$append_field_tool_id."', '".$this->Html->Url( $append_field_tool )."', {asynchronous:false, evalScripts:true} );";
+						$javascript_inline .= "Effect.toggle('".$append_field_tool_id."','appear',{duration:0.25});";
+						$javascript_inline .= "return false;";
+						
+						$display_value .= '
+							<a href="'.$this->Html->Url( $append_field_tool ).'" class="tool_popup">'.__($append_field_tool_label, true).'</a>
+						';
+					}
+					
+				}
+				
+				// put display_value into CONTENT array index, ELSE put span tag if value BLANK and INCREMENT empty index 
+				if (trim($display_value) != '') {
+					$tmp_input = $table_index[ $field['display_column'] ][ $row_count ]['tag'].$display_value.' ';
+					if($options['type'] != 'datagrid'){
+						$tmp_input = "<span style='white-space: nowrap;'>".$tmp_input."</span>";
+						if($options['type'] == 'search'){
+							$tmp_input = "<div>".$tmp_input."<a class='adv_ctrl btn_add_or' onclick='return false;' href='#'>(+)</a></div>";
+						}
+					}
+					$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $tmp_input;
+				} else {
+					$table_index[ $field['display_column'] ][ $row_count ]['input'] .= $table_index[ $field['display_column'] ][ $row_count ]['tag'].'<span class="empty">-</span> ';
+					$table_index[ $field['display_column'] ][ $row_count ]['empty']++;
+				}
 				
 			} // end IF FIELD[DETAIL]
 			
@@ -1961,10 +1895,10 @@ class StructuresHelper extends Helper {
 		
 		// add EXTRAS, if any (except for TREE/INDEX, handled differently)
 			
-			if ( $options['type']!='index' && $options['type']!='tree' ) {
-				$table_index = $this->display_extras( $table_index, $options );
-			}
-			
+		if ( $options['type']!='index' && $options['type']!='tree' ) {
+			$table_index = $this->display_extras( $table_index, $options );
+		}
+		
 		return $table_index;
 		
 	} // end FUNCTION build_form_stack()
