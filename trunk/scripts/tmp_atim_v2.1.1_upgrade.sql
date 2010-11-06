@@ -25,3 +25,8 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 ALTER TABLE `structure_permissible_values_custom_controls` ADD `values_max_length` TINYINT UNSIGNED NOT NULL;
 UPDATE structure_permissible_values_custom_controls SET values_max_length=20;
+
+ALTER TABLE diagnosis_masters
+  MODIFY `path_mstage` varchar(15) DEFAULT NULL;
+  
+  
