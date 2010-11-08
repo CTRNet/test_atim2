@@ -673,7 +673,7 @@ VALUES
 
 -- -------------------------------------------- drop down list
 
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('cannot be assessed', 'cannot be assessed'),
 ('segmental resection','segmental resection'),
 ('pancreaticoduodenectomy (whipple resection)', 'pancreaticoduodenectomy (whipple resection)'),
@@ -696,7 +696,7 @@ where tablename='dxd_cap_report_smintestines' and field='procedure';
 
 -- tumour_site_sm
 
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('duodenum','duodenum'),
 ('small intestine, other than duodenum', 'small intestine, other than duodenum'),
 ('ileum', 'ileum'),
@@ -718,7 +718,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where model='DiagnosisDetail' and field='tumor_site';
 
 -- macroscopic_tumor_perforation
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('present','present'),
 ('not identified', 'not identified'),
 ('cannot be determined', 'cannot be determined');
@@ -739,7 +739,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='dxd_cap_report_smintestines' and field='macroscopic_tumor_perforation';
 
 -- histologic_type_sm
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('adenocarcinoma (not otherwise characterized)','adenocarcinoma (not otherwise characterized)'),
 ('mucinous adenocarcinoma (greater than 50% mucinous)', 'mucinous adenocarcinoma (greater than 50% mucinous)'),
 ('signet-ring cell carcinoma (greater than 50% signet-ring cells)', 'signet-ring cell carcinoma (greater than 50% signet-ring cells)'),
@@ -777,7 +777,7 @@ where  model='DiagnosisDetail' and field='histologic_type';
 
 
 -- histologic grade
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('gx','gx: cannot be assessed'),
 ('g1','g1: well differentiated'),
 ('g2','g2: moderately differentiated'),
@@ -803,7 +803,7 @@ where tablename='diagnosis_masters_sm' and field='tumour_grade';
 
 
 -- microscopic tumor extension
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('no evidence of primary tumor', 'no evidence of primary tumor'),
 ('tumor invades lamina propria','tumor invades lamina propria'),
 ('tumor invades submucosa','tumor invades submucosa'),
@@ -838,7 +838,7 @@ where tablename='dxd_cap_report_smintestines' and field='microscopic_tumor_exten
 
 -- proximal margin
 
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('uninvolved by invasive carcinoma', 'uninvolved by invasive carcinoma'),
 ('involved by invasive carcinoma','involved by invasive carcinoma'),
 ('intramucosal carcinoma/adenoma not identified at proximal margin','intramucosal carcinoma/adenoma not identified at proximal margin'),
@@ -864,7 +864,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='dxd_cap_report_smintestines' and field='proximal_margin';
 
 -- distal margin
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('intramucosal carcinoma/adenoma not identified at distal margin', 'intramucosal carcinoma/adenoma not identified at distal margin'),
 ('intramucosal carcinoma /adenoma present at distal margin', 'intramucosal carcinoma /adenoma present at distal margin');
 
@@ -889,7 +889,7 @@ where tablename='dxd_cap_report_smintestines' and field='distal_margin';
 
 
 -- circumferential (radial) or mesenteric margin
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('involved by invasive carcinoma (tumor present 0-1 mm from margin)', 'involved by invasive carcinoma (tumor present 0-1 mm from margin)');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
@@ -911,7 +911,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='dxd_cap_report_smintestines' and field='radial_margin';
 
 -- distance unit
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('mm', 'mm');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
@@ -931,7 +931,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='dxd_cap_report_smintestines' and field='distance_unit';
 
 -- margin
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('margin uninvolved by invasive carcinoma', 'margin uninvolved by invasive carcinoma'),
 ('margin involved by invasive carcinoma', 'margin involved by invasive carcinoma');
 
@@ -970,7 +970,7 @@ where tablename='dxd_cap_report_smintestines' and field='distance_unit_bile_duct
 
 -- lymph-vascular invasion
 
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('indeterminate', 'indeterminate');
 
 -- ___ not identified
@@ -997,7 +997,7 @@ where tablename='dxd_cap_report_smintestines' and field='lymph_vascular_invasion
 
 
 -- primary tumor (pt)
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('ptx', 'ptx: cannot be assessed'),
 ('pt0', 'pt0: no evidence of primary tumor'),
 ('ptis', 'ptis: carcinoma in situ'),
@@ -1009,20 +1009,20 @@ insert into structure_permissible_values (value, language_alias) values
 ('pt4b', 'pt4b: tumor directly invades other organs or structures');
 
 
-
+ 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
 values ('path_tstage_sm', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptx'), 1,1, 'ptx: cannot be assessed'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt0'), 2,1, 'pt0: no evidence of primary tumor'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptis'), 3,1, 'ptis: carcinoma in situ'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1a'), 4,1, 'pt1a: tumor invades lamina propria'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1b'), 5,1, 'pt1b: tumor invades submucosa'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt2'), 6,1, 'pt2: tumor invades muscularis propria'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt3'), 7,1, 'pt3: tumor invades through the muscularis propria into the subserosa or into the nonperitonealized perimuscular tissue (mesentery or retroperitoneum) with extension 2 cm or less'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4a'), 8,1, 'pt4a: tumor penetrates the visceral peritoneum'),
-((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4b'), 9,1, 'pt4b:tumor directly invades other organs or structures');
+values ((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptx' and language_alias = 'ptx: cannot be assessed'), 1,1, 'ptx: cannot be assessed'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt0' and language_alias = 'pt0: no evidence of primary tumor'), 2,1, 'pt0: no evidence of primary tumor'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='ptis' and language_alias = 'ptis: carcinoma in situ'), 3,1, 'ptis: carcinoma in situ'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1a' and language_alias = 'pt1a: tumor invades lamina propria'), 4,1, 'pt1a: tumor invades lamina propria'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt1b' and language_alias = 'pt1b: tumor invades submucosa'), 5,1, 'pt1b: tumor invades submucosa'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt2' and language_alias = 'pt2: tumor invades muscularis propria'), 6,1, 'pt2: tumor invades muscularis propria'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt3' and language_alias = 'pt3: tumor invades through the muscularis propria into the subserosa or into the nonperitonealized perimuscular tissue (mesentery or retroperitoneum) with extension 2 cm or less'), 7,1, 'pt3: tumor invades through the muscularis propria into the subserosa or into the nonperitonealized perimuscular tissue (mesentery or retroperitoneum) with extension 2 cm or less'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4a' and language_alias = 'pt4a: tumor penetrates the visceral peritoneum'), 8,1, 'pt4a: tumor penetrates the visceral peritoneum'),
+((select id from structure_value_domains where domain_name='path_tstage_sm'), (select id from structure_permissible_values where value='pt4b' and language_alias = 'pt4b: tumor directly invades other organs or structures'), 9,1, 'pt4b:tumor directly invades other organs or structures');
 
 select id from structure_value_domains where domain_name='path_tstage_sm';
 
@@ -1035,7 +1035,7 @@ where tablename='diagnosis_masters_sm' and field='path_tstage';
 
 
 -- regional lymph nodes (pn)
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('pnx', 'pnx: cannot be assessed'),
 ('pn0', 'pn0: no regional lymph node metastasis'),
 ('pn1', 'pn1: metastasis in 1 to 3 regional lymph nodes'),
@@ -1045,10 +1045,10 @@ insert into `structure_value_domains` (`domain_name`, `override`, `category`, `s
 values ('path_nstage_sm', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
-values ((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pnx'), 1,1, 'cannot be assessed'),
-((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn0'), 2,1, 'no regional lymph node metastasis'),
-((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn1'), 3,1, 'metastasis in 1 to 3 regional lymph nodes'),
-((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn2'), 4,1, 'metastasis in 4 or more regional lymph nodes');
+values ((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pnx' and language_alias = 'pnx: cannot be assessed'), 1,1, 'cannot be assessed'),
+((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn0' and language_alias = 'pn0: no regional lymph node metastasis'), 2,1, 'no regional lymph node metastasis'),
+((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn1' and language_alias = 'pn1: metastasis in 1 to 3 regional lymph nodes'), 3,1, 'metastasis in 1 to 3 regional lymph nodes'),
+((select id from structure_value_domains where domain_name='path_nstage_sm'), (select id from structure_permissible_values where value='pn2' and language_alias = 'pn2: metastasis in 4 or more regional lymph nodes'), 4,1, 'metastasis in 4 or more regional lymph nodes');
 
 select * from structure_fields
 where tablename='diagnosis_masters_sm' and field='path_nstage';
@@ -1059,7 +1059,7 @@ where tablename='diagnosis_masters_sm' and field='path_nstage';
 
 
 -- distant metastasis (pm)
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('pm1', 'pm1: distant metastasis');
 
 insert into `structure_value_domains` (`domain_name`, `override`, `category`, `source`) 
@@ -1067,7 +1067,7 @@ values ('path_mstage_sm', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_sm'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_sm'), (select id from structure_permissible_values where value='pm1'), 4,1, 'distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_sm'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 4,1, 'distant metastasis');
 
 select * from structure_fields
 where tablename='diagnosis_masters_sm' and field='path_mstage';
@@ -1078,7 +1078,7 @@ where tablename='diagnosis_masters_sm' and field='path_mstage';
 
 
 -- microsatellite instability grade
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('stable', 'stable'),
 ('low','low'),
 ('high','high');
@@ -1099,7 +1099,7 @@ set structure_value_domain=(select id from structure_value_domains where domain_
 where tablename='dxd_cap_report_smintestines' and field='microsatellite_instability_grade';
 
 -- immunohistochemistry_sm
-insert into structure_permissible_values (value, language_alias) values
+insert ignore into structure_permissible_values (value, language_alias) values
 ('immunoreactive tumor cells present (nuclear positivity)', 'immunoreactive tumor cells present (nuclear positivity)'),
 ('no immunoreactive tumor cells present','no immunoreactive tumor cells present');
 
@@ -1795,7 +1795,7 @@ values ('path_mstage_pbd', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_pbd'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_pbd'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_pbd'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 select * from structure_fields
 where tablename='diagnosis_masters_pbd' and field='path_mstage';
@@ -3929,7 +3929,7 @@ values ('path_mstage_ibd', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_ibd'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_ibd'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_ibd'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_ibd')
@@ -4509,7 +4509,7 @@ values ('path_mstage_hc', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_hc'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_hc'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_hc'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_hc')
@@ -5073,7 +5073,7 @@ values ('path_mstage_gb', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_gb'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_gb'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_gb'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 update structure_fields
 set structure_value_domain=(select id from structure_value_domains where domain_name='path_mstage_gb')
@@ -5759,7 +5759,7 @@ values ('path_mstage_dbd', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_dbd'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_dbd'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_dbd'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 
 update structure_fields
@@ -6840,7 +6840,7 @@ values ('path_mstage_a', 'open', '', null);
 
 insert into structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order,flag_active, language_alias)
 values ((select id from structure_value_domains where domain_name='path_mstage_a'), (select id from structure_permissible_values where value='not applicable'), 1,1, 'not applicable'),
-((select id from structure_value_domains where domain_name='path_mstage_a'), (select id from structure_permissible_values where value='pm1'), 2,1, 'pm1: distant metastasis');
+((select id from structure_value_domains where domain_name='path_mstage_a'), (select id from structure_permissible_values where value='pm1' and language_alias = 'pm1: distant metastasis'), 2,1, 'pm1: distant metastasis');
 
 
 update structure_fields
