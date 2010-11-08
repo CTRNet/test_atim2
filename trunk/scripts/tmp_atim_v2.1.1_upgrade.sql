@@ -6,4 +6,14 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.1-Alpha', NOW(), '');
 
 TRUNCATE `acos`; 
-  
+
+-- Change created field label for participant, collection, aliquot
+
+UPDATE structure_fields SET language_label = 'created (into the system)', language_help = 'help_created'
+WHERE field = 'created' AND tablename IN ('view_collections', 'view_aliquots', 'aliquot_masters', 'aliquot_uses', 'participants');
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_override_label = '0', sfo.language_label = ''
+WHERE sfi.field = 'created' AND sfi.tablename IN ('view_collections', 'view_aliquots', 'aliquot_masters', 'aliquot_uses', 'participants') 
+AND str.alias = 'participants'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+   	
