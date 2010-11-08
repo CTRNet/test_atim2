@@ -242,5 +242,3 @@ WHERE sfi.field IN ('dx_date', 'morphology', 'primary_grade', 'secondary_grade',
 AND str.alias = 'qc_cusm_dxd_procure'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
-review all search form and index form including master for databrowser
-
