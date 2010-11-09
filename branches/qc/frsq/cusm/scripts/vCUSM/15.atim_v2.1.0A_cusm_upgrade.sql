@@ -454,4 +454,10 @@ AND sfi.field IN ('aliquot_volume_unit')
 AND sfo.display_order = '74'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id; 	 
 
+UPDATE i18n 
+SET en = 'ATiM - Advanced Tissue Management - v.MUHC',
+fr = 'ATiM - Application de gestion avancée des tissus - v.CUSM'
+WHERE id = 'core_appname';
+ 	  	 	
+
 
