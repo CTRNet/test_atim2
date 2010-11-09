@@ -16,4 +16,4 @@ SET sfo.flag_override_label = '0', sfo.language_label = ''
 WHERE sfi.field = 'created' AND sfi.tablename IN ('view_collections', 'view_aliquots', 'aliquot_masters', 'aliquot_uses', 'participants') 
 AND str.alias = 'participants'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
-INSERT IGNORE INTO i18n VALUES ('created (into the system)', 'Created (into the system)', 'Créé (dans le système)');	
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('created (into the system)', 'Created (into the system)', 'Créé (dans le système)');	
