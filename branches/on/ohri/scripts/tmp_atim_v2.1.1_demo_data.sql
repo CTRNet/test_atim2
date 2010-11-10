@@ -588,8 +588,8 @@ INSERT INTO `diagnosis_masters` (`id`, `dx_identifier`, `primary_number`, `dx_me
 (1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C501', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL),
 (2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C509', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL),
 (3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C530', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL),
-(4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '8002/3', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL),
-(5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '8001/0', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL);
+(4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '80023', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL),
+(5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '80010', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL);
 
 --
 -- Dumping data for table `diagnosis_masters_revs`
@@ -601,8 +601,8 @@ INSERT INTO `diagnosis_masters_revs` (`id`, `dx_identifier`, `primary_number`, `
 (2, NULL, 1, 'cytology', 'malignant', 'secondary', '2003-02-01', '', 'C509', '', '', '', '', 'well differentiated', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:11:42', 1, '2010-05-28 14:11:42', 1, 0, NULL, 3, '2010-05-28 14:11:43'),
 (1, NULL, 1, 'radiology', 'malignant', 'primary', '2001-03-05', 'm', 'C501', '', '', '', '', 'well differentiated', NULL, '', '5th', 'yes', 'IV', '', '', 'IV', 'IA', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:09:11', 1, '2010-05-28 14:12:54', 1, 0, NULL, 4, '2010-05-28 14:12:55'),
 (3, NULL, 2, '', 'malignant', 'primary', '2002-06-13', '', 'C530', '', '', '', '', '', NULL, '', '', '', '', '', '', '', '', '', '', '', NULL, '', '', 2, 1, '2010-05-28 14:14:39', 1, '2010-05-28 14:14:39', 1, 0, NULL, 5, '2010-05-28 14:14:40'),
-(4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '8002/3', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL, 6, '2010-09-24 19:32:27'),
-(5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '8001/0', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL, 7, '2010-09-24 19:40:52');
+(4, NULL, NULL, 'radiology', 'malignant', 'primary', '1997-01-14', '', 'D461', '', '', '80023', '', 'poorly differentiated', NULL, '', '', '', 'pT4', 'pN2', 'pMx', '', '', '', '', '', NULL, '', '', 2, 2, '2010-09-24 19:32:26', 1, '2010-09-24 19:32:26', 1, 0, NULL, 6, '2010-09-24 19:32:27'),
+(5, NULL, NULL, 'autopsy', 'malignant', 'primary', '1992-09-09', '', NULL, '', '', '80010', '', 'well differentiated', NULL, '', '', '', 'pT1', '', '', '', '', '', '', '', NULL, '', '', 2, 3, '2010-09-24 19:40:52', 1, '2010-09-24 19:40:52', 1, 0, NULL, 7, '2010-09-24 19:40:52');
 
 --
 -- Dumping data for table `drugs`
