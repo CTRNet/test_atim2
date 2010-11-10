@@ -1,26 +1,25 @@
 <?php
  	
  	// --------------------------------------------------------------------------------
-	// Generate Participant.participant_identifier
-	// -------------------------------------------------------------------------------- 	
- 	$last_participant_created = $this->Participant->find('first',array('order'=>array('Participant.id DESC'), 'limit' => 1, 'recursive' => '-1'));
- 	$next_participant_id = $last_participant_created['Participant']['id'] + 1;
- 	
- 	$supposed_participant_identifier = 'Ap-' . $next_participant_id;
- 	
- 	$next_participant_identifier = $supposed_participant_identifier;
- 	$sub_identifier = 1;
- 	$new_identifier_found = false;
- 	while(!$new_identifier_found) {
- 		$part_counter = $this->Participant->find('count',array('conditions'=>array('Participant.participant_identifier' => $next_participant_identifier), 'recursive' => '-1'));
- 		if($part_counter == 0) {
- 			$new_identifier_found = true;
- 		} else {
- 			$next_participant_identifier = $supposed_participant_identifier . '.' . $sub_identifier;
- 			$sub_identifier++;
- 		}
- 	}
- 	
- 	$this->data['Participant']['participant_identifier'] = $next_participant_identifier;
+	// Manage Participant creation to generate participant identifier
+	// -------------------------------------------------------------------------------- 
+	if($submitted_data_validates) {
+		
+		// Keep warning for developper
+		pr('WARNING: Save process done into the hook! Check participants_controller.php upgrade has no impact on the hook line code!');				
+		$submitted_data_validates = false;
+		
+		if ( $this->Participant->save($this->data) ) {
+			$participant_id = $this->Participant->getLastInsertId();
+			
+			$participant_data_to_update = array();
+			$participant_data_to_update['Participant']['participant_identifier'] = 'Ap-' . $participant_id;
+			
+			$this->Participant->id = $participant_id;					
+			if(!$this->Participant->save($participant_data_to_update, false)) { $this->redirect('/pages/err_clin_system_error', null, true); }
+					
+			$this->atimFlash('your data has been saved', '/clinicalannotation/participants/profile/'.$participant_id);
+		}
+	}
 	
 ?>
