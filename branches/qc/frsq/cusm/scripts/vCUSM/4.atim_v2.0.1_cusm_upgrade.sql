@@ -540,37 +540,41 @@ SET @pt_domain_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'pTx', 'pTx'),
-(NULL, 'pT2', 'pT2'),
-(NULL, 'pT2a', 'pT2a'),
-(NULL, 'pT2b', 'pT2b'),
-(NULL, 'pT2c', 'pT2c'),
-(NULL, 'pT3b', 'pT3b'),
-(NULL, 'pT4', 'pT4');
+(NULL, 'pTx', 'pTx: Insufficient data'),
+(NULL, 'pT2', 'pT2: Organ confined'),
+(NULL, 'pT2a', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less'),
+(NULL, 'pT2b', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both'),
+(NULL, 'pT2c', 'pT2c: Bilateral disease'),
+(NULL, 'pT3a', 'pT3a: Extracapsular extension (uni-or bi-lateral)'),
+(NULL, 'pT3b', 'pT3b: Seminal vesicle invasion'),
+(NULL, 'pT4', 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum');
 
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pTx'), '1', 'yes', 'pTx'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2'), '1', 'yes', 'pT2'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2a'), '1', 'yes', 'pT2a'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2b'), '1', 'yes', 'pT2b'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2c'), '1', 'yes', 'pT2c'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3a'), '1', 'yes', 'pT3a'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3b'), '1', 'yes', 'pT3b'),
-(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT4'), '1', 'yes', 'pT4');
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pTx' and language_alias = 'pTx: Insufficient data'), '1', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2' and language_alias = 'pT2: Organ confined'), '2', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2a' and language_alias = 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less'), '3', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2b' and language_alias = 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both'), '4', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT2c' and language_alias = 'pT2c: Bilateral disease'), '5', 'yes', 'pT2c: Bilateral disease'),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3a' and language_alias = 'pT3a: Extracapsular extension (uni-or bi-lateral)'), '6', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT3b' and language_alias = 'pT3b: Seminal vesicle invasion'), '7', 'yes', ''),
+(NULL , @pt_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pT4' and language_alias = 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum'), '8', 'yes', '');
 
-DELETE FROM `i18n` WHERE `id` IN ('pTx', 'pT2', 'pT2a', 'pT2b', 'pT2c', 'pT3a', 'pT3b', 'pT4');
+DELETE FROM `i18n` WHERE `id` IN ('pTx: Insufficient data', 'pT2: Organ confined', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 
+'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2c: Bilateral disease', 
+'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3b: Seminal vesicle invasion', 
+'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('pTx', '', 'pTx: Insufficient data', 'pTx : Renseignements insuffisants'),
-('pT2', '', 'pT2: Organ confined', 'pT2: Confinée à la prostate'),
-('pT2a', '', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 'pT2a: Unilatérale, envahissant la moitié ou moins d''un lobe'),
-('pT2b', '', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2b: Unilatérale, envahissant plus de la moitié d''un lobe mais pas les deux'),
-('pT2c', '', 'pT2c: Bilateral disease', 'pT2c: Bilatérale'),
-('pT3a', '', 'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3a: Extension extracapsulaire (uni- ou bi-latérale)'),
-('pT3b', '', 'pT3b: Seminal vesicle invasion', 'pT3b: Envahissant les vésicules séminales'),
-('pT4', '', 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum', 'pT4: Fixe ou envahissant d''autres structures adjacentes telles le rectum et/ou la vessie');
+('pTx: Insufficient data', '', 'pTx: Insufficient data', 'pTx : Renseignements insuffisants'),
+('pT2: Organ confined', '', 'pT2: Organ confined', 'pT2: Confinée à la prostate'),
+('pT2a: Unilateral, involving one-half of one side (''lobe'') or less', '', 'pT2a: Unilateral, involving one-half of one side (''lobe'') or less', 'pT2a: Unilatérale, envahissant la moitié ou moins d''un lobe'),
+('pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', '', 'pT2b: Unilateral, involving more than one-half of one side (''lobe'') but not both', 'pT2b: Unilatérale, envahissant plus de la moitié d''un lobe mais pas les deux'),
+('pT2c: Bilateral disease', '', 'pT2c: Bilateral disease', 'pT2c: Bilatérale'),
+('pT3a: Extracapsular extension (uni-or bi-lateral)', '', 'pT3a: Extracapsular extension (uni-or bi-lateral)', 'pT3a: Extension extracapsulaire (uni- ou bi-latérale)'),
+('pT3b: Seminal vesicle invasion', '', 'pT3b: Seminal vesicle invasion', 'pT3b: Envahissant les vésicules séminales'),
+('pT4: Fixed or invading other adjacent structures such as bladder and/or rectum', '', 'pT4: Fixed or invading other adjacent structures such as bladder and/or rectum', 'pT4: Fixe ou envahissant d''autres structures adjacentes telles le rectum et/ou la vessie');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
 (null, 'qc_cusm_ptnm_pn', 'open', '');
@@ -579,23 +583,23 @@ SET @pn_domain_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'pNx', 'pNx'),
-(NULL, 'pN0', 'pN0'),
-(NULL, 'pN1', 'pN1');
+(NULL, 'pNx', 'pNx: Insufficient data'),
+(NULL, 'pN0', 'pN0: No regional lymph node metastasis'),
+(NULL, 'pN1', 'pN1: Metastasis in regional lymph node(s)');
 
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pNx'), '1', 'yes', 'pNx'),
-(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN0'), '2', 'yes', 'pN0'),
-(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN1'), '3', 'yes', 'pN1');
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pNx' and language_alias = 'pNx: Insufficient data'), '1', 'yes', ''),
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN0' and language_alias = 'pN0: No regional lymph node metastasis'), '2', 'yes', ''),
+(NULL , @pn_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pN1' and language_alias = 'pN1: Metastasis in regional lymph node(s)'), '3', 'yes', '');
 
-DELETE FROM `i18n` WHERE `id` IN ('pNx', 'pN0', 'pN1');
+DELETE FROM `i18n` WHERE `id` IN ('pNx: Insufficient data', 'pN0: No regional lymph node metastasis', 'pN1: Metastasis in regional lymph node(s)');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('pNx', '', 'pNx: Insufficient data', 'pNx: Renseignements insuffisants'),
-('pN0', '', 'pN0: No regional lymph node metastasis', 'pN0: Pas d''atteinte des ganglions lymphatiques régionaux'),
-('pN1', '', 'pN1: Metastasis in regional lymph node(s)', 'pN1: Atteinte des ganglions lymphatiques régionaux');
+('pNx: Insufficient data', '', 'pNx: Insufficient data', 'pNx: Renseignements insuffisants'),
+('pN0: No regional lymph node metastasis', '', 'pN0: No regional lymph node metastasis', 'pN0: Pas d''atteinte des ganglions lymphatiques régionaux'),
+('pN1: Metastasis in regional lymph node(s)', '', 'pN1: Metastasis in regional lymph node(s)', 'pN1: Atteinte des ganglions lymphatiques régionaux');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`) VALUES
 (null, 'qc_cusm_ptnm_pm', 'open', '');
@@ -604,32 +608,32 @@ SET @pm_domain_id = LAST_INSERT_ID();
 
 INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) 
 VALUES 
-(NULL, 'pMx', 'pMx'),
-(NULL, 'pM0', 'pM0'),
-(NULL, 'pM1', 'pM1'),
-(NULL, 'pM1a', 'pM1a'),
-(NULL, 'pM1b', 'pM1b'),
-(NULL, 'pM1c', 'pM1c');
+(NULL, 'pMx', 'pMx: Insufficient data'),
+(NULL, 'pM0', 'pM0: None'),
+(NULL, 'pM1', 'pM1: Distant metastasis'),
+(NULL, 'pM1a', 'pM1a: Non-regional lymph node(s)'),
+(NULL, 'pM1b', 'pM1b: Bone'),
+(NULL, 'pM1c', 'pM1c: Other site(s)');
 
 INSERT INTO `structure_value_domains_permissible_values`  
 (`id` , `structure_value_domain_id` , `structure_permissible_value_id` , `display_order` , `active` , `language_alias` )
 VALUES 
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pMx'), '1', 'yes', 'pMx'),
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM0'), '2', 'yes', 'pM0'),
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1'), '3', 'yes', 'pM1'),
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1a'), '4', 'yes', 'pM1a'),
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1b'), '5', 'yes', 'pM1b'),
-(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1c'), '6', 'yes', 'pM1c');
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pMx' and language_alias = 'pMx: Insufficient data'), '1', 'yes', ''),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM0' and language_alias = 'pM0: None'), '2', 'yes', ''),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1' and language_alias = 'pM1: Distant metastasis'), '3', 'yes', ''),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1a' and language_alias = 'pM1a: Non-regional lymph node(s)'), '4', 'yes', ''),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1b' and language_alias = 'pM1b: Bone'), '5', 'yes', ''),
+(NULL , @pm_domain_id, (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'pM1c' and language_alias = 'pM1c: Other site(s)'), '6', 'yes', '');
 
-DELETE FROM `i18n` WHERE `id` IN ('', '', '', '', '', '');
+DELETE FROM `i18n` WHERE `id` IN ('pMx: Insufficient data', 'pM0: None', 'pM1: Distant metastasis', 'pM1a: Non-regional lymph node(s)', 'pM1b: Bone', 'pM1c: Other site(s)');
 INSERT INTO `i18n` ( `id` , `page_id` , `en` , `fr` )
 VALUES
-('pMx', '', 'pMx: Insufficient data', 'pMx: Renseignements insuffisants'),
-('pM0', '', 'pM0: None', 'pM0: Aucune'),
-('pM1', '', 'pM1: Distant metastasis', 'pM1: Métastases à distance'),
-('pM1a', '', 'pM1a: Non-regional lymph node(s)', 'pM1a: Ganglions lymphatiques (adénopathies) non régionaux'),
-('pM1b', '', 'pM1b: Bone', 'pM1b: Os'),
-('pM1c', '', 'pM1c: Other site(s)', 'pM1c: Autre(s) site(s)');
+('pMx: Insufficient data', '', 'pMx: Insufficient data', 'pMx: Renseignements insuffisants'),
+('pM0: None', '', 'pM0: None', 'pM0: Aucune'),
+('pM1: Distant metastasis', '', 'pM1: Distant metastasis', 'pM1: Métastases à distance'),
+('pM1a: Non-regional lymph node(s)', '', 'pM1a: Non-regional lymph node(s)', 'pM1a: Ganglions lymphatiques (adénopathies) non régionaux'),
+('pM1b: Bone', '', 'pM1b: Bone', 'pM1b: Os'),
+('pM1c: Other site(s)', '', 'pM1c: Other site(s)', 'pM1c: Autre(s) site(s)');
 
 UPDATE structure_fields
 SET type  = 'select',
