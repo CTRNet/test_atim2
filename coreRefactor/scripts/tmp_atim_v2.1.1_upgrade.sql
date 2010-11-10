@@ -53,3 +53,12 @@ sfo.flag_editgrid AS flag_editgrid, sfo.flag_editgrid_readonly AS flag_editgrid_
 sfo.display_column AS display_column, sfo.display_order AS display_order, sfo.language_heading AS language_heading
 FROM structure_formats AS sfo
 INNER JOIN structure_fields AS sfi ON sfo.structure_field_id=sfi.id;
+
+ALTER TABLE structure_validations
+ CHANGE COLUMN flag_empty flag_not_empty BOOLEAN NOT NULL;
+UPDATE structure_validations SET flag_not_empty=IF(LOCATE('notEmpty', rule), 1, 0);
+UPDATE structure_validations SET rule=REPLACE(rule, 'notEmpty,', '');
+UPDATE structure_validations SET rule=REPLACE(rule, ',notEmpty', '');
+UPDATE structure_validations SET rule=REPLACE(rule, 'notEmpty', '');
+
+CRASH - TODO merge rules

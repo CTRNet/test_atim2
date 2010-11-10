@@ -5,7 +5,7 @@ class Sfs extends AppModel {
 	var $name = 'Sfs';
 	
 	var $hasMany = array(
-		'StructureValidation'
+		'StructureValidation'//fetched manually in model/structure 
 	);
 	
 	var $belongsTo = array(
