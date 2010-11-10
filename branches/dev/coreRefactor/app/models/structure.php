@@ -6,6 +6,7 @@ class Structure extends AppModel {
 	var $actsAs = array('Containable');
 
 	var $hasMany = array('StructureFormat', 'Sfs');
+	private $simple = true;
 	
 	function __construct(){
 		parent::__construct();
@@ -14,10 +15,13 @@ class Structure extends AppModel {
 	
 	function setModeComplete(){
 		$this->contain(array('StructureFormat' => array('StructureField' => array('StructureValidation', 'StructureValueDomain'))));
+		$this->simple = false;
 	}
 	
 	function setModeSimplified(){
 		$this->contain(array('Sfs' => array('StructureValidation', 'StructureValueDomain')));
+		$this->StructureValidation = new StructureValidation();
+		$this->simple = true;
 	}
 	
 	function summary( $variables=array() ) {
@@ -46,15 +50,32 @@ class Structure extends AppModel {
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
 		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
-		
-		if ( $result ) {
-			if ( $conditions=='rule' || $conditions=='rules' ) {
-				$return = array();
-				foreach ( $result['Sfs'] as $sfs  ) {
-					if ( !isset($return[ $sfs['model'] ]) ) {
-						$return[ $sfs['model'] ] = array();
+		if($result){
+			$fields_ids = array(0);
+			if($this->simple){
+				foreach ($result['Sfs'] as $sfs ){
+					$fields_ids[] = $sfs['structure_field_id'];
+				}
+				$validations = $this->StructureValidation->find('all', array('conditions' => ('StructureValidation.structure_field_id IN('.implode(", ", $fields_ids).')')));
+				foreach($validations as $validation){
+					foreach ($result['Sfs'] as &$sfs ){
+						if($sfs['structure_field_id'] == $validation['StructureValidation']['structure_field_id']){
+							$sfs['StructureValidation'][] = $validation['StructureValidation'];
+						}
 					}
-					$tmp_type = $sfs['type'];
+					unset($sfs);
+				}
+			}
+			
+			if($conditions=='rule' || $conditions=='rules'){
+				//TODO: do not load this when not in add/edit mode
+				$return = array();
+				
+				foreach ($result[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
+					if (!isset($return[$sf['model']])){
+						$return[$sf['model']] = array();
+					}
+					$tmp_type = $sf['type'];
 					$tmp_rule = NULL;
 					$tmp_msg = NULL;
 					if($tmp_type == "integer"){
@@ -77,47 +98,59 @@ class Structure extends AppModel {
 						$tmp_msg = "this is not a date";
 					}
 					if($tmp_rule != NULL){
-						$structure_format['StructureField']['StructureValidation'][] = array(
-							'structure_field_id' => $sfs['structure_field_id'],
+						$sf['StructureValidation'][] = array(
+							'structure_field_id' => $sf['structure_field_id'],
 							'rule' => $tmp_rule, 
-							'flag_empty' => 1, 
-							'flag_required' => 0, 
+							'flag_required' => false, 
+							'flag_not_empty' => false,
 							'on_action' => NULL,
 							'language_message' => $tmp_msg);
 					}
+					if(!$this->simple){
+						$sf['StructureValidation'] = array_merge($sf['StructureValidation'], $sf['StructureField']['StructureValidation']);
+					}
 
-					foreach ( $sfs['StructureValidation'] as $validation ) {
+					foreach ( $sf['StructureValidation'] as $validation ) {
 						$rule = array();
 						if(($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
 							// To support coma as decimal separator
 							$rule[0] = $validation['rule'];
-						} else {
+						}else if(strlen($validation['rule']) > 0){
 							$rule = split(',',$validation['rule']);
 						}
 						
+						if($validation['flag_not_empty']){
+							$rule[] = 'notEmpty';
+						}
+
 						if(count($rule) == 1){
 							$rule = $rule[0];
+						}else if(count($rule) == 0){
+							if(Configure::read('debug') > 0){
+								AppController::addWarningMsg(sprintf(__("the validation with id [%d] is invalid. a rule and/or a flag_not_empty must be defined", true), $validation['id']));
+							}
+							continue;
 						}
 						
-						$allow_empty =  $validation['flag_empty'] ? true : false;
-						$required = $validation['flag_required'] ? true : false;
-						$on_action = $validation['on_action'];
-						$language_message =  $validation['language_message'];
 						
 						$rule_array = array(
 							'rule' => $rule,
-							'allowEmpty' => $allow_empty,
-							'required' => $required,
+							'allowEmpty' => !$validation['flag_not_empty'],
+							'required' => $validation['flag_required'] ? true : false
 						);
 						
-						if($on_action) $rule_array['on'] = $on_action;
-						if($language_message) $rule_array['message'] = $language_message;
-						
-						if ( !isset($return[ $sfs['model'] ][ $sfs['field'] ]) ) {
-							$return[ $sfs['model'] ][ $sfs['field'] ] = array();
+						if($validation['on_action']){
+							$rule_array['on'] = $validation['on_action'];
+						}
+						if($validation['language_message']){
+							$rule_array['message'] = $validation['language_message'];
 						}
 						
-						$return[ $sfs['model'] ][ $sfs['field'] ][] = $rule_array;
+						if (!isset($return[ $sf['model']][$sf['field']])){
+							$return[$sf['model']][$sf['field']] = array();
+						}
+						
+						$return[$sf['model']][$sf['field']][] = $rule_array;
 						
 					}
 				}

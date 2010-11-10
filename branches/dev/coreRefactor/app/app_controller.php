@@ -292,6 +292,19 @@ class AppController extends Controller {
 		return $result;
 	}
 	
+	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
+		if(time_format == 12){
+			$meridiem = $hour > 12 ? "PM" : "AM";
+			$hour %= 12;
+			if($hour == 0){
+				$hour = 12;
+			}
+			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+		}else{
+			return $hour.":".$minutes;
+		}
+	}
+	
 	/**
 	 * 
 	 * Enter description here ...
@@ -303,8 +316,9 @@ class AppController extends Controller {
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
 			list($date, $time) = explode(" ", $datetime_string);
 			list($year, $month, $day) = explode("-", $date);
-			$formated_date = AppController::getFormatedDateString($year, $month, $day);
-			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+			list($hour, $minutes, ) = explode(":", $time);
+			$formated_date = self::getFormatedDateString($year, $month, $day);
+			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**

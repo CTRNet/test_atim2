@@ -1,5 +1,5 @@
 <?php
-
+//TODO FMLH check caching with dual structures mode
 class StructuresComponent extends Object {
 	
 	var $controller;
