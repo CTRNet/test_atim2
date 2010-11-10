@@ -42,15 +42,18 @@ class Browser extends DatamartAppModel {
 			//the query contains a useless CONCAT to counter a cakephp behavior
 			$data = $this->query(
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
-				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` "
+				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` AS dbc "
+				."WHERE dbc.flag_active_1_to_2=1 "
 				."UNION "
-				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` ) AS data GROUP BY main_id ");
+				."SELECT id2 AS main_id, id1 AS to_id FROM `datamart_browsing_controls` AS dbc "
+				."WHERE dbc.flag_active_2_to_1=1 "
+				.") AS data GROUP BY main_id ");
 			$options = array();
 			foreach($data as $data_unit){
 				$options[$data_unit[0]['main_id']] = explode(",", $data_unit[0]['to_id']);
 			}
-			
-			$browsing_structures = $DatamartStructure->find('all');
+			$active_structures_ids = $this->getActiveStructuresIds();
+			$browsing_structures = $DatamartStructure->find('all', array('conditions' => array('DatamartStructure.id IN (0, '.implode(", ", $active_structures_ids).')')));
 			$tmp_arr = array();
 			foreach($browsing_structures as $unit){
 				$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
@@ -58,13 +61,22 @@ class Browser extends DatamartAppModel {
 			$browsing_structures = $tmp_arr;
 			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures, $sub_models_id_filter);
 			$sorted_rez = array();
-			foreach($rez['children'] as $k => $v){
-				$sorted_rez[$k] = $v['default'];
+			if($rez != null){
+				foreach($rez['children'] as $k => $v){
+					$sorted_rez[$k] = $v['default'];
+				}
+				asort($sorted_rez, SORT_STRING);
+				foreach($sorted_rez as $k => $foo){
+					$sorted_rez[$k] = $rez['children'][$k];
+				}
+			}else{
+				$sorted_rez[] = array(
+					'default' => __('nothing to browse to', true),
+					'class' => 'disabled',
+					'value' => '',
+				);
 			}
-			asort($sorted_rez, SORT_STRING);
-			foreach($sorted_rez as $k => $foo){
-				$sorted_rez[$k] = $rez['children'][$k];
-			}
+			
 			$result[] = array(
 				'value' => '',
 				'default' => __('browse', true),
@@ -81,7 +93,9 @@ class Browser extends DatamartAppModel {
 				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
 			);
 		}else{
-			$data = $DatamartStructure->find('all');
+			$active_structures_ids = $this->getActiveStructuresIds();
+			$data = $DatamartStructure->find('all', array('conditions' => array('DatamartStructure.id IN (0, '.implode(", ", $active_structures_ids).')')));
+			$this->getActiveStructuresIds();
 			$to_sort = array();
 			foreach($data as $k => $v){
 				$to_sort[$k] = __($v['DatamartStructure']['display_name'], true);
@@ -119,45 +133,53 @@ class Browser extends DatamartAppModel {
 	 * @return An array representing the browsable portion of the action menu
 	 */
 	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures, array $sub_models_id_filter = null){
-		$result = array();
-		array_push($stack, $current_id);
-		$to_arr = array_diff($from_to[$current_id], $stack);
-		$result['default'] = __($browsing_structures[$current_id]['display_name'], true);
-		$result['class'] = $browsing_structures[$current_id]['display_name'];
-		$tmp = array_shift($stack);
-		$result['value'] = implode(self::$model_separator_str, $stack);
-		array_unshift($stack, $tmp);
-		if(count($stack) > 1){
-			$result['children'] = array(
-							array(
-								'value' => $result['value'],
-								'default' => __('filter', true)),
-							array(
-								'value' => $result['value']."/true/",
-								'default' => __('no filter', true))
-							);
-			if(strlen($browsing_structures[$current_id]['control_model']) > 0){
-				$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null; 
-				$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
+		$result = null;
+		if(isset($from_to[$current_id])){
+			$result = array();
+			array_push($stack, $current_id);
+			$to_arr = array_diff($from_to[$current_id], $stack);
+			$result['default'] = __($browsing_structures[$current_id]['display_name'], true);
+			$result['class'] = $browsing_structures[$current_id]['display_name'];
+			$tmp = array_shift($stack);
+			$result['value'] = implode(self::$model_separator_str, $stack);
+			array_unshift($stack, $tmp);
+			if(count($stack) > 1){
+				$result['children'] = array(
+								array(
+									'value' => $result['value'],
+									'default' => __('filter', true)),
+								array(
+									'value' => $result['value']."/true/",
+									'default' => __('no filter', true))
+								);
+				if(strlen($browsing_structures[$current_id]['control_model']) > 0){
+					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null; 
+					$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
+				}
 			}
-		}
-		foreach($to_arr as $to){
-			if(Browser::$hierarchical_dropdown){
-				$result['children'][] = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
-			}else{
-				$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
-				if(isset($tmp_result['children'])){
-					foreach($tmp_result['children'] as $key => $child){
-						if(isset($child['children'])){
-							$result['children'][] = $child;
-							unset($tmp_result['children'][$key]);
+			foreach($to_arr as $to){
+				if(Browser::$hierarchical_dropdown){
+					$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
+					if($tmp_result != null){
+						$result['children'][] = $tmp_result;
+					} 
+				}else{
+					$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
+					if($tmp_result != null){
+						if(isset($tmp_result['children'])){
+							foreach($tmp_result['children'] as $key => $child){
+								if(isset($child['children'])){
+									$result['children'][] = $child;
+									unset($tmp_result['children'][$key]);
+								}
+							}
 						}
+						$result['children'][] = $tmp_result;
 					}
 				}
-				$result['children'][] = $tmp_result;
 			}
+			array_pop($stack); 
 		}
-		array_pop($stack); 
 		return $result;
 	}
 	
@@ -174,8 +196,24 @@ class Browser extends DatamartAppModel {
 		}
 		$control_model = new $main_model_info['DatamartStructure']['control_model']();
 		$conditions = array();
+		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
+			//hardcoded SampleControl filtering
+			if(!App::import('Model', 'Inventorymanagement.ParentToDerivativeSampleControl')){
+				$app_controller->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.ParentToDerivativeSampleControl', NULL, TRUE );
+			}
+			$parentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
+			if($ids_filter == null){
+				$ids_filter = $tmp_ids;
+			}else{
+				array_intersect($ids_filter, $tmp_ids);
+			}
+		}
 		if($ids_filter != null){
-			$conditions = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+		}
+		if(isset($control_model->_schema['flag_active'])){
+			$conditions[$main_model_info['DatamartStructure']['control_model'].'.flag_active'] = 1;
 		}
 		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions));
 		$children_arr = array();
@@ -476,12 +514,12 @@ class Browser extends DatamartAppModel {
 		$sub_models_id_filter = array();
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
-			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field doesnt match anymore
+			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
 			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
 				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
 			}
 			$stac = new SampleToAliquotControl();
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
 				$ids[] = $unit['SampleToAliquotControl']['aliquot_control_id'];
@@ -494,7 +532,7 @@ class Browser extends DatamartAppModel {
 				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
 			}
 			$stac = new SampleToAliquotControl();
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => -1));
+			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
 				$ids[] = $unit['SampleToAliquotControl']['sample_control_id'];
@@ -516,5 +554,24 @@ class Browser extends DatamartAppModel {
 			$part = __($part, true);
 		}
 		return implode(" - ", $parts);
+	}
+	
+	private function getActiveStructuresIds(){
+		if(!App::import('Model', 'Datamart.BrowsingControl')){
+			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
+		}
+		$BrowsingControl = new BrowsingControl();
+		$data =  $BrowsingControl->find('all');
+		$result = array();
+		foreach($data as $unit){
+			if($unit['BrowsingControl']['flag_active_1_to_2']){
+				$result[$unit['BrowsingControl']['id2']] = null;
+			}
+			if($unit['BrowsingControl']['flag_active_2_to_1']){
+				$result[$unit['BrowsingControl']['id1']] = null;
+			}
+		}
+		
+		return array_keys($result);
 	}
 }
