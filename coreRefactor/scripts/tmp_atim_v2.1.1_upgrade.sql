@@ -30,10 +30,11 @@ INSERT INTO structure_validations (structure_field_id, rule, flag_empty, flag_re
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='en'), 'notEmpty', 0, 1, 'value is required'),
 ((SELECT id FROM structure_fields WHERE model='StructurePermissibleValuesCustom' AND field='fr'), 'notEmpty', 0, 1, 'value is required');
 
-ALTER TABLE `structure_formats` ADD `flag_addgrid` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_datagrid_readonly` ,
-ADD `flag_addgrid_readonly` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_addgrid` ,
-ADD `flag_editgrid` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_addgrid_readonly` ,
-ADD `flag_editgrid_readonly` BOOLEAN NOT NULL DEFAULT '0' AFTER `flag_editgrid`;
+ALTER TABLE `structure_formats` 
+ADD `flag_addgrid` SET( '0', '1' ) NOT NULL DEFAULT '0' AFTER `flag_datagrid_readonly` ,
+ADD `flag_addgrid_readonly` SET( '0', '1' ) NOT NULL DEFAULT '0' AFTER `flag_addgrid` ,
+ADD `flag_editgrid` SET( '0', '1' ) NOT NULL DEFAULT '0' AFTER `flag_addgrid_readonly` ,
+ADD `flag_editgrid_readonly` SET( '0', '1' ) NOT NULL DEFAULT '0' AFTER `flag_editgrid`;
 
 UPDATE structure_formats SET flag_addgrid=flag_datagrid, flag_editgrid=flag_datagrid, 
 flag_addgrid_readonly=flag_datagrid_readonly, flag_editgrid_readonly=flag_datagrid_readonly;

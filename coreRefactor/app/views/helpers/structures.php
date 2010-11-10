@@ -5,6 +5,10 @@ App::import('Component','SessionAcl');
 class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
+	
+	//an hidden field will be printed for the following field types if they are in readonly mode
+	private static $hidden_on_disabled = array("input", "date", "datetime", "time", "integer", "interger_positive", "float", "float_positive", "tetarea", "autocomplete");
+	
 	private static $last_tabindex = 1; 
 	private static $defaults = array(
 			'type'		=>	NULL, 
@@ -57,10 +61,12 @@ class StructuresHelper extends Helper {
 			
 			'extras'		=> array() // HTML added to structure blindly, each in own COLUMN
 		);
+		//TODO: verify if extras works
+
 	private static $default_settings_arr = array(
 			"label" => false, 
 			"div" => false, 
-			"class" => "",
+			"class" => "%c ",
 			"id" => false,
 			"legend" => false,
 		);
@@ -186,12 +192,17 @@ class StructuresHelper extends Helper {
 		if($type == "add" || $type == "edit" || $type == "addgrid" || $type == "editgrid"){
 		}
 		if($type == 'index'){
-			$options['type'] = 'index';		
 			$this->build_table( $atim_structure, $options, $data);
 			
 		}else if($type == 'addgrid'
-		|| $type == 'editgrid'){
-			$options['type'] = 'datagrid';	
+		|| $type == 'editgrid'
+		|| $type == 'datagrid'){
+			if($type == 'datagrid'){
+				$options['type'] = 'addgrid';
+				if(Configure::read('debug') > 0){
+					AppController::addWarningMsg(sprintf(__("datagrid is deprecated, use addgrid or editgrid instead", true), $type));
+				}
+			}	
 			$this->build_table( $atim_structure, $options, $data);
 			
 		}else if($type == 'csv'){
@@ -278,9 +289,8 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
-//TODO: check unknown values in drop down
 	function build_detail($atim_structure, $options, $data){
-		$table_index = $this->build_stack( $atim_structure, $options );
+		$table_index = $this->build_stack($atim_structure, $options);
 		// display table...
 		echo('
 			<table class="structure" cellspacing="0">
@@ -362,56 +372,7 @@ class StructuresHelper extends Helper {
 								echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
 							}
 						}else{
-							if($options['links']['top'] && $options['settings']['form_inputs']){
-								if($table_row_part['type'] == "date"){
-									$display .= self::getDateInputs($table_row_part['model'].".".$table_row_part['field'], $current_value, $table_row_part['settings']);
-								}else if($table_row_part['type'] == "datetime"){
-									if(is_array($current_value)){
-										$date = $current_value;
-										$time = $current_value;
-									}else{
-										list($date, $time) = explode(" ", $current_value);
-									}
-									$display .= self::getDateInputs($table_row_part['model'].".".$table_row_part['field'], $date, $table_row_part['settings']);
-									$display .= self::getTimeInputs($table_row_part['model'].".".$table_row_part['field'], $time, $table_row_part['settings']);
-								}else if($table_row_part['type'] == "time"){
-									$display .= self::getTimeInputs($table_row_part['model'].".".$table_row_part['field'], $table_row_part['settings']);
-								}else if($table_row_part['type'] == "select" 
-								|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
-									$display .= $this->Form->input($table_row_part['model'].".".$table_row_part['field'], array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
-								}else if($table_row_part['type'] == "radio"){
-									$display .= $this->Form->input($table_row_part['model'].".".$table_row_part['field'], array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value)));
-								}else if($table_row_part['type'] == "checkbox"){
-									$display .= $this->Form->input($table_row_part['model'].".".$table_row_part['field'], array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => $current_value)));
-								}else{
-									$display .= str_replace("%s", $current_value, $table_row_part['format']);
-								} 
-								
-								if(isset($table_row_part['tool'])){
-									$display .= $table_row_part['tool'];
-								}
-							}else if(strlen($data[$table_row_part['model']][$table_row_part['field']]) > 0){
-								if($table_row_part['type'] == "date"){
-									list($year, $month, $day) = explode("-", $current_value);
-									$display .= AppController::getFormatedDateString($year, $month, $day);
-								}else if($table_row_part['type'] == "datetime"){
-									$display .= AppController::getFormatedDatetimeString($current_value);
-								}else if($table_row_part['type'] == "time"){
-									list($hour, $minutes) = explode(":", $current_value);
-									$display .= AppController::getFormatedTimeString($hour, $minutes);
-								}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"){
-									if(isset($table_row_part['settings']['options'][$current_value])){
-										$display .= $table_row_part['settings']['options'][$current_value];
-									}else{
-										$display .= $current_value;
-										if(Configure::read('debug') > 0){
-											AppController::addWarningMsg(sprintf(__("missing reference key [%s] for field [%s]", true), $current_value, $table_row_part['field']));
-										}
-									}
-								}else{
-									$display .= $current_value." ";
-								}
-							}
+							$display .= $this->getPrintableField($table_row_part, $options, $current_value, null);
 						}
 						
 						
@@ -462,10 +423,91 @@ class StructuresHelper extends Helper {
 	}
 
 
-/********************************************************************************************************************************************************************************/
+	private function getPrintableField(array $table_row_part, array $options, $current_value, $key){
+		$display = null;
+		$field_name = $table_row_part['model'].".".$table_row_part['field'];
+		if(strlen($key)){
+			$field_name = "%d.".$field_name;
+		}
+		if($options['links']['top'] && $options['settings']['form_inputs']){
+			if($table_row_part['type'] == "date"){
+				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
+			}else if($table_row_part['type'] == "datetime"){
+				$date = $time = null;
+				if(is_array($current_value)){
+					$date = $current_value;
+					$time = $current_value;
+				}else if(strlen($current_value) > 0){
+					list($date, $time) = explode(" ", $current_value);
+				}
+				$display = self::getDateInputs($field_name, $date, $table_row_part['settings']);
+				$display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
+			}else if($table_row_part['type'] == "time"){
+				$display = self::getTimeInputs($field_name, $table_row_part['settings']);
+			}else if($table_row_part['type'] == "select" 
+			|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
+				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
+					$table_row_part['settings']['options'] = array(
+						__( 'supported value', true ) => $table_row_part['settings']['options'],
+						__( 'unmatched value', true ) => array($current_value => $current_value)
+					);
+				}
+				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
+				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
+			}else if($table_row_part['type'] == "radio"){
+				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
+					$table_row_part['settings']['options'][$current_value] = "(".__( 'unmatched value', true ).") ".$current_value;
+				}
+				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value)));
+			}else if($table_row_part['type'] == "checkbox"){
+				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => $current_value)));
+			}
+			
+			
+			$table_row_part['format'] = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $table_row_part['format']);
+			
+			if(strlen($key)){
+				$display = str_replace("[%d]", "[".$key."]", $display);
+				$table_row_part['format'] = str_replace("[%d]", "[".$key."]", $table_row_part['format']);
+			}else{
+				$display = str_replace("[%d]", "", $display);
+				$table_row_part['format'] = str_replace("[%d]", "", $table_row_part['format']);
+			}
+			if(!is_array($current_value)){
+				$display .= str_replace("%s", $current_value, $table_row_part['format']);
+			}
+			
+			if(isset($table_row_part['tool'])){
+				$display .= $table_row_part['tool'];
+			}
+		}else if(strlen($current_value) > 0){
+			if($table_row_part['type'] == "date"){
+				list($year, $month, $day) = explode("-", $current_value);
+				$display = AppController::getFormatedDateString($year, $month, $day);
+			}else if($table_row_part['type'] == "datetime"){
+				$display = AppController::getFormatedDatetimeString($current_value);
+			}else if($table_row_part['type'] == "time"){
+				list($hour, $minutes) = explode(":", $current_value);
+				$display = AppController::getFormatedTimeString($hour, $minutes);
+			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"){
+				if(isset($table_row_part['settings']['options'][$current_value])){
+					$display = $table_row_part['settings']['options'][$current_value];
+				}else{
+					$display = $current_value;
+					if(Configure::read('debug') > 0){
+						AppController::addWarningMsg(sprintf(__("missing reference key [%s] for field [%s]", true), $current_value, $table_row_part['field']));
+					}
+				}
+			}else{
+				$display = $current_value;
+			}
+		}
+		
+		return $table_row_part['tag'].$display." ";
+	}
+	
 
-
-	function build_table( $atim_structure, $options ) {
+	function build_table($atim_structure, $options, $data){
 		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
@@ -478,358 +520,185 @@ class StructuresHelper extends Helper {
 		}
 		
 		$this->Paginator->options(array('url' => $this->params['pass']));
+		$table_index = $this->build_stack( $atim_structure, $options );
+		
+		echo('
+			<td>
+				<table class="columns index" cellspacing="0">
+				<thead>
+		');
+		$remove_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['del_fields'];
+		$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
+		$options['remove_line_ctrl'] = $remove_line_ctrl;
+		$header_data = $this->buildDisplayHeader($table_index, $options);
+		echo($header_data['header']."</thead>");
+		
+		if(count($data)){
+			echo("<tbody>");
 			
-		if(is_array($options['data'])){
-			$data=$options['data']; 
-		}else{
-			$data=$this->data; 
-		}
-		
-		$table_structure = array();
-		foreach($data as $key => $val){
-			$options['stack']['key'] = $key.($options['settings']['name_prefix'] ? ".".$options['settings']['name_prefix'] : "");
-			$table_structure[$key] = $this->build_stack( $atim_structure, $options );
-			unset($options['stack']);
-		}
-		$structure_count = 0;
-		$structure_index = array( 1 => $table_structure ); 
-		
-		// add EXTRAS, if any
-		$structure_index = $this->display_extras( $structure_index, $options );
+			
+			if($add_line_ctrl){
+				//blank hidden line
+				$data["%d"] = array();
+			}
+			
+			$row_num = 1;
+			foreach($data as $key => $val){
+				if($add_line_ctrl && $row_num == count($data)){
+					echo("<tr class='hidden'>");
+				}else{
+					echo("<tr>");
+				}
 				
-				foreach ( $structure_index as $table_key=>$table_index ) {				
+				//checklist
+				if (count($options['links']['checklist'])){
+					echo('
+						<td class="checkbox">
+					');
+					foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
+						$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
+						$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
+						//$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value));
+						//TODO: see if mentioned double error is still present
+						echo($checkbox_form_element);
+					}
+					echo('
+						</td>
+					');
+				}
+			
+				//radiolist
+				if(count($options['links']['radiolist'])){
+					echo('
+						<td class="radiobutton">
+					');
+					foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+						list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+						$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
+						$tmp_attributes = array('legend'=>false, 'value'=>false);
+						if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
+							$tmp_attributes['checked'] = 'checked';
+						}
+						echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
+					}
 					
-					$structure_count++;
-					
-					// for each FORM/DETAIL element...
-					if ( is_array($table_index) ) {
-					
-						// start table...
-						echo('
-							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
-								
-								<table class="columns index" cellspacing="0">
-								<tbody>
-						');
-						
-						// header row
-						echo($this->display_header( $table_index, $options ));
-						
-						$column_count = 0;
-						if ( count($data) ) {
-						
-							// each column in table 
-							foreach ( $data as $key=>$val ) {
-								
-								echo('
-									<tr id="table'.$table_key.'row'.$key.'">
-								');
-									
-								$column_count = 0;
-								
-								if ( count($options['links']['checklist']) ) {
-									echo('
-										<td class="checkbox">
-									');
-									
-									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
-										$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
-											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
- 											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
-										echo($checkbox_form_element);
+					echo('
+						</td>
+					');
+				}
+
+				//index
+				if(count($options['links']['index'])){
+					echo('
+						<td class="id">'.$this->generate_links_list($data[$key], $options, 'index').'</td>
+					');
+				}
+				
+				//data
+				$first_cell = true;
+				foreach($table_index as $table_column){
+					foreach($table_column as $table_row){
+						foreach($table_row as $table_row_part){
+
+							$current_value = null;
+							if(is_array($val)
+							&& array_key_exists($table_row_part['model'], $val) 
+							&& array_key_exists($table_row_part['field'], $val[$table_row_part['model']])){
+								//priority 1, data
+								$current_value = $val[$table_row_part['model']][$table_row_part['field']];
+							}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
+								//priority 2, override
+								$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
+								if(is_array($current_value)){
+									if(Configure::read('debug') > 0){
+										AppController::addWarningMsg(sprintf(__("invalid override for model.field [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
 									}
-									
-									echo('
-										</td>
-									');
-									
-									$column_count++;
+									$current_value = "";
 								}
-								
-								if ( count($options['links']['radiolist']) ) {
-									echo('
-										<td class="radiobutton">
-									');
-									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
-										list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
-										$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
-										$tmp_attributes = array('legend'=>false, 'value'=>false);
-										if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
-											$tmp_attributes['checked'] = 'checked';
-										}
-										echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
-									}
-									
-									echo('
-										</td>
-									');
-									
-									$column_count++;
-								}
-								
-								if ( count($options['links']['index']) ) {
-									echo('
-										<td class="id">'.$this->generate_links_list(  $data[$key], $options, 'index' ).'</td>
-									');
-									
-									$column_count++;
-								}
-								
-								// each column/row in table 
-								foreach ( $table_index[$key] as $table_column ) {
-									foreach ( $table_column as $table_row ) {
-										echo('
-											<td>'.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'</td>
-										');
-										
-										$column_count++;
-									}
-								}
-								
-								// if OPTIONS set to allow rows to be removed from a GRID, provide link
-								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
-									echo('
-											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row'.$key.'\').parentNode.removeChild(getElementById(\'table'.$table_key.'row'.$key.'\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
-											</td>
-									');
-									
-									$column_count++;
-								}
-								
-								echo('
-									</tr>
-								');
-								
-							} // end FOREACH
-							
-							// if OPTIONS set to allow rows to be added to a GRID, provide link
-							if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
-								
-								$add_another_row_template = '';
-								
-								$add_another_row_template .= '
-									<tr id="table'.$table_key.'row#{id}">
-								';
-									
-								$column_count = 0;
-								
-								if ( count($options['links']['checklist']) ) {
-									$add_another_row_template .= '
-										<td class="checkbox">
-									';
-									
-									foreach ( $options['links']['checklist'] as $checkbox_name=>$checkbox_value ) {
-										$checkbox_value = $this->str_replace_link( $checkbox_value, '0' );
-											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
- 											$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value'=>$checkbox_value));
-										$add_another_row_template .= $checkbox_form_element;
-									}
-									
-									$add_another_row_template .= '
-										</td>
-									';
-									
-									$column_count++;
-								}
-								
-								if ( count($options['links']['radiolist']) ) {
-									$add_another_row_template .= '
-										<td class="radiobutton">
-									';
-									
-									foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
-										$radiobutton_value = $this->str_replace_link( $radiobutton_value, '0' );
-										$add_another_row_template .= $this->Form->radio ($radiobutton_name, array($radiobutton_value=>''), array('legend'=>false) );
-									}
-									
-									$add_another_row_template .= '
-										</td>
-									';
-									
-									$column_count++;
-								}
-								
-								if ( count($options['links']['index']) ) {
-									$add_another_row_template .= '
-										<td class="id">'.$this->generate_links_list(  $data['#{id}'], $options, 'index' ).'</td>
-									';
-									
-									$column_count++;
-								}
-								
-								// each column/row in table 
-								foreach ( $table_index[ (count($table_index)-1) ] as $table_column ) {
-									foreach ( $table_column as $table_row ) {
-										
-										$table_row['input'] = str_replace('data['.(count($table_index)-1).']','data[#{id}]',$table_row['input']);
-										$table_row['input'] = str_replace('id="row'.(count($table_index)-1),'id="row#{id}',$table_row['input']);
-										
-										$add_another_row_template .= '
-											<td>'.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] ).'</td>
-										';
-										
-										$column_count++;
-									}
-								}
-								
-								// if OPTIONS set to allow rows to be removed from a GRID, provide link
-								if ( $options['type']=='datagrid' && $options['settings']['del_fields'] ) {
-									$add_another_row_template .= '
-											<td class="right">
-												<a style="color:red;" href="#" onclick="getElementById(\'table'.$table_key.'row#{id}\').parentNode.removeChild(getElementById(\'table'.$table_key.'row#{id}\')); return false;" title="'.__( 'click to remove these elements', true ).'">x</a>
-											</td>
-									';
-									
-									$column_count++;
-								}
-								
-								$add_another_row_template .= '
-									</tr>
-								';
-								
+							}else{
+								//priority 3, default
+								$current_value = $table_row_part['default']; 
 							}
+							if(strlen($table_row_part['label'])){
+								if($first_cell){
+									echo("<td>");
+								}else{
+									echo("</td><td>");
+								}
+							}
+							echo($this->getPrintableField($table_row_part, $options, $current_value, $key));
 							
 						}
-						
-						// display something nice for NO ROWS msg...
-						else {
-							echo('
-									<tr>
-											<td class="no_data_available"'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>'.__( 'core_no_data_available', true ).'</td>
-									</tr>
-							');
-						}
-		
-						// if OPTIONS set to allow rows to be added to a GRID, provide link
-						if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
-							
-							$add_another_row_template = preg_replace('/\'/','&quot;',$add_another_row_template);
-							$add_another_row_template = preg_replace('/"/',"'",$add_another_row_template);
-							$add_another_row_template = str_replace("\n",'',$add_another_row_template);
-							$add_another_row_template = str_replace("\r",'',$add_another_row_template);
-							$add_another_row_template = preg_replace('/script>/', 's" + "cript>',$add_another_row_template);
-							
-							$add_another_unique = md5(microtime());
-							$add_another_unique_function_name = 'repeat_function_'.$add_another_unique;
-							$add_another_unique_next_variable = 'next_'.$add_another_unique;
-							$add_another_unique_link_id = 'add_'.$add_another_unique;
-							
-							echo('
-							</tbody><tfoot>
-								<tr id="'.$add_another_unique_link_id.'">
-									<td class="right" colspan="'.$column_count.'">
-										<a class="addLineLink" style="color:#090; font-weight:bold;" href="#" onclick="'.$add_another_unique_function_name.'(this); return false;" title="'.__( 'click to add a line', true ).'">(+)</a>
-										<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
-									</td>
-								</tr>
-								</tfoot>
-								<script type="text/javascript">
-									if( typeof('.$add_another_unique_next_variable.') == "undefined" ){
-										var '.$add_another_unique_next_variable.' = "'.count($data).'";
-									}else{
-										'.$add_another_unique_next_variable.' = "'.count($data).'";
-									}
-									
-									function '.$add_another_unique_function_name.'(me){
-										var templateLine = "'.$add_another_row_template.'";
-										var tbody = $("#'.$add_another_unique_link_id.'").parent().parent().children("tbody:first");
-										var addLineCount = parseInt($(me).parent().find(".addLineCount").val(), 10);
-										if(isNaN(addLineCount)){
-											addLineCount = 1;
-										}
-										do{ 
-											$(tbody).append(templateLine.replace(/#{id}/g, '.$add_another_unique_next_variable.')); 
-											initTooltips();
-											'.$add_another_unique_next_variable.'++;
-											debug("incr: " + '.$add_another_unique_next_variable.');
-											$(tbody).children("tr:last").find(".datepicker").each(function(){
-												debug(this.id);
-												initDatepicker(this);
-											});
-											addLineCount --;
-										}while(addLineCount > 0);
-										$("form").highlight("td");
-										if(window.enableCopyCtrl){
-											//if copy control exists, call it
-											enableCopyCtrl("table1row" + ('.$add_another_unique_next_variable.'  - 1));
-										}
-										return false;
-									}
-								</script>
-							');
-							
-						}
-						
-						if ( $options['settings']['pagination'] ) {
-							echo('
-									<tr class="pagination">
-										<th'.( $column_count ? ' colspan="'.$column_count.'"' : '' ).'>
-											
-											<span class="results">
-												'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
-											</span>
-											
-											<span class="links">
-												'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-												'.$this->Paginator->numbers().'
-												'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
-											</span>
-											
-											'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
-											'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
-											'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
-											'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
-											
-										</th>
-									</tr>
-							');
-						}
-						
-						if ( count($options['links']['checklist']) ) {
-							echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
-						}
-						
-						echo('
-								</tfoot>
-								</table>
-								
-							</td>
-						');
-						
 					}
-					
-					// otherwise display EXTRAs...
-					else {
-						
-						echo('
-							<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
-							
-								<table class="columns extra" cellspacing="0">
-								<tbody>
-									<tr>
-										<td>
-											'.$table_index.'
-										</td>
-									</tr>
-								</tbody>
-								</table>
-								
-							</td>
-						');
-						
-					}
-					
-				} // end FOREACH
+				}
+				echo("</td>\n");
 				
-		echo('		</tr>
+				//remove line ctrl
+				if($remove_line_ctrl){
+					echo('
+							<td class="right">
+								<a href="#" class="removeLineLink" title="'.__( 'click to remove these elements', true ).'">x</a>
+							</td>
+					');
+				}
+				
+				
+				echo("</td></tr>");
+				$row_num ++;
+			}
+			
+			if($options['settings']['pagination']){
+				echo('
+						<tr class="pagination">
+							<th colspan="'.$header_data['count'].'">
+								
+								<span class="results">
+									'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+								</span>
+								
+								<span class="links">
+									'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
+									'.$this->Paginator->numbers().'
+									'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+								</span>
+								
+								'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
+								'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
+								'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
+								'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
+								
+							</th>
+						</tr>
+				');
+			}
+			echo("</tbody><tfoot>");
+			if(count($options['links']['checklist'])){
+				echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
+			}
+			if($add_line_ctrl){
+				echo('<tr>
+						<td class="right" colspan="'.$header_data['count'].'">
+							<a class="addLineLink" href="#" title="'.__( 'click to add a line', true ).'">(+)</a>
+							<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
+						</td>
+					</tr>
+				');
+			}
+			echo('</tfoot>');
+		}else{
+			//no data msg
+			echo('<tfoot>
+					<tr>
+							<td class="no_data_available" colspan="'.$header_data['count'].'">'.__( 'core_no_data_available', true ).'</td>
+					</tr></tfoot>
+			');
+		}
+		
+		echo('</table></td></tr>
 				</tbody>
 			</table>
 		');
 	}
-
-
-/********************************************************************************************************************************************************************************/
 
 
 	function build_csv( $atim_structure, $options ) {
@@ -993,12 +862,11 @@ class StructuresHelper extends Helper {
 		');   
 	}
 	
-	function build_tree_node( $atim_structure, $options, $data=array()) {
-		foreach ( $data as $data_key=>$data_val ) { 
-			
+	function build_tree_node(array $atim_structure, array $options, array $data) {
+		foreach ($data as $data_key => $data_val){ 
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
-			if ( isset($data_val['children']) ) {
+			if (isset($data_val['children'])){
 				$children = $data_val['children'];
 				unset($data_val['children']);
 			}
@@ -1007,70 +875,70 @@ class StructuresHelper extends Helper {
 				<li>
 			');
 				
-				// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
+			// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
 				
 			$unique_id = mt_rand(1000000, 9999999);//TODO WTH RANDOM UNIQUE???
-				// reveal sub ULs if sub ULs exist
-	
-				if ( count($children) ) {
-					echo('<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ');
-				} else {
-					echo('<a class="reveal not_allowed" onclick="return false;">+</a> ');
+			// reveal sub ULs if sub ULs exist
+			if(count($children)){
+				echo('<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ');
+			} else {
+				echo('<a class="reveal not_allowed" onclick="return false;">+</a> ');
+			}
+			
+			echo('<div><span class="divider">|</span> ');	
+			if(count($options['links']['tree'])){
+				foreach($data_val as $model_name=>$model_array){
+					if(isset($options['links']['tree'][$model_name])){
+						$tree_options = $options;
+						$tree_options['links']['index'] = $options['links']['tree'][$model_name];
+						
+						echo($this->generate_links_list(  $data_val, $tree_options, 'index' ));
+					}
 				}
-				
-				echo('<div><span class="divider">|</span> ');	
-					if ( count($options['links']['tree']) ) {
-						foreach ( $data_val as $model_name=>$model_array ) {
-							if ( isset($options['links']['tree'][$model_name]) ) {
-								$tree_options = $options;
-								$tree_options['links']['index'] = $options['links']['tree'][$model_name];
-								
-								echo($this->generate_links_list(  $data_val, $tree_options, 'index' ));
-							}
-						}
-					}else if ( count($options['links']['index']) ) {
-						echo($this->generate_links_list(  $data_val, $options, 'index' ));
+			}else if ( count($options['links']['index']) ) {
+				echo($this->generate_links_list(  $data_val, $options, 'index' ));
+			}
+		
+			$tree_node_structure = $atim_structure;
+			if(count($options['settings']['tree'])){
+				foreach($data_val as $model_name=>$model_array){
+					if(isset($options['settings']['tree'][$model_name])){
+						$tree_node_structure = $atim_structure[$options['settings']['tree'][$model_name]];
+						
+						$data_key = $model_array['id']; // so set a UNIQUE id for each set of form elements
 					}
-				
-					$tree_node_structure = $atim_structure;
-					if ( count($options['settings']['tree']) ) {
-						foreach ( $data_val as $model_name=>$model_array ) {
-							if ( isset($options['settings']['tree'][$model_name]) ) {
-								$tree_node_structure = $atim_structure[ $options['settings']['tree'][$model_name] ];
-								
-								$data_key = $model_array['id']; // so set a UNIQUE id for each set of form elements
-							}
-						}
-					}
-					
-					$options['type'] = 'index';
-					$options['data'] = array( $data_key => $data_val );
-					$options['stack']['key'] = $data_key; // required for multiple data submits from TREE
-					
-					$table_index = $this->build_stack( $tree_node_structure, $options );
-					unset($options['stack']);
-					
-					foreach ( $table_index as $table_column_key=>$table_column ) {
-						foreach ( $table_column as $table_row_key=>$table_row ) {
-							//carefull with the white spaces as removing them the can break the display in IE
-							echo(' <span class="nowrap"><span class="divider">|</span> '.( $options['links']['top'] && $options['settings']['form_inputs'] ? $table_row['input'] : $table_row['content'] )."</span>&nbsp;");
-						}
-					}
-					
-				echo('</div>');
-				
-				// create sub-UL, calling this NODE function again, if model has any CHILDREN
-				if ( count($children) ) { 
-					echo('
-						<ul id="tree_'.$unique_id.'" style="display:none;">
-					');
-					
-					$this->build_tree_node( $atim_structure, $options, $children );
-					
-					echo('
-						</ul>
-					');
 				}
+			}
+			
+			$options['type'] = 'index';
+			
+			$table_index = $this->build_stack($tree_node_structure, $options);
+			unset($options['stack']);
+			foreach($table_index as $table_column_key => $table_column){
+				foreach($table_column as $table_row_key => $table_row){
+					foreach($table_row as $table_row_part){
+						//carefull with the white spaces as removing them the can break the display in IE
+						echo('<span class="nowrap"><span class="divider">|</span> '
+							.$this->getPrintableField($table_row_part, $options, $data_val[$table_row_part['model']][$table_row_part['field']], null)
+							.'</span>
+						');
+					}
+				}
+			}
+				
+			echo('</div>');
+			
+			// create sub-UL, calling this NODE function again, if model has any CHILDREN
+			if(count($children)){
+				echo('
+					<ul id="tree_'.$unique_id.'" style="display:none;">
+				');
+				
+				$this->build_tree_node($atim_structure, $options, $children);
+				echo('
+					</ul>
+				');
+			}
 			
 			echo('
 				</li>
@@ -1080,35 +948,35 @@ class StructuresHelper extends Helper {
 	}
 
 
-	function display_header( $table_index=array(), $options=array() ) {
-		
-		$return_string = '';
-		
-		// start header row...
-		$return_string .= '
-				<tr>
-		';
-			
-		if ( count($options['links']['checklist']) ) {
+	/**
+	 * Builds the display header
+	 * @param array $table_index The structural inforamtion
+	 * @param array $options The options
+	 */
+	function buildDisplayHeader(array $table_structure, array $options){
+		$column_count = 0;
+		$return_string = '<tr>';
+		if(count($options['links']['checklist'])){
 			$return_string .= '
-					<th class="column_0 checkbox">&nbsp;</th>
+				<th class="checkbox">&nbsp;</th>
 			';
+			$column_count ++;
 		}
-		
-		if ( count($options['links']['radiolist']) ) {
+		if(count($options['links']['radiolist'])){
 			$return_string .= '
-					<th class="column_0 radiobutton">&nbsp;</th>
+					<th class="radiobutton">&nbsp;</th>
 			';
+			$column_count ++;
 		}
-		
-		if ( count($options['links']['index']) ) {
+		if(count($options['links']['index'])){
 			$return_string .= '
-					<th class="column_0 id">&nbsp;</th>
+					<th class="id">&nbsp;</th>
 			';
+			$column_count ++;
 		}
 		
 		// each column/row in table 
-		if ( count($table_index) ) {
+		if(count($table_structure)){
 			$link_parts = explode('/', $_SERVER['REQUEST_URI']);
 			$sort_on = "";
 			$sort_asc = true;
@@ -1119,61 +987,58 @@ class StructuresHelper extends Helper {
 					$sort_asc = false;
 				}
 			}
-			$column_count = 1;
-			foreach ( $table_index[0] as $table_column ) {
-				foreach ( $table_column as $table_row ) {
-				
-					if (  $table_row['type']!='hidden' ) {
-						
-						$return_string .= '
-							<th class="column_'.$column_count.' '.$table_row['field'].'">
-						';
-						
-						// label and help/info marker, if available...
-						if ( $table_row['label'] ) {
-							
-							$sorting_link = $_SERVER['REQUEST_URI'];
-							$sorting_link = explode('?', $sorting_link);
-							$sorting_link = $sorting_link[0];
-							
-							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
-							$default_sorting_direction = strtolower($default_sorting_direction);
-							
-							$sorting_link .= '?sortBy='.$table_row['field'];
-							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
-							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
-							if ( $options['settings']['pagination'] ) {
-								if($table_row['model'].'.'.$table_row['field'] == $sort_on){
-									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
+			foreach ($table_structure as $table_column){
+				foreach ($table_column as $table_row){
+					foreach($table_row as $table_row_part){
+						if ($table_row_part['type'] != 'hidden'){
+
+							// label and help/info marker, if available...
+							if(strlen($table_row_part['label']) > 0){
+								$return_string .= '
+									<th>
+								';
+								$sorting_link = $_SERVER['REQUEST_URI'];
+								$sorting_link = explode('?', $sorting_link);
+								$sorting_link = $sorting_link[0];
+								
+								$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
+								$default_sorting_direction = strtolower($default_sorting_direction);
+								
+								$sorting_link .= '?sortBy='.$table_row_part['field'];
+								$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
+								$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
+								if($options['settings']['pagination']){
+									if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
+										$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
+									}
+									$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+								}else{
+									$return_string .= $table_row_part['label'];
 								}
-								$return_string .= $this->Paginator->sort(html_entity_decode($table_row['label'], ENT_QUOTES, "UTF-8"), $table_row['model'].'.'.$table_row['field']);
-							} else {
-								$return_string .= $table_row['label'];
+								
+								if(show_help){
+									$return_string .= $table_row_part['help'];
+								}
+								
+								$column_count++;
+								$return_string .= '
+									</th>
+								';
 							}
 							
-							if ( show_help ) {
-								$return_string .= $table_row['help'];
-							}
 							
-							$column_count++;
 						}
-						
-						
-						$return_string .= '
-							</th>
-						';
-						
-					} // end NOT HIDDEN
-					
-				} // end FOREACH
-			} // end FOREACH
+					}	
+				}
+			}
 			
 		}
 		
-		if ( $options['type']=='datagrid' && $options['settings']['add_fields'] ) {
+		if($options['remove_line_ctrl']) {
 			$return_string .= '
 				<th>&nbsp;</th>
 			';
+			$column_count ++;
 		}
 		
 		// end header row...
@@ -1181,7 +1046,7 @@ class StructuresHelper extends Helper {
 				</tr>
 		';
 		
-		return $return_string;
+		return array("header" => $return_string, "count" => $column_count);
 		
 	}
 
@@ -1200,17 +1065,18 @@ class StructuresHelper extends Helper {
 
 
 	/**
-	 * Builds the structure part containing the data
+	 * Builds the structure part that will contain data
 	 * @param array $atim_structure
 	 * @param array $options
 	 * @param boolean $use_data If true, data is placed directly into the stack, othewise replacable strings are placed
+	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
 	//TODO: complete description
 	function build_stack(array $atim_structure, array $options){
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
-		$independent_types = array("select" => null, "radio" => null, "checkbox" => null);
+		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		
@@ -1250,16 +1116,16 @@ class StructuresHelper extends Helper {
 					}
 					
 					//validation CSS classes
-					if(count($sfs['StructureValidation']) > 0){
+					if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
 						foreach($sfs['StructureValidation'] as $validation){
 							if($validation['flag_not_empty'] || $validation['flag_required']){
-								$settings["class"] = "required";
+								$settings["class"] .= " required";
 								$settings["required"] = "required";
 								break;
 							}
 						}
 						if(strlen($settings["class"]) == 0){
-							$settings["class"] = "validation";
+							$settings["class"] .= " validation";
 						}
 					}
 					
@@ -1270,11 +1136,12 @@ class StructuresHelper extends Helper {
 					}
 					
 					//building all text fields (dropdowns, radios and checkboxes cannot be built here)
-					$field_name = $sfs['model'].".".$sfs['field'];
+					$field_name = "%d.".$sfs['model'].".".$sfs['field'];
 					if($sfs['type'] == "input"){
 						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
-					}else if($sfs['type'] == "date" || $sfs['type'] == "datetime" || $sfs['type'] == "time"){
-						//do nothing for dates
+					}else if(array_key_exists($sfs['type'], $independent_types)){
+						//do nothing for independent types
+						$current["format"] = "";
 					}else if($sfs['type'] == "integer" || $sfs['type'] == "integer_positive"){
 						if(!isset($settings['size'])){
 							$settings['size'] = 4;
@@ -1295,46 +1162,88 @@ class StructuresHelper extends Helper {
 						$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
 					}else if($sfs['type'] == "display"){
 						$current["format"] = "%s";
-					}else if(!array_key_exists($sfs['type'], $independent_types)){
+					}else{
 						if(Configure::read('debug') > 0){
 							AppController::addWarningMsg(sprintf(__("field type [%s] is unknown", true), $sfs['type']));
 						}
 						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 					}
+					
+					if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled") && in_array($sfs['type'], self::$hidden_on_disabled)){
+						unset($settings['disabled']);
+						$current["format"] .= $this->Form->text($field_name, array("type" => "hidden"), $settings);
+						$settings['disabled'] = "disabled";
+					}
+					
 					$current['default'] = $sfs['default'];
 					$current['settings'] = $settings;
 				}
-				//TODO: check readonly post submit
+				
 				if(array_key_exists($sfs['type'], $independent_types)){
 					$dropdown_result = array();
+					if($sfs['type'] == "select"){
+						$add_blank = true;
+						if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
+							//check if the field can be empty or not
+							foreach($sfs['StructureValidation'] as $validation){
+								if($validation['flag_not_empty']){
+									$add_blank = false;
+									break;
+								}
+							}
+						}
+						if($add_blank){
+							$dropdown_result = array("" => "");
+						}
+					}
+							
 					if(count($sfs['StructureValueDomain']) > 0){
 						if(strlen($sfs['StructureValueDomain']['source']) > 0){
 							//load source
-							$dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
-						}else{
-							if($sfs['type'] == "select"){
-								$dropdown_result = array("" => "");
+							$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
+							$is_old_version = false;
+							foreach($tmp_dropdown_result as $k => $v){
+								//foreach only used to fetch the first value
+								if(is_array($v)){
+									$is_old_version = true;
+								}
+								break;
 							}
+							if($is_old_version){
+								//old version, convert
+								//TODO: Remove this conversion in ATiM 2.3
+								if(Configure::read('debug') > 0){
+									AppController::addWarningMsg(sprintf(__("the source function of StructureValueDomain with id [%d] uses a deprecated return array", true), $sfs['StructureValueDomain']['id']));
+								}
+								$tmp = array();
+								foreach($tmp_dropdown_result as $v){
+									$tmp[$v['value']] = $v['default'];
+								}
+								$dropdown_result += $tmp;
+							}else{
+								$dropdown_result += $tmp_dropdown_result;
+							}
+						}else{
 							$tmp_pulldown_result = $this->StructureValueDomain->find('first', array(
 								'conditions' => 
 									array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
 							$tmp_result = array();
-							$current_order = null;
+							$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
 							$current_element = 1;
 							foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
-								if($tmp_entry['Svdpv']['display_order'] != $current_order || $current_index = count($tmp_pulldown_result['StructurePermissibleValue'])){
+								if($tmp_entry['Svdpv']['display_order'] != $current_order){
 									if(count($tmp_result) > 1){
 										asort($tmp_result);
 									}
-									$dropdown_result = array_merge($dropdown_result, $tmp_result);
+									$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
 									$tmp_result = array();
 									$current_order = $tmp_entry['Svdpv']['display_order']; 
 								}
 								$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
 								$current_element ++;
 							}
-							asort($tmp_result);
-							$dropdown_result = array_merge($dropdown_result, $tmp_result);
+
+							$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
 						}
 					}else if($sfs['type'] == "checkbox"){
 						//provide yes/no as default for checkboxes
@@ -2079,10 +1988,12 @@ class StructuresHelper extends Helper {
 				}
 			}
 		}
-		$result .= '<span style="position: relative;">
-			<input type="button" class="datepicker" value=""/>
-			<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
-		</span>';
+		if(!isset($attributes['disabled']) || (!$attributes['disabled'] && $attributes['disabled'] != "disabled")){
+			$result .= '<span style="position: relative;">
+				<input type="button" class="datepicker" value=""/>
+				<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
+			</span>';
+		}
 		return $result;
 	}
 	
