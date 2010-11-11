@@ -40,9 +40,6 @@ class ProtocolMaster extends ProtocolAppModel {
 	/**
 	 * Get permissible values array gathering all existing protocol.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'ProtocolMaster.id ', 'default' => (translated string describing protocol))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
