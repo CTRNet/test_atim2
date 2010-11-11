@@ -9,6 +9,7 @@ class StructuresHelper extends Helper {
 	//an hidden field will be printed for the following field types if they are in readonly mode
 	private static $hidden_on_disabled = array("input", "date", "datetime", "time", "integer", "interger_positive", "float", "float_positive", "tetarea", "autocomplete");
 	
+	private static $tree_node_id = 0;
 	private static $last_tabindex = 1; 
 	private static $defaults = array(
 			'type'		=>	NULL, 
@@ -87,7 +88,7 @@ class StructuresHelper extends Helper {
 	}
 
 
-	function build($atim_structure=array(), $options=array()){
+	function build(array $atim_structure =array(), array $options=array()){
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->array_merge_recursive_distinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -216,6 +217,7 @@ class StructuresHelper extends Helper {
 			$this->build_detail( $atim_structure, $options, $data);
 			
 		}else if($type == 'tree'){
+			$options['type'] = 'index';
 			$this->build_tree( $atim_structure, $options, $data);
 			
 		}else{
@@ -289,6 +291,7 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
+	//TODO: check extras
 	function build_detail($atim_structure, $options, $data){
 		$table_index = $this->build_stack($atim_structure, $options);
 		// display table...
@@ -372,7 +375,7 @@ class StructuresHelper extends Helper {
 								echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
 							}
 						}else{
-							$display .= $this->getPrintableField($table_row_part, $options, $current_value, null);
+							$display .= '<span class="nowrap">'.$this->getPrintableField($table_row_part, $options, $current_value, null).'</span>';
 						}
 						
 						
@@ -506,7 +509,7 @@ class StructuresHelper extends Helper {
 		return $table_row_part['tag'].$display." ";
 	}
 	
-
+	//TODO check extras
 	function build_table($atim_structure, $options, $data){
 		echo('
 			<table class="structure" cellspacing="0">
@@ -750,17 +753,13 @@ class StructuresHelper extends Helper {
 	}
 
 
-/********************************************************************************************************************************************************************************/
-
-
-	function build_tree( $atim_structure, $options ) {
-		if ( is_array($options['data']) ){ 
-			$data=$options['data']; 
-		}else{
-			$data=$this->data; 
-		}
-		
-		// display table...
+	/**
+	 * Enter description here ...
+	 * @param array $atim_structures Contains atim_strucures (yes, plural), one for each data model to display
+	 * @param array $options
+	 * @param array $data
+	 */
+	function build_tree(array $atim_structures, array $options, array $data){
 		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
@@ -771,72 +770,53 @@ class StructuresHelper extends Helper {
 		$structure_index = array( 1 => array() ); 
 		
 		// add EXTRAS, if any
-		$structure_index = $this->display_extras( $structure_index, $options );
+		$structure_index = $this->display_extras($structure_index, $options);
 		
-		foreach ( $structure_index as $column_key=>$table_index ) {
+		foreach($structure_index as $column_key=>$table_index){
 			
 			$structure_count++;
 			
-			$column_inline_styles = '';
-			if ( isset($options['settings']['columns'][$column_key]) ) {
-				$column_inline_styles .= 'style="';
-				foreach ( $options['settings']['columns'][$column_key] as $style_name=>$style_value ) {
-					$column_inline_styles .= $style_name.':'.$style_value.';';
-				}
-				$column_inline_styles .= '"';
-			}
-			
 			// for each FORM/DETAIL element...
-			if ( is_array($table_index) ) {
+			if(is_array($table_index)){
 			
 				echo('
-					<td column_key="'.$column_key.'" '.$column_inline_styles.' class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+						<table class="columns tree" cellspacing="0">
+							<tbody>
 				');
 				
-					// start table...
+				if(count($data)){
+					// start root level of UL tree, and call NODE function
 					echo('
-						<table class="columns tree" cellspacing="0">
-						<tbody>
+						<tr><td>
+							<ul id="tree_root">
 					');
 					
-					if ( count($data) ) {
-						
-						// start root level of UL tree, and call NODE function
-						echo('
-							<tr><td>
-								<ul id="tree_root">
-						');
-						
-						$this->build_tree_node( $atim_structure, $options, $data );
-						
-						echo('
-								</ul>
-							</td></tr>
-						');
-						
-					}
+					$this->build_tree_node($atim_structures, $options, $data);
 					
+					echo('
+							</ul>
+						</td></tr>
+					');
+				}else{
 					// display something nice for NO ROWS msg...
-					else {
-						echo('
-								<tr>
-										<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
-								</tr>
-						');
-					}
-					
 					echo('
-								</tbody>
-							</table>
-						</td>
+							<tr>
+									<td class="no_data_available" colspan="1">'.__( 'core_no_data_available', true ).'</td>
+							</tr>
 					');
-						
-			}
-			
-			// otherwise display EXTRAs...
-			else {
+				}
+					
 				echo('
-					<td column_key="'.$column_key.'" class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
+							</tbody>
+						</table>
+					</td>
+				');
+						
+			}else{
+			// otherwise display EXTRAs...
+				echo('
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
 					
 						<table class="columns extra" cellspacing="0">
 						<tbody>
@@ -850,20 +830,18 @@ class StructuresHelper extends Helper {
 						
 					</td>
 				');
-				
 			}
-			
-		} // end FOREACH
+		}
 				
 		echo('
 				</tr>
 			</tbody>
 			</table>
-		');   
+		'); 
 	}
 	
-	function build_tree_node(array $atim_structure, array $options, array $data) {
-		foreach ($data as $data_key => $data_val){ 
+	function build_tree_node(array &$atim_structures, array $options, array $data) {
+		foreach($data as $data_key => $data_val){ 
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
 			if (isset($data_val['children'])){
@@ -877,7 +855,7 @@ class StructuresHelper extends Helper {
 				
 			// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
 				
-			$unique_id = mt_rand(1000000, 9999999);//TODO WTH RANDOM UNIQUE???
+			$unique_id = self::$tree_node_id ++;
 			// reveal sub ULs if sub ULs exist
 			if(count($children)){
 				echo('<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ');
@@ -887,7 +865,7 @@ class StructuresHelper extends Helper {
 			
 			echo('<div><span class="divider">|</span> ');	
 			if(count($options['links']['tree'])){
-				foreach($data_val as $model_name=>$model_array){
+				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
 						$tree_options = $options;
 						$tree_options['links']['index'] = $options['links']['tree'][$model_name];
@@ -895,31 +873,36 @@ class StructuresHelper extends Helper {
 						echo($this->generate_links_list(  $data_val, $tree_options, 'index' ));
 					}
 				}
-			}else if ( count($options['links']['index']) ) {
-				echo($this->generate_links_list(  $data_val, $options, 'index' ));
+			}else if (count($options['links']['index'])){
+				echo($this->generate_links_list($data_val, $options, 'index'));
 			}
 		
-			$tree_node_structure = $atim_structure;
 			if(count($options['settings']['tree'])){
-				foreach($data_val as $model_name=>$model_array){
+				foreach($data_val as $model_name => $model_array){
 					if(isset($options['settings']['tree'][$model_name])){
-						$tree_node_structure = $atim_structure[$options['settings']['tree'][$model_name]];
 						
-						$data_key = $model_array['id']; // so set a UNIQUE id for each set of form elements
+						if(!isset($atim_structures[$options['settings']['tree'][$model_name]]['app_stack'])){
+							$atim_structures[$options['settings']['tree'][$model_name]]['app_stack'] = $this->build_stack($atim_structures[$options['settings']['tree'][$model_name]], $options);
+						}
+						
+						$table_index = $atim_structures[$options['settings']['tree'][$model_name]]['app_stack'];
+						break;
 					}
 				}
 			}
 			
 			$options['type'] = 'index';
-			
-			$table_index = $this->build_stack($tree_node_structure, $options);
 			unset($options['stack']);
 			foreach($table_index as $table_column_key => $table_column){
 				foreach($table_column as $table_row_key => $table_row){
 					foreach($table_row as $table_row_part){
 						//carefull with the white spaces as removing them the can break the display in IE
 						echo('<span class="nowrap"><span class="divider">|</span> '
-							.$this->getPrintableField($table_row_part, $options, $data_val[$table_row_part['model']][$table_row_part['field']], null)
+							.$this->getPrintableField(
+								$table_row_part, 
+								$options, 
+								isset($data_val[$table_row_part['model']][$table_row_part['field']]) ? $data_val[$table_row_part['model']][$table_row_part['field']] : "", 
+								null)
 							.'</span>
 						');
 					}
@@ -934,7 +917,7 @@ class StructuresHelper extends Helper {
 					<ul id="tree_'.$unique_id.'" style="display:none;">
 				');
 				
-				$this->build_tree_node($atim_structure, $options, $children);
+				$this->build_tree_node($atim_structures, $options, $children);
 				echo('
 					</ul>
 				');
@@ -1054,7 +1037,7 @@ class StructuresHelper extends Helper {
 		if(count($options['extras'])){
 			foreach($options['extras'] as $key=>$val){
 				while(isset($return_array[$key])){
-					$key = $key+1;
+					$key++;
 				}
 				$return_array[ $key ] = $val;
 			}

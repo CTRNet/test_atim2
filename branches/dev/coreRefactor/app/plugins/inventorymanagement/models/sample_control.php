@@ -4,9 +4,6 @@ class SampleControl extends InventorymanagementAppModel {
 
  	/**
 	 * Get permissible values array gathering all existing sample types.
-	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'SampleControl.id', 'default' => (translated string describing sample type))
 	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
@@ -19,9 +16,6 @@ class SampleControl extends InventorymanagementAppModel {
  	/**
 	 * Get permissible values array gathering all existing sample types.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'SampleControl.type', 'default' => (translated string describing sample type))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -33,9 +27,6 @@ class SampleControl extends InventorymanagementAppModel {
  	/**
 	 * Get permissible values array gathering all existing specimen sample types.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'SampleControl.type', 'default' => (translated string describing sample type))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -47,9 +38,6 @@ class SampleControl extends InventorymanagementAppModel {
  	/**
 	 * Get permissible values array gathering all existing specimen sample types.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'SampleControl.type', 'default' => (translated string describing sample type))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -60,7 +48,6 @@ class SampleControl extends InventorymanagementAppModel {
 	
 	function getSamplesPermissibleValues($by_id, $only_specimen){
 		$result = array();
-		$tmp_result = array();
 		
 		// Build tmp array to sort according translation
 		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
@@ -72,19 +59,14 @@ class SampleControl extends InventorymanagementAppModel {
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 		if($by_id){
 			foreach($controls as $control){
-				$tmp_result[$control['DerivativeControl']['id']] = __($control['DerivativeControl']['sample_type'], true);
+				$result[$control['DerivativeControl']['id']] = __($control['DerivativeControl']['sample_type'], true);
 			}
 		}else{
 			foreach($controls as $control){
-				$tmp_result[$control['DerivativeControl']['sample_type']] = __($control['DerivativeControl']['sample_type'], true);
+				$result[$control['DerivativeControl']['sample_type']] = __($control['DerivativeControl']['sample_type'], true);
 			}
 		}
-		asort($tmp_result);
-		
-		// Build final array
-		foreach($tmp_result as $value => $default) {
-			$result[] = array('value' => $value, 'default' => $default); 
-		}
+		asort($result);
 		
 		return $result;
 	}

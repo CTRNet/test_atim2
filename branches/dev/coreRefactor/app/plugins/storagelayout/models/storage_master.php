@@ -46,8 +46,6 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * 
 	 * @return Storage list into array having following structure: 
 	 * 	array($storage_master_id => $storage_title_built_by_function)
-	 * @return Array having following structure:
-	 * 	array ('value' => 'StorageMaster.id', 'default' => (translated string describing storage))
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
@@ -79,12 +77,10 @@ class StorageMaster extends StoragelayoutAppModel {
 			return array(array('value' => '0', 'default' => __('n/a', true)));	
 		}					
 		
-		$formatted_data = array(array('value' => '0', 'default' => __('n/a', true)));
+		$formatted_data[0] = __('n/a', true);
 		if(!empty($arr_storages_list)) {
 			foreach ($arr_storages_list as $storage_id => $storage_data) {
-				$formatted_data[] = array(
-					'value' => $storage_id, 
-					'default' => $this->createStorageTitleForDisplay($storage_data));
+				$formatted_data[$storage_id] = $this->createStorageTitleForDisplay($storage_data);
 			}
 		}
 		
