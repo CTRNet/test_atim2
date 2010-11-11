@@ -81,9 +81,14 @@ body {
 div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
-	padding: 0.25em 1em;
-	background-color: #fff;
-	border: 1px solid #ccf;
+	background: none;
+	border: 1px solid #243340;
+	border-color: #243340;
+	border-top: none;
+	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
+	padding: 0;
+	min-height: 300px;
 }
 
 div#header {
@@ -109,13 +114,6 @@ div#header h1 {
 	
 
 
-div.wrapper {
-	background: none;
-	border: 0;
-	padding: 0;
-	min-height: 300px;
-}
-
 div.wrapper div:not(.browsable .info) {
 	margin: 0;
 	padding: 0;
@@ -126,15 +124,6 @@ p {
 	margin: 1em 0;
 }
 
-form,
-fieldset {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
-div.wrapper fieldset {
-	display: block;
-}
 a { 
 	color: #5081a5; 
 }
@@ -172,15 +161,11 @@ div.wrapper div.actions {
 	display: block;
 	height: 25px;
 	padding: 10px 0 10px 20px;
-	margin: 0 0 10px 0;
-	border: 1px solid #243340;
-	border-color: #243340;
-	border-top: none;
-	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
-	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 	font-size: 11px;
 	line-height: 1.3em;
 	color: #bbf;
+	-moz-border-radius-bottomleft: 5px; -webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px;
 }
 	div.wrapper div.actions ul {
 		float: right;
@@ -193,7 +178,7 @@ div.wrapper div.actions {
 		float: left;
 		padding: 0 10px 0 0;
 	}
-	div.wrapper div.actions div {
+	div.bottom_button {
 		background: url(../img/btnBack.png);
 		-moz-border-radius: 5px; -webkit-border-radius: 5px;
 		border-color: #999999;
@@ -206,15 +191,13 @@ div.wrapper div.actions {
 	}
 	
 	
-	div.wrapper div.actions div a {
-		/* font-weight: bold; */
+	div.bottom_button a {
 		font-size: 12px;
-		/* text-transform: uppercase; */
 		text-decoration: none;
 		background-position: 8px center;
-		/*background-color: #c1d7e9;*/
 		padding: 5px 10px 4px 27px;
 		color: #000;
+		line-height: 25px;
 		-moz-border-radius: 3px; -webkit-border-radius: 3px;
 		
 	}
@@ -879,9 +862,6 @@ span.help:hover {
 		margin: 0;
 		background-color: #fff;
 		
-		border-right: 1px solid #243340;
-		border-left: 1px solid #243340;
-		
 		padding: 10px 0;
 	}
 		div.wrapper table.structure tr.pagination th {
@@ -924,12 +904,7 @@ span.help:hover {
 			border-top: 1px solid #eaedf2; 
 		}
 		
-		
-			div.wrapper table.structure tbody.descriptive_heading td { 
-				padding: 0 0 0.5em 0;
-			}
-			
-				div.wrapper table.structure tbody.descriptive_heading h4,
+				.descriptive_heading h4,
 				.std_popup.question h4 { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
@@ -941,7 +916,7 @@ span.help:hover {
 				}
 			
 				
-				div.wrapper table.structure tbody.descriptive_heading p,
+				.descriptive_heading p,
 				.std_popup.question p { 
 					background-color: #f2f2f2;
 					margin: 0 0 0 0;
@@ -968,10 +943,6 @@ span.help:hover {
 		div.wrapper table.structure td.this_column_5 { 
 			border-left: 10px solid #fff; 
 		}
-		div.wrapper table.structure td.submit { 
-			padding: 0.25em 1em; 
-			border-top: 1px solid #eaedf2; 
-		}
 		
 		/* -= table.structure table.columns */
 		div.wrapper table.structure table.columns { 
@@ -980,11 +951,6 @@ span.help:hover {
 			margin: 0 1em 0 0; 
 			text-align: left;
 		}
-			/*
-			div.wrapper table.structure table.columns.index {}
-			div.wrapper table.structure table.columns.detail {}
-			div.wrapper table.structure table.columns.extra {}
-			*/
 			div.wrapper table.structure table.columns th {
 				text-align: left;
 				vertical-align: bottom;
@@ -1303,46 +1269,6 @@ div.wrapper table.structure table.columns td.no_data_available {
 div.wrapper table.structure table.columns td a.not_allowed {
 	color: #dde8f2;
 }
-	fieldset.submit {
-		margin: 0;
-		
-		border-top: 1px solid #eaedf2; 
-		border-right: 1px solid #243340;
-		border-left: 1px solid #243340;
-	}
-	
-	fieldset.submit div span{
-		background: url(../img/btnBack.png);
-		display: inline-block;
-		margin: 10px;
-		padding: 0px;
-		/*line-height: 30px;*/
-		-moz-border-radius: 5px; -webkit-border-radius: 5px;
-	}
-	
-	fieldset.submit input.submit, a.submit, fieldset.submit a.search{
-		padding: 3px 12px 2px 30px;
-		font-size: 12px;
-		cursor: pointer;
-		border-color: #999999;
-		color: #000;
-		display: inline-block;
-		-moz-border-radius: 3px; -webkit-border-radius: 3px;
-	}
-	fieldset.submit input.submit, a.submit, fieldset.submit a.search:not(:focus){
-		text-decoration:none;
-	}
-	
-	fieldset.submit div span:hover{
-		background-image: url("../img/btnBackSel.png");
-	}
-	
-	fieldset.submit input.submit:hover,
-	#submit_button_link:hover {
-		/*background-color: #486680;*/ 
-		border-color: #000;
-	}
-	
 	div#validation {
 		margin: 0 10px;
 		background-color: #fff;
@@ -1856,11 +1782,6 @@ input.datepicker[type=button]{
 	height: 1px;
 }
 
-fieldset.submit{
-	background-color: #f2f2ff;
-	text-align: left;	
-}
-
 ul.error{
 	border: solid black;
 	border-width: 0 1px 0 1px;
@@ -1907,4 +1828,9 @@ div.wrapper table.structure td .storageLayout td{
 	min-width: 30px; 
 	border-color: #000;
 	padding: 0 0 5px 0;
+}
+
+div.extra{
+	background-color: #FFF;
+	padding: 5px 11px;	
 }

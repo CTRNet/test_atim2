@@ -5,7 +5,11 @@ class Structure extends AppModel {
 	var $name = 'Structure';
 	var $actsAs = array('Containable');
 
-	var $hasMany = array('StructureFormat', 'Sfs');
+	var $hasMany = array(
+		'StructureFormat' => array('order' => 'StructureFormat.display_column ASC, StructureFormat.display_order ASC'), 
+		'Sfs' => array('order' => 'Sfs.display_column ASC, Sfs.display_order ASC')
+	);
+	
 	private $simple = true;
 	
 	function __construct(){
@@ -27,7 +31,7 @@ class Structure extends AppModel {
 	function summary( $variables=array() ) {
 		$return = false;
 		
-		if ( isset($variables['Structure.id']) ) {
+		if (isset($variables['Structure.id']) ) {
 			$result = $this->find('first', array('conditions'=>array('Structure.id'=>$variables['Structure.id'])));
 			
 			$return = array(
@@ -49,7 +53,7 @@ class Structure extends AppModel {
 	}
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ),$fields,$order,$recursive);
+		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ), $fields, $order, $recursive);
 		if($result){
 			$fields_ids = array(0);
 			if($this->simple){
