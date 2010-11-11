@@ -33,7 +33,7 @@ class ShellHelper extends Helper {
 					foreach ( $menu_array[1] as $key=>$menu_item ) {
 						
 						$html_attributes = array();
-						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+						$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 						$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 								
 						if ( !$menu_item['Menu']['allowed'] ) {
@@ -71,7 +71,7 @@ class ShellHelper extends Helper {
 					foreach ( $menu_array[2] as $key=>$menu_item ) {
 						
 						$html_attributes = array();
-						$html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+						$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 						$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 						
 						if ( !$menu_item['Menu']['allowed'] ) {
@@ -105,7 +105,6 @@ class ShellHelper extends Helper {
 		}
 		
 		$return .= '
-		<fieldset>
 			<!-- start #header -->
 			<div id="header">
 				<h1>'.__('core_appname', true).'</h1>
@@ -215,7 +214,6 @@ class ShellHelper extends Helper {
 				
 			</div>
 			<!-- end #footer -->
-			</fieldset>
 		';
 		
 		return $return;
@@ -289,7 +287,7 @@ class ShellHelper extends Helper {
 										$html_attributes = array('class'=>'without_summary');
 										
 										if ( $is_root ) {
-											$html_attributes['class'] .= ' menu '.$this->Structures->generate_link_class( 'plugin '.$menu_item['Menu']['use_link'] );
+											$html_attributes['class'] .= ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 											$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 											
 											// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
@@ -313,7 +311,7 @@ class ShellHelper extends Helper {
 								}
 								
 								$html_attributes = array();
-								$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generate_link_class( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
+								$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
 								
 								if ( !$menu_item['Menu']['allowed'] ) {
 									

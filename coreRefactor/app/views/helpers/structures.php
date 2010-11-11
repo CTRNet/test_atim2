@@ -90,7 +90,7 @@ class StructuresHelper extends Helper {
 
 	function build(array $atim_structure =array(), array $options=array()){
 		// DEFAULT set of options, overridden by PASSED options
-		$options = $this->array_merge_recursive_distinct(self::$defaults,$options);
+		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
 			$options['type'] = $this->params['action'];//no type, default to action
 		}
@@ -114,22 +114,17 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		if ($options['settings']['return']){
+		if(!is_array($options['extras'])){
+			$options['extras']['end'] = $options['extras']; 
+		}
+		
+		if($options['settings']['return']){
 			//the result needs to be returned as a string, turn output buffering on
 			ob_start();
 		}
 		
-		
-		if ( count($options['settings']['tree']) ) {
-			foreach ( $atim_structure as $key=>$val ) {
-				$atim_structure[$key] = $this->sort_structure( $val );
-			}
-		} else {
-			$atim_structure = $this->sort_structure( $atim_structure );
-		}
-			
-		if ($options['links']['top'] && $options['settings']['form_top']) {
-			if ( isset($options['links']['ajax']['top']) && $options['links']['ajax']['top'] ) {
+		if($options['links']['top'] && $options['settings']['form_top']){
+			if(isset($options['links']['ajax']['top']) && $options['links']['ajax']['top']){
 				echo($this->Ajax->form(
 					array(
 						'type'		=> 'post',    
@@ -139,16 +134,15 @@ class StructuresHelper extends Helper {
 						)
 					)
 				));
-			}else {
+			}else{
 				echo('
-					<form action="'.$this->generate_links_list( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
-						<fieldset>
+					<form action="'.$this->generateLinksList( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
 				');
 			}
 		}
 		
 		// display grey-box HEADING with descriptive form info
-		if( $options['settings']['header'] ){
+		if($options['settings']['header']){
 			if ( !is_array($options['settings']['header']) ) {
 				$options['settings']['header'] = array(
 					'title'			=> $options['settings']['header'],
@@ -156,16 +150,16 @@ class StructuresHelper extends Helper {
 				);
 			}
 			
-			echo('<table class="structure" cellspacing="0">
-				<tbody class="descriptive_heading">
-					<tr>
-						<td>
-							<h4>'.$options['settings']['header']['title'].'</h4>
-							<p>'.$options['settings']['header']['description'].'</p>
-						</td>
-					</tr>
-				</tbody>
-				</table>
+			echo('<div class="descriptive_heading">
+					<h4>'.$options['settings']['header']['title'].'</h4>
+					<p>'.$options['settings']['header']['description'].'</p>
+				</div>
+			');
+		}
+		
+		if(isset($options['extras']['start'])){
+			echo('
+				<div class="extra">'.$options['extras']['start'].'</div>
 			');
 		}
 		
@@ -190,10 +184,8 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure
 		$type = $options['type'];
-		if($type == "add" || $type == "edit" || $type == "addgrid" || $type == "editgrid"){
-		}
 		if($type == 'index'){
-			$this->build_table( $atim_structure, $options, $data);
+			$this->buildTable( $atim_structure, $options, $data);
 			
 		}else if($type == 'addgrid'
 		|| $type == 'editgrid'
@@ -204,29 +196,36 @@ class StructuresHelper extends Helper {
 					AppController::addWarningMsg(sprintf(__("datagrid is deprecated, use addgrid or editgrid instead", true), $type));
 				}
 			}	
-			$this->build_table( $atim_structure, $options, $data);
+			$this->buildTable( $atim_structure, $options, $data);
 			
 		}else if($type == 'csv'){
 			$options['type'] = 'index';
-			$this->build_csv( $atim_structure, $options, $data);
+			$this->buildCsv( $atim_structure, $options, $data);
 			$options['settings']['actions'] = false;
 			
 		}else if($type == 'add'
 		|| $type == 'edit'
 		|| $type == 'search'){
-			$this->build_detail( $atim_structure, $options, $data);
+			$this->buildDetail( $atim_structure, $options, $data);
 			
 		}else if($type == 'tree'){
 			$options['type'] = 'index';
-			$this->build_tree( $atim_structure, $options, $data);
+			$this->buildTree( $atim_structure, $options, $data);
 			
 		}else{
 			if($type != 'detail'){
 				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
 			}
 			$options['type'] = 'detail';
-			$this->build_detail( $atim_structure, $options, $data);
+			$this->buildDetail( $atim_structure, $options, $data);
 		}
+		
+		if(isset($options['extras']['end'])){
+			echo('
+				<div class="extra">'.$options['extras']['end'].'</div>
+			');
+		}
+		
 
 		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
 			if($options['type'] == 'search'){	//search mode
@@ -239,28 +238,24 @@ class StructuresHelper extends Helper {
 				$exact_search = "";
 			}
 			echo('
-				</fieldset>
-				
-				<fieldset class="submit">
-					<div>
-						<span class="button large">
-							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
-						</span>
-						'.$exact_search.'
+				<div style="padding: 5px 5px;">
+					<div class="bottom_button">
+						<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
+						<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 					</div>
+					'.$exact_search.'
+				</div>
 			');
 		}
 		
-		if ( $options['links']['top'] && $options['settings']['form_bottom'] ) {
+		if($options['links']['top'] && $options['settings']['form_bottom']){
 			echo('
-					</fieldset>
 				</form>
 			');
 		}
 				
-		if ( $options['settings']['actions'] ) {
-			echo($this->generate_links_list(  $this->data, $options, 'bottom' ));
+		if($options['settings']['actions']){
+			echo($this->generateLinksList( $this->data, $options, 'bottom'));
 		}
 		
 		$result = null;
@@ -276,24 +271,24 @@ class StructuresHelper extends Helper {
 	} // end FUNCTION build()
 
 
-	function sort_structure( $atim_structure ) {
-		if ( count($atim_structure['Sfs']) ) {
+	function sortStructure($atim_structure){
+		if(count($atim_structure['Sfs'])){
 			// Sort the data with ORDER descending, FIELD ascending 
-				foreach ( $atim_structure['Sfs'] as $key=>$row ) {
-					$sort_order_0[$key] = $row['display_column'];
-					$sort_order_1[$key] = $row['display_order'];
-					$sort_order_2[$key] = $row['model'];
-				}
+			foreach($atim_structure['Sfs'] as $key => $row){
+				$sort_order_0[$key] = $row['display_column'];
+				$sort_order_1[$key] = $row['display_order'];
+				$sort_order_2[$key] = $row['model'];
+			}
 			
 			// multisort, PHP array 
-				array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
+			array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
 		}
 		return $atim_structure;
 	}
 	
 	//TODO: check extras
-	function build_detail($atim_structure, $options, $data){
-		$table_index = $this->build_stack($atim_structure, $options);
+	private function buildDetail($atim_structure, $options, $data){
+		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
 		echo('
 			<table class="structure" cellspacing="0">
@@ -510,7 +505,7 @@ class StructuresHelper extends Helper {
 	}
 	
 	//TODO check extras
-	function build_table($atim_structure, $options, $data){
+	private function buildTable($atim_structure, $options, $data){
 		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
@@ -523,7 +518,7 @@ class StructuresHelper extends Helper {
 		}
 		
 		$this->Paginator->options(array('url' => $this->params['pass']));
-		$table_index = $this->build_stack( $atim_structure, $options );
+		$table_index = $this->buildStack( $atim_structure, $options );
 		
 		echo('
 			<td>
@@ -559,7 +554,7 @@ class StructuresHelper extends Helper {
 						<td class="checkbox">
 					');
 					foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
-						$checkbox_value = $this->str_replace_link( $checkbox_value, $val );
+						$checkbox_value = $this->strReplaceLink( $checkbox_value, $val );
 						$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
 						//$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value));
 						//TODO: see if mentioned double error is still present
@@ -577,7 +572,7 @@ class StructuresHelper extends Helper {
 					');
 					foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
 						list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
-						$radiobutton_value = $this->str_replace_link( $radiobutton_value, $val );
+						$radiobutton_value = $this->strReplaceLink( $radiobutton_value, $val );
 						$tmp_attributes = array('legend'=>false, 'value'=>false);
 						if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
 							$tmp_attributes['checked'] = 'checked';
@@ -593,7 +588,7 @@ class StructuresHelper extends Helper {
 				//index
 				if(count($options['links']['index'])){
 					echo('
-						<td class="id">'.$this->generate_links_list($data[$key], $options, 'index').'</td>
+						<td class="id">'.$this->generateLinksList($data[$key], $options, 'index').'</td>
 					');
 				}
 				
@@ -704,7 +699,7 @@ class StructuresHelper extends Helper {
 	}
 
 
-	function build_csv( $atim_structure, $options ) {
+	private function buildCsv( $atim_structure, $options ) {
 		if ( is_array($options['data']) ){
 			$data=$options['data']; 
 		}else{
@@ -714,7 +709,7 @@ class StructuresHelper extends Helper {
 		$table_structure = array();
 		foreach ( $data as $key=>$val ) {
 			$options['stack']['key'] = $key;
-			$table_structure[$key] = $this->build_stack( $atim_structure, $options );
+			$table_structure[$key] = $this->buildStack( $atim_structure, $options );
 			unset($options['stack']);
 		}
 
@@ -759,7 +754,7 @@ class StructuresHelper extends Helper {
 	 * @param array $options
 	 * @param array $data
 	 */
-	function build_tree(array $atim_structures, array $options, array $data){
+	private function buildTree(array $atim_structures, array $options, array $data){
 		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
@@ -770,7 +765,7 @@ class StructuresHelper extends Helper {
 		$structure_index = array( 1 => array() ); 
 		
 		// add EXTRAS, if any
-		$structure_index = $this->display_extras($structure_index, $options);
+		$structure_index = $this->displayExtras($structure_index, $options);
 		
 		foreach($structure_index as $column_key=>$table_index){
 			
@@ -792,7 +787,7 @@ class StructuresHelper extends Helper {
 							<ul id="tree_root">
 					');
 					
-					$this->build_tree_node($atim_structures, $options, $data);
+					$this->buildTreeNode($atim_structures, $options, $data);
 					
 					echo('
 							</ul>
@@ -840,7 +835,7 @@ class StructuresHelper extends Helper {
 		'); 
 	}
 	
-	function build_tree_node(array &$atim_structures, array $options, array $data) {
+	private function buildTreeNode(array &$atim_structures, array $options, array $data) {
 		foreach($data as $data_key => $data_val){ 
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
@@ -870,11 +865,11 @@ class StructuresHelper extends Helper {
 						$tree_options = $options;
 						$tree_options['links']['index'] = $options['links']['tree'][$model_name];
 						
-						echo($this->generate_links_list(  $data_val, $tree_options, 'index' ));
+						echo($this->generateLinksList(  $data_val, $tree_options, 'index' ));
 					}
 				}
 			}else if (count($options['links']['index'])){
-				echo($this->generate_links_list($data_val, $options, 'index'));
+				echo($this->generateLinksList($data_val, $options, 'index'));
 			}
 		
 			if(count($options['settings']['tree'])){
@@ -882,7 +877,7 @@ class StructuresHelper extends Helper {
 					if(isset($options['settings']['tree'][$model_name])){
 						
 						if(!isset($atim_structures[$options['settings']['tree'][$model_name]]['app_stack'])){
-							$atim_structures[$options['settings']['tree'][$model_name]]['app_stack'] = $this->build_stack($atim_structures[$options['settings']['tree'][$model_name]], $options);
+							$atim_structures[$options['settings']['tree'][$model_name]]['app_stack'] = $this->buildStack($atim_structures[$options['settings']['tree'][$model_name]], $options);
 						}
 						
 						$table_index = $atim_structures[$options['settings']['tree'][$model_name]]['app_stack'];
@@ -917,7 +912,7 @@ class StructuresHelper extends Helper {
 					<ul id="tree_'.$unique_id.'" style="display:none;">
 				');
 				
-				$this->build_tree_node($atim_structures, $options, $children);
+				$this->buildTreeNode($atim_structures, $options, $children);
 				echo('
 					</ul>
 				');
@@ -936,7 +931,7 @@ class StructuresHelper extends Helper {
 	 * @param array $table_index The structural inforamtion
 	 * @param array $options The options
 	 */
-	function buildDisplayHeader(array $table_structure, array $options){
+	private function buildDisplayHeader(array $table_structure, array $options){
 		$column_count = 0;
 		$return_string = '<tr>';
 		if(count($options['links']['checklist'])){
@@ -1033,7 +1028,7 @@ class StructuresHelper extends Helper {
 		
 	}
 
-	function display_extras( $return_array=array(), $options ) {
+	private function displayExtras($return_array=array(), $options){
 		if(count($options['extras'])){
 			foreach($options['extras'] as $key=>$val){
 				while(isset($return_array[$key])){
@@ -1054,8 +1049,7 @@ class StructuresHelper extends Helper {
 	 * @param boolean $use_data If true, data is placed directly into the stack, othewise replacable strings are placed
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
-	//TODO: complete description
-	function build_stack(array $atim_structure, array $options){
+	private function buildStack(array $atim_structure, array $options){
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
@@ -1252,8 +1246,7 @@ class StructuresHelper extends Helper {
 	}
 	
 
-	function generate_content_wrapper( $atim_content=array(), $options=array() ) {
-		
+	private function generateContentWrapper($atim_content=array(), $options=array()){
 		$return_string = '';
 			
 			// display table...
@@ -1293,7 +1286,7 @@ class StructuresHelper extends Helper {
 				</table>
 			';
 			
-			$return_string .= $this->generate_links_list( NULL, $options, 'bottom' );
+			$return_string .= $this->generateLinksList( NULL, $options, 'bottom' );
 			
 		return $return_string;
 		
@@ -1303,8 +1296,8 @@ class StructuresHelper extends Helper {
 	
 	// FUNCTION to build one OR more links...
 	// MODEL data, LINKS array, LANG array, ADD array list to INCLUDE, SKIP list to NOT include, and ID value to attach, if any 
-	// function generate_links_list( $links=array(), $lang=array(), $add=array(), $skip=array(), $id=NULL, $title='', $in_table=0 ) {
-	function generate_links_list( $data=array(), $options=array(), $state='index' ) {
+	// function generateLinksList( $links=array(), $lang=array(), $add=array(), $skip=array(), $id=NULL, $title='', $in_table=0 ) {
+	private function generateLinksList($data=array(), $options=array(), $state='index'){
 		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 		
 		$return_string = '';
@@ -1363,7 +1356,7 @@ class StructuresHelper extends Helper {
 				|| $aco_alias == "controllers/Menus/index"
 				|| $Acl->check($aro_alias, $aco_alias) ) {
 					
-					$display_class_name = $this->generate_link_class($link_name, $link_location);
+					$display_class_name = $this->generateLinkClass($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
 					
 					if(strlen($icon) > 0){
@@ -1376,7 +1369,7 @@ class StructuresHelper extends Helper {
 					$confirmation_msg = NULL;
 					
 					// replace %%MODEL.FIELDNAME%% 
-					$link_location = $this->str_replace_link( $link_location, $data );
+					$link_location = $this->strReplaceLink( $link_location, $data );
 					
 					$return_urls[]		= $this->Html->url( $link_location );
 					
@@ -1529,10 +1522,10 @@ class StructuresHelper extends Helper {
 		// return
 		return $return_string;
 		
-	} // end FUNCTION generate_links_list()
+	} // end FUNCTION generateLinksList()
 
 
-	function generate_link_class( $link_name=NULL, $link_location=NULL ) {
+	public function generateLinkClass( $link_name=NULL, $link_location=NULL ) {
 			
 		$display_class_name = '';
 		$display_class_array = array();
@@ -1733,7 +1726,7 @@ class StructuresHelper extends Helper {
 				
 				// if set to DEFAULT but URL has been provided, try again using URL instead!
 				if ( $display_class_name=='default' && $link_name && $link_location ) {
-					$display_class_name = $this->generate_link_class( NULL, $link_location );
+					$display_class_name = $this->generateLinkClass( NULL, $link_location );
 				}
 
 		// return
@@ -1743,7 +1736,7 @@ class StructuresHelper extends Helper {
 
 	
 	// FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value 
-	function str_replace_link( $link='', $data=array() ) {
+	function strReplaceLink( $link='', $data=array() ) {
 		
 		if ( is_array($data) ) {
 			foreach ( $data as $model=>$fields ) {
@@ -1767,13 +1760,10 @@ class StructuresHelper extends Helper {
 		// return
 		return $link;
 		
-	} // end FUNCTION str_replace_link()
+	} // end FUNCTION strReplaceLink()
 	
 	
-/********************************************************************************************************************************************************************************/
-	
-	
-	function &array_merge_recursive_distinct( &$array1, &$array2 = null) {
+	function &arrayMergeRecursiveDistinct( &$array1, &$array2 = null) {
 	
 		$merged = $array1;
 		
@@ -1783,7 +1773,7 @@ class StructuresHelper extends Helper {
 			
 			if (is_array($array2[$key])) {
 				if ( !isset($merged[$key]) ) $merged[$key] = array();
-				$merged[$key] = is_array($merged[$key]) ? $this->array_merge_recursive_distinct($merged[$key], $array2[$key]) : $array2[$key];
+				$merged[$key] = is_array($merged[$key]) ? $this->arrayMergeRecursiveDistinct($merged[$key], $array2[$key]) : $array2[$key];
 			} else {
 				$merged[$key] = $val;
 			} // end IF/ELSE
@@ -1796,142 +1786,6 @@ class StructuresHelper extends Helper {
 	
 	}
 	
-	/**
-	 * @deprecated
-	 */
-	private function get_date_fields($model_prefix, $model_suffix, $structure_field, $html_element_array, $model_prefix_css, $model_suffix_css, $search_suffix, $datetime_array){
-		$tmp_datetime_array = array('year' => null, 'month' => null, 'day' => null, 'hour' => "", 'min' => null, 'meridian' => null);
-		if(empty($datetime_array)){
-			$value = $this->value($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix);
-			if(is_array($value)){
-				$datetime_array = $value;
-			}else if(strlen($value) > 0){
-				$datetime_array = $this->datetime_to_array($value);
-			}
-		}
-		$datetime_array = array_merge($tmp_datetime_array, $datetime_array);
-		$date = "";
-		$my_model_prefix = strlen($model_prefix) > 0 ? str_replace(".", "][", $model_prefix) : "";
-		$date_name_prefix = "data[".$my_model_prefix.$structure_field['model']."][".$structure_field['field'].$search_suffix."]";
-		unset($html_element_array['id']);
-		unset($html_element_array['name']);
-		if(!isset($html_element_array['empty'])){
-			$html_element_array['empty'] = null;
-		}
-		for($i = 0; $i < 3; ++ $i){
-			$tmp_current = substr(date_format, $i, 1);
-			if($tmp_current == "Y"){
-				if(datetime_input_type == "dropdown"){
-					$date .= 
-						$this->Form->year($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-						1900, 
-						2100, 
-						$datetime_array['year'], 
-						am(array('name'=>$date_name_prefix."[year]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix), $html_element_array), 
-						$html_element_array['empty']);
-				}else{
-					$date .= 
-						'<span class="tooltip">'
-						.$this->Form->text("", 
-							array(
-								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix, 
-								'name' => $date_name_prefix."[year]",
-								'size' => 4, 
-								'tabindex' => $html_element_array['tabindex'], 
-								'maxlength' => 4,
-								'value' => $datetime_array['year']))
-						."<div>".__('year', true)."</div></span> ";
-				}
-			}else if($tmp_current == "M"){
-				if(datetime_input_type == "dropdown"){
-					$date .= 
-						$this->Form->month($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-						$datetime_array['month'], am(array('name'=>$date_name_prefix."[month]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-mm'), $html_element_array), 
-						$html_element_array['empty']);
-				}else{
-					$date .= 
-						'<span class="tooltip">'
-						.$this->Form->text("", 
-							array(
-								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."-mm", 
-								'name' => $date_name_prefix."[month]",
-								'size' => 2, 
-								'tabindex' => $html_element_array['tabindex'], 
-								'maxlength' => 2,
-								'value' => $datetime_array['month']))
-						."<div>".__('month', true)."</div></span> ";
-				}
-			}else if($tmp_current == "D"){
-				if(datetime_input_type == "dropdown"){
-					$date .= 
-						$this->Form->day($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, 
-						$datetime_array['day'], am(array('name'=>$date_name_prefix."[day]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'-dd'), $html_element_array), 
-						$html_element_array['empty']);
-				}else{
-					$date .= 
-						'<span class="tooltip">'
-						.$this->Form->text("", 
-							array(
-								'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."-dd",
-								'name' => $date_name_prefix."[day]",
-								'size' => 2, 
-								'tabindex' => $html_element_array['tabindex'], 
-								'maxlength' => 2,
-								'value' => $datetime_array['day']))
-						."<div>".__('day', true)."</div></span> ";
-				}
-			}else{
-				$date .= "UNKNOWN date_format ".date_format;
-			}
-		}
-		
-		$date .= '<span style="position: relative;">
-				<input type="button" id="'.$model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'_button" class="datepicker" value=""/>
-				<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
-			</span>';
-		
-		if ( $structure_field['type']=='datetime' ) {
-			if(time_format == 24 && isset($datetime_array['meridian'])){
-				$datetime_array['hour'] = $datetime_array['hour'] % 12;
-				if($datetime_array['meridian'] == "pm"){
-					$datetime_array['hour'] += 12;
-				}
-			}
-			if(datetime_input_type == "dropdown"){
-				$date .= $this->Form->hour($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, time_format == 24, $datetime_array['hour'], am(array('name'=>$date_name_prefix."[hour]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Hour'), $html_element_array));
-				$date .= $this->Form->minute($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['min'], am(array('name'=>$date_name_prefix."[min]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Min'), $html_element_array));
-			}else{
-				$date .= 
-					'<span class="tooltip">'
-					.$this->Form->text("", 
-						array(
-							'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."Hour",
-							'name' => $date_name_prefix."[hour]", 
-							'size' => 2, 
-							'tabindex' => $html_element_array['tabindex'], 
-							'maxlength' => 2,
-							'value' => $datetime_array['hour']))
-					."<div>".__('hour', true)."</div></span> ";
-				$date .= 
-					'<span class="tooltip">'
-					.$this->Form->text("", 
-						array(
-							'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix."Min",
-							'name' => $date_name_prefix."[min]",
-							'size' => 2, 
-							'tabindex' => $html_element_array['tabindex'], 
-							'maxlength' => 2,
-							'value' => $datetime_array['min']))
-					."<div>".__('minutes', true)."</div></span> ";
-			}
-
-			if(time_format == 12){
-				$date .= $this->Form->meridian($model_prefix.$structure_field['model'].$model_suffix.$structure_field['field'].$search_suffix, $datetime_array['meridian'], am(array('name'=>$date_name_prefix."[meridian]", 'id' => $model_prefix_css.$structure_field['model'].$model_suffix_css.$structure_field['field'].$search_suffix.'Meridian'), $html_element_array));
-			}
-		}
-		
-		return $date;
-	}
 	
 	/**
 	 * Returns the date inputs
@@ -2024,33 +1878,6 @@ class StructuresHelper extends Helper {
 		return $result;
 	}
 
-	/*
-	 * Converts a string like yyyy-MM-dd hh:mm:ss to a date array
-	 */
-	public static function datetime_to_array($datetime, $format_24 = false){
-		$result = array();
-		if(strlen($datetime) != 0){
-			$date = explode('-', substr($datetime, 0, 10));
-			$result['year']		= $date[0];
-			$result['month']	= $date[1];
-			$result['day']		= $date[2];
-			if(strlen($datetime) > 10){
-				$time = explode(':', substr($datetime, 11));
-				$result['min'] = $time[1];	
-				if($format_24){
-					$result['hour']	= $time[0];
-				}else{
-					$result['hour']			= $time[0] > 12 ? $time[0] - 12 : $time[0] + !($time[0] * 1) * 12;	
-					$result['meridian']		= $time[0] > 12 ? 'pm' : 'am';
-				}
-			}
-		}
-		return $result;
-	}
-	
-	public static function format_number($number){
-		return decimal_separator == "," ? str_replace(".", ",", $number) : $number;
-	}
 	
 	private function getTool($append_field_tool){
 		$result = "";

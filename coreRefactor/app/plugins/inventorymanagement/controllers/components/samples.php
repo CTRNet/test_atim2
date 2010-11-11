@@ -35,7 +35,9 @@ class SamplesComponent extends Object {
 		$criteria['SampleMaster.collection_id'] = $collection_id;
 		$this->controller->SampleMaster->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
 		$collection_content_to_display = $this->controller->SampleMaster->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '3'));
-		if(empty($collection_content_to_display)) { return array(); }
+		if(empty($collection_content_to_display)) {
+			return array(); 
+		}
 		
 		// Build formatted collection data for tree view
 		return $this->completeCollectionContentForTreeView($collection_content_to_display);
@@ -61,9 +63,9 @@ class SamplesComponent extends Object {
 			$formatted_sample_data = array();
 			$formatted_sample_data['SampleMaster'] = $new_sample['SampleMaster'];
 			if($new_sample['SampleMaster']['sample_type'] == "blood"){
-				$formatted_sample_data['SampleMaster']['sample_type'] = __("blood", true)." (".__($new_sample['SampleDetail']['blood_type'], true).")"; 
+				$formatted_sample_data['0']['detail_type'] = __($new_sample['SampleDetail']['blood_type'], true); 
 			}else if($new_sample['SampleMaster']['sample_type'] == "tissue"){
-				$formatted_sample_data['SampleMaster']['sample_type'] = __("tissue", true)." (".__($new_sample['SampleDetail']['tissue_source'], true).")";
+				$formatted_sample_data['0']['detail_type'] = __($new_sample['SampleDetail']['tissue_source'], true);
 			}
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
 			
