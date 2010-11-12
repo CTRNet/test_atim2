@@ -27,8 +27,8 @@ class ParticipantCustom extends Participant {
 			
 			$return = array(
 				'Summary'	 => array(
-					'menu'			=>	array( NULL, ($result['Participant']['participant_identifier']) ),
-					'title'			=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'menu'			=>	array( NULL, (empty($bank_identifier)? $result['Participant']['participant_identifier'] : $bank_identifier) ),
+					'title'			=>	array( NULL, (empty($bank_identifier)? $result['Participant']['participant_identifier'] : $bank_identifier) ),
 					
 					'description'		=>	array(
 						__('prostate_bank_participant_id', true) => $bank_identifier,
