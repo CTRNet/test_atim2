@@ -174,49 +174,68 @@ function uncheckAll( $div ) {
 		return null;
 	}
 
-	function initDatepicker(element){
-		var tmpId = element.id.substr(0, element.id.indexOf("_button"));
-		var tmpSuffix = element.id.indexOf("_button_") != -1 ? "_" + element.id.substr(element.id.indexOf("_button_") + 8) : "";
-		if($('#' + tmpId + tmpSuffix).val().length > 0 && $('#' + tmpId + "-mm" + tmpSuffix).val().length > 0 && $('#' + tmpId + "-dd" + tmpSuffix).val().length > 0){
-			//set the current field date into the datepicker
-			$(element).data('val', $('#' + tmpId + tmpSuffix).val() + "-" + $('#' + tmpId + "-mm" + tmpSuffix).val() + "-" + $('#' + tmpId + "-dd" + tmpSuffix).val());
-		}
-		$(element).datepicker({
-			changeMonth: true,
-			changeYear: true,
-			dateFormat: 'yy-mm-dd',
-			maxDate: '2100-12-31',
-			yearRange: '-100:+10',
-			firstDay: 0,
-			beforeShow: function(input, inst){
-				//put the date back in place
-				//because of datagrids copy controls we cannot keep the date in tmp
-				var tmpDate = $('#' + tmpId + tmpSuffix).val() + "-" + $('#' + tmpId + "-mm" + tmpSuffix).val() + "-" + $('#' + tmpId + "-dd" + tmpSuffix).val();
-				if(tmpDate.length == 10){
-					$(this).datepicker('setDate', tmpDate);
+	function initDatepicker(elements){
+		$(elements).each(function(){
+			var dateFields = $(this).parent().parent().children();
+			var yearField = null;
+			var monthField = null;
+			var dayField = null;
+			var date = null;
+			for(var i = 0; i < dateFields.length; i ++){
+				if(dateFields[i].nodeName != "SPAN"){
+					if($(dateFields[i]).attr("name").substr(-7) == "][year]"){
+						yearField = dateFields[i];
+					}else if($(dateFields[i]).attr("name").substr(-8) == "][month]"){
+						monthField = dateFields[i];
+					}else if($(dateFields[i]).attr("name").substr(-6) == "][day]"){
+						dayField = dateFields[i];
+					}
 				}
-			},
-			onClose: function(dateText,picker) {
-				//hide the date
-				$(this).val(" ");//space required for Safari and Chome or the button disappears
-				var dateSplit = dateText.split(/-/);
-				if(dateSplit.length == 3){
-					$('#' + tmpId + tmpSuffix).val(dateSplit[0]); 
-		        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
-		        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
-				}
-		    }
+			}
+			if($(yearField).val().length > 0 && $(monthField).val().length > 0 && $(dayField).val().length > 0){
+				date = $(yearField).val() + "-" + $(monthField).val() + "-" + $(dayField).val();
+				//set the current field date into the datepicker
+				$(this).data(date);
+			}
+			
+			$(this).datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'yy-mm-dd',
+				maxDate: '2100-12-31',
+				yearRange: '-100:+100',
+				firstDay: 0,
+				beforeShow: function(input, inst){
+					//put the date back in place
+					//because of datagrids copy controls we cannot keep the date in tmp
+					var tmpDate = $(yearField).val() + "-" + $(monthField).val() + "-" + $(dayField).val();
+					if(tmpDate.length == 10){
+						$(this).datepicker('setDate', tmpDate);
+					}
+				},
+				onClose: function(dateText,picker) {
+					//hide the date
+					$(this).val(" ");//space required for Safari and Chome or the button disappears
+					var dateSplit = dateText.split(/-/);
+					if(dateSplit.length == 3){
+						$(yearField).val(dateSplit[0]); 
+			        	$(monthField).val(dateSplit[1]);
+			        	$(dayField).val(dateSplit[2]);
+					}
+			    }
+			});
+
+			//activate fake_datepicker in case there is a problem with z-index
+			$(this).parent().children("img").click(function(){
+				$(this).datepicker('show');
+			});
+
+			//bug fix for Safari and Chrome
+			$(this).click(function(){
+				$(this).datepicker('show');
+			});
 		});
 		
-		//activate fake_datepicker in case there is a problem with z-index
-		$(element).parent().children("img").click(function(){
-			$(element).datepicker('show');
-		});
-		
-		//bug fix for Safari and Chrome
-		$(element).click(function(){
-			$(element).datepicker('show');
-		});
 	}
 	
 	function autoComplete(element, json){
@@ -264,9 +283,7 @@ function uncheckAll( $div ) {
 					});
 					++ idIncrement;
 					
-					$($newField).find(".datepicker").each(function(){
-						initDatepicker(this);
-					});
+					initDatepicker($($newField).find(".datepicker"));
 					
 					initAutocomplete($newField);
 					initToolPopup($newField);
@@ -492,6 +509,38 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAddLine(scope){
+		$(scope).find(".addLineLink").each(function(){
+			//get the table row
+			var tableBody = $(getParentElement(this, "TABLE")).find("tbody");
+			var lastLine = $(tableBody).find("tr:last");
+			var templateLineHtml = lastLine.html();
+			$(lastLine).remove();
+			var lineIncrement = $(tableBody).find("tr").length;
+			$(this).click(function(){
+				var counter = $(scope).find(".addLineCount").length == 1 ? $(scope).find(".addLineCount").val() : 1;
+				while(counter > 0){
+					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/name="data\[%d\]\[/g, 'name="data[' + lineIncrement ++ + '][') + "</tr>");
+					counter --;
+				}
+				var newLines = $(tableBody).find("tr.newLine");
+				initRemoveLine(newLines);
+				if(typeof(copyControl) != 'undefined'){
+					bindCopyCtrl(newLines);
+				}
+				$(newLines).removeClass("newLine");
+				return false;
+			});
+		});
+	}
+	
+	function initRemoveLine(scope){
+		$(scope).find(".removeLineLink").click(function(){
+			$(getParentElement(this, "TR")).remove();
+			return false;
+		});
+	}
+	
 	function initJsControls(){
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
@@ -562,13 +611,12 @@ function uncheckAll( $div ) {
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		$(".datepicker").each(function(){
-			initDatepicker(this);
-		});
-		
-		
+		initDatepicker(".datepicker");
 		
 		initCheckAll(document);
+		
+		initAddLine(document);
+		initRemoveLine(document);
 	}
 
 	function debug(str){

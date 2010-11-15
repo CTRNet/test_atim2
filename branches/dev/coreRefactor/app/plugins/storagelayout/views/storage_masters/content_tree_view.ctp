@@ -7,10 +7,6 @@
 			'StorageMaster' => 'StorageMaster',
 			'AliquotMaster' => 'AliquotMaster',
 			'TmaSlide' => 'TmaSlide'
-		),
-		'columns' => array(
-			1	=> array('width' => '30%'),
-			10	=> array('width' => '70%')
 		)
 	);
 	

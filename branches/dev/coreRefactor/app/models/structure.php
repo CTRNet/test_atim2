@@ -56,8 +56,9 @@ class Structure extends AppModel {
 		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ), $fields, $order, $recursive);
 		if($result){
 			$fields_ids = array(0);
-			if($this->simple){
-				foreach ($result['Sfs'] as $sfs ){
+			if($this->simple && isset($result['Sfs'])){
+				//if recursive = -1, there is no Sfs
+				foreach($result['Sfs'] as $sfs ){
 					$fields_ids[] = $sfs['structure_field_id'];
 				}
 				$validations = $this->StructureValidation->find('all', array('conditions' => ('StructureValidation.structure_field_id IN('.implode(", ", $fields_ids).')')));
