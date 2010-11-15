@@ -155,7 +155,7 @@ class DropdownsController extends AdministrateAppController {
 			if(!(is_null($this->data['StructurePermissibleValuesCustom']['en']) 
 			|| ($this->data['StructurePermissibleValuesCustom']['en'] == '')
 			|| ($this->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en']))) {
-				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.en' => $this->data['StructurePermissibleValuesCustom']['en'], 'StructurePermissibleValuesCustom.id != '.$value_id))); 
+				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.en' => $this->data['StructurePermissibleValuesCustom']['en'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id))); 
 				if(!empty($tmp)){
 					$this->StructurePermissibleValuesCustom->validationErrors['en'] = sprintf(__('a specified %s already exists for that dropdown', true), __("english translation", true));
 					$skip_save = true;
@@ -171,7 +171,7 @@ class DropdownsController extends AdministrateAppController {
 			if(!(is_null($this->data['StructurePermissibleValuesCustom']['fr']) 
 			|| ($this->data['StructurePermissibleValuesCustom']['fr'] == '')
 			|| ($this->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr']))) {
-				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.fr' => $this->data['StructurePermissibleValuesCustom']['fr'], 'StructurePermissibleValuesCustom.id != '.$value_id)));
+				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.fr' => $this->data['StructurePermissibleValuesCustom']['fr'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id)));
 				if(!empty($tmp)){
 					$this->StructurePermissibleValuesCustom->validationErrors['fr'] = sprintf(__('a specified %s already exists for that dropdown', true), __("french translation", true));
 					$skip_save = true;
