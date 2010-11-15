@@ -66,6 +66,8 @@ class StructuresHelper extends Helper {
 			"id" => false,
 			"legend" => false,
 		);
+		
+	private static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
 
 	function __construct(){
 		parent::__construct();
@@ -182,10 +184,8 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure
 		$type = $options['type'];
-		if($type == 'index'){
-			$this->buildTable( $atim_structure, $options, $data);
-			
-		}else if($type == 'addgrid'
+		if($type == 'index'
+		||$type == 'addgrid'
 		|| $type == 'editgrid'
 		|| $type == 'datagrid'){
 			if($type == 'datagrid'){
@@ -195,13 +195,14 @@ class StructuresHelper extends Helper {
 				}
 			}	
 			$this->buildTable( $atim_structure, $options, $data);
-			
+
 		}else if($type == 'csv'){
 			$options['type'] = 'index';
 			$this->buildCsv( $atim_structure, $options, $data);
 			$options['settings']['actions'] = false;
 			
-		}else if($type == 'add'
+		}else if($type == 'detail'
+		|| $type == 'add'
 		|| $type == 'edit'
 		|| $type == 'search'){
 			$this->buildDetail( $atim_structure, $options, $data);
@@ -211,9 +212,10 @@ class StructuresHelper extends Helper {
 			$this->buildTree( $atim_structure, $options, $data);
 			
 		}else{
-			if($type != 'detail'){
+			if(Configure::read('debug') > 0){
 				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
 			}
+			//build detail anyway
 			$options['type'] = 'detail';
 			$this->buildDetail( $atim_structure, $options, $data);
 		}
@@ -290,7 +292,7 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
-	private function buildDetail($atim_structure, $options, $data){
+	private function buildDetail($atim_structure, $options, $data_unit){
 		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
 		echo('
@@ -321,7 +323,7 @@ class StructuresHelper extends Helper {
 				$new_line = true;
 				$end_of_line = "";
 				$display = "";
-				foreach ( $table_column as $table_row ) {
+				foreach($table_column as $table_row){
 					foreach($table_row as $table_row_part){
 						if($table_row_part['heading']){
 							if(!$new_line){
@@ -350,39 +352,32 @@ class StructuresHelper extends Helper {
 						
 						//value
 						$current_value = null;
-						if(is_array($data)
-						&& array_key_exists($table_row_part['model'], $data) 
-						&& array_key_exists($table_row_part['field'], $data[$table_row_part['model']])){
-							//priority 1, data
-							$current_value = $data[$table_row_part['model']][$table_row_part['field']];
-						}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
-							//priority 2, override
-							$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
-						}else if($options['type'] == "add"){
-							//priority 3, default (if add)
-							$current_value = $table_row_part['default']; 
-						}else{
-							if($options['type'] != "search" && Configure::read('debug') > 0){
-								AppController::addWarningMsg(sprintf(__("no value provided for field [%s]", true), $table_row_part['model'].".".$table_row_part['field']));
-							}
-							$current_value = "";
-						}
-						
-						if(!empty($options['settings']['columns_names'])){
-							//TODO
-							if(is_array($table_row_part['content'])){
-								foreach($options['settings']['columns_names'] as $col_name){
-									echo($td_open.(isset($table_row_part['content'][$col_name]) ? $table_row_part['content'][$col_name] : "")."</td>"); 
+						$suffixes = $options['type'] == "search" && in_array($table_row_part['type'], self::$range_types) ? array("_start", "_end") : array("");
+						foreach($suffixes as $suffix){
+							//define $current_value with inline code
+							$current_value = self::getCurrentValue($data_unit, $table_row_part, $suffix, $options);
+							if(!empty($options['settings']['columns_names'])){
+								//TODO
+								if(is_array($table_row_part['content'])){
+									foreach($options['settings']['columns_names'] as $col_name){
+										echo($td_open.(isset($table_row_part['content'][$col_name]) ? $table_row_part['content'][$col_name] : "")."</td>"); 
+									}
+								}else{
+									echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
 								}
 							}else{
-								echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
+								if($suffix == "_end"){
+									$display .= '<span class="tag"> To </span>';
+								}
+								$display .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'].$suffix, $options, $current_value, null).'</span>';
+								if($options['type'] == "search" && !in_array($table_row_part['type'], self::$range_types)){
+									$display .= '<a class="adv_ctrl btn_add_or" href="#" onclick="return false;">(+)</a>';
+								}
+								$display .= '</span>';
 							}
-						}else{
-							$display .= '<span class="nowrap">'.$this->getPrintableField($table_row_part, $options, $current_value, null).'</span>';
 						}
 						
-						
-						if(show_help) {
+						if(show_help){
 							$end_of_line = '
 									<td class="help">
 										'.$table_row_part['help'].'
@@ -414,9 +409,8 @@ class StructuresHelper extends Helper {
 	}
 
 
-	private function getPrintableField(array $table_row_part, array $options, $current_value, $key){
+	private function getPrintableField(array $table_row_part, $field_name, array $options, $current_value, $key){
 		$display = null;
-		$field_name = $table_row_part['model'].".".$table_row_part['field'];
 		if(strlen($key)){
 			$field_name = "%d.".$field_name;
 		}
@@ -544,7 +538,9 @@ class StructuresHelper extends Helper {
 						$data["%d"] = array();
 					}
 					$row_num = 1;
-					foreach($data as $key => $val){
+					$link_location = $this->generateLinksList(null, $options['links'], 'index');//raw links
+					
+					foreach($data as $key => $data_unit){
 						if($add_line_ctrl && $row_num == count($data)){
 							echo("<tr class='hidden'>");
 						}else{
@@ -557,7 +553,7 @@ class StructuresHelper extends Helper {
 								<td class="checkbox">
 							');
 							foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
-								$checkbox_value = $this->strReplaceLink( $checkbox_value, $val );
+								$checkbox_value = $this->strReplaceLink($checkbox_value, $data_unit);
 								echo($this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)));
 							}
 							echo('
@@ -570,11 +566,11 @@ class StructuresHelper extends Helper {
 							echo('
 								<td class="radiobutton">
 							');
-							foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+							foreach($options['links']['radiolist'] as $radiobutton_name => $radiobutton_value){
 								list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
-								$radiobutton_value = $this->strReplaceLink( $radiobutton_value, $val );
+								$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data_unit);
 								$tmp_attributes = array('legend'=>false, 'value'=>false);
-								if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
+								if(isset($data_unit[$tmp_model][$tmp_field]) && $data_unit[$tmp_model][$tmp_field] == $radiobutton_value){
 									$tmp_attributes['checked'] = 'checked';
 								}
 								echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
@@ -588,7 +584,7 @@ class StructuresHelper extends Helper {
 						//index
 						if(count($options['links']['index'])){
 							echo('
-								<td class="id">'.$this->generateLinksList($data[$key], $options['links'], 'index').'</td>
+								<td class="id">'.$this->strReplaceLink($link_location, $data_unit).'</td>
 							');
 						}
 						
@@ -600,29 +596,15 @@ class StructuresHelper extends Helper {
 						
 						//data
 						$first_cell = true;
+						$suffix = null;//used by the require inline
 						foreach($table_index as $table_column){
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 		
 									$current_value = null;
-									if(is_array($val)
-									&& array_key_exists($table_row_part['model'], $val) 
-									&& array_key_exists($table_row_part['field'], $val[$table_row_part['model']])){
-										//priority 1, data
-										$current_value = $val[$table_row_part['model']][$table_row_part['field']];
-									}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
-										//priority 2, override
-										$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
-										if(is_array($current_value)){
-											if(Configure::read('debug') > 0){
-												AppController::addWarningMsg(sprintf(__("invalid override for model.field [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
-											}
-											$current_value = "";
-										}
-									}else{
-										//priority 3, default
-										$current_value = $table_row_part['default']; 
-									}
+									
+									//define $current_value with inline code
+									$current_value = self::getCurrentValue($data_unit, $table_row_part, "", $options);
 									if(strlen($table_row_part['label'])){
 										if($first_cell){
 											echo("<td>");
@@ -630,7 +612,7 @@ class StructuresHelper extends Helper {
 											echo("</td><td>");
 										}
 									}
-									echo($this->getPrintableField($table_row_part, $options, $current_value, $key));
+									echo($this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $current_value, $key));
 									
 								}
 							}
@@ -762,6 +744,14 @@ class StructuresHelper extends Helper {
 	 * @param array $data
 	 */
 	private function buildTree(array $atim_structures, array $options, array $data){
+		//prebuild links
+		if(count($data)){
+			foreach($options['links']['tree'] as $model_name => $links){
+				$tree_links = $options['links'];
+				$tree_links['index'] = $options['links']['tree'][$model_name];
+				$options['links']['tree'][$model_name] = $this->generateLinksList(null, $tree_links, 'index');
+			}
+		}
 		echo('
 			<table class="structure" cellspacing="0">
 			<tbody>
@@ -855,13 +845,13 @@ class StructuresHelper extends Helper {
 				$i = 0;
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
-						$tree_options = $options;
-						$tree_options['links']['index'] = $options['links']['tree'][$model_name];
-						echo($this->generateLinksList($data_val, $tree_options['links'], 'index'));
+						//apply prebuilt links
+						echo($this->strReplaceLink($options['links']['tree'][$model_name], $data_val));
 					}
 				}
 			}else if (count($options['links']['index'])){
-				echo($this->generateLinksList($data_val, $options['links'], 'index'));
+				//apply prebuilt links
+				echo($this->strReplaceLink($options['links']['tree'][$model_name], $data_val));
 			}
 		
 			if(count($options['settings']['tree'])){
@@ -887,6 +877,7 @@ class StructuresHelper extends Helper {
 						echo('<span class="nowrap"><span class="divider">|</span> '
 							.$this->getPrintableField(
 								$table_row_part, 
+								$table_row_part['model'].".".$table_row_part['field'],
 								$options, 
 								isset($data_val[$table_row_part['model']][$table_row_part['field']]) ? $data_val[$table_row_part['model']][$table_row_part['field']] : "", 
 								null)
@@ -1380,11 +1371,10 @@ class StructuresHelper extends Helper {
 					
 					// set Javascript confirmation msg...
 					$confirmation_msg = NULL;
-					
-					// replace %%MODEL.FIELDNAME%% 
-					$link_location = $this->strReplaceLink( $link_location, $data );
-					
-					$return_urls[]		= $this->Html->url( $link_location );
+					if($data != null){
+						$link_location 		= $this->strReplaceLink($link_location, $data);
+						$return_urls[]		= $this->Html->url( $link_location );
+					}
 					
 					// check AJAX variable, and set link to be AJAX link if exists
 					if ( isset($option_links['ajax'][$state][$link_name]) ) {
@@ -1914,6 +1904,35 @@ class StructuresHelper extends Helper {
 			$result = '<a href="'.$this->Html->Url( $append_field_tool ).'" class="tool_popup"></a>';
 		}
 		return $result;	
+	}
+	
+	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
+		if(is_array($data_unit)
+		&& array_key_exists($table_row_part['model'], $data_unit) 
+		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
+			//priority 1, data
+			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
+		}else if($options['type'] != 'index'){
+			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
+				//priority 2, override
+				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
+				if(is_array($current_value)){
+					if(Configure::read('debug') > 0){
+						AppController::addWarningMsg(sprintf(__("invalid override for model.field [%s.%s]", true), $table_row_part['model'], $table_row_part['field'].$suffix));
+					}
+					$current_value = "";
+				}
+			}else{
+				//priority 3, default
+				$current_value = $table_row_part['default']; 
+			}
+		}else{
+			if(Configure::read('debug') > 0){
+				AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
+			}
+			$current_value = "-";
+		}
+		return $current_value;
 	}
 }
 	
