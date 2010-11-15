@@ -54,6 +54,6 @@
 		
 	}
 	
-	echo $structures->generate_content_wrapper( $atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/menus'))) );
+	echo $structures->generateContentWrapper( $atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/menus'))) );
 	
 ?>

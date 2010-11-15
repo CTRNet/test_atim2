@@ -56,10 +56,9 @@ class SamplesComponent extends Object {
 	 */
 	
 	function completeCollectionContentForTreeView($children_list) {
-		
 		$formatted_children_data = array();
 		
-		foreach($children_list as $key => $new_sample) {
+		foreach($children_list as $key => $new_sample){
 			$formatted_sample_data = array();
 			$formatted_sample_data['SampleMaster'] = $new_sample['SampleMaster'];
 			if($new_sample['SampleMaster']['sample_type'] == "blood"){
@@ -68,15 +67,11 @@ class SamplesComponent extends Object {
 				$formatted_sample_data['0']['detail_type'] = __($new_sample['SampleDetail']['tissue_source'], true);
 			}
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
-			
+
 			// Add Aliquot
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
-			$new_sample_aliquots= array_reverse($new_sample_aliquots);
-			foreach($new_sample_aliquots as $new_aliquot) {
-				if($new_aliquot['aliquot_type'] == "block"){
-					$aliquot = $this->controller->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $new_aliquot['id'])));
-					$new_aliquot['aliquot_type'] = __("block", true)." (".__($aliquot['AliquotDetail']['block_type'], true).")";
-				}
+			$new_sample_aliquots = array_reverse($new_sample_aliquots);
+			foreach($new_sample_aliquots as $key => $new_aliquot) {
 				$aliquot_control_data = $new_aliquot['AliquotControl'];
 				unset($new_aliquot['AliquotControl']);
 				$storage_master_data = $new_aliquot['StorageMaster'];
@@ -84,12 +79,16 @@ class SamplesComponent extends Object {
 				$formatted_aliquot_data = array(
 					'AliquotMaster' => $new_aliquot, 
 					'StorageMaster' => $storage_master_data);
+				if($new_aliquot['aliquot_type'] == "block"){
+					$aliquot = $this->controller->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $new_aliquot['id'])));
+					$formatted_aliquot_data[0]['detail_type'] = __($aliquot['AliquotDetail']['block_type'], true);
+				}
 				array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
 			}			
 			
 			$children_list[$key] = $formatted_sample_data;
 		}
-		
+		unset($children_list[0]['AliquotMaster']);
 		return $children_list;
 	}
 }

@@ -69,9 +69,9 @@ function copyLine(line){
  */
 function pasteLine(line){
 	$(line).find("input:not([type=hidden]), select").each(function(){
-		var nameArray = $(this).attr("name").split("][");
-		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-		if(!$(this).attr("readonly")){
+		if(!$(this).attr("readonly") && !$(this).attr("disabled")){
+			var nameArray = $(this).attr("name").split("][");
+			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 			if($(this).attr("type") == "checkbox"){
 				if(copyBuffer[name]){
 					$(this).attr("checked", "checked");
@@ -91,14 +91,18 @@ function enableCopyCtrl(){
 	$(":checkbox").each(function(){
 		if($(this).attr("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
 			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + copyStr + "'></a></span><span class='button paste'><a class='form paste' title='" + pasteStr + "'></a></span>");
-			$(this).parent().find(".copy").click(function(){
-				copyLine(getParentRow(this));
-			});
-			$(this).parent().find(".paste").click(function(){
-				pasteLine(getParentRow(this));
-			});
+			bindCopyCtrl($(this).parent());
 			$(this).remove();
 		}
+	});
+}
+
+function bindCopyCtrl(scope){
+	$(scope).find(".copy").click(function(){
+		copyLine(getParentRow(this));
+	});
+	$(scope).find(".paste").click(function(){
+		pasteLine(getParentRow(this));
 	});
 }
 

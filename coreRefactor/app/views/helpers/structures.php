@@ -27,7 +27,6 @@ class StructuresHelper extends Helper {
 				'form_inputs'	=> true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
 				'form_bottom'	=> true,
 				'name_prefix'	=> NULL,
-				'separator'		=> false,
 				'pagination'	=> true,
 				'columns_names' => array(), // columns names - usefull for reports. only works in detail views
 				
@@ -35,10 +34,7 @@ class StructuresHelper extends Helper {
 				'add_fields'	=> false, // if TRUE, adds an "add another" link after form to allow another row to be appended
 				'del_fields'	=> false, // if TRUE, add a "remove" link after each row, to allow it to be removed from the form
 				
-				'columns'		=> array(), // pass inline CSS to any structure COLUMNS
-				
 				'tree'			=> array() // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
-				
 			),
 			
 			'links'		=> array(
@@ -62,7 +58,6 @@ class StructuresHelper extends Helper {
 			
 			'extras'		=> array() // HTML added to structure blindly, each in own COLUMN
 		);
-		//TODO: verify if extras works
 
 	private static $default_settings_arr = array(
 			"label" => false, 
@@ -78,17 +73,20 @@ class StructuresHelper extends Helper {
 		$this->StructureValueDomain = new StructureValueDomain();
 	}
 
-	function hook( $hook_extension='' ) {
-		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
+	function hook($hook_extension=''){
+		if($hook_extension){
+			$hook_extension = '_'.$hook_extension;
+		}
 		
 		$hook_file = APP . 'plugins' . DS . $this->params['plugin'] . DS . 'views' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
-		if ( !file_exists($hook_file) ) $hook_file=false;
+		if(!file_exists($hook_file)){
+			$hook_file=false;
+		}
 		
 		return $hook_file;
 	}
 
-
-	function build(array $atim_structure =array(), array $options=array()){
+	function build(array $atim_structure = array(), array $options = array()){
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -136,7 +134,7 @@ class StructuresHelper extends Helper {
 				));
 			}else{
 				echo('
-					<form action="'.$this->generateLinksList( $this->data, $options, 'top' ).'" method="post" enctype="multipart/form-data">
+					<form action="'.$this->generateLinksList($this->data, $options['links'], 'top').'" method="post" enctype="multipart/form-data">
 				');
 			}
 		}
@@ -238,7 +236,7 @@ class StructuresHelper extends Helper {
 				$exact_search = "";
 			}
 			echo('
-				<div style="padding: 5px 5px;">
+				<div class="submitBar">
 					<div class="bottom_button">
 						<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
 						<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
@@ -255,7 +253,7 @@ class StructuresHelper extends Helper {
 		}
 				
 		if($options['settings']['actions']){
-			echo($this->generateLinksList( $this->data, $options, 'bottom'));
+			echo($this->generateLinksList($this->data, $options['links'], 'bottom'));
 		}
 		
 		$result = null;
@@ -271,7 +269,13 @@ class StructuresHelper extends Helper {
 	} // end FUNCTION build()
 
 
-	function sortStructure($atim_structure){
+	/**
+	 * Sorts a structure based on display_column and display_order.
+	 * @param array $atim_structure
+	 * @deprecated This function is not being used anymore because sorting is done directly with the SQL query. We keep
+	 * it in case it is needed in the future
+	 */
+	function sortStructure(array $atim_structure){
 		if(count($atim_structure['Sfs'])){
 			// Sort the data with ORDER descending, FIELD ascending 
 			foreach($atim_structure['Sfs'] as $key => $row){
@@ -286,7 +290,6 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
-	//TODO: check extras
 	private function buildDetail($atim_structure, $options, $data){
 		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
@@ -355,9 +358,14 @@ class StructuresHelper extends Helper {
 						}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 							//priority 2, override
 							$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
-						}else{
-							//priority 3, default
+						}else if($options['type'] == "add"){
+							//priority 3, default (if add)
 							$current_value = $table_row_part['default']; 
+						}else{
+							if($options['type'] != "search" && Configure::read('debug') > 0){
+								AppController::addWarningMsg(sprintf(__("no value provided for field [%s]", true), $table_row_part['model'].".".$table_row_part['field']));
+							}
+							$current_value = "";
 						}
 						
 						if(!empty($options['settings']['columns_names'])){
@@ -392,23 +400,8 @@ class StructuresHelper extends Helper {
 					</td>
 				');
 				
-			}else {
-				// 	otherwise display EXTRAs...
-				echo('
-					<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
-					
-						<table class="columns extra" cellspacing="0">
-						<tbody>
-							<tr>
-								<td>
-									'.$table_column.'
-								</td>
-							</tr>
-						</tbody>
-						</table>
-						
-					</td>
-				');
+			}else{
+				$this->printExtras($count_columns, count($table_index), $table_column);
 			}
 				
 		} // end COLUMN 
@@ -459,20 +452,20 @@ class StructuresHelper extends Helper {
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value)));
 			}else if($table_row_part['type'] == "checkbox"){
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => $current_value)));
+			}else{
+				$display = $table_row_part['format'];
 			}
 			
 			
-			$table_row_part['format'] = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $table_row_part['format']);
+			$display = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $display);
 			
 			if(strlen($key)){
 				$display = str_replace("[%d]", "[".$key."]", $display);
-				$table_row_part['format'] = str_replace("[%d]", "[".$key."]", $table_row_part['format']);
 			}else{
 				$display = str_replace("[%d]", "", $display);
-				$table_row_part['format'] = str_replace("[%d]", "", $table_row_part['format']);
 			}
 			if(!is_array($current_value)){
-				$display .= str_replace("%s", $current_value, $table_row_part['format']);
+				$display = str_replace("%s", $current_value, $display);
 			}
 			
 			if(isset($table_row_part['tool'])){
@@ -501,201 +494,215 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		return $table_row_part['tag'].$display." ";
+		return (strlen($table_row_part['tag']) > 0 ? '<span class="tag">'.$table_row_part['tag'].'</span>' : "")
+			.(strlen($display) > 0 ? $display : "-")." ";
 	}
 	
-	//TODO check extras
 	private function buildTable($atim_structure, $options, $data){
-		echo('
-			<table class="structure" cellspacing="0">
-			<tbody>
-				<tr>
-		');
-			
 		// attach PER PAGE pagination param to PASSED params array...
 		if(isset($this->params['named']) && isset($this->params['named']['per'])){
 			$this->params['pass']['per'] = $this->params['named']['per'];
 		}
 		
 		$this->Paginator->options(array('url' => $this->params['pass']));
-		$table_index = $this->buildStack( $atim_structure, $options );
+		$table_structure = $this->buildStack( $atim_structure, $options );
 		
+		$structure_count = 0;
+		$structure_index = array(1 => $table_structure);
+						
 		echo('
-			<td>
-				<table class="columns index" cellspacing="0">
-				<thead>
+			<table class="structure" cellspacing="0">
+				<tbody>
+					<tr>
 		');
-		$remove_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['del_fields'];
-		$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
-		$options['remove_line_ctrl'] = $remove_line_ctrl;
-		$header_data = $this->buildDisplayHeader($table_index, $options);
-		echo($header_data['header']."</thead>");
 		
-		if(count($data)){
-			echo("<tbody>");
-			
-			
-			if($add_line_ctrl){
-				//blank hidden line
-				$data["%d"] = array();
-			}
-			
-			$row_num = 1;
-			foreach($data as $key => $val){
-				if($add_line_ctrl && $row_num == count($data)){
-					echo("<tr class='hidden'>");
-				}else{
-					echo("<tr>");
+		foreach($structure_index as $table_key => $table_index){
+			$structure_count++;
+			if (is_array($table_index)){
+				// start table...
+				echo ('
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+						<table class="columns index" cellspacing="0">
+				');
+				$remove_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['del_fields'];
+				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
+				$options['remove_line_ctrl'] = $remove_line_ctrl;
+				$header_data = $this->buildDisplayHeader($table_index, $options);
+				echo("<thead>".$header_data['header']."</thead>");
+				
+				if($options['type'] == "addgrid" && count($data) == 0){
+					//display at least one line
+					$data[0] = array();
 				}
 				
-				//checklist
-				if (count($options['links']['checklist'])){
-					echo('
-						<td class="checkbox">
-					');
-					foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
-						$checkbox_value = $this->strReplaceLink( $checkbox_value, $val );
-						$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)); // have to do it TWICE, due to double-model-name error that we couldn't figure out...
-						//$checkbox_form_element = $this->Form->checkbox($checkbox_name, array('value' => $checkbox_value));
-						//TODO: see if mentioned double error is still present
-						echo($checkbox_form_element);
+				if(count($data)){
+					$data = array_merge(array(), $data);//make sure keys are starting from 0 and that none is being skipped
+					echo("<tbody>");
+					
+					if($add_line_ctrl){
+						//blank hidden line
+						$data["%d"] = array();
 					}
-					echo('
-						</td>
-					');
-				}
-			
-				//radiolist
-				if(count($options['links']['radiolist'])){
-					echo('
-						<td class="radiobutton">
-					');
-					foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
-						list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
-						$radiobutton_value = $this->strReplaceLink( $radiobutton_value, $val );
-						$tmp_attributes = array('legend'=>false, 'value'=>false);
-						if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
-							$tmp_attributes['checked'] = 'checked';
+					$row_num = 1;
+					foreach($data as $key => $val){
+						if($add_line_ctrl && $row_num == count($data)){
+							echo("<tr class='hidden'>");
+						}else{
+							echo("<tr>");
 						}
-						echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
+						
+						//checklist
+						if (count($options['links']['checklist'])){
+							echo('
+								<td class="checkbox">
+							');
+							foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
+								$checkbox_value = $this->strReplaceLink( $checkbox_value, $val );
+								echo($this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)));
+							}
+							echo('
+								</td>
+							');
+						}
+					
+						//radiolist
+						if(count($options['links']['radiolist'])){
+							echo('
+								<td class="radiobutton">
+							');
+							foreach ( $options['links']['radiolist'] as $radiobutton_name=>$radiobutton_value ) {
+								list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+								$radiobutton_value = $this->strReplaceLink( $radiobutton_value, $val );
+								$tmp_attributes = array('legend'=>false, 'value'=>false);
+								if(isset($val[$tmp_model][$tmp_field]) && $val[$tmp_model][$tmp_field] == $radiobutton_value){
+									$tmp_attributes['checked'] = 'checked';
+								}
+								echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
+							}
+							
+							echo('
+								</td>
+							');
+						}
+		
+						//index
+						if(count($options['links']['index'])){
+							echo('
+								<td class="id">'.$this->generateLinksList($data[$key], $options['links'], 'index').'</td>
+							');
+						}
+						
+						$structure_count = 0;
+						$structure_index = array(1 => $table_structure); 
+						
+						// add EXTRAS, if any
+						$structure_index = $this->displayExtras( $structure_index, $options );
+						
+						//data
+						$first_cell = true;
+						foreach($table_index as $table_column){
+							foreach($table_column as $table_row){
+								foreach($table_row as $table_row_part){
+		
+									$current_value = null;
+									if(is_array($val)
+									&& array_key_exists($table_row_part['model'], $val) 
+									&& array_key_exists($table_row_part['field'], $val[$table_row_part['model']])){
+										//priority 1, data
+										$current_value = $val[$table_row_part['model']][$table_row_part['field']];
+									}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
+										//priority 2, override
+										$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
+										if(is_array($current_value)){
+											if(Configure::read('debug') > 0){
+												AppController::addWarningMsg(sprintf(__("invalid override for model.field [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
+											}
+											$current_value = "";
+										}
+									}else{
+										//priority 3, default
+										$current_value = $table_row_part['default']; 
+									}
+									if(strlen($table_row_part['label'])){
+										if($first_cell){
+											echo("<td>");
+										}else{
+											echo("</td><td>");
+										}
+									}
+									echo($this->getPrintableField($table_row_part, $options, $current_value, $key));
+									
+								}
+							}
+						}
+						echo("</td>\n");
+						
+						//remove line ctrl
+						if($remove_line_ctrl){
+							echo('
+									<td class="right">
+										<a href="#" class="removeLineLink" title="'.__( 'click to remove these elements', true ).'">(-)</a>
+									</td>
+							');
+						}
+						
+						
+						echo("</td></tr>");
+						$row_num ++;
+					}
+					echo("</tbody><tfoot>");
+					if($options['settings']['pagination']){
+						echo('
+								<tr class="pagination">
+									<th colspan="'.$header_data['count'].'">
+										
+										<span class="results">
+											'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+										</span>
+										
+										<span class="links">
+											'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
+											'.$this->Paginator->numbers().'
+											'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+										</span>
+										
+										'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
+										'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
+										'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
+										'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
+										
+									</th>
+								</tr>
+						');
 					}
 					
-					echo('
-						</td>
-					');
-				}
-
-				//index
-				if(count($options['links']['index'])){
-					echo('
-						<td class="id">'.$this->generateLinksList($data[$key], $options, 'index').'</td>
-					');
-				}
-				
-				//data
-				$first_cell = true;
-				foreach($table_index as $table_column){
-					foreach($table_column as $table_row){
-						foreach($table_row as $table_row_part){
-
-							$current_value = null;
-							if(is_array($val)
-							&& array_key_exists($table_row_part['model'], $val) 
-							&& array_key_exists($table_row_part['field'], $val[$table_row_part['model']])){
-								//priority 1, data
-								$current_value = $val[$table_row_part['model']][$table_row_part['field']];
-							}else if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
-								//priority 2, override
-								$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field']];
-								if(is_array($current_value)){
-									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(sprintf(__("invalid override for model.field [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
-									}
-									$current_value = "";
-								}
-							}else{
-								//priority 3, default
-								$current_value = $table_row_part['default']; 
-							}
-							if(strlen($table_row_part['label'])){
-								if($first_cell){
-									echo("<td>");
-								}else{
-									echo("</td><td>");
-								}
-							}
-							echo($this->getPrintableField($table_row_part, $options, $current_value, $key));
-							
-						}
+					if(count($options['links']['checklist'])){
+						echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
 					}
-				}
-				echo("</td>\n");
-				
-				//remove line ctrl
-				if($remove_line_ctrl){
-					echo('
-							<td class="right">
-								<a href="#" class="removeLineLink" title="'.__( 'click to remove these elements', true ).'">x</a>
-							</td>
+					
+					if($add_line_ctrl){
+						echo('<tr>
+								<td class="right" colspan="'.$header_data['count'].'">
+									<a class="addLineLink" href="#" title="'.__( 'click to add a line', true ).'">(+)</a>
+									<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
+								</td>
+							</tr>
+						');
+					}
+					echo("</tfoot>");
+				}else{
+					echo('<tfoot>
+							<tr>
+									<td class="no_data_available" colspan="'.$header_data['count'].'">'.__( 'core_no_data_available', true ).'</td>
+							</tr></tfoot>
 					');
 				}
-				
-				
-				echo("</td></tr>");
-				$row_num ++;
+				echo("</table></td>");
+			}else{
+				$this->printExtras($structure_count, count($structure_index), $table_index);
 			}
-			
-			if($options['settings']['pagination']){
-				echo('
-						<tr class="pagination">
-							<th colspan="'.$header_data['count'].'">
-								
-								<span class="results">
-									'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
-								</span>
-								
-								<span class="links">
-									'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-									'.$this->Paginator->numbers().'
-									'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
-								</span>
-								
-								'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
-								'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
-								'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
-								'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
-								
-							</th>
-						</tr>
-				');
-			}
-			echo("</tbody><tfoot>");
-			if(count($options['links']['checklist'])){
-				echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
-			}
-			if($add_line_ctrl){
-				echo('<tr>
-						<td class="right" colspan="'.$header_data['count'].'">
-							<a class="addLineLink" href="#" title="'.__( 'click to add a line', true ).'">(+)</a>
-							<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
-						</td>
-					</tr>
-				');
-			}
-			echo('</tfoot>');
-		}else{
-			//no data msg
-			echo('<tfoot>
-					<tr>
-							<td class="no_data_available" colspan="'.$header_data['count'].'">'.__( 'core_no_data_available', true ).'</td>
-					</tr></tfoot>
-			');
 		}
-		
-		echo('</table></td></tr>
-				</tbody>
-			</table>
-		');
+		echo("</tr></tbody></table>");
 	}
 
 
@@ -767,7 +774,7 @@ class StructuresHelper extends Helper {
 		// add EXTRAS, if any
 		$structure_index = $this->displayExtras($structure_index, $options);
 		
-		foreach($structure_index as $column_key=>$table_index){
+		foreach($structure_index as $column_key => $table_index){
 			
 			$structure_count++;
 			
@@ -775,7 +782,7 @@ class StructuresHelper extends Helper {
 			if(is_array($table_index)){
 			
 				echo('
-					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'" style="width: 30%;">
 						<table class="columns tree" cellspacing="0">
 							<tbody>
 				');
@@ -809,22 +816,7 @@ class StructuresHelper extends Helper {
 				');
 						
 			}else{
-			// otherwise display EXTRAs...
-				echo('
-					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'"> 
-					
-						<table class="columns extra" cellspacing="0">
-						<tbody>
-							<tr>
-								<td>
-									'.$table_index.'
-								</td>
-							</tr>
-						</tbody>
-						</table>
-						
-					</td>
-				');
+				$this->printExtras($structure_count, count($structure_index), $table_index);
 			}
 		}
 				
@@ -835,8 +827,8 @@ class StructuresHelper extends Helper {
 		'); 
 	}
 	
-	private function buildTreeNode(array &$atim_structures, array $options, array $data) {
-		foreach($data as $data_key => $data_val){ 
+	private function buildTreeNode(array &$atim_structures, array $options, array $data){
+		foreach($data as $data_key => $data_val){
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
 			if (isset($data_val['children'])){
@@ -860,16 +852,16 @@ class StructuresHelper extends Helper {
 			
 			echo('<div><span class="divider">|</span> ');	
 			if(count($options['links']['tree'])){
+				$i = 0;
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
 						$tree_options = $options;
 						$tree_options['links']['index'] = $options['links']['tree'][$model_name];
-						
-						echo($this->generateLinksList(  $data_val, $tree_options, 'index' ));
+						echo($this->generateLinksList($data_val, $tree_options['links'], 'index'));
 					}
 				}
 			}else if (count($options['links']['index'])){
-				echo($this->generateLinksList($data_val, $options, 'index'));
+				echo($this->generateLinksList($data_val, $options['links'], 'index'));
 			}
 		
 			if(count($options['settings']['tree'])){
@@ -1041,12 +1033,28 @@ class StructuresHelper extends Helper {
 		return $return_array;
 	}
 
+	private function printExtras($this_column, $total_columns, $content){
+		echo('
+			<td class="this_column_'.$this_column.' total_columns_'.$total_columns.'"> 
+			
+				<table class="columns extra" cellspacing="0">
+				<tbody>
+					<tr>
+						<td>
+							'.$content.'
+						</td>
+					</tr>
+				</tbody>
+				</table>
+				
+			</td>
+		');
+	}
 
 	/**
 	 * Builds the structure part that will contain data
 	 * @param array $atim_structure
 	 * @param array $options
-	 * @param boolean $use_data If true, data is placed directly into the stack, othewise replacable strings are placed
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
 	private function buildStack(array $atim_structure, array $options){
@@ -1204,23 +1212,25 @@ class StructuresHelper extends Helper {
 							$tmp_pulldown_result = $this->StructureValueDomain->find('first', array(
 								'conditions' => 
 									array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
-							$tmp_result = array();
-							$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
-							$current_element = 1;
-							foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
-								if($tmp_entry['Svdpv']['display_order'] != $current_order){
-									if(count($tmp_result) > 1){
-										asort($tmp_result);
+							if(count($tmp_pulldown_result['StructurePermissibleValue']) > 0){
+								$tmp_result = array();
+								$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
+								$current_element = 1;
+								foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
+									if($tmp_entry['Svdpv']['display_order'] != $current_order){
+										if(count($tmp_result) > 1){
+											asort($tmp_result);
+										}
+										$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
+										$tmp_result = array();
+										$current_order = $tmp_entry['Svdpv']['display_order']; 
 									}
-									$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
-									$tmp_result = array();
-									$current_order = $tmp_entry['Svdpv']['display_order']; 
+									$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
+									$current_element ++;
 								}
-								$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
-								$current_element ++;
+	
+								$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
 							}
-
-							$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
 						}
 					}else if($sfs['type'] == "checkbox"){
 						//provide yes/no as default for checkboxes
@@ -1242,11 +1252,25 @@ class StructuresHelper extends Helper {
 			}
 			
 		}
+		
+		if(Configure::read('debug') > 0 && count($options['override']) > 0){
+			$override = array_merge(array(), $options['override']);
+			foreach($stack as $cell){
+				foreach($cell as $fields){
+					foreach($fields as $field){
+						unset($override[$field['model'].".".$field['field']]);
+					}
+				}
+			}
+			foreach($override as $key => $foo){
+				AppController::addWarningMsg(sprintf(__("the override for [%s] couldn't be applied because the field was not foud", true), $key));
+			}
+		}
 		return $stack;
 	}
 	
 
-	private function generateContentWrapper($atim_content=array(), $options=array()){
+	public function generateContentWrapper($atim_content=array(), $options=array()){
 		$return_string = '';
 			
 			// display table...
@@ -1286,18 +1310,14 @@ class StructuresHelper extends Helper {
 				</table>
 			';
 			
-			$return_string .= $this->generateLinksList( NULL, $options, 'bottom' );
+			$return_string .= $this->generateLinksList(NULL, $options['links'], 'bottom');
 			
 		return $return_string;
 		
 	}
 
-
 	
-	// FUNCTION to build one OR more links...
-	// MODEL data, LINKS array, LANG array, ADD array list to INCLUDE, SKIP list to NOT include, and ID value to attach, if any 
-	// function generateLinksList( $links=array(), $lang=array(), $add=array(), $skip=array(), $id=NULL, $title='', $in_table=0 ) {
-	private function generateLinksList($data=array(), $options=array(), $state='index'){
+	private function generateLinksList($data, array $option_links, $state = 'index'){
 		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 		
 		$return_string = '';
@@ -1305,13 +1325,11 @@ class StructuresHelper extends Helper {
 		$return_urls = array();
 		$return_links = array();
 		
-		$links = isset($options['links'][$state]) ? $options['links'][$state] : array();
-		$links = !is_array($links) ? array('detail'=>$links) : $links;
-		
+		$links = isset($option_links[$state]) ? $option_links[$state] : array();
+		$links = !is_array($links) ? array('detail' => $links) : $links;
 		// parse through $LINKS array passed to function, make link for each 
-		foreach ( $links as $link_name => $link_array ) {
-				
-			if ( !is_array($link_array) ) {
+		foreach($links as $link_name => $link_array){
+			if(!is_array($link_array)){
 				$link_array = array( $link_name => $link_array );
 			}
 			
@@ -1325,7 +1343,7 @@ class StructuresHelper extends Helper {
 				$link_array = array( $link_name => $link_array['link'] );
 			}
 			$prev_icon = $icon;
-			foreach ( $link_array as $link_label => &$link_location ) {
+			foreach($link_array as $link_label => &$link_location){
 				$icon = $prev_icon;
 				if(is_array($link_location)){
 					if(isset($link_location['icon'])){
@@ -1335,26 +1353,21 @@ class StructuresHelper extends Helper {
 					$link_location = &$link_location['link'];
 				}
 					
-				// if ( !Configure::read("debug") ) {
-					// check on EDIT only
-					
-					$parts = Router::parse($link_location);
-					$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-					$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-					$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-					
-					if ( !isset($Acl) ) {
-						$Acl = new SessionAclComponent();
-						$Acl->initialize($this);
-					}
-				// }	
+				$parts = Router::parse($link_location);
+				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+				
+				if ( !isset($Acl) ) {
+					$Acl = new SessionAclComponent();
+					$Acl->initialize($this);
+				}
 				
 				// if ACO/ARO permissions check succeeds, create link
-				// if ( Configure::read("debug") || strpos($aco_alias,'controllers/Users')!==false || strpos($aco_alias,'controllers/Pages')!==false || $Acl->check($aro_alias, $aco_alias) ) {
-				if ( strpos($aco_alias,'controllers/Users')!==false 
-				|| strpos($aco_alias,'controllers/Pages')!==false
+				if (strpos($aco_alias,'controllers/Users') !== false 
+				|| strpos($aco_alias,'controllers/Pages') !== false
 				|| $aco_alias == "controllers/Menus/index"
-				|| $Acl->check($aro_alias, $aco_alias) ) {
+				|| $Acl->check($aro_alias, $aco_alias)){
 					
 					$display_class_name = $this->generateLinkClass($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
@@ -1374,41 +1387,39 @@ class StructuresHelper extends Helper {
 					$return_urls[]		= $this->Html->url( $link_location );
 					
 					// check AJAX variable, and set link to be AJAX link if exists
-						if ( isset($options['links']['ajax'][$state][$link_name]) ) {
-							
-							// if ajax SETTING is an ARRAY, set helper's OPTIONS based on keys=>values
-							if ( is_array($options['links']['ajax'][$state][$link_name]) ) {
-								foreach ( $options['links']['ajax'][$state][$link_name] as $html_attribute_key=>$html_attribute_value ) {
-									$htmlAttributes[$html_attribute_key] = $html_attribute_value;
-								}
-							} 
-							
-							// otherwise if STRING set UPDATE option only
-							else {
-								$htmlAttributes['json']['update'] = $options['links']['ajax'][$state][$link_name];
-							}
-							//stuff the ajax information in json format within the class attribute
-							$htmlAttributes['class'] .= " ajax {";
-							foreach($htmlAttributes['json'] as $key => $val){
-								$htmlAttributes['class'] .= "'".$key."' : '".$val."', ";
-							}
-							$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
-							unset($htmlAttributes['json']);
-						}
+					if ( isset($option_links['ajax'][$state][$link_name]) ) {
 						
-						$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
-				
-						$link_results[$link_label]	= $this->Html->link( 
-							( $state=='index' ? '&nbsp;' : __($link_label, true) ), // title
-							$link_location, // url
-							$htmlAttributes, // options
-							$confirmation_msg // confirmation message
-						);
+						// if ajax SETTING is an ARRAY, set helper's OPTIONS based on keys=>values
+						if(is_array($option_links['ajax'][$state][$link_name])){
+							foreach ($option_links['ajax'][$state][$link_name] as $html_attribute_key => $html_attribute_value){
+								$htmlAttributes[$html_attribute_key] = $html_attribute_value;
+							}
+						}else{
+						// otherwise if STRING set UPDATE option only
+							$htmlAttributes['json']['update'] = $option_links['ajax'][$state][$link_name];
+						}
+						//stuff the ajax information in json format within the class attribute
+						$htmlAttributes['class'] .= " ajax {";
+						foreach($htmlAttributes['json'] as $key => $val){
+							$htmlAttributes['class'] .= "'".$key."' : '".$val."', ";
+						}
+						$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
+						unset($htmlAttributes['json']);
+					}
+						
+					$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
+			
+					$link_results[$link_label]	= $this->Html->link( 
+						($state=='index' ? '&nbsp;' : __($link_label, true)), // title
+						$link_location, // url
+						$htmlAttributes, // options
+						$confirmation_msg // confirmation message
+					);
 					
 				}
 				
 				// if ACO/ARO permission check fails, display NOt ALLOWED type link
-				else {
+				else{
 					$return_urls[]		= $this->Html->url( '/menus' );
 					$link_results[$link_label]	= '<a class="not_allowed">'.__($link_label, true).'</a>';
 				} // end CHECKMENUPERMISSIONS
@@ -1417,9 +1428,7 @@ class StructuresHelper extends Helper {
 			
 			if ( count($link_results)==1 && isset($link_results[$link_name]) ) {
 				$return_links[$link_name] = $link_results[$link_name];
-			}
-			
-			else {
+			}else{
 				
 				$links_append = '
 							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
@@ -1432,7 +1441,7 @@ class StructuresHelper extends Helper {
 				
 				$count = 0;
 				$tmpSize = sizeof($link_results) - 1;
-				foreach ( $link_results as $link_label=>$link_location ) {
+				foreach($link_results as $link_label=>$link_location){
 					$class_last_line = "";
 					if($count == $tmpSize){
 						$class_last_line = " count_last_line";
@@ -1451,7 +1460,7 @@ class StructuresHelper extends Helper {
 								</div>
 				';
 				
-				if ( count($link_results)>7 ) {
+				if(count($link_results) > 7){
 					$links_append .= '
 								<span class="up"></span>
 								<span class="down"></span>
@@ -1474,26 +1483,26 @@ class StructuresHelper extends Helper {
 		} // end FOREACH 
 		
 		// ADD title to links bar and wrap in H5
-		if ( $state=='bottom' ) { 
+		if($state=='bottom'){ 
 			
 			$return_string = '
 				<div class="actions">
 			';
 			
 			// display SEARCH RESULTS, if any
-			if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
+			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 					$return_string .= '
-							<div class="search-result-div"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+							<div class="search-result-div bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 								'.$_SESSION['ctrapp_core']['search']['results'].'
 							</a></div>
 					';
 				}
-			} else {
+			}else{
 				unset($_SESSION['ctrapp_core']['search']);
 			}
 			
-			if ( count($return_links) ) {
+			if(count($return_links)){
 				$return_string .= '
 					<ul><li><ul class="filter">
 						<li><div class="bottom_button">'.implode('</div></li><li><div class="bottom_button">',$return_links).'</div></li>
@@ -1507,22 +1516,16 @@ class StructuresHelper extends Helper {
 			
 			
 			
-		} else if ( $state=='top' ) {
-		
+		}else if($state=='top'){
 			$return_string = $return_urls[0];
-			
-		} else if ( $state=='index' ) {
-			
-			if ( count($return_links) ) {
+		}else if($state=='index'){
+			if(count($return_links)){
 				$return_string = implode(' ',$return_links);
 			}
-			
 		}
 		
-		// return
 		return $return_string;
-		
-	} // end FUNCTION generateLinksList()
+	}
 
 
 	public function generateLinkClass( $link_name=NULL, $link_location=NULL ) {
@@ -1826,10 +1829,14 @@ class StructuresHelper extends Helper {
 			}
 		}
 		if(!isset($attributes['disabled']) || (!$attributes['disabled'] && $attributes['disabled'] != "disabled")){
-			$result .= '<span style="position: relative;">
-				<input type="button" class="datepicker" value=""/>
-				<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
-			</span>';
+			//add the calendar icon + extra span to manage calendar javascript
+			$result = 
+				'<span>'.$result 
+				.'<span style="position: relative;">
+						<input type="button" class="datepicker" value=""/>
+						<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
+					</span>
+				</span>';
 		}
 		return $result;
 	}

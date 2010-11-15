@@ -104,6 +104,6 @@
 		
 	}
 	
-	echo $structures->generate_content_wrapper( $atim_content );
+	echo $structures->generateContentWrapper($atim_content);
 	
 ?>
