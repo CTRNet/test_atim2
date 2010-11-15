@@ -280,7 +280,7 @@ class AppController extends Controller {
 		$divider = $nbsp_spaces ? "&nbsp;" : " ";
 		if(is_numeric($month)){
 			$month_str = AppController::getCalInfo($short_months);
-			$month = $month_str[(int)$month];
+			$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
 		}
 		if(date_format == 'MDY') {
 			$result = $month.$divider.$day.$divider.$year;

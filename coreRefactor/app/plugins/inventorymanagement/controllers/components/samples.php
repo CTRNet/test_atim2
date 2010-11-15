@@ -67,11 +67,11 @@ class SamplesComponent extends Object {
 				$formatted_sample_data['0']['detail_type'] = __($new_sample['SampleDetail']['tissue_source'], true);
 			}
 			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
-
+			
 			// Add Aliquot
 			$new_sample_aliquots = $new_sample['AliquotMaster'];
 			$new_sample_aliquots = array_reverse($new_sample_aliquots);
-			foreach($new_sample_aliquots as $key => $new_aliquot) {
+			foreach($new_sample_aliquots as $new_aliquot) {
 				$aliquot_control_data = $new_aliquot['AliquotControl'];
 				unset($new_aliquot['AliquotControl']);
 				$storage_master_data = $new_aliquot['StorageMaster'];
@@ -85,10 +85,9 @@ class SamplesComponent extends Object {
 				}
 				array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
 			}			
-			
 			$children_list[$key] = $formatted_sample_data;
 		}
-		unset($children_list[0]['AliquotMaster']);
+		
 		return $children_list;
 	}
 }
