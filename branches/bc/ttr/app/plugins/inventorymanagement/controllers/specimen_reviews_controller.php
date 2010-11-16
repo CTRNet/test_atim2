@@ -127,6 +127,17 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			unset($this->data['SpecimenReviewDetail']);
 			$aliquot_review_data = $this->data;
 			$this->data = NULL;
+			
+			$specimen_review_data['SpecimenReviewMaster']['specimen_review_control_id'] = $specimen_review_control_id;
+			$specimen_review_data['SpecimenReviewMaster']['specimen_sample_type'] = $review_control_data['SpecimenReviewControl']['specimen_sample_type'];
+			$specimen_review_data['SpecimenReviewMaster']['review_type'] = $review_control_data['SpecimenReviewControl']['review_type'];
+			$specimen_review_data['SpecimenReviewMaster']['collection_id'] = $collection_id;
+			$specimen_review_data['SpecimenReviewMaster']['sample_master_id'] = $sample_master_id;
+
+			foreach($aliquot_review_data as $key => $new_aliquot_review) {
+				$aliquot_review_data[$key]['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['AliquotReviewControl']['id'];			
+			}
+			
 			$this->set('specimen_review_data', $specimen_review_data);
 			$this->set('aliquot_review_data', $aliquot_review_data);	
 						
@@ -163,11 +174,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							
 				// Set additional specimen review data and save
 				$specimen_review_data['SpecimenReviewMaster']['id'] = null;
-				$specimen_review_data['SpecimenReviewMaster']['specimen_review_control_id'] = $specimen_review_control_id;
-				$specimen_review_data['SpecimenReviewMaster']['specimen_sample_type'] = $review_control_data['SpecimenReviewControl']['specimen_sample_type'];
-				$specimen_review_data['SpecimenReviewMaster']['review_type'] = $review_control_data['SpecimenReviewControl']['review_type'];
-				$specimen_review_data['SpecimenReviewMaster']['collection_id'] = $collection_id;
-				$specimen_review_data['SpecimenReviewMaster']['sample_master_id'] = $sample_master_id;
 				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				$specimen_review_master_id = $this->SpecimenReviewMaster->id;
 				
@@ -196,14 +202,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						// 2- Save aliquot review
 						$this->AliquotReviewMaster->id = null;
 						$new_aliquot_review['AliquotReviewMaster']['id'] = null;
-						$new_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['AliquotReviewControl']['id'];
 						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;					
 						$new_aliquot_review['AliquotReviewMaster']['aliquot_use_id'] = $aliquot_use_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					}
 				}
-				
-				
 				
 				$this->atimFlash(__('your data has been saved', true).  
 					($is_aliquot_use_created? '<br>' . __('work directly on aliquot to change aliquot information (status, used volume, etc)', true): ''),
@@ -335,8 +338,14 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$specimen_review_data['SpecimenReviewDetail'] = $this->data['SpecimenReviewDetail'];
 			unset($this->data['SpecimenReviewMaster']);
 			unset($this->data['SpecimenReviewDetail']);
-			$aliquot_review_data = $this->data;
+			$aliquot_review_data = array_values($this->data);//compact the array as some key might be missing
+			$aliquot_review_data[] = array('AliquotReviewMaster' => array('id' => __('new', true)));
 			$this->data = NULL;
+			
+			foreach($aliquot_review_data as $key => $new_aliquot_review) {
+				$aliquot_review_data[$key]['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];			
+			}
+			
 			$this->set('specimen_review_data', $specimen_review_data);
 			$this->set('aliquot_review_data', $aliquot_review_data);
 			
@@ -345,6 +354,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			
 			// Validate specimen review
 			$this->SpecimenReviewMaster->set($specimen_review_data);
+			$this->SpecimenReviewMaster->id = $specimen_review_id;
 			$submitted_data_validates = ($this->SpecimenReviewMaster->validates())? $submitted_data_validates: false;
 			
 			// Validate aliquot review

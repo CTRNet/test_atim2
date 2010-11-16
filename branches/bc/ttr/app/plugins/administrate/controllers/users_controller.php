@@ -27,6 +27,7 @@ class UsersController extends AdministrateAppController {
 	function add($group_id){
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->Structures->set('users');
+		$this->set("atim_menu", $this->Menus->get('/administrate/users/listall/%%Group.id%%/'));
 			
 		if($this->Group->hasPermissions($group_id)){
 			$hook_link = $this->hook('format');
