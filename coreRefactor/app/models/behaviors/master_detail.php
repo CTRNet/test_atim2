@@ -54,29 +54,26 @@ class MasterDetailBehavior extends ModelBehavior {
 		
 	}
 	
-	function afterFind (&$model, $results, $primary = false) { 
-		
+	function afterFind(&$model, $results, $primary = false){ 
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
-		
-		if ( $is_master_model ) {
-			
+		if($is_master_model){
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
+				$detail_model_cache = array();
 				foreach ($results as $key => $result) {
 					if(!isset($results[$key][$detail_class])){//the detail model is already defined if it was a find on a specific control_id
 						$associated = array();
+						if(!isset($detail_model_cache[$detail_class])){
+							$detail_model_cache[$detail_class] = new AppModel(array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class));
+						}
 						
-						$detail_model = new AppModel( array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
-						
-						$associated = $detail_model->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
+						$associated = $detail_model_cache[$detail_class]->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
 						$results[$key][$detail_class] = $associated[$detail_class];
 					}
 				}
-			} 
-			
-			// set DETAIL if ONLY one result
-			else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])) {
+			}else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])){
+				// set DETAIL if ONLY one result
 				$associated = array();
 				
 				$detail_model = new AppModel( array('table'=>$results[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
@@ -99,7 +96,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
-		if ( $is_master_model ) {
+		if($is_master_model){
 			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
 			$base_name = str_replace("Master", "", $model->name);
 			if(isset($query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])){
@@ -135,29 +132,29 @@ class MasterDetailBehavior extends ModelBehavior {
 				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
 			}
 			
-				foreach($detail_model->actsAs as $key => $data){
-					if ( is_array($data) ) {
-						$behavior = $key;
-						$config = $data;
-					} else {
-						$behavior = $data;
-						$config = null;
-					}
-					$detail_model->Behaviors->attach($behavior, $config);
-					$detail_model->Behaviors->$behavior->setup($detail_model,$config);
+			foreach($detail_model->actsAs as $key => $data){
+				if(is_array($data)){
+					$behavior = $key;
+					$config = $data;
+				}else{
+					$behavior = $data;
+					$config = null;
 				}
+				$detail_model->Behaviors->attach($behavior, $config);
+				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
+			}
 			
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
-			if ( isset($associated[$detail_class]) && count($associated[$detail_class]) ) {
+			if(isset($associated[$detail_class]) && count($associated[$detail_class])){
 				$detail_model->id = $associated[$detail_class]['id'];
 			}
 			
 			$model->data[$detail_class][$master_foreign] = $model->id;
 			
 			// save detail DATA
-			if ( (isset($detail_model->id) && $detail_model->id && !$created) || $created ) {
+			if((isset($detail_model->id) && $detail_model->id && !$created) || $created){
 				$result = $detail_model->save($model->data);
-			} else {
+			}else{
 				$result = true;
 			}
 			 
@@ -166,7 +163,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 	}
 	
-	function beforeDelete (&$model) {
+	function beforeDelete(&$model){
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		

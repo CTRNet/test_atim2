@@ -200,8 +200,7 @@ class ShellHelper extends Helper {
 		return $return;
 	} 
 	
-	function menu( $atim_menu=array(), $options=array() ) {
-		
+	function menu($atim_menu = array(), $options = array()){
 		$page_title = array();
 		if(!isset($this->pageTitle)){
 			$this->pageTitle = '';
@@ -211,178 +210,169 @@ class ShellHelper extends Helper {
 		$root_menu_array = array();
 		$main_menu_array = array();
 		
-		if ( count($atim_menu) ) {
+		if(count($atim_menu)){
 			
 			$summaries = array();
-			if ( !isset($options['variables']) ) $options['variables'] = array();
+			if(!isset($options['variables'])){
+				$options['variables'] = array();
+			}
 			
-				if ( isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User']) ) {
+			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 					
-					$count = 0;
-					$total_count = 0;
-					$is_root = false; // used to remove unneeded ROOT menu items from displaying in bar
+				$count = 0;
+				$total_count = 0;
+				$is_root = false; // used to remove unneeded ROOT menu items from displaying in bar
+				
+				foreach($atim_menu as $menu){
 					
-					foreach ( $atim_menu as $menu ) {
-						
-						$active_item = '';
-						$summary_item = '';
-						$append_menu = '';
-						
-						// save BASE array (main menu) for display in header
-						if ( $count==(count($atim_menu)-1) )	$root_menu_array = $menu;
-						if ( $count==(count($atim_menu)-2) )	$main_menu_array = $menu;
-						
-						if ( !$is_root ) {
-								
-							$sub_count = 0;
-							foreach ( $menu as $menu_item ) {
-								
-								if ( $menu_item['Menu']['use_link'] && count($options['variables']) ) {
-									foreach ( $options['variables'] as $k=>$v ) {
-										$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
-									}
+					$active_item = '';
+					$summary_item = '';
+					$append_menu = '';
+					
+					// save BASE array (main menu) for display in header
+					if($count == (count($atim_menu)-1)){
+						$root_menu_array = $menu;
+					}else if($count == (count($atim_menu) - 2)){
+						$main_menu_array = $menu;
+					}
+					
+					if(!$is_root){
+							
+						$sub_count = 0;
+						foreach($menu as $menu_item){
+							
+							if($menu_item['Menu']['use_link'] && count($options['variables'])){
+								foreach($options['variables'] as $k => $v){
+									$menu_item['Menu']['use_link'] = str_replace('%%'.$k.'%%',$v,$menu_item['Menu']['use_link']);
 								}
+							}
+							
+							if($menu_item['Menu']['at'] && $menu_item['Menu']['use_summary']){
+								$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
+								$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'], $options, 'short');
+							}
+							
+							if($menu_item['Menu']['at']){
+								$is_root = $menu_item['Menu']['is_root'];
 								
-								if ( $menu_item['Menu']['at'] && $menu_item['Menu']['use_summary'] ) {
-									$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
-									$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'short');
-								}
+								$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
 								
-								if ( $menu_item['Menu']['at'] ) {
+								if($menu_item['Menu']['use_summary']){
+									$active_item = '
+										<span>'.$menu_item['Menu']['use_summary'].'</span>
+										<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
+									';
 									
-									$is_root = $menu_item['Menu']['is_root'];
+									$page_title[] = $menu_item['Menu']['use_summary'];
+								}else{
 									
-									$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
+									$html_attributes = array('class'=>'without_summary');
 									
-									if ( $menu_item['Menu']['use_summary'] ) {
-										$active_item = '
-											<span>'.$menu_item['Menu']['use_summary'].'</span>
-											<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
-										';
+									if($is_root){
+										$html_attributes['class'] .= ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+										$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 										
-										$page_title[] = $menu_item['Menu']['use_summary'];
-									}
-									
-									else {
+										// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 										
-										$html_attributes = array('class'=>'without_summary');
-										
-										if ( $is_root ) {
-											$html_attributes['class'] .= ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-											$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
-											
-											// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
-											
-											if ( !$menu_item['Menu']['allowed'] ) {
-												$active_item = '<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
-											}
-											
-											else {
-												$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes );
-											}
-										} 
-										
-										else {
-											$active_item = '<span class="'.implode( ' ', $html_attributes ).'">'.__($menu_item['Menu']['language_title'], true).'</span>';
+										if(!$menu_item['Menu']['allowed']){
+											$active_item = '<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
+										}else {
+											$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes );
 										}
-										
-										$page_title[] = __($menu_item['Menu']['language_title'], true);
+									}else{
+										$active_item = '<span class="'.implode( ' ', $html_attributes ).'">'.__($menu_item['Menu']['language_title'], true).'</span>';
 									}
 									
+									$page_title[] = __($menu_item['Menu']['language_title'], true);
 								}
-								
-								$html_attributes = array();
-								$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
-								
-								if ( !$menu_item['Menu']['allowed'] ) {
-									
-									$append_menu .= '
-											<!-- '.$menu_item['Menu']['id'].' -->
-											<li class="not_allowed count_'.$sub_count.'">
-												<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
-											</li>
-									';
-									
-								} 
-								
-								else {
-									$append_menu .= '
-											<!-- '.$menu_item['Menu']['id'].' -->
-											<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-												'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
-											</li>
-									';
-								}
-								
-								$sub_count++;
 								
 							}
 							
-							// append FLYOUT menus to all menu bar TABS except ROOT tab
-							if ( !$is_root ) {
-								$append_menu = '
-										<div class="menu level_1">
-											<ul>
-												'.$append_menu.'
-											</ul>
-										</div>
+							$html_attributes = array();
+							$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
+							
+							if(!$menu_item['Menu']['allowed']){
+								$append_menu .= '
+										<!-- '.$menu_item['Menu']['id'].' -->
+										<li class="not_allowed count_'.$sub_count.'">
+											<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+										</li>
 								';
-							} else {
-								$append_menu = '';
+							}else{
+								$append_menu .= '
+										<!-- '.$menu_item['Menu']['id'].' -->
+										<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
+											'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
+										</li>
+								';
 							}
-							
-							$return_html[] = '
-								<li class="at count_'.$count.( $is_root ? ' root' : '' ).'">
-									'.$active_item.'
-									'.$append_menu.'
-								</li>
-							';
-							
-							// increment number of VISIBLE menu bar tabs
-							$total_count++;
+							$sub_count++;
 						}
 						
-						// increment number to TOTAL menu array items
-						$count++;
+						// append FLYOUT menus to all menu bar TABS except ROOT tab
+						if(!$is_root){
+							$append_menu = '
+									<div class="menu level_1">
+										<ul>
+											'.$append_menu.'
+										</ul>
+									</div>
+							';
+						}else{
+							$append_menu = '';
+						}
+						
+						$return_html[] = '
+							<li class="at count_'.$count.( $is_root ? ' root' : '' ).'">
+								'.$active_item.'
+								'.$append_menu.'
+							</li>
+						';
+						
+						// increment number of VISIBLE menu bar tabs
+						$total_count++;
 					}
+					
+					// increment number to TOTAL menu array items
+					$count++;
 				}
+			}
 				
 			// if summary info has been provided AND config variable allows it, provide expandable tab
 				
-				$return_summary = '';
-				$summaries = array_filter($summaries);
-				
-				if ( show_summary && count($summaries) ) {
-					$return_summary .= '
-						<ul id="summary">
-							<li>
-								<span class="summaryBtn">'.__('summary', null).'</span>
-								
-								<ul>
-					';
-					
-					$summary_count = 0;
-					foreach ( $summaries as $summary ) {
-						$return_summary .= '
-									<li class="count_'.$summary_count.'">
-										'.$summary.'
-									</li>
-						';
-						
-						$summary_count++;
-					}
-					
-					$return_summary .= '
-								</ul>
-								
-							</li>
-						</ul>
-					';
-				}
+			$return_summary = '';
+			$summaries = array_filter($summaries);
 			
+			if(show_summary && count($summaries)){
+				$return_summary .= '
+					<ul id="summary">
+						<li>
+							<span class="summaryBtn">'.__('summary', null).'</span>
+							
+							<ul>
+				';
+				
+				$summary_count = 0;
+				foreach($summaries as $summary){
+					$return_summary .= '
+								<li class="count_'.$summary_count.'">
+									'.$summary.'
+								</li>
+					';
+					
+					$summary_count++;
+				}
+				
+				$return_summary .= '
+							</ul>
+							
+						</li>
+					</ul>
+				';
+			}
 		}
 		
-		if ( $return_html ) {
+		if($return_html){
 			$return_html = '
 				<div class="menu level_0">
 					<ul class="total_count_'.$total_count.'">
@@ -399,9 +389,8 @@ class ShellHelper extends Helper {
 			$this->pageTitle = implode(' &laquo; ',$page_title);
 		}
 		
-		$return_array = array( $return_html, $root_menu_array, $main_menu_array );
+		$return_array = array($return_html, $root_menu_array, $main_menu_array);
 		return $return_array;
-		
 	}
 	
 	function fetch_summary( $summary, $options, $format='short' ) {

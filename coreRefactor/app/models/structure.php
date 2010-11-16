@@ -73,7 +73,6 @@ class Structure extends AppModel {
 			}
 			
 			if($conditions=='rule' || $conditions=='rules'){
-				//TODO: do not load this when not in add/edit mode
 				$return = array();
 				
 				foreach ($result[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){

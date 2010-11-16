@@ -21,7 +21,6 @@ class SamplesComponent extends Object {
 	 */
 	
 	function buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id = null) {
-		//TODO: OPTIMIZE ME, I AM SLOW
 		// Search collection content to display		
 		$criteria = array();
 		if($studied_specimen_sample_control_id) { 
