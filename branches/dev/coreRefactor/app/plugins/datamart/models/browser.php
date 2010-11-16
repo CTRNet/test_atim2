@@ -454,13 +454,18 @@ class Browser extends DatamartAppModel {
 				//it's a range
 				//key = field with possibly a comparison (field >=, field <=), if no comparison, it's = 
 				//value = value_str
-				$values[] = strpos($value_element, "-") ? AppController::getFormatedDatetimeString($value_element) : $value_element;
+				if(strpos($value_element, "-")){
+					list($year, $month, $day) = explode("-", $value_element);
+					$values[] = AppController::getFormatedDateString($year, $month, $day);
+				}else{
+					$values[] = $value_element;
+				}
 				if(strpos($key, " ") !== false){
 					list($key, $name_suffix) = explode(" ", $key);
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf['Ssf'] as $sf_unit){
+			foreach($sf['Sfs'] as $sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){

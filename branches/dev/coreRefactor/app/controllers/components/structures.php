@@ -1,5 +1,4 @@
 <?php
-//TODO FMLH check caching with dual structures mode
 class StructuresComponent extends Object {
 	
 	var $controller;
@@ -91,7 +90,7 @@ class StructuresComponent extends Object {
 		
 	}
 	
-	function parse_search_conditions( $atim_structure=NULL ) {
+	function parse_search_conditions($atim_structure=NULL){
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -99,13 +98,13 @@ class StructuresComponent extends Object {
 		$form_fields = array();
 		
 		// if no STRUCTURE provided, try and get one
-		if ( $atim_structure===NULL ){
+		if($atim_structure===NULL){
 			$atim_structure = $this->get();
 		}
 		
 		// format structure data into SEARCH CONDITONS format
-		if ( isset($atim_structure['Ssf']) ) {
-			foreach ($atim_structure['Ssf'] as $value) {
+		if (isset($atim_structure['Sfs'])){
+			foreach ($atim_structure['Sfs'] as $value) {
 				if(!$value['flag_search']){
 					//don't waste cpu cycles on non search parameters
 					continue;

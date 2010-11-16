@@ -68,6 +68,103 @@ class StructuresHelper extends Helper {
 		);
 		
 	private static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
+	
+	private static $display_class_mapping = array(
+		'index'		=>	'list',
+		'table'		=>	'list',
+		'listall'	=>	'list',
+	
+		'search'	=>	'search',
+	
+		'add'		=>	'add',
+		'new'		=>	'add',
+		'create'	=> 	'add',
+		
+		'edit'		=>	'edit',
+		
+		'detail'	=>	'detail',
+		'profile'	=>	'detail', //remove profile?
+		'view'		=>	'detail',
+		
+		'datagrid'	=>	'grid',
+		'editgrid'	=>	'grid',
+		'addgrid'	=>	'grid',
+	
+		'delete'	=>	'delete',
+		'remove'	=>	'delete',
+	
+		'cancel'	=>	'cancel',
+		'back'		=>	'cancel',
+		'return'	=>	'cancel',
+	
+		'duplicate'	=>	'duplicate',
+		'copy'		=>	'duplicate',
+		'return'	=>	'duplicate', //return = duplicate?
+		
+		'undo'		=>	'redo',
+		'redo'		=>	'redo',
+		'switch'	=>	'redo',
+		
+		'order'		=>	'order',
+		'shop'		=>	'order',
+		'ship'		=>	'order',
+		'buy'		=>	'order',
+		'cart'		=>	'order',
+		
+		'favourite'	=>	'thumbsup',
+		'mark'		=>	'thumbsup',
+		'label'		=>	'thumbsup',
+		'thumbsup'	=>	'thumbsup',
+		'thumbup'	=>	'thumbsup',
+		'approve'	=>	'thumbsup',
+		
+		'unfavourite' =>'thumbsdown',
+		'unmark'	=>	'thumbsdown',
+		'unlabel'	=>	'thumbsdown',
+		'thumbsdown'=>	'thumbsdown',
+		'thumbdown'	=>	'thumbsdown',
+		'unapprove'	=>	'thumbsdown',
+		'disapprove'=>	'thumbsdown',
+	
+		'tree'		=>	'reveal',
+		'reveal'	=>	'reveal',
+		'menu'		=>	'menu',
+	
+		'summary'	=>	'summary',
+
+		'filter'	=>	'filter',
+	
+		'user'		=>	'users',
+		'users'		=>	'users',
+		'group'		=>	'users',
+		'groups'	=>	'users',
+	
+		'news'		=>	'news',
+		'annoucement'=>	'news',
+		'annouvements'=>'news',
+		'message'	=>	'news',
+		'messages'	=>	'news'
+	);
+	
+	private static $display_class_mapping_plugin = array(
+		'menus'					=>	null,
+		'customize'				=>	null,
+		'clinicalannotation'	=>	null,
+		'inventorymanagement'	=>	null,
+		'datamart'				=>	null,
+		'administrate'			=>	null,
+		'drug'					=>	null,
+		'rtbform'				=>	null,
+		'order'					=>	null,
+		'protocol'				=>	null,
+		'material'				=>	null,
+		'sop'					=>	null,
+		'storagelayout'			=>	null,
+		'study'					=>	null,
+		'pricing'				=>	null,
+		'provider'				=>	null,
+		'underdevelopment'		=>	null,
+	);
 
 	function __construct(){
 		parent::__construct();
@@ -303,23 +400,33 @@ class StructuresHelper extends Helper {
 		
 		// each column in table 
 		$count_columns = 0;
+		if($options['type'] == 'search'){
+			//put every structure fields in the same column
+			$first_column = null;
+			foreach($table_index as $table_column_key => $table_column){
+				if(is_array($table_column)){
+					if($first_column == null){
+						$first_column = $table_column_key;
+						continue;
+					}
+					$table_index[$first_column] = array_merge($table_index[$first_column], $table_column);
+					unset($table_index[$table_column_key]);
+				}
+			}
+		}
+		
 		foreach($table_index as $table_column_key => $table_column){
 			$count_columns ++;
 			
 			// for each FORM/DETAIL element...
 			if(is_array($table_column)){
 				echo('<td class="this_column_'.$count_columns.' total_columns_'.count($table_index).'"> 
-					
-						<table class="columns detail" cellspacing="0">');
-
-				if(!empty($options['settings']['columns_names'])){
-					echo('<thead><tr><td></td><th>'.implode("</th><th>", $options['settings']['columns_names']).'</th></tr></thead>');
-				}
-				echo('<tbody>');
+						<table class="columns detail" cellspacing="0">
+							<tbody>
+								<tr>');
 			
 				// each row in column 
 				$table_row_count = 0;
-				echo("<tr>");
 				$new_line = true;
 				$end_of_line = "";
 				$display = "";
@@ -336,6 +443,7 @@ class StructuresHelper extends Helper {
 									</td>
 								</tr><tr>
 							');
+							$new_line = true;
 						}
 						
 						if($table_row_part['label']){
@@ -600,10 +708,6 @@ class StructuresHelper extends Helper {
 						foreach($table_index as $table_column){
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
-		
-									$current_value = null;
-									
-									//define $current_value with inline code
 									$current_value = self::getCurrentValue($data_unit, $table_row_part, "", $options);
 									if(strlen($table_row_part['label'])){
 										if($first_cell){
@@ -648,10 +752,10 @@ class StructuresHelper extends Helper {
 											'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
 										</span>
 										
-										'.$this->Paginator->link( '5', array('page'=>1, 'limit'=>5)).' |
-										'.$this->Paginator->link( '10', array('page'=>1, 'limit'=>10)).' |
-										'.$this->Paginator->link( '20', array('page'=>1, 'limit'=>20)).' |
-										'.$this->Paginator->link( '50', array('page'=>1, 'limit'=>50)).'
+										'.$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)).' |
+										'.$this->Paginator->link( '10', array('page' => 1, 'limit' => 10)).' |
+										'.$this->Paginator->link( '20', array('page' => 1, 'limit' => 20)).' |
+										'.$this->Paginator->link( '50', array('page' => 1, 'limit' => 50)).'
 										
 									</th>
 								</tr>
@@ -1093,6 +1197,7 @@ class StructuresHelper extends Helper {
 					
 					//validation CSS classes
 					if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
+						
 						foreach($sfs['StructureValidation'] as $validation){
 							if($validation['flag_not_empty'] || $validation['flag_required']){
 								$settings["class"] .= " required";
@@ -1100,8 +1205,8 @@ class StructuresHelper extends Helper {
 								break;
 							}
 						}
-						if(strlen($settings["class"]) == 0){
-							$settings["class"] .= " validation";
+						if($settings["class"] == "%c "){
+							$settings["class"] .= "validation";
 						}
 					}
 					
@@ -1114,6 +1219,9 @@ class StructuresHelper extends Helper {
 					//building all text fields (dropdowns, radios and checkboxes cannot be built here)
 					$field_name = "%d.".$sfs['model'].".".$sfs['field'];
 					if($sfs['type'] == "input"){
+						if($options['type'] != "search"){
+							$settings['class'] = str_replace("range", "", $settings['class']);
+						}
 						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 					}else if(array_key_exists($sfs['type'], $independent_types)){
 						//do nothing for independent types
@@ -1261,53 +1369,48 @@ class StructuresHelper extends Helper {
 	}
 	
 
-	public function generateContentWrapper($atim_content=array(), $options=array()){
+	public function generateContentWrapper($atim_content = array(), $options = array()){
 		$return_string = '';
 			
-			// display table...
-			$return_string .= '
-				<table class="structure" cellspacing="0">
-				<tbody>
-					<tr>
-			';
+		// display table...
+		$return_string .= '
+			<table class="structure" cellspacing="0">
+			<tbody>
+				<tr>
+		';
 				
-				// each column in table 
-				$count_columns = 0;
-				foreach ( $atim_content as $content ) {
-					
-					$count_columns++;
-					
-					$return_string .= '
-						<td class="this_column_'.$count_columns.' total_columns_'.count($atim_content).'"> 
-							
-							<table class="columns content" cellspacing="0">
-							<tbody>
-								<tr>
-									<td>
-										'.$content.'
-									</td>
-								</tr>
-							</tbody>
-							</table>
-								
-						</td>
-					';
-					
-				} // end COLUMN 
-				
+		// each column in table 
+		$count_columns = 0;
+		foreach($atim_content as $content){
+			$count_columns++;
+			
 			$return_string .= '
-					</tr>
-				</tbody>
-				</table>
+				<td class="this_column_'.$count_columns.' total_columns_'.count($atim_content).'"> 
+					
+					<table class="columns content" cellspacing="0">
+					<tbody>
+						<tr>
+							<td>
+								'.$content.'
+							</td>
+						</tr>
+					</tbody>
+					</table>
+						
+				</td>
 			';
+		} // end COLUMN 
+				
+		$return_string .= '
+				</tr>
+			</tbody>
+			</table>
+		';
 			
-			$return_string .= $this->generateLinksList(NULL, $options['links'], 'bottom');
-			
-		return $return_string;
-		
+		return $return_string.$this->generateLinksList(NULL, isset($options['links']) ? $options['links'] : array(), 'bottom');
 	}
 
-	
+
 	private function generateLinksList($data, array $option_links, $state = 'index'){
 		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 		
@@ -1331,7 +1434,7 @@ class StructuresHelper extends Helper {
 				if(isset($link_array['icon'])){
 					$icon = $link_array['icon'];
 				}
-				$link_array = array( $link_name => $link_array['link'] );
+				$link_array = array($link_name => $link_array['link']);
 			}
 			$prev_icon = $icon;
 			foreach($link_array as $link_label => &$link_location){
@@ -1371,13 +1474,15 @@ class StructuresHelper extends Helper {
 					
 					// set Javascript confirmation msg...
 					$confirmation_msg = NULL;
+					
 					if($data != null){
 						$link_location 		= $this->strReplaceLink($link_location, $data);
-						$return_urls[]		= $this->Html->url( $link_location );
 					}
+
+					$return_urls[]		= $this->Html->url( $link_location );
 					
 					// check AJAX variable, and set link to be AJAX link if exists
-					if ( isset($option_links['ajax'][$state][$link_name]) ) {
+					if(isset($option_links['ajax'][$state][$link_name])){
 						
 						// if ajax SETTING is an ARRAY, set helper's OPTIONS based on keys=>values
 						if(is_array($option_links['ajax'][$state][$link_name])){
@@ -1406,10 +1511,8 @@ class StructuresHelper extends Helper {
 						$confirmation_msg // confirmation message
 					);
 					
-				}
-				
-				// if ACO/ARO permission check fails, display NOt ALLOWED type link
-				else{
+				}else{
+					// if ACO/ARO permission check fails, display NOt ALLOWED type link
 					$return_urls[]		= $this->Html->url( '/menus' );
 					$link_results[$link_label]	= '<a class="not_allowed">'.__($link_label, true).'</a>';
 				} // end CHECKMENUPERMISSIONS
@@ -1419,7 +1522,6 @@ class StructuresHelper extends Helper {
 			if ( count($link_results)==1 && isset($link_results[$link_name]) ) {
 				$return_links[$link_name] = $link_results[$link_name];
 			}else{
-				
 				$links_append = '
 							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
 							<!-- container DIV for JS functionality -->
@@ -1518,209 +1620,63 @@ class StructuresHelper extends Helper {
 	}
 
 
-	public function generateLinkClass( $link_name=NULL, $link_location=NULL ) {
-			
+	public function generateLinkClass($link_name = NULL, $link_location = NULL){
 		$display_class_name = '';
 		$display_class_array = array();
 		
 		// CODE TO SET CLASS(ES) BASED ON URL GOES HERE!
 			
-			// determine TYPE of link, for styling and icon
-				
-				$use_string = $link_name ? $link_name : $link_location;
-				
-				if ( $link_name ) {
-					$use_string = str_replace('core_','',$use_string);
+		// determine TYPE of link, for styling and icon
+		
+		$use_string = $link_name ? $link_name : $link_location;
+		
+		if ( $link_name ) {
+			$use_string = str_replace('core_','',$use_string);
+		}
+		
+		$display_class_array = str_replace('/', ' ', $use_string);
+		$display_class_array = str_replace('_', ' ', $display_class_array);
+		$display_class_array = str_replace('-', ' ', $display_class_array);
+		$display_class_array = str_replace('  ', ' ', $display_class_array);
+		$display_class_array = explode( ' ', trim($display_class_array) );
+		
+		// if URL is passed but no NAME, reduce to words and get LAST word (which should be the action) and use that
+		if(!$link_name && $link_location){
+			foreach($display_class_array as $key=>$val){
+				if(strpos($val,'%')!==false || strpos($val,'@')!==false || is_numeric($val)){
+					unset($display_class_array[$key]);
+				} else {
+					$display_class_array[$key] = strtolower(trim($val));
 				}
-				
-				$display_class_array = str_replace('/', ' ', $use_string);
-				$display_class_array = str_replace('_', ' ', $display_class_array);
-				$display_class_array = str_replace('-', ' ', $display_class_array);
-				$display_class_array = str_replace('  ', ' ', $display_class_array);
-				$display_class_array = explode( ' ', trim($display_class_array) );
-				
-					// if URL is passed but no NAME, reduce to words and get LAST word (which should be the action) and use that
-					if ( !$link_name && $link_location ) {
-						foreach ( $display_class_array as $key=>$val ) {
-							if ( strpos($val,'%')!==false || strpos($val,'@')!==false || is_numeric($val) ) {
-								unset($display_class_array[$key]);
-							} else {
-								$display_class_array[$key] = strtolower(trim($val));
-							}
-						}
-					
-						$display_class_array = array_reverse($display_class_array);
-					}
-					
-					if ( isset($display_class_array[1]) ) { $display_class_array[1] = strtolower($display_class_array[1]); }
-					else { $display_class_array[1] = ''; }
-					
-					if ( isset($display_class_array[2]) ) { $display_class_array[2] = strtolower($display_class_array[2]); }
-					else { $display_class_array[2] = ''; }
-				
-				// folder (open)
-				if ( $display_class_array[0]=='index' )			$display_class_name = 'list';
-				if ( $display_class_array[0]=='table' )			$display_class_name = 'list';
-				if ( $display_class_array[0]=='tables' )			$display_class_name = 'list';
-				if ( $display_class_array[0]=='list' )				$display_class_name = 'list';
-				if ( $display_class_array[0]=='lists' )			$display_class_name = 'list';
-				if ( $display_class_array[0]=='listall' )			$display_class_name = 'list';
-				if ( $display_class_array[0]=='editgrid' )		$display_class_name = 'list';
-				if ( $display_class_array[0]=='datagrid' )		$display_class_name = 'list';
-				if ( $display_class_array[0]=='grid' )				$display_class_name = 'list';
-				if ( $display_class_array[0]=='grids' )			$display_class_name = 'list';
-				
-				// preview
-				if ( $display_class_array[0]=='search' )			$display_class_name = 'search';
-				if ( $display_class_array[0]=='look' )				$display_class_name = 'search';
-				
-				// add
-				if ( $display_class_array[0]=='add' )				$display_class_name = 'add';
-				if ( $display_class_array[0]=='new' )				$display_class_name = 'add';
-				if ( $display_class_array[0]=='create' )			$display_class_name = 'add';
-				
-				// edit
-				if ( $display_class_array[0]=='edit' )				$display_class_name = 'edit';
-				if ( $display_class_array[0]=='edits' )			$display_class_name = 'edit';
-				if ( $display_class_array[0]=='change' )			$display_class_name = 'edit';
-				if ( $display_class_array[0]=='changes' )			$display_class_name = 'edit';
-				if ( $display_class_array[0]=='update' )			$display_class_name = 'edit';
-				if ( $display_class_array[0]=='updates' )			$display_class_name = 'edit';
-				
-				// document
-				if ( $display_class_array[0]=='detail' )			$display_class_name = 'detail';
-				if ( $display_class_array[0]=='details' )			$display_class_name = 'detail';
-				if ( $display_class_array[0]=='profile' )			$display_class_name = 'detail';
-				if ( $display_class_array[0]=='profiles' )		$display_class_name = 'detail';
-				if ( $display_class_array[0]=='view' )				$display_class_name = 'detail';
-				if ( $display_class_array[0]=='views' )			$display_class_name = 'detail';
-				if ( $display_class_array[0]=='see' )				$display_class_name = 'detail';
-				
-				// table
-				if ( $display_class_array[0]=='grid' )				$display_class_name = 'grid';
-				if ( $display_class_array[0]=='datagrid' )		$display_class_name = 'grid';
-				if ( $display_class_array[0]=='editgrid' )		$display_class_name = 'grid';
-				if ( $display_class_array[0]=='addgrid' )			$display_class_name = 'grid';
-				
-				// close
-				if ( $display_class_array[0]=='delete' )			$display_class_name = 'delete';
-				if ( $display_class_array[0]=='remove' )			$display_class_name = 'delete';
-				
-				// control (rewind)
-				if ( $display_class_array[0]=='cancel' )			$display_class_name = 'cancel';
-				if ( $display_class_array[0]=='back' )				$display_class_name = 'cancel';
-				if ( $display_class_array[0]=='return' )			$display_class_name = 'cancel';
-				
-				// documents (x3)
-				if ( $display_class_array[0]=='duplicate' )		$display_class_name = 'duplicate';
-				if ( $display_class_array[0]=='duplicates' )		$display_class_name = 'duplicate';
-				if ( $display_class_array[0]=='copy' )				$display_class_name = 'duplicate';
-				if ( $display_class_array[0]=='copies' )			$display_class_name = 'duplicate';
-				if ( $display_class_array[0]=='return' )			$display_class_name = 'duplicate';
-				
-				// refresh
-				if ( $display_class_array[0]=='undo' )				$display_class_name = 'redo';
-				if ( $display_class_array[0]=='redo' )				$display_class_name = 'redo';
-				if ( $display_class_array[0]=='switch' )			$display_class_name = 'redo';
-				if ( $display_class_array[0]=='switches' )		$display_class_name = 'redo';
-				
-				// shopping cart
-				if ( $display_class_array[0]=='order' )			$display_class_name = 'order';
-				if ( $display_class_array[0]=='orders' )			$display_class_name = 'order';
-				if ( $display_class_array[0]=='shop' )				$display_class_name = 'order';
-				if ( $display_class_array[0]=='shops' )			$display_class_name = 'order';
-				if ( $display_class_array[0]=='ship' )				$display_class_name = 'order';
-				if ( $display_class_array[0]=='buy' )				$display_class_name = 'order';
-				if ( $display_class_array[0]=='cart' )				$display_class_name = 'order';
-				if ( $display_class_array[0]=='carts' )			$display_class_name = 'order';
-				
-				// flag (green)
-				if ( $display_class_array[0]=='favourite' )		$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='favourites' )		$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='mark' )				$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='label' )			$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='labels' )			$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='thumbsup' )		$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='thumbup' )			$display_class_name = 'thumbsup';
-				if ( $display_class_array[0]=='approve' )			$display_class_name = 'thumbsup';
-				
-				// flag (black)
-				if ( $display_class_array[0]=='unfavourite' )	$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='unmark' )			$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='unlabel' )			$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='thumbsdown' )		$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='thumbdown' )		$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='unapprove' )		$display_class_name = 'thumbsdown';
-				if ( $display_class_array[0]=='disapprove' )		$display_class_name = 'thumbsdown';
-				
-				// data relationship
-				if ( $display_class_array[0]=='tree' )				$display_class_name = 'reveal';
-				if ( $display_class_array[0]=='trees' )			$display_class_name = 'reveal';
-				if ( $display_class_array[0]=='reveal' )			$display_class_name = 'reveal';
-				if ( $display_class_array[0]=='menu' )				$display_class_name = 'reveal';
-				if ( $display_class_array[0]=='menus' )			$display_class_name = 'reveal';
-				
-				// paste
-				if ( $display_class_array[0]=='summary' )			$display_class_name = 'summary';
-				if ( $display_class_array[0]=='summarize' )		$display_class_name = 'summary';
-				if ( $display_class_array[0]=='brief' )			$display_class_name = 'summary';
-				if ( $display_class_array[0]=='briefs' )			$display_class_name = 'summary';
-				if ( $display_class_array[0]=='abbrev' )			$display_class_name = 'summary';
-				
-				// tag
-				if ( $display_class_array[0]=='filter' )			$display_class_name = 'filter';
-				if ( $display_class_array[0]=='filters' )			$display_class_name = 'filter';
-				if ( $display_class_array[0]=='restrict' )		$display_class_name = 'filter';
-				
-				// group
-				if ( $display_class_array[0]=='user' )				$display_class_name = 'users';
-				if ( $display_class_array[0]=='users' )			$display_class_name = 'users';
-				if ( $display_class_array[0]=='group' )			$display_class_name = 'users';
-				if ( $display_class_array[0]=='groups' )			$display_class_name = 'users';
-				
-				// newspaper
-				if ( $display_class_array[0]=='news' )				$display_class_name = 'news';
-				if ( $display_class_array[0]=='announcement' )	$display_class_name = 'news';
-				if ( $display_class_array[0]=='announcements' )	$display_class_name = 'news';
-				if ( $display_class_array[0]=='message' )			$display_class_name = 'news';
-				if ( $display_class_array[0]=='messages' )		$display_class_name = 'news';
-				
-				// the following criteria are looking for the plugins
-				// they populate the right hand toolbar for the app
-				// specific names are needed if you want specific icons - julian / wil - Aug.12'09
-				if ( $display_class_array[0]=='plugin' ) {
-					if ( $display_class_array[1]=='menus' )													$display_class_name = 'plugin home';
-					if ( $display_class_array[1]=='menus' && $display_class_array[2]=='tools' )	$display_class_name = 'plugin tools';
-					if ( $display_class_array[1]=='users' && $display_class_array[2]=='logout' )	$display_class_name = 'plugin logout';
-					
-					if ( $display_class_array[1]=='customize' )												$display_class_name = 'plugin customize';
-					
-					if ( $display_class_array[1]=='clinicalannotation' )									$display_class_name = 'plugin clinicalannotation';
-					if ( $display_class_array[1]=='inventorymanagement' )									$display_class_name = 'plugin inventorymanagement';
-					if ( $display_class_array[1]=='datamart' )												$display_class_name = 'plugin datamart';
-				
-					if ( $display_class_array[1]=='administrate' )											$display_class_name = 'plugin administrate';
-					if ( $display_class_array[1]=='drug' )														$display_class_name = 'plugin drug';
-					if ( $display_class_array[1]=='rtbform' )													$display_class_name = 'plugin rtbform';
-					if ( $display_class_array[1]=='order' )													$display_class_name = 'plugin order';
-					if ( $display_class_array[1]=='protocol' )												$display_class_name = 'plugin protocol';
-					if ( $display_class_array[1]=='material' )												$display_class_name = 'plugin material';
-					if ( $display_class_array[1]=='sop' )														$display_class_name = 'plugin sop';
-					if ( $display_class_array[1]=='storagelayout' )											$display_class_name = 'plugin storagelayout';
-					if ( $display_class_array[1]=='study' )													$display_class_name = 'plugin study';
-					if ( $display_class_array[1]=='pricing' )													$display_class_name = 'plugin pricing';
-					if ( $display_class_array[1]=='provider' )													$display_class_name = 'plugin provider';
-					if ( $display_class_array[1]=='underdevelopment')	$display_class_name = 'plugin underdev';
-					$display_class_name = $display_class_name ?												$display_class_name : 'plugin default';
-				}
-				
-				// document (blank)
-				$display_class_name = $display_class_name ?		$display_class_name : 'default';
-				
-				// if set to DEFAULT but URL has been provided, try again using URL instead!
-				if ( $display_class_name=='default' && $link_name && $link_location ) {
-					$display_class_name = $this->generateLinkClass( NULL, $link_location );
-				}
+			}
+		
+			$display_class_array = array_reverse($display_class_array);
+		}
+		
+		$display_class_array[1] = isset($display_class_array[1]) ? strtolower($display_class_array[1]) : ''; 
+		$display_class_array[2] = isset($display_class_array[2]) ? strtolower($display_class_array[2]) : '';
+
+		$display_class_name = null;
+		if(isset(self::$display_class_mapping[$display_class_array[0]])){
+			$display_class_name = self::$display_class_mapping[$display_class_array[0]];
+		}else if($display_class_array[0] == "plugin"){
+			if($display_class_array[1] == 'menus' && $display_class_array[2] == 'tools'){
+				$display_class_name = 'tools';
+			}else if($display_class_array[1] == 'users' && $display_class_array[2] == 'logout'){
+				$display_class_name = 'logout';
+			}else if($display_class_array[1] == 'menus'){
+				$display_class_name = 'home';
+			}else if(array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)){
+				$display_class_name = $display_class_array[1];
+			}else{
+				$display_class_name = 'default';
+			}
+			$display_class_name = 'plugin '.$display_class_name;
+		}else if($link_name && $link_location){
+			$display_class_name = $this->generateLinkClass(NULL, $link_location);
+		}else{
+			$display_class_name = 'default';
+		}
 
 		// return
 		return $display_class_name;
@@ -1729,54 +1685,41 @@ class StructuresHelper extends Helper {
 
 	
 	// FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value 
-	function strReplaceLink( $link='', $data=array() ) {
-		
-		if ( is_array($data) ) {
-			foreach ( $data as $model=>$fields ) {
-				if ( is_array($fields) ) {
-					foreach ( $fields as $field=>$value ) {
-						
+	function strReplaceLink($link = '', $data = array()){
+		if(is_array($data)){
+			foreach($data as $model => $fields){
+				if(is_array($fields)){
+					foreach($fields as $field => $value){
 						// avoid ONETOMANY or HASANDBELONGSOTMANY relationahips 
-						if ( !is_array($value) ) {
-							
+						if(!is_array($value)){
 							// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
 							$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
 							$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
-		
-						} // end !IS_ARRAY 
-						
+						} 
 					}
 				}
-			} // end FOREACH
+			}
 		}
-		
-		// return
 		return $link;
-		
-	} // end FUNCTION strReplaceLink()
-	
+	}
+
 	
 	function &arrayMergeRecursiveDistinct( &$array1, &$array2 = null) {
-	
 		$merged = $array1;
-		
-		if (is_array($array2)) {
-		
-			foreach ($array2 as $key => $val) {
+		if(is_array($array2)){
+			foreach($array2 as $key => $val){
+				if(is_array($array2[$key])){
+					if(!isset($merged[$key])){
+						$merged[$key] = array();
+					}
+					$merged[$key] = is_array($merged[$key]) ? $this->arrayMergeRecursiveDistinct($merged[$key], $array2[$key]) : $array2[$key];
+				}else{
+					$merged[$key] = $val;
+				}
 			
-			if (is_array($array2[$key])) {
-				if ( !isset($merged[$key]) ) $merged[$key] = array();
-				$merged[$key] = is_array($merged[$key]) ? $this->arrayMergeRecursiveDistinct($merged[$key], $array2[$key]) : $array2[$key];
-			} else {
-				$merged[$key] = $val;
-			} // end IF/ELSE
-			
-			} // end FOREACH
-		
-		} // end IF array
-		
+			}
+		}
 		return $merged;
-	
 	}
 	
 	
@@ -1879,22 +1822,21 @@ class StructuresHelper extends Helper {
 	private function getTool($append_field_tool){
 		$result = "";
 		// multiple INPUT entries, using uploaded CSV file
-		//TODO: reenable this
 		if($append_field_tool == 'csv'){
-//				if($options['type']=='search'){
-//					// replace NAME of input with ARRAY format name
-//					// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-//					$display_value = str_replace(']"','][]"',$display_value);
-//
-//					// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-//					$display_value = '
-//									<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
-//										'.$display_value.'
-//										<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
-//									</div>
-//								';
-//
-//				}
+			if($options['type']=='search'){
+				// replace NAME of input with ARRAY format name
+				// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
+				$display_value = str_replace(']"','][]"',$display_value);
+
+				// wrap FIELD in DIV/P and add JS links to clone/remove P tags
+				$display_value = '
+								<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
+									'.$display_value.'
+									<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
+								</div>
+							';
+
+			}
 		}else{
 			$append_field_tool_id = '';
 			$append_field_tool_id = str_replace( '.', ' ', $append_field_tool );
@@ -1912,7 +1854,7 @@ class StructuresHelper extends Helper {
 		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
-		}else if($options['type'] != 'index'){
+		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
 				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];

@@ -265,23 +265,12 @@ function uncheckAll( $div ) {
 				//html template for that field
 				var fieldHTML = $($field).html();
 				
-				//update its id
-				var idIncrement = 1;
-				$($field).find("input, select").each(function(){
-					$(this).attr("id", $(this).attr("id") + "_0");
-				});
-				
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
 					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
-					//update its id
-					$($newField).find("input, select").each(function(){
-						$(this).attr("id", $(this).attr("id") + "_" + idIncrement);
-					});
-					++ idIncrement;
 					
 					initDatepicker($($newField).find(".datepicker"));
 					
@@ -306,7 +295,7 @@ function uncheckAll( $div ) {
 		
 		$(scope).find(".range").each(function(){
 			//uses .btn_add_or to know if this is a search form and if advanced controls are on
-			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
+			$(this).parent().parent().parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
 		});
 		$(scope).find(".range_btn").toggle(function(){
 			var cell = getParentElement(this, "TD");

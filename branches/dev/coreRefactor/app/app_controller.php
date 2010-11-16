@@ -314,11 +314,11 @@ class AppController extends Controller {
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-			list($date, $time) = explode(" ", $datetime_string);
-			list($year, $month, $day) = explode("-", $date);
-			list($hour, $minutes, ) = explode(":", $time);
-			$formated_date = self::getFormatedDateString($year, $month, $day);
-			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+		list($date, $time) = explode(" ", $datetime_string);
+		list($year, $month, $day) = explode("-", $date);
+		list($hour, $minutes, ) = explode(":", $time);
+		$formated_date = self::getFormatedDateString($year, $month, $day);
+		return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
