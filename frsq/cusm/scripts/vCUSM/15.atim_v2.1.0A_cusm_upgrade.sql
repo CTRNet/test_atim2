@@ -76,7 +76,7 @@ idents.identifier_value AS qc_cusm_prostate_bank_identifier
 
 FROM sample_masters as samp
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN sample_masters specimen on samp.initial_specimen_sample_id = specimen.id and specimen.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
 LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
 LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
@@ -128,7 +128,7 @@ idents.identifier_value AS qc_cusm_prostate_bank_identifier
 FROM aliquot_masters as al
 INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN sample_masters specimen on samp.initial_specimen_sample_id = specimen.id and specimen.deleted != 1
+LEFT JOIN sample_masters as specimen on samp.initial_specimen_sample_id = specimen.id and specimen.deleted != 1
 LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
 LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
