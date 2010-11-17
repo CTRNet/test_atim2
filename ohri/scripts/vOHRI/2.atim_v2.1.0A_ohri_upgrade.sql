@@ -169,11 +169,11 @@ ALTER TABLE `ohri_dx_others`
   ADD CONSTRAINT `ohri_dx_others_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
 
 ALTER TABLE diagnosis_masters
-	ADD `progression_free_interval_months` int(11) DEFAULT NULL AFTER `survival_time_months`,
+	ADD `ohri_progression_free_interval_months` int(11) DEFAULT NULL AFTER `survival_time_months`,
 	ADD `ohri_tumor_site` varchar(100) NOT NULL DEFAULT '' AFTER `dx_origin`;
 
 ALTER TABLE diagnosis_masters_revs
-	ADD `progression_free_interval_months` int(11) DEFAULT NULL AFTER `survival_time_months`,
+	ADD `ohri_progression_free_interval_months` int(11) DEFAULT NULL AFTER `survival_time_months`,
 	ADD `ohri_tumor_site` varchar(100) NOT NULL DEFAULT '' AFTER `dx_origin`;
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("lmp", "lmp");
@@ -401,7 +401,7 @@ WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` 
 INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) 
 VALUES
 ('', 'Clinicalannotation', 'DiagnosisMaster', '', 'ohri_tumor_site', 'tumor site', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tumour_site') , '', 'open', 'open', 'open'),
-('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'progression_free_interval_months', 'progression free interval months', '', 'integer_positive', 'size=5', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'ohri_progression_free_interval_months', 'progression free interval months', '', 'integer_positive', 'size=5', '',  NULL , '', 'open', 'open', 'open'),
 ('', 'Clinicalannotation', 'DiagnosisDetail', '', 'histopathology', 'histopathology', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tumour_histopathology') , '', 'open', 'open', 'open'),
 ('', 'Clinicalannotation', 'DiagnosisDetail', '', 'figo', 'figo', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tumour_stage') , '', 'open', 'open', 'open'),
 ('', 'Clinicalannotation', 'DiagnosisDetail', 'ohri_dx_ovaries', 'laterality', 'laterality', '', 'select', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '', 'open', 'open', 'open'),
@@ -450,7 +450,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months'), 
 '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='ohri_dx_ovaries'), 
-(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='progression_free_interval_months'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ohri_progression_free_interval_months'), 
 '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='ohri_dx_ovaries'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), 
@@ -507,7 +507,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months'), 
 '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='ohri_dx_others'), 
-(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='progression_free_interval_months'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ohri_progression_free_interval_months'), 
 '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='ohri_dx_others'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes'), 
@@ -1316,6 +1316,204 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('ohri_hospital_card', 'Hospital Card', ''),
 ('ohri_bank_participant_id', 'Bank Number', '');
+
+-- Storage --
+
+UPDATE storage_controls SET flag_active = '0'
+WHERE storage_type NOT IN ('freezer', 'box81', 'shelf', 'rack16');
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `form_alias_for_children_pos`, `detail_tablename`, `databrowser_label`) VALUES
+(null, 'box50', 'B50', 'position', 'integer', 50, NULL, NULL, NULL, 10, 5, 0, 0, 1, 'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_1_dim_position_selection', 'std_boxs', 'box81');
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('box50', 'Box50 1-5', 'Boîte50 1-50');
+
+-- inventory --
+
+- ajouter ligne suivante au trunk
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(152);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131, 23, 136, 13, 14, 138, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11, 10);
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(23, 18, 54, 19, 41);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(8);
+
+UPDATE banks SET name = 'OHRI - Ovary Bank', description = '' WHERE id = '1';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id'), 'notEmpty', '0', '0', '', 'value is required');
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('acquisition_label') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_override_label  = '1',
+sfo.language_label  = 'participant code'
+WHERE sfi.field = 'field1' 
+AND str.alias IN ('collections')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id; 	
+
+TRUNCATE structure_permissible_values_customs;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('sop_master_id') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Inventorymanagement', 'ViewCollection', '', 'ohri_bank_participant_id', 'ohri_bank_participant_id', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewSample', '', 'ohri_bank_participant_id', 'ohri_bank_participant_id', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Inventorymanagement', 'ViewAliquot', '', 'ohri_bank_participant_id', 'ohri_bank_participant_id', '', 'input', 'size=30', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `field`='ohri_bank_participant_id'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='ohri_bank_participant_id'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), 
+(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='ohri_bank_participant_id'), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+DROP VIEW IF EXISTS view_collections;
+CREATE VIEW view_collections AS 
+SELECT 
+col.id AS collection_id,
+col.bank_id AS bank_id,
+col.sop_master_id AS sop_master_id,
+link.participant_id AS participant_id,
+link.diagnosis_master_id AS diagnosis_master_id,
+link.consent_master_id AS consent_master_id,
+
+part.participant_identifier AS participant_identifier,
+
+col.acquisition_label AS acquisition_label,
+
+col.collection_site AS collection_site,
+col.collection_datetime AS collection_datetime,
+col.collection_datetime_accuracy AS collection_datetime_accuracy,
+col.collection_property AS collection_property,
+col.collection_notes AS collection_notes,
+col.deleted AS deleted,
+banks.name AS bank_name,
+
+idents.identifier_value AS ohri_bank_participant_id,
+col.created AS created 
+
+from collections col 
+left join clinical_collection_links link on col.id = link.collection_id and link.deleted != 1
+left join participants part on link.participant_id = part.id and part.deleted != 1
+left join banks on col.bank_id = banks.id and banks.deleted != 1 
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'ohri_bank_participant_id'
+where col.deleted != 1;
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id AS sample_control_id,
+samp.sample_code,
+samp.sample_category,
+samp.deleted,
+
+idents.identifier_value AS ohri_bank_participant_id 
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'ohri_bank_participant_id'
+WHERE samp.deleted != 1;
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted,
+
+idents.identifier_value AS qc_cusm_prostate_bank_identifier
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'ohri_bank_participant_id'
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
 
 
 
