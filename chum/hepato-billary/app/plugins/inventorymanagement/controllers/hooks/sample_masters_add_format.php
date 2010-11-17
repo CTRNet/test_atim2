@@ -60,7 +60,7 @@ if(empty($this->data)) {
 			if(array_key_exists('tissue_source',$data['SampleDetail'])) {
 				// Default existing sample was a tissue
 				$preset['SpecimenDetail']['qc_hb_sample_code'] = ($data['SpecimenDetail']['qc_hb_sample_code'] == 'T')? 'N' : 'T';
-				foreach(array("tissue_source", "tissue_laterality", "pathology_reception_datetime", "qc_hb_patho_report_no") as $val){
+				foreach(array("tissue_source", "pathology_reception_datetime", "qc_hb_patho_report_no") as $val){
 					$preset['SampleDetail'][$val] = $data['SampleDetail'][$val];
 				}
 			} else {
