@@ -12,7 +12,7 @@
 		if ( count($ctrapp_form_links) ) {
 			$structure_links['index'] = $ctrapp_form_links;
 		}
-		$structures->build( $atim_structure_for_results, array('type'=>'checklist', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'header' => array('title' => __('result', null), 'description' => sizeof($results).' '. __('elements', true))), 'links'=>$structure_links) );
+		$structures->build( $atim_structure_for_results, array('type'=>'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'header' => array('title' => __('result', null), 'description' => sizeof($results).' '. __('elements', true))), 'links'=>$structure_links) );
 	
 	// display adhoc-to-batchset ADD form
 	

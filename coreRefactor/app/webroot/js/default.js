@@ -258,10 +258,17 @@ function uncheckAll( $div ) {
 		//for each add or button
 		$(scope).find(".btn_add_or").each(function(){
 			var $field = $(this).prev();
-			if($($field).find("input, select").length == 1){
-				$($field).find("input, select").each(function(){
+			//non range value, the OR is made to allow fields with CSV to be renamed but not cloned
+			if($($field).find("input, select").length == 1 || ($($field).find("input").length == 2 && $($($field).find("input")[1]).attr("type") == "file")){
+				$($field).find("input, select").first().each(function(){
 					$(this).attr("name", $(this).attr("name") + "[]");
 				});
+				
+				if($($field).find("input").length == 2){
+					//rename complete, hide and bail out
+					$(this).remove();
+					return;
+				}
 				//html template for that field
 				var fieldHTML = $($field).html();
 				

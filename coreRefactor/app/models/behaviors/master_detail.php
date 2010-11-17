@@ -54,17 +54,18 @@ class MasterDetailBehavior extends ModelBehavior {
 		
 	}
 	
-	function afterFind(&$model, $results, $primary = false){ 
+	function afterFind(&$model, $results, $primary = false){
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
 				$detail_model_cache = array();
-				foreach ($results as $key => $result) {
+				foreach ($results as $key => $result){
 					if(!isset($results[$key][$detail_class])){//the detail model is already defined if it was a find on a specific control_id
 						$associated = array();
 						if(!isset($detail_model_cache[$detail_class])){
+							//caching model (its rougly as fast as grouping queries by detail, see eventum 1120)
 							$detail_model_cache[$detail_class] = new AppModel(array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class));
 						}
 						

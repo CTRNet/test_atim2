@@ -248,8 +248,9 @@ class ShellHelper extends Helper {
 							}
 							
 							if($menu_item['Menu']['at'] && $menu_item['Menu']['use_summary']){
-								$summaries[] = $this->fetch_summary($menu_item['Menu']['use_summary'],$options,'long');
-								$menu_item['Menu']['use_summary'] = $this->fetch_summary($menu_item['Menu']['use_summary'], $options, 'short');
+								$fetched_summary = $this->fetchSummary($menu_item['Menu']['use_summary'], $options);
+								$summaries[] = $fetched_summary['long'];
+								$menu_item['Menu']['use_summary'] = $fetched_summary['short'];
 							}
 							
 							if($menu_item['Menu']['at']){
@@ -351,7 +352,7 @@ class ShellHelper extends Helper {
 							
 							<ul>
 				';
-				
+
 				$summary_count = 0;
 				foreach($summaries as $summary){
 					$return_summary .= '
@@ -393,98 +394,92 @@ class ShellHelper extends Helper {
 		return $return_array;
 	}
 	
-	function fetch_summary( $summary, $options, $format='short' ) {
-		
-		if ( $summary ) {
-		
+	function fetchSummary($summary, $options) {
+		$result = array("short" => null, "long" => null);
+		if($summary){
 			// get StructureField model, to swap out permissible values if needed
-				App::import('Model','StructureField');
-				$structure_fields_model = new StructureField;
+			App::import('Model','StructureField');
+			$structure_fields_model = new StructureField;
 			
 			list($model,$function) = split('::',$summary);
 			
-			if ( !$function ) $function = 'summary';
+			if(!$function){
+				$function = 'summary';
+			}
 			
-			if ( $model && App::import('Model',$model) ) {
-				
+			if($model && App::import('Model',$model)){
 				// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 				$plugin = NULL;
-				if ( strpos($model,'.')!==false ) {
+				if (strpos($model,'.') !== false){
 					$plugin_model_name = $model;
 					list($plugin,$model) = explode('.',$plugin_model_name);
 				}
 				
 				// load MODEL, and override with CUSTOM model if it exists...
-					$summary_model = new $model;
-					
-					$custom_model = $model.'Custom';
-					if ( App::import('Model',$custom_model) ) {
-						$summary_model = new $custom_model;
-					}
-				
-				$summary_result = $summary_model->{$function}( $options['variables'] );
-				
-				if ( $summary_result ) { 
-					
-					if ( $format=='short' ) {
-						if ( isset($summary_result['Summary']['menu']) && is_array($summary_result['Summary']['menu']) ) {
-							$summary = trim(__($summary_result['Summary']['menu'][0], true).' '.(isset($summary_result['Summary']['menu'][1])? $summary_result['Summary']['menu'][1]: ''));
-						}
-					}
-					
-					else {
-						if ( (isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title'])) || (isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description'])) ) {
-							$formatted_summary = "";
-							
-							if ( isset($summary_result['Summary']['title']) && is_array($summary_result['Summary']['title']) ) {
-								$formatted_summary .= '
-									'.__($summary_result['Summary']['title'][0], true).'
-									<span class="list_header">'.$summary_result['Summary']['title'][1].'</span>
-								';
-							}
-							$formatted_summary .= '
-								<dl>
-							';
-							
-							if ( isset($summary_result['Summary']['description']) && is_array($summary_result['Summary']['description']) ) {
-								foreach ( $summary_result['Summary']['description'] as $k=>$v ) {
-									
-									// if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
-									if (is_array($v)) $v = $structure_fields_model->findPermissibleValue($plugin,$model,$v);
-									
-									$formatted_summary .= '
-											<dt>'.__($k,true).'</dt>
-											<dd>'.( $v ? $v : '-' ).'</dd>
-									';
-								}
-							}
-							
-							$formatted_summary .= '
-								</dl>
-							';
-							
-							$summary = $formatted_summary;
-						}
-						
-						else {
-							$summary = false;
-						}
-					}
-				} 
-				
-				else { 
-					$summary = false; 
+				$summary_model = new $model;
+				$custom_model = $model.'Custom';
+				if(App::import('Model',$custom_model)){
+					$summary_model = new $custom_model;
 				}
-			} 
-			
-			else {
-				$summary = false;
+				
+				$summary_result = $summary_model->{$function}($options['variables']);
+				if(isset($summary_result['Summary'])){
+					if(Configure::read('debug') > 0){
+						AppController::addWarningMsg(__("the summary return array should no longer contain 'summary' as first key", true));
+					}
+					$summary_result = $summary_result['Summary'];
+				}
+				
+				if($summary_result){
+					//short--- 
+					if(isset($summary_result['menu']) && is_array($summary_result['menu'])){
+						$result['short'] = trim(__($summary_result['menu'][0], true).' '.(isset($summary_result['menu'][1])? $summary_result['menu'][1]: ''));
+					}else{
+						$result['short'] = false;
+					}
+					//--------
+					
+					//long---
+					$summary_long = "";
+					if(isset($summary_result['title']) && is_array($summary_result['title']) ) {
+						$summary_long = '
+							'.__($summary_result['title'][0], true).'
+							<span class="list_header">'.$summary_result['title'][1].'</span>
+						';
+					}
+
+					if(isset($summary_result['data']) && isset($summary_result['structure alias'])){
+						$structure = StructuresComponent::$singleton->get('form', $summary_result['structure alias']);
+						$summary_long .= $this->Structures->build($structure, array('type' => 'summary', 'data' => $summary_result['data'], 'settings' => array('return' => true, 'actions' => false)));
+					}else if(isset($summary_result['description']) && is_array($summary_result['description'])){
+						if(Configure::read('debug') > 0){
+							AppController::addWarningMsg(sprintf(__("the sumarty for model [%s] function [%s] is using the depreacted description way instead of a structure", true), $model, $function));
+						}
+						$summary_long .= '
+							<dl>
+						';
+						foreach($summary_result['description'] as $k => $v){
+							
+							// if provided VALUE is an array, it should be a select-option that needs to be looked up and translated...
+							if(is_array($v)){
+								$v = $structure_fields_model->findPermissibleValue($plugin,$model,$v);
+							}
+							
+							$summary_long .= '
+									<dt>'.__($k,true).'</dt>
+									<dd>'.( $v ? $v : '-' ).'</dd>
+							';
+						}
+						$summary_long .= '
+							</dl>
+						';
+					}
+					$result['long'] = strlen($summary_long) > 0 ? $summary_long : false;
+					//-------
+				}
 			}
-			
 		}
-		
-		return $summary;
-		
+		return $result;
 	}
 	
 }
