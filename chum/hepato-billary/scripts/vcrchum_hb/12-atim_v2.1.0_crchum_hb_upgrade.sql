@@ -803,12 +803,9 @@ AND sfi.field  NOT IN ('title', 'start_date', 'end_date', 'summary')
 AND s.alias = 'studysummaries'; 
 
 -----------------------------------------------------------------------
-- - Script to test custom list - -
+- TASKS TODO BEFORE GO LIVE -
 
-- pas d'access a forms, protocol, mat and equipemtn, sopo
-- limite access to study
-
-INSERT INTO structure_permissible_values_customs (control_id, value) (SELECT id, concat(name, '.... ADMINISTRATOR LIST') FROM structure_permissible_values_custom_controls 
-WHERE id NOT IN (SELECT control_id FROM structure_permissible_values_customs));
-
-- 
+- UPDATE PERMISSION: NO ACCESS TO FORMS, MATERIAL, EQUIP., SOP, LIMITED ACCESS TO STUDY
+- REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
+- RUN DB VALIDATION
+- COMPARE CODE WITH TRUNK
