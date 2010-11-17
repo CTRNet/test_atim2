@@ -58,6 +58,17 @@ class AliquotMastersControllerCustom extends AliquotMastersController {
 			$sample_label = $this->createSpecimenSampleLabel($collection_id, $sample_master_id, $sample_data);
 			$aliquot_creation_date = $sample_data['SpecimenDetail']['reception_datetime'];
 		
+			switch ($sample_data['SampleMaster']['sample_type']) {
+				case 'blood':
+					break;
+				case 'tissue':
+					$sample_label .= ' -'.(($aliquot_control_data['AliquotControl']['aliquot_type'] == 'block')? 'OCT': 'SF');		
+					break;
+	    		default :
+	    			// Type is unknown
+					$this->redirect('/pages/err_inv_system_error', null, true);
+			}
+						
 		} else if($sample_data['SampleMaster']['sample_category'] == 'derivative'){
 			$initial_specimen_label = $this->createSpecimenSampleLabel($collection_id, $sample_data['SampleMaster']['initial_specimen_sample_id']);
 			$sample_type_code = $sample_data['SampleControl']['sample_type_code'];
@@ -117,17 +128,6 @@ class AliquotMastersControllerCustom extends AliquotMastersController {
     			break;
     			
 			case 'tissue':
-				if(!array_key_exists('tissue_laterality', $specimen_data['SampleDetail'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				switch($specimen_data['SampleDetail']['tissue_laterality']) {
-					case 'left':
-						$new_sample_label .= ' L';
-						break;
-					case 'right':
-						$new_sample_label .= ' R';
-						break;
-					default:
-						$new_sample_label .= ' n/a';
-				}
 				break;
     		
     		default :

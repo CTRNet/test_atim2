@@ -802,6 +802,44 @@ AND sfi.model = 'StudySummary'
 AND sfi.field  NOT IN ('title', 'start_date', 'end_date', 'summary')
 AND s.alias = 'studysummaries'; 
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.model = 'Generated'
+AND sfi.field IN ('field1')
+AND s.alias = 'collections'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.model = 'SampleDetail'
+AND sfi.field IN ('tissue_laterality'); 
+		 
+UPDATE  structure_fields
+SET setting = 'size=40'
+WHERE field = 'qc_hb_label';
+
+UPDATE i18n SET en = 'Collection/Resection Date', fr = 'Date de prélèvement/résection' WHERE id = 'collection datetime';
+UPDATE i18n SET en = 'Collection/Resection to Creation Spent Time', fr = 'Temps écoulé entre prélèvement/résection et création' WHERE id = 'collection to creation spent time';
+UPDATE i18n SET en = 'Collection/Resection to Reception Spent Time', fr = 'Temps écoulé entre prélèvement/résection et réception' WHERE id = 'collection to reception spent time';
+UPDATE i18n SET en = 'Collection/Resection to Storage Spent Time', fr = 'Temps écoulé entre prélèvement/résection et entreposage' WHERE id = 'collection to storage spent time';
+
+UPDATE i18n SET en = 'Collection/Resection to Acquisition Spent Time', fr = 'Temps écoulé entre prélèvement/résection et acquisition' WHERE id = 'collection to reception spent time';
+UPDATE i18n SET en = 'Acquisition Date', fr = 'Date d''acquisition' WHERE id = 'reception date';
+UPDATE i18n SET en = 'Acquisition to Storage Spent Time', fr = 'Temps écoulé entre la acquisition et l''entreposage' WHERE id = 'reception to storage spent time';
+
+UPDATE `storage_controls` SET `horizontal_increment` = '0' WHERE `storage_type` = 'box27';
+
 -----------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
 
@@ -809,3 +847,4 @@ AND s.alias = 'studysummaries';
 - REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
 - RUN DB VALIDATION
 - COMPARE CODE WITH TRUNK
+,
