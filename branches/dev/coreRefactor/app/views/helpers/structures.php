@@ -281,7 +281,10 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure
 		$type = $options['type'];
-		if($type == 'index'
+		if($type == 'summary'){
+			$this->buildSummary($atim_structure, $options, $data);
+		
+		}else if($type == 'index'
 		||$type == 'addgrid'
 		|| $type == 'editgrid'
 		|| $type == 'datagrid'){
@@ -389,6 +392,20 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
+	private function flattenStructure(&$structure){
+		$first_column = null;
+		foreach($structure as $table_column_key => $table_column){
+			if(is_array($table_column)){
+				if($first_column === null){
+					$first_column = $table_column_key;
+					continue;
+				}
+				$structure[$first_column] = array_merge($table_index[$first_column], $table_column);
+				unset($structure[$table_column_key]);
+			}
+		}
+	}
+	
 	private function buildDetail($atim_structure, $options, $data_unit){
 		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
@@ -402,17 +419,7 @@ class StructuresHelper extends Helper {
 		$count_columns = 0;
 		if($options['type'] == 'search'){
 			//put every structure fields in the same column
-			$first_column = null;
-			foreach($table_index as $table_column_key => $table_column){
-				if(is_array($table_column)){
-					if($first_column == null){
-						$first_column = $table_column_key;
-						continue;
-					}
-					$table_index[$first_column] = array_merge($table_index[$first_column], $table_column);
-					unset($table_index[$table_column_key]);
-				}
-			}
+			self::flattenStructure($table_index);
 		}
 		
 		foreach($table_index as $table_column_key => $table_column){
@@ -516,6 +523,30 @@ class StructuresHelper extends Helper {
 	');
 	}
 
+	private function buildSummary(array $atim_structure, array $options, array $data_unit){
+		$table_index = $this->buildStack($atim_structure, $options);
+		self::flattenStructure($table_index);
+		echo("<dl>");
+		foreach($table_index as $table_column_key => $table_column){
+			$first_line = true;
+			foreach($table_column as $table_row){
+				foreach($table_row as $table_row_part){
+					if(strlen($table_row_part['label']) > 0 || $first_line){
+						if(!$first_line){
+							echo "</dd>";
+						}
+						echo "<dt>",$table_row_part['label'],"</dt><dd>";
+						$first_line = false;
+					}
+					echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null);
+				}
+			}
+			if(!$first_line){
+				echo "</dd>";
+			}
+		}
+		echo("</dl>");
+	}
 
 	private function getPrintableField(array $table_row_part, $field_name, array $options, $current_value, $key){
 		$display = null;
@@ -563,8 +594,6 @@ class StructuresHelper extends Helper {
 			
 			if(strlen($key)){
 				$display = str_replace("[%d]", "[".$key."]", $display);
-			}else{
-				$display = str_replace("[%d]", "", $display);
 			}
 			if(!is_array($current_value)){
 				$display = str_replace("%s", $current_value, $display);
@@ -1159,7 +1188,6 @@ class StructuresHelper extends Helper {
 		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
-		
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
 		foreach($atim_structure['Sfs'] AS $sfs){
 			if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
@@ -1182,13 +1210,31 @@ class StructuresHelper extends Helper {
 				|| $options['type'] == "editgrid"
 				|| $options['type'] == "search"){
 					
+					$settings['tabindex'] = self::$last_tabindex ++;
+					
+					if($sfs["flag_".$options['type']."_readonly"]){
+						$settings['disabled'] = "disabled";
+					}
+					
+					//building all text fields (dropdowns, radios and checkboxes cannot be built here)
+					$field_name = $sfs['model'].".".$sfs['field'];
+					if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
+						$field_name = "%d.".$field_name;	
+					}
+					
 					if(strlen($sfs['setting']) > 0){
 						// parse through FORM_FIELDS setting value, and add to helper array
 						$tmp_setting = explode(',', $sfs['setting']);
 						foreach($tmp_setting as $setting){
 							$setting = explode('=', $setting);
 							if($setting[0] == 'tool'){
-								$current['tool'] = $this->getTool($setting[1]);
+								if($setting[1] == 'csv'){
+									if($options['type'] == 'search'){
+										$current['tool'] = $this->Form->input($field_name."_with_file_upload", array_merge($settings, array("type" => "file", "class" => null, "value" => null)));
+									}
+								}else{
+									$current['tool'] = '<a href="'.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
+								}
 							}else{
 								$settings[$setting[0]] = $setting[1];
 							}
@@ -1210,14 +1256,6 @@ class StructuresHelper extends Helper {
 						}
 					}
 					
-					$settings['tabindex'] = self::$last_tabindex ++;
-					
-					if($sfs["flag_".$options['type']."_readonly"]){
-						$settings['disabled'] = "disabled";
-					}
-					
-					//building all text fields (dropdowns, radios and checkboxes cannot be built here)
-					$field_name = "%d.".$sfs['model'].".".$sfs['field'];
 					if($sfs['type'] == "input"){
 						if($options['type'] != "search"){
 							$settings['class'] = str_replace("range", "", $settings['class']);
@@ -1361,8 +1399,14 @@ class StructuresHelper extends Helper {
 					}
 				}
 			}
-			foreach($override as $key => $foo){
-				AppController::addWarningMsg(sprintf(__("the override for [%s] couldn't be applied because the field was not foud", true), $key));
+			if(count($override) > 0){
+				if($options['type'] == 'index' || $options['type'] == 'detail'){
+					AppController::addWarningMsg(__("you should not define overrides for index and detail views", true));
+				}else{
+					foreach($override as $key => $foo){
+						AppController::addWarningMsg(sprintf(__("the override for [%s] couldn't be applied because the field was not foud", true), $key));
+					}
+				}
 			}
 		}
 		return $stack;
@@ -1818,35 +1862,6 @@ class StructuresHelper extends Helper {
 		return $result;
 	}
 
-	
-	private function getTool($append_field_tool){
-		$result = "";
-		// multiple INPUT entries, using uploaded CSV file
-		if($append_field_tool == 'csv'){
-			if($options['type']=='search'){
-				// replace NAME of input with ARRAY format name
-				// $display_value = preg_replace('/name\=\"data\[([A-Za-z0-9]+)\]\[([A-Za-z0-9]+)\]\"/i','name="data[$1][$2][]"',$display_value);
-				$display_value = str_replace(']"','][]"',$display_value);
-
-				// wrap FIELD in DIV/P and add JS links to clone/remove P tags
-				$display_value = '
-								<div id="'.strtolower($field['StructureField']['model'].'_'.$field['StructureField']['field']).'_with_file_upload">
-									'.$display_value.'
-									<input class="file" type="file" name="data['.$field['StructureField']['model'].']['.$field['StructureField']['field'].'_with_file_upload]" />
-								</div>
-							';
-
-			}
-		}else{
-			$append_field_tool_id = '';
-			$append_field_tool_id = str_replace( '.', ' ', $append_field_tool );
-			$append_field_tool_id = trim($append_field_tool_id);
-			$append_field_tool_id = str_replace( ' ', '_', $append_field_tool_id );
-
-			$result = '<a href="'.$this->Html->Url( $append_field_tool ).'" class="tool_popup"></a>';
-		}
-		return $result;	
-	}
 	
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
 		if(is_array($data_unit)

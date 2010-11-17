@@ -113,13 +113,14 @@ class StructuresComponent extends Object {
 				// for RANGE values, which should be searched over with a RANGE...
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
-				if ( $value['type']=='number'
-				|| $value['type']=='integer'
-				|| $value['type']=='integer_positive'
-				|| $value['type']=='float'
-				|| $value['type']=='float_positive' 
-				|| $value['type']=='date' 
-				|| $value['type']=='datetime'
+				$value_type = $value['type'];
+				if ( $value_type == 'number'
+				|| $value_type == 'integer'
+				|| $value_type == 'integer_positive'
+				|| $value_type == 'float'
+				|| $value_type == 'float_positive' 
+				|| $value_type == 'date' 
+				|| $value_type == 'datetime'
 				|| (strpos($value['setting'], "range") !== false)
 						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
 					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
@@ -130,20 +131,16 @@ class StructuresComponent extends Object {
 					$form_fields[$form_fields_key.'_end']['plugin']			= $value['plugin'];
 					$form_fields[$form_fields_key.'_end']['model']			= $value['model'];
 					$form_fields[$form_fields_key.'_end']['field']			= $value['field'];
-					$form_fields[$form_fields_key.'_end']['key']				= $form_fields_key.' <=';
-				}
-				
-				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['type'] == 'select' || isset($this->controller->data['exact_search'])){
-					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
+					$form_fields[$form_fields_key.'_end']['key']			= $form_fields_key.' <=';
+				}else if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
+					// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
+					$form_fields[$form_fields_key]['plugin']= $value['plugin'];
 					$form_fields[$form_fields_key]['model']	= $value['model'];
 					$form_fields[$form_fields_key]['field']	= $value['field'];
 					
 					$form_fields[$form_fields_key]['key']		= $value['model'].'.'.$value['field'];
-				}
-				
-				// all other types, a generic SQL fragment...
-				else {
+				}else {
+					// all other types, a generic SQL fragment...
 					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
 					$form_fields[$form_fields_key]['model']	= $value['model'];
 					$form_fields[$form_fields_key]['field']	= $value['field'];
