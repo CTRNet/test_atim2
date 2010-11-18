@@ -22,13 +22,21 @@ SET `language_heading` = 'diagnosis', `flag_override_label` = '1', `language_lab
 WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') 
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field ='dx_date');
 
+ALTER TABLE qc_cusm_dxd_procure
+   ADD `morphology` varchar(50) DEFAULT NULL AFTER `diagnosis_master_id`;
+ALTER TABLE qc_cusm_dxd_procure_revs
+   ADD `morphology` varchar(50) DEFAULT NULL AFTER `diagnosis_master_id`;
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, '', 'Clinicalannotation', 'DiagnosisDetail', 'qc_cusm_dxd_procure', 'morphology', 'morphology (histology)', '', 'select', '', '', (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='report_number'), 
 '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
-(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='morphology'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_cusm_dxd_procure' AND `field`='morphology'), 
 '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'),
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
@@ -51,13 +59,17 @@ INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`)
 VALUES
 ('report date', 'Report Date', 'Date du Rapport');
 
-UPDATE  `structure_value_domains`
-SET source = NULL
-WHERE `domain_name` LIKE 'morphology';
+-- UPDATE  `structure_value_domains`
+-- SET source = NULL
+-- WHERE `domain_name` LIKE 'morphology';
 
 INSERT IGNORE INTO `structure_permissible_values` 
 (`value`, `language_alias`) 
 VALUES
+('adenocarcinoma / moderate', 'adenocarcinoma / moderate'),
+('hyperplasia', 'hyperplasia'),
+('no cancer', 'no cancer'),
+
 ('adenocarcinoma / well differentiated', 'adenocarcinoma / well differentiated'),
 ('adenocarcinoma / little differentiated', 'adenocarcinoma / little differentiated'),
 ('ductal adenocarcinoma', 'ductal adenocarcinoma'),
@@ -67,21 +79,32 @@ VALUES
 ('small cell carcinoma', 'small cell carcinoma'),
 ('sarcomatoid carcinoma', 'sarcomatoid carcinoma');
 
+DELETE FROM `structure_value_domains_permissible_values` WHERE `structure_value_domain_id` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values');
 INSERT INTO `structure_value_domains_permissible_values` 
 (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) 
 VALUES
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / well differentiated'), 1, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / little differentiated'), 2, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'ductal adenocarcinoma'), 3, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'mucinous adenocarcinoma'), 4, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'signet ring cell carcinoma'), 5, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenosquamous carcinoma'), 6, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'small cell carcinoma'), 7, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'sarcomatoid carcinoma'), 8, 1, ''),
-((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'morphology'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), 9, 1, '');
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / well differentiated'), 0, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / little differentiated'), 1, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenocarcinoma / moderate'), 2, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'ductal adenocarcinoma'), 3, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'mucinous adenocarcinoma'), 4, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'signet ring cell carcinoma'), 5, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'adenosquamous carcinoma'), 6, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'small cell carcinoma'), 7, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'sarcomatoid carcinoma'), 8, 1, ''),
+
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'hyperplasia' and language_alias = 'hyperplasia'), 15, 1, ''),
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'no cancer' and language_alias = 'no cancer'), 16, 1, ''),
+
+((SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'qc_cusm_histology_values'), (SELECT `id` FROM `structure_permissible_values` WHERE `value` = 'other'), 20, 1, '');
 
 DELETE FROM i18n 
-WHERE id IN ('adenocarcinoma / well differentiated', 
+WHERE id IN (
+'adenocarcinoma / moderate', 
+'hyperplasia',
+'no cancer',
+
+'adenocarcinoma / well differentiated', 
 'adenocarcinoma / little differentiated', 
 'ductal adenocarcinoma', 
 'mucinous adenocarcinoma',
@@ -91,6 +114,10 @@ WHERE id IN ('adenocarcinoma / well differentiated',
 'sarcomatoid carcinoma');
 
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('adenocarcinoma / moderate', '', 'Adenocarcinoma / Moderate', 'Adénocarcinome / modéré'),
+('hyperplasia', '', 'Hyperplasia', 'Hyperplasie'),
+('no cancer', '', 'No Cancer', 'Aucun cancer'),
+
 ('adenocarcinoma / well differentiated', '', 'Adenocarcinoma / Well Differentiated', 'Adénocarcinome / bien différencié'),
 ('adenocarcinoma / little differentiated', '', 'Adenocarcinoma / Little Differentiated', 'Adénocarcinome / peu différencié'),
 ('ductal adenocarcinoma', '', 'Ductal Adenocarcinoma', 'Adénocarcinome ductal'),
@@ -102,7 +129,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 DELETE FROM structure_formats 
 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_cusm_dxd_procure') 
-AND structure_field_id = (SELECT id FROM structure_fields WHERE field = 'morphology');
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'morphology');
 
 DELETE FROM `i18n` WHERE `id` IN ('health_insurance_card', 'prostate_bank_participant_id');
 INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) 
@@ -135,4 +162,4 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 ALTER TABLE qc_cusm_dxd_procure MODIFY `diagnosis_master_id` int(11) NOT NULL DEFAULT '0';
 ALTER TABLE qc_cusm_dxd_procure_revs MODIFY `diagnosis_master_id` int(11) NOT NULL DEFAULT '0';
-ALTER TABLE storage_masters_revs ADD `label_precision` varchar(10) DEFAULT NULL AFTER `short_label`;
+ALTER TABLE storage_masters_revs ADD `qc_cusm_label_precision` varchar(10) DEFAULT NULL AFTER `short_label`;

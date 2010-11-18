@@ -255,7 +255,7 @@ INSERT INTO `std_shelfs_revs` (`id`, `storage_master_id`, `created`, `created_by
 (6, 8, '2010-05-31 11:03:52', 1, '2010-06-15 15:44:10', 1, 24, '2010-06-15 15:44:10', 0, NULL),
 (12, 38, '2010-05-31 11:18:47', 1, '2010-06-15 15:46:01', 1, 25, '2010-06-15 15:46:01', 0, NULL);
 
-INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `qc_cusm_label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 'FRE - 1', 'freezer', 6, NULL, 1, 52, NULL, 'fr1', '', 'fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '-80.00', 'celsius', '', '2010-05-31 10:59:22', 1, '2010-05-31 10:59:23', 1, 0, NULL),
 (2, 'R - 2', 'rack 4x4', 21, 3, 3, 4, NULL, '1', '', '1', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-05-31 10:59:55', 1, '2010-05-31 11:02:11', 1, 0, NULL),
 (3, 'SH - 3', 'shelf', 14, 1, 2, 11, NULL, '1', '', '1', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-05-31 11:00:32', 1, '2010-05-31 11:00:33', 1, 0, NULL),
