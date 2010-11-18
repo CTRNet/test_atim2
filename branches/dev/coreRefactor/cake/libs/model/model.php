@@ -846,7 +846,7 @@ class Model extends Overloadable {
 		if (!is_array($data)) {
 			return $data;
 		}
-		
+
 		$copy = $data;
 		$type = $this->getColumnType($field);
 
@@ -861,10 +861,6 @@ class Model extends Overloadable {
 			$format = $db->columns[$type]['format'];
 			$date = array();
 
-			if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
-				$data['meridian'] = 'pm';
-			}
-			
 			if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
 				$data['hour'] = $data['hour'] + 12;
 			}
@@ -882,13 +878,9 @@ class Model extends Overloadable {
 					}
 					if (!empty($data[$val])) {
 						$date[$key] = $data[$val];
+					} else {
+						return null;
 					}
-				}
-				if(!isset($date['H'])){
-					return null;
-				}
-				if(!isset($date['i'])){
-					$date['i'] = $is_end ? '59' : '00';
 				}
 			}
 
