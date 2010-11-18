@@ -1332,6 +1332,7 @@ VALUES
 -- inventory --
 
 - ajouter ligne suivante au trunk
+
 INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
 VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
 
@@ -1514,6 +1515,111 @@ LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_i
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('lot_number')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
+
+
+
+
+
+
+ALTER TABLE ad_tubes
+	ADD `ohri_storage_method` varchar(100) DEFAULT NULL AFTER `cell_count_unit`,
+	ADD `ohri_storage_solution` varchar(100) NOT NULL DEFAULT '' AFTER `ohri_storage_method`;
+	
+ALTER TABLE ad_tubes_revs
+	ADD `ohri_storage_method` varchar(100) DEFAULT NULL AFTER `cell_count_unit`,
+	ADD `ohri_storage_solution` varchar(100) NOT NULL DEFAULT '' AFTER `ohri_storage_method`;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ohri_storage_method', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("flash frozen", "flash frozen");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_storage_method"),  (SELECT id FROM structure_permissible_values WHERE value="flash frozen" AND language_alias="flash frozen"), "1", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ohri_storage_solution', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("dmso", "dmso");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_storage_solution"),  
+(SELECT id FROM structure_permissible_values WHERE value="dmso" AND language_alias="dmso"), "1", "1");
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('ohri_ad_der_ascite_cells', '', '', '1', '1', '1', '1');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'ohri_storage_method', 'ohri storage method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_storage_method') , '', 'open', 'open', 'open'), 
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'ohri_storage_solution', 'ohri storage solution', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_storage_solution') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type')  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type' AND `language_label`='parent sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`='generated_parent_sample_sample_type_help'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type' AND `language_label`='sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`=''), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type' AND `language_label`='aliquot type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type')  AND `language_help`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `language_label`='barcode' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' AND `language_label`='aliquot in stock' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `language_help`='aliquot_in_stock_help'), '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `language_label`='aliquot in stock detail' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail')  AND `language_help`=''), '0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='aliquot_use_counter' AND `language_label`='use' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `language_label`='storage' AND `language_tag`='storage selection label' AND `type`='autocomplete' AND `setting`='url=/storagelayout/storage_masters/autocompleteLabel' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `language_label`='storage' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='stor_selection_label_defintion'), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_master_id' AND `language_label`='storage code' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code'), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `language_label`='position into storage' AND `language_tag`='' AND `type`='input' AND `setting`='size=4' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'), 
+
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=4' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `language_label`='initial storage date' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature' AND `language_label`='storage temperature' AND `language_tag`='' AND `type`='float' AND `setting`='size=5' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `language_help`=''), '0', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `language_label`='aliquot sop' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list')  AND `language_help`=''), '0', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `language_help`=''), '0', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='rows=3,cols=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `language_label`='creation to storage spent time' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `language_label`='lot number' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `language_label`='current volume' AND `language_tag`='' AND `type`='float' AND `setting`='size=5' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `language_help`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `language_label`='initial volume' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `language_help`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ohri_storage_method' AND `language_label`='ohri storage method' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_storage_method')  AND `language_help`=''), '1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ohri_ad_der_ascite_cells'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ohri_storage_solution' AND `language_label`='ohri storage solution' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_storage_solution')  AND `language_help`=''), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
+INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, 'tube', 'asctie cells tube', 'ohri_ad_der_ascite_cells', 'ad_tubes', 'ml', 'Asctie Cells Tube', 0, 'tube');
+
+INSERT INTO sample_to_aliquot_controls (sample_control_id,aliquot_control_id,flag_active)
+VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'ascite cell'),(SELECT id FROM aliquot_controls WHERE form_alias = 'ohri_ad_der_ascite_cells'),1);
+
+SET @samp_to_al_id = (SELECT id FROM sample_to_aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'ascite cell') AND aliquot_control_id = (SELECT id FROM aliquot_controls WHERE form_alias = 'ohri_ad_der_ascite_cells'));
+
+INSERT INTO realiquoting_controls (	parent_sample_to_aliquot_control_id,child_sample_to_aliquot_control_id,flag_active)
+VALUES
+(@samp_to_al_id,@samp_to_al_id,1);
+
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(10);
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('dmso', 'DMSO', 'DMSO'),
+('flash frozen', 'Flash Frozen', ''),
+('ohri storage method', 'Storage Method', ''),
+('ohri storage solution', 'Storage Solution', '');
+
+
+
+
+
+
+
+
+
+
+- changer summary de collection
 
