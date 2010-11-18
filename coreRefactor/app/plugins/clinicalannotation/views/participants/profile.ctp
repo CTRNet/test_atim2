@@ -32,7 +32,7 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure_for_misc_identifiers; 
-	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $participant_identifiers_data, 'settings' => array('header' => __('misc identifiers', null), 'separator' => true));
+	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $participant_identifiers_data, 'settings' => array('header' => __('misc identifiers', null)));
 		
 	// CUSTOM CODE
 	$hook_link = $structures->hook('identifiers');

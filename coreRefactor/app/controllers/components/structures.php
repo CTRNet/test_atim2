@@ -90,7 +90,7 @@ class StructuresComponent extends Object {
 		
 	}
 	
-	function parse_search_conditions($atim_structure=NULL){
+	function parse_search_conditions($atim_structure = NULL){
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -114,13 +114,14 @@ class StructuresComponent extends Object {
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
 				$value_type = $value['type'];
-				if ( $value_type == 'number'
+				if ($value_type == 'number'
 				|| $value_type == 'integer'
 				|| $value_type == 'integer_positive'
 				|| $value_type == 'float'
 				|| $value_type == 'float_positive' 
 				|| $value_type == 'date' 
 				|| $value_type == 'datetime'
+				|| $value_type == 'time'
 				|| (strpos($value['setting'], "range") !== false)
 						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
 					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
@@ -168,17 +169,16 @@ class StructuresComponent extends Object {
 		
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
-		foreach ( $this->controller->data as $model=>$fields ) {
+		foreach($this->controller->data as $model => $fields){
 			if(is_array($fields)){
-				foreach ( $fields as $key=>$data ) {
+				foreach($fields as $key => $data){
 					$form_fields_key = $model.'.'.$key;
 					// if MODEL data was passed to this function, use it to generate SQL criteria...
-					if ( count($form_fields) ) {
-						
+					if(count($form_fields)){
 						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-						if ( (!empty($data) || $data == "0")  && isset( $form_fields[$form_fields_key] ) ) {
+						if((!empty($data) || $data == "0")  && isset($form_fields[$form_fields_key])){
 							// if CSV file uploaded...
-							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+							if(is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name']){
 								
 								// set $DATA array based on contents of uploaded FILE
 								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
@@ -192,31 +192,32 @@ class StructuresComponent extends Object {
 								
 								unset($this->controller->data[$model][$key.'_with_file_upload']);
 							}
-							
+
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
-							if ( is_array($data) ) {
+							if (is_array($data)){
 								App::import('Model', $form_fields[$form_fields_key]['plugin'].'.'.$model);
 								// App::import('Model', 'Clinicalannotation.'.$model);
 								
 								$format_data_model = new $model;
 								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
-								if ( is_array($data) ) {
+								if(is_array($data)){
 									$data = array_unique($data);
-									
 									$data = array_filter($data, "StructuresComponent::myFilter");
 								}
 								
-								if ( !count($data) ) $data = '';
+								if (!count($data)){
+									$data = '';
+								}
 							}
 							
 							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-							if ( $data || $data == "0" ) {
+							if ($data || $data == "0"){
 								
 								if(isset($form_fields[$form_fields_key]['cast_icd'])){
 									//special magical icd case
 									eval('$instance = '.$form_fields[$form_fields_key]['cast_icd'].'::getInstance();');
 									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
-								}else if ( strpos($form_fields[$form_fields_key]['key'], ' LIKE')!==false ) {
+								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
@@ -234,7 +235,6 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
-		// return CONDITIONS for search form
 		return $conditions;
 	}
 	
