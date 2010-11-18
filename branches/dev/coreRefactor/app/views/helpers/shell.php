@@ -394,6 +394,12 @@ class ShellHelper extends Helper {
 		return $return_array;
 	}
 	
+	/**
+	 * Builds 2 summaries, one for the menu tabs (short) and one for the summary button (long)
+	 * @param unknown_type $summary
+	 * @param unknown_type $options
+	 * @return array('short' => short summary, 'long' => long summary)
+	 */
 	function fetchSummary($summary, $options) {
 		$result = array("short" => null, "long" => null);
 		if($summary){

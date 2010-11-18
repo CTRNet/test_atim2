@@ -10,7 +10,9 @@ class StructuresHelper extends Helper {
 	private static $hidden_on_disabled = array("input", "date", "datetime", "time", "integer", "interger_positive", "float", "float_positive", "tetarea", "autocomplete");
 	
 	private static $tree_node_id = 0;
-	private static $last_tabindex = 1; 
+	private static $last_tabindex = 1;
+
+	//default options
 	private static $defaults = array(
 			'type'		=>	NULL, 
 			
@@ -21,7 +23,7 @@ class StructuresHelper extends Helper {
 				
 				// show/hide various structure elements, useful for STACKING multiple structures (for example, to make one BIG form out of multiple smaller forms)
 				'actions'		=> true, 
-				'header'			=> '',
+				'header'		=> '',
 				'form_top'		=> true, 
 				'tabindex'		=> 0, // when setting TAB indexes, add this value to the number, useful for stacked forms
 				'form_inputs'	=> true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
@@ -38,9 +40,9 @@ class StructuresHelper extends Helper {
 			),
 			
 			'links'		=> array(
-				'top'				=> false, // if present, will turn structure into a FORM and this url is used as the FORM action attribute
+				'top'			=> false, // if present, will turn structure into a FORM and this url is used as the FORM action attribute
 				'index'			=> array(),
-				'bottom'			=> array(),
+				'bottom'		=> array(),
 				
 				'tree'			=> array(),
 				
@@ -48,9 +50,9 @@ class StructuresHelper extends Helper {
 				'radiolist'		=> array(), // keys are radio button NAMES (model.field) and values are radio button VALUES
 				
 				'ajax'	=> array( // change any of the above LINKS into AJAX calls instead
-					'top'			=> false,
+					'top'		=> false,
 					'index'		=> array(),
-					'bottom'		=> array()
+					'bottom'	=> array()
 				)
 			),
 			
@@ -185,6 +187,12 @@ class StructuresHelper extends Helper {
 		return $hook_file;
 	}
 
+	/**
+	 * Builds a structure
+	 * @param array $atim_structure The structure to build
+	 * @param array $options The various options indicating how to build the structures. refer to self::$default for all options
+	 * @return depending on the return option, echoes the structure and returns true or returns the string
+	 */
 	function build(array $atim_structure = array(), array $options = array()){
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
@@ -240,7 +248,7 @@ class StructuresHelper extends Helper {
 		
 		// display grey-box HEADING with descriptive form info
 		if($options['settings']['header']){
-			if ( !is_array($options['settings']['header']) ) {
+			if (!is_array($options['settings']['header'])){
 				$options['settings']['header'] = array(
 					'title'			=> $options['settings']['header'],
 					'description'	=> ''
@@ -279,7 +287,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		// run specific TYPE function to build structure
+		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
 		if($type == 'summary'){
 			$this->buildSummary($atim_structure, $options, $data);
@@ -291,16 +299,12 @@ class StructuresHelper extends Helper {
 			if($type == 'datagrid'){
 				$options['type'] = 'addgrid';
 				if(Configure::read('debug') > 0){
+					//TODO: remove datagrid for ATiM 2.3
 					AppController::addWarningMsg(sprintf(__("datagrid is deprecated, use addgrid or editgrid instead", true), $type));
 				}
 			}	
 			$this->buildTable( $atim_structure, $options, $data);
 
-		}else if($type == 'csv'){
-			$options['type'] = 'index';
-			$this->buildCsv( $atim_structure, $options, $data);
-			$options['settings']['actions'] = false;
-			
 		}else if($type == 'detail'
 		|| $type == 'add'
 		|| $type == 'edit'
@@ -311,13 +315,18 @@ class StructuresHelper extends Helper {
 			$options['type'] = 'index';
 			$this->buildTree( $atim_structure, $options, $data);
 			
+		}else if($type == 'csv'){
+			$options['type'] = 'index';
+			$this->buildCsv( $atim_structure, $options, $data);
+			$options['settings']['actions'] = false;
+			
 		}else{
 			if(Configure::read('debug') > 0){
 				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
 			}
 			//build detail anyway
 			$options['type'] = 'detail';
-			$this->buildDetail( $atim_structure, $options, $data);
+			$this->buildDetail($atim_structure, $options, $data);
 		}
 		
 		if(isset($options['extras']['end'])){
@@ -392,7 +401,11 @@ class StructuresHelper extends Helper {
 		return $atim_structure;
 	}
 	
-	private function flattenStructure(&$structure){
+	/**
+	 * Reorganizes a structure in a single column
+	 * @param array $structure
+	 */
+	private function flattenStructure(array &$structure){
 		$first_column = null;
 		foreach($structure as $table_column_key => $table_column){
 			if(is_array($table_column)){
@@ -400,13 +413,19 @@ class StructuresHelper extends Helper {
 					$first_column = $table_column_key;
 					continue;
 				}
-				$structure[$first_column] = array_merge($table_index[$first_column], $table_column);
+				$structure[$first_column] = array_merge($structure[$first_column], $table_column);
 				unset($structure[$table_column_key]);
 			}
 		}
 	}
 	
-	private function buildDetail($atim_structure, $options, $data_unit){
+	/**
+	 * Build a structure in a detail format
+	 * @param array $atim_structure
+	 * @param array $options
+	 * @param array $data_unit
+	 */
+	private function buildDetail(array $atim_structure, array $options, $data_unit){
 		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
 		echo('
@@ -516,13 +535,19 @@ class StructuresHelper extends Helper {
 				
 		} // end COLUMN 
 		
-	echo('
-			</tr>
-		</tbody>
-		</table>
-	');
+		echo('
+				</tr>
+			</tbody>
+			</table>
+		');
 	}
 
+	/**
+	 * Echoes a structure in a summary format
+	 * @param array $atim_structure
+	 * @param array $options
+	 * @param array $data_unit
+	 */
 	private function buildSummary(array $atim_structure, array $options, array $data_unit){
 		$table_index = $this->buildStack($atim_structure, $options);
 		self::flattenStructure($table_index);
@@ -538,7 +563,7 @@ class StructuresHelper extends Helper {
 						echo "<dt>",$table_row_part['label'],"</dt><dd>";
 						$first_line = false;
 					}
-					echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null);
+					echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null), " ";
 				}
 			}
 			if(!$first_line){
@@ -547,7 +572,16 @@ class StructuresHelper extends Helper {
 		}
 		echo("</dl>");
 	}
-
+	
+	/**
+	 * Echoes a structure field
+	 * @param array $table_row_part The field settings
+	 * @param string $field_name
+	 * @param array $options The structure settings
+	 * @param string $current_value The value to use/lookup for the field
+	 * @param int $key A numeric key used when there is multiple instances of the same field (like grids)
+	 * @return string The built field
+	 */
 	private function getPrintableField(array $table_row_part, $field_name, array $options, $current_value, $key){
 		$display = null;
 		if(strlen($key)){
@@ -567,7 +601,7 @@ class StructuresHelper extends Helper {
 				$display = self::getDateInputs($field_name, $date, $table_row_part['settings']);
 				$display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "time"){
-				$display = self::getTimeInputs($field_name, $table_row_part['settings']);
+				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
 			|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
@@ -625,11 +659,17 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		return (strlen($table_row_part['tag']) > 0 ? '<span class="tag">'.$table_row_part['tag'].'</span>' : "")
+		return (strlen($table_row_part['tag']) > 0 ? '<span class="tag">'.$table_row_part['tag'].'</span> ' : "")
 			.(strlen($display) > 0 ? $display : "-")." ";
 	}
 	
-	private function buildTable($atim_structure, $options, $data){
+	/**
+	 * Echoes a structure in a table format
+	 * @param array $atim_structure
+	 * @param array $options
+	 * @param array $data
+	 */
+	private function buildTable(array $atim_structure, array $options, array $data){
 		// attach PER PAGE pagination param to PASSED params array...
 		if(isset($this->params['named']) && isset($this->params['named']['per'])){
 			$this->params['pass']['per'] = $this->params['named']['per'];
@@ -821,15 +861,14 @@ class StructuresHelper extends Helper {
 	}
 
 
-	private function buildCsv( $atim_structure, $options ) {
-		if ( is_array($options['data']) ){
-			$data=$options['data']; 
-		}else{
-			$data=$this->data; 
-		}
-
+	/**
+	 * Builds a structure in a csv format
+	 * @param unknown_type $atim_structure
+	 * @param unknown_type $options
+	 */
+	private function buildCsv($atim_structure, $options, $data){
 		$table_structure = array();
-		foreach ( $data as $key=>$val ) {
+		foreach($data as $key => $val){
 			$options['stack']['key'] = $key;
 			$table_structure[$key] = $this->buildStack( $atim_structure, $options );
 			unset($options['stack']);
@@ -871,7 +910,7 @@ class StructuresHelper extends Helper {
 
 
 	/**
-	 * Enter description here ...
+	 * Echoes a structure in a tree format
 	 * @param array $atim_structures Contains atim_strucures (yes, plural), one for each data model to display
 	 * @param array $options
 	 * @param array $data
@@ -950,6 +989,12 @@ class StructuresHelper extends Helper {
 		'); 
 	}
 	
+	/**
+	 * Echoes a tree node for the tree structure
+	 * @param array $atim_structures
+	 * @param array $options
+	 * @param array $data
+	 */
 	private function buildTreeNode(array &$atim_structures, array $options, array $data){
 		foreach($data as $data_key => $data_val){
 			// unset CHILDREN from data, to not confuse STACK function
@@ -1797,11 +1842,11 @@ class StructuresHelper extends Helper {
 		}else{
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= $this->Form->text($name.".year", array_merge($attributes, array('value' => $year)));
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($attributes, array('value' => $year, 'size' => 4)))."<div>".__('year', true)."</div></span>";
 				}else if($part == "M"){
-					$result .= $this->Form->text($name.".month", array_merge($attributes, array('value' => $month)));
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('value' => $month, 'size' => 2)))."<div>".__('month', true)."</div></span>";
 				}else{
-					$result .= $this->Form->text($name.".day", array_merge($attributes, array('value' => $day)));
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('value' => $day, 'size' => 2)))."<div>".__('day', true)."</div></span>";
 				}
 			}
 		}
@@ -1826,7 +1871,7 @@ class StructuresHelper extends Helper {
 	 */
 	private function getTimeInputs($name, $time, array $attributes){
 		$result = "";
-		$hour = $minutes = $meridan = null;
+		$hour = $minutes = $meridian = null;
 		if(is_array($time)){
 			$hour = $time['hour'];
 			$minutes = $time['min'];
@@ -1837,12 +1882,12 @@ class StructuresHelper extends Helper {
 			list($hour, $minutes, ) = explode(":", $time);
 			if(time_format == 12){
 				if($hour >= 12){
-					$median = 'pm';
+					$meridian = 'pm';
 					if($hour > 12){
 						$hour %= 12;
 					}
 				}else{
-					$median = 'am';
+					$meridian = 'am';
 					if($hour == 0){
 						$hour = 12;
 					}
@@ -1853,11 +1898,11 @@ class StructuresHelper extends Helper {
 			$result .= $this->Form->hour($name, time_format == 24, $hour, $attributes);
 			$result .= $this->Form->minute($name, $minutes, $attributes);
 		}else{
-			$result .= $this->Form->text($name.".hour", array_merge($attributes, array('value' => $hour)));
-			$result .= $this->Form->text($name.".min", array_merge($attributes, array('value' => $minutes)));
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('value' => $hour, 'size' => 2)))."<div>".__('hour', true)."</div></span>";
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('value' => $minutes, 'size' => 2)))."<div>".__('minutes', true)."</div></span>";
 		}
 		if(time_format == 12){
-			$result .= $this->Form->meridian($name, array_merge($attributes, array('value' => $meridian)));
+			$result .= $this->Form->meridian($name, $meridian, $attributes, array('value' => $meridian));
 		}
 		return $result;
 	}

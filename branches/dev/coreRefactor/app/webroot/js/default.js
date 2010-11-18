@@ -176,7 +176,7 @@ function uncheckAll( $div ) {
 
 	function initDatepicker(elements){
 		$(elements).each(function(){
-			var dateFields = $(this).parent().parent().children();
+			var dateFields = $(this).parent().parent().find('input, select');
 			var yearField = null;
 			var monthField = null;
 			var dayField = null;
@@ -208,7 +208,15 @@ function uncheckAll( $div ) {
 				beforeShow: function(input, inst){
 					//put the date back in place
 					//because of datagrids copy controls we cannot keep the date in tmp
-					var tmpDate = $(yearField).val() + "-" + $(monthField).val() + "-" + $(dayField).val();
+					var month = $(monthField).val();
+					var day = $(dayField).val();
+					if(month < 10 && month > 0){
+						month = "0" + month;
+					}
+					if(day < 10 && day > 0){
+						day = "0" + day;
+					}	
+					var tmpDate = $(yearField).val() + "-" + month + "-" + day;
 					if(tmpDate.length == 10){
 						$(this).datepicker('setDate', tmpDate);
 					}
