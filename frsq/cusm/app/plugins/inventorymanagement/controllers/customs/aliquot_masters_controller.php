@@ -19,7 +19,7 @@ class AliquotMastersControllerCustom extends AliquotMastersController {
 		
 		if(!empty($arr_preselected_storages)) {
 			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' ' . $storage_data['StorageMaster']['label_precision'] .' [' . $storage_data['StorageMaster']['code'] . ' ('.__($storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+				$formatted_data[$storage_id] = $storage_data['StorageMaster']['selection_label'] . ' ' . $storage_data['StorageMaster']['qc_cusm_label_precision'] .' [' . $storage_data['StorageMaster']['code'] . ' ('.__($storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
 			}
 		}
 	

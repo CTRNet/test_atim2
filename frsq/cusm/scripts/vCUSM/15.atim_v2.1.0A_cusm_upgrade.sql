@@ -177,8 +177,15 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.flag_search = '1', sfo.flag_search_readonly = '0', sfo.flag_index = '1'
 WHERE str.alias IN ('diagnosismasters', 'qc_cusm_dxd_procure')
-AND sfi.field IN ('dx_date', 'morphology', 'primary_grade', 'secondary_grade', 'tertiary_grade', 'gleason_score', 'path_tstage', 
+AND sfi.field IN ('dx_date', 'primary_grade', 'secondary_grade', 'tertiary_grade', 'gleason_score', 'path_tstage', 
 'path_nstage', 'path_mstage', 'path_stage_summary')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_search_readonly = '0', sfo.flag_index = '1'
+WHERE str.alias IN ('qc_cusm_dxd_procure')
+AND sfi.field IN ('morphology')
+AND sfi.model = 'DiagnosisDetail'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
@@ -468,12 +475,12 @@ sfo.flag_index = '0', sfo.flag_detail = '0'
 WHERE sfi.field IN ('acquisition_label') AND sfi.model IN ('Collection', 'ViewAliquot', 'ViewCollection', 'ViewSample')
 AND sfi.id = sfo.structure_field_id;
 
-UPDATE structure_fields 
-SET type = 'select', 
-setting = '', 
-structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_cusm_histology_values'),
-language_label = 'morphology (histology)'
-WHERE field = 'morphology' AND tablename = 'diagnosis_masters';
+-- UPDATE structure_fields 
+-- SET type = 'select', 
+-- setting = '', 
+-- structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_cusm_histology_values'),
+-- language_label = 'morphology (histology)'
+-- WHERE field = 'morphology' AND tablename = 'diagnosis_masters';
 
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
@@ -677,7 +684,7 @@ INSERT INTO `std_shelfs_revs` (`id`, `storage_master_id`, `created`, `created_by
 (10, 32, '2010-11-10 15:11:03', 1, '2010-11-10 15:11:04', 1, 18, '2010-11-10 15:11:04', 0, NULL),
 (10, 32, '2010-11-10 15:11:03', 1, '2010-11-10 15:12:04', 1, 19, '2010-11-10 15:12:04', 0, NULL);
 
-INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `qc_cusm_label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 'FRE - 1', 'freezer', 6, NULL, 1, 52, NULL, 'fr1', '', 'fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '-80.00', 'celsius', '', '2010-11-10 15:04:17', 1, '2010-11-10 15:04:18', 1, 0, NULL),
 (2, 'SH - 2', 'shelf', 14, 1, 2, 11, NULL, '1', '', 'fr1-1', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-11-10 15:04:41', 1, '2010-11-10 15:04:41', 1, 0, NULL),
 (3, 'SH - 3', 'shelf', 14, 1, 12, 21, NULL, '2', '', 'fr1-2', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-11-10 15:04:46', 1, '2010-11-10 15:04:47', 1, 0, NULL),
@@ -731,7 +738,7 @@ INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id
 (51, 'R - 51', 'rack 4x4', 21, 32, 99, 100, NULL, '3', '', 'fr2-5-3', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-11-10 15:15:38', 1, '2010-11-10 15:15:38', 1, 0, NULL),
 (52, 'R - 52', 'rack 4x4', 21, 32, 101, 102, NULL, '4', '', 'fr2-5-4', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-11-10 15:15:43', 1, '2010-11-10 15:15:44', 1, 0, NULL);
 
-INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `qc_cusm_label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `coord_x_order`, `parent_storage_coord_y`, `coord_y_order`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, '', 'freezer', 6, NULL, 1, 2, NULL, 'fr1', '', 'fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '-80.00', 'celsius', '', '2010-11-10 15:04:17', 1, '2010-11-10 15:04:17', 1, 1, '2010-11-10 15:04:17', 0, NULL),
 (1, 'FRE - 1', 'freezer', 6, NULL, 1, 2, NULL, 'fr1', '', 'fr1', '', NULL, NULL, NULL, NULL, 'TRUE', '-80.00', 'celsius', '', '2010-11-10 15:04:17', 1, '2010-11-10 15:04:18', 1, 2, '2010-11-10 15:04:18', 0, NULL),
 (2, '', 'shelf', 14, 1, 0, 0, NULL, '1', '', 'fr1-1', '', NULL, NULL, NULL, NULL, 'FALSE', '-80.00', 'celsius', '', '2010-11-10 15:04:41', 1, '2010-11-10 15:04:41', 1, 3, '2010-11-10 15:04:41', 0, NULL),
@@ -840,9 +847,9 @@ INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_contr
 
 SET FOREIGN_KEY_CHECKS=1;
 
-DELETE FROM structure_validations
-WHERE structure_field_id = (SELECT id FROM structure_fields
-WHERE field = 'morphology' AND tablename = 'diagnosis_masters');
+-- DELETE FROM structure_validations
+-- WHERE structure_field_id = (SELECT id FROM structure_fields
+-- WHERE field = 'morphology' AND tablename = 'diagnosis_masters');
 
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.language_heading = 'collection'
@@ -850,4 +857,26 @@ WHERE sfi.field IN ('bank_id')
 AND str.alias IN ('clinicalcollectionlinks')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
+UPDATE structure_fields
+SET `tablename` = 'qc_cusm_dxd_procures'
+WHERE `tablename` = 'qc_cusm_dxd_procure';
 
+ALTER TABLE qc_cusm_dxd_procures DROP COLUMN morphology;
+ALTER TABLE qc_cusm_dxd_procures_revs DROP COLUMN morphology;
+
+ALTER TABLE diagnosis_masters
+   ADD `qc_cusm_morphology` varchar(50) DEFAULT NULL AFTER `morphology`;
+ALTER TABLE diagnosis_masters_revs
+   ADD `qc_cusm_morphology` varchar(50) DEFAULT NULL AFTER `morphology`;
+   
+UPDATE structure_fields
+SET model = 'DiagnosisMaster',
+tablename = 'diagnosis_masters',
+field = 'qc_cusm_morphology'
+WHERE model = 'DiagnosisDetail' AND tablename = 'qc_cusm_dxd_procures' AND field = 'morphology';
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_search_readonly = '0', sfo.flag_index = '0'
+WHERE str.alias IN ('diagnosismasters', 'qc_cusm_dxd_procure')
+AND sfi.field IN ('path_stage_summary')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;

@@ -2316,12 +2316,12 @@ WHERE `structure_field_old_id` IN ('CAN-999-999-000-999-1183');
 
 -- Add storage precision
 
-ALTER TABLE `storage_masters` ADD `label_precision` VARCHAR( 10 ) NULL AFTER `short_label` ;
+ALTER TABLE `storage_masters` ADD `qc_cusm_label_precision` VARCHAR( 10 ) NULL AFTER `short_label` ;
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `old_id`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'QC-CUSM-000120', 'Storagelayout', 'StorageMaster', 'storage_masters', 'label_precision', 'storage label precision', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+(null, '', 'QC-CUSM-000120', 'Storagelayout', 'StorageMaster', 'storage_masters', 'qc_cusm_label_precision', 'storage label precision', '', 'input', 'size=10', '', null, '', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 INSERT INTO `structure_validations` 
 (`id`, `old_id`, `structure_field_id`, `structure_field_old_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) 
