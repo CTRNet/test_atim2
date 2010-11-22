@@ -15,20 +15,60 @@ class StructuresComponent extends Object {
 	 * @param $alias Form alias of the new structure
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
 	 */
-	function set( $alias=NULL, $structure_name = 'atim_structure' ) {
-		foreach ($this->get('rules', $alias) as $model=>$rules){
-			$this->controller->{ $model }->validate = $rules;
+	function set($alias = NULL, $structure_name = 'atim_structure'){
+		if(!is_array($alias)){
+			$alias = explode(",", $alias);			
 		}
-		$this->controller->set($structure_name, $this->get('form', $alias));
+		$structure = array('Structure' => array(), 'Sfs' => array());
+		foreach($alias as $alias_unit){
+			$tmp = $this->getSingleStructure($alias_unit);
+			foreach ($tmp['rules'] as $model => $rules){
+				$this->controller->{ $model }->validate = $rules;
+			}
+			if(isset($tmp['structure']['Sfs'])){
+				$structure['Sfs'] = array_merge($tmp['structure']['Sfs'], $structure['Sfs']);
+				$structure['Structure'][] = $tmp['structure']['Structure'];
+			}
+		}
+		if(count($alias) > 1){
+			self::sortStructure($structure);
+		}else if(count($structure['Structure']) == 1){
+			$structure['Structure'] = $structure['Structure'][0];
+		}
+		$this->controller->set($structure_name, $structure);
 	}
 	
-	function get( $mode=NULL, $alias=NULL ) {
+	function get($mode = null, $alias = NULL){
+		$result = array('structure' => array('Structure' => array(), 'Sfs' => array()), 'rules' => array());
+		if(!is_array($alias)){
+			$alias = explode(",", $alias);
+		}
+
+		foreach($alias as $alias_unit){
+			$tmp = $this->getSingleStructure($alias_unit);
+			$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
+			$result['structure']['Structure'][] = $tmp['structure']['Structure'];
+			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+		}
+		if(count($alias) > 1){
+			self::sortStructure($result['structure']['Sfs']);
+		}else if(count($result['structure']['Structure']) == 1){
+			$result['structure']['Structure'] = $result['structure']['Structure'][0];
+		}
+		if($mode == 'rule' || $mode == 'rules'){
+			$result = $result['rules'];
+		}else if($mode == 'form'){
+			$result = $result['structure'];
+		}
+		return $result;
+	}
+	
+	function getSingleStructure($alias = NULL){
 		$return = array();
-		$mode	= strtolower($mode);
-		$alias	= $alias ? strtolower($alias) : str_replace('_','',$this->controller->params['controller']);
+		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
 		$structure_cache_directory = "../tmp/cache/structures/";
-		$fname = $structure_cache_directory.$mode.".".$alias.".cache";
+		$fname = $structure_cache_directory.".".$alias.".cache";
 		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
@@ -55,7 +95,7 @@ class StructuresComponent extends Object {
 				$this->Component_Structure = new Structure;
 				
 				$result = $this->Component_Structure->find(
-								( ( $mode=='rule' || $mode=='rules' ) ? 'rules' : 'first'), 
+								'first',
 								array(
 									'conditions'	=>	array( 'Structure.alias' => $alias ), 
 									'recursive'		=>	5
@@ -87,7 +127,24 @@ class StructuresComponent extends Object {
 			}
 		}
 		return $return;
-		
+	}
+	
+	/**
+	 * Sorts a structure based on display_column and display_order.
+	 * @param array $atim_structure
+	 */
+	public static function sortStructure(&$atim_structure){
+		if(count($atim_structure['Sfs'])){
+			// Sort the data with ORDER descending, FIELD ascending 
+			foreach($atim_structure['Sfs'] as $key => $row){
+				$sort_order_0[$key] = $row['display_column'];
+				$sort_order_1[$key] = $row['display_order'];
+				$sort_order_2[$key] = $row['model'];
+			}
+			
+			// multisort, PHP array 
+			array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
+		}
 	}
 	
 	function parse_search_conditions($atim_structure = NULL){
@@ -99,7 +156,8 @@ class StructuresComponent extends Object {
 		
 		// if no STRUCTURE provided, try and get one
 		if($atim_structure===NULL){
-			$atim_structure = $this->get();
+			$atim_structure = $this->getSingleStructure();
+			$atim_structure = $atim_structure['structure'];
 		}
 		
 		// format structure data into SEARCH CONDITONS format
@@ -199,7 +257,7 @@ class StructuresComponent extends Object {
 								// App::import('Model', 'Clinicalannotation.'.$model);
 								
 								$format_data_model = new $model;
-								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
+								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 								if(is_array($data)){
 									$data = array_unique($data);
 									$data = array_filter($data, "StructuresComponent::myFilter");
@@ -369,7 +427,8 @@ class StructuresComponent extends Object {
 			$this->Component_Structure = new Structure();
 		}
 		$data = $this->Component_Structure->find('first', array('conditions' => array('Structure.id' => $id), 'recursive' => -1));
-		return $this->get('form', $data['Structure']['alias']);
+		$tmp = $this->getSingleStructure($data['structure']['Structure']['alias']);
+		return $tmp['structure'];
 	}
 	
 	/**

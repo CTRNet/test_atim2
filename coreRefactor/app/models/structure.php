@@ -53,17 +53,19 @@ class Structure extends AppModel {
 	}
 	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
-		$result = parent::find(( ($conditions=='rule' || $conditions=='rules') ? 'first' : $conditions ), $fields, $order, $recursive);
-		if($result){
+		
+		$structure = parent::find('first', $fields, $order, $recursive);
+		$rules = array();
+		if($structure){
 			$fields_ids = array(0);
-			if($this->simple && isset($result['Sfs'])){
+			if($this->simple && isset($structure['Sfs'])){
 				//if recursive = -1, there is no Sfs
-				foreach($result['Sfs'] as $sfs ){
+				foreach($structure['Sfs'] as $sfs ){
 					$fields_ids[] = $sfs['structure_field_id'];
 				}
 				$validations = $this->StructureValidation->find('all', array('conditions' => ('StructureValidation.structure_field_id IN('.implode(", ", $fields_ids).')')));
 				foreach($validations as $validation){
-					foreach ($result['Sfs'] as &$sfs ){
+					foreach ($structure['Sfs'] as &$sfs ){
 						if($sfs['structure_field_id'] == $validation['StructureValidation']['structure_field_id']){
 							$sfs['StructureValidation'][] = $validation['StructureValidation'];
 						}
@@ -72,12 +74,12 @@ class Structure extends AppModel {
 				}
 			}
 			
-			if($conditions=='rule' || $conditions=='rules'){
-				$return = array();
-				
-				foreach ($result[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
-					if (!isset($return[$sf['model']])){
-						$return[$sf['model']] = array();
+			$rules = array();
+
+			if(($this->simple && isset($structure['Sfs'])) || (!$this->simple && isset($structure['StructureFormat']))){
+				foreach ($structure[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
+					if (!isset($rules[$sf['model']])){
+						$rules[$sf['model']] = array();
 					}
 					$tmp_type = $sf['type'];
 					$tmp_rule = NULL;
@@ -100,6 +102,9 @@ class Structure extends AppModel {
 					}else if($tmp_type == "date"){
 						$tmp_rule = "date";
 						$tmp_msg = "this is not a date";
+					}else if($tmp_type == "time"){
+						$tmp_rule = VALID_24TIME;
+						$tmp_msg = "this is not a time";
 					}
 					if($tmp_rule != NULL){
 						$sf['StructureValidation'][] = array(
@@ -113,7 +118,7 @@ class Structure extends AppModel {
 					if(!$this->simple){
 						$sf['StructureValidation'] = array_merge($sf['StructureValidation'], $sf['StructureField']['StructureValidation']);
 					}
-
+	
 					foreach ( $sf['StructureValidation'] as $validation ) {
 						$rule = array();
 						if(($validation['rule'] == VALID_FLOAT) || ($validation['rule'] == VALID_FLOAT_POSITIVE)) {
@@ -126,7 +131,7 @@ class Structure extends AppModel {
 						if($validation['flag_not_empty']){
 							$rule[] = 'notEmpty';
 						}
-
+	
 						if(count($rule) == 1){
 							$rule = $rule[0];
 						}else if(count($rule) == 0){
@@ -150,20 +155,18 @@ class Structure extends AppModel {
 							$rule_array['message'] = $validation['language_message'];
 						}
 						
-						if (!isset($return[ $sf['model']][$sf['field']])){
-							$return[$sf['model']][$sf['field']] = array();
+						if (!isset($rules[ $sf['model']][$sf['field']])){
+							$rules[$sf['model']][$sf['field']] = array();
 						}
 						
-						$return[$sf['model']][$sf['field']][] = $rule_array;
+						$rules[$sf['model']][$sf['field']][] = $rule_array;
 						
 					}
 				}
-				
-				return $return;
 			}
 		}
 		
-		return $result;
+		return array('structure' => $structure, 'rules' => $rules);
 	}
 
 }

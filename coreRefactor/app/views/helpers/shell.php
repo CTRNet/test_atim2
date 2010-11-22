@@ -431,7 +431,7 @@ class ShellHelper extends Helper {
 				$summary_result = $summary_model->{$function}($options['variables']);
 				if(isset($summary_result['Summary'])){
 					if(Configure::read('debug') > 0){
-						AppController::addWarningMsg(__("the summary return array should no longer contain 'summary' as first key", true));
+						AppController::addWarningMsg(__("the summary return array should not contain 'summary' as first key (deprecated)", true));
 					}
 					$summary_result = $summary_result['Summary'];
 				}
