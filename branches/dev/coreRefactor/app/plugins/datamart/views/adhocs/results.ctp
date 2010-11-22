@@ -38,10 +38,15 @@
 		
 		$structure_override = array(
 			'Adhoc.id' => $atim_menu_variables['Adhoc.id'],
-			'Adhoc.sql_query_for_results' => $final_query,
-			'Adhoc.process' => $batch_sets,
-			'BatchSet.id' => $compatible_batchset
+			'Adhoc.sql_query_for_results' => $final_query
 		);
 		
-		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
+		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array())); 
 ?>
+<script type="text/javascript">
+var batchSetControls = true;
+var batchSetFormActionMsgSelectAnOption = "<?php __("select an action") ?>";
+var batchSetFormActionMsgSelectAtLeast = "<?php __("check at least one element from the batch set") ?>";
+</script>
+<?php 
+echo $javascript->link('batchset')."\n";

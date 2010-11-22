@@ -220,7 +220,7 @@ class StructuresHelper extends Helper {
 		}
 		
 		if(!is_array($options['extras'])){
-			$options['extras']['end'] = $options['extras']; 
+			$options['extras'] = array('end' => $options['extras']);
 		}
 		
 		if($options['settings']['return']){
@@ -380,27 +380,6 @@ class StructuresHelper extends Helper {
 	} // end FUNCTION build()
 
 
-	/**
-	 * Sorts a structure based on display_column and display_order.
-	 * @param array $atim_structure
-	 * @deprecated This function is not being used anymore because sorting is done directly with the SQL query. We keep
-	 * it in case it is needed in the future
-	 */
-	function sortStructure(array $atim_structure){
-		if(count($atim_structure['Sfs'])){
-			// Sort the data with ORDER descending, FIELD ascending 
-			foreach($atim_structure['Sfs'] as $key => $row){
-				$sort_order_0[$key] = $row['display_column'];
-				$sort_order_1[$key] = $row['display_order'];
-				$sort_order_2[$key] = $row['model'];
-			}
-			
-			// multisort, PHP array 
-			array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
-		}
-		return $atim_structure;
-	}
-	
 	/**
 	 * Reorganizes a structure in a single column
 	 * @param array $structure
@@ -595,7 +574,7 @@ class StructuresHelper extends Helper {
 				if(is_array($current_value)){
 					$date = $current_value;
 					$time = $current_value;
-				}else if(strlen($current_value) > 0){
+				}else if(strlen($current_value) > 0 && $current_value != "NULL"){
 					list($date, $time) = explode(" ", $current_value);
 				}
 				$display = self::getDateInputs($field_name, $date, $table_row_part['settings']);
@@ -716,7 +695,8 @@ class StructuresHelper extends Helper {
 					}
 					$row_num = 1;
 					$link_location = $this->generateLinksList(null, $options['links'], 'index');//raw links
-					
+					$default_settings_wo_class = self::$default_settings_arr;
+					unset($default_settings_wo_class['class']);
 					foreach($data as $key => $data_unit){
 						if($add_line_ctrl && $row_num == count($data)){
 							echo("<tr class='hidden'>");
@@ -731,7 +711,7 @@ class StructuresHelper extends Helper {
 							');
 							foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
 								$checkbox_value = $this->strReplaceLink($checkbox_value, $data_unit);
-								echo($this->Form->checkbox($checkbox_name, array('value' => $checkbox_value)));
+								echo($this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value))));
 							}
 							echo('
 								</td>
@@ -750,7 +730,7 @@ class StructuresHelper extends Helper {
 								if(isset($data_unit[$tmp_model][$tmp_field]) && $data_unit[$tmp_model][$tmp_field] == $radiobutton_value){
 									$tmp_attributes['checked'] = 'checked';
 								}
-								echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), $tmp_attributes));
+								echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array_merge($default_settings_wo_class, $tmp_attributes)));
 							}
 							
 							echo('
@@ -867,44 +847,34 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
-		$table_structure = array();
-		foreach($data as $key => $val){
-			$options['stack']['key'] = $key;
-			$table_structure[$key] = $this->buildStack( $atim_structure, $options );
-			unset($options['stack']);
-		}
+		$table_structure = $this->buildStack($atim_structure, $options);
 
 		if(is_array($table_structure) && count($data)){
-			if(isset($options['settings']['columns_names']) && count($options['settings']['columns_names']) > 0){
-				//reformat the data array for structures with columns_names
-				$tmp = $table_structure;
-				$table_structure = array();
-				foreach($options['settings']['columns_names'] as $column_index => $column_name){
-					$table_structure[$column_index][0][0] = array('label' => '', 'plain' => str_replace("&nbsp;", " ", $column_name));//column name is used a a row name here
-					foreach($tmp[0][0] as $unit_index => $unit){
-						$table_structure[$column_index][0][$unit_index] = array('label' => $unit['label'], 'plain' => $unit['content'][$column_name]);
-					}
-				}
-			}
-
 			//header line
 			$line = array();
-			foreach ( $table_structure[0] as $table_column ) {
-				foreach ( $table_column as $fm => $table_row ) {
-					$line[] = $table_row['label'];
+			foreach($table_structure as $table_column){
+				foreach ( $table_column as $fm => $table_row){
+					foreach($table_row as $table_row_part){
+						$line[] = $table_row_part['label'];
+					}
 				}
 			}
 			$this->Csv->addRow($line);
 
 			//content
-			foreach ( $table_structure as $table_column ) {
+			foreach($data as $data_unit){
 				$line = array();
-				foreach ( $table_column[0] as $fm => $table_row ) {
-					$line[] = $table_row['plain'];
+				foreach($table_structure as $table_column){
+					foreach ( $table_column as $fm => $table_row){
+						foreach($table_row as $table_row_part){
+							$line[] = $data_unit[$table_row_part['model']][$table_row_part['field']];
+						}
+					}
 				}
 				$this->Csv->addRow($line);
 			}
 		}
+		
 		echo($this->Csv->render());
 	}
 
@@ -1234,205 +1204,207 @@ class StructuresHelper extends Helper {
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
-		foreach($atim_structure['Sfs'] AS $sfs){
-			if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
-				$current = array(
-					"model" => $sfs['model'],
-					"field" => $sfs['field'],
-					"heading" => __($sfs['language_heading'], true),
-					"label" => __($sfs['language_label'], true),
-					"tag" => __($sfs['language_tag'], true),
-					"type" => $sfs['type'],
-					"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet
-				);
-				$append_field_tool = "";
-				$settings = $my_default_settings_arr;
-				
-				$date_format_arr = str_split(date_format);
-				if($options['type'] == "add"
-				|| $options['type'] == "edit"
-				|| $options['type'] == "addgrid"
-				|| $options['type'] == "editgrid"
-				|| $options['type'] == "search"){
+		if(isset($atim_structure['Sfs'])){
+			foreach($atim_structure['Sfs'] AS $sfs){
+				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
+					$current = array(
+						"model" => $sfs['model'],
+						"field" => $sfs['field'],
+						"heading" => __($sfs['language_heading'], true),
+						"label" => __($sfs['language_label'], true),
+						"tag" => __($sfs['language_tag'], true),
+						"type" => $sfs['type'],
+						"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet
+					);
+					$append_field_tool = "";
+					$settings = $my_default_settings_arr;
 					
-					$settings['tabindex'] = self::$last_tabindex ++;
-					
-					if($sfs["flag_".$options['type']."_readonly"]){
-						$settings['disabled'] = "disabled";
-					}
-					
-					//building all text fields (dropdowns, radios and checkboxes cannot be built here)
-					$field_name = $sfs['model'].".".$sfs['field'];
-					if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
-						$field_name = "%d.".$field_name;	
-					}
-					
-					if(strlen($sfs['setting']) > 0){
-						// parse through FORM_FIELDS setting value, and add to helper array
-						$tmp_setting = explode(',', $sfs['setting']);
-						foreach($tmp_setting as $setting){
-							$setting = explode('=', $setting);
-							if($setting[0] == 'tool'){
-								if($setting[1] == 'csv'){
-									if($options['type'] == 'search'){
-										$current['tool'] = $this->Form->input($field_name."_with_file_upload", array_merge($settings, array("type" => "file", "class" => null, "value" => null)));
+					$date_format_arr = str_split(date_format);
+					if($options['type'] == "add"
+					|| $options['type'] == "edit"
+					|| $options['type'] == "addgrid"
+					|| $options['type'] == "editgrid"
+					|| $options['type'] == "search"){
+						
+						$settings['tabindex'] = self::$last_tabindex ++;
+						
+						if($sfs["flag_".$options['type']."_readonly"]){
+							$settings['disabled'] = "disabled";
+						}
+						
+						//building all text fields (dropdowns, radios and checkboxes cannot be built here)
+						$field_name = $sfs['model'].".".$sfs['field'];
+						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
+							$field_name = "%d.".$field_name;	
+						}
+						
+						if(strlen($sfs['setting']) > 0){
+							// parse through FORM_FIELDS setting value, and add to helper array
+							$tmp_setting = explode(',', $sfs['setting']);
+							foreach($tmp_setting as $setting){
+								$setting = explode('=', $setting);
+								if($setting[0] == 'tool'){
+									if($setting[1] == 'csv'){
+										if($options['type'] == 'search'){
+											$current['tool'] = $this->Form->input($field_name."_with_file_upload", array_merge($settings, array("type" => "file", "class" => null, "value" => null)));
+										}
+									}else{
+										$current['tool'] = '<a href="'.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
 									}
 								}else{
-									$current['tool'] = '<a href="'.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
+									$settings[$setting[0]] = $setting[1];
 								}
-							}else{
-								$settings[$setting[0]] = $setting[1];
 							}
 						}
-					}
-					
-					//validation CSS classes
-					if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
 						
-						foreach($sfs['StructureValidation'] as $validation){
-							if($validation['flag_not_empty'] || $validation['flag_required']){
-								$settings["class"] .= " required";
-								$settings["required"] = "required";
-								break;
-							}
-						}
-						if($settings["class"] == "%c "){
-							$settings["class"] .= "validation";
-						}
-					}
-					
-					if($sfs['type'] == "input"){
-						if($options['type'] != "search"){
-							$settings['class'] = str_replace("range", "", $settings['class']);
-						}
-						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
-					}else if(array_key_exists($sfs['type'], $independent_types)){
-						//do nothing for independent types
-						$current["format"] = "";
-					}else if($sfs['type'] == "integer" || $sfs['type'] == "integer_positive"){
-						if(!isset($settings['size'])){
-							$settings['size'] = 4;
-						}
-						$current["format"] = $this->Form->text($field_name, array_merge(array("type" => "number"), $settings));
-					}else if($sfs['type'] == "float" || $sfs['type'] == "float_positive"){
-						if(!isset($settings['size'])){
-							$settings['size'] = 4;
-						}
-						$current["format"] = $this->Form->text($field_name, array_merge(array("type" => "text"), $settings));
-					}else if($sfs['type'] == "textarea"){
-						//notice this is Form->input and not Form->text
-						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "textarea"), $settings));
-					}else if($sfs['type'] == "autocomplete"
-					|| $sfs['type'] == "hidden"
-					|| $sfs['type'] == "file"
-					|| $sfs['type'] == "password"){
-						$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
-					}else if($sfs['type'] == "display"){
-						$current["format"] = "%s";
-					}else{
-						if(Configure::read('debug') > 0){
-							AppController::addWarningMsg(sprintf(__("field type [%s] is unknown", true), $sfs['type']));
-						}
-						$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
-					}
-					
-					if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled") && in_array($sfs['type'], self::$hidden_on_disabled)){
-						unset($settings['disabled']);
-						$current["format"] .= $this->Form->text($field_name, array("type" => "hidden"), $settings);
-						$settings['disabled'] = "disabled";
-					}
-					
-					$current['default'] = $sfs['default'];
-					$current['settings'] = $settings;
-				}
-				
-				if(array_key_exists($sfs['type'], $independent_types)){
-					$dropdown_result = array();
-					if($sfs['type'] == "select"){
-						$add_blank = true;
-						if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
-							//check if the field can be empty or not
+						//validation CSS classes
+						if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
+							
 							foreach($sfs['StructureValidation'] as $validation){
-								if($validation['flag_not_empty']){
-									$add_blank = false;
+								if($validation['flag_not_empty'] || $validation['flag_required']){
+									$settings["class"] .= " required";
+									$settings["required"] = "required";
 									break;
 								}
 							}
-						}
-						if($add_blank){
-							$dropdown_result = array("" => "");
-						}
-					}
-							
-					if(count($sfs['StructureValueDomain']) > 0){
-						if(strlen($sfs['StructureValueDomain']['source']) > 0){
-							//load source
-							$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
-							$is_old_version = false;
-							foreach($tmp_dropdown_result as $k => $v){
-								//foreach only used to fetch the first value
-								if(is_array($v)){
-									$is_old_version = true;
-								}
-								break;
+							if($settings["class"] == "%c "){
+								$settings["class"] .= "validation";
 							}
-							if($is_old_version){
-								//old version, convert
-								//TODO: Remove this conversion in ATiM 2.3
-								if(Configure::read('debug') > 0){
-									AppController::addWarningMsg(sprintf(__("the source function of StructureValueDomain with id [%d] uses a deprecated return array", true), $sfs['StructureValueDomain']['id']));
-								}
-								$tmp = array();
-								foreach($tmp_dropdown_result as $v){
-									$tmp[$v['value']] = $v['default'];
-								}
-								$dropdown_result += $tmp;
-							}else{
-								$dropdown_result += $tmp_dropdown_result;
+						}
+						
+						if($sfs['type'] == "input"){
+							if($options['type'] != "search"){
+								$settings['class'] = str_replace("range", "", $settings['class']);
 							}
+							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
+						}else if(array_key_exists($sfs['type'], $independent_types)){
+							//do nothing for independent types
+							$current["format"] = "";
+						}else if($sfs['type'] == "integer" || $sfs['type'] == "integer_positive"){
+							if(!isset($settings['size'])){
+								$settings['size'] = 4;
+							}
+							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => "number"), $settings));
+						}else if($sfs['type'] == "float" || $sfs['type'] == "float_positive"){
+							if(!isset($settings['size'])){
+								$settings['size'] = 4;
+							}
+							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => "text"), $settings));
+						}else if($sfs['type'] == "textarea"){
+							//notice this is Form->input and not Form->text
+							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "textarea"), $settings));
+						}else if($sfs['type'] == "autocomplete"
+						|| $sfs['type'] == "hidden"
+						|| $sfs['type'] == "file"
+						|| $sfs['type'] == "password"){
+							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
+						}else if($sfs['type'] == "display"){
+							$current["format"] = "%s";
 						}else{
-							$tmp_pulldown_result = $this->StructureValueDomain->find('first', array(
-								'conditions' => 
-									array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
-							if(count($tmp_pulldown_result['StructurePermissibleValue']) > 0){
-								$tmp_result = array();
-								$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
-								$current_element = 1;
-								foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
-									if($tmp_entry['Svdpv']['display_order'] != $current_order){
-										if(count($tmp_result) > 1){
-											asort($tmp_result);
-										}
-										$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
-										$tmp_result = array();
-										$current_order = $tmp_entry['Svdpv']['display_order']; 
+							if(Configure::read('debug') > 0){
+								AppController::addWarningMsg(sprintf(__("field type [%s] is unknown", true), $sfs['type']));
+							}
+							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
+						}
+						
+						if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled") && in_array($sfs['type'], self::$hidden_on_disabled)){
+							unset($settings['disabled']);
+							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden"), $settings);
+							$settings['disabled'] = "disabled";
+						}
+						
+						$current['default'] = $sfs['default'];
+						$current['settings'] = $settings;
+					}
+					
+					if(array_key_exists($sfs['type'], $independent_types)){
+						$dropdown_result = array();
+						if($sfs['type'] == "select"){
+							$add_blank = true;
+							if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
+								//check if the field can be empty or not
+								foreach($sfs['StructureValidation'] as $validation){
+									if($validation['flag_not_empty']){
+										$add_blank = false;
+										break;
 									}
-									$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
-									$current_element ++;
 								}
-	
-								$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
+							}
+							if($add_blank){
+								$dropdown_result = array("" => "");
 							}
 						}
-					}else if($sfs['type'] == "checkbox"){
-						//provide yes/no as default for checkboxes
-						$dropdown_result = array(0 => __("no", true), 1 => __("yes", true));
+								
+						if(count($sfs['StructureValueDomain']) > 0){
+							if(strlen($sfs['StructureValueDomain']['source']) > 0){
+								//load source
+								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
+								$is_old_version = false;
+								foreach($tmp_dropdown_result as $k => $v){
+									//foreach only used to fetch the first value
+									if(is_array($v)){
+										$is_old_version = true;
+									}
+									break;
+								}
+								if($is_old_version){
+									//old version, convert
+									//TODO: Remove this conversion in ATiM 2.3
+									if(Configure::read('debug') > 0){
+										AppController::addWarningMsg(sprintf(__("the source function of StructureValueDomain with id [%d] uses a deprecated return array", true), $sfs['StructureValueDomain']['id']));
+									}
+									$tmp = array();
+									foreach($tmp_dropdown_result as $v){
+										$tmp[$v['value']] = $v['default'];
+									}
+									$dropdown_result += $tmp;
+								}else{
+									$dropdown_result += $tmp_dropdown_result;
+								}
+							}else{
+								$tmp_pulldown_result = $this->StructureValueDomain->find('first', array(
+									'conditions' => 
+										array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
+								if(count($tmp_pulldown_result['StructurePermissibleValue']) > 0){
+									$tmp_result = array();
+									$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
+									$current_element = 1;
+									foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
+										if($tmp_entry['Svdpv']['display_order'] != $current_order){
+											if(count($tmp_result) > 1){
+												asort($tmp_result);
+											}
+											$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
+											$tmp_result = array();
+											$current_order = $tmp_entry['Svdpv']['display_order']; 
+										}
+										$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
+										$current_element ++;
+									}
+		
+									$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
+								}
+							}
+						}else if($sfs['type'] == "checkbox"){
+							//provide yes/no as default for checkboxes
+							$dropdown_result = array(0 => __("no", true), 1 => __("yes", true));
+						}
+						
+						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
+							//checkbox and radio buttons in search mode are dropdowns 
+							$dropdown_result = array_merge(array("" => ""), $dropdown_result);
+						}
+						
+						$current['settings']['options'] = $dropdown_result;
 					}
 					
-					if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
-						//checkbox and radio buttons in search mode are dropdowns 
-						$dropdown_result = array_merge(array("" => ""), $dropdown_result);
+					if(!isset($stack[$sfs['display_column']][$sfs['display_order']])){
+						$stack[$sfs['display_column']][$sfs['display_order']] = array();
 					}
-					
-					$current['settings']['options'] = $dropdown_result;
+					$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
 				}
 				
-				if(!isset($stack[$sfs['display_column']][$sfs['display_order']])){
-					$stack[$sfs['display_column']][$sfs['display_order']] = array();
-				}
-				$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
 			}
-			
 		}
 		
 		if(Configure::read('debug') > 0 && count($options['override']) > 0){
@@ -1825,7 +1797,7 @@ class StructuresHelper extends Helper {
 			$year = $date['year'];
 			$month = $date['month'];
 			$day = $date['day'];
-		}else if(strlen($date) > 0){
+		}else if(strlen($date) > 0 && $date != "NULL"){
 			list($year, $month, $day) = explode("-", $date);
 		}
 		$result = "";
