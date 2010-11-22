@@ -1066,7 +1066,6 @@ VALUES
 ('ctscan', 'CT-Scan', ''),
 ('brca', 'BRCA', ''),
 ('platinum', 'Pplatinum', ''),
-('BRCA1 mutated', '', ''),
 ('wild type', 'Wild Type', ''),
 ('BRCA mutation known but not identified', 'BRCA mutation known but not identified', ''),
 ('BRCA1 mutated', 'BRCA1 mutated', ''),
@@ -1075,6 +1074,8 @@ VALUES
 ('wt1', 'WT1', ''),
 ('p53', 'P53', ''),
 ('bcat', 'BCAT', ''),
+("resistant", "Resistant", ''),
+("sensitive", "Sensitive", ''),
 ('core biopsy', 'Core Biopsy', ''),
 ('path report number', 'Path Report Number', ''),
 ('a presentation can only be created once per participant', 'A presentation can only be created once per participant!', 'Un présentation ne peut être créée qu''une fois pour un participant!');
@@ -1283,6 +1284,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
 ('disease site', 'Disease Site','');
+
+ALTER TABLE family_histories
+	ADD `ohri_disease_site` varchar(50) DEFAULT NULL AFTER `age_at_dx_accuracy`;
+ALTER TABLE family_histories_revs
+	ADD `ohri_disease_site` varchar(50) DEFAULT NULL AFTER `age_at_dx_accuracy`;
 
 -- identifier --
 
@@ -1524,13 +1530,6 @@ sfo.flag_index = '0', sfo.flag_detail = '0'
 WHERE sfi.field IN ('lot_number')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
-
-
-
-
-
-
-
 ALTER TABLE ad_tubes
 	ADD `ohri_storage_method` varchar(100) DEFAULT NULL AFTER `cell_count_unit`,
 	ADD `ohri_storage_solution` varchar(100) NOT NULL DEFAULT '' AFTER `ohri_storage_method`;
@@ -1610,16 +1609,179 @@ VALUES
 ('dmso', 'DMSO', 'DMSO'),
 ('flash frozen', 'Flash Frozen', ''),
 ('ohri storage method', 'Storage Method', ''),
-('ohri storage solution', 'Storage Solution', '');
+('ohri storage solution', 'Storage Solution', ''),
+('ovary', 'Ovary', 'Ovaire'),
+('omenteum', 'Omenteum', ''),
+('peritoneal nodule', 'Peritoneal Nodule', '');
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('pathology_reception_datetime')
+AND str.alias = 'sd_spe_tissues'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+ALTER TABLE sd_spe_tissues
+	ADD `ohri_tissue_nature` varchar(100) DEFAULT NULL AFTER `tissue_nature`;
+	
+ALTER TABLE sd_spe_tissues_revs
+	ADD `ohri_tissue_nature` varchar(100) DEFAULT NULL AFTER `tissue_nature`;
+	
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ohri_tissue_nature', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("normal", "normal");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_nature"),  (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumoral", "tumoral");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_nature"),  (SELECT id FROM structure_permissible_values WHERE value="tumoral" AND language_alias="tumoral"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("benign", "benign");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_nature"),  (SELECT id FROM structure_permissible_values WHERE value="benign" AND language_alias="benign"), "3", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'ohri_tissue_nature', 'tissue nature', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_nature') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_tissue_nature'),
+'1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES ('tumoral','Tumoral'), ('tissue nature', 'Nature');
+
+ALTER TABLE sd_spe_tissues
+	ADD `ohri_tissue_review_status` varchar(20) DEFAULT NULL AFTER `tissue_weight_unit`,
+	ADD `ohri_p53` varchar(20) DEFAULT NULL AFTER `ohri_tissue_review_status`,
+	ADD `ohri_wt1` varchar(20) DEFAULT NULL AFTER `ohri_p53`;
+	
+ALTER TABLE sd_spe_tissues_revs
+	ADD `ohri_tissue_review_status` varchar(20) DEFAULT NULL AFTER `tissue_weight_unit`,
+	ADD `ohri_p53` varchar(20) DEFAULT NULL AFTER `ohri_tissue_review_status`,
+	ADD `ohri_wt1` varchar(20) DEFAULT NULL AFTER `ohri_p53`;
+		
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('ohri_tissue_review_status', '', '', NULL),
+('ohri_tissue_review_result', '', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("negative", "negative"),
+("positive", "positive"),
+("agree", "agree"),
+("disagree", "disagree");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_review_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="agree" AND language_alias="agree"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_review_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="disagree" AND language_alias="disagree"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_review_result"),  
+(SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_review_result"),  
+(SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "2", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'ohri_tissue_review_status', 'tissue review status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_status') , '', 'open', 'open', 'open'),
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'ohri_p53', 'p53', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_result') , '', 'open', 'open', 'open'),
+('', 'Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'ohri_wt1', 'wt1', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_result') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_tissue_review_status'),
+'1', '60', 'tissue review', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_p53'),
+'1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_wt1'),
+'1', '62', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT IGNORE INTO i18n (id,en)
+VALUES ('agree','Agree'), ('disagree', 'Disagree'), ('tissue review', 'Tissue Review'),('tissue review status', 'Status');
+	
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('patho_dpt_block_code')
+AND str.alias = 'ad_spec_tiss_blocks'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_value_domains_permissible_values
+SET flag_active = '0'
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="block_type")
+AND structure_permissible_value_id NOT IN (SELECT id FROM structure_permissible_values WHERE value="paraffin" AND language_alias="paraffin");
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ohri_storage_method'), 
+'1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('ohri_tissue_slide_ihc', '', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("p53", "p53"),
+("wt1", "wt1");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_slide_ihc"),  
+(SELECT id FROM structure_permissible_values WHERE value="p53" AND language_alias="p53"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tissue_slide_ihc"),  
+(SELECT id FROM structure_permissible_values WHERE value="wt1" AND language_alias="wt1"), "2", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', '', 'immunochemistry', 'immunochemistry code', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_slide_ihc') , '', 'open', 'open', 'open');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_slide_ihc') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotDetail' AND tablename='' AND field='immunochemistry' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE specimen_review_controls SET flag_active = '0';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/study/%' AND `use_link` NOT LIKE '/study/study_summaries%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/sop/%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/material/%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/rtbform/%';
+
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index = sfo.flag_search
+WHERE str.alias = 'participants'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index = '0', sfo.flag_search = '0'
+WHERE str.alias = 'treatmentmasters'
+AND sfi.field NOT IN ('disease_site', 'tx_method', 'tx_intent', 'start_date')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field NOT IN ('family_domain','relation','ohri_disease_site','primary_icd10_code','age_at_dx','age_at_dx_accuracy')
+AND str.alias = 'familyhistories'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index = '1', sfo.flag_search = '1'
+WHERE str.alias = 'sd_spe_tissues'
+AND sfi.field IN ('ohri_wt1', 'ohri_tissue_review_status', 'ohri_p53')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
 
 
 
-
-
-
-
-- changer summary de collection
 
