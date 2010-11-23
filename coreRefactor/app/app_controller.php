@@ -278,17 +278,21 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		$divider = $nbsp_spaces ? "&nbsp;" : " ";
-		if(is_numeric($month)){
-			$month_str = AppController::getCalInfo($short_months);
-			$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
-		}
-		if(date_format == 'MDY') {
-			$result = $month.$divider.$day.$divider.$year;
-		}else if (date_format == 'YMD') {
-			$result = $year.$divider.$month.$divider.$day;
-		}else { // default of DATE_FORMAT=='DMY'
-			$result = $day.$divider.$month.$divider.$year;
+		if($year == 0 && $month == 0 && $day == 0){
+			$result = "";
+		}else{
+			$divider = $nbsp_spaces ? "&nbsp;" : " ";
+			if(is_numeric($month)){
+				$month_str = AppController::getCalInfo($short_months);
+				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
+			}
+			if(date_format == 'MDY') {
+				$result = $month.$divider.$day.$divider.$year;
+			}else if (date_format == 'YMD') {
+				$result = $year.$divider.$month.$divider.$day;
+			}else { // default of DATE_FORMAT=='DMY'
+				$result = $day.$divider.$month.$divider.$year;
+			}
 		}
 		return $result;
 	}

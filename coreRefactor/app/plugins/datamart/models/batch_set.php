@@ -91,7 +91,7 @@ class BatchSet extends DatamartAppModel {
 				$tmp_arr["datamart/batch_sets/add/".$batchset['BatchSet']['id']] = $batchset['BatchSet']['title'];
 			}
 		}
-		if(count($tmp_arr) > 1){
+		if(count($tmp_arr) > 0){
 			$compatible_batchset[__('add to compatible batchset', true)] = $tmp_arr;
 		}
 		$this->data['BatchSet']['id'] = 0;
