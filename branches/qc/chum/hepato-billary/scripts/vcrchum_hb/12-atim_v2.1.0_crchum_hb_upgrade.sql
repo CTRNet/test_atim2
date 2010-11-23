@@ -848,6 +848,18 @@ WHERE id = 'core_appname';
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES 
 ('localisation', '', 'Localisation', ''),('summaries', '', 'Summaries', '');
 
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/study/%' AND `use_link` NOT LIKE '/study/study_summaries%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/sop/%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/material/%';
+
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/rtbform/%';
+
 -----------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
 
