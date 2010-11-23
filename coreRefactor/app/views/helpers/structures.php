@@ -365,7 +365,7 @@ class StructuresHelper extends Helper {
 				<div class="submitBar">
 					<div class="bottom_button">
 						<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-						<a href="#" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+						<a href="#n" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 					</div>
 					'.$exact_search.'
 				</div>
@@ -435,6 +435,8 @@ class StructuresHelper extends Helper {
 			self::flattenStructure($table_index);
 		}
 		
+		$many_columns = !empty($options['settings']['columns_names']) && $options['type'] == 'detail';
+		 
 		foreach($table_index as $table_column_key => $table_column){
 			$count_columns ++;
 			
@@ -444,7 +446,10 @@ class StructuresHelper extends Helper {
 						<table class="columns detail" cellspacing="0">
 							<tbody>
 								<tr>');
-			
+				
+				if($many_columns){
+					echo '<td></td><td class="label center">', implode('</td><td class="label center">', $options['settings']['columns_names']), '</td></tr><tr>';
+				}
 				// each row in column 
 				$table_row_count = 0;
 				$new_line = true;
@@ -468,8 +473,8 @@ class StructuresHelper extends Helper {
 						
 						if($table_row_part['label']){
 							if(!$new_line){
-								echo('<td class="content">'.$display."</td>".$end_of_line."</tr><tr>");
-								$display = "";
+								echo('<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>");
+								$display = array();
 								$end_of_line = "";
 							}
 							echo('<td class="label">
@@ -482,26 +487,30 @@ class StructuresHelper extends Helper {
 						$current_value = null;
 						$suffixes = $options['type'] == "search" && in_array($table_row_part['type'], self::$range_types) ? array("_start", "_end") : array("");
 						foreach($suffixes as $suffix){
-							//define $current_value with inline code
 							$current_value = self::getCurrentValue($data_unit, $table_row_part, $suffix, $options);
-							if(!empty($options['settings']['columns_names'])){
-								//TODO
-								if(is_array($table_row_part['content'])){
+							if($many_columns){
+								if(is_array($current_value)){
 									foreach($options['settings']['columns_names'] as $col_name){
-										echo($td_open.(isset($table_row_part['content'][$col_name]) ? $table_row_part['content'][$col_name] : "")."</td>"); 
+										if(!isset($display[$col_name])){
+											$display[$col_name] = "";
+										}
+										$display[$col_name] .= isset($current_value[$col_name]) ? $current_value[$col_name]." " : ""; 
 									}
 								}else{
-									echo(str_repeat($td_open."</td>", count($options['settings']['columns_names'])));
+									$display = array_fill(0, count($options['settings']['columns_names']), '');
 								}
 							}else{
+								if(!isset($display[0])){
+									$display[0] = "";
+								}
 								if($suffix == "_end"){
-									$display .= '<span class="tag"> To </span>';
+									$display[0] .= '<span class="tag"> To </span>';
 								}
-								$display .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'].$suffix, $options, $current_value, null).'</span>';
+								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'].$suffix, $options, $current_value, null).'</span>';
 								if($options['type'] == "search" && !in_array($table_row_part['type'], self::$range_types)){
-									$display .= '<a class="adv_ctrl btn_add_or" href="#" onclick="return false;">(+)</a>';
+									$display[0] .= '<a class="adv_ctrl btn_add_or" href="#" onclick="return false;">(+)</a>';
 								}
-								$display .= '</span>';
+								$display[0] .= '</span>';
 							}
 						}
 						
@@ -516,7 +525,7 @@ class StructuresHelper extends Helper {
 					}
 					$table_row_count++;
 				} // end ROW 
-				echo('<td class="content">'.$display.'</td>'.$end_of_line.'</tr>
+				echo('<td class="content">'.implode('</td><td class="content">', $display).'</td>'.$end_of_line.'</tr>
 						</tbody>
 						</table>
 						
