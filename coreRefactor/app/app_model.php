@@ -282,6 +282,57 @@ class AppModel extends Model {
 	static function getMagicCodingIcdTriggerArray(){
 		return self::$magic_coding_icd_trigger_array;
 	}
+	
+
+	function validates($options = array()){
+		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
+			//master detail, validate the details part
+			$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+			$master_class		= $settings['master_class'];
+			$control_foreign 	= $settings['control_foreign'];
+			$control_class 		= $settings['control_class'];
+			$detail_class		= $settings['detail_class'];
+			$form_alias			= $settings['form_alias'];
+			$detail_field		= $settings['detail_field'];
+
+			$associated = NULL;
+			
+			if (isset($this->data[$master_class][$control_foreign]) && $this->data[$master_class][$control_foreign] ) {
+				// use CONTROL_ID to get control row
+				$associated = $this->$control_class->find('first',array('conditions' => array($control_class.'.id' => $this->data[$master_class][$control_foreign])));
+			} else if(isset($this->id) && is_numeric($this->id)){
+				// else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
+				$associated = $this->find('first', array('conditions' => array($master_class.'.id' => $this->id)));
+			}else if(isset($this->data[$master_class]['id']) && is_numeric($this->data[$master_class]['id'])){
+				// else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
+				$associated = $this->find('first',array('conditions' => array($master_class.'.id' => $model->data[$this]['id'])));
+			}
+			
+			if($associated == NULL || empty($associated)){
+				//FAIL!, we ABSOLUTELY WANT validations
+				AppController::getInstance()->redirect( '/pages/err_internal?p[]='.__CLASS__." @ line ".__LINE__." (the detail control id was not found for ".$master_class.")", NULL, TRUE );
+				exit;
+			}
+			
+			$use_form_alias = $associated[$control_class][$form_alias];
+			$use_table_name = $associated[$control_class][$detail_field];
+			
+			if($use_form_alias){
+				$detail_class_instance = new AppModel(array('table' => $use_table_name, 'name' => $detail_class, 'alias' => $detail_class));
+				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
+					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
+					$detail_class_instance->set($this->data);
+					$valid_detail_class = $detail_class_instance->validates();
+					if(!$valid_detail_class){
+						//put details validation errors in the master model
+						$this->validationErrors = array_merge($this->validationErrors, $detail_class_instance->validationErrors);
+					}
+				}
+			}
+		}
+		parent::validates($options);
+		return count($this->validationErrors) == 0;
+	}
 }
 
 ?>

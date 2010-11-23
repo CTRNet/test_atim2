@@ -108,10 +108,6 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 	}
 	
-	function beforeSave (&$model, $params){
-		return $this->beforeValidateAndSave($model, $params);
-	}
-	
 	function afterSave (&$model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
@@ -186,56 +182,6 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 		}
 	}
-	function beforeValidate(&$model){
-		return $this->beforeValidateAndSave($model);
-	}
-	
-	private function beforeValidateAndSave(&$model, $params = array()){
-	// make all SETTINGS into individual VARIABLES, with the KEYS as names
-		extract($this->__settings[$model->alias]);
-		
-		if ( $is_master_model ) {
-			
-			$use_form_alias = NULL;
-			$use_table_name = NULL;
-			$associated = NULL;
-			
-			if ( isset($model->data[$master_class][$control_foreign]) && $model->data[$master_class][$control_foreign] ) {
-				// use CONTROL_ID to get control row
-				$associated = $model->$control_class->find('first',array('conditions' => array($control_class.'.id' => $model->data[$master_class][$control_foreign])));
-			} else if(isset($model->id) && is_numeric($model->id)){
-				// else, if EDIT, use MODEL.ID to get row and find CONTROL_ID that way...
-				$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id)));
-			}else if(isset($model->data[$master_class]['id']) && is_numeric($model->data[$master_class]['id'])){
-				// else, (still EDIT), use use data[master_model][id] to get row and find CONTROL_ID that way...
-				$associated = $model->find('first',array('conditions' => array($master_class.'.id' => $model->data[$master_class]['id'])));
-			}
-			
-			if($associated == NULL || empty($associated)){
-				//FAIL!, we ABSOLUTELY WANT validations
-				AppController::getInstance()->redirect( '/pages/err_internal?p[]='.__CLASS__." @ line ".__LINE__." (the detail control id was not found for ".$master_class.")", NULL, TRUE );
-				exit;
-			}
-			
-			$use_form_alias = $associated[$control_class][$form_alias];
-			$use_table_name = $associated[$control_class][$detail_field];
-			
-			if ( $use_form_alias ) {
-				$detail_class_instance = new AppModel( array('table'=>$use_table_name, 'name'=>$detail_class, 'alias'=>$detail_class) );
-				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
-					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
-					$detail_class_instance->set($model->data);
-					$valid_detail_class = $detail_class_instance->validates();
-					if ( !$valid_detail_class ){
-						$model->validationErrors = array_merge($model->validationErrors, $detail_class_instance->validationErrors);
-					}
-				}
-			}
-		}
-		//always continue. Even if errors exists in detail, we need to validate master
-		return true;
-	}
-	
 }
 
 ?>

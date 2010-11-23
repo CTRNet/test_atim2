@@ -11,7 +11,9 @@ class StructuresHelper extends Helper {
 	
 	private static $tree_node_id = 0;
 	private static $last_tabindex = 1;
-
+	
+	private $my_validation_errors = null;
+	
 	//default options
 	private static $defaults = array(
 			'type'		=>	NULL, 
@@ -289,6 +291,19 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
+		if(count($this->validationErrors) > 0 
+		&& ($type == "add"
+		|| $type == "edit"
+		|| $type == "search"
+		|| $type == "addgrid"
+		|| $type == "editgrid")){
+			//editable types, convert validation errors
+			$this->my_validation_errors = array();
+			foreach($this->validationErrors as $validation_error_arr){
+				$this->my_validation_errors = array_merge($validation_error_arr, $this->my_validation_errors);	
+			}
+		}
+		
 		if($type == 'summary'){
 			$this->buildSummary($atim_structure, $options, $data);
 		
@@ -589,7 +604,7 @@ class StructuresHelper extends Helper {
 						__( 'unmatched value', true ) => array($current_value => $current_value)
 					);
 				}
-				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
+				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
 			}else if($table_row_part['type'] == "radio"){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
@@ -603,7 +618,7 @@ class StructuresHelper extends Helper {
 			}
 			
 			
-			$display = str_replace("%c ", isset($this->validationErrors[$table_row_part['model']][$table_row_part['field']]) ? "error " : "", $display);
+			$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
 			
 			if(strlen($key)){
 				$display = str_replace("[%d]", "[".$key."]", $display);
