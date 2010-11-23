@@ -1337,8 +1337,6 @@ VALUES
 
 -- inventory --
 
-- ajouter ligne suivante au trunk
-
 INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
 VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
 
@@ -1398,6 +1396,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
 
+DROP TABLE IF EXISTS view_collections;
 DROP VIEW IF EXISTS view_collections;
 CREATE VIEW view_collections AS 
 SELECT 
@@ -1430,7 +1429,8 @@ left join banks on col.bank_id = banks.id and banks.deleted != 1
 LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'ohri_bank_participant_id'
 where col.deleted != 1;
 
-DROP VIEW view_samples;
+DROP TABLE IF EXISTS view_samples;
+DROP VIEW IF EXISTS view_samples;
 CREATE VIEW view_samples AS 
 SELECT 
 samp.id AS sample_master_id,
@@ -1469,7 +1469,8 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.identifier_name = 'ohri_bank_participant_id'
 WHERE samp.deleted != 1;
 
-DROP VIEW view_aliquots;
+DROP TABLE IF EXISTS view_aliquots;
+DROP VIEW IF EXISTS view_aliquots;
 CREATE VIEW view_aliquots AS 
 SELECT 
 al.id AS aliquot_master_id,
@@ -1779,9 +1780,21 @@ WHERE str.alias = 'sd_spe_tissues'
 AND sfi.field IN ('ohri_wt1', 'ohri_tissue_review_status', 'ohri_p53')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field NOT IN ('title', 'summary') 
+AND str.alias = 'studysummaries'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
 
 
+- ajouter ligne suivante au trunk
+- INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+- VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
 
