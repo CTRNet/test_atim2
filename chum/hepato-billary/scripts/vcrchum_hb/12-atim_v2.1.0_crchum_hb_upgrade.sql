@@ -840,6 +840,14 @@ UPDATE i18n SET en = 'Acquisition to Storage Spent Time', fr = 'Temps écoulé e
 
 UPDATE `storage_controls` SET `horizontal_increment` = '0' WHERE `storage_type` = 'box27';
 
+UPDATE i18n 
+SET en = 'ATiM - Advanced Tissue Management - v.HB (Test)',
+fr = 'ATiM - Application de gestion avancée des tissus - v.HB (Test)'
+WHERE id = 'core_appname';
+
+INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES 
+('localisation', '', 'Localisation', ''),('summaries', '', 'Summaries', '');
+
 -----------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
 
