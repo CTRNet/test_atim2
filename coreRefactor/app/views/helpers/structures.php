@@ -607,10 +607,12 @@ class StructuresHelper extends Helper {
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
 			|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
-				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
+				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
+				&& (count($table_row_part['settings']['options']) > 1 || $table_row_part['settings']['disabled'] != 'disabled')){
+					//add the unmatched value if there is more than a value or if the dropdown is not disabled (otherwise we want the single value to be default)
 					$table_row_part['settings']['options'] = array(
-						__( 'supported value', true ) => $table_row_part['settings']['options'],
-						__( 'unmatched value', true ) => array($current_value => $current_value)
+						__( 'unmatched value', true ) => array($current_value => $current_value),
+						__( 'supported value', true ) => $table_row_part['settings']['options']
 					);
 				}
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
@@ -1371,6 +1373,7 @@ class StructuresHelper extends Helper {
 									}
 									break;
 								}
+
 								if($is_old_version){
 									//old version, convert
 									//TODO: Remove this conversion in ATiM 2.3
@@ -1419,6 +1422,13 @@ class StructuresHelper extends Helper {
 							$dropdown_result = array_merge(array("" => ""), $dropdown_result);
 						}
 						
+						if(count($dropdown_result) == 2 
+						&& isset($sfs['flag_'.$options['type'].'_readonly']) 
+						&& $sfs['flag_'.$options['type'].'_readonly'] 
+						&& $add_blank){
+							//unset the blank value, the single value for a disabled field should be default
+							unset($dropdown_result[""]);
+						}
 						$current['settings']['options'] = $dropdown_result;
 					}
 					
