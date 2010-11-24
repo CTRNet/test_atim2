@@ -68,7 +68,7 @@
 		
 		// 4- Pancreas
 		if(isset($qc_hb_pancreas)) {
-			$imaging_structure_options['settings']['header'] = __('pancreas', true);
+			$imaging_structure_options['settings']['header'] = __('pancreas (tumoral invasion)', true);
 			if($last_imaging_structure === 'qc_hb_pancreas') {
 				$final_options = $imaging_structure_options;
 				$final_atim_structure = $qc_hb_pancreas;
