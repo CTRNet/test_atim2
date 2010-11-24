@@ -54,7 +54,7 @@ class EventMastersControllerCustom extends EventMastersController {
 			$height = $event_data['EventDetail']['height'];
 			
 			if(is_numeric($weight) && is_numeric($height) && (!empty($height))) {
-				$event_data['EventDetail']['bmi'] =  pow(($weight/$height), 2);
+				$event_data['EventDetail']['bmi'] =  ($weight/($height*$height)) * 10000;
 			} 
 		}
 		
@@ -482,30 +482,6 @@ class EventMastersControllerCustom extends EventMastersController {
 			$this->data['EventDetail']['result'] = ( (0.957*log($serum_cr)) + (0.378*log($serum_bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;
 		}		
 	}
-	
-	function addIcdCodeDescription($data) {
-		if(isset($data['EventDetail']['who_icd10_code'])) {
-			if(!isset($this->CodingIcd10Who)) {
-				App::import('Model', 'Codingicd.CodingIcd10Who');
-				$this->CodingIcd10Who = new CodingIcd10Who();
-			}
-			$data['EventDetail']['who_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($data['EventDetail']['who_icd10_code']);
-		}
-		
-		if(isset($data[0]['EventDetail']['who_icd10_code'])) {
-			if(!isset($this->CodingIcd10Who)) {
-				App::import('Model', 'Codingicd.CodingIcd10Who');
-				$this->CodingIcd10Who = new CodingIcd10Who();
-			}
-			foreach($data as $key => $record) {
-				$data[$key]['EventDetail']['who_icd10_code'] .= " - ".$this->CodingIcd10Who->getDescription($data[$key]['EventDetail']['who_icd10_code']);
-			}
-		}
-		
-		return $data;
-	}
-	
-	
 	
 }
 	

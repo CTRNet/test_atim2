@@ -859,12 +859,3 @@ WHERE `use_link` LIKE '/material/%';
 
 UPDATE menus SET flag_active = '0'
 WHERE `use_link` LIKE '/rtbform/%';
-
------------------------------------------------------------------------
-- TASKS TODO BEFORE GO LIVE -
-
-- UPDATE PERMISSION: NO ACCESS TO FORMS, MATERIAL, EQUIP., SOP, LIMITED ACCESS TO STUDY
-- REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
-- RUN DB VALIDATION
-- COMPARE CODE WITH TRUNK
-,

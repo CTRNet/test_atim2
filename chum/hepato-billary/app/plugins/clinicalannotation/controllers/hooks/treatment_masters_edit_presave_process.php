@@ -13,4 +13,3 @@
 	$this->data = $this->addSurvivalTime($participant_data, $this->data, $treatment_master_data);
 
 ?>
-

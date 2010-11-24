@@ -797,8 +797,8 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='plasse' AND language_alias='plasse'), '', '1');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('roy', 'roy');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='roy' AND language_alias='roy'), '', '1');
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('vanderbroucke-menu', 'vanderbroucke-menu');
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='vanderbroucke-menu' AND language_alias='vanderbroucke-menu'), '', '1');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES('vandenbroucke-menu', 'vandenbroucke-menu');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_hbp_surgeon_list'),  (SELECT id FROM structure_permissible_values WHERE value='vandenbroucke-menu' AND language_alias='vandenbroucke-menu'), '', '1');
 
 INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('bmi', '', 'BMI', 'IMC'),
@@ -813,7 +813,7 @@ INSERT IGNORE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('lapointe', '', 'Dr. Lapointe', 'Dr. Lapointe'),
 ('plasse', '', 'Dr. Plasse', 'Dr. Plasse'),
 ('roy', '', 'Dr. Roy', 'Dr. Roy'),
-('vanderbroucke-menu', '', 'Dr. Vanderbroucke-Menu', 'Dr. Vanderbroucke-Menu');
+('vandenbroucke-menu', '', 'Dr. Vandenbroucke-Menu', 'Dr. Vandenbroucke-Menu');
 
 INSERT INTO `structure_fields` 
 (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 

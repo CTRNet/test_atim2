@@ -11,4 +11,5 @@
 	$this->data = $this->completeVolumetry($this->data);
 	
 	$this->setScores($event_control_data['EventControl']['event_type']);
+	
 ?>
