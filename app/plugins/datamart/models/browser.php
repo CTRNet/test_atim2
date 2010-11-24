@@ -85,7 +85,7 @@ class Browser extends DatamartAppModel {
 			$result[] = array(
 				'value' => '0',
 				'default' => __('create batchset', true),
-				'action' => '/datamart/batch_sets/add/'
+				'action' => 'datamart/batch_sets/add/'
 			);
 			$result[] = array(
 				'value' => '0',
@@ -389,7 +389,7 @@ class Browser extends DatamartAppModel {
 					}else{
 						$info .= __("drilldown", true);
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div></div></a></td>";
+					$result .= "<td class='node ".$class."'><a href='".$webroot_url."datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div></div></a></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
