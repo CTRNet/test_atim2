@@ -39,16 +39,10 @@ class SampleMaster extends InventorymanagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'Summary' => array(
-					'menu' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
-					'title' => array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
-
-					'description' => array(
-						__('type', true) => __($specimen_data['SampleMaster']['sample_type'], true).($specimen_data['SampleMaster']['sample_type'] == "blood" ? " (".__($specimen_data['SampleDetail']['blood_type'], true).")" : ""),
-						__('sample code', true) => $specimen_data['SampleMaster']['sample_code'],
-						__('category', true) => __($specimen_data['SampleMaster']['sample_category'], true)
-					)
-				)
+				'menu'				=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'title' 			=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'data' 				=> $specimen_data,
+	 			'structure alias' 	=> 'sample_masters_for_search_result'
 			);
 		}	
 		
@@ -67,17 +61,10 @@ class SampleMaster extends InventorymanagementAppModel {
 				 	
 			// Set summary	 	
 	 		$return = array(
-				'Summary' => array(
-					'menu' => array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
-					'title' => array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
-
-					'description' => array(
-						__('type', true) => __($derivative_data['SampleMaster']['sample_type'], true),
-						__('sample code', true) => $derivative_data['SampleMaster']['sample_code'],
-						__('category', true) => __($derivative_data['SampleMaster']['sample_category'], true),
-						__('creation date', true) => $derivative_data['DerivativeDetail']['creation_datetime']
-					)
-				)
+					'menu' 				=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'title' 			=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'data' 				=> $derivative_data,
+	 				'structure alias' 	=> 'sample_masters_for_search_result'
 			);
 		}	
 		

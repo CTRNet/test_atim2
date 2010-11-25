@@ -288,6 +288,9 @@ class StructuresHelper extends Helper {
 				$data = $options['data'];
 			}
 		}
+		if($data == null){
+			$data = array();
+		}
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
@@ -1275,7 +1278,7 @@ class StructuresHelper extends Helper {
 											$current['tool'] = $this->Form->input($field_name."_with_file_upload", array_merge($settings, array("type" => "file", "class" => null, "value" => null)));
 										}
 									}else{
-										$current['tool'] = '<a href="'.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
+										$current['tool'] = '<a href="'.$this->webroot.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
 									}
 								}else{
 									$settings[$setting[0]] = $setting[1];
@@ -1323,6 +1326,9 @@ class StructuresHelper extends Helper {
 						|| $sfs['type'] == "hidden"
 						|| $sfs['type'] == "file"
 						|| $sfs['type'] == "password"){
+							if($sfs['type'] == "autocomplete" && isset($settings['url'])){
+								$settings['class'] .= " jqueryAutocomplete";
+							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
 						}else if($sfs['type'] == "display"){
 							$current["format"] = "%s";

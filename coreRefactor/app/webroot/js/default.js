@@ -246,19 +246,6 @@ function uncheckAll( $div ) {
 		
 	}
 	
-	function autoComplete(element, json){
-		$(element).autocomplete({
-			//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-			source: (root_url == "/" ? "" : root_url + "/") + $(element).attr("url")
-			//alternate source for debugging
-//			source: function(request, response) {
-//				$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//					alert(data);
-//				});
-//			}
-		});
-	}
-	
 	/**
 	 * Advanced controls are search OR options and RANGE buttons
 	 */
@@ -385,9 +372,16 @@ function uncheckAll( $div ) {
 	
 	function initAutocomplete(scope){
 		$(scope).find(".jqueryAutocomplete").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
+			$(this).autocomplete({
+				//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
+				source: (root_url == "/" ? "" : root_url + "/") + $(this).attr("url")
+				//alternate source for debugging
+//				source: function(request, response) {
+//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
+//						alert(data);
+//					});
+//				}
+			});
 		});
 	}
 	
