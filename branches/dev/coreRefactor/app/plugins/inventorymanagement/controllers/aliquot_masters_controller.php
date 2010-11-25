@@ -344,11 +344,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// MANAGE DATA RECORD
 		
-		if (empty($this->data)) {
-			// Initial Display
-			$this->set('arr_preselected_storages_for_display', array());
-			
-		} else {
+		if(!empty($this->data)){
 			// Record process
 						
 			// Manage volume
@@ -559,14 +555,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// MANAGE DATA RECORD
 		
-		if(empty($this->data)) {
+		if(empty($this->data)){
 			$this->data = $aliquot_data;
 			
 			$tmp_arr_preselected_storages = empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster']));
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages));
-
-		} else {
-			
+			$this->StorageMaster->storage_dropwon = $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages);
+		}else{
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
@@ -1542,7 +1536,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set preselected storage list		
-		$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_preselected_storages));
+		$this->StorageMaster->storage_dropdown = $this->formatPreselectedStoragesForDisplay($arr_preselected_storages);
 				
 		// Manage error message
 		$messages = array();

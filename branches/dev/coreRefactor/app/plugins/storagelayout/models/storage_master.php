@@ -2,6 +2,8 @@
 
 class StorageMaster extends StoragelayoutAppModel {
 	
+	public static $storage_dropdown = array(); 
+	
 	var $belongsTo = array(       
 		'StorageControl' => array(           
 			'className'    => 'Storagelayout.StorageControl',            
@@ -106,6 +108,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 	
 		return $formatted_data;
+	}
+	
+	static function getStoragesDropdown(){
+		return self::$storage_dropdown;
 	}
 
 }
