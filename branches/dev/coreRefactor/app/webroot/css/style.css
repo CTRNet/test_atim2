@@ -164,7 +164,10 @@ div.submitBar{
 /* actions, links */
 div.actionsOuter{
 	display: table;
-	width: 100%;	
+	width: 100%;
+	background: #dde8f2;
+	-moz-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
 }
 div.actions div.leftCell{
 	display: table-cell;
@@ -178,7 +181,6 @@ div.actions div.rightCell{
 }
 div.actions {
 	position: relative;
-	background: #dde8f2;
 	display: table-row;
 	height: 25px;
 	font-size: 11px;
