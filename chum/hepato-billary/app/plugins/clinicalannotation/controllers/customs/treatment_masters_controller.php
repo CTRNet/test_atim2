@@ -40,17 +40,17 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 
 		// Load scores list and structures
 		$this->set('score_fong_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['fong_score_id']))));
-		$this->Structures->set('ed_score_fong', 'score_fong_structure');
+		$this->Structures->set('qc_hb_ed_score_fong', 'score_fong_structure');
 		$this->set('score_meld_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['meld_score_id']))));
-		$this->Structures->set('ed_score_meld', 'score_meld_structure');
+		$this->Structures->set('qc_hb_ed_score_meld', 'score_meld_structure');
 		$this->set('score_gretch_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['gretch_score_id']))));
-		$this->Structures->set('ed_score_gretch', 'score_gretch_structure');
+		$this->Structures->set('qc_hb_ed_score_gretch', 'score_gretch_structure');
 		$this->set('score_clip_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['clip_score_id']))));
-		$this->Structures->set('ed_score_clip', 'score_clip_structure');
+		$this->Structures->set('qc_hb_ed_score_clip', 'score_clip_structure');
 		$this->set('score_barcelona_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['barcelona_score_id']))));
-		$this->Structures->set('ed_score_barcelona', 'score_barcelona_structure');
+		$this->Structures->set('qc_hb_ed_score_barcelona', 'score_barcelona_structure');
 		$this->set('score_okuda_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgey_data['TreatmentDetail']['okuda_score_id']))));
-		$this->Structures->set('ed_score_okuda', 'score_okuda_structure');
+		$this->Structures->set('qc_hb_ed_score_okuda', 'score_okuda_structure');
 	}
 	
 	function preOperativeEdit($participant_id, $tx_master_id){
@@ -131,17 +131,17 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		
 		// Load scores list and structures
 		$this->set('score_fong_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'fong score'))));
-		$this->Structures->set('ed_score_fong', 'score_fong_structure');
+		$this->Structures->set('qc_hb_ed_score_fong', 'score_fong_structure');
 		$this->set('score_meld_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'meld score'))));
-		$this->Structures->set('ed_score_meld', 'score_meld_structure');
+		$this->Structures->set('qc_hb_ed_score_meld', 'score_meld_structure');
 		$this->set('score_gretch_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'gretch score'))));
-		$this->Structures->set('ed_score_gretch', 'score_gretch_structure');
+		$this->Structures->set('qc_hb_ed_score_gretch', 'score_gretch_structure');
 		$this->set('score_clip_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'clip score'))));
-		$this->Structures->set('ed_score_clip', 'score_clip_structure');
+		$this->Structures->set('qc_hb_ed_score_clip', 'score_clip_structure');
 		$this->set('score_barcelona_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'barcelona score'))));
-		$this->Structures->set('ed_score_barcelona', 'score_barcelona_structure');
+		$this->Structures->set('qc_hb_ed_score_barcelona', 'score_barcelona_structure');
 		$this->set('score_okuda_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.event_group' => 'scores', 'EventMaster.event_type' => 'okuda score'))));
-		$this->Structures->set('ed_score_okuda', 'score_okuda_structure');	
+		$this->Structures->set('qc_hb_ed_score_okuda', 'score_okuda_structure');	
 	}
 	
 	// --------------------------------------------------------------------------------

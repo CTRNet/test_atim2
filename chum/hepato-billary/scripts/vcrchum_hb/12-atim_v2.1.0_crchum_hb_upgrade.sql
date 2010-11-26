@@ -758,8 +758,8 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 
 ALTER TABLE dxd_liver_metastases_revs ADD `version_created` datetime NOT NULL AFTER `version_id`;
 ALTER TABLE dxd_liver_metastases  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE ed_score_child_pugh MODIFY `event_master_id` int(11) NOT NULL;
-ALTER TABLE ed_score_child_pugh_revs MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE qc_hb_ed_score_child_pugh MODIFY `event_master_id` int(11) NOT NULL;
+ALTER TABLE qc_hb_ed_score_child_pugh_revs MODIFY `event_master_id` int(11) NOT NULL;
 ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs  MODIFY `id` int(11) NOT NULL ;
 ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
