@@ -98,10 +98,10 @@ class Structure extends AppModel {
 						$tmp_msg = "error_must_be_positive_float";
 					}else if($tmp_type == "datetime"){
 						$tmp_rule = VALID_DATETIME_YMD;
-						$tmp_msg = "this is not a datetime";
+						$tmp_msg = "invalid datetime";
 					}else if($tmp_type == "date"){
 						$tmp_rule = "date";
-						$tmp_msg = "this is not a date";
+						$tmp_msg = "invalid date";
 					}else if($tmp_type == "time"){
 						$tmp_rule = VALID_24TIME;
 						$tmp_msg = "this is not a time";
@@ -153,6 +153,9 @@ class Structure extends AppModel {
 						}
 						if($validation['language_message']){
 							$rule_array['message'] = $validation['language_message'];
+							if(strlen($sf['language_label']) > 0){
+								$rule_array['message'] .= " (".__($sf['language_label'], true).")";
+							}
 						}
 						
 						if (!isset($rules[ $sf['model']][$sf['field']])){
