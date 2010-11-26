@@ -713,15 +713,15 @@ div.menu ul#summary li {
 	
 div.menu ul#summary li ul {
 	display: none;
-	top: 50px;
+	top: 45px;
 	right: 20px;
 	position: absolute;
 	background: #293B49;
 	margin: 0;
 	padding: 10px;
 	z-index: 1000;
-	-moz-border-radius: 7px; 
-	border-radius: 7px; 
+	-moz-border-radius: 7px 0 7px 7px; 
+	border-radius: 7px 0 7px 7px; 
 	
 	/*
 		z-index: 20;
@@ -797,9 +797,6 @@ span.help {
 	line-height: 20px;
 	background: url("../img/icons/fam_fam_silk_help.png") no-repeat center center;
 }
-span.help:hover {
-	
-}
 	span.help.error,
 	span.help.error:hover {
 		/* background: none; */
@@ -818,6 +815,12 @@ span.help:hover {
 		display: none;
 		white-space: normal;
 	}
+	
+		div.wrapper th span.help.right:hover div{
+			left: 10px;
+			-moz-border-radius: 0 15px 15px 15px;
+			border-radius: 0 15px 15px 15px;
+		}
 		div.wrapper td.help span.help:hover div, div.wrapper th span.help:hover div {
 			display: block;
 			text-indent: 0;
@@ -838,6 +841,7 @@ span.help:hover {
 		
 			z-index: 200;
 		}
+		
 		div.wrapper span.help div p {
 			margin: 0 0 1em 0;
 		}
@@ -848,9 +852,6 @@ span.help:hover {
 		}
 
 	/* -= table.structure =- */
-	div.wrapper form {
-		overflow: auto;
-	}
 	div.wrapper table.structure {
 		width: 100%;
 		margin: 0;
@@ -985,9 +986,6 @@ span.help:hover {
 				line-height: 25px;
 				border-bottom: 1px solid #eaedf2;
 			}
-				ul.big_announcements li:hover {
-					background-color: #ffe;
-				}
 			ul.big_announcements li a {
 				display: block;
 				padding: 7px 5px 8px 5px;
@@ -1014,8 +1012,10 @@ span.help:hover {
 				line-height: 25px;
 				border-bottom: 1px solid #eaedf2;
 			}
-				ul.big_menu li:hover {
+				ul.big_menu li:hover, ul.big_announcements li:hover{
 					background-color: #ffe;
+					background: -webkit-gradient(linear, left top, right top, from(#ffe), color-stop(50%, #ffc), to(#ffe)); /* for webkit browsers */
+					background: -moz-linear-gradient(left,  #ffe,  #ffc, #ffe); /* for firefox 3.6+ */
 				}
 			ul.big_menu li a {
 				display: block;
