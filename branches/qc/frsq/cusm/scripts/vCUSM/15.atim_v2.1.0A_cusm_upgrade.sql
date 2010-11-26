@@ -894,6 +894,6 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.language_heading = 'consent'
 WHERE str.alias IN ('clinicalcollectionlinks')
-AND sfi.field IN ('	form_version')
+AND sfi.field IN ('form_version')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
