@@ -509,7 +509,25 @@ class StructuresHelper extends Helper {
 								if($suffix == "_end"){
 									$display[0] .= '<span class="tag"> To </span>';
 								}
+								if(strlen($suffix) > 0 && ($table_row_part['type'] == 'input'
+									|| $table_row_part['type'] == 'integer'
+									|| $table_row_part['type'] == 'integer_positive'
+									|| $table_row_part['type'] == 'float'
+									|| $table_row_part['type'] == 'foat_positive')
+								){
+									//input type, add the sufix to the name
+									$table_row_part['format_back'] = $table_row_part['format'];
+									$table_row_part['format'] = preg_replace('/name="data\[((.)*)\]"/', 'name="data[$1'.$suffix.']"', $table_row_part['format']);
+								}
 								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'].$suffix, $options, $current_value, null).'</span>';
+								if(strlen($suffix) > 0 && ($table_row_part['type'] == 'input'
+									|| $table_row_part['type'] == 'integer'
+									|| $table_row_part['type'] == 'integer_positive'
+									|| $table_row_part['type'] == 'float'
+									|| $table_row_part['type'] == 'foat_positive')
+								){
+									$table_row_part['format'] = $table_row_part['format_back'];
+								}
 								if($options['type'] == "search" && !in_array($table_row_part['type'], self::$range_types)){
 									$display[0] .= '<a class="adv_ctrl btn_add_or" href="#" onclick="return false;">(+)</a>';
 								}
@@ -594,6 +612,7 @@ class StructuresHelper extends Helper {
 	 */
 	private function getPrintableField(array $table_row_part, $field_name, array $options, $current_value, $key){
 		$display = null;
+		$field_name = $options['settings']['name_prefix'].$field_name;
 		if(strlen($key)){
 			$field_name = "%d.".$field_name;
 		}
@@ -1234,7 +1253,8 @@ class StructuresHelper extends Helper {
 	}
 
 	/**
-	 * Builds the structure part that will contain data
+	 * Builds the structure part that will contain data. Input types (inputs and numbers) are prebuilt 
+	 * whereas other types still need to be generated 
 	 * @param array $atim_structure
 	 * @param array $options
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
@@ -1276,7 +1296,7 @@ class StructuresHelper extends Helper {
 						}
 						
 						//building all text fields (dropdowns, radios and checkboxes cannot be built here)
-						$field_name = $sfs['model'].".".$sfs['field'];
+						$field_name = $options['settings']['name_prefix'].$sfs['model'].".".$sfs['field'];
 						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
 							$field_name = "%d.".$field_name;	
 						}
