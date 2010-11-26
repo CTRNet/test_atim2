@@ -259,9 +259,20 @@ class ShellHelper extends Helper {
 								$summary_item = $menu_item['Menu']['use_summary'] ? NULL : array('class'=>'without_summary');
 								
 								if($menu_item['Menu']['use_summary']){
+									$word = __(trim($menu_item['Menu']['language_title']), true);
+									$untranslated = strpos($word, "<span class='untranslated'>") === 0;
+									if($untranslated){
+										$word = substr($part, 27, -7);			
+									}
+									$max_length = 30;
+									if(strlen($word) > $max_length){
+										$word = '<span class="incompleteMenuTitle" title="'.htmlentities($word, ENT_QUOTES).'">'.substr($word, 0, -1 * (strlen($word) - $max_length))."...".'</span>';
+									}
+									$word = $untranslated ? '<span class="untranslated">'.$word.'</span>' : $word;
+								
 									$active_item = '
-										<span>'.$menu_item['Menu']['use_summary'].'</span>
-										<br />&nbsp;&lfloor; '.__($menu_item['Menu']['language_title'], true).'
+										<span class="mainTitle">'.$menu_item['Menu']['use_summary'].'</span>
+										<br />&nbsp;&lfloor; <span class="menuSubTitle">'.$word.'</span>
 									';
 									
 									$page_title[] = $menu_item['Menu']['use_summary'];
@@ -439,7 +450,26 @@ class ShellHelper extends Helper {
 				if($summary_result){
 					//short--- 
 					if(isset($summary_result['menu']) && is_array($summary_result['menu'])){
-						$result['short'] = trim(__($summary_result['menu'][0], true).' '.(isset($summary_result['menu'][1])? $summary_result['menu'][1]: ''));
+						$parts = array(trim($summary_result['menu'][0])." ", isset($summary_result['menu'][1]) ? trim($summary_result['menu'][1]) : '');
+						$total_length = 0;
+						$result_str = "";
+						$max_length = 22;
+						foreach($parts as $part){
+							$untranslated = strpos($part, "<span class='untranslated'>") === 0;
+							if($untranslated){
+								$part = substr($part, 27, -7);			
+							}
+							$total_length += strlen($part);
+							if($total_length > $max_length){
+								$part = substr($part, 0, -1 * ($total_length - $max_length))."...";
+							}
+							$result_str .= $untranslated ? '<span class="untranslated">'.$part.'</span>' : $part;
+							if($total_length > $max_length){
+								$result_str = '<span class="incompleteMenuTitle" title="'.htmlentities(implode("", $parts), ENT_QUOTES).'">'.$result_str.'</span>';
+								break;
+							}
+						}
+						$result['short'] = $result_str;
 					}else{
 						$result['short'] = false;
 					}
