@@ -29,14 +29,14 @@ class Browser extends DatamartAppModel {
 	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $data_model = null, $model_pkey = null, $data_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
 		if(!App::import('Model', 'Datamart.DatamartStructure')){
 			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
 		}
 		$DatamartStructure = new DatamartStructure();
 		if($starting_ctrl_id != 0){
-			if($plugin_name == null || $model_name == null || $model_pkey == null || $structure_name == null){
+			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
 			}
 			//the query contains a useless CONCAT to counter a cakephp behavior
@@ -90,7 +90,7 @@ class Browser extends DatamartAppModel {
 			$result[] = array(
 				'value' => '0',
 				'default' => __('export as CSV file (comma-separated values)', true),
-				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
+				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'.$data_model.'/'.$data_pkey.'/'
 			);
 		}else{
 			$active_structures_ids = $this->getActiveStructuresIds();
@@ -430,7 +430,7 @@ class Browser extends DatamartAppModel {
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
 		$structures_component = StructuresComponent::$singleton;
-		$sf = $structures_component->getSimplifiedFormById($structure_id);
+		$sf = $structures_component->getFormById($structure_id);
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can ben a string or an array
 		foreach($params as $key => $value_element){
@@ -454,13 +454,18 @@ class Browser extends DatamartAppModel {
 				//it's a range
 				//key = field with possibly a comparison (field >=, field <=), if no comparison, it's = 
 				//value = value_str
-				$values[] = strpos($value_element, "-") ? AppController::getFormatedDatetimeString($value_element) : $value_element;
+				if(strpos($value_element, "-")){
+					list($year, $month, $day) = explode("-", $value_element);
+					$values[] = AppController::getFormatedDateString($year, $month, $day);
+				}else{
+					$values[] = $value_element;
+				}
 				if(strpos($key, " ") !== false){
 					list($key, $name_suffix) = explode(" ", $key);
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf['SimplifiedField'] as $sf_unit){
+			foreach($sf['Sfs'] as $sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){

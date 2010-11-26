@@ -1,3 +1,7 @@
+<?php 
+ob_start('ob_gzhandler');
+?>
+
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -92,3 +96,6 @@
 	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>
+<?php 
+ob_end_flush();
+?>

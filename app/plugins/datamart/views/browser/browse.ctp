@@ -28,7 +28,7 @@
 			);
 			$tmp_header = isset($header) ? $header : "";
 			$header = "";
-			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
 		}
 		$is_datagrid = true;
 		$type = "add";

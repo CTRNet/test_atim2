@@ -56,7 +56,7 @@ class User extends AppModel {
 		$all_users_data = $this->find('all', array('recursive' => '-1'));
 		$result = array();
 		foreach($all_users_data as $data) {
-			$result[] = array('value' => $data['User']['id'], 'default' => $data['User']['first_name'] . ' ' . $data['User']['last_name']); 
+			$result[$data['User']['id']] = $data['User']['first_name'] . ' ' . $data['User']['last_name']; 
 		}
 		return $result;
 	}
