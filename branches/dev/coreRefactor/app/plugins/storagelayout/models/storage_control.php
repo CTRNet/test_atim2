@@ -16,7 +16,7 @@ class StorageControl extends StoragelayoutAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $storage_control) {
 			$result[$storage_control['StorageControl']['storage_type']] = __($storage_control['StorageControl']['storage_type'], true);
 		}
-		asort($tmp_result);
+		asort($result);
 
 		return $result;
 	}

@@ -10,15 +10,10 @@ class EventControl extends ClinicalannotationAppModel {
 			$result = $this->find('first', array('conditions'=>array('EventControl.id'=>$variables['EventControl.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
-					'title'			=>	array( NULL, __('annotation', TRUE) ),
-					
-					'description'	=>	array(
-						__('event_group', TRUE)		=>	__($result['EventControl']['event_group'], TRUE),
-						__('event_form_type', TRUE)	=>	__($result['EventControl']['disease_site'], TRUE) . ' - ' . __($result['EventControl']['event_type'], TRUE)
-					)
-				)
+				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+				'title'			=>	array( NULL, __('annotation', TRUE) ),
+				'data'				=> $result,
+				'structure alias'	=> 'event_summary'
 			);
 		}
 		

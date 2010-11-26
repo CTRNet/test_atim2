@@ -462,8 +462,8 @@ class StructuresHelper extends Helper {
 					foreach($table_row as $table_row_part){
 						if($table_row_part['heading']){
 							if(!$new_line){
-								echo('<td class="content">'.$display."</td>".$end_of_line."</tr><tr>");
-								$display = "";
+								echo('<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>");
+								$display = array();
 								$end_of_line = "";
 							}
 							echo('<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
@@ -569,7 +569,11 @@ class StructuresHelper extends Helper {
 						echo "<dt>",$table_row_part['label'],"</dt><dd>";
 						$first_line = false;
 					}
-					echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null), " ";
+					if(isset($data_unit[$table_row_part['model']]) && isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+						echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null), " ";
+					}else if(Configure::read('debug') > 0){
+						AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
+					}
 				}
 			}
 			if(!$first_line){
@@ -611,7 +615,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "select" 
 			|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
-				&& (count($table_row_part['settings']['options']) > 1 || $table_row_part['settings']['disabled'] != 'disabled')){
+				&& (count($table_row_part['settings']['options']) > 1 || !isset($table_row_part['settings']['disabled']) || $table_row_part['settings']['disabled'] != 'disabled')){
 					//add the unmatched value if there is more than a value or if the dropdown is not disabled (otherwise we want the single value to be default)
 					$table_row_part['settings']['options'] = array(
 						__( 'unmatched value', true ) => array($current_value => $current_value),
@@ -1125,46 +1129,56 @@ class StructuresHelper extends Helper {
 					$sort_asc = false;
 				}
 			}
+			
+			$content_columns_count = 0;
 			foreach ($table_structure as $table_column){
 				foreach ($table_column as $table_row){
 					foreach($table_row as $table_row_part){
-						if ($table_row_part['type'] != 'hidden'){
+						if ($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0){
+							++ $content_columns_count;
+						}
+					}
+				}
+			}
+			$column_count += $content_columns_count;
+			$content_columns_count /= 2;
+			$current_col_number = 0;
+			foreach ($table_structure as $table_column){
+				foreach ($table_column as $table_row){
+					foreach($table_row as $table_row_part){
+						if ($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0){
 
 							// label and help/info marker, if available...
-							if(strlen($table_row_part['label']) > 0){
-								$return_string .= '
-									<th>
-								';
-								$sorting_link = $_SERVER['REQUEST_URI'];
-								$sorting_link = explode('?', $sorting_link);
-								$sorting_link = $sorting_link[0];
-								
-								$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
-								$default_sorting_direction = strtolower($default_sorting_direction);
-								
-								$sorting_link .= '?sortBy='.$table_row_part['field'];
-								$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
-								$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
-								if($options['settings']['pagination']){
-									if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
-										$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
-									}
-									$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
-								}else{
-									$return_string .= $table_row_part['label'];
+							$return_string .= '
+								<th>
+							';
+							$sorting_link = $_SERVER['REQUEST_URI'];
+							$sorting_link = explode('?', $sorting_link);
+							$sorting_link = $sorting_link[0];
+							
+							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
+							$default_sorting_direction = strtolower($default_sorting_direction);
+							
+							$sorting_link .= '?sortBy='.$table_row_part['field'];
+							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
+							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
+							if($options['settings']['pagination']){
+								if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
+									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
 								}
-								
-								if(show_help){
-									$return_string .= $table_row_part['help'];
-								}
-								
-								$column_count++;
-								$return_string .= '
-									</th>
-								';
+								$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+							}else{
+								$return_string .= $table_row_part['label'];
 							}
 							
+							if(show_help){
+								$return_string .= $current_col_number < $content_columns_count ? str_replace('<span class="help">', '<span class="help right">', $table_row_part['help']) : $table_row_part['help'];
+							}
 							
+							++ $current_col_number;
+							$return_string .= '
+								</th>
+							';
 						}
 					}	
 				}
@@ -1628,7 +1642,7 @@ class StructuresHelper extends Helper {
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu'.( count($link_results)>7 ? ' scroll' : '' ).'">
 								
-								<div>
+								<div class="menuContent">
 									<ul>
 				';
 				
@@ -1665,7 +1679,7 @@ class StructuresHelper extends Helper {
 				}
 				
 				$links_append .= '
-								<span class="arrow"></span>
+								<div class="arrow"><span></span></div>
 							</div>
 				';
 				
@@ -1676,19 +1690,21 @@ class StructuresHelper extends Helper {
 		} // end FOREACH 
 		
 		// ADD title to links bar and wrap in H5
-		if($state=='bottom'){ 
+		if($state == 'bottom'){ 
 			
 			$return_string = '
-				<div class="actions">
+				<div class="actionsOuter"><div class="actions">
 			';
 			
 			// display SEARCH RESULTS, if any
 			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) ) {
 					$return_string .= '
-							<div class="search-result-div bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+						<div class="leftCell">
+							<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
 								'.$_SESSION['ctrapp_core']['search']['results'].'
 							</a></div>
+						</div>
 					';
 				}
 			}else{
@@ -1697,14 +1713,13 @@ class StructuresHelper extends Helper {
 			
 			if(count($return_links)){
 				$return_string .= '
-					<ul><li><ul class="filter">
-						<li><div class="bottom_button">'.implode('</div></li><li><div class="bottom_button">',$return_links).'</div></li>
-					</ul></li></ul>
-				';
+					<div class="rightCell">
+						<div class="bottom_button">'.implode('</div><div class="bottom_button">',$return_links).'</div>
+					</div>';
 			}
 			
 			$return_string .= '
-				</div>
+				</div></div>
 			';
 			
 			
