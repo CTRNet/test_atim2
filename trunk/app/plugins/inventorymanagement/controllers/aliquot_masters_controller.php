@@ -332,11 +332,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// set data for initial data to allow bank to override data
 		
-		$inital_data = array(array(
-				'AliquotMaster' => array(
-					'aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
-					'aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'],
-					'storage_datetime' => $this->getDefaultAliquotStorageDate($sample_data))));
+		$this->set('override_data', array(
+				'AliquotMaster.aliquot_type' => $aliquot_control_data['AliquotControl']['aliquot_type'],
+				'AliquotMaster.aliquot_volume_unit' => $aliquot_control_data['AliquotControl']['volume_unit'],
+				'AliquotMaster.storage_datetime' => $this->getDefaultAliquotStorageDate($sample_data)));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -345,12 +344,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		// MANAGE DATA RECORD
 		
-		if (empty($this->data)) {
-			// Initial Display
-			$this->set('arr_preselected_storages_for_display', array());
-			$this->data = $inital_data;
-			
-		} else {
+		if(!empty($this->data)){
 			// Record process
 						
 			// Manage volume
@@ -561,14 +555,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// MANAGE DATA RECORD
 		
-		if(empty($this->data)) {
+		if(empty($this->data)){
 			$this->data = $aliquot_data;
 			
 			$tmp_arr_preselected_storages = empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster']));
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages));
-
-		} else {
-			
+			$this->StorageMaster->storage_dropwon = $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages);
+		}else{
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 
@@ -1544,7 +1536,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set preselected storage list		
-		$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_preselected_storages));
+		$this->StorageMaster->storage_dropdown = $this->formatPreselectedStoragesForDisplay($arr_preselected_storages);
 				
 		// Manage error message
 		$messages = array();

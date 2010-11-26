@@ -59,7 +59,7 @@ class PreferencesController extends CustomizeAppController {
 		
 		$this->hook();
 		
-		if ( !empty($this->data) ) {
+		if(!empty($this->data)){
 			
 			$this->User->id = $_SESSION['Auth']['User']['id'];
 			$this->data['User']['id'] = $_SESSION['Auth']['User']['id'];
@@ -71,18 +71,15 @@ class PreferencesController extends CustomizeAppController {
 			$this->data['Config']['group_id'] = 0;
 			$this->data['Config']['user_id'] = $_SESSION['Auth']['User']['id'];
 			
-			if ( $this->User->validates($this->data) && $this->Config->validates($this->data) ) {
-				$this->User->save($this->data);
-				$this->Config->save($this->data);
-				
-				$this->atimFlash( 'your data has been updated','/customize/preferences/index' );
+			$this->User->set($this->data);
+			$this->Config->set($this->data);
+			if($this->User->validates() && $this->Config->validates() && $this->User->save($this->data) && $this->Config->save($this->data)){
+				$this->atimFlash('your data has been updated','/customize/preferences/index');
 			}
 			
-		} else {
-			
+		}else{
 			$this->data = $this->User->find('first',array('conditions'=>array('User.id'=>$_SESSION['Auth']['User']['id'])));
 			$this->data['Config'] = $config_results['Config'];
-				
 		}
 	}
 

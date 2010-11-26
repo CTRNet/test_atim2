@@ -6,7 +6,7 @@
 	
 	// display adhoc RESULTS form
 	$structure_links = array(
-		'top'=>'/datamart/batch_sets/process/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
+		'top'=>'#',
 		'checklist'=>array(
 			$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'%%'
 		)
@@ -17,7 +17,7 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$structures->build( $atim_structure_for_results, array('type'=>'checklist', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false), 'links'=>$structure_links) );
+	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false), 'links'=>$structure_links) );
 	
 	// display adhoc-to-batchset ADD form
 	$structure_links = array(
@@ -30,7 +30,7 @@
 	);
 	
 	$structure_override = array(
-		'BatchSet.process' => $batch_set_processes
+		'BatchSet.id' => $atim_menu_variables['BatchSet.id']
 	);
 	
 	?>

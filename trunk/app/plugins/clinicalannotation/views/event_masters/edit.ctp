@@ -32,7 +32,6 @@
 		'actions'=>false, 
 
 		'header' => '2- ' . __('related diagnosis', null),
-		'separator' => true, 
 		'form_top' => false,
 		'form_bottom'=>false
 	);	
@@ -49,7 +48,7 @@
 	);
 	
 	$final_atim_structure = $diagnosis_structure;
-	$final_options = array( 'type'=>'radiolist', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
+	$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
 
 	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }
