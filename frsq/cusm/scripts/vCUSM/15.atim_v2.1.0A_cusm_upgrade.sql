@@ -880,3 +880,20 @@ SET sfo.flag_search = '0', sfo.flag_search_readonly = '0', sfo.flag_index = '0'
 WHERE str.alias IN ('diagnosismasters', 'qc_cusm_dxd_procure')
 AND sfi.field IN ('path_stage_summary')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+DELETE FROM structure_formats 
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisDetail' AND field = 'report_number')
+AND structure_id = (SELECT id FROM structures WHERE alias = 'clinicalcollectionlinks');
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_detail = '0', sfo.flag_index = '0'
+WHERE str.alias IN ('clinicalcollectionlinks')
+AND sfi.field IN ('date_first_contact')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.language_heading = 'consent'
+WHERE str.alias IN ('clinicalcollectionlinks')
+AND sfi.field IN ('	form_version')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+

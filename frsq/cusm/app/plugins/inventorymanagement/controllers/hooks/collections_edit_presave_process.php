@@ -16,7 +16,7 @@
 		if ($this->Collection->save($this->data)) {
 			$this->data['Collection']['id'] = $collection_id;
 			$this->updateCollectionSampleLabels($this->data);
-			$this->flash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
+			$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 		}		
 	}
 		

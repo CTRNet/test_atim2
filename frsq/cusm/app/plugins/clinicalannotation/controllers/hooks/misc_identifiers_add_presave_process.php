@@ -42,7 +42,7 @@
 				}
 			}
 
-			$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+			$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
 		}
 	}
  

@@ -26,7 +26,7 @@
 			App::import('Controller', 'Inventorymanagement.Collections');
 			$CollectionsCtrl = new CollectionsControllerCustom();	
 			$CollectionsCtrl->updateCollectionSampleLabels($selected_collection_data);
-			$this->flash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+			$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 		}
 	}
 
