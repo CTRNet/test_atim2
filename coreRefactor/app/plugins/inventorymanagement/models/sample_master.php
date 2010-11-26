@@ -2,7 +2,7 @@
 
 class SampleMaster extends InventorymanagementAppModel {
 	
-	private static $parent_sample_dropdown = null;
+	private static $parent_sample_dropdown = array();
 	
 	var $belongsTo = array(       
 		'SampleControl' => array(           
