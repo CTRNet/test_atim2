@@ -338,7 +338,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$specimen_review_data['SpecimenReviewDetail'] = $this->data['SpecimenReviewDetail'];
 			unset($this->data['SpecimenReviewMaster']);
 			unset($this->data['SpecimenReviewDetail']);
-			$aliquot_review_data = $this->data;
+			$aliquot_review_data = array_values($this->data);//compact the array as some key might be missing
+			$aliquot_review_data[] = array('AliquotReviewMaster' => array('id' => __('new', true)));
 			$this->data = NULL;
 			
 			foreach($aliquot_review_data as $key => $new_aliquot_review) {
