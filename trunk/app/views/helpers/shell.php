@@ -278,7 +278,7 @@ class ShellHelper extends Helper {
 									$page_title[] = $menu_item['Menu']['use_summary'];
 								}else{
 									
-									$html_attributes = array('class'=>'without_summary');
+									$html_attributes = array('class'=>'mainTitle');
 									
 									if($is_root){
 										$html_attributes['class'] .= ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
