@@ -20,6 +20,7 @@ class GroupsController extends AdministrateAppController {
 	
 
 	function add() {
+		$this->set("atim_menu", $this->Menus->get('/administrate/groups/index'));
 		$this->hook();
 		if (!empty($this->data)) {
 			$group_data = $this->Group->find('first', array('conditions' => array('Group.name' => $this->data['Group']['name'])));
