@@ -85,7 +85,7 @@ CREATE TABLE missing_translations(
 	id varchar(255) NOT NULL UNIQUE PRIMARY KEY 
 )Engine=InnoDb;
 
--- Eventum 785
+ -- Eventum 785
 ALTER TABLE `pages` ADD COLUMN `use_link` VARCHAR(255) NOT NULL  AFTER `language_body`;
 
 -- Remove old ID fields from the validations table. Missed from v2.0.1 update.
