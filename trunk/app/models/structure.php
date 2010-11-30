@@ -152,7 +152,7 @@ class Structure extends AppModel {
 							$rule_array['on'] = $validation['on_action'];
 						}
 						if($validation['language_message']){
-							$rule_array['message'] = $validation['language_message'];
+							$rule_array['message'] = __($validation['language_message'], true);
 							if(strlen($sf['language_label']) > 0){
 								$rule_array['message'] .= " (".__($sf['language_label'], true).")";
 							}
