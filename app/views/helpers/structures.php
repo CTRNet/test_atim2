@@ -1432,14 +1432,14 @@ class StructuresHelper extends Helper {
 									$dropdown_result += $tmp_dropdown_result;
 								}
 							}else{
-								$tmp_pulldown_result = $this->StructureValueDomain->find('first', array(
+								$tmp_dropdown_result = $this->StructureValueDomain->find('first', array(
 									'conditions' => 
 										array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
-								if(count($tmp_pulldown_result['StructurePermissibleValue']) > 0){
+								if(count($tmp_dropdown_result['StructurePermissibleValue']) > 0){
 									$tmp_result = array();
-									$current_order = $tmp_pulldown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
+									$current_order = $tmp_dropdown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
 									$current_element = 1;
-									foreach($tmp_pulldown_result['StructurePermissibleValue'] as $tmp_entry){
+									foreach($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry){
 										if($tmp_entry['Svdpv']['display_order'] != $current_order){
 											if(count($tmp_result) > 1){
 												asort($tmp_result);
@@ -1985,7 +1985,7 @@ class StructuresHelper extends Helper {
 			$current_value = "-";
 		}
 		
-		if($options['CodingIcdCheck']){
+		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail')){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
 					eval('$instance = '.$key.'::getInstance();');
@@ -1993,7 +1993,6 @@ class StructuresHelper extends Helper {
 				}
 			}
 		}
-		
 		return $current_value;
 	}
 }

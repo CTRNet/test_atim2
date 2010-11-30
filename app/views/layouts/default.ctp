@@ -74,7 +74,7 @@ ob_start('ob_gzhandler');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.4.2.min')."\n";
+	echo $javascript->link('jquery-1.4.4.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";
@@ -92,7 +92,6 @@ ob_start('ob_gzhandler');
 			initJsControls();
 		});
 	</script>
-	
 	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>
