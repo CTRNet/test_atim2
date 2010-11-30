@@ -23,9 +23,7 @@ function initCcl(){
 		}else{
 			$.get(root_url + "/inventorymanagement/collections/index/true", null, function(data){
 				$("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
-				$("#popup .datepicker").each(function(){
-					initDatepicker(this);
-				});
+				initDatepicker("#popup .datepicker");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
 				$("#popup form").append("" +

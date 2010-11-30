@@ -148,6 +148,7 @@ class AppController extends Controller {
 		define('VALID_INTEGER_POSITIVE', '/^[+]?[\\s]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT', '/^[-+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT_POSITIVE', '/^[+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
+		define('VALID_24TIME', '/^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/');
 		
 		//ripped from validation.php date + time
 		define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|2\\d)\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8])))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
@@ -277,19 +278,36 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		$divider = $nbsp_spaces ? "&nbsp;" : " ";
-		if(is_numeric($month)){
-			$month_str = AppController::getCalInfo($short_months);
-			$month = $month_str[(int)$month];
-		}
-		if(date_format == 'MDY') {
-			$result = $month.$divider.$day.$divider.$year;
-		}else if (date_format == 'YMD') {
-			$result = $year.$divider.$month.$divider.$day;
-		}else { // default of DATE_FORMAT=='DMY'
-			$result = $day.$divider.$month.$divider.$year;
+		if($year == 0 && $month == 0 && $day == 0){
+			$result = "";
+		}else{
+			$divider = $nbsp_spaces ? "&nbsp;" : " ";
+			if(is_numeric($month)){
+				$month_str = AppController::getCalInfo($short_months);
+				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
+			}
+			if(date_format == 'MDY') {
+				$result = $month.$divider.$day.$divider.$year;
+			}else if (date_format == 'YMD') {
+				$result = $year.$divider.$month.$divider.$day;
+			}else { // default of DATE_FORMAT=='DMY'
+				$result = $day.$divider.$month.$divider.$year;
+			}
 		}
 		return $result;
+	}
+	
+	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
+		if(time_format == 12){
+			$meridiem = $hour > 12 ? "PM" : "AM";
+			$hour %= 12;
+			if($hour == 0){
+				$hour = 12;
+			}
+			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+		}else{
+			return $hour.":".$minutes;
+		}
 	}
 	
 	/**
@@ -301,10 +319,11 @@ class AppController extends Controller {
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-			list($date, $time) = explode(" ", $datetime_string);
-			list($year, $month, $day) = explode("-", $date);
-			$formated_date = AppController::getFormatedDateString($year, $month, $day);
-			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+		list($date, $time) = explode(" ", $datetime_string);
+		list($year, $month, $day) = explode("-", $date);
+		list($hour, $minutes, ) = explode(":", $time);
+		$formated_date = self::getFormatedDateString($year, $month, $day);
+		return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**

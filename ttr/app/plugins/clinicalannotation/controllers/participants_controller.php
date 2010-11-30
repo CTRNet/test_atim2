@@ -289,7 +289,14 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->data = array();
 		foreach($tmpArray as $key => $values){
 			foreach($values as $value){
-				$this->data[] = array('Generated' => array('date' => $key,
+				$date = $key;
+				$time = null;
+				if(strpos($date, " ") > 0){
+					list($date, $time) = explode(" ", $date);
+				}
+				$this->data[] = array('Generated' => array(
+					'date' => $date,
+					'time' => $time,
 					'event' => $value['event']));
 			}
 		}

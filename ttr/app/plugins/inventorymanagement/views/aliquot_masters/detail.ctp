@@ -86,7 +86,7 @@
 		);
 		
 		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'separator' => true, 'actions' => false));
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'actions' => false));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
@@ -101,7 +101,7 @@
 		
 		unset($structure_links['index']);
 		$final_atim_structure = $custom_aliquot_storage_history;
-		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'separator' => true, 'pagination' => false));
+		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'pagination' => false));
 		
 		$hook_link = $structures->hook('storage_history');
 		if($hook_link){

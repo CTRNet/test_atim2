@@ -3,7 +3,7 @@ function initBrowser(){
 	orgAction = $("form").attr("action");
 
 	if($("#search_for").length == 1){ 
-		$("#submit_button").click(function(){
+		$(".form.submit").click(function(){
 			return validateSubmit();
 		});
 	}
@@ -23,10 +23,17 @@ function initBrowser(){
 			}
 		}
 	});
-
-	if($("#BrowserSearchFor").length == 1){
-		var parent = $("#BrowserSearchFor").parent();
-		$("#BrowserSearchFor").remove();
+	
+	var selectToReplace = null;
+	$("select").each(function(){
+		if($(this).attr("name") == "data[Browser][search_for]"){
+			selectToReplace = this;
+			return;
+		}
+	})
+	if(selectToReplace != null){
+		var parent = $(selectToReplace).parent();
+		$(selectToReplace).remove();
 		parent.append($("#hierarchy")).append($("#search_for"));
 		getParentElement($("#hierarchy"), "TD").css("width", "100%");
 	}
