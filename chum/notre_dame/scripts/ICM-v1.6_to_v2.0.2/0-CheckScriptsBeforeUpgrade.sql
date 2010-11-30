@@ -1,3 +1,14 @@
+-- check #0 : Check sample aliquot control link
+select created_link
+FROM (select distinct concat(sm.sample_control_id,'->',am.aliquot_control_id) as created_link
+from sample_masters as sm 
+inner join aliquot_masters as am on am.sample_master_id = sm.id) cre
+WHERE cre.created_link NOT IN (select distinct concat(sm.sample_control_id,'->',link.aliquot_control_id) as defined_link
+from sample_masters as sm 
+inner join sample_aliquot_control_links as link on link.sample_control_id = sm.sample_control_id 
+where status = 'active');
+-- -> res = empty.
+
 -- check #1 : Test unused aliquot_control_ids that will be deleted
 SELECT * FROM aliquot_masters WHERE aliquot_control_id IN ('3', '7', '9');
 -- -> res = empty.
@@ -100,6 +111,7 @@ FROM reproductive_histories;
 -- check #16 : Check no source block has been defined
 SELECT DISTINCT `ad_block_id` FROM `ad_tissue_slides`;
 -- -> 0 records
+-- NOTE: 4 records exist now. Keep in mind and rebuild relation in prod.
 
 -- check #17 : Check no error into the derivative sample label creation
 SELECT spec.id AS spec_sample_master_id, spec.collection_id AS spec_collection_id, CONCAT('%',spec.sample_label,'%') AS spec_sample_label, 
@@ -108,7 +120,3 @@ FROM sample_masters AS spec
 INNER JOIN sample_masters AS deriv ON deriv.initial_specimen_sample_id = spec.id AND deriv.sample_category = 'derivative' AND spec.sample_category = 'specimen'
 WHERE deriv.sample_label NOT LIKE CONCAT('%',spec.sample_label,'%');
 -- -> 0 records
-
-
-
-
