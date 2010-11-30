@@ -5,13 +5,10 @@
  * @description: Rebuilds the lft/rght numbering for a given table
  */
 
-Fmlh::launch();
+Fmlh::launch($argv[1], $argv[2], $argv[3]);
 
 class Fmlh{
-	public static $database_schema = "atim_nd";
-	public static $server = "127.0.0.1:8889";
-	public static $user = "root";
-	public static $password = "root";
+	public static $server = "localhost";
 	public static $table_name = "storage_masters";
 	
 	private static $mysqli;//db_conn array
@@ -22,12 +19,12 @@ class Fmlh{
 	private static $update_left;//update ps
 	private static $update_right;//update ps
 
-	public static function launch(){
+	public static function launch($database_schema, $user, $password){
 		Fmlh::$mysqli[] = mysqli_init();
 		if (!Fmlh::$mysqli[0]) {
 		    die('mysqli_init failed');
 		}
-		if (!Fmlh::$mysqli[0]->real_connect(Fmlh::$server, Fmlh::$user, Fmlh::$password, Fmlh::$database_schema)) {
+		if (!Fmlh::$mysqli[0]->real_connect(Fmlh::$server, $user, $password, $database_schema)) {
 		    die('Connect Error (' . mysqli_connect_errno() . ') '
 		            . mysqli_connect_error());
 		}
@@ -40,7 +37,7 @@ class Fmlh{
 		if (!Fmlh::$mysqliu_left) {
 		    die('mysqli_init failed');
 		}
-		if (!Fmlh::$mysqliu_left->real_connect(Fmlh::$server, Fmlh::$user, Fmlh::$password, Fmlh::$database_schema)) {
+		if (!Fmlh::$mysqliu_left->real_connect(Fmlh::$server, $user, $password, $database_schema)) {
 		    die('Connect Error (' . mysqli_connect_errno() . ') '
 		            . mysqli_connect_error());
 		}
@@ -48,7 +45,7 @@ class Fmlh{
 		if (!Fmlh::$mysqliu_right) {
 		    die('mysqli_init failed');
 		}
-		if (!Fmlh::$mysqliu_right->real_connect(Fmlh::$server, Fmlh::$user, Fmlh::$password, Fmlh::$database_schema)) {
+		if (!Fmlh::$mysqliu_right->real_connect(Fmlh::$server, $user, $password, $database_schema)) {
 		    die('Connect Error (' . mysqli_connect_errno() . ') '
 		            . mysqli_connect_error());
 		}
@@ -56,7 +53,7 @@ class Fmlh{
 		Fmlh::$ps[] = Fmlh::$mysqli[0]->prepare("SELECT id FROM ".Fmlh::$table_name." WHERE parent_id IS NULL") or die("p0 failed".Fmlh::$mysqli[0]->error);
 		Fmlh::$update_left = Fmlh::$mysqliu_left->prepare("UPDATE ".Fmlh::$table_name." SET lft=? WHERE id=?");
 		Fmlh::$update_right = Fmlh::$mysqliu_right->prepare("UPDATE ".Fmlh::$table_name." SET rght=? WHERE id=?"); 
-		Fmlh::updateLftRght(NULL, 0, 1);
+		Fmlh::updateLftRght(NULL, 0, 1, $user, $password, $database_schema);
 		
 		foreach(Fmlh::$ps as $ps){
 			$ps->close();
@@ -70,13 +67,13 @@ class Fmlh{
 		Fmlh::$mysqliu_right->close();
 	}
 	
-	private static function updateLftRght($parent_id, $depth, $left){
+	private static function updateLftRght($parent_id, $depth, $left, $user, $password, $database_schema){
 		if(!isset(Fmlh::$mysqli[$depth])){
 			Fmlh::$mysqli[$depth] = mysqli_init();
 			if (!Fmlh::$mysqli[$depth]) {
 			    die('mysqli_init failed');
 			}
-			if (!Fmlh::$mysqli[$depth]->real_connect(Fmlh::$server, Fmlh::$user, Fmlh::$password, Fmlh::$database_schema)) {
+			if (!Fmlh::$mysqli[$depth]->real_connect(Fmlh::$server, $user, $password, $database_schema)) {
 			    die('Connect Error (' . mysqli_connect_errno() . ') '
 			            . mysqli_connect_error());
 			}
@@ -92,7 +89,7 @@ class Fmlh{
 		while(Fmlh::$ps[$depth]->fetch()){
 			Fmlh::$update_left->bind_param("ii", $left, $id) or die("binding left failed $depth");
 			Fmlh::$update_left->execute() or die("updating left failed $depth");
-			$left = Fmlh::updateLftRght($id, $depth + 1, ++ $left);
+			$left = Fmlh::updateLftRght($id, $depth + 1, ++ $left, $user, $password, $database_schema);
 			Fmlh::$update_right->bind_param("ii", $left, $id) or die("binding right failed $depth");
 			Fmlh::$update_right->execute() or die("updating right failed $depth");
 			++ $left;

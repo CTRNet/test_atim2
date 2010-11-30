@@ -4,6 +4,10 @@
 //To Do: Change direct path names for file to correct path names
 //Notes:
 
+	$database_schema = $argv[1];
+	$user = $argv[2];
+	$password = $argv[3];
+	
 	//Creates export file
 	//$filee = fopen("C:\\wamp\\www\\atim2\\app\\locale\\eng\\LC_MESSAGES\\default.po", "w+t");
 	//$filef = fopen("C:\\wamp\\www\\atim2\\app\\locale\\fre\\LC_MESSAGES\\default.po", "w+t");
@@ -13,14 +17,14 @@
 	//$filex = fopen("../app/locale/error/ERROR_MESSAGES/error.po", "w+t");
 	
 	//Establishes a connection to the MySQL server
-	$connection = @mysql_connect("localhost", "root", "root")
+	$connection = @mysql_connect("localhost", $user, $password)
 					or die("Could not connect to MySQL");
 	if(!mysql_set_charset("latin1", $connection)){
 		die("We failed");
 	}				
 	echo(mysql_client_encoding($connection)."\n");
 	//Selects the languages database
-	@mysql_select_db("atim_nd")
+	@mysql_select_db($database_schema)
 					or die("Could not select database");
     
 	//Executes query
@@ -52,7 +56,7 @@
 		//Writes output to file
 		fwrite($filee, utf8_encode($english));
 		fwrite($filef, utf8_encode($french));
-		echo($french."\n");
+		//echo($french."\n");
 	}
 	
 	///Close file
