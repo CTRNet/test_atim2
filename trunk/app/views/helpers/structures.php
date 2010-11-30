@@ -225,6 +225,8 @@ class StructuresHelper extends Helper {
 			$options['extras'] = array('end' => $options['extras']);
 		}
 		
+		$options['CodingIcdCheck'] = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
+		
 		if($options['settings']['return']){
 			//the result needs to be returned as a string, turn output buffering on
 			ob_start();
@@ -1277,7 +1279,8 @@ class StructuresHelper extends Helper {
 						"label" => __($sfs['language_label'], true),
 						"tag" => __($sfs['language_tag'], true),
 						"type" => $sfs['type'],
-						"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet
+						"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
+						"setting" => $sfs['setting']//required for icd10 magic
 					);
 					$append_field_tool = "";
 					$settings = $my_default_settings_arr;
@@ -1981,6 +1984,16 @@ class StructuresHelper extends Helper {
 			}
 			$current_value = "-";
 		}
+		
+		if($options['CodingIcdCheck']){
+			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+				if(strpos($table_row_part['setting'], $trigger) !== false){
+					eval('$instance = '.$key.'::getInstance();');
+					$current_value .= " - ".$instance->getDescription($current_value);
+				}
+			}
+		}
+		
 		return $current_value;
 	}
 }

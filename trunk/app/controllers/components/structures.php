@@ -113,14 +113,13 @@ class StructuresComponent extends Object {
 		}
 		
 		//CodingIcd magic, import every model required for that structure
-		if(isset($return['StructureFormat'])){
+		if(isset($return['structure']['Sfs'])){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
-				foreach($return['StructureFormat'] as $sfo){
-					if(($sfo['flag_override_setting'] && strpos($sfo['setting'], $trigger) !== false)
-					|| strpos($sfo['StructureField']['setting'], $trigger) !== false){
+				foreach($return['structure']['Sfs'] as $sfs){
+					if(strpos($sfs['setting'], $trigger) !== false){
 						App::import("Model", "codingicd.".$key);
 						new $key;//instantiate it
-						$return['Structure']['CodingIcdCheck'] = true;
+						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
 				}
