@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => 'root',
-		'database' => 'atim_lady',
+		'database' => 'atim_lady21a',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

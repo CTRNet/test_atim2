@@ -392,6 +392,22 @@ class AppController extends Controller {
 		return $formatted_date;
 	}
 	
+	/**
+	 * Clones the first level of an array
+	 * @param array $arr The array to clone
+	 */
+	static function cloneArray(array $arr){
+		$result = array();
+		foreach($arr as $k => $v){
+			if(is_array($v)){
+				$result[$k] = self::cloneArray($v);
+			}else{
+				$result[$k] = $v;
+			}
+		}
+		return $result;
+	}
+	
 	static function addWarningMsg($msg){
 		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
 	}
