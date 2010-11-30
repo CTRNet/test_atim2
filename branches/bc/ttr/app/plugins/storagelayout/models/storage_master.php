@@ -2,6 +2,8 @@
 
 class StorageMaster extends StoragelayoutAppModel {
 	
+	public static $storage_dropdown = array(); 
+	
 	var $belongsTo = array(       
 		'StorageControl' => array(           
 			'className'    => 'Storagelayout.StorageControl',            
@@ -18,18 +20,10 @@ class StorageMaster extends StoragelayoutAppModel {
 			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
-					'title' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
-					
-					'description' => array(
-						__('storage type', true) => __($result['StorageMaster']['storage_type'], true),
-						__('storage short label', true) => $result['StorageMaster']['short_label'],
-						__('storage selection label', true) => $result['StorageMaster']['selection_label'],
-						__('code', true) =>	$result['StorageMaster']['code'],
-						__('temperature', true) =>	$result['StorageMaster']['temperature'] . ' ' . __($result['StorageMaster']['temp_unit'], true)
-					)
-				)
+				'menu' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
+				'title' => array(null, (__($result['StorageMaster']['storage_type'], true) . ' : ' . $result['StorageMaster']['short_label'])),
+				'data'				=> $result,
+				'structure alias'	=> 'storagemasters'
 			);
 		}
 		
@@ -46,8 +40,6 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * 
 	 * @return Storage list into array having following structure: 
 	 * 	array($storage_master_id => $storage_title_built_by_function)
-	 * @return Array having following structure:
-	 * 	array ('value' => 'StorageMaster.id', 'default' => (translated string describing storage))
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
@@ -79,12 +71,10 @@ class StorageMaster extends StoragelayoutAppModel {
 			return array(array('value' => '0', 'default' => __('n/a', true)));	
 		}					
 		
-		$formatted_data = array(array('value' => '0', 'default' => __('n/a', true)));
+		$formatted_data[0] = __('n/a', true);
 		if(!empty($arr_storages_list)) {
 			foreach ($arr_storages_list as $storage_id => $storage_data) {
-				$formatted_data[] = array(
-					'value' => $storage_id, 
-					'default' => $this->createStorageTitleForDisplay($storage_data));
+				$formatted_data[$storage_id] = $this->createStorageTitleForDisplay($storage_data);
 			}
 		}
 		
@@ -110,6 +100,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 	
 		return $formatted_data;
+	}
+	
+	static function getStoragesDropdown(){
+		return self::$storage_dropdown;
 	}
 
 }

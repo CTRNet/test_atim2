@@ -90,9 +90,9 @@ var actionClickDown = function() {
  * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
  */
 function initActions(){
-	$('div.actions ul ul.filter li').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
-	$('#wrapper div.actions ul ul.filter div a.down').unbind('click', actionClickDown).click(actionClickDown);
-	$('#wrapper div.actions ul ul.filter div a.up').unbind('click', actionClickUp).click(actionClickUp);
+	$('div.actions div.bottom_button').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
+	$('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
+	$('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
 }
 
 function checkAll( $div ) {
@@ -174,62 +174,76 @@ function uncheckAll( $div ) {
 		return null;
 	}
 
-	function initDatepicker(element){
-		var tmpId = element.id.substr(0, element.id.indexOf("_button"));
-		var tmpSuffix = element.id.indexOf("_button_") != -1 ? "_" + element.id.substr(element.id.indexOf("_button_") + 8) : "";
-		if($('#' + tmpId + tmpSuffix).val().length > 0 && $('#' + tmpId + "-mm" + tmpSuffix).val().length > 0 && $('#' + tmpId + "-dd" + tmpSuffix).val().length > 0){
-			//set the current field date into the datepicker
-			$(element).data('val', $('#' + tmpId + tmpSuffix).val() + "-" + $('#' + tmpId + "-mm" + tmpSuffix).val() + "-" + $('#' + tmpId + "-dd" + tmpSuffix).val());
-		}
-		$(element).datepicker({
-			changeMonth: true,
-			changeYear: true,
-			dateFormat: 'yy-mm-dd',
-			maxDate: '2100-12-31',
-			yearRange: '-100:+10',
-			firstDay: 0,
-			beforeShow: function(input, inst){
-				//put the date back in place
-				//because of datagrids copy controls we cannot keep the date in tmp
-				var tmpDate = $('#' + tmpId + tmpSuffix).val() + "-" + $('#' + tmpId + "-mm" + tmpSuffix).val() + "-" + $('#' + tmpId + "-dd" + tmpSuffix).val();
-				if(tmpDate.length == 10){
-					$(this).datepicker('setDate', tmpDate);
+	function initDatepicker(elements){
+		$(elements).each(function(){
+			var dateFields = $(this).parent().parent().find('input, select');
+			var yearField = null;
+			var monthField = null;
+			var dayField = null;
+			var date = null;
+			for(var i = 0; i < dateFields.length; i ++){
+				if(dateFields[i].nodeName != "SPAN"){
+					if($(dateFields[i]).attr("name").substr(-7) == "][year]"){
+						yearField = dateFields[i];
+					}else if($(dateFields[i]).attr("name").substr(-8) == "][month]"){
+						monthField = dateFields[i];
+					}else if($(dateFields[i]).attr("name").substr(-6) == "][day]"){
+						dayField = dateFields[i];
+					}
 				}
-			},
-			onClose: function(dateText,picker) {
-				//hide the date
-				$(this).val(" ");//space required for Safari and Chome or the button disappears
-				var dateSplit = dateText.split(/-/);
-				if(dateSplit.length == 3){
-					$('#' + tmpId + tmpSuffix).val(dateSplit[0]); 
-		        	$('#' + tmpId + "-mm" + tmpSuffix).val(dateSplit[1]);
-		        	$('#' + tmpId + "-dd" + tmpSuffix).val(dateSplit[2]);
-				}
-		    }
+			}
+			if($(yearField).val().length > 0 && $(monthField).val().length > 0 && $(dayField).val().length > 0){
+				date = $(yearField).val() + "-" + $(monthField).val() + "-" + $(dayField).val();
+				//set the current field date into the datepicker
+				$(this).data(date);
+			}
+			
+			$(this).datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'yy-mm-dd',
+				maxDate: '2100-12-31',
+				yearRange: '-100:+100',
+				firstDay: 0,
+				beforeShow: function(input, inst){
+					//put the date back in place
+					//because of datagrids copy controls we cannot keep the date in tmp
+					var month = $(monthField).val();
+					var day = $(dayField).val();
+					if(month < 10 && month > 0){
+						month = "0" + month;
+					}
+					if(day < 10 && day > 0){
+						day = "0" + day;
+					}	
+					var tmpDate = $(yearField).val() + "-" + month + "-" + day;
+					if(tmpDate.length == 10){
+						$(this).datepicker('setDate', tmpDate);
+					}
+				},
+				onClose: function(dateText,picker) {
+					//hide the date
+					$(this).val(" ");//space required for Safari and Chome or the button disappears
+					var dateSplit = dateText.split(/-/);
+					if(dateSplit.length == 3){
+						$(yearField).val(dateSplit[0]); 
+			        	$(monthField).val(dateSplit[1]);
+			        	$(dayField).val(dateSplit[2]);
+					}
+			    }
+			});
+
+			//activate fake_datepicker in case there is a problem with z-index
+			$(this).parent().children("img").click(function(){
+				$(this).datepicker('show');
+			});
+
+			//bug fix for Safari and Chrome
+			$(this).click(function(){
+				$(this).datepicker('show');
+			});
 		});
 		
-		//activate fake_datepicker in case there is a problem with z-index
-		$(element).parent().children("img").click(function(){
-			$(element).datepicker('show');
-		});
-		
-		//bug fix for Safari and Chrome
-		$(element).click(function(){
-			$(element).datepicker('show');
-		});
-	}
-	
-	function autoComplete(element, json){
-		$(element).autocomplete({
-			//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-			source: (root_url == "/" ? "" : root_url + "/") + $(element).attr("url")
-			//alternate source for debugging
-//			source: function(request, response) {
-//				$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//					alert(data);
-//				});
-//			}
-		});
 	}
 	
 	/**
@@ -239,18 +253,19 @@ function uncheckAll( $div ) {
 		//for each add or button
 		$(scope).find(".btn_add_or").each(function(){
 			var $field = $(this).prev();
-			if($($field).find("input, select").length == 1){
-				$($field).find("input, select").each(function(){
+			//non range value, the OR is made to allow fields with CSV to be renamed but not cloned
+			if($($field).find("input, select").length == 1 || ($($field).find("input").length == 2 && $($($field).find("input")[1]).attr("type") == "file")){
+				$($field).find("input, select").first().each(function(){
 					$(this).attr("name", $(this).attr("name") + "[]");
 				});
+				
+				if($($field).find("input").length == 2){
+					//rename complete, hide and bail out
+					$(this).remove();
+					return;
+				}
 				//html template for that field
 				var fieldHTML = $($field).html();
-				
-				//update its id
-				var idIncrement = 1;
-				$($field).find("input, select").each(function(){
-					$(this).attr("id", $(this).attr("id") + "_0");
-				});
 				
 				//when we click
 				$(this).click(function(){
@@ -258,15 +273,8 @@ function uncheckAll( $div ) {
 					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
-					//update its id
-					$($newField).find("input, select").each(function(){
-						$(this).attr("id", $(this).attr("id") + "_" + idIncrement);
-					});
-					++ idIncrement;
 					
-					$($newField).find(".datepicker").each(function(){
-						initDatepicker(this);
-					});
+					initDatepicker($($newField).find(".datepicker"));
 					
 					initAutocomplete($newField);
 					initToolPopup($newField);
@@ -289,7 +297,7 @@ function uncheckAll( $div ) {
 		
 		$(scope).find(".range").each(function(){
 			//uses .btn_add_or to know if this is a search form and if advanced controls are on
-			$(this).parent().parent().find(".btn_add_or").parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
+			$(this).parent().parent().parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
 		});
 		$(scope).find(".range_btn").toggle(function(){
 			var cell = getParentElement(this, "TD");
@@ -364,9 +372,16 @@ function uncheckAll( $div ) {
 	
 	function initAutocomplete(scope){
 		$(scope).find(".jqueryAutocomplete").each(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
+			$(this).autocomplete({
+				//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
+				source: (root_url == "/" ? "" : root_url + "/") + $(this).attr("url")
+				//alternate source for debugging
+//				source: function(request, response) {
+//					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
+//						alert(data);
+//					});
+//				}
+			});
 		});
 	}
 	
@@ -492,6 +507,38 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAddLine(scope){
+		$(scope).find(".addLineLink").each(function(){
+			//get the table row
+			var tableBody = $(getParentElement(this, "TABLE")).find("tbody");
+			var lastLine = $(tableBody).find("tr:last");
+			var templateLineHtml = lastLine.html();
+			$(lastLine).remove();
+			var lineIncrement = $(tableBody).find("tr").length;
+			$(this).click(function(){
+				var counter = $(scope).find(".addLineCount").length == 1 ? $(scope).find(".addLineCount").val() : 1;
+				while(counter > 0){
+					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/name="data\[%d\]\[/g, 'name="data[' + lineIncrement ++ + '][') + "</tr>");
+					counter --;
+				}
+				var newLines = $(tableBody).find("tr.newLine");
+				initRemoveLine(newLines);
+				if(typeof(copyControl) != 'undefined'){
+					bindCopyCtrl(newLines);
+				}
+				$(newLines).removeClass("newLine");
+				return false;
+			});
+		});
+	}
+	
+	function initRemoveLine(scope){
+		$(scope).find(".removeLineLink").click(function(){
+			$(getParentElement(this, "TR")).remove();
+			return false;
+		});
+	}
+	
 	function initJsControls(){
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
@@ -562,13 +609,12 @@ function uncheckAll( $div ) {
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		$(".datepicker").each(function(){
-			initDatepicker(this);
-		});
-		
-		
+		initDatepicker(".datepicker");
 		
 		initCheckAll(document);
+		
+		initAddLine(document);
+		initRemoveLine(document);
 	}
 
 	function debug(str){

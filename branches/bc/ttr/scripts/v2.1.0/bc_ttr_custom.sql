@@ -490,3 +490,24 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('withheld-referral contact/consent meeting/form',  '',  'withheld-referral contact/consent meeting/form',  '');
 
 
+---- Update Surgeon to become drop down list
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'ConsentMaster', 'consent_masters', 'surgeon', 'surgeon', '', 'select', '', '',  NULL , 'help_surgeon', 'open', 'open', 'open');# 1 row(s) affected.
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='surgeon' AND `type`='select' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND type='input' AND structure_value_domain  IS NULL );# 1 row(s) affected.
+
+--- Insert Surgeon option values
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_surgeon', '', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Tang", "Tang");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_surgeon"),  (SELECT id FROM structure_permissible_values WHERE value="Tang" AND language_alias="Tang"), "1", "1");
+
+
+
+-- After making the change in Auto Build for Surgeon Structure Value Domain to bc_surgeon, then Click Save and Generate SQL:
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='surgeon' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_surgeon') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND type='select' AND structure_value_domain  IS NULL );
+-- Delete obsolete structure fields
+DELETE FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND `type`='select' AND structure_value_domain IS NULL 
+

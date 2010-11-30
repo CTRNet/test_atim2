@@ -35,9 +35,6 @@ class Shipment extends OrderAppModel
 	 *
 	 * @param $order_id Id of the order linked to the shipments to return (null for all).
 	 * 
-	 * @return Array having following structure:
-	 * 	array ('value' => 'Shipment.id', 'default' => (translated string describing shipment))
-	 * 
 	 * @author N. Luc
 	 * @since 2009-09-11
 	 * @updated N. Luc
@@ -47,9 +44,7 @@ class Shipment extends OrderAppModel
 		
 		$conditions = is_null($order_id)? array() : array('Shipment.order_id' => $order_id);
 		foreach($this->find('all', array('conditions' => $conditions, 'order' => 'Shipment.datetime_shipped DESC')) as $shipment) {
-			$result[] = array(
-				'value' => $shipment['Shipment']['id'], 
-				'default' => $shipment['Shipment']['shipment_code']);
+			$result[$shipment['Shipment']['id']] = $shipment['Shipment']['shipment_code'];
 		}
 		
 		return $result;

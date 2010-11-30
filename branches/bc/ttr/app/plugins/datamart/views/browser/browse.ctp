@@ -28,7 +28,7 @@
 			);
 			$tmp_header = isset($header) ? $header : "";
 			$header = "";
-			$structures->build($result_structure, array('type' => $type, 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
 		}
 		$is_datagrid = true;
 		$type = "add";
@@ -63,7 +63,7 @@ if(isset($dropdown_options)){
 		foreach($options as $option){
 			$curr_label = $label." &gt; ".$option['default'];
 			$curr_label_for_class = str_replace("'", "&#39;", $curr_label);
-			$action = isset($option['action']) ? ', "action" : "'.$webroot."/".$option['action'].'" ' : "";
+			$action = isset($option['action']) ? ', "action" : "'.$webroot.$option['action'].'" ' : "";
 			$class = isset($option['class']) ? $option['class'] : "";
 			echo("<li class='"."'><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label_for_class."\" ".$action." } ".$class."'>".$option['default']."</a>");
 			if(isset($option['children'])){

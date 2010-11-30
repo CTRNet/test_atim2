@@ -1,8 +1,8 @@
 var removeConfirmed = false;
 
 function initBatchSetControls(){
-	setBatchSetFormAction($("#BatchSetProcess").val());
-	$("#BatchSetProcess").change(function(){
+	setBatchSetFormAction($("#batchsetProcess").val());
+	$("#batchsetProcess").change(function(){
 		setBatchSetFormAction($(this).val());
 	});
 	
@@ -33,7 +33,7 @@ function setBatchSetFormAction(action){
 				//msg you need to check at least an item
 				alert(batchSetFormActionMsgSelectAtLeast);
 				return false;
-			}else if($("#BatchSetProcess").val().indexOf("remove") != -1 && !removeConfirmed){
+			}else if($("#batchsetProcess").val().indexOf("remove") != -1 && !removeConfirmed){
 				//popup do you wish do remove
 				$("#popup").popup();
 				return false;
