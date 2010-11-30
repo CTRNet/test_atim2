@@ -532,18 +532,12 @@ div.menu.level_0 {
 	line-height: 1.2em;
 	color: #ccf;
 }
-div.menu.level_0 .at span:not(.untranslated) {
+div.menu.level_0 .at span.mainTitle{
 	color: #fff;
 	/* font-weight: bold; */
 	font-size: 14px;
 	text-decoration: none;
 	/* text-transform: uppercase; */
-}
-div.menu.level_0 span.without_summary {
-	display: block;
-	/* margin-top: 6px;
-	margin-bottom: 6px; */
-	margin-bottom: 14px;
 }
 
 /* -=main menu above the large content area */
@@ -1809,4 +1803,8 @@ div.extra{
 
 .center{
 	text-align: center;	
+}
+
+span.incompleteMenuTitle{
+	cursor: help;
 }

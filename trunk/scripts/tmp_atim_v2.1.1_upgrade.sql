@@ -121,3 +121,4 @@ UPDATE structure_formats SET flag_summary=0 WHERE structure_id=(SELECT id FROM s
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='versions') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Version' AND tablename='versions' AND field='version_number' AND type='input-readonly' AND structure_value_domain  IS NULL );
 
+ALTER TABLE structure_formats DROP flag_datagrid, DROP flag_datagrid_readonly; 
