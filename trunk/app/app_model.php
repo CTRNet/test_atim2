@@ -334,11 +334,23 @@ class AppModel extends Model {
 		return count($this->validationErrors) == 0;
 	}
 	
-	static function atimNew($plugin_name, $class_name){
+	/**
+	 * Use this function to build an ATiM model. It ensures that custom models are loaded properly.
+	 * @param string $plugin_name
+	 * @param string $class_name
+	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
+	 * @return An ATiM model 
+	 */
+	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
 		if(!App::import('Model', $import_name)){
-			$this->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
-			exit;
+			if($error_view_on_null){
+				$app = AppController::getInstance();
+				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
+				exit;
+			}else{
+				return NULL;
+			}
 		}
 		$custom_class_name = $class_name."Custom";
 		return class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
