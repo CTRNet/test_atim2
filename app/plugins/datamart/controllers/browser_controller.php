@@ -131,7 +131,8 @@ class BrowserController extends DatamartAppController {
 			$direct_id_arr = explode("_", $control_id);
 			//save selected subset
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
-			if(isset($this->data[$parent['DatamartStructure']['model']])){
+			if(isset($this->data[$parent['DatamartStructure']['model']]) && isset($this->data['Browser'])){
+				//if parent model found and not from a search form
 				$ids = array();
 				if(count($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]) == 1 
 				&& strpos($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false){
