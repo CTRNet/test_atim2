@@ -136,11 +136,7 @@ class AdhocsController extends DatamartAppController {
 		// do search for RESULTS, using THIS->DATA if any
 		
 		// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
-		
-		$model_to_import = ( $adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'].'.' : '' ).$adhoc['Adhoc']['model'];
-		App::import('Model',$model_to_import);
-		
-		$this->ModelToSearch = new $adhoc['Adhoc']['model'];
+		$this->ModelToSearch = AppModel::atimNew($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
 		$criteria = array();
@@ -303,10 +299,7 @@ class AdhocsController extends DatamartAppController {
 		}
 		
 		// do search for RESULTS, using THIS->DATA if any
-		$model_to_import = ( $adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'].'.' : '' ).$adhoc_result['Adhoc']['model'];
-		App::import('Model',$model_to_import);
-		
-		$this->ModelToSearch = new $adhoc_model;
+		$this->ModelToSearch = AppModel::atimNew($adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'] : '', $adhoc_result['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = array(0);

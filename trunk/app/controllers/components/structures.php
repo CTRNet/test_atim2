@@ -117,8 +117,7 @@ class StructuresComponent extends Object {
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['structure']['Sfs'] as $sfs){
 					if(strpos($sfs['setting'], $trigger) !== false){
-						App::import("Model", "codingicd.".$key);
-						new $key;//instantiate it
+						$key = AppModel::atimNew('codingicd', $key, true);
 						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
@@ -252,10 +251,8 @@ class StructuresComponent extends Object {
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
 							if (is_array($data)){
-								App::import('Model', $form_fields[$form_fields_key]['plugin'].'.'.$model);
-								// App::import('Model', 'Clinicalannotation.'.$model);
 								
-								$format_data_model = new $model;
+								$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
 								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 								if(is_array($data)){
 									$data = array_unique($data);
@@ -460,16 +457,8 @@ class StructuresComponent extends Object {
 				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
 			}
 
-			// load MODEL, and override with CUSTOM model if it exists...
-			$pulldown_model_object = new $pulldown_model;
-				
-			// check for CUSTOM models, and use that if exists
-			$custom_pulldown_plugin = $pulldown_plugin;
-			$custom_pulldown_model = $pulldown_model.'Custom';
-				
-			if ( App::import('Model',$custom_pulldown_object) ) {
-				$pulldown_model_object = new $custom_pulldown_model;
-			}
+			// load MODEL
+			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
 
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);

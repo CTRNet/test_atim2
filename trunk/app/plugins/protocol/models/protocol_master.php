@@ -79,8 +79,7 @@ class ProtocolMaster extends ProtocolAppModel {
 	 */
 	 
 	function isLinkedToTreatment($protocol_master_id){
-		App::import('Model', "Clinicalannotation.TreatmentMaster");
-		$this->TreatmentMaster = new TreatmentMaster();	
+		$this->TreatmentMaster = AppModel::atimNew("Clinicalannotation", "TreatmentMaster", true);	
 		$nbr_trt_masters = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.protocol_master_id'=>$protocol_master_id), 'recursive' => '-1'));
 		if ($nbr_trt_masters > 0){
 			return array('is_used' => true, 'msg' => 'protocol is defined as protocol of at least one participant treatment'); 

@@ -26,6 +26,9 @@
 			$links['checklist'] = array(
 					$checklist_key_name.']['=>'%%'.$checklist_key.'%%'
 			);
+			if(isset($index) && strlen($index) > 0){
+				$links['index'] = array(array('link' => $index, 'icon' => 'detail'));
+			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = "";
 			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));

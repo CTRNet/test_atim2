@@ -50,8 +50,7 @@ class SampleControl extends InventorymanagementAppModel {
 		$result = array();
 		
 		// Build tmp array to sort according translation
-		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
-		$this->ParentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+		$this->ParentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
 		if($only_specimen){
 			$conditions['DerivativeControl.sample_category'] = 'specimen';
@@ -91,8 +90,7 @@ class SampleControl extends InventorymanagementAppModel {
 			$conditions['ParentToDerivativeSampleControl.parent_sample_control_id'] = $parent_id;
 		}
 		
-		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
-		$this->ParentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+		$this->ParentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 		$specimen_sample_controls_list = array();
 		foreach($controls as $control){

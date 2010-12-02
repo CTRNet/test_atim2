@@ -36,8 +36,7 @@ class Bank extends AdministrateAppModel {
 	}
 	
 	function isBeingUsed($bank_id){
-		App::import("Model", "Administrate.Group");
-		$this->Group = new Group();
+		$this->Group = AppModel::atimNew("Administrate", "Group", true);
 		$data = $this->Group->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
 		return !empty($data);
 	}
