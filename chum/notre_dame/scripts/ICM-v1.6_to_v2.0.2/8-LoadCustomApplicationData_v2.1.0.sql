@@ -443,22 +443,15 @@ WHERE str.alias IN ('ed_all_procure_lifestyle')
 AND sfi.field IN ('disease_site','event_type')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('miscidentifiers') 
+AND sfi.field IN ('identifier_name','identifier_value')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
-
-
-
-
-
-
-
-
---
---
--- UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
--- SET sfo.flag_search = '0', sfo.flag_index  = '0'
--- WHERE str.alias IN ('miscidentifiers_for_participant_search') 
--- AND sfi.model IN ('Participant')
--- AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+UPDATE datamart_structures
+SET structure_id = (SELECT id FROM structures WHERE alias = 'miscidentifiers')
+WHERE model = 'MiscIdentifier';
 
 
 
@@ -489,7 +482,8 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 #('', '', '0', '', 'contact_if_disco_other_diseases', 'contact if discovery on other diseases', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
 #('', '', '0', '', 'other_contacts_if_die', 'other contacts if deceased', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
 #('', '', '0', '', 'denied', 'denied', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open');
-#
+
+#ajouter ligne 125 de databrowser_controller.php
 #INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_nd_procure_consent_stats_report', '', '', '1', '1', '1', '1');
 #INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 #((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='date_from' AND `language_label`='from' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'), 
@@ -515,5 +509,4 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 #check #16 : su script 0.... construire a bras les relation existante
 #Ajouter sample type = LB pour Urszula et convertiser tous les PBMC qui devrait �tre des LB. (Leur aliquot label like 'LB-PBMC%')
 #Supprimer aliquot dans boite quand ils n'existenet plus masi garder les donn�es dans l'hitorique
-#Dans script #7 vérifier lingnes 3396 3409 3416
 #Il faut créer les formulaires de recherches spécifiques (consentement FRSQ, PROCURE, etc.) pourle databrowser
