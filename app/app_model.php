@@ -333,6 +333,16 @@ class AppModel extends Model {
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
 	}
+	
+	static function atimNew($plugin_name, $class_name){
+		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
+		if(!App::import('Model', $import_name)){
+			$this->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
+			exit;
+		}
+		$custom_class_name = $class_name."Custom";
+		return class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
+	}
 }
 
 ?>
