@@ -153,7 +153,7 @@ WHERE sfi.field IN ('identifier_abrv')
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unknown", "unknown");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type	"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_consent_type"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
 
 SET @id_to_delete = (SELECT id FROM structure_formats
 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'participants')
@@ -323,6 +323,7 @@ AND str.alias = 'cd_icm_generics'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 ALTER TABLE consent_masters DROP COLUMN consent_type;
+ALTER TABLE consent_masters_revs DROP COLUMN consent_type;
 
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.flag_search = '0', sfo.flag_index = '0'
@@ -346,6 +347,101 @@ WHERE sfi.field IN ('consent_control_id', 'consent_status', 'consent_signed_date
 AND str.alias = 'consent_masters'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
+UPDATE aliquot_review_controls set flag_active = '0';
+UPDATE specimen_review_controls set flag_active = '0';
+
+TRUNCATE dxd_sardos;
+DROP TABLE dxd_sardos, dxd_sardos_revs;
+UPDATE clinical_collection_links SET diagnosis_master_id = NULL;
+UPDATE event_masters SET diagnosis_master_id = NULL;
+UPDATE tx_masters SET diagnosis_master_id = NULL;
+TRUNCATE diagnosis_masters;
+UPDATE diagnosis_controls SET flag_active = '0';
+DELETE FROM diagnosis_controls WHERE controls_type = 'sardo diagnosis';
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dxd_sardos');
+DELETE FROM structures WHERE alias = 'dxd_sardos';
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/clinicalannotation/diagnosis_masters%';
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/clinicalannotation/treatment_masters%';
+
+TRUNCATE family_histories;
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/clinicalannotation/family_histories%';
+ed_all_procure_lifestyles 
+ed_all_procure_lifestyles
+UPDATE event_controls SET detail_tablename = 'ed_all_procure_lifestyles' WHERE detail_tablename = 'ed_all_procure_lifestyle';
+ALTER TABLE ed_all_procure_lifestyle RENAME TO ed_all_procure_lifestyles;
+ALTER TABLE ed_all_procure_lifestyle_revs RENAME TO ed_all_procure_lifestyles_revs;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field IN ('expiry_date', 'effective_date') 
+AND sfi.model = 'MiscIdentifier'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE str.alias IN ('clinicalcollectionlinks') 
+AND sfi.model = 'DiagnosisMaster'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE str.alias IN ('clinicalcollectionlinks') 
+AND sfi.model = 'ConsentMaster'
+AND sfi.field NOT IN ('consent_status')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_control_id'), 
+'2', '1', 'consent', '1', 'consent type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), 
+(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date'), 
+'2', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1'); 
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.display_column = '1'
+WHERE str.alias IN ('clinicalcollectionlinks') 
+AND sfi.model = 'Collection'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' 
+WHERE id1 IN (
+	SELECT id FROM datamart_structures 
+	WHERE (plugin = 'Clinicalannotation' AND model IN ('TreatmentMaster', 'FamilyHistory', 'DiagnosisMaster')) 
+	OR (plugin = 'Inventorymanagement' AND model IN ('SpecimenReviewMaster'))
+)
+OR id2 IN (
+	SELECT id FROM datamart_structures 
+	WHERE (plugin = 'Clinicalannotation' AND model IN ('TreatmentMaster', 'FamilyHistory', 'DiagnosisMaster')) 
+	OR (plugin = 'Inventorymanagement' AND model IN ('SpecimenReviewMaster'))
+);
+
+UPDATE menus SET use_link = '/datamart/browser/index' WHERE use_link LIKE '/datamart/%' AND is_root = '1';
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = sfo.flag_index
+WHERE str.alias IN ('ed_all_procure_lifestyle') 
+AND sfi.field NOT IN ('notes')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ed_all_procure_lifestyle') 
+AND sfi.field IN ('disease_site','event_type')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
@@ -355,6 +451,23 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
+
+--
+--
+-- UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+-- SET sfo.flag_search = '0', sfo.flag_index  = '0'
+-- WHERE str.alias IN ('miscidentifiers_for_participant_search') 
+-- AND sfi.model IN ('Participant')
+-- AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+
+
+
+
+
+
+
+ 	
 
 #a definir si on garde...
 #
@@ -395,8 +508,8 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 #
 
 
-
-
+#mettre a jour les droits
+#valider db
 #verifier pourquoi on a storage solution dans aliquot view
 #pb lorsque l'on fixe sur tissue tube
 #check #16 : su script 0.... construire a bras les relation existante
