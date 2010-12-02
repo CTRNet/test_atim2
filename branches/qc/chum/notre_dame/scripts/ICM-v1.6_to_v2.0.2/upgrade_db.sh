@@ -36,16 +36,16 @@ if false; then
 	mysql -u $2 -p$3 $1 < ATiM_iso8859-1.sql
 fi
 
-if false; then
+if true; then
 	files=( 
-		1-AddNewTablesToExistingDb_v2.0.1.sql 
-		2-AlterTablesOfExistingDb_v2.0.1.sql 
-		3-LoadAllTrunkApplicationData_v2.0.1.sql
-		4-atim_v2.0.2_upgrade.sql
-		5-atim_v2.0.2A_upgrade.sql
-		6-LoadCustomApplicationData_v2.0.2A.sql
-		7-atim_v2.1.0_upgrade.sql
-		8-LoadCustomApplicationData_v2.1.0.sql
+#		1-AddNewTablesToExistingDb_v2.0.1.sql 
+#		2-AlterTablesOfExistingDb_v2.0.1.sql 
+#		3-LoadAllTrunkApplicationData_v2.0.1.sql
+#		4-atim_v2.0.2_upgrade.sql
+#		5-atim_v2.0.2A_upgrade.sql
+#		6-LoadCustomApplicationData_v2.0.2A.sql
+#		7-atim_v2.1.0_upgrade.sql
+ 		8-LoadCustomApplicationData_v2.1.0.sql
 		 )
 	
 	for file in ${files[@]} 

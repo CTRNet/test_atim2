@@ -11,10 +11,7 @@
 
 		$banks = $Bank->find('first', array('conditions' => array('Bank.misc_identifier_control_id' => $misc_identifier_control_id)));
 		
-		if(empty($banks)) {
-			// Not a bank identifier: use core save process
-			
-		} else {
+		if(!empty($banks)) {
  			// Create new bank identifier + update participant sample labels
 			
 			// Keep warning for developper
@@ -50,7 +47,7 @@
 					}
 				}
 	
-				$this->flash( 'your data has been saved','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$this->MiscIdentifier->id );
+				$this->flash( 'your data has been saved', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
 			}			
 			
 		}
