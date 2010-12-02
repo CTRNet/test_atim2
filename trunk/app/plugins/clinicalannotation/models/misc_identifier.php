@@ -1,7 +1,12 @@
 <?php
 
-class MiscIdentifier extends ClinicalAnnotationAppModel
-{
+class MiscIdentifier extends ClinicalAnnotationAppModel {
+	
+	var $belongsTo = array(
+		'Participant' => array(
+			'className' => 'Clinicalannotation.Participant',
+			'foreignKey' => 'participant_id'));	
+	
     function summary( $variables=array() ) {
 		$return = false;
 		
