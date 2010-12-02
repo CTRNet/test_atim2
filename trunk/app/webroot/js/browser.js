@@ -3,8 +3,10 @@ function initBrowser(){
 	orgAction = $("form").attr("action");
 
 	if($("#search_for").length == 1){ 
-		$(".form.submit").click(function(){
-			return validateSubmit();
+		$(".form.submit").unbind('click').attr("onclick", "").click(function(){
+			if(validateSubmit()){
+				$("form").submit();
+			}
 		});
 	}
 
