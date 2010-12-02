@@ -789,21 +789,20 @@ INSERT INTO `family_histories_revs` (`id`, `relation`, `family_domain`, `primary
 --
 
 INSERT INTO `misc_identifiers` (`id`, `identifier_value`, `misc_identifier_control_id`, `identifier_name`, `identifier_abrv`, `effective_date`, `expiry_date`, `notes`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'OV_4563', 1, 'ovary bank no lab', 'OV#', '2003-03-26', NULL, '', 1, '2010-05-28 14:55:04', 1, '2010-05-28 14:55:58', 1, 0, NULL),
-(2, 'xccz', 13, 'other center no labr', 'OTHER#', NULL, NULL, '', 1, '2010-05-28 14:56:44', 1, '2010-05-28 14:56:44', 1, 0, NULL),
-(3, 'OV_4564', 1, 'ovary bank no lab', 'OV#', NULL, NULL, '', 2, '2010-09-24 19:39:22', 1, '2010-09-24 19:39:22', 1, 0, NULL),
-(4, 'OV_4565', 1, 'ovary bank no lab', 'OV#', NULL, NULL, '', 3, '2010-09-24 19:42:10', 1, '2010-09-24 19:42:10', 1, 0, NULL);
+(5, 'xxxxxxx', 1, 'health insurance card', '#HIC', '0000-00-00', '0000-00-00', '', 2, '2010-12-02 18:17:55', 1, '2010-12-02 18:17:55', 1, 0, NULL),
+(6, 'No-Labo-1345', 3, 'ovary bank no lab', '#Labo', NULL, NULL, NULL, 2, '2010-12-02 18:18:02', 1, '2010-12-02 18:18:02', 1, 0, NULL),
+(7, 'xxxxxxxx', 2, 'hospital nbr', '#HN', '0000-00-00', '0000-00-00', '', 2, '2010-12-02 18:18:28', 1, '2010-12-02 18:18:28', 1, 0, NULL),
+(8, 'No-Labo-1346', 3, 'ovary bank no lab', '#Labo', NULL, NULL, NULL, 1, '2010-12-02 18:18:52', 1, '2010-12-02 18:18:52', 1, 0, NULL);
 
 --
 -- Dumping data for table `misc_identifiers_revs`
 --
 
 INSERT INTO `misc_identifiers_revs` (`id`, `identifier_value`, `misc_identifier_control_id`, `identifier_name`, `identifier_abrv`, `effective_date`, `expiry_date`, `notes`, `participant_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, 'OV_4563', 1, 'ovary bank no lab', 'OV#', NULL, NULL, '', 1, '2010-05-28 14:55:04', 1, '2010-05-28 14:55:04', 1, 0, NULL, 1, '2010-05-28 14:55:04'),
-(1, 'OV_4563', 1, 'ovary bank no lab', 'OV#', '2003-03-26', NULL, '', 1, '2010-05-28 14:55:04', 1, '2010-05-28 14:55:58', 1, 0, NULL, 2, '2010-05-28 14:55:58'),
-(2, 'xccz', 13, 'other center no labr', 'OTHER#', NULL, NULL, '', 1, '2010-05-28 14:56:44', 1, '2010-05-28 14:56:44', 1, 0, NULL, 3, '2010-05-28 14:56:44'),
-(3, 'OV_4564', 1, 'ovary bank no lab', 'OV#', NULL, NULL, '', 2, '2010-09-24 19:39:22', 1, '2010-09-24 19:39:22', 1, 0, NULL, 4, '2010-09-24 19:39:23'),
-(4, 'OV_4565', 1, 'ovary bank no lab', 'OV#', NULL, NULL, '', 3, '2010-09-24 19:42:10', 1, '2010-09-24 19:42:10', 1, 0, NULL, 5, '2010-09-24 19:42:10');
+(5, 'xxxxxxx', 1, 'health insurance card', '#HIC', '0000-00-00', '0000-00-00', '', 2, '2010-12-02 18:17:55', 1, '2010-12-02 18:17:55', 1, 0, NULL, 6, '2010-12-02 18:17:55'),
+(6, 'No-Labo-1345', 3, 'ovary bank no lab', '#Labo', NULL, NULL, NULL, 2, '2010-12-02 18:18:02', 1, '2010-12-02 18:18:02', 1, 0, NULL, 7, '2010-12-02 18:18:03'),
+(7, 'xxxxxxxx', 2, 'hospital nbr', '#HN', '0000-00-00', '0000-00-00', '', 2, '2010-12-02 18:18:28', 1, '2010-12-02 18:18:28', 1, 0, NULL, 8, '2010-12-02 18:18:28'),
+(8, 'No-Labo-1346', 3, 'ovary bank no lab', '#Labo', NULL, NULL, NULL, 1, '2010-12-02 18:18:52', 1, '2010-12-02 18:18:52', 1, 0, NULL, 9, '2010-12-02 18:18:52');
 
 --
 -- Dumping data for table `missing_translations`
@@ -2090,12 +2089,12 @@ SET FOREIGN_KEY_CHECKS=1;
 INSERT INTO `misc_identifier_controls` 
 (`misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) 
 VALUES
-('Health Insurance Card', '#HIC', 1, 0, '', '', 1),
-('Hospital Nbr', '#HN', 1, 1, '', '', 0),
-('NoLabo', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
+('health insurance card', '#HIC', 1, 0, '', '', 1),
+('hospital nbr', '#HN', 1, 1, '', '', 0),
+('ovary bank no lab', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
 
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
-('NoLaboCounter', 1345);
+('NoLaboCounter', 1347);
 
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
