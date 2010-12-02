@@ -31,10 +31,7 @@ class Browser extends DatamartAppModel {
 	 */
 	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $data_model = null, $model_pkey = null, $data_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
-		if(!App::import('Model', 'Datamart.DatamartStructure')){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
-		}
-		$DatamartStructure = new DatamartStructure();
+		$DatamartStructure = AppModel("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
 			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
@@ -191,17 +188,11 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getSubModels(array $main_model_info, $prepend_value, array $ids_filter = null){
 		//we need to fetch the controls
-		if(!App::import('Model', $main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'])){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]='.$main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'], NULL, TRUE );
-		}
-		$control_model = new $main_model_info['DatamartStructure']['control_model']();
+		$control_model = AppModel::atimNew($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['control_model'], true);
 		$conditions = array();
 		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
 			//hardcoded SampleControl filtering
-			if(!App::import('Model', 'Inventorymanagement.ParentToDerivativeSampleControl')){
-				$app_controller->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.ParentToDerivativeSampleControl', NULL, TRUE );
-			}
-			$parentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+			$parentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
 			if($ids_filter == null){
 				$ids_filter = $tmp_ids;
@@ -369,10 +360,7 @@ class Browser extends DatamartAppModel {
 							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
 							 	//unset the serialization on the sub model since it's already in the title
 							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
-							 	if(!App::import("model", $cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'])){
-							 		AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'], NULL, TRUE );
-							 	}
-							 	$tmp_model = new $cell['DatamartStructure']['control_model']();
+							 	$tmp_model = AppModel::atimNew($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
 							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id'])));
 							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
@@ -501,10 +489,7 @@ class Browser extends DatamartAppModel {
 	 * @return string The info of the alternate structure
 	 */
 	static function getAlternateStructureInfo($plugin, $model, $id){
-		if(!App::import('Model', $plugin.".".$model)){
-			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model, NULL, TRUE );
-		}
-		$model_to_use = new $model();
+		$model_to_use = AppModel::atimNew($plugin, $model, true);
 		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
 		return $data[$model];
 	}
@@ -520,10 +505,7 @@ class Browser extends DatamartAppModel {
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
-			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
-				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
-			}
-			$stac = new SampleToAliquotControl();
+			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
 			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
@@ -533,10 +515,7 @@ class Browser extends DatamartAppModel {
 		}else if($browsing['DatamartStructure']['id'] == 1){
 			//aliquot->sample hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
-			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
-				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
-			}
-			$stac = new SampleToAliquotControl();
+			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
 			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
@@ -562,10 +541,7 @@ class Browser extends DatamartAppModel {
 	}
 	
 	private function getActiveStructuresIds(){
-		if(!App::import('Model', 'Datamart.BrowsingControl')){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
-		}
-		$BrowsingControl = new BrowsingControl();
+		$BrowsingControl = AppModel::atimNew("Datamart", "BrowsingControl", true);
 		$data =  $BrowsingControl->find('all');
 		$result = array();
 		foreach($data as $unit){

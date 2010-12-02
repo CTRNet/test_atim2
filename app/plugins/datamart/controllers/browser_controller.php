@@ -68,14 +68,14 @@ class BrowserController extends DatamartAppController {
 						$browsing['BrowsingResult']['browsing_structures_sub_id']);
 					$alternate_alias = $alternate_info['form_alias'];
 					$result_structure = $this->Structures->get('form', $alternate_alias);
-					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['control_master_model'];
+					$model_to_import = $browsing['DatamartStructure']['control_master_model'];
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$use_key = "id";
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 				}else{
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
-					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['model'];
+					$model_to_import = $browsing['DatamartStructure']['model'];
 					$model_name_to_search = $browsing['DatamartStructure']['model'];
 					$use_key = $browsing['DatamartStructure']['use_key'];
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
@@ -83,11 +83,7 @@ class BrowserController extends DatamartAppController {
 				}
 				
 				
-				if(!App::import('Model', $model_to_import)){
-					$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
-				}
-				
-				$this->ModelToSearch = new $model_name_to_search();
+				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $model_name_to_search.".".$use_key." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
 				
 				$this->set('top', "/datamart/browser/browse/".$parent_node."/"); 
@@ -109,6 +105,7 @@ class BrowserController extends DatamartAppController {
 				);
 				$this->Structures->set("datamart_browser_start");
 				$this->set("result_structure", $result_structure);
+				$this->set('index', $browsing['DatamartStructure']['index_link']);
 			}
 		}else{
 			//browsing access (search form or checklist)
@@ -202,22 +199,19 @@ class BrowserController extends DatamartAppController {
 					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
 					$alternate_alias = $alternate_info['form_alias'];
 					$result_structure = $this->Structures->get('form', $alternate_alias);
-					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['control_master_model'];
+					$model_to_import = $browsing['DatamartStructure']['control_master_model'];
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$model_key_name = "id";
 					$use_sub_model = true;
 				}else{
-					$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['model'];
+					$model_to_import = $browsing['DatamartStructure']['model'];
 					$model_name_to_search = $browsing['DatamartStructure']['model'];
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
 					$model_key_name = $browsing['DatamartStructure']['use_key'];
 					$use_sub_model = false;
 				}
 				
-				if(!App::import('Model', $model_to_import)){
-					$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
-				}
-				$this->ModelToSearch = new $model_name_to_search();
+				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
 				if($use_sub_model){
 					//adding filtering search condition
@@ -231,11 +225,7 @@ class BrowserController extends DatamartAppController {
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
 					if(!empty($control_data)){
 						//retreive the ids in the parent first
-						$model_to_import = $parent['DatamartStructure']['plugin'].".".$parent['DatamartStructure']['model'];
-						if(!App::import('Model', $model_to_import)){
-							$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
-						}
-						$this->ParentModel = new $parent['DatamartStructure']['model'];
+						$this->ParentModel = AppModel::atimNew($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
 						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")")));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
@@ -246,11 +236,7 @@ class BrowserController extends DatamartAppController {
 						$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent['DatamartStructure']['id'])));
 						if($use_sub_model){
 							//we need to load the ids from the main model then send them for the sub model
-							$model_to_import = $browsing['DatamartStructure']['plugin'].".".$browsing['DatamartStructure']['model'];
-							if(!App::import('Model', $model_to_import)){
-								$this->redirect( '/pages/err_model_import_failed?p[]='.$model_to_import, NULL, TRUE );
-							}
-							$this->MainModel = new $browsing['DatamartStructure']['model'];
+							$this->MainModel = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 							$tmp_data = $this->MainModel->find('all', 
 								array("conditions" => array($control_data['BrowsingControl']['use_field']." IN (".$parent['BrowsingResult']['id_csv'].")"),
 									"fields" => array($browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'])));
@@ -343,7 +329,7 @@ class BrowserController extends DatamartAppController {
 				$this->Structures->set("datamart_browser_start");
 				$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
 				$this->set('parent_node', $parent_node);
-			
+				$this->set('index', $browsing['DatamartStructure']['index_link']);
 			}else{
 				//search screen
 				$this->set('type', "search");

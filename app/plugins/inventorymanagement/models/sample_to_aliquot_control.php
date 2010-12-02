@@ -22,8 +22,7 @@ class SampleToAliquotControl extends InventoryManagementAppModel {
 		// Get list of active sample type
 		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
 
-		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
-		$this->ParentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+		$this->ParentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 	
 		$specimen_sample_control_ids_list = array();

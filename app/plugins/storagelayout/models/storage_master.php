@@ -52,8 +52,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		$criteria = array();
 		
 		//1-Find control ID for all storages of type TMA: TMA will be removed from the returned array
-		App::import('Model','Storagelayout.StorageControl');
-		$storage_ctrl = new StorageControl();
+		$storage_ctrl = AppModel::atimNew("Storagelayout", "StorageControl", true);
 		$arr_tma_control_ids = $storage_ctrl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
 			
 		$criteria['NOT'] = 	array('StorageMaster.storage_control_id' => $arr_tma_control_ids);

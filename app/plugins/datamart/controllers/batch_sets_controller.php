@@ -70,11 +70,7 @@ class BatchSetsController extends DatamartAppController {
 		$this->set( 'atim_structure_for_process', $this->Structures->get( 'form', 'querytool_batchset_to_processes' ) );
 		
 		// do search for RESULTS, using THIS->DATA if any
-			
-		$model_to_import = ( $batch_set['BatchSet']['plugin'] ? $batch_set['BatchSet']['plugin'].'.' : '' ).$batch_set['BatchSet']['model'];
-		App::import('Model',$model_to_import);
-		
-		$this->ModelToSearch = new $batch_set['BatchSet']['model'];
+		$this->ModelToSearch = AppModel::atimNew($batch_set['BatchSet']['plugin'] ? $batch_set['BatchSet']['plugin'] : '', $batch_set['BatchSet']['model'], true);
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = "";

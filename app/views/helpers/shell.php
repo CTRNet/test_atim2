@@ -424,20 +424,16 @@ class ShellHelper extends Helper {
 				$function = 'summary';
 			}
 			
-			if($model && App::import('Model',$model)){
+			if($model){
 				// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
 				$plugin = NULL;
-				if (strpos($model,'.') !== false){
+				if (strpos($model, '.') !== false){
 					$plugin_model_name = $model;
 					list($plugin,$model) = explode('.',$plugin_model_name);
 				}
 				
 				// load MODEL, and override with CUSTOM model if it exists...
-				$summary_model = new $model;
-				$custom_model = $model.'Custom';
-				if(App::import('Model',$custom_model)){
-					$summary_model = new $custom_model;
-				}
+				$summary_model = AppModel::atimNew($plugin, $model, true);
 				
 				$summary_result = $summary_model->{$function}($options['variables']);
 				if(isset($summary_result['Summary'])){

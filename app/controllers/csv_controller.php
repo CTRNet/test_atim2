@@ -3,10 +3,7 @@ class CsvController extends AppController {
 	var $uses = array();
 	
 	function csv($plugin, $model_name, $model_pkey, $structure_alias, $data_model = null, $data_pkey = null){
-		if(!App::import('Model', $plugin.".".$model_name)){
-			$this->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model_name, NULL, TRUE );
-		}
-		$this->ModelToSearch = new $model_name;
+		$this->ModelToSearch = AppModel::atimNew($plugin, $model_name, true);
 		
 		if($data_pkey == null){
 			$data_pkey = $model_pkey;
