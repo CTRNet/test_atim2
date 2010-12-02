@@ -31,7 +31,7 @@ class Browser extends DatamartAppModel {
 	 */
 	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $data_model = null, $model_pkey = null, $data_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
-		$DatamartStructure = AppModel("Datamart", "DatamartStructure", true);
+		$DatamartStructure = AppModel::atimNew("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
 			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
