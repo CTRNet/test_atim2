@@ -270,9 +270,11 @@ class BatchSetsController extends DatamartAppController {
 	    	}
 	    
 	   	 	// add existing set IDS to array
-	    	foreach ( $this->data[ $batch_set['BatchSet']['model'] ][ $batch_set['BatchSet']['lookup_key_name'] ] as $integer ) {
-	    		$batch_set_ids[] = $integer;
-	    	}
+	   	 	if(is_array($this->data[ $batch_set['BatchSet']['model'] ][ $batch_set['BatchSet']['lookup_key_name'] ])){
+	   	 		$batch_set_ids = array_merge($this->data[ $batch_set['BatchSet']['model'] ][ $batch_set['BatchSet']['lookup_key_name'] ], $batch_set_ids);
+	   	 	}else{
+	   	 		$batch_set_ids = array_merge(explode(",", $this->data[ $batch_set['BatchSet']['model'] ][ $batch_set['BatchSet']['lookup_key_name'] ]), $batch_set_ids);
+	   	 	}
 	    
 			// clean up IDS, removing blanks and duplicates...
 			$batch_set_ids = array_unique($batch_set_ids);
