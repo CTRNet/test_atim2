@@ -3,12 +3,12 @@
 	// display adhoc DETAIL
 		
 	$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
-	
+
 	// display adhoc RESULTS form
 	$structure_links = array(
 		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'%%'
+			$data_for_detail['BatchSet']['checklist_model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	

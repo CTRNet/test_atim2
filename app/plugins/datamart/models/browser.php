@@ -79,10 +79,26 @@ class Browser extends DatamartAppModel {
 				'default' => __('browse', true),
 				'children' => $sorted_rez
 			);
-			$result[] = array(
+			
+			$batch_set = AppModel::atimNew("datamart", "BatchSet", true);
+			$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $starting_ctrl_id);
+			$batch_set_menu[] = array(
 				'value' => '0',
 				'default' => __('create batchset', true),
 				'action' => 'datamart/batch_sets/add/'
+			);
+			foreach($compatible_batch_sets as $batch_set){
+				$batch_set_menu[] = array(
+					'value' => '0',
+					'default' => __('add to compatible batchset', true). " [".$batch_set['BatchSet']['title']."]",
+					'action' => 'datamart/batch_sets/add/'.$batch_set['BatchSet']['id']
+				);
+			}
+			
+			$result[] = array(
+				'value' => '0',
+				'default' => __('batchset', true),
+				'children' => $batch_set_menu
 			);
 			$result[] = array(
 				'value' => '0',
@@ -484,14 +500,27 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * @param string $plugin The name of the plugin to search on
-	 * @param string $model The name of the model to search on
+	 * @param string $control_model The name of the control model to search on
 	 * @param int $id The id of the alternate structure to retrieve
 	 * @return string The info of the alternate structure
 	 */
-	static function getAlternateStructureInfo($plugin, $model, $id){
-		$model_to_use = AppModel::atimNew($plugin, $model, true);
-		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
-		return $data[$model];
+	static function getAlternateStructureInfo($plugin, $control_model, $id){
+		$model_to_use = AppModel::atimNew($plugin, $control_model, true);
+		$data = $model_to_use->find('first', array('conditions' => array($control_model.".id" => $id)));
+		return $data[$control_model];
+	}
+	
+	/**
+	 * Updates an index link
+	 * @param string $link
+	 * @param string $prev_model
+	 * @param string $new_model
+	 * @param string $prev_pkey
+	 * @param string $new_pkey
+	 */
+	static function updateIndexLink($link, $prev_model, $new_model, $prev_pkey, $new_pkey){
+		return str_replace("%%".$prev_model.".",  "%%".$new_model.".",
+			str_replace("%%".$prev_model.".".$prev_pkey."%%", "%%".$new_model.".".$new_pkey."%%", $link));
 	}
 	
 	/**
