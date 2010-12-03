@@ -73,6 +73,7 @@ class BrowserController extends DatamartAppController {
 					$use_key = "id";
 					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
+					$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
 				}else{
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
 					$model_to_import = $browsing['DatamartStructure']['model'];
@@ -305,6 +306,7 @@ class BrowserController extends DatamartAppController {
 					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$use_key = "id";
+					$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
 				}else{
 					$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 					$this->set("result_structure", $result_structure); 
