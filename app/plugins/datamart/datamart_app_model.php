@@ -64,7 +64,7 @@ class DatamartAppModel extends AppModel {
 			'default' => __('export as CSV file (comma-separated values)', true),
 			'action' => $csv_action
 		);
-		pr($result);
+		
 		return $result;
 	}
 }
