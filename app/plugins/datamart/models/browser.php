@@ -102,7 +102,7 @@ class Browser extends DatamartAppModel {
 			);
 			
 			$structure_functions = AppModel::atimNew("datamart", "DatamartStructureFunction", true);
-			$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $starting_ctrl_id)));
+			$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $starting_ctrl_id, 'DatamartStructureFunction.flag_active' => true)));
 			if(count($functions)){
 				$functions_menu = array();
 				foreach($functions as $function){
@@ -366,7 +366,7 @@ class Browser extends DatamartAppModel {
 		}
 		$half_width = $max / 2;
 		foreach($tree as $y => $line){
-			$result .= '<tr>';
+			$result .= '<tr><td></td>';//print a first empty column, css will print an highlighted h-line in the top left cell
 			$last_x = -1;
 			ksort($line);
 			foreach($line as $x => $cell){
