@@ -7,7 +7,7 @@
 			'settings' => array(
 				'header' => array(
 					'title' => __('participants', true)." - ".__('batch edit', true),
-					'description' => sprintf(__('you are about to edit %d elements', true), 12)
+					'description' => sprintf(__('you are about to edit %d element(s)', true), count(explode(",", $this->data[0]['ids'])))
 				)
 			)
 		)
