@@ -4,8 +4,6 @@ class BatchSet extends DatamartAppModel {
 
 	var $useTable = 'datamart_batch_sets';
 	
-	public static $actions_array = array();
-	
 	var $hasMany = array(
 		'BatchId' =>
 		 array('className'   => 'Datamart.BatchId',
@@ -107,10 +105,6 @@ class BatchSet extends DatamartAppModel {
 		}
 		$this->data['BatchSet']['id'] = 0;
 		self::$actions_array = $compatible_batchset;
-	}
-	
-	public function getActionsDropdown(){
-		return self::$actions_array;
 	}
 }
 

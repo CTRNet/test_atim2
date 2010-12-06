@@ -82,7 +82,7 @@ ob_start('ob_gzhandler');
 	echo $javascript->link('fg.menu.js')."\n";
 	echo $javascript->link('default')."\n";
 	echo $javascript->link('storage_layout')."\n";
-	echo $javascript->link('browser')."\n";
+	echo $javascript->link('datamart')."\n";
 	echo $javascript->link('copyControl')."\n";
 	echo $javascript->link('ccl')."\n";
 	?>
