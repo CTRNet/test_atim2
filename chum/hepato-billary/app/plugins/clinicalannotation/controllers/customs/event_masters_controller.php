@@ -61,6 +61,44 @@ class EventMastersControllerCustom extends EventMastersController {
 		return $event_data;	
  	}
  	
+ 	function setHospitalizationDuration( $event_data ) { 
+ 		if(isset($event_data['EventDetail']['hospitalization_end_date']) 
+ 		&& isset($event_data['EventMaster']['event_date'])) {
+ 			
+			$start_date = $event_data['EventMaster']['event_date'];
+			$end_date =  $event_data['EventDetail']['hospitalization_end_date'];				
+
+			if(empty($start_date['month']) || empty($start_date['day']) || empty($start_date['year']) 
+			|| empty($end_date['month']) || empty($end_date['day']) || empty($end_date['year'])){
+				// At least one date is missing to continue
+					
+			} else {
+				// ** GET TIME IN DAYS **
+				$start = mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']);
+				$end = mktime(0, 0, 0, $end_date['month'], $end_date['day'], $end_date['year']);
+				$spent_time = $end - $start;
+				
+				$result = '';
+				if(($start === false)||($end === false)){
+					// Error in the date
+					$result = '';	
+				} else if($spent_time < 0){
+					// Error in the date
+					$result = '';
+				} else if($spent_time == 0){
+					// Nothing to change to $arr_spent_time
+					$result = '0';
+				} else {
+					// Return spend time in days
+					$result = floor($spent_time / 86400);
+				}
+				$event_data['EventDetail']['hospitalization_duration_in_days'] = $result;
+			}
+ 		}
+ 			
+ 		return $event_data;		
+ 	}
+ 	 	
   	/** 
  	 * Set participant surgeries list for hepatobiliary-lab-biology.
  	 * 
@@ -329,7 +367,7 @@ class EventMastersControllerCustom extends EventMastersController {
 		}
 		
 		// Stade A, B: all fields should be completed
-		if(empty($this->data['EventDetail']['who']) 
+		if(($this->data['EventDetail']['who'] == '') 
 		|| empty($this->data['EventDetail']['tumor_morphology'])
 		|| empty($this->data['EventDetail']['okuda_score'])
 		|| empty($this->data['EventDetail']['liver_function'])) { 
@@ -472,14 +510,19 @@ class EventMastersControllerCustom extends EventMastersController {
 		$this->data['EventDetail']['result'] = null;
 		
 		// Get data
-		$serum_cr = (is_numeric($this->data['EventDetail']['creatinine']) && (!empty($this->data['EventDetail']['creatinine'])))? $this->data['EventDetail']['creatinine'] : null;
-		$serum_bilirubin = (is_numeric($this->data['EventDetail']['bilirubin']) && (!empty($this->data['EventDetail']['bilirubin'])))? $this->data['EventDetail']['bilirubin'] : null;
+		$serum_cr = (is_numeric($this->data['EventDetail']['creatinine']) && (!empty($this->data['EventDetail']['creatinine'])))? ($this->data['EventDetail']['creatinine']/88.4) : null;
+		$serum_bilirubin = (is_numeric($this->data['EventDetail']['bilirubin']) && (!empty($this->data['EventDetail']['bilirubin'])))? ($this->data['EventDetail']['bilirubin']/17.1) : null;
 		$inr = (is_numeric($this->data['EventDetail']['inr']) && (!empty($this->data['EventDetail']['inr'])))? $this->data['EventDetail']['inr'] : null;
-		
+		$sodium = (is_numeric($this->data['EventDetail']['sodium']) && (!empty($this->data['EventDetail']['sodium'])))? $this->data['EventDetail']['sodium'] : null;
+				
 		//Launch calculation
 		if(!(is_null($serum_cr) || is_null($serum_bilirubin) || is_null($inr))) {
 			$serum_cr = ($this->data['EventDetail']['dialysis'] == 1)? '4' : $serum_cr;
 			$this->data['EventDetail']['result'] = ( (0.957*log($serum_cr)) + (0.378*log($serum_bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;
+			
+			if(!is_null($sodium)) {
+				$this->data['EventDetail']['sodium_result'] = $this->data['EventDetail']['result'] + 1.59 * (135 - $sodium);
+			}
 		}		
 	}
 	

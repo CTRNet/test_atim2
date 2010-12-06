@@ -164,9 +164,6 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 			
 		$pattern = '/^(.*)-surgery?/';
 		if(preg_match($pattern, $tx_type_title)) { 
-			//hospitalization duration
-			$tx_data['TreatmentDetail']['hospitalization_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['hospitalization_start_date'], $tx_data['TreatmentDetail']['hospitalization_end_date']);
-			
 			//ic_1_duration_in_days duration
 			$tx_data['TreatmentDetail']['ic_1_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_1_start_date'], $tx_data['TreatmentDetail']['ic_1_end_date']);
 			

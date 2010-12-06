@@ -361,8 +361,278 @@ UPDATE tx_controls SET databrowser_label = CONCAT(disease_site,'|',tx_method);
 
 INSERT INTO i18n (id, en) VALUES ('chemo-embolization', 'Chemo-Embolization');
 
+UPDATE structure_value_domains_permissible_values 
+SET structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="0")
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="_0_");
+
+DELETE FROM structure_permissible_values WHERE value="0" AND language_alias="_0_";
+
+UPDATE structure_fields set language_label = concat(language_label, ' (umol/l)') WHERE tablename = 'qc_hb_ed_score_meld' AND field IN ('bilirubin', 'creatinine');
+
+INSERT INTO i18n (id,en) VALUES ('bilirubin (umol/l)','Bilirubin (umol/l)'),('creatinine (umol/l)','Creatinine (umol/l)');
+
+ALTER TABLE `qc_hb_ed_score_meld` 
+  ADD `sodium` FLOAT UNSIGNED DEFAULT NULL AFTER `dialysis`,
+  ADD `sodium_result` FLOAT UNSIGNED DEFAULT NULL AFTER `result`;
+  
+ALTER TABLE `qc_hb_ed_score_meld_revs` 
+  ADD `sodium` FLOAT UNSIGNED DEFAULT NULL AFTER `dialysis`,
+  ADD `sodium_result` FLOAT UNSIGNED DEFAULT NULL AFTER `result`;
+  
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_score_meld', 'sodium', 'sodium (meq/l)', '', 'float', 'size=5', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_score_meld', 'sodium_result', 'MELD-Na', '', 'number', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_meld'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_score_meld' AND `field`='sodium' ), 
+'1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_ed_score_meld'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_score_meld' AND `field`='sodium_result' ), 
+'1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO i18n (id,en) VALUES ('sodium (meq/l)', 'Sodium (mEq/l)');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("partial pancreatectomy, pancreatic body & tail", "partial pancreatectomy, pancreatic body & tail");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="procedure_dxd_pex"),  (SELECT id FROM structure_permissible_values WHERE value="partial pancreatectomy, pancreatic body & tail" AND language_alias="partial pancreatectomy, pancreatic body & tail"), "6", "1");
+
+INSERT INTO i18n (id,en) VALUES ('partial pancreatectomy, pancreatic body & tail','Partial pancreatectomy, pancreatic body & tail');
+
+ALTER TABLE `dxd_cap_report_pancreasexos`
+  ADD `tumor_site_splenectomy` tinyint(1) NULL DEFAULT 0 AFTER `tumor_site_pancreatic_tail`;
+ALTER TABLE `dxd_cap_report_pancreasexos_revs`
+  ADD `tumor_site_splenectomy` tinyint(1) NULL DEFAULT 0 AFTER `tumor_site_pancreatic_tail`;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'dxd_cap_report_pancreasexos', 'tumor_site_splenectomy', 'splenectomy', '', 'checkbox', '', '',  (SELECT id FROM structure_value_domains WHERE domain_name LIKE 'yes_no_checkbox') , '', 'open', 'open', 'open'); 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasexos' AND `field`='tumor_site_splenectomy'), 
+'1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'); 
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('splenectomy','Splenectomy'),('pm0: no metastasis','pM0: No metastasis'),('pmX: unknown','pMX: Unknown');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pm0: no metastasis", "pm0: no metastasis"),('pmX: unknown','pmX: unknown');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_a"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_a"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_cr"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_cr"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_dbd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_dbd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_gb"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_gb"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_hc"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_hc"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_ibd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_ibd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pbd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pbd"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pe"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pe"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pex"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pex"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_sm"),  
+(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_sm"),  
+(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1");
+
+ALTER TABLE IF `qc_hb_ed_hepatobilary_medical_imagings` (
+  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`
+  ADD `type` VARCHAR(255) DEFAULT NULL AFTER `density`;
+ALTER TABLE IF `qc_hb_ed_hepatobilary_medical_imagings_revs` (
+  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`
+  ADD `type` VARCHAR(255) DEFAULT NULL AFTER `density`;  
+  
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_medical_imaging_sgt_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("homogeneous", "homogeneous");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_medical_imaging_sgt_type"),  (SELECT id FROM structure_permissible_values WHERE value="homogeneous" AND language_alias="homogeneous"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("n/a", "n/a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_medical_imaging_sgt_type"),  (SELECT id FROM structure_permissible_values WHERE value="n/a" AND language_alias="n/a"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("heterogeneous", "heterogeneous");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_medical_imaging_sgt_type"),  (SELECT id FROM structure_permissible_values WHERE value="heterogeneous" AND language_alias="heterogeneous"), "2", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'density', 'density (iu)', '', 'float', '', '', NULL, '', '', '', '');
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'type', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_medical_imaging_sgt_type"), '', '', '', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE field = 'density' AND plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings'), '1', '20', 'other', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE field = 'type' AND plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings'), '1', '21', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
+
+INSERT INTO i18n (id,en) VALUES ('density (iu)', 'Density (IU)'),('heterogeneous', 'Heterogeneous'), ('homogeneous','Homogeneous');
 
 
+
+
+
+UPDATE structure_formats SET language_heading = 'gastric tube' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'gastric_tube_duration_in_days');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'TreatmentDetail' AND field IN ('hospitalization_start_date','hospitalization_end_date','hospitalization_duration_in_days'));
+DELETE FROM structure_fields WHERE model = 'TreatmentDetail' AND field IN ('hospitalization_start_date','hospitalization_end_date','hospitalization_duration_in_days');
+
+ALTER TABLE `qc_hb_txd_surgery_pancreas`
+ DROP COLUMN hospitalization_start_date,
+ DROP COLUMN hospitalization_end_date,
+ DROP COLUMN hospitalization_duration_in_days;
+
+ALTER TABLE `qc_hb_txd_surgery_pancreas_revs`
+ DROP COLUMN hospitalization_start_date,
+ DROP COLUMN hospitalization_end_date,
+ DROP COLUMN hospitalization_duration_in_days;
+
+ALTER TABLE `qc_hb_txd_surgery_livers`
+ DROP COLUMN hospitalization_start_date,
+ DROP COLUMN hospitalization_end_date,
+ DROP COLUMN hospitalization_duration_in_days;
+
+ALTER TABLE `qc_hb_txd_surgery_livers_revs`
+ DROP COLUMN hospitalization_start_date,
+ DROP COLUMN hospitalization_end_date,
+ DROP COLUMN hospitalization_duration_in_days;
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hospitalization` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `hospitalization_end_date` DATE DEFAULT NULL,
+  `hospitalization_duration_in_days` INT(10) DEFAULT NULL ,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_hospitalization_revs` (
+  `id` int(11) NOT NULL,
+  
+  `hospitalization_end_date` DATE DEFAULT NULL,
+  `hospitalization_duration_in_days` INT(10) DEFAULT NULL ,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `qc_hb_ed_hospitalization`
+  ADD CONSTRAINT `qc_hb_ed_hospitalization_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'hepatobiliary', 'clinical', 'hospitalization', 1, 'qc_hb_ed_hospitalization', 'qc_hb_ed_hospitalization', 0, 'clinical|hospitalization');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'EventDetail', '', 'hospitalization_end_date', 'hospitalization end date', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'EventDetail', '', 'hospitalization_duration_in_days', 'hospitalization duration in days', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open');
+
+INSERT INTO `structures` 
+(`id`, `alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, 'qc_hb_ed_hospitalization', '', '', '1', '1', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+SET @QC_HB_000001_structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_ed_hospitalization');
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+-- disease_site
+(null, @QC_HB_000001_structure_id, 
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('disease_site')), 0, 2, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+-- event_type
+(null, @QC_HB_000001_structure_id, 
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_type')), 0, 3, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+
+(null, @QC_HB_000001_structure_id, 
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_date')), 0, 4, '', '1', 'hospitalization start date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, @QC_HB_000001_structure_id, 
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventDetail' AND field IN ('hospitalization_end_date')), 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(null, @QC_HB_000001_structure_id, 
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventDetail' AND field IN ('hospitalization_duration_in_days')), 0, 5, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+
+-- event_summary
+(null, @QC_HB_000001_structure_id,
+(SELECT id FROM structure_fields WHERE plugin = 'Clinicalannotation' AND model = 'EventMaster' AND tablename = 'event_masters' AND field IN ('event_summary')), 0, 20, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO i18n (id,en) VALUES ('gastric tube', ''),('hospitalization','Hospitalization');
+
+UPDATE menus set display_order = '1' WHERE parent_id = 'clin_CAN_1' AND language_title = 'profile';
+UPDATE menus set display_order = '2' WHERE parent_id = 'clin_CAN_1' AND language_title = 'identification';
+UPDATE menus set display_order = '3' WHERE parent_id = 'clin_CAN_1' AND language_title = 'contacts';
+UPDATE menus set display_order = '4' WHERE parent_id = 'clin_CAN_1' AND language_title = 'family history';
+UPDATE menus set display_order = '5' WHERE parent_id = 'clin_CAN_1' AND language_title = 'annotation';
+UPDATE menus set display_order = '6' WHERE parent_id = 'clin_CAN_1' AND language_title = 'treatment';
+UPDATE menus set display_order = '7' WHERE parent_id = 'clin_CAN_1' AND language_title = 'diagnosis';
+UPDATE menus set display_order = '8' WHERE parent_id = 'clin_CAN_1' AND language_title = 'consent';
+UPDATE menus set display_order = '9' WHERE parent_id = 'clin_CAN_1' AND language_title = 'message';
+UPDATE menus set display_order = '9' WHERE parent_id = 'clin_CAN_1' AND language_title = 'participant inventory';
+UPDATE menus set display_order = '9' WHERE parent_id = 'clin_CAN_1' AND language_title = 'chronology';
+
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type');
+INSERT INTO structure_permissible_values_customs (value,en,control_id) VALUES
+('arterial thrombosis', 'HEPATIC - Arterial thrombosis', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('ascite', 'HEPATIC - Ascite', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('biliary fistule', 'HEPATIC - Biliary fistule', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('biliary stenosis', 'HEPATIC - Biliary stenosis', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('biological hepatic insufficiency', 'HEPATIC - Biological hepatic insufficiency', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('clinical hepatic insufficiency', 'HEPATIC - Clinical hepatic insufficiency', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('encephalopathy', 'HEPATIC - Encephalopathy', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('hepatic abcess', 'HEPATIC - Hepatic abcess', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('jaundice', 'HEPATIC - Jaundice', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+
+('delayed gastric emptying', 'PANCREATIC - Delayed gastric emptying', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('endocrine pancreatic insufficiency', 'PANCREATIC - Endocrine pancreatic insufficiency', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('exocrine pancreatic insufficiency', 'PANCREATIC - xocrine pancreatic insufficiency', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('pancreatic fistula', 'PANCREATIC - Pancreatic fistula', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('biliary fistula', 'PANCREATIC - Biliary fistula', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('intestinal fistula', 'PANCREATIC - Intestinal fistula', (SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+
+('abcess', 'OTHERS - Abcess',(SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
+('hemorrhage', 'OTHERS - Hemorrhage',(SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type'));
 
 
 -----------------------------------------------------------------------

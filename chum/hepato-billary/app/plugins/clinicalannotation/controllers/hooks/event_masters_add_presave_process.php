@@ -10,6 +10,8 @@
 	// --------------------------------------------------------------------------------
 	$this->data = $this->completeVolumetry($this->data);
 	
+	$this->data = $this->setHospitalizationDuration($this->data);
+	
 	$this->setScores($event_control_data['EventControl']['event_type']);
     
 ?>
