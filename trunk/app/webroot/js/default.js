@@ -543,8 +543,8 @@ function uncheckAll( $div ) {
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
 		}
-		if(typeof(browser) != 'undefined'){
-			initBrowser();
+		if(typeof(datamartActions) != 'undefined'){
+			initDatamartActions();
 		}
 		if(typeof(copyControl) != 'undefined'){
 			initCopyControl();

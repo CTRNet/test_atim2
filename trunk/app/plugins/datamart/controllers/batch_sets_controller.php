@@ -74,11 +74,12 @@ class BatchSetsController extends DatamartAppController {
 		$belong_to_this_user = $batch_set['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id'] ? TRUE : FALSE;
 		$this->set( 'belong_to_this_user', $belong_to_this_user );
 			
-		$this->set( 'atim_structure_for_process', $this->Structures->get( 'form', 'querytool_batchset_to_processes' ) );
+		$this->Structures->set( 'datamart_browser_start', 'atim_structure_for_process');
 		
 		// do search for RESULTS, using THIS->DATA if any
 		$this->ModelToSearch = null;
 		$datamart_structure = null;
+		$atim_structure_for_results = null;
 		if($batch_set['BatchSet']['datamart_structure_id']){
 			$datamart_structure = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
 			$datamart_structure = $datamart_structure['DatamartStructure'];
@@ -111,6 +112,8 @@ class BatchSetsController extends DatamartAppController {
 		$this->set( 'batch_set_id', $batch_set_id );
 		
 		// make list of SEARCH RESULTS
+		$dropdown['model'] = $batch_set['BatchSet']['model'];
+		$dropdown['key'] = $batch_set['BatchSet']['lookup_key_name'];
 		if ( $batch_set['BatchSet']['flag_use_query_results'] ) {
     	
     		// update DATATABLE names to MODEL names for CTRAPP FORM framework
@@ -145,6 +148,26 @@ class BatchSetsController extends DatamartAppController {
 		$this->set( 'data_for_detail', $batch_set );
 		$this->set( 'atim_structure_for_results', $atim_structure_for_results);
 		$batch_set['BatchSet']['structure_alias'] = $atim_structure_for_results['Structure']['alias'];
+		$actions = array();
+		if(count($results)){
+			$actions = $this->BatchSet->getDropdownOptions(
+				$batch_set['BatchSet']['plugin'], 
+				$batch_set['BatchSet']['model'], 
+				$batch_set['BatchSet']['lookup_key_name'],
+				$batch_set['BatchSet']['structure_alias'],
+				$dropdown['model'], 
+				$dropdown['key']
+			);
+			$actions[0]['children'] = array_merge(
+				array(0 => array(
+					'value' => '0',
+					'default' => __('remove from batch set', true),
+					'action' => '/datamart/batch_sets/remove/'.$batch_set_id.'/'
+				)),
+				$actions[0]['children']
+			);
+		}
+		$this->set('actions', $actions);
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		$ctrapp_form_links = array();
 		
@@ -166,18 +189,6 @@ class BatchSetsController extends DatamartAppController {
 		$conditions['BatchSetProcess.model'] = $batch_set['BatchSet']['model'];
 		$conditions['BatchSetProcess.flag_active'] = '1';
 		$batch_set_process_results = $this->BatchSetProcess->find( 'all', array( 'conditions'=>$conditions, 'recursive'=>3 ) );
-		
-		// add COUNT of IDS to array results, for form list
-		$this->BatchSet->setActionsDropdown($batch_set);
-		$batch_set_processes = array();
-		$batch_set_processes['/datamart/batch_sets/remove/'.$batch_set_id."/"]	= __('remove from batch set', true);
-		$batch_set_processes['/csv/csv/'.$batch_set['BatchSet']['plugin']."/".$batch_set['BatchSet']['model']."/".$batch_set['BatchSet']['lookup_key_name']."/".$batch_set['BatchSet']['form_alias_for_results']]		= __('export as CSV file (comma-separated values)', true);
-
-		foreach ( $batch_set_process_results as &$value) {
-			$translated_process_name = __($value['BatchSetProcess']['name'], true);
-			$batch_set_processes[ $value['BatchSetProcess']['url'] ] = strlen( $translated_process_name ) > 60 ? substr( $translated_process_name, 0, 60 ).'...' : $translated_process_name;
-		}
-		$this->set( 'batch_set_processes', $batch_set_processes );
 	}
 	
 	function add( $target_batch_set_id=0 ) {
