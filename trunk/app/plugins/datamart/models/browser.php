@@ -100,12 +100,32 @@ class Browser extends DatamartAppModel {
 				'default' => __('batchset', true),
 				'children' => $batch_set_menu
 			);
+			
+			$structure_functions = AppModel::atimNew("datamart", "DatamartStructureFunction", true);
+			$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $starting_ctrl_id)));
+			if(count($functions)){
+				$functions_menu = array();
+				foreach($functions as $function){
+					$functions_menu[] = array(
+						'value' 	=> '0',
+						'default' 	=> __($function['DatamartStructureFunction']['label'], true),
+						'action'	=> $function['DatamartStructureFunction']['link']
+					);
+				}
+				$result[] = array(
+					'value' => '0',
+					'default' => __('batch actions', true),
+					'children' => $functions_menu
+				);
+			}
+			
 			$result[] = array(
 				'value' => '0',
 				'default' => __('export as CSV file (comma-separated values)', true),
 				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'.$data_model.'/'.$data_pkey.'/'
 			);
 		}else{
+			
 			$active_structures_ids = $this->getActiveStructuresIds();
 			$data = $DatamartStructure->find('all', array('conditions' => array('DatamartStructure.id IN (0, '.implode(", ", $active_structures_ids).')')));
 			$this->getActiveStructuresIds();
