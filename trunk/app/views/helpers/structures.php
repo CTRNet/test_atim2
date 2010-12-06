@@ -636,14 +636,19 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
-			|| ($options['type'] == "search" && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
+			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
 				&& (count($table_row_part['settings']['options']) > 1 || !isset($table_row_part['settings']['disabled']) || $table_row_part['settings']['disabled'] != 'disabled')){
 					//add the unmatched value if there is more than a value or if the dropdown is not disabled (otherwise we want the single value to be default)
-					$table_row_part['settings']['options'] = array(
-						__( 'unmatched value', true ) => array($current_value => $current_value),
-						__( 'supported value', true ) => $table_row_part['settings']['options']
-					);
+					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
+						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
+						$table_row_part['settings']['options'] = array_merge(array("" => ""), $table_row_part['settings']['options']); 
+					}else{
+						$table_row_part['settings']['options'] = array(
+								__( 'unmatched value', true ) => array($current_value => $current_value),
+								__( 'supported value', true ) => $table_row_part['settings']['options']
+						);
+					}
 				}
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
