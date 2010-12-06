@@ -1522,7 +1522,7 @@ div.wrapper table.structure td .databrowser td .info td{
 	/*background-image: url(../img/dataBrowser/node_active.png);*/
 }
 
-.databrowser td.h-line.active {
+.databrowser td.h-line.active, .databrowser tr:nth-child(1) td:nth-child(1){
 	background-image: url(../img/dataBrowser/h-line_active.png);
 }
 
