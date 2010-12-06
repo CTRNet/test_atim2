@@ -325,7 +325,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 				);
 				
 				$_SESSION['ctrapp_core']['search']['criteria'] = array("Participant.id" => $ids);
-				$this->redirect('/clinicalannotation/Participants/search/', null, true);
+				$this->atimFlash('your data has been updated', '/clinicalannotation/Participants/search/');
 			}
 			
 		}else{
