@@ -301,7 +301,8 @@ class StructuresHelper extends Helper {
 		|| $type == "edit"
 		|| $type == "search"
 		|| $type == "addgrid"
-		|| $type == "editgrid")){
+		|| $type == "editgrid"
+		|| $type == "batchedit")){
 			//editable types, convert validation errors
 			$this->my_validation_errors = array();
 			foreach($this->validationErrors as $validation_error_arr){
@@ -313,7 +314,7 @@ class StructuresHelper extends Helper {
 			$this->buildSummary($atim_structure, $options, $data);
 		
 		}else if($type == 'index'
-		||$type == 'addgrid'
+		|| $type == 'addgrid'
 		|| $type == 'editgrid'
 		|| $type == 'datagrid'){
 			if($type == 'datagrid'){
@@ -328,7 +329,8 @@ class StructuresHelper extends Helper {
 		}else if($type == 'detail'
 		|| $type == 'add'
 		|| $type == 'edit'
-		|| $type == 'search'){
+		|| $type == 'search'
+		|| $type == 'batchedit'){
 			$this->buildDetail( $atim_structure, $options, $data);
 			
 		}else if($type == 'tree'){
@@ -1042,8 +1044,8 @@ class StructuresHelper extends Helper {
 				echo('<a class="reveal not_allowed" onclick="return false;">+</a> ');
 			}
 			
-			echo('<div><span class="divider">|</span> ');	
 			if(count($options['links']['tree'])){
+				echo('<div><span class="divider">|</span> ');	
 				$i = 0;
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
@@ -1053,7 +1055,7 @@ class StructuresHelper extends Helper {
 				}
 			}else if (count($options['links']['index'])){
 				//apply prebuilt links
-				echo($this->strReplaceLink($options['links']['tree'][$model_name], $data_val));
+				echo '<div><span class="divider">|</span> ', $this->strReplaceLink($options['links']['tree'][$model_name], $data_val);
 			}
 		
 			if(count($options['settings']['tree'])){
@@ -1076,15 +1078,18 @@ class StructuresHelper extends Helper {
 				foreach($table_column as $table_row_key => $table_row){
 					foreach($table_row as $table_row_part){
 						//carefull with the white spaces as removing them the can break the display in IE
-						echo('<span class="nowrap"><span class="divider">|</span> '
-							.$this->getPrintableField(
+						echo '<span class="nowrap">';
+						if($table_row_part['type'] != 'hidden'){
+							echo '<span class="divider">|</span> ';
+						}
+						echo $this->getPrintableField(
 								$table_row_part, 
 								$table_row_part['model'].".".$table_row_part['field'],
 								$options, 
 								isset($data_val[$table_row_part['model']][$table_row_part['field']]) ? $data_val[$table_row_part['model']][$table_row_part['field']] : "", 
 								null)
-							.'</span>
-						');
+							,'</span>
+						';
 					}
 				}
 			}
@@ -1286,15 +1291,10 @@ class StructuresHelper extends Helper {
 					$settings = $my_default_settings_arr;
 					
 					$date_format_arr = str_split(date_format);
-					if($options['type'] == "add"
-					|| $options['type'] == "edit"
-					|| $options['type'] == "addgrid"
-					|| $options['type'] == "editgrid"
-					|| $options['type'] == "search"){
-						
+					if($options['links']['top'] && $options['settings']['form_inputs']){						
 						$settings['tabindex'] = self::$last_tabindex ++;
 						
-						if($sfs["flag_".$options['type']."_readonly"]){
+						if(isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]){
 							$settings['disabled'] = "disabled";
 						}
 						
@@ -1733,16 +1733,17 @@ class StructuresHelper extends Helper {
 			}else{
 				unset($_SESSION['ctrapp_core']['search']);
 			}
-			
+			$return_string .= '
+				<div class="rightCell">
+			';
 			if(count($return_links)){
 				$return_string .= '
-					<div class="rightCell">
 						<div class="bottom_button">'.implode('</div><div class="bottom_button">',$return_links).'</div>
-					</div>';
+					';
 			}
 			
 			$return_string .= '
-				</div></div>
+				</div></div></div>
 			';
 			
 			
