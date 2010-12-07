@@ -467,11 +467,11 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_sm"),  
 (SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1");
 
-ALTER TABLE IF `qc_hb_ed_hepatobilary_medical_imagings` (
-  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`
+ALTER TABLE `qc_hb_ed_hepatobilary_medical_imagings` 
+  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`,
   ADD `type` VARCHAR(255) DEFAULT NULL AFTER `density`;
-ALTER TABLE IF `qc_hb_ed_hepatobilary_medical_imagings_revs` (
-  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`
+ALTER TABLE `qc_hb_ed_hepatobilary_medical_imagings_revs` 
+  ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`,
   ADD `type` VARCHAR(255) DEFAULT NULL AFTER `density`;  
   
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_medical_imaging_sgt_type', '', '', NULL);
@@ -496,10 +496,6 @@ VALUES
 (SELECT id FROM structure_fields WHERE field = 'type' AND plugin = 'Clinicalannotation' AND model = 'EventDetail' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings'), '1', '21', '', '', '', '', '', '', '', '', '', '', '', '', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1');
 
 INSERT INTO i18n (id,en) VALUES ('density (iu)', 'Density (IU)'),('heterogeneous', 'Heterogeneous'), ('homogeneous','Homogeneous');
-
-
-
-
 
 UPDATE structure_formats SET language_heading = 'gastric tube' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'gastric_tube_duration_in_days');
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'TreatmentDetail' AND field IN ('hospitalization_start_date','hospitalization_end_date','hospitalization_duration_in_days'));
@@ -634,6 +630,44 @@ INSERT INTO structure_permissible_values_customs (value,en,control_id) VALUES
 ('abcess', 'OTHERS - Abcess',(SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type')),
 ('hemorrhage', 'OTHERS - Hemorrhage',(SELECT id FROM  `structure_permissible_values_custom_controls` WHERE name like 'surgey - complication : type'));
 
+UPDATE sample_to_aliquot_controls as link,sample_controls AS samp,aliquot_controls AS al
+SET link.flag_active = '1'
+WHERE samp.id = link.sample_control_id
+AND al.id = link.aliquot_control_id
+AND al.form_alias = 'ad_spec_tubes'
+AND samp.sample_type = 'tissue';
+
+SET @ctr_id_to_del = (SELECT id FROM sample_to_aliquot_controls WHERE aliquot_control_id IN (SELECT id FROM aliquot_controls WHERE form_alias = 'ad_spec_qc_hb_tissue_tubes'));
+DELETE FROM realiquoting_controls WHERE parent_sample_to_aliquot_control_id = (@ctr_id_to_del) OR child_sample_to_aliquot_control_id = (@ctr_id_to_del);
+DELETE FROM sample_to_aliquot_controls WHERE aliquot_control_id IN (SELECT id FROM aliquot_controls WHERE form_alias = 'ad_spec_qc_hb_tissue_tubes');
+DELETE FROM aliquot_controls WHERE form_alias = 'ad_spec_qc_hb_tissue_tubes';
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_spec_qc_hb_tissue_tubes');
+DELETE FROM structure_fields WHERE field = 'qc_hb_is_conic_tube';
+DELETE FROM structure_fields WHERE field = 'qc_hb_milieu' AND structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_conical_tube_milieu');
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_hb_conical_tube_milieu');
+DELETE FROM structure_value_domains WHERE domain_name = 'qc_hb_conical_tube_milieu';
+
+ALTER TABLE `ad_tubes` DROP COLUMN `qc_hb_is_conic_tube`;
+ALTER TABLE `ad_tubes_revs` DROP COLUMN `qc_hb_is_conic_tube`;
+
+ALTER TABLE `sd_der_tiss_susps` 
+  ADD `qc_hb_tissue_source_in_serum` varchar(50)  AFTER `qc_hb_viability_perc`;
+ALTER TABLE `sd_der_tiss_susps_revs` 
+  ADD `qc_hb_tissue_source_in_serum` varchar(50)  AFTER `qc_hb_viability_perc`;
+
+INSERT INTO structure_fields (`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'SampleDetail', 'sd_der_tiss_susps', 'qc_hb_tissue_source_in_serum', 'tissue source into serum (rpmi + fbs)', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_yes_no_unknwon') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_tissue_susp'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field`='qc_hb_tissue_source_in_serum'), '1', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO i18n (id,en) VALUES ('tissue source into serum (rpmi + fbs)', 'Tissue Source Into Serum (RPMI + FBS)');
+
+UPDATE structure_permissible_values SET value = '10^6', language_alias = '10^6' WHERE value = '10e6' AND language_alias = '10e6';
+UPDATE structure_permissible_values SET value = '10^7', language_alias = '10^7' WHERE value = '10e7' AND language_alias = '10e7';
+UPDATE structure_permissible_values SET value = '10^8', language_alias = '10^8' WHERE value = '10e8' AND language_alias = '10e8';
 
 -----------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
