@@ -178,87 +178,89 @@ class AppModel extends Model {
 		}
 		
 		$type = $this->getColumnType($field);
-		$data = array_merge(array("year" => null, "month" => null, "day" => null, "hour" => null, "min" => null, "sec" => null), $data);
-		if(in_array($type, array('datetime', 'timestamp', 'date', 'time'))
-		&& (strlen($data['year']) > 0 || strlen($data['month']) > 0 || strlen($data['day']) > 0 || strlen($data['hour']) > 0 || strlen($data['min']) > 0)){
-			$got_date = in_array($type, array('datetime', 'timestamp', 'date'));
-			$got_time = in_array($type, array('datetime', 'timestamp', 'time'));
-			if($is_search){
-				//if search and leading field missing, return
-				if($got_date && strlen($data['year']) == 0){
-					return null;
-				}
-				if($type == 'time' && strlen($data['hour']) == 0){
-					return null;
-				}
-			}
-
-			//manage meridian
-			if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
-				$data['meridian'] = 'pm';
-			}
-			if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
-				$data['hour'] = $data['hour'] + 12;
-			}
-			if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
-				$data['hour'] = '00';
-			}
-			
-			
-			//patch incomplete values
-			if($is_search){
-				if($got_date){
-					if($is_end){
-						if(strlen($data['day']) == 0){
-							$data['day'] = 31;
-							if(strlen($data['month']) == 0){
-								//only patch month if date is patched
-								$data['month'] = 12;
-							}
-						}
-					}else{
-						if(strlen($data['day']) == 0){
-							$data['day'] = 1;
-							if(strlen($data['month']) == 0){
-								//only patch month if date is patched
-								$data['month'] = 1;
-							}
-						}
+		if(in_array($type, array('datetime', 'timestamp', 'date', 'time'))){
+			$data = array_merge(array("year" => null, "month" => null, "day" => null, "hour" => null, "min" => null, "sec" => null), $data);
+			if(strlen($data['year']) > 0 || strlen($data['month']) > 0 || strlen($data['day']) > 0 || strlen($data['hour']) > 0 || strlen($data['min']) > 0){
+				$got_date = in_array($type, array('datetime', 'timestamp', 'date'));
+				$got_time = in_array($type, array('datetime', 'timestamp', 'time'));
+				if($is_search){
+					//if search and leading field missing, return
+					if($got_date && strlen($data['year']) == 0){
+						return null;
+					}
+					if($type == 'time' && strlen($data['hour']) == 0){
+						return null;
 					}
 				}
-			}
-			if(in_array($type, array('datetime', 'timestamp'))){
-				if(strlen($data['hour']) == 0 && strlen($data['min']) == 0 && strlen($data['sec']) == 0){
-					//only patch hour if min and sec are empty
-					$data['hour'] = $is_end ? 23 : 0;
+	
+				//manage meridian
+				if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
+					$data['meridian'] = 'pm';
 				}
-			}
-			if($got_time){
-				if(strlen($data['min']) == 0){
-					$data['min'] = $is_end ? 59 : 0;
+				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
+					$data['hour'] = $data['hour'] + 12;
 				}
-				if(!isset($data['sec']) || strlen($data['sec']) == 0){
-					$data['sec'] = $is_end ? 59 : 0;
+				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
+					$data['hour'] = '00';
 				}
 				
-				foreach(array('hour', 'min', 'sec') as $key){
-					if(is_numeric($data[$key])){
-						$data[$key] = sprintf("%02d", $data[$key]);
+				
+				//patch incomplete values
+				if($is_search){
+					if($got_date){
+						if($is_end){
+							if(strlen($data['day']) == 0){
+								$data['day'] = 31;
+								if(strlen($data['month']) == 0){
+									//only patch month if date is patched
+									$data['month'] = 12;
+								}
+							}
+						}else{
+							if(strlen($data['day']) == 0){
+								$data['day'] = 1;
+								if(strlen($data['month']) == 0){
+									//only patch month if date is patched
+									$data['month'] = 1;
+								}
+							}
+						}
 					}
 				}
+				if(in_array($type, array('datetime', 'timestamp'))){
+					if(strlen($data['hour']) == 0 && strlen($data['min']) == 0 && strlen($data['sec']) == 0){
+						//only patch hour if min and sec are empty
+						$data['hour'] = $is_end ? 23 : 0;
+					}
+				}
+				if($got_time){
+					if(strlen($data['min']) == 0){
+						$data['min'] = $is_end ? 59 : 0;
+					}
+					if(!isset($data['sec']) || strlen($data['sec']) == 0){
+						$data['sec'] = $is_end ? 59 : 0;
+					}
+					
+					foreach(array('hour', 'min', 'sec') as $key){
+						if(is_numeric($data[$key])){
+							$data[$key] = sprintf("%02d", $data[$key]);
+						}
+					}
+				}
+				
+				$result = null;
+				if($got_date && $got_time){
+					$result = sprintf("%d-%02d-%02d %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
+				}else if($got_date){
+					$result = sprintf("%d-%02d-%02d", $data['year'], $data['month'], $data['day']);
+				}else{
+					$result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
+				}
+				return $result;
 			}
-			
-			$result = null;
-			if($got_date && $got_time){
-				$result = sprintf("%d-%02d-%02d %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
-			}else if($got_date){
-				$result = sprintf("%d-%02d-%02d", $data['year'], $data['month'], $data['day']);
-			}else{
-				$result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
-			}
-			return $result;
+			return "";
 		}
-		return "";
+		return $data;
 	}
 	
 	/**
