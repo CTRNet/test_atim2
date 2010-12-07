@@ -92,6 +92,7 @@ class SampleMastersControllerCustom extends SampleMastersController {
 			case 'ascite supernatant':
 			case 'blood cell':
 			case 'pbmc':
+			case 'b cell':
 			case 'plasma':
 			case 'serum':
 			case 'concentrated urine':
