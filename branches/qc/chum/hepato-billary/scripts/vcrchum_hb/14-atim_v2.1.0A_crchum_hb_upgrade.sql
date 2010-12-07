@@ -669,10 +669,18 @@ UPDATE structure_permissible_values SET value = '10^6', language_alias = '10^6' 
 UPDATE structure_permissible_values SET value = '10^7', language_alias = '10^7' WHERE value = '10e7' AND language_alias = '10e7';
 UPDATE structure_permissible_values SET value = '10^8', language_alias = '10^8' WHERE value = '10e8' AND language_alias = '10e8';
 
+UPDATE structure_formats SET display_order = 22
+WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasexos' AND `field`='tumor_site_splenectomy');
+
+
+
 -----------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
 
 - UPDATE PERMISSION: NO ACCESS TO FORMS, MATERIAL, EQUIP., SOP, LIMITED ACCESS TO STUDY, NO REPROD HIST
 - REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
 - RUN DB VALIDATION
-- COMPARE CODE WITH TRUNK
+
+-- Tester les vu
+-- Tester le meld
