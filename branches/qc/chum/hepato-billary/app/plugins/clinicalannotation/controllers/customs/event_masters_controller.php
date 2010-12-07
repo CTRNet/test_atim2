@@ -510,20 +510,26 @@ class EventMastersControllerCustom extends EventMastersController {
 		$this->data['EventDetail']['result'] = null;
 		
 		// Get data
-		$serum_cr = (is_numeric($this->data['EventDetail']['creatinine']) && (!empty($this->data['EventDetail']['creatinine'])))? ($this->data['EventDetail']['creatinine']/88.4) : null;
-		$serum_bilirubin = (is_numeric($this->data['EventDetail']['bilirubin']) && (!empty($this->data['EventDetail']['bilirubin'])))? ($this->data['EventDetail']['bilirubin']/17.1) : null;
-		$inr = (is_numeric($this->data['EventDetail']['inr']) && (!empty($this->data['EventDetail']['inr'])))? $this->data['EventDetail']['inr'] : null;
-		$sodium = (is_numeric($this->data['EventDetail']['sodium']) && (!empty($this->data['EventDetail']['sodium'])))? $this->data['EventDetail']['sodium'] : null;
-				
-		//Launch calculation
-		if(!(is_null($serum_cr) || is_null($serum_bilirubin) || is_null($inr))) {
-			$serum_cr = ($this->data['EventDetail']['dialysis'] == 1)? '4' : $serum_cr;
-			$this->data['EventDetail']['result'] = ( (0.957*log($serum_cr)) + (0.378*log($serum_bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;
-			
-			if(!is_null($sodium)) {
-				$this->data['EventDetail']['sodium_result'] = $this->data['EventDetail']['result'] + 1.59 * (135 - $sodium);
-			}
-		}		
+		$creat = str_replace(",",".",$this->data['EventDetail']['creatinine']);
+		if(!is_numeric($creat)) return;
+		$creat = ($this->data['EventDetail']['dialysis'])? 4 : ($creat/88.4);
+	
+		$bilirubin = str_replace(",",".",$this->data['EventDetail']['bilirubin']);
+		if(!is_numeric($bilirubin)) return;
+		$bilirubin = (($bilirubin/17.1) < 1)? 1 : ($bilirubin/17.1);
+
+		$inr = str_replace(",",".",$this->data['EventDetail']['inr']);
+		if(!is_numeric($inr)) return;
+		// Calculate MELD
+		$this->data['EventDetail']['result'] = ( (0.957*log($creat)) + (0.378*log($bilirubin)) + (1.12*log($inr)) + 0.643 ) *10;	
+
+		// Calculate MELD-Na
+		$sodium = str_replace(",",".",$this->data['EventDetail']['sodium']);
+		if(!is_numeric($sodium)) return;		
+		
+		$tmp = 0.028*($this->data['EventDetail']['result']-17)*($sodium-135)+2.53;
+		$this->data['EventDetail']['sodium_result'] =(0.855*$this->data['EventDetail']['result'])+0.705*(140-$sodium)+$tmp;
+
 	}
 	
 }
