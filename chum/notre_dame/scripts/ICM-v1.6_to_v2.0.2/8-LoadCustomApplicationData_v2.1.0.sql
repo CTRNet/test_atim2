@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS view_collections;
+﻿DROP VIEW IF EXISTS view_collections;
 CREATE VIEW view_collections AS 
 SELECT 
 col.id AS collection_id,
@@ -365,8 +365,7 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/clinicalannotation/trea
 
 TRUNCATE family_histories;
 UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/clinicalannotation/family_histories%';
-ed_all_procure_lifestyles 
-ed_all_procure_lifestyles
+
 UPDATE event_controls SET detail_tablename = 'ed_all_procure_lifestyles' WHERE detail_tablename = 'ed_all_procure_lifestyle';
 ALTER TABLE ed_all_procure_lifestyle RENAME TO ed_all_procure_lifestyles;
 ALTER TABLE ed_all_procure_lifestyle_revs RENAME TO ed_all_procure_lifestyles_revs;
@@ -453,6 +452,46 @@ UPDATE datamart_structures
 SET structure_id = (SELECT id FROM structures WHERE alias = 'miscidentifiers')
 WHERE model = 'MiscIdentifier';
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(25);
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(43, 42);
+
+UPDATE sample_masters samp, aliquot_masters aliq
+SET samp.sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'b cell'),
+samp.sample_type = 'b cell'
+WHERE samp.id = aliq.sample_master_id 
+AND aliq.aliquot_label LIKE 'LB-PBMC%';
+
+DELETE FROM sd_der_pbmcs WHERE sample_master_id IN (SELECT sample_master_id FROM aliquot_masters WHERE aliquot_label LIKE 'LB-PBMC%');
+
+INSERT INTO sd_der_b_cells (id, sample_master_id,created,created_by,modified,modified_by,deleted,deleted_date)
+SELECT id,id,created,created_by,modified,modified_by,deleted,deleted_date FROM sample_masters WHERE sample_type = 'b cell';
+
+UPDATE sample_controls SET sample_type_code = 'LB' WHERE sample_type = 'b cell';
+
+UPDATE sample_masters parent, sample_masters lb
+SET lb.sample_code = CONCAT('LB - ',lb.id),
+lb.sample_label = CONCAT('LB ',parent.sample_label)
+WHERE lb.sample_type = 'b cell'
+AND lb.parent_id = parent.id;
+
+UPDATE aliquot_masters al, sample_masters sm
+SET al.aliquot_label = REPLACE(al.aliquot_label, 'LB-PBMC', 'LB')
+WHERE sm.id = al.sample_master_id
+AND sm.sample_type = 'b cell';
+
+UPDATE aliquot_masters al, sample_masters sm
+SET al.aliquot_label = REPLACE(al.aliquot_label, 'PBMC', 'LB')
+WHERE sm.id = al.sample_master_id
+AND sm.sample_type = 'b cell';
+
+-- amplified rna
+
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('sd_der_amplified_rnas') 
+AND sfi.field IN ('initial_specimen_sample_type','sample_type','xxxxxx','xxxx','xxxxx','xxxxx')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
@@ -460,7 +499,34 @@ WHERE model = 'MiscIdentifier';
 
 
 
- 	
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+#tester recherche de message a partir participant
+#recherche participant a partir de miscidentifier
+#pourquoi? select * from aliquot_use where use_definition is null;
+
+#mettre a jour les droits
+#valider db et code
+#verifier pourquoi on a storage solution dans aliquot view
+#pb lorsque l'on fixe sur tissue tube
+#check #16 : su script 0.... construire a bras les relation existante
+#Supprimer aliquot dans boite quand ils n'existenet plus masi garder les donn�es dans l'hitorique
+#Il faut créer les formulaires de recherches spécifiques (consentement FRSQ, PROCURE, etc.) pourle databrowser
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
 
 #a definir si on garde...
 #
@@ -501,12 +567,3 @@ WHERE model = 'MiscIdentifier';
 #((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='denied' AND `language_label`='denied' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 #
 
-
-#mettre a jour les droits
-#valider db
-#verifier pourquoi on a storage solution dans aliquot view
-#pb lorsque l'on fixe sur tissue tube
-#check #16 : su script 0.... construire a bras les relation existante
-#Ajouter sample type = LB pour Urszula et convertiser tous les PBMC qui devrait �tre des LB. (Leur aliquot label like 'LB-PBMC%')
-#Supprimer aliquot dans boite quand ils n'existenet plus masi garder les donn�es dans l'hitorique
-#Il faut créer les formulaires de recherches spécifiques (consentement FRSQ, PROCURE, etc.) pourle databrowser

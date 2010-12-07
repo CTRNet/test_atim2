@@ -120,3 +120,20 @@ FROM sample_masters AS spec
 INNER JOIN sample_masters AS deriv ON deriv.initial_specimen_sample_id = spec.id AND deriv.sample_category = 'derivative' AND spec.sample_category = 'specimen'
 WHERE deriv.sample_label NOT LIKE CONCAT('%',spec.sample_label,'%');
 -- -> 0 records
+
+-- check #18 : No derivative for LB
+select * from sample_masters where parent_id IN (SELECT sample_master_id FROM aliquot_masters WHERE aliquot_label LIKE 'LB-PBMC%');
+-- -> 0 records
+
+-- check #19 : No LB-PBMC having storage_solution
+select distinct pbmc.tmp_solution
+from sd_der_pbmcs as pbmc
+INNER JOIN sample_masters AS samp ON samp.id = pbmc.sample_master_id
+INNER JOIN aliquot_masters AS aliq ON samp.id = aliq.sample_master_id 
+WHERE aliq.aliquot_label LIKE 'LB-PBMC%';
+-- -> All NULL.
+
+
+
+
+
