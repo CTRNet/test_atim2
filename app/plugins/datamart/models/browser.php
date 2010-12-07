@@ -342,6 +342,7 @@ class Browser extends DatamartAppModel {
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name'], true);
 					$info = "";
+					$search_datetime = AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search['search_conditions'])){
@@ -361,15 +362,15 @@ class Browser extends DatamartAppModel {
 								$structure_id_to_load = $cell['DatamartStructure']['structure_id'];
 							}
 							if(count($search['search_conditions'])){//count might be zero if the only condition was the sub type
-								$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
+								$info .= __("search", true)." - ".$search_datetime."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
 							}else{
-								$info .= __("direct access", true);
+								$info .= __("direct access", true)." - ".$search_datetime;
 							}
 						}else{
-							$info .= __("direct access", true);
+							$info .= __("direct access", true)." - ".$search_datetime;
 						}
 					}else{
-						$info .= __("drilldown", true);
+						$info .= __("drilldown", true)." - ".$search_datetime;
 					}
 					$result .= "<td class='node ".$class."'><a href='".$webroot_url."datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div></div></a></td>";
 				}else{
