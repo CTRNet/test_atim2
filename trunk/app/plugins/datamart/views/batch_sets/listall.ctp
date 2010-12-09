@@ -29,14 +29,14 @@
 		)
 	);
 	
-	$structure_override = array(
-		'BatchSet.id' => $atim_menu_variables['BatchSet.id']
-	);
-	
 	?>
 		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>
 	<?php 
-	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
+	$extras = array();
+	if(isset($datamart_structure_id)){
+		$extras = "<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>";
+	}
+	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => $extras));
 		
 ?>
 <div id="popup" class="std_popup question">
