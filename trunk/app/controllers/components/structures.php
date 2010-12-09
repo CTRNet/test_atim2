@@ -51,7 +51,7 @@ class StructuresComponent extends Object {
 			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
 		}
 		if(count($alias) > 1){
-			self::sortStructure($result['structure']['Sfs']);
+			self::sortStructure($result['structure']);
 		}else if(count($result['structure']['Structure']) == 1){
 			$result['structure']['Structure'] = $result['structure']['Structure'][0];
 		}
