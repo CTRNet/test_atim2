@@ -21,15 +21,18 @@ function initCopyControl(){
 	//create buttons and bind onclick command
 	enableCopyCtrl();
 	
-	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + window.pasteOnAllLinesStr + '" href="#">' + window.pasteOnAllLinesStr + '</a></span>';
-	if($(".addLineLink").length){
-		//add copy all button before the add line button
-		$(".addLineLink").parent().prepend(pasteAllButton);	
-	}else if($(".copy").first().length > 0){
+	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + window.pasteOnAllLinesStr + '" href="#no">' + window.pasteOnAllLinesStr + '</a></span>';
+	if($(".copy").length > 0){
+		console.log($(".copy").length);
 		//add copy all button into a new tfoot
-		var table = getParentElement($(".copy").first(), "TABLE");
-		var tableWidth = $(table).first("tr").find("th").length;
-		$(table).append("<tfoot><tr><td colspan='" + tableWidth + "' align='right'>" + pasteAllButton + "</td></tr></tfoot>");
+		$(".copy").each(function(){
+			var table = getParentElement($(this), "TABLE");
+			if(!$(table).data("copyAllLinesEnabled")){
+				var tableWidth = $(table).first("tr").find("th").length;
+				$(table).append("<tfoot><tr><td colspan='" + tableWidth + "' align='right'>" + pasteAllButton + "</td></tr></tfoot>");
+				$(table).data("copyAllLinesEnabled", true);
+			}
+		});
 	}
 	$(".pasteAll").click(function(){
 		var table = getParentElement(this, "TABLE");
