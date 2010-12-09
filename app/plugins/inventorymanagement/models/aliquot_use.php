@@ -6,7 +6,8 @@ class AliquotUse extends InventoryManagementAppModel {
 		'AliquotMaster' => array(           
 			'className'    => 'Inventorymanagement.AliquotMaster',            
 			'foreignKey'    => 'aliquot_master_id'));
-			
+
+	public static $mValidate = null;
 }
 
 ?>

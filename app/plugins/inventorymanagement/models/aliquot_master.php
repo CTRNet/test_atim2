@@ -102,6 +102,181 @@ class AliquotMaster extends InventoryManagementAppModel {
 		return $storage_data;
 	}
 	
+	/**
+	 * Creates realiquoting links between aliquots
+	 * @param array $data
+	 * @param boolean $remove_from_stocks_if_empty If true, empty parents aliquots will be removed from storages and made unavailable
+	 * @return array validation errors. If the array is empty, the realiquoting has been done, otherwise it's been aborted. On success,
+	 * realiquoted children ids are put into $_SESSION['tmp_batch_set'] to allow the redirection to a temporary batch set.	 
+	 */
+	public function defineRealiquot(array $data, $remove_from_stocks_if_empty){
+		$AliquotUse = AppModel::atimNew("inventorymanagement", "AliquotUse", true);
+		$AliquotUse->validate = AliquotUse::$mValidate;
+		$relations = array();
+		$errors = array();
+		$uses = array();
+		$masters_to_update = array();
+		foreach($data as $parent_aliquot_id => $children_aliquots){
+			foreach($children_aliquots as $children_aliquot){
+				if(!$children_aliquot['FunctionManagement']['use']){
+					continue;
+				}
+				if(isset($relations[$children_aliquot['AliquotMaster']['id']])){
+					$errors[] = sprintf(__("circular assignation with [%s]", true), $children_aliquot['AliquotMaster']['barcode']);
+				}
+				$relations[$parent_aliquot_id] = $children_aliquot['AliquotMaster']['id'];
+				
+				//validate
+				$use = array(
+					'AliquotUse' => array(
+						'aliquot_master_id'			=> $parent_aliquot_id,
+						'use_definition'			=> 'realiquoted to',
+						'use_code'					=> $children_aliquot['AliquotMaster']['barcode'],
+						'use_recorded_into_table'	=> 'realiquotings',
+						'used_volume'				=> $children_aliquot['AliquotUse']['used_volume'],
+						'use_datetime'				=> $children_aliquot['AliquotUse']['use_datetime'],
+						'used_by'					=> $children_aliquot['AliquotUse']['used_by']
+					),
+					'AliquotMaster' => array(
+						'id'	=> $children_aliquot['AliquotMaster']['id']
+				));
+				$AliquotUse->set($use);
+				if(!$AliquotUse->validates()){
+					$errors = array_merge($errors, $AliquotUse->validationErrors);
+				}
+				$uses[] = $use;
+			}
+		}
+		
+		if(count($errors) == 0){
+			$Realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
+			//no error, proceed!
+			//create uses
+			$_SESSION['tmp_batch_set']['BatchId'] = array();
+			foreach($uses as $use){
+				//save use
+				$AliquotUse->id = NULL;
+				$AliquotUse->set($use);
+				$AliquotUse->save();
+
+				//save realiquoting
+				$Realiquoting->id = NULL;
+				$Realiquoting->set(array('Realiquoting' => array(
+					'parent_aliquot_master_id'	=> $use['AliquotUse']['aliquot_master_id'],
+					'child_aliquot_master_id'	=> $use['AliquotMaster']['id'],
+					'aliquot_use_id'			=> $AliquotUse->id
+				)));
+				$Realiquoting->save();
+				
+				//note parent_id to update
+				$masters_to_update[$use['AliquotUse']['aliquot_master_id']] = NULL;
+				$_SESSION['tmp_batch_set']['BatchId'][] = $use['AliquotMaster']['id'];
+			}
+			
+			foreach($masters_to_update as $aliquot_id => $foo){
+				$this->updateAliquotCurrentVolume($aliquot_id, $remove_from_stocks_if_empty);
+			}
+		}
+		$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;//ViewAliquots
+		
+		if(count($errors)){
+			unset($_SESSION['tmp_batch_set']);
+		}
+		return $errors;
+	}
+	
+	/**
+	 * Update the current volume of an aliquot.
+	 * 
+	 * Note:
+	 *  - When the intial volume is null, the current volume will be set to null.
+	 *  - Status and status reason won't be updated.
+	 *
+	 * @param $aliquot_master_id Master Id of the aliquot.
+	 * @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
+	 * 
+	 * @return FALSE when error has been detected
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function updateAliquotCurrentVolume($aliquot_master_id, $remove_from_stock_if_empty = false){
+		if(empty($aliquot_master_id)){
+			AppController::getInstance()->redirect('/pages/err_inv_funct_param_missing', null, true); 
+		}
+		
+		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
+		
+		if(empty($aliquot_data)){
+			AppController::getInstance()->redirect('/pages/err_inv_no_data', null, true); 
+		}
+				
+		$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+		$current_volume = $aliquot_data['AliquotMaster']['current_volume'];
+				
+		// Manage new current volume
+		if(empty($initial_volume)){	
+			// Initial_volume is null or equal to 0
+			if($initial_volume === $current_volume) {
+				//Nothing to do
+				return true;
+			}
+			
+			// To be sure value and type of both variables are identical
+			$current_volume = $initial_volume;
+					
+		}else {
+			// A value has been set for the intial volume		
+			if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
+				AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
+			}
+					
+			$total_used_volume = 0;
+			foreach($aliquot_data['AliquotUse'] as $id => $aliquot_use){
+				$used_volume = $aliquot_use['used_volume'];
+				if(!empty($used_volume)){
+					// Take used volume in consideration only when this one is not empty
+					if((!is_numeric($used_volume)) || ($used_volume < 0)){
+						AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
+					}
+					$total_used_volume += $used_volume;
+				}
+
+			}
+			$new_current_volume = round(($initial_volume - $total_used_volume), 5);
+			if($new_current_volume < 0){
+				$new_current_volume = 0;
+				$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+			}
+
+			if($new_current_volume === $current_volume) {
+				//Nothing to do
+				return true;
+			}
+			$current_volume = $new_current_volume;
+		}
+		
+		$data["current_volume"] = $current_volume;
+		if($current_volume <= 0 && $remove_from_stock_if_empty){
+			$data['storage_master_id'] = NULL;
+			$data['storage_coord_x'] = NULL;
+			$data['storage_coord_y'] = NULL;
+			$data['coord_x_order'] = NULL;
+			$data['coord_y_order'] = NULL;
+			$data['in_stock'] = 'no';
+			$data['in_stock_detail'] = 'empty';
+		}
+		
+		// Save Data
+		$this->id = $aliquot_master_id;
+		if(!$this->save(array("AliquotMaster" => $data))){
+			return false;
+		}
+		return true;
+	}
+	
 }
 
 ?>
