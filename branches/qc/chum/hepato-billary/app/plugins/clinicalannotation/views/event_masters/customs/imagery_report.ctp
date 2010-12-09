@@ -21,7 +21,7 @@
 	$final_atim_structure = $atim_structure;
 	$final_options = array('links'=>$structure_links, 'type' => 'detail', 'settings' => $structure_settings); 
 	$structures->build($final_atim_structure, $final_options);
-
+ 	
 	?>
 	<style>
 	thead{
@@ -100,12 +100,15 @@
 								<th colspan="2"><?php echo(__('segment', true))?> VI</th>
 								<th colspan="2"><?php echo(__('segment', true))?> VII</th>
 								<th colspan="2"><?php echo(__('segment', true))?> VIII</th>
+								<th colspan="2"><?php echo(__('other', true))?></th>
 							</tr>
 							<tr>
 								<?php for($i = 0; $i < 9; ++ $i){ ?>
 									<th><?php echo(__('number', true)); ?></th>
 									<th><?php echo(__('size', true)); ?></th>
 								<?php } ?>
+								<th><?php echo(__('density (iu)', true)); ?></th>
+								<th><?php echo(__('type', true)); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -129,6 +132,8 @@
 										?><td><?php echo($data['EventDetail']['segment_'.$i.'_number']); ?></td>
 										<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
 									<?php } ?>
+									<td><?php echo($data['EventDetail']['density']); ?></td>
+									<td><?php echo($data['EventDetail']['type']); ?></td>
 								</tr>
 								<?php	
 								}

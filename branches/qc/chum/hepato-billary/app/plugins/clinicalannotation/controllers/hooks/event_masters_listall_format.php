@@ -21,6 +21,7 @@
 		$medical_past_history_event_controls = array();
 		$medical_imaging_event_controls = array();
 		foreach($event_controls as $id => $new_control) {
+			
 			$med_past_hist_pattern = '/^(.*)_medical_past_history?/';
 			$imaging_pattern = '/^qc_hb_imaging(.*)?/';
 			
@@ -28,14 +29,12 @@
 				$medical_past_history_event_controls[] = $new_control;
 				unset($event_controls[$id]);
 			} else if(preg_match($imaging_pattern, $new_control['EventControl']['form_alias'])) { 
-				$medical_imaging_event_controls[] = $new_control;
-				unset($event_controls[$id]);
+				$this->redirect( '/pages/err_clin_system_error', NULL, TRUE );
 			}			
 		}
 		
 		$this->set('medical_past_history_event_controls', $medical_past_history_event_controls);
-		$this->set('medical_imaging_event_controls', $medical_imaging_event_controls);
-		
+		$this->set('medical_imaging_event_controls', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.detail_tablename' => 'qc_hb_ed_hepatobilary_medical_imagings' ))));
 		
 		// Reset event controls for add other button		
 		$this->set('event_controls', $event_controls);	

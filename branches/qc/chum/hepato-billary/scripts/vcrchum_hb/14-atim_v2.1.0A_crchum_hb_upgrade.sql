@@ -415,57 +415,57 @@ VALUES
 
 INSERT IGNORE INTO i18n (id,en) VALUES ('splenectomy','Splenectomy'),('pm0: no metastasis','pM0: No metastasis'),('pmX: unknown','pMX: Unknown');
 
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pm0: no metastasis", "pm0: no metastasis"),('pmX: unknown','pmX: unknown');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pm0", "pm0: no metastasis"),('pmX','pmX: unknown');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_a"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_a"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_cr"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_cr"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_dbd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_dbd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_gb"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_gb"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_hc"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_hc"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_ibd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_ibd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pbd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pbd"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pe"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pe"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pex"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_pex"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1"),
 
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_sm"),  
-(SELECT id FROM structure_permissible_values WHERE value="pm0: no metastasis" AND language_alias="pm0: no metastasis"), "11", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="pm0" AND language_alias="pm0: no metastasis"), "11", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="path_mstage_sm"),  
-(SELECT id FROM structure_permissible_values WHERE value="pmX: unknown" AND language_alias="pmX: unknown"), "10", "1");
+(SELECT id FROM structure_permissible_values WHERE value="pmX" AND language_alias="pmX: unknown"), "10", "1");
 
 ALTER TABLE `qc_hb_ed_hepatobilary_medical_imagings` 
   ADD `density` FLOAT UNSIGNED DEFAULT NULL AFTER `segment_8_size`,
@@ -673,10 +673,486 @@ UPDATE structure_formats SET display_order = 22
 WHERE structure_id = (SELECT id FROM structures WHERE alias='dx_cap_report_pancreasexos')
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_cap_report_pancreasexos' AND `field`='tumor_site_splenectomy');
 
+DELETE FROM i18n where id = 'gastric tube';
+INSERT IGNORE INTO i18n (id,en) VALUES ('gastric tube','Gastric Tube'),('MELD-Na','MELD-Na');
+
+-- Validate with urszula
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE field = 'block_type'), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('snap frozen', 'Snap Frozen', ''),('storage method','Storage Method','');
+
+ALTER TABLE ad_tubes
+	ADD `qc_hb_storage_method` varchar(100) DEFAULT NULL AFTER `cell_count_unit`;
+	
+ALTER TABLE ad_tubes_revs
+	ADD `qc_hb_storage_method` varchar(100) DEFAULT NULL AFTER `cell_count_unit`;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_hb_storage_methods', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("snap frozen", "snap frozen");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_storage_methods"),  
+(SELECT id FROM structure_permissible_values WHERE value="snap frozen" AND language_alias="snap frozen"), "1", "1");
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_hb_storage_method', 'storage method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_storage_methods') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_hb_storage_method'), 
+'0', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_hb_storage_method'), 'notEmpty', '0', '0', '', '', '0000-00-00 00:00:00', 0, '2010-02-12 00:00:00', 0);
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('serum + DMSO', 'Serum + DMSO', '');
+
+-- Databrowser clean up
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('marital_status')
+AND s.alias = 'participants'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('vital_status')
+AND s.alias = 'participants'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0', 
+sfo.flag_search = '0', sfo.flag_search_readonly = '0', 
+sfo.flag_datagrid = '0', sfo.flag_datagrid_readonly = '0', 
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('first_name', 'last_name')
+AND s.alias = 'miscidentifiers_for_participant_search'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_consents'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('status_date', 'notes')
+AND s.alias = 'qc_hb_consents'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_summary')
+AND s.alias = 'eventmasters'; 
+
+### ANNOTATION ###
+### Structure qc_hb_ed_hepatobiliary_clinical_presentation ###
+
+ALTER TABLE qc_hb_ed_hepatobiliary_clinical_presentation RENAME TO qc_hb_ed_hepatobiliary_clinical_presentations;
+ALTER TABLE qc_hb_ed_hepatobiliary_clinical_presentation_revs RENAME TO qc_hb_ed_hepatobiliary_clinical_presentations_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_clinical_presentations' WHERE tablename = 'qc_hb_ed_hepatobiliary_clinical_presentation';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_clinical_presentations' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_clinical_presentation';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_clinical_presentation'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date', 'bmi', 'hbp_surgeon', 'referral_hospital')
+AND s.alias = 'qc_hb_ed_hepatobiliary_clinical_presentation'; 
+
+### Structure qc_hb_ed_hepatobiliary_med_hist_record_summary ###
+
+ALTER TABLE qc_hb_ed_hepatobiliary_med_hist_record_summary RENAME TO qc_hb_ed_hepatobiliary_med_hist_record_summaries;
+ALTER TABLE qc_hb_ed_hepatobiliary_med_hist_record_summary_revs RENAME TO qc_hb_ed_hepatobiliary_med_hist_record_summaries_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summaries' WHERE tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summary';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summaries' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_med_hist_record_summary';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_med_hist_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_med_hist_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date')
+AND s.alias = 'qc_hb_ed_hepatobiliary_med_hist_record_summary'; 
+
+### Structure qc_hb_ed_hospitalization ###
+
+ALTER TABLE qc_hb_ed_hospitalization RENAME TO qc_hb_ed_hospitalizations;
+ALTER TABLE qc_hb_ed_hospitalization_revs RENAME TO qc_hb_ed_hospitalizations_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE tablename = 'qc_hb_ed_hospitalization';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hospitalizations' WHERE detail_tablename = 'qc_hb_ed_hospitalization';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hospitalization'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date', 'hospitalization_duration_in_days')
+AND s.alias = 'qc_hb_ed_hospitalization'; 
+
+### Structure qc_hb_ed_medical_imaging_record_summary ###
+
+ALTER TABLE qc_hb_ed_medical_imaging_record_summary RENAME TO qc_hb_ed_medical_imaging_record_summaries;
+ALTER TABLE qc_hb_ed_medical_imaging_record_summary_revs RENAME TO qc_hb_ed_medical_imaging_record_summaries_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE tablename = 'qc_hb_ed_medical_imaging_record_summary';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE detail_tablename = 'qc_hb_ed_medical_imaging_record_summary';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date')
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+### clinical 	medical imaging pelvic CT-scan 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging abdominal MRI 	qc_hb_imaging_segment_other_pancreas_volumetry 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging pelvic MRI 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging chest X-ray 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging chest CT-scan 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging TEP-scan 	qc_hb_imaging_segment_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging octreoscan 	qc_hb_imaging_segment_other_pancreas 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging contrast-enhanced ultrasound CEUS 	qc_hb_imaging_segment 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging doppler ultrasound 	qc_hb_imaging 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging endoscopic ultrasound (EUS) 	qc_hb_imaging_other_pancreas 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging colonoscopy 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging contrast enema 	qc_hb_imaging_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging ERCP 	qc_hb_imaging 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging transhepatic cholangiography 	qc_hb_imaging 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging abdominal CT-scan 	qc_hb_imaging_segment_other_pancreas_volumetry 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging abdominal ultrasound 	qc_hb_imaging_segment_other 	qc_hb_ed_hepatobilary_medical_imagings
+### clinical 	medical imaging HIDA scan 	qc_hb_imaging 	qc_hb_ed_hepatobilary_medical_imagings
+
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings' WHERE event_type = 'medical imaging HIDA scan';
+UPDATE event_controls SET flag_active = '0' WHERE detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
+UPDATE structures SET alias = 'qc_hb_imaging_dateNSummary' WHERE alias = 'qc_hb_dateNSummary';
+
+SELECT form_alias WHERE detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
+
+-- Imaging has to be search using query tool
+
+UPDATE structure_formats
+SET `flag_override_setting` = '1', `setting` = 'tool=csv'
+WHERE structure_id = (SELECT id FROM structures WHERE alias='participants')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input');
+
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input'), 
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_segment'; 
 
 
------------------------------------------------------------------------
+
+
+
+
+
+INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, 
+`sql_query_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(NULL, 'medical imaging segment', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_segment', 'qc_hb_segment', NULL, 
+'SELECT 
+Participant.id,
+EventMaster.id,
+
+Participant.participant_identifier,
+EventDetail.segment_1_number,
+EventDetail.segment_1_size,
+EventDetail.segment_2_number,
+EventDetail.segment_2_size,
+EventDetail.segment_3_number,
+EventDetail.segment_3_size,
+EventDetail.segment_4a_number,
+EventDetail.segment_4a_size,
+EventDetail.segment_4b_number,
+EventDetail.segment_4b_size,
+EventDetail.segment_5_number,
+EventDetail.segment_5_size,
+EventDetail.segment_6_number,
+EventDetail.segment_6_size,
+EventDetail.segment_7_number,
+EventDetail.segment_7_size,
+EventDetail.segment_8_number,
+EventDetail.segment_8_size,
+EventDetail.density,
+EventDetail.type
+
+FROM participants AS Participant
+INNER JOIN event_masters AS EventMaster ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted != 1
+
+WHERE 
+
+Participant.participant_identifier = "@@Participant.participant_identifier@@"
+
+AND EventDetail.segment_1_number >= "@@EventDetail.segment_1_number_start@@" 
+AND EventDetail.segment_1_number <= "@@EventDetail.segment_1_number_end@@" 
+
+AND EventDetail.segment_1_size >= "@@EventDetail.segment_1_size_start@@" 
+AND EventDetail.segment_1_size <= "@@EventDetail.segment_1_size_end@@" 
+
+AND EventDetail.segment_2_number >= "@@EventDetail.segment_2_number_start@@" 
+AND EventDetail.segment_2_number <= "@@EventDetail.segment_2_number_end@@" 
+
+AND EventDetail.segment_2_size >= "@@EventDetail.segment_2_size_start@@" 
+AND EventDetail.segment_2_size <= "@@EventDetail.segment_2_size_end@@" 
+
+AND EventDetail.segment_3_number >= "@@EventDetail.segment_3_number_start@@" 
+AND EventDetail.segment_3_number <= "@@EventDetail.segment_3_number_end@@" 
+
+AND EventDetail.segment_3_size >= "@@EventDetail.segment_3_size_start@@" 
+AND EventDetail.segment_3_size <= "@@EventDetail.segment_3_size_end@@" 
+
+AND EventDetail.segment_4a_number >= "@@EventDetail.segment_4a_number_start@@" 
+AND EventDetail.segment_4a_number <= "@@EventDetail.segment_4a_number_end@@" 
+
+AND EventDetail.segment_4a_size >= "@@EventDetail.segment_4a_size_start@@" 
+AND EventDetail.segment_4a_size <= "@@EventDetail.segment_4a_size_end@@" 
+
+AND EventDetail.segment_4b_number >= "@@EventDetail.segment_4b_number_start@@" 
+AND EventDetail.segment_4b_number <= "@@EventDetail.segment_4b_number_end@@" 
+
+AND EventDetail.segment_4b_size >= "@@EventDetail.segment_4b_size_start@@" 
+AND EventDetail.segment_4b_size <= "@@EventDetail.segment_4b_size_end@@" 
+
+AND EventDetail.segment_5_number >= "@@EventDetail.segment_5_number_start@@" 
+AND EventDetail.segment_5_number <= "@@EventDetail.segment_5_number_end@@" 
+
+AND EventDetail.segment_5_size >= "@@EventDetail.segment_5_size_start@@" 
+AND EventDetail.segment_5_size <= "@@EventDetail.segment_5_size_end@@" 
+
+AND EventDetail.segment_6_number >= "@@EventDetail.segment_6_number_start@@" 
+AND EventDetail.segment_6_number <= "@@EventDetail.segment_6_number_end@@" 
+
+AND EventDetail.segment_6_size >= "@@EventDetail.segment_6_size_start@@" 
+AND EventDetail.segment_6_size <= "@@EventDetail.segment_6_size_end@@" 
+
+AND EventDetail.segment_7_number >= "@@EventDetail.segment_7_number_start@@" 
+AND EventDetail.segment_7_number <= "@@EventDetail.segment_7_number_end@@" 
+
+AND EventDetail.segment_7_size >= "@@EventDetail.segment_7_size_start@@" 
+AND EventDetail.segment_7_size <= "@@EventDetail.segment_7_size_end@@" 
+
+AND EventDetail.segment_8_number >= "@@EventDetail.segment_8_number_start@@" 
+AND EventDetail.segment_8_number <= "@@EventDetail.segment_8_number_end@@" 
+
+AND EventDetail.segment_8_size >= "@@EventDetail.segment_8_size_start@@" 
+AND EventDetail.segment_8_size <= "@@EventDetail.segment_8_size_end@@" 
+
+AND EventDetail.density >= "@@EventDetail.density_start@@" 
+AND EventDetail.density <= "@@EventDetail.density_end@@" 
+
+AND EventDetail.type = "@@StorageMaster.selection_label@@";', 
+'1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+
+
+SELECT 
+Participant.id,
+EventMaster.id,
+
+Participant.participant_identifier,
+EventDetail.segment_1_number,
+EventDetail.segment_1_size,
+EventDetail.segment_2_number,
+EventDetail.segment_2_size,
+EventDetail.segment_3_number,
+EventDetail.segment_3_size,
+EventDetail.segment_4a_number,
+EventDetail.segment_4a_size,
+EventDetail.segment_4b_number,
+EventDetail.segment_4b_size,
+EventDetail.segment_5_number,
+EventDetail.segment_5_size,
+EventDetail.segment_6_number,
+EventDetail.segment_6_size,
+EventDetail.segment_7_number,
+EventDetail.segment_7_size,
+EventDetail.segment_8_number,
+EventDetail.segment_8_size,
+EventDetail.density,
+EventDetail.type
+
+FROM participants AS Participant
+INNER JOIN event_masters AS EventMaster ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted != 1
+
+WHERE 
+
+Participant.participant_identifier IN (@@Participant.participant_identifier@@)
+
+AND EventDetail.segment_1_number >= "@@EventDetail.segment_1_number_start@@" 
+AND EventDetail.segment_1_number <= "@@EventDetail.segment_1_number_end@@" 
+
+AND EventDetail.segment_1_size >= "@@EventDetail.segment_1_size_start@@" 
+AND EventDetail.segment_1_size <= "@@EventDetail.segment_1_size_end@@" 
+
+AND EventDetail.segment_2_number >= "@@EventDetail.segment_2_number_start@@" 
+AND EventDetail.segment_2_number <= "@@EventDetail.segment_2_number_end@@" 
+
+AND EventDetail.segment_2_size >= "@@EventDetail.segment_2_size_start@@" 
+AND EventDetail.segment_2_size <= "@@EventDetail.segment_2_size_end@@" 
+
+AND EventDetail.segment_3_number >= "@@EventDetail.segment_3_number_start@@" 
+AND EventDetail.segment_3_number <= "@@EventDetail.segment_3_number_end@@" 
+
+AND EventDetail.segment_3_size >= "@@EventDetail.segment_3_size_start@@" 
+AND EventDetail.segment_3_size <= "@@EventDetail.segment_3_size_end@@" 
+
+AND EventDetail.segment_4a_number >= "@@EventDetail.segment_4a_number_start@@" 
+AND EventDetail.segment_4a_number <= "@@EventDetail.segment_4a_number_end@@" 
+
+AND EventDetail.segment_4a_size >= "@@EventDetail.segment_4a_size_start@@" 
+AND EventDetail.segment_4a_size <= "@@EventDetail.segment_4a_size_end@@" 
+
+AND EventDetail.segment_4b_number >= "@@EventDetail.segment_4b_number_start@@" 
+AND EventDetail.segment_4b_number <= "@@EventDetail.segment_4b_number_end@@" 
+
+AND EventDetail.segment_4b_size >= "@@EventDetail.segment_4b_size_start@@" 
+AND EventDetail.segment_4b_size <= "@@EventDetail.segment_4b_size_end@@" 
+
+AND EventDetail.segment_5_number >= "@@EventDetail.segment_5_number_start@@" 
+AND EventDetail.segment_5_number <= "@@EventDetail.segment_5_number_end@@" 
+
+AND EventDetail.segment_5_size >= "@@EventDetail.segment_5_size_start@@" 
+AND EventDetail.segment_5_size <= "@@EventDetail.segment_5_size_end@@" 
+
+AND EventDetail.segment_6_number >= "@@EventDetail.segment_6_number_start@@" 
+AND EventDetail.segment_6_number <= "@@EventDetail.segment_6_number_end@@" 
+
+AND EventDetail.segment_6_size >= "@@EventDetail.segment_6_size_start@@" 
+AND EventDetail.segment_6_size <= "@@EventDetail.segment_6_size_end@@" 
+
+AND EventDetail.segment_7_number >= "@@EventDetail.segment_7_number_start@@" 
+AND EventDetail.segment_7_number <= "@@EventDetail.segment_7_number_end@@" 
+
+AND EventDetail.segment_7_size >= "@@EventDetail.segment_7_size_start@@" 
+AND EventDetail.segment_7_size <= "@@EventDetail.segment_7_size_end@@" 
+
+AND EventDetail.segment_8_number >= "@@EventDetail.segment_8_number_start@@" 
+AND EventDetail.segment_8_number <= "@@EventDetail.segment_8_number_end@@" 
+
+AND EventDetail.segment_8_size >= "@@EventDetail.segment_8_size_start@@" 
+AND EventDetail.segment_8_size <= "@@EventDetail.segment_8_size_end@@" 
+
+AND EventDetail.density >= "@@EventDetail.density_start@@" 
+AND EventDetail.density <= "@@EventDetail.density_end@@" 
+
+AND EventDetail.type LIKE "%@@StorageMaster.selection_label@@%";
+
+
+
+
+
+
+
+
+### clinical 	other cancer medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	portal vein embolization medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_pve 	qc_hb_ed_hepatobiliary_medical_past_history_pve
+### clinical 	urinary disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	endocrine disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	neural vascular disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	respiratory disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	vascular disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	heart disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	asa medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_asa 	qc_hb_ed_hepatobiliary_medical_past_history_asa
+
+### clinical 	gastro-intestinal disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	gynecologic disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+
+### clinical 	cirrhosis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_cirrho... 	qc_hb_ed_hepatobiliary_medical_past_history_cirrho...
+### clinical 	hepatitis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_hepati... 	qc_hb_ed_hepatobiliary_medical_past_history_hepati...
+### clinical 	dyslipidemia medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	diabetes medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+### clinical 	other disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+
+
+### lab 	biology 	ed_hepatobiliary_lab_report_biology 	qc_hb_ed_hepatobilary_lab_report_biology
+
+
+### lifestyle 	summary 	qc_hb_ed_hepatobiliary_lifestyle 	qc_hb_ed_hepatobiliary_lifestyle
+
+
+### scores 	meld score 	qc_hb_ed_score_meld 	qc_hb_ed_score_meld
+### scores 	fong score 	qc_hb_ed_score_fong 	qc_hb_ed_score_fong
+### scores 	gretch score 	qc_hb_ed_score_gretch 	qc_hb_ed_score_gretch
+### scores 	clip score 	qc_hb_ed_score_clip 	qc_hb_ed_score_clip
+### scores 	barcelona score 	qc_hb_ed_score_barcelona 	qc_hb_ed_score_barcelona
+### scores 	okuda score 	qc_hb_ed_score_okuda 	qc_hb_ed_score_okuda
+### scores 	child pugh score (mod) 	qc_hb_ed_score_child_pugh_mod 	qc_hb_ed_score_child_pugh
+### scores 	child pugh score (classic) 	qc_hb_ed_score_child_pugh 	qc_hb_ed_score_child_pugh
+
+
+
+-- ---------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
+
+- VALIDATE previous line WITH URSZULA
 
 - UPDATE PERMISSION: NO ACCESS TO FORMS, MATERIAL, EQUIP., SOP, LIMITED ACCESS TO STUDY, NO REPROD HIST
 - REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
