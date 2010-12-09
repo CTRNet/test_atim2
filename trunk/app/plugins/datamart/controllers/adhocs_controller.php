@@ -131,7 +131,7 @@ class AdhocsController extends DatamartAppController {
 			$this->set( 'data_for_detail', $adhoc);
 			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $type_to ));
 		}
-		$this->set( 'atim_structure_for_add', $this->Structures->get( 'form', 'querytool_adhoc_to_batchset' ) );
+		$this->Structures->set('datamart_browser_start', 'atim_structure_for_add');
 		
 		// do search for RESULTS, using THIS->DATA if any
 		
@@ -256,9 +256,10 @@ class AdhocsController extends DatamartAppController {
 		if ( !isset($_SESSION['ctrapp_core']['datamart']['search_criteria']) ) { $_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL; }
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = $save_this_search_data;
 		// save for display
-		
-		$this->BatchSet->setActionsDropdown($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], $adhoc['Adhoc']['form_alias_for_results'], false);
+
+		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
 		$this->set( 'save_this_search_data', $save_this_search_data );
+		$this->set('actions', $actions);
 	}
 	
 	function process() {
