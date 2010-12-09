@@ -7,7 +7,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	var $uses = array(
 		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
-//		'Inventorymanagement.AliquotMaster',
 		
 		'Inventorymanagement.SpecimenReviewControl',
 		'Inventorymanagement.SpecimenReviewMaster',
@@ -435,7 +434,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 										if(!$this->AliquotUse->atim_delete($aliquot_use_id_to_delete)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 										$aliquot_use_id_to_record = null;
 										
-										if(!$this->Aliquots->updateAliquotCurrentVolume($initial_aliquot_review['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
+										if(!$this->AliquotMaster->updateAliquotCurrentVolume($initial_aliquot_review['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
 									}
 									
 									if(!empty($submitted_aliquot_review['AliquotReviewMaster']['aliquot_masters_id'])) {
@@ -523,7 +522,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							if(!$this->AliquotUse->atim_delete($aliquot_use_id_to_delete)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 							$is_aliquot_use_managed = true;
 
-							if(!$this->Aliquots->updateAliquotCurrentVolume($initial_aliquot_review_to_delete['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
+							if(!$this->AliquotMaster->updateAliquotCurrentVolume($initial_aliquot_review_to_delete['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
 						}
 						
 						$aliquot_review_id_to_delete = $initial_aliquot_review_to_delete['AliquotReviewMaster']['id'];
@@ -578,7 +577,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					if(!$this->AliquotUse->atim_delete($aliquot_use_id_to_delete)) { $this->redirect('/pages/err_inv_system_error', null, true); }
 					$is_aliquot_use_managed = true;
 
-					if(!$this->Aliquots->updateAliquotCurrentVolume($new_linked_review['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					if(!$this->AliquotMaster->updateAliquotCurrentVolume($new_linked_review['AliquotReviewMaster']['aliquot_masters_id'])) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				
 				$aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
