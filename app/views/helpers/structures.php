@@ -523,7 +523,7 @@ class StructuresHelper extends Helper {
 									$table_row_part['format_back'] = $table_row_part['format'];
 									$table_row_part['format'] = preg_replace('/name="data\[((.)*)\]"/', 'name="data[$1'.$suffix.']"', $table_row_part['format']);
 								}
-								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'].$suffix, $options, $current_value, null).'</span>';
+								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
 								if(strlen($suffix) > 0 && ($table_row_part['type'] == 'input'
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
@@ -592,7 +592,7 @@ class StructuresHelper extends Helper {
 						$first_line = false;
 					}
 					if(isset($data_unit[$table_row_part['model']]) && isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
-						echo $this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null), " ";
+						echo $this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null), " ";
 					}else if(Configure::read('debug') > 0){
 						AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
 					}
@@ -608,18 +608,15 @@ class StructuresHelper extends Helper {
 	/**
 	 * Echoes a structure field
 	 * @param array $table_row_part The field settings
-	 * @param string $field_name
 	 * @param array $options The structure settings
 	 * @param string $current_value The value to use/lookup for the field
 	 * @param int $key A numeric key used when there is multiple instances of the same field (like grids)
+	 * @param string $field_name_suffix A name suffix to use on active non input fields
 	 * @return string The built field
 	 */
-	private function getPrintableField(array $table_row_part, $field_name, array $options, $current_value, $key){
+	private function getPrintableField(array $table_row_part, array $options, $current_value, $key, $field_name_suffix){
 		$display = null;
-		$field_name = $options['settings']['name_prefix'].$field_name;
-		if(strlen($key)){
-			$field_name = "%d.".$field_name;
-		}
+		$field_name = $table_row_part['name'].$field_name_suffix;
 		if($options['links']['top'] && $options['settings']['form_inputs']){
 			if($table_row_part['type'] == "date"){
 				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
@@ -656,12 +653,11 @@ class StructuresHelper extends Helper {
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])){
 					$table_row_part['settings']['options'][$current_value] = "(".__( 'unmatched value', true ).") ".$current_value;
 				}
-				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value)));
+				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
-				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => $current_value)));
-			}else{
-				$display = $table_row_part['format'];
+				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
 			}
+			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
 			
 			$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
@@ -826,7 +822,7 @@ class StructuresHelper extends Helper {
 											echo("</td><td>");
 										}
 									}
-									echo($this->getPrintableField($table_row_part, $table_row_part['model'].".".$table_row_part['field'], $options, $current_value, $key));
+									echo($this->getPrintableField($table_row_part, $options, $current_value, $key, null));
 									
 								}
 							}
@@ -1089,9 +1085,9 @@ class StructuresHelper extends Helper {
 						}
 						echo $this->getPrintableField(
 								$table_row_part, 
-								$table_row_part['model'].".".$table_row_part['field'],
 								$options, 
 								isset($data_val[$table_row_part['model']][$table_row_part['field']]) ? $data_val[$table_row_part['model']][$table_row_part['field']] : "", 
+								null,
 								null)
 							,'</span>
 						';
@@ -1283,6 +1279,7 @@ class StructuresHelper extends Helper {
 			foreach($atim_structure['Sfs'] AS $sfs){
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
+						"name" => "",
 						"model" => $sfs['model'],
 						"field" => $sfs['field'],
 						"heading" => __($sfs['language_heading'], true),
@@ -1304,11 +1301,16 @@ class StructuresHelper extends Helper {
 						}
 						
 						//building all text fields (dropdowns, radios and checkboxes cannot be built here)
-						$field_name = $options['settings']['name_prefix'].$sfs['model'].".".$sfs['field'];
-						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
-							$field_name = "%d.".$field_name;	
+						$field_name = "";
+						if(strlen($options['settings']['name_prefix'])){
+							$field_name .= $options['settings']['name_prefix'].".";
 						}
-						
+						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
+							$field_name .= "%d.";	
+						}
+						$field_name .= $sfs['model'].".".$sfs['field'];
+						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
+						$current['name'] = $field_name;
 						if(strlen($sfs['setting']) > 0){
 							// parse through FORM_FIELDS setting value, and add to helper array
 							$tmp_setting = explode(',', $sfs['setting']);
@@ -1372,6 +1374,20 @@ class StructuresHelper extends Helper {
 								$settings['class'] .= " jqueryAutocomplete";
 							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
+							if($sfs['type'] == "hidden"){
+								if(strlen($current['label'])){
+									if(Configure::read('debug') > 0){
+										AppController::addWarningMsg(sprintf(__("the hidden field [%s] label has been removed", true), $sfs['model'].".".$sfs['field']));
+									}
+									$current['label'] = "";
+								}
+								if(strlen($current['heading'])){
+									if(Configure::read('debug') > 0){
+										AppController::addWarningMsg(sprintf(__("the hidden field [%s] heading has been removed", true), $sfs['model'].".".$sfs['field']));
+									}
+									$current['heading'] = "";
+								}
+							}
 						}else if($sfs['type'] == "display"){
 							$current["format"] = "%s";
 						}else{
@@ -1381,9 +1397,9 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 						}
 						
-						if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled") && in_array($sfs['type'], self::$hidden_on_disabled)){
+						if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled")){
 							unset($settings['disabled']);
-							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden"), $settings);
+							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
 							$settings['disabled'] = "disabled";
 						}
 						
