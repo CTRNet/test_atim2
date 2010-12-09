@@ -36,13 +36,13 @@
 			);
 		}
 		
-		$structure_override = array(
-			'Adhoc.id' => $atim_menu_variables['Adhoc.id'],
-			'Adhoc.sql_query_for_results' => $final_query
-		);
+		$extras = '
+			<input type="hidden" name="data[Adhoc][id]" value="'.$atim_menu_variables['Adhoc.id'].'"/>
+			<input type="hidden" name="data[Adhoc][sql_query_for_results]" value="'.$final_query.'"/>
+		'; 
 		
 		
-		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array())); 
+		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => array('end' => $extras))); 
 ?>
 <script type="text/javascript">
 var datamartActions = true;
