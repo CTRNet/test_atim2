@@ -355,7 +355,9 @@ class AppModel extends Model {
 			}
 		}
 		$custom_class_name = $class_name."Custom";
-		return class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
+		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
+		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
+		return $loaded_class;
 	}
 }
 
