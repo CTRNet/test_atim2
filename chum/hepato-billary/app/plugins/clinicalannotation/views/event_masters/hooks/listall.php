@@ -47,5 +47,7 @@
 	if(isset($surgeries_for_lab_report)) {
 		$final_options['override' ]['EventDetail.surgery_tx_master_id'] = $surgeries_for_lab_report;
 	}
+	
+	unset($final_options['links']['bottom']['filter']);
 		
 ?>

@@ -147,7 +147,7 @@ class EventMastersControllerCustom extends EventMastersController {
 		if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging') === 0){
 			
 			// Set date and summary structure for all
-			$this->Structures->set('qc_hb_dateNSummary', 'qc_hb_dateNSummary_for_imaging');
+			$this->Structures->set('qc_hb_imaging_dateNSummary', 'qc_hb_dateNSummary_for_imaging');
 			$last_imaging_structure = 'qc_hb_dateNSummary_for_imaging';
 			
 			// Segments
@@ -527,9 +527,9 @@ class EventMastersControllerCustom extends EventMastersController {
 		$sodium = str_replace(",",".",$this->data['EventDetail']['sodium']);
 		if(!is_numeric($sodium)) return;		
 		
-		$tmp = 0.028*($this->data['EventDetail']['result']-17)*($sodium-135)+2.53;
-		$this->data['EventDetail']['sodium_result'] =(0.855*$this->data['EventDetail']['result'])+0.705*(140-$sodium)+$tmp;
+		$tmp = (0.028*($this->data['EventDetail']['result']-17)*($sodium-135))+2.53;
 
+		$this->data['EventDetail']['sodium_result'] =(0.855*$this->data['EventDetail']['result'])+0.705*(140-$sodium)+$tmp;
 	}
 	
 }
