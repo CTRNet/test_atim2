@@ -230,10 +230,6 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="aco_state"),  (SELECT id FROM structure_permissible_values WHERE value="-1" AND language_alias="deny"), "", "1");
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aco_state')  WHERE model='Aco' AND tablename='acos' AND field='state' AND `type`='select' AND structure_value_domain  IS NULL ;
 
-
-
-
- 
 ALTER TABLE datamart_structures
  ADD batch_edit_link varchar(255) NOT NULL DEFAULT '';
 
@@ -272,3 +268,20 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='children_aliquots_selection'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='id' AND `language_label`='' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0');
 
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('previous versions', '', 'Installation History', '');
+
+-- Customize links directly to user preferences instead of profile page
+UPDATE `menus` SET `use_link` = '/customize/preferences/index/' WHERE `menus`.`id` = 'core_CAN_42';
+
+DELETE FROM `i18n` WHERE `i18n`.`id` = 'login_help';
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('login_help', '', 'Enter your username and password to access ATiM. Please contact your system administrator if you have forgotten your login credentials.', '');
+
+-- Increased range on age at menopause validation.
+UPDATE `structure_validations` SET `rule` = 'range,9,101'
+WHERE `structure_validations`.`structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `field` = 'age_at_menopause' AND `tablename` = 'reproductive_histories');
+
+UPDATE `i18n` SET `en` = 'Error - Age at menopause must be between 10 and 100!',
+`fr` = 'Erreur - Âge de la ménopause doit être entre 10 et 100!'
+WHERE `i18n`.`id` = 'error_range_ageatmenopause';
