@@ -285,3 +285,12 @@ WHERE `structure_validations`.`structure_field_id` = (SELECT `id` FROM `structur
 UPDATE `i18n` SET `en` = 'Error - Age at menopause must be between 10 and 100!',
 `fr` = 'Erreur - Âge de la ménopause doit être entre 10 et 100!'
 WHERE `i18n`.`id` = 'error_range_ageatmenopause';
+
+-- Remove picture field from research study form
+DELETE FROM `structure_formats` WHERE `structure_formats`.`structure_field_id` = (SELECT `id` FROM `structure_fields` WHERE `tablename` = 'ed_all_study_research' AND `field` = 'file_name');
+DELETE FROM `structure_fields` WHERE `tablename` = 'ed_all_study_research' AND `field` = 'file_name';
+
+-- Fix tablename change for event study
+UPDATE `structure_fields` SET `tablename` = 'ed_all_study_researches' WHERE `tablename` = 'ed_all_study_research';
+UPDATE `event_controls` SET `detail_tablename` = 'ed_all_study_researches' 
+WHERE `form_alias` = 'ed_all_study_research' AND `detail_tablename` = 'ed_all_study_research';
