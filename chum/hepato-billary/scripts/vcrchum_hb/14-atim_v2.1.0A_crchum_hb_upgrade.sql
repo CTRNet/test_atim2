@@ -894,242 +894,572 @@ SET `flag_override_setting` = '1', `setting` = 'tool=csv'
 WHERE structure_id = (SELECT id FROM structures WHERE alias='participants')
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input');
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_segment';
+
 INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input'), 
-'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+'0', '-4', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `field`='identifier_value' AND `type`='input'), 
+'0', '-3', '', '1', 'hepato_bil_bank_participant_id', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='first_name' AND `type`='input'), 
+'0', '-2', '', '1', 'name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+DELETE FROM datamart_adhoc;
+INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
+`form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(1, 'medical imaging segment', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_segment', 'qc_hb_segment', 
+'detail=>/clinicalannotation/event_masters/detail/clinical/%%Participant.id%%/%%EventMaster.id%%/', 
+'SELECT 
+EventMaster.id,
+Participant.id,
+Participant.participant_identifier,
+Participant.first_name,
+Participant.last_name,
+
+MiscIdentifier.identifier_value,
+
+EventDetail.segment_1_number,
+EventDetail.segment_1_size,
+EventDetail.segment_2_number,
+EventDetail.segment_2_size,
+EventDetail.segment_3_number,
+EventDetail.segment_3_size,
+EventDetail.segment_4a_number,
+EventDetail.segment_4a_size,
+EventDetail.segment_4b_number,
+EventDetail.segment_4b_size,
+EventDetail.segment_5_number,
+EventDetail.segment_5_size,
+EventDetail.segment_6_number,
+EventDetail.segment_6_size,
+EventDetail.segment_7_number,
+EventDetail.segment_7_size,
+EventDetail.segment_8_number,
+EventDetail.segment_8_size,
+EventDetail.density,
+EventDetail.type
+
+FROM event_controls AS ctrl
+INNER JOIN event_masters AS EventMaster ON ctrl.id = EventMaster.event_control_id AND ctrl.form_alias LIKE ''qc_hb_imaging_%segment%'' AND EventMaster.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id
+INNER JOIN participants AS Participant ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.identifier_name = ''hepato_bil_bank_participant_id'' AND MiscIdentifier.deleted != 1
+
+WHERE TRUE AND
+Participant.participant_identifier = "@@Participant.participant_identifier@@"
+AND MiscIdentifier.identifier_value = "@@MiscIdentifier.identifier_value@@"
+
+AND EventDetail.segment_1_number >= "@@EventDetail.segment_1_number_start@@" 
+AND EventDetail.segment_1_number <= "@@EventDetail.segment_1_number_end@@" 
+
+AND EventDetail.segment_1_size >= "@@EventDetail.segment_1_size_start@@" 
+AND EventDetail.segment_1_size <= "@@EventDetail.segment_1_size_end@@" 
+
+AND EventDetail.segment_2_number >= "@@EventDetail.segment_2_number_start@@" 
+AND EventDetail.segment_2_number <= "@@EventDetail.segment_2_number_end@@" 
+
+AND EventDetail.segment_2_size >= "@@EventDetail.segment_2_size_start@@" 
+AND EventDetail.segment_2_size <= "@@EventDetail.segment_2_size_end@@" 
+
+AND EventDetail.segment_3_number >= "@@EventDetail.segment_3_number_start@@" 
+AND EventDetail.segment_3_number <= "@@EventDetail.segment_3_number_end@@" 
+
+AND EventDetail.segment_3_size >= "@@EventDetail.segment_3_size_start@@" 
+AND EventDetail.segment_3_size <= "@@EventDetail.segment_3_size_end@@" 
+
+AND EventDetail.segment_4a_number >= "@@EventDetail.segment_4a_number_start@@" 
+AND EventDetail.segment_4a_number <= "@@EventDetail.segment_4a_number_end@@" 
+
+AND EventDetail.segment_4a_size >= "@@EventDetail.segment_4a_size_start@@" 
+AND EventDetail.segment_4a_size <= "@@EventDetail.segment_4a_size_end@@" 
+
+AND EventDetail.segment_4b_number >= "@@EventDetail.segment_4b_number_start@@" 
+AND EventDetail.segment_4b_number <= "@@EventDetail.segment_4b_number_end@@" 
+
+AND EventDetail.segment_4b_size >= "@@EventDetail.segment_4b_size_start@@" 
+AND EventDetail.segment_4b_size <= "@@EventDetail.segment_4b_size_end@@" 
+
+AND EventDetail.segment_5_number >= "@@EventDetail.segment_5_number_start@@" 
+AND EventDetail.segment_5_number <= "@@EventDetail.segment_5_number_end@@" 
+
+AND EventDetail.segment_5_size >= "@@EventDetail.segment_5_size_start@@" 
+AND EventDetail.segment_5_size <= "@@EventDetail.segment_5_size_end@@" 
+
+AND EventDetail.segment_6_number >= "@@EventDetail.segment_6_number_start@@" 
+AND EventDetail.segment_6_number <= "@@EventDetail.segment_6_number_end@@" 
+
+AND EventDetail.segment_6_size >= "@@EventDetail.segment_6_size_start@@" 
+AND EventDetail.segment_6_size <= "@@EventDetail.segment_6_size_end@@" 
+
+AND EventDetail.segment_7_number >= "@@EventDetail.segment_7_number_start@@" 
+AND EventDetail.segment_7_number <= "@@EventDetail.segment_7_number_end@@" 
+
+AND EventDetail.segment_7_size >= "@@EventDetail.segment_7_size_start@@" 
+AND EventDetail.segment_7_size <= "@@EventDetail.segment_7_size_end@@" 
+
+AND EventDetail.segment_8_number >= "@@EventDetail.segment_8_number_start@@" 
+AND EventDetail.segment_8_number <= "@@EventDetail.segment_8_number_end@@" 
+
+AND EventDetail.segment_8_size >= "@@EventDetail.segment_8_size_start@@" 
+AND EventDetail.segment_8_size <= "@@EventDetail.segment_8_size_end@@" 
+
+AND EventDetail.density >= "@@EventDetail.density_start@@" 
+AND EventDetail.density <= "@@EventDetail.density_end@@" 
+
+AND EventDetail.type = "@@EventDetail.type@@";', 
+'1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
 SET sfo.flag_search = '1', sfo.flag_index = '1'
 WHERE sfi.id = sfo.structure_field_id
 AND sfo.structure_id = s.id
-AND s.alias = 'qc_hb_segment'; 
+AND s.alias = 'qc_hb_pancreas';
 
-
-
-
-
-
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input'), 
+'0', '-4', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `field`='identifier_value' AND `type`='input'), 
+'0', '-3', '', '1', 'hepato_bil_bank_participant_id', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='first_name' AND `type`='input'), 
+'0', '-2', '', '1', 'name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
-(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, 
-`sql_query_for_results`, `flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
+(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
+`form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES 
-(NULL, 'medical imaging segment', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_segment', 'qc_hb_segment', NULL, 
+(2, 'medical imaging pancreas', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_pancreas', 'qc_hb_pancreas', 
+'detail=>/clinicalannotation/event_masters/detail/clinical/%%Participant.id%%/%%EventMaster.id%%/', 
 'SELECT 
-Participant.id,
 EventMaster.id,
-
+Participant.id,
 Participant.participant_identifier,
-EventDetail.segment_1_number,
-EventDetail.segment_1_size,
-EventDetail.segment_2_number,
-EventDetail.segment_2_size,
-EventDetail.segment_3_number,
-EventDetail.segment_3_size,
-EventDetail.segment_4a_number,
-EventDetail.segment_4a_size,
-EventDetail.segment_4b_number,
-EventDetail.segment_4b_size,
-EventDetail.segment_5_number,
-EventDetail.segment_5_size,
-EventDetail.segment_6_number,
-EventDetail.segment_6_size,
-EventDetail.segment_7_number,
-EventDetail.segment_7_size,
-EventDetail.segment_8_number,
-EventDetail.segment_8_size,
-EventDetail.density,
-EventDetail.type
+Participant.first_name,
+Participant.last_name,
 
-FROM participants AS Participant
-INNER JOIN event_masters AS EventMaster ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
-INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted != 1
+MiscIdentifier.identifier_value,
 
-WHERE 
+EventDetail.hepatic_artery,
+EventDetail.coeliac_trunk ,
+EventDetail.splenic_artery,
+EventDetail.superior_mesenteric_artery,
+EventDetail.portal_vein,
+EventDetail.superior_mesenteric_vein,
+EventDetail.splenic_vein,
+EventDetail.metastatic_lymph_nodes
 
+FROM event_controls AS ctrl
+INNER JOIN event_masters AS EventMaster ON ctrl.id = EventMaster.event_control_id AND ctrl.form_alias LIKE ''qc_hb_imaging_%pancreas%'' AND EventMaster.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id
+INNER JOIN participants AS Participant ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.identifier_name = ''hepato_bil_bank_participant_id'' AND MiscIdentifier.deleted != 1
+
+WHERE TRUE AND
 Participant.participant_identifier = "@@Participant.participant_identifier@@"
+AND MiscIdentifier.identifier_value = "@@MiscIdentifier.identifier_value@@"
 
-AND EventDetail.segment_1_number >= "@@EventDetail.segment_1_number_start@@" 
-AND EventDetail.segment_1_number <= "@@EventDetail.segment_1_number_end@@" 
-
-AND EventDetail.segment_1_size >= "@@EventDetail.segment_1_size_start@@" 
-AND EventDetail.segment_1_size <= "@@EventDetail.segment_1_size_end@@" 
-
-AND EventDetail.segment_2_number >= "@@EventDetail.segment_2_number_start@@" 
-AND EventDetail.segment_2_number <= "@@EventDetail.segment_2_number_end@@" 
-
-AND EventDetail.segment_2_size >= "@@EventDetail.segment_2_size_start@@" 
-AND EventDetail.segment_2_size <= "@@EventDetail.segment_2_size_end@@" 
-
-AND EventDetail.segment_3_number >= "@@EventDetail.segment_3_number_start@@" 
-AND EventDetail.segment_3_number <= "@@EventDetail.segment_3_number_end@@" 
-
-AND EventDetail.segment_3_size >= "@@EventDetail.segment_3_size_start@@" 
-AND EventDetail.segment_3_size <= "@@EventDetail.segment_3_size_end@@" 
-
-AND EventDetail.segment_4a_number >= "@@EventDetail.segment_4a_number_start@@" 
-AND EventDetail.segment_4a_number <= "@@EventDetail.segment_4a_number_end@@" 
-
-AND EventDetail.segment_4a_size >= "@@EventDetail.segment_4a_size_start@@" 
-AND EventDetail.segment_4a_size <= "@@EventDetail.segment_4a_size_end@@" 
-
-AND EventDetail.segment_4b_number >= "@@EventDetail.segment_4b_number_start@@" 
-AND EventDetail.segment_4b_number <= "@@EventDetail.segment_4b_number_end@@" 
-
-AND EventDetail.segment_4b_size >= "@@EventDetail.segment_4b_size_start@@" 
-AND EventDetail.segment_4b_size <= "@@EventDetail.segment_4b_size_end@@" 
-
-AND EventDetail.segment_5_number >= "@@EventDetail.segment_5_number_start@@" 
-AND EventDetail.segment_5_number <= "@@EventDetail.segment_5_number_end@@" 
-
-AND EventDetail.segment_5_size >= "@@EventDetail.segment_5_size_start@@" 
-AND EventDetail.segment_5_size <= "@@EventDetail.segment_5_size_end@@" 
-
-AND EventDetail.segment_6_number >= "@@EventDetail.segment_6_number_start@@" 
-AND EventDetail.segment_6_number <= "@@EventDetail.segment_6_number_end@@" 
-
-AND EventDetail.segment_6_size >= "@@EventDetail.segment_6_size_start@@" 
-AND EventDetail.segment_6_size <= "@@EventDetail.segment_6_size_end@@" 
-
-AND EventDetail.segment_7_number >= "@@EventDetail.segment_7_number_start@@" 
-AND EventDetail.segment_7_number <= "@@EventDetail.segment_7_number_end@@" 
-
-AND EventDetail.segment_7_size >= "@@EventDetail.segment_7_size_start@@" 
-AND EventDetail.segment_7_size <= "@@EventDetail.segment_7_size_end@@" 
-
-AND EventDetail.segment_8_number >= "@@EventDetail.segment_8_number_start@@" 
-AND EventDetail.segment_8_number <= "@@EventDetail.segment_8_number_end@@" 
-
-AND EventDetail.segment_8_size >= "@@EventDetail.segment_8_size_start@@" 
-AND EventDetail.segment_8_size <= "@@EventDetail.segment_8_size_end@@" 
-
-AND EventDetail.density >= "@@EventDetail.density_start@@" 
-AND EventDetail.density <= "@@EventDetail.density_end@@" 
-
-AND EventDetail.type = "@@StorageMaster.selection_label@@";', 
+AND EventDetail.hepatic_artery = "@@EventDetail.hepatic_artery@@"
+AND EventDetail.coeliac_trunk = "@@EventDetail.coeliac_trunk@@"
+AND EventDetail.splenic_artery = "@@EventDetail.splenic_artery@@"
+AND EventDetail.superior_mesenteric_artery = "@@EventDetail.superior_mesenteric_artery@@"
+AND EventDetail.portal_vein = "@@EventDetail.portal_vein@@"
+AND EventDetail.superior_mesenteric_vein = "@@EventDetail.superior_mesenteric_vein@@"
+AND EventDetail.splenic_vein = "@@EventDetail.splenic_vein@@"
+AND EventDetail.metastatic_lymph_nodes = "@@EventDetail.metastatic_lymph_nodes@@";', 
 '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_volumetry';
 
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_volumetry'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input'), 
+'0', '-4', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_volumetry'), 
+(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `field`='identifier_value' AND `type`='input'), 
+'0', '-3', '', '1', 'hepato_bil_bank_participant_id', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_volumetry'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='first_name' AND `type`='input'), 
+'0', '-2', '', '1', 'name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_volumetry'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-SELECT 
-Participant.id,
+INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
+`form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(3, 'medical imaging volumetry', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_volumetry', 'qc_hb_volumetry', 
+'detail=>/clinicalannotation/event_masters/detail/clinical/%%Participant.id%%/%%EventMaster.id%%/', 
+'SELECT 
 EventMaster.id,
-
+Participant.id,
 Participant.participant_identifier,
-EventDetail.segment_1_number,
-EventDetail.segment_1_size,
-EventDetail.segment_2_number,
-EventDetail.segment_2_size,
-EventDetail.segment_3_number,
-EventDetail.segment_3_size,
-EventDetail.segment_4a_number,
-EventDetail.segment_4a_size,
-EventDetail.segment_4b_number,
-EventDetail.segment_4b_size,
-EventDetail.segment_5_number,
-EventDetail.segment_5_size,
-EventDetail.segment_6_number,
-EventDetail.segment_6_size,
-EventDetail.segment_7_number,
-EventDetail.segment_7_size,
-EventDetail.segment_8_number,
-EventDetail.segment_8_size,
-EventDetail.density,
-EventDetail.type
+Participant.first_name,
+Participant.last_name,
 
-FROM participants AS Participant
-INNER JOIN event_masters AS EventMaster ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
-INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id AND EventMaster.deleted != 1
+MiscIdentifier.identifier_value,
 
-WHERE 
+EventDetail.is_volumetry_post_pve,
+EventDetail.total_liver_volume,
+EventDetail.resected_liver_volume,
+EventDetail.remnant_liver_volume,
+EventDetail.tumoral_volume,
+EventDetail.remnant_liver_percentage
 
-Participant.participant_identifier IN (@@Participant.participant_identifier@@)
+FROM event_controls AS ctrl
+INNER JOIN event_masters AS EventMaster ON ctrl.id = EventMaster.event_control_id AND ctrl.form_alias LIKE ''qc_hb_imaging_%volumetry%'' AND EventMaster.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id
+INNER JOIN participants AS Participant ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.identifier_name = ''hepato_bil_bank_participant_id'' AND MiscIdentifier.deleted != 1
 
-AND EventDetail.segment_1_number >= "@@EventDetail.segment_1_number_start@@" 
-AND EventDetail.segment_1_number <= "@@EventDetail.segment_1_number_end@@" 
+WHERE TRUE AND
+Participant.participant_identifier = "@@Participant.participant_identifier@@"
+AND MiscIdentifier.identifier_value = "@@MiscIdentifier.identifier_value@@"
 
-AND EventDetail.segment_1_size >= "@@EventDetail.segment_1_size_start@@" 
-AND EventDetail.segment_1_size <= "@@EventDetail.segment_1_size_end@@" 
+AND EventDetail.is_volumetry_post_pve = "@@EventDetail.is_volumetry_post_pve@@"
 
-AND EventDetail.segment_2_number >= "@@EventDetail.segment_2_number_start@@" 
-AND EventDetail.segment_2_number <= "@@EventDetail.segment_2_number_end@@" 
+AND EventDetail.total_liver_volume >= "@@EventDetail.total_liver_volume_start@@" 
+AND EventDetail.total_liver_volume <= "@@EventDetail.total_liver_volume_end@@" 
 
-AND EventDetail.segment_2_size >= "@@EventDetail.segment_2_size_start@@" 
-AND EventDetail.segment_2_size <= "@@EventDetail.segment_2_size_end@@" 
+AND EventDetail.resected_liver_volume >= "@@EventDetail.resected_liver_volume_start@@" 
+AND EventDetail.resected_liver_volume <= "@@EventDetail.resected_liver_volume_end@@" 
 
-AND EventDetail.segment_3_number >= "@@EventDetail.segment_3_number_start@@" 
-AND EventDetail.segment_3_number <= "@@EventDetail.segment_3_number_end@@" 
+AND EventDetail.remnant_liver_volume >= "@@EventDetail.remnant_liver_volume_start@@" 
+AND EventDetail.remnant_liver_volume <= "@@EventDetail.remnant_liver_volume_end@@" 
 
-AND EventDetail.segment_3_size >= "@@EventDetail.segment_3_size_start@@" 
-AND EventDetail.segment_3_size <= "@@EventDetail.segment_3_size_end@@" 
+AND EventDetail.tumoral_volume >= "@@EventDetail.tumoral_volume_start@@" 
+AND EventDetail.tumoral_volume <= "@@EventDetail.tumoral_volume_end@@" 
 
-AND EventDetail.segment_4a_number >= "@@EventDetail.segment_4a_number_start@@" 
-AND EventDetail.segment_4a_number <= "@@EventDetail.segment_4a_number_end@@" 
+AND EventDetail.remnant_liver_percentage >= "@@EventDetail.remnant_liver_percentage_start@@" 
+AND EventDetail.remnant_liver_percentage <= "@@EventDetail.remnant_liver_percentage_end@@" ;', 
+'1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
 
-AND EventDetail.segment_4a_size >= "@@EventDetail.segment_4a_size_start@@" 
-AND EventDetail.segment_4a_size <= "@@EventDetail.segment_4a_size_end@@" 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_other_localisations';
 
-AND EventDetail.segment_4b_number >= "@@EventDetail.segment_4b_number_start@@" 
-AND EventDetail.segment_4b_number <= "@@EventDetail.segment_4b_number_end@@" 
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_other_localisations'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier' AND `type`='input'), 
+'0', '-4', '', '0', '', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_other_localisations'), 
+(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `field`='identifier_value' AND `type`='input'), 
+'0', '-3', '', '1', 'hepato_bil_bank_participant_id', '0', '', '0', '', '0', '', '1', 'tool=csv', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_other_localisations'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='first_name' AND `type`='input'), 
+'0', '-2', '', '1', 'name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_other_localisations'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-AND EventDetail.segment_4b_size >= "@@EventDetail.segment_4b_size_start@@" 
-AND EventDetail.segment_4b_size <= "@@EventDetail.segment_4b_size_end@@" 
+INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+(`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
+`form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES 
+(4, 'medical imaging other', NULL, 'Clinicalannotation', 'EventMaster', 'qc_hb_other_localisations', 'qc_hb_other_localisations', 
+'detail=>/clinicalannotation/event_masters/detail/clinical/%%Participant.id%%/%%EventMaster.id%%/', 
+'SELECT 
+EventMaster.id,
+Participant.id,
+Participant.participant_identifier,
+Participant.first_name,
+Participant.last_name,
 
-AND EventDetail.segment_5_number >= "@@EventDetail.segment_5_number_start@@" 
-AND EventDetail.segment_5_number <= "@@EventDetail.segment_5_number_end@@" 
+MiscIdentifier.identifier_value,
 
-AND EventDetail.segment_5_size >= "@@EventDetail.segment_5_size_start@@" 
-AND EventDetail.segment_5_size <= "@@EventDetail.segment_5_size_end@@" 
+EventDetail.lungs_number,
+EventDetail.lungs_size,
+EventDetail.lungs_laterality,
+EventDetail.lymph_node_number,
+EventDetail.lymph_node_size,
+EventDetail.colon_number,
+EventDetail.colon_size,
+EventDetail.rectum_number,
+EventDetail.rectum_size,
+EventDetail.bones_number,
+EventDetail.bones_size,
+EventDetail.other_localisation_1,
+EventDetail.other_localisation_1_number,
+EventDetail.other_localisation_1_size,
+EventDetail.other_localisation_2,
+EventDetail.other_localisation_2_number,
+EventDetail.other_localisation_2_size,
+EventDetail.other_localisation_3,
+EventDetail.other_localisation_3_number,
+EventDetail.other_localisation_3_size
 
-AND EventDetail.segment_6_number >= "@@EventDetail.segment_6_number_start@@" 
-AND EventDetail.segment_6_number <= "@@EventDetail.segment_6_number_end@@" 
+FROM event_controls AS ctrl
+INNER JOIN event_masters AS EventMaster ON ctrl.id = EventMaster.event_control_id AND ctrl.form_alias LIKE ''qc_hb_imaging_%other%'' AND EventMaster.deleted != 1
+INNER JOIN qc_hb_ed_hepatobilary_medical_imagings AS EventDetail ON EventDetail.event_master_id = EventMaster.id
+INNER JOIN participants AS Participant ON EventMaster.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.identifier_name = ''hepato_bil_bank_participant_id'' AND MiscIdentifier.deleted != 1
 
-AND EventDetail.segment_6_size >= "@@EventDetail.segment_6_size_start@@" 
-AND EventDetail.segment_6_size <= "@@EventDetail.segment_6_size_end@@" 
+WHERE TRUE AND
+Participant.participant_identifier = "@@Participant.participant_identifier@@"
+AND MiscIdentifier.identifier_value = "@@MiscIdentifier.identifier_value@@"
 
-AND EventDetail.segment_7_number >= "@@EventDetail.segment_7_number_start@@" 
-AND EventDetail.segment_7_number <= "@@EventDetail.segment_7_number_end@@" 
+AND EventDetail.lungs_number >= "@@EventDetail.lungs_number_start@@" 
+AND EventDetail.lungs_number <= "@@EventDetail.lungs_number_end@@"
 
-AND EventDetail.segment_7_size >= "@@EventDetail.segment_7_size_start@@" 
-AND EventDetail.segment_7_size <= "@@EventDetail.segment_7_size_end@@" 
+AND EventDetail.lungs_size >= "@@EventDetail.lungs_size_start@@" 
+AND EventDetail.lungs_size <= "@@EventDetail.lungs_size_end@@"
 
-AND EventDetail.segment_8_number >= "@@EventDetail.segment_8_number_start@@" 
-AND EventDetail.segment_8_number <= "@@EventDetail.segment_8_number_end@@" 
+AND EventDetail.lungs_laterality = "@@EventDetail.lungs_laterality@@"
 
-AND EventDetail.segment_8_size >= "@@EventDetail.segment_8_size_start@@" 
-AND EventDetail.segment_8_size <= "@@EventDetail.segment_8_size_end@@" 
+AND EventDetail.lymph_node_number >= "@@EventDetail.lymph_node_number_start@@" 
+AND EventDetail.lymph_node_number <= "@@EventDetail.lymph_node_number_end@@"
 
-AND EventDetail.density >= "@@EventDetail.density_start@@" 
-AND EventDetail.density <= "@@EventDetail.density_end@@" 
+AND EventDetail.lymph_node_size >= "@@EventDetail.lymph_node_size_start@@" 
+AND EventDetail.lymph_node_size <= "@@EventDetail.lymph_node_size_end@@"
 
-AND EventDetail.type LIKE "%@@StorageMaster.selection_label@@%";
+AND EventDetail.colon_number >= "@@EventDetail.colon_number_start@@" 
+AND EventDetail.colon_number <= "@@EventDetail.colon_number_end@@"
 
+AND EventDetail.colon_size >= "@@EventDetail.colon_size_start@@" 
+AND EventDetail.colon_size <= "@@EventDetail.colon_size_end@@"
 
+AND EventDetail.rectum_number >= "@@EventDetail.rectum_number_start@@" 
+AND EventDetail.rectum_number <= "@@EventDetail.rectum_number_end@@"
 
+AND EventDetail.rectum_size >= "@@EventDetail.rectum_size_start@@" 
+AND EventDetail.rectum_size <= "@@EventDetail.rectum_size_end@@"
 
+AND EventDetail.bones_number >= "@@EventDetail.bones_number_start@@" 
+AND EventDetail.bones_number <= "@@EventDetail.bones_number_end@@"
 
+AND EventDetail.bones_size >= "@@EventDetail.bones_size_start@@" 
+AND EventDetail.bones_size <= "@@EventDetail.bones_size_end@@"
 
+AND EventDetail.other_localisation_1 = "@@EventDetail.other_localisation_1@@"
 
+AND EventDetail.other_localisation_1_number >= "@@EventDetail.other_localisation_1_number_start@@" 
+AND EventDetail.other_localisation_1_number <= "@@EventDetail.other_localisation_1_number_end@@"
+
+AND EventDetail.other_localisation_1_size >= "@@EventDetail.other_localisation_1_size_start@@" 
+AND EventDetail.other_localisation_1_size <= "@@EventDetail.other_localisation_1_size_end@@"
+
+AND EventDetail.other_localisation_2 = "@@EventDetail.other_localisation_2@@"
+
+AND EventDetail.other_localisation_2_number >= "@@EventDetail.other_localisation_2_number_start@@" 
+AND EventDetail.other_localisation_2_number <= "@@EventDetail.other_localisation_2_number_end@@"
+
+AND EventDetail.other_localisation_2_size >= "@@EventDetail.other_localisation_2_size_start@@" 
+AND EventDetail.other_localisation_2_size <= "@@EventDetail.other_localisation_2_size_end@@"
+
+AND EventDetail.other_localisation_3 = "@@EventDetail.other_localisation_3@@"
+
+AND EventDetail.other_localisation_3_number >= "@@EventDetail.other_localisation_3_number_start@@" 
+AND EventDetail.other_localisation_3_number <= "@@EventDetail.other_localisation_3_number_end@@"
+
+AND EventDetail.other_localisation_3_size >= "@@EventDetail.other_localisation_3_size_start@@" 
+AND EventDetail.other_localisation_3_size <= "@@EventDetail.other_localisation_3_size_end@@";', 
+'1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+UPDATE datamart_adhoc SET title = 'Medical Imaging - Segments' WHERE title = 'medical imaging segment' ;
+UPDATE datamart_adhoc SET title = 'Medical Imaging - Pancreas (Tumoral Invasion)' WHERE title = 'medical imaging pancreas' ;
+UPDATE datamart_adhoc SET title = 'Medical Imaging - Volumetry' WHERE title = 'medical imaging volumetry' ;
+UPDATE datamart_adhoc SET title = 'Medical Imaging - Other Localisations' WHERE title = 'medical imaging other' ;
 
 ### clinical 	other cancer medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
-### clinical 	portal vein embolization medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_pve 	qc_hb_ed_hepatobiliary_medical_past_history_pve
 ### clinical 	urinary disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	endocrine disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	neural vascular disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	respiratory disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	vascular disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	heart disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
-### clinical 	asa medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_asa 	qc_hb_ed_hepatobiliary_medical_past_history_asa
-
 ### clinical 	gastro-intestinal disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	gynecologic disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
-
-### clinical 	cirrhosis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_cirrho... 	qc_hb_ed_hepatobiliary_medical_past_history_cirrho...
-### clinical 	hepatitis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_hepati... 	qc_hb_ed_hepatobiliary_medical_past_history_hepati...
 ### clinical 	dyslipidemia medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	diabetes medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
 ### clinical 	other disease medical past history 	qc_hb_ed_hepatobiliary_medical_past_history 	qc_hb_ed_hepatobiliary_medical_past_history
+
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history RENAME TO qc_hb_ed_hepatobiliary_medical_past_histories;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_revs RENAME TO qc_hb_ed_hepatobiliary_medical_past_histories_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_medical_past_histories' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_histories' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date', 'who_icd10_code')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history'; 
+
+### clinical 	cirrhosis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis	qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis
+
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_cirrhoses;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis_revs RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_cirrhoses_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhoses' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhoses' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis'; 
+
+DELETE FROM i18n WHERE id = 'portacaval gradient';
+INSERT IGNORE INTO i18n (id,en) VALUES ('portacaval gradient', 'Portacaval Gradient');
+
+### clinical 	hepatitis medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_hepatitis 	qc_hb_ed_hepatobiliary_medical_past_history_hepatitis
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_hepatitis'; 
+
+### clinical 	asa medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_asa 	qc_hb_ed_hepatobiliary_medical_past_history_asa
+
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_asa RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_asas;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_asa_revs RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_asas_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asa';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asa';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_asa'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_asa'; 
+
+
+stop la pour mich
+
+UPDATE structure_fields SET plugin = 'Clinicalannotation' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' AND field = 'asa_score';
+
+### clinical 	portal vein embolization medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_pve 	qc_hb_ed_hepatobiliary_medical_past_history_pve
+
+
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_pve RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_pves;
+ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_pve_revs RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_pves_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_pves' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_pve';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_pves' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_pve';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_pve'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_pve'; 
+
+
+
+
+
+
+
+UPDATE structure_fields SET plugin = '' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' AND field = 'asa_score';
+
+
+
+ALTER TABLE qc_hb_ed_medical_imaging_record_summary RENAME TO qc_hb_ed_medical_imaging_record_summaries;
+ALTER TABLE qc_hb_ed_medical_imaging_record_summary_revs RENAME TO qc_hb_ed_medical_imaging_record_summaries_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE tablename = 'qc_hb_ed_medical_imaging_record_summary';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE detail_tablename = 'qc_hb_ed_medical_imaging_record_summary';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date')
+AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+
+
+
+
+
+
+
+
 
 
 ### lab 	biology 	ed_hepatobiliary_lab_report_biology 	qc_hb_ed_hepatobilary_lab_report_biology
