@@ -15,7 +15,7 @@
 			// Buil Filter Button
 			$final_options['links']['bottom']['filter'][ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'],true) ] = '/clinicalannotation/event_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
 		}
-				
+		ksort($medcial_past_history_add_links);		
 		
 		$medcial_imaging_add_links = array();
 		foreach ( $medical_imaging_event_controls as $event_control ) {
@@ -24,6 +24,7 @@
 			// Add data to filter button
 			$final_options['links']['bottom']['filter'][ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'], true) ] = '/clinicalannotation/event_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
 		}
+		ksort($medcial_imaging_add_links);		
 		
 		// Rebuild links
 		$final_options['links']['bottom']['add medical history'] = $medcial_past_history_add_links;

@@ -117,7 +117,7 @@
 								if(strpos($data['EventControl']['form_alias'], 'segment') > 0){
 								?>
 								<tr>
-									<th><?php echo(substr($data['EventControl']['event_type'], 16)); ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
+									<th><?php echo(__($data['EventControl']['event_type'],true)); ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
 									<?php 
 									for($i = 1; $i < 4; ++ $i){
 										?><td><?php echo($data['EventDetail']['segment_1_number']); ?></td>
@@ -203,7 +203,7 @@
 						if(strpos($data['EventControl']['form_alias'], 'other') > 0){
 							?>
 							<tr>
-								<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
+								<th><?php echo(__($data['EventControl']['event_type'],true)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
 								<td><?php echo($data['EventDetail']['lungs_number']) ?></td>
 								<td><?php echo($data['EventDetail']['lungs_size']) ?></td>
 								<td><?php echo($data['EventDetail']['lungs_laterality']) ?></td>
@@ -273,7 +273,7 @@
 								if(strpos($data['EventControl']['form_alias'], 'pancreas') > 0){
 								?>
 								<tr>
-									<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
+									<th><?php echo(__($data['EventControl']['event_type'],true)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
 									<td><?php echo($data['EventDetail']['hepatic_artery']); ?></td>
 									<td><?php echo($data['EventDetail']['coeliac_trunk']); ?></td>
 									<td><?php echo($data['EventDetail']['splenic_artery']); ?></td>
@@ -322,7 +322,7 @@
 						foreach($this->data as $data){
 							?>
 							<tr>
-								<th><?php echo(substr($data['EventControl']['event_type'], 16)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
+								<th><?php echo(__($data['EventControl']['event_type'],true)) ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
 								<td><?php echo($data['EventMaster']['event_summary']); ?></td>
 							</tr>
 							<?php 
