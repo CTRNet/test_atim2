@@ -9,7 +9,7 @@
 	$structure_settings = array('pagination'=>false, 'form_top' => false, 'form_bottom' => false, 'actions' => false);
 
 	$final_atim_structure = $atim_structure_for_children_aliquots_selection; 
-	$final_options =  array('type'=>'editgrid', 'links' => $structure_links, 'settings' => $structure_settings);
+	$final_options =  array('type'=>'editgrid', 'links' => $structure_links, 'settings' => $structure_settings, 'form_top' => false);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('children_selection');

@@ -1578,156 +1578,71 @@ class AliquotMastersController extends InventoryManagementAppController {
 		return $formatted_data;
 	}
 	
-	function realiquot($batch_set_id, $save = false){
-		//TODO realiquot in batch process should be defined into datamart_batch_processes
-		//TODO check eventum 1176 if should be applied
-		// Review and validate process before to use
-		$this->redirect('/pages/err_inv_system_error', null, true);
-		
-		if(empty($this->data)){
-			$this->redirect("/pages/err_inv_no_data");
-			exit;
-		}
-		
-		$this->set('batch_set_id', $batch_set_id);
-		if($save){
-			$aliquots_id = array();
-			$submitted_data_validates = true;
-			$aliquot_errors = array();
-			$aliquot_use_errors = array();
-			foreach($this->data as $data_unit){
-				foreach($data_unit as $info => $data){
-					list($foo, $aliquot_id, $control_id) = explode("_", $info, 3);
-					$aliquots_id[] = $aliquot_id;
-					
-					//validate
-					$data['AliquotMaster']['aliquot_control_id'] = $control_id;
-					if(array_key_exists('initial_volume', $data['AliquotMaster'])){
-						$data['AliquotMaster']['current_volume'] = $data['AliquotMaster']['initial_volume'];
-					}
-					//TODO: validation are partly functional. validate in cakephp1.3
-					//duplicate barcodes even validate... wth
-					$this->AliquotMaster->set($data);
-					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
-					$this->AliquotUse->set($data);
-					$submitted_data_validates = ($this->AliquotUse->validates()) ? $submitted_data_validates : false;
-					$aliquot_use_errors = array_merge($aliquot_use_errors, $this->AliquotUse->validationErrors);
-					
-					//validate storages
-					$res = $this->validateAliquotStorageData($data);
-					foreach($res['messages_sorted_per_field'] as $field => $messages){
-						$this->AliquotMaster->validationErrors[$field] = $messages[0];
-						$submitted_data_validates = false;
-					}
-					$aliquot_errors = array_merge($aliquot_errors, $this->AliquotMaster->validationErrors);
-				}
-			}
-			
-			if($submitted_data_validates){
-				foreach($this->data as $data_unit){
-					foreach($data_unit as $info => $data){
-						list($foo, $aliquot_id, $control_id) = explode("_", $info, 3);
-						$parent_aliquot = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_id), 'recursive' => -1));
-						$data['AliquotMaster']['aliquot_control_id'] = $control_id;
-						$data['AliquotMaster']['sample_master_id'] = $parent_aliquot['AliquotMaster']['sample_master_id'];
-						$data['AliquotMaster']['collection_id'] = $parent_aliquot['AliquotMaster']['collection_id'];
-						$this->AliquotMaster->save($data);
-						$data['AliquotUse']['aliquot_master_id'] = $aliquot_id;
-						$data['AliquotUse']['use_definition'] = "realiquoted to";
-						$this->AliquotUse->save($data);
-						$this->Realiquoting->save(array('Realiquoting' => array(
-							"parent_aliquot_master_id" => $aliquot_id,
-							"child_aliquot_master_id" => $this->AliquotMaster->id,
-							"aliquot_use_id" => $this->AliquotUse->id
-						)));
-
-						if($batch_set_id > 0){
-							if(!$this->BatchId->save(array("BatchId" => array(
-								"set_id" => $batch_set_id,
-								"lookup_id" => $this->AliquotMaster->id
-							)))){
-							}
-						}
-						
-						$this->AliquotMaster->updateAliquotCurrentVolume($aliquot_id);
-						unset($this->AliquotMaster->id);
-						unset($this->AliquotUse->id);
-						unset($this->Realiquoting->id);
-						unset($this->BatchId->id);
-					}
-				}
-				if($batch_set_id > 0){
-					$this->atimFlash('your data has been saved', "/datamart/batch_sets/listall/all/".$batch_set_id);
-				}else{
-					//TODO need redirection!;
-				}
-			}
-			$this->AliquotMaster->validationErrors = $aliquot_errors;
-			$this->AliquotDetail->validationErrors = $aliquot_errors;
-			$this->AliquotUse->validationErrors = $aliquot_use_errors;
-			
-			$aliquots_id = array_unique($aliquots_id);
-			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id IN ('.implode(", ", $aliquots_id).')')));
-			
-			//compact data before redisplaying
-			//if we have row 1 and 3, row 3 won't be displayed because the app will look for row 2 instead
-			$tmp_data = array();
-			$key_increments = array();
-			foreach($this->data as $data_unit){
-				foreach($data_unit as $info => $data){
-					if(!isset($key_increments[$info])){
-						$key_increments[$info] = 0;
-					}
-					$tmp_data[$key_increments[$info]][$info] = $data;
-					$key_increments[$info] ++;
-				}
-			}
-			$this->data = $tmp_data;
-			$this->set('data', $tmp_data);
+	function realiquotInit($aliquot_id = null){
+		if($aliquot_id == null){
+			$ids = $this->data['ViewAliquot']['aliquot_master_id'];
+			$ids = array_filter($ids);
 		}else{
-			$submitted_data_validates = false;
-			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id IN ('.implode(", ", $this->data['AliquotMaster']['id']).')')));
+			$ids = $aliquots_id;
 		}
+		$ids[] = 0;
+		$aliquots = $this->AliquotMaster->findAllById($ids);
 		if(empty($aliquots)){
-			$this->redirect("/pages/err_inv_no_data");
-			exit;
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		$sample_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
+		$aliquot_ctrl_id = $aliquots[0]['SampleMaster']['sample_control_id'];
+		if(count($aliquots) > 1){
+			foreach($aliquots as $aliquot){
+				if($aliquot['AliquotMaster']['aliquot_control_id'] != $sample_ctrl_id || $aliquot['SampleMaster']['sample_control_id'] != $aliquot_ctrl_id){
+					//TODO, redirect with msg, diff types.
+					$this->redirect('/pages/err_inv_system_error', null, true);
+				}
+			}
 		}
 		
-		if(!$submitted_data_validates){
-			$realiquot_data = $this->RealiquotingControl->getPossiblities();
-			$aliquot_controls = array();
-			foreach($aliquots as &$aliquot){
-				$aliquot['RealiquotingControl'] = array();
-				//if we need the aliquot detail
-				foreach($realiquot_data[$aliquot['SampleMaster']['sample_control_id']][$aliquot['AliquotMaster']['aliquot_control_id']] as $key => $val){
-					$aliquot_controls[$key] = NULL;
-					$aliquot['RealiquotingControl'][$key] = $val;
-				}
-			}
-			
-			if(empty($aliquot_controls)){
-				//the selected aliquots cannot be realiquoted
-				if($batch_set_id > 0){
-					$this->flash('that cannot be realiquoted', '/datamart/batch_sets/listall/all/'.$batch_set_id);
-				}else{
-					//TODO what if not batchset?
-				}
-			}else{
-				$required_aliquot_controls = $this->AliquotControl->find('all', array('conditions' => array('AliquotControl.id IN('.implode(",", array_unique(array_keys($aliquot_controls))).')'), 'recursive' => -1));
-				$realiquot_w_volume_struct = $this->Structures->get('form', 'realiquot_with_volume');
-				$realiquot_no_volume_struct = $this->Structures->get('form', 'realiquot_no_volume');
-				foreach($required_aliquot_controls as $required_aliquot_control){
-					$aliquot_controls[$required_aliquot_control['AliquotControl']['id']] = $required_aliquot_control['AliquotControl']['form_alias'];
-					$tmp_struct = $this->Structures->get('form', $required_aliquot_control['AliquotControl']['form_alias']);
-					$tmp_struct['StructureFormat'] = array_merge($tmp_struct['StructureFormat'], $required_aliquot_control['AliquotControl']['volume_unit'] ? $realiquot_w_volume_struct['StructureFormat'] : $realiquot_no_volume_struct['StructureFormat']);
-					$tmp_struct['Structure']['volume_unit'] = $required_aliquot_control['AliquotControl']['volume_unit'];
-					$this->set($required_aliquot_control['AliquotControl']['form_alias'], $tmp_struct);
-				}
-				$this->Structures->set('empty', 'empty');
-				$this->Structures->set($form_alias, 'aliquots_listall_structure');
-				$this->set('aliquot_controls', $aliquot_controls);
-				$this->set('aliquots', $aliquots);
-			}
+		$sample_to_aliquot_ctrl_id = $this->SampleToAliquotControl->find('first', array('conditions' => array('SampleToAliquotControl.sample_control_id' => $sample_ctrl_id, 'SampleToAliquotControl.aliquot_control_id' => $aliquot_ctrl_id)));
+		$possibilities = $this->RealiquotingControl->find('all', array('conditions' => array('RealiquotingControl.parent_sample_to_aliquot_control_id' => $sample_to_aliquot_ctrl_id['SampleToAliquotControl']['id'])));
+		if(empty($possibilities)){
+			//TODO, redirect with msg, cannot be realiquoted
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		$possible_ctrl_ids = array();
+		foreach($possibilities as $possibility){
+			$possible_ctrl_ids[] = $possibility['ChildSampleToAliquotControl']['aliquot_control_id'];
+		}
+		
+		$aliquot_ctrls = $this->AliquotControl->findAllById($possible_ctrl_ids);
+		assert(!empty($aliquot_ctrls));
+		foreach($aliquot_ctrls as $aliquot_ctrl){
+			$dropdown[$aliquot_ctrl['AliquotControl']['id']] = __($aliquot_ctrl['AliquotControl']['aliquot_type'], true);
+		}
+		
+		AliquotMaster::$realiquot_into_dropdown = $dropdown;
+		$this->Structures->set('realiquot_init');
+		$this->data[0]['ids'] = implode(",", $ids);
+	}	
+	
+	function realiquot(){
+		if(empty($this->data)){
+			$this->redirect("/pages/err_inv_no_data", null, true);
+		}else if(isset($this->data[0]) && isset($this->data[0]['ids']) && isset($this->data[0]['realiquot_into'])){
+			//initial display
+		}else{
+			//submit
+			//TODO - validate
+			//if win -> win
+			//if fail, reload!
+		}
+		$aliquot_ctrl = $this->AliquotControl->findById($this->data[0]['realiquot_into']);
+		$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_vol');
+		$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'], 'struct_no_vol');
+		$this->set('aliquot_type', $aliquot_ctrl['AliquotControl']['aliquot_type']);
+		
+		$aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
+		$this->data = array();
+		foreach($aliquots as $aliquot){
+			$this->data[] = array('parent' => $aliquot, 'children' => array());
 		}
 	}
 	

@@ -1,79 +1,35 @@
-<?php
-	$final_options = array('type'=>'index', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false, 'header' => __('diagnosis', true), 'form_bottom' => false, 'actions' => false, 'separator' => true), 'links'=>$structure_links);
-
-	$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false),
-		'links' => array(
-			'top' => '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true')
-	);
-	$structures->build($empty, $final_options);
+<?php 
 	
+	$first = true;
 	$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false,
-			'pagination' => false),
-		'type' => 'index'
-	);
-	$tabindex = 0;
-	foreach($aliquots as $aliquot){
-		$final_options['data'][] = $aliquot;
-		$final_structure = $aliquots_listall_structure;
-		$structures->build($final_structure, $final_options);
-		foreach($aliquot['RealiquotingControl'] as $key => $val){
-			$tabindex += 100;
-			$final_structure = ${$aliquot_controls[$key]};
-			$final_options['type'] = 'datagrid';
-			$final_options['settings']['add_fields'] = true;
-			$final_options['settings']['del_fields'] = true;
-			$final_options['settings']['name_prefix'] = "_".$aliquot['AliquotMaster']['id']."_".$key;
-			$final_options['settings']['tabindex'] = $tabindex;
-			$final_options['override'] = array("AliquotMaster.aliquot_type" => $val);
-			if($final_structure['Structure']['volume_unit']){
-				$final_options['override']['AliquotMaster.aliquot_volume_unit'] = $final_structure['Structure']['volume_unit']; 
-			}
-			unset($final_options['settings']['separator']);
-			unset($final_options['data']);
-			$final_options['data'] = array();
-			$none = true;
-			foreach($this->data as $data_unit){
-				if(isset($data_unit["_".$aliquot['AliquotMaster']['id']."_".$key])){
-					$final_options['data'][] = array();
-					$none = false;
-				}
-			}
-			if($none){
-				$final_options['data'][] = array();
-			}
-			$final_options['links']['top'] = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true';
-			$structures->build($final_structure, $final_options);
+			"type" 		=> "addgrid", 
+			"data" 		=> array(),
+			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/"),
+			"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+			"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type));
+	while($data = array_pop($this->data)){
+		$parent = $data['parent'];
+		$options = $final_options;
+		if($first){
+			$options['settings']['form_top'] = true;
+			$first = false;
 		}
-		$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false,
-			'pagination' => false,
-			'separator' => true),
-		'type' => 'index'
-		);
+		if(count($this->data) == 0){
+			$options['settings']['form_bottom'] = true;
+			$options['settings']['actions'] = true;
+		}
+		$options['settings']['header'] = sprintf(__('realiquoting %s', true), $parent['AliquotMaster']['barcode']);
+		$options['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
+		$options['override']['AliquotMaster.aliquot_volume_unit'] = $parent['AliquotMaster']["aliquot_volume_unit"];
+		$options['data'] = $data['children'];
+		if(strlen($parent['AliquotMaster']["aliquot_volume_unit"])){ 
+			$structures->build($struct_vol, $options);
+		}else{
+			$structures->build($struct_no_vol, $options);
+		}
 	}
-	unset($final_options['settings']['separator']);
-	$final_options = array(
-		'settings' => array(
-			'form_top' => false,
-			'form_bottom' => true,
-			'actions' => true
-		),
-		'links' => array(
-			'top' => '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true'
-		)
-	);
-	$structures->build($empty, $final_options);
 ?>
 
-<div id="debug"></div>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";
 var pasteStr = "<?php echo(__("paste")); ?>";
@@ -81,4 +37,3 @@ var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
 </script>
-<div id="debug"></div>

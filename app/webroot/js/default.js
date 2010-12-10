@@ -564,6 +564,14 @@ function uncheckAll( $div ) {
 		if(typeof(pathReviewEditRemoveLastLine) != 'undefined'){
 			var elem = $(getParentElement($(".addLineCount"), "TABLE")).find("tbody tr:last").remove();
 		}
+		if(typeof(realiquotInit) != 'undefined'){
+			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
+				if($("select").val().length > 0){
+					$("form").submit();
+				}
+				return false;
+			});
+		}
 		
 		initDeleteConfirm();
 		
