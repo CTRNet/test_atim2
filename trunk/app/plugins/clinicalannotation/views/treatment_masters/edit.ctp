@@ -38,7 +38,7 @@
 		'form_bottom'=>false
 	);	
 
-	$structures->build($empty_structure, array('settings'=>$structure_settings, 'links'=> null));	
+	$structures->build($empty_structure, array('settings'=>$structure_settings));	
 	
 	// 3- DIAGNOSTICS
 	
