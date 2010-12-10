@@ -1390,13 +1390,9 @@ AND sfo.structure_id = s.id
 AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
 AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_asa'; 
 
-
-stop la pour mich
-
 UPDATE structure_fields SET plugin = 'Clinicalannotation' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' AND field = 'asa_score';
 
 ### clinical 	portal vein embolization medical past history 	qc_hb_ed_hepatobiliary_medical_past_history_pve 	qc_hb_ed_hepatobiliary_medical_past_history_pve
-
 
 ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_pve RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_pves;
 ALTER TABLE qc_hb_ed_hepatobiliary_medical_past_history_pve_revs RENAME TO qc_hb_ed_hepatobiliary_medical_past_history_pves_revs;
@@ -1417,41 +1413,182 @@ AND sfo.structure_id = s.id
 AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
 AND s.alias = 'qc_hb_ed_hepatobiliary_medical_past_history_pve'; 
 
+### lab 	biology 	ed_hepatobiliary_lab_report_biology 	qc_hb_ed_hepatobilary_lab_report_biology
 
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology RENAME TO qc_hb_ed_hepatobilary_lab_report_biologies;
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biology_revs RENAME TO qc_hb_ed_hepatobilary_lab_report_biologies_revs;
 
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobilary_lab_report_biologies' WHERE tablename = 'qc_hb_ed_hepatobilary_lab_report_biology';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobilary_lab_report_biologies' WHERE detail_tablename = 'qc_hb_ed_hepatobilary_lab_report_biology';
 
-
-
-
-UPDATE structure_fields SET plugin = '' WHERE tablename = 'qc_hb_ed_hepatobiliary_medical_past_history_asas' AND field = 'asa_score';
-
-
-
-ALTER TABLE qc_hb_ed_medical_imaging_record_summary RENAME TO qc_hb_ed_medical_imaging_record_summaries;
-ALTER TABLE qc_hb_ed_medical_imaging_record_summary_revs RENAME TO qc_hb_ed_medical_imaging_record_summaries_revs;
-
-UPDATE structure_fields SET tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE tablename = 'qc_hb_ed_medical_imaging_record_summary';
-UPDATE event_controls SET detail_tablename = 'qc_hb_ed_medical_imaging_record_summaries' WHERE detail_tablename = 'qc_hb_ed_medical_imaging_record_summary';
+UPDATE structures SET alias = 'qc_hb_ed_hepatobilary_lab_report_biology' WHERE alias = 'ed_hepatobiliary_lab_report_biology';
+UPDATE event_controls SET form_alias = 'qc_hb_ed_hepatobilary_lab_report_biology' WHERE form_alias = 'ed_hepatobiliary_lab_report_biology';
 
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
-SET sfo.flag_search = '0', sfo.flag_index = '1'
+SET sfo.flag_search = '0', sfo.flag_index = '0'
 WHERE sfi.id = sfo.structure_field_id
 AND sfo.structure_id = s.id
-AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+AND s.alias = 'qc_hb_ed_hepatobilary_lab_report_biology'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('event_date', 'albumin', 'total_bilirubin', 'direct_bilirubin', 'indirect_bilirubin', 'ast', 'alt', 
+'alkaline_phosphatase', 'amylase', 'lipase', 'a_fp', 'cea', 'ca_19_9', 'chromogranine', 
+'_5_HIAA', 'ca_125', 'ca_15_3', 'b_hcg')
+AND s.alias = 'qc_hb_ed_hepatobilary_lab_report_biology'; 
+
+### lifestyle 	summary 	qc_hb_ed_hepatobiliary_lifestyle 	qc_hb_ed_hepatobiliary_lifestyle
+
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyle RENAME TO qc_hb_ed_hepatobiliary_lifestyles;
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyle_revs RENAME TO qc_hb_ed_hepatobiliary_lifestyles_revs;
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hepatobiliary_lifestyles' WHERE tablename = 'qc_hb_ed_hepatobiliary_lifestyle';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobiliary_lifestyles' WHERE detail_tablename = 'qc_hb_ed_hepatobiliary_lifestyle';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_ed_hepatobiliary_lifestyle'; 
 
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
 SET sfo.flag_search = '0', sfo.flag_index = '0'
 WHERE sfi.id = sfo.structure_field_id
 AND sfo.structure_id = s.id
 AND sfi.field IN ('disease_site', 'event_type', 'event_summary')
-AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+AND s.alias = 'qc_hb_ed_hepatobiliary_lifestyle'; 
+
+### scores 	meld score 	qc_hb_ed_score_meld 	
+### scores 	fong score 	qc_hb_ed_score_fong 	
+### scores 	gretch score 	qc_hb_ed_score_gretch 	
+### scores 	clip score 	qc_hb_ed_score_clip 	
+### scores 	barcelona score 	qc_hb_ed_score_barcelona 	
+### scores 	okuda score 	qc_hb_ed_score_okuda 	
+### scores 	child pugh score (mod) 	qc_hb_ed_score_child_pugh_mod 	
+### scores 	child pugh score (classic) 	qc_hb_ed_score_child_pugh 	qc_hb_ed_score_child_pugh
+
+ALTER TABLE qc_hb_ed_score_meld RENAME TO qc_hb_ed_score_melds;
+ALTER TABLE qc_hb_ed_score_meld_revs RENAME TO qc_hb_ed_score_melds_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_melds' WHERE tablename = 'qc_hb_ed_score_meld';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_melds' WHERE detail_tablename = 'qc_hb_ed_score_meld';
+
+ALTER TABLE qc_hb_ed_score_fong RENAME TO qc_hb_ed_score_fongs;
+ALTER TABLE qc_hb_ed_score_fong_revs RENAME TO qc_hb_ed_score_fongs_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_fongs' WHERE tablename = 'qc_hb_ed_score_fong';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_fongs' WHERE detail_tablename = 'qc_hb_ed_score_fong';
+
+ALTER TABLE qc_hb_ed_score_gretch RENAME TO qc_hb_ed_score_gretchs;
+ALTER TABLE qc_hb_ed_score_gretch_revs RENAME TO qc_hb_ed_score_gretchs_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_gretchs' WHERE tablename = 'qc_hb_ed_score_gretch';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_gretchs' WHERE detail_tablename = 'qc_hb_ed_score_gretch';
+
+ALTER TABLE qc_hb_ed_score_clip RENAME TO qc_hb_ed_score_clips;
+ALTER TABLE qc_hb_ed_score_clip_revs RENAME TO qc_hb_ed_score_clips_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_clips' WHERE tablename = 'qc_hb_ed_score_clip';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_clips' WHERE detail_tablename = 'qc_hb_ed_score_clip';
+
+ALTER TABLE qc_hb_ed_score_barcelona RENAME TO qc_hb_ed_score_barcelonas;
+ALTER TABLE qc_hb_ed_score_barcelona_revs RENAME TO qc_hb_ed_score_barcelonas_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_barcelonas' WHERE tablename = 'qc_hb_ed_score_barcelona';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_barcelonas' WHERE detail_tablename = 'qc_hb_ed_score_barcelona';
+
+ALTER TABLE qc_hb_ed_score_okuda RENAME TO qc_hb_ed_score_okudas;
+ALTER TABLE qc_hb_ed_score_okuda_revs RENAME TO qc_hb_ed_score_okudas_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_okudas' WHERE tablename = 'qc_hb_ed_score_okuda';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_okudas' WHERE detail_tablename = 'qc_hb_ed_score_okuda';
+
+ALTER TABLE qc_hb_ed_score_child_pugh RENAME TO qc_hb_ed_score_child_pughs;
+ALTER TABLE qc_hb_ed_score_child_pugh_revs RENAME TO qc_hb_ed_score_child_pughs_revs;
+UPDATE structure_fields SET tablename = 'qc_hb_ed_score_child_pughs' WHERE tablename = 'qc_hb_ed_score_child_pugh';
+UPDATE event_controls SET detail_tablename = 'qc_hb_ed_score_child_pughs' WHERE detail_tablename = 'qc_hb_ed_score_child_pugh';
 
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
-SET sfo.flag_search = '1'
+SET sfo.flag_search = '0', sfo.flag_index = '0'
 WHERE sfi.id = sfo.structure_field_id
 AND sfo.structure_id = s.id
-AND sfi.field IN ('event_date')
-AND s.alias = 'qc_hb_ed_medical_imaging_record_summary'; 
+AND s.alias LIKE 'qc_hb_ed_score_%'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('result', 'event_date', 'sodium_result')
+AND s.alias LIKE 'qc_hb_ed_score_%'; 
+
+### DIAGNOSIS ###
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias LIKE 'dx_liver_metastases'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias LIKE 'dx_liver_metastases'
+AND sfi.field IN ('dx_date', 'histologic_type', 'lesions_nbr', 'tumor_site', 'surgical_resection_margin', 'adjacent_liver_parenchyma'); 
+
+### TREATMENT ###
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_tx_chemoembolizations'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'tx_method', 'start_date_accuracy')
+AND s.alias = 'qc_hb_tx_chemoembolizations'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_tx_chemos'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('disease_site', 'tx_method', 'start_date_accuracy', 'finish_date', 'finish_date_accuracy')
+AND s.alias = 'qc_hb_tx_chemos'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_txd_surgery_livers'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('start_date', 'principal_surgery', 'surgeon', 'liver_appearance', 'liver_appearance', 'vascular_occlusion', 'segment_1_resection', 'segment_2_resection', 'segment_3_resection', 
+'segment_4a_resection', 'segment_4b_resection', 'segment_5_resection', 'segment_6_resection', 'segment_7_resection', 'segment_8_resection')
+AND s.alias = 'qc_hb_txd_surgery_livers'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_txd_surgery_pancreas'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('start_date', 'principal_surgery', 'surgeon', 'pancreas_appearance', 'wisung_diameter', 'recoupe_pancreas', 'portal_vein_resection', 'pancreas_anastomosis', 'type_of_pancreas_anastomosis', 
+'pylori_preservation', 'preoperative_sandostatin')
+AND s.alias = 'qc_hb_txd_surgery_pancreas'; 
+
+### SAMPLES ###
 
 
 
@@ -1459,23 +1596,12 @@ AND s.alias = 'qc_hb_ed_medical_imaging_record_summary';
 
 
 
-
-
-
-### lab 	biology 	ed_hepatobiliary_lab_report_biology 	qc_hb_ed_hepatobilary_lab_report_biology
-
-
-### lifestyle 	summary 	qc_hb_ed_hepatobiliary_lifestyle 	qc_hb_ed_hepatobiliary_lifestyle
-
-
-### scores 	meld score 	qc_hb_ed_score_meld 	qc_hb_ed_score_meld
-### scores 	fong score 	qc_hb_ed_score_fong 	qc_hb_ed_score_fong
-### scores 	gretch score 	qc_hb_ed_score_gretch 	qc_hb_ed_score_gretch
-### scores 	clip score 	qc_hb_ed_score_clip 	qc_hb_ed_score_clip
-### scores 	barcelona score 	qc_hb_ed_score_barcelona 	qc_hb_ed_score_barcelona
-### scores 	okuda score 	qc_hb_ed_score_okuda 	qc_hb_ed_score_okuda
-### scores 	child pugh score (mod) 	qc_hb_ed_score_child_pugh_mod 	qc_hb_ed_score_child_pugh
-### scores 	child pugh score (classic) 	qc_hb_ed_score_child_pugh 	qc_hb_ed_score_child_pugh
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('creation_datetime', 'creation_by', 'creation_site', 'sample_code')
+AND s.alias = 'qc_hb_sd_der_pbmc'; 
 
 
 
