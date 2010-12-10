@@ -34,6 +34,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 			 	'dependent' => true)
 	);
 	
+	public static $realiquot_into_dropdown = array();
+	
 	function summary($variables=array()) {
 		$return = false;
 		
@@ -277,6 +279,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 		return true;
 	}
 	
+	public function getRealiquotDropdown(){
+		return self::$realiquot_into_dropdown;	
+	}
 }
 
 ?>
