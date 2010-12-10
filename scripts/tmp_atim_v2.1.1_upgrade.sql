@@ -294,3 +294,7 @@ DELETE FROM `structure_fields` WHERE `tablename` = 'ed_all_study_research' AND `
 UPDATE `structure_fields` SET `tablename` = 'ed_all_study_researches' WHERE `tablename` = 'ed_all_study_research';
 UPDATE `event_controls` SET `detail_tablename` = 'ed_all_study_researches' 
 WHERE `form_alias` = 'ed_all_study_research' AND `detail_tablename` = 'ed_all_study_research';
+
+-- Dropping provider tables
+DROP TABLE `providers`;
+DROP TABLE `providers_revs`;
