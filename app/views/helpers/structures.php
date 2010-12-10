@@ -204,20 +204,34 @@ class StructuresHelper extends Helper {
 		
 		//print warning when unknown stuff and debug is on
 		if(Configure::read('debug') > 0){
-			foreach($options as $k => $foo){
-				if(!array_key_exists($k, self::$defaults)){
-					AppController::addWarningMsg(sprintf(__("unknown function [%s] in structure build", true), $k));
+			if(is_array($options)){
+				foreach($options as $k => $foo){
+					if(!array_key_exists($k, self::$defaults)){
+						AppController::addWarningMsg(sprintf(__("unknown function [%s] in structure build", true), $k));
+					}
 				}
-			}
-			foreach($options['settings'] as $k => $foo){
-				if(!array_key_exists($k, self::$defaults['settings'])){
-					AppController::addWarningMsg(sprintf(__("unknown setting [%s] in structure build", true), $k));
+				
+				if(is_array($options['settings'])){
+					foreach($options['settings'] as $k => $foo){
+						if(!array_key_exists($k, self::$defaults['settings'])){
+							AppController::addWarningMsg(sprintf(__("unknown setting [%s] in structure build", true), $k));
+						}
+					}
+				}else{
+					AppController::addWarningMsg(__("settings should be an array", true));
 				}
-			}
-			foreach($options['links'] as $k => $foo){
-				if(!array_key_exists($k, self::$defaults['links'])){
-					AppController::addWarningMsg(sprintf(__("unknown link [%s] in structure build", true), $k));
+				
+				if(is_array($options['links'])){
+					foreach($options['links'] as $k => $foo){
+						if(!array_key_exists($k, self::$defaults['links'])){
+							AppController::addWarningMsg(sprintf(__("unknown link [%s] in structure build", true), $k));
+						}
+					}
+				}else{
+					AppController::addWarningMsg(__("links should be an array", true));
 				}
+			}else{
+				AppController::addWarningMsg(__("settings be an array", true));
 			}
 		}
 		
