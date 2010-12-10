@@ -337,7 +337,11 @@ class StructuresHelper extends Helper {
 					//TODO: remove datagrid for ATiM 2.3
 					AppController::addWarningMsg(sprintf(__("datagrid is deprecated, use addgrid or editgrid instead", true), $type));
 				}
-			}	
+			}
+			if($type == 'addgrid'
+			|| $type == 'editgrid'){
+				$options['settings']['pagination'] = false;
+			}
 			$this->buildTable( $atim_structure, $options, $data);
 
 		}else if($type == 'detail'
