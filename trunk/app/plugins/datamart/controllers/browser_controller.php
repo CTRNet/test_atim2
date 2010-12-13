@@ -46,7 +46,7 @@ class BrowserController extends DatamartAppController {
 		if(empty($this->data)){
 			if($parent_node == 0){
 				//new access
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $parent_node, null, null, null, null, array("AliquotControl" => array(0))));
+				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $parent_node, null, null, null, null, null, null, array("AliquotControl" => array(0))));
 				$this->Structures->set("datamart_browser_start");
 				$this->set('type', "add");
 				$this->set('top', "/datamart/browser/browse/0/");
