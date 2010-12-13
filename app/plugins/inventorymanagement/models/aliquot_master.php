@@ -294,7 +294,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$result['Generated']['aliquot_use_counter'] = count($result['AliquotUse']);
 			}
 		}
-		pr($results);
 		return $results;
 	}
 }
