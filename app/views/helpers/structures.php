@@ -1755,7 +1755,7 @@ class StructuresHelper extends Helper {
 		if($state == 'bottom'){ 
 			
 			$return_string = '
-				<div class="actionsOuter"><div class="actions">&nbsp;
+				<div class="actionsOuter"><div class="actions">
 			';
 			
 			// display SEARCH RESULTS, if any
