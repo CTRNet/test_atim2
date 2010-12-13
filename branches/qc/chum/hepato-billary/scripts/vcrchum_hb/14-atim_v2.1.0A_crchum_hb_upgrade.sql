@@ -885,8 +885,6 @@ UPDATE event_controls SET detail_tablename = 'qc_hb_ed_hepatobilary_medical_imag
 UPDATE event_controls SET flag_active = '0' WHERE detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
 UPDATE structures SET alias = 'qc_hb_imaging_dateNSummary' WHERE alias = 'qc_hb_dateNSummary';
 
-SELECT form_alias WHERE detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
-
 -- Imaging has to be search using query tool
 
 UPDATE structure_formats
@@ -1590,29 +1588,157 @@ AND s.alias = 'qc_hb_txd_surgery_pancreas';
 
 ### SAMPLES ###
 
-
-
-
-
-
-
 UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
-SET sfo.flag_search = '1', sfo.flag_index = '1'
+SET sfo.flag_index = sfo.flag_search
 WHERE sfi.id = sfo.structure_field_id
 AND sfo.structure_id = s.id
-AND sfi.field IN ('creation_datetime', 'creation_by', 'creation_site', 'sample_code')
+AND s.alias = 'sd_spe_bloods'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '0', sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'sd_spe_tissues'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_code', 'qc_hb_sample_code', 'supplier_dept', 'reception_by', 'reception_datetime', 'qc_hb_patho_report_no', 'tissue_source')
+AND s.alias = 'sd_spe_tissues'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('storage_master_id' , 'aliquot_type' , 'aliquot_use_counter', 'qc_hb_stored_by')
+AND s.alias = 'ad_spec_tiss_blocks'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('temperature' , 'temp_unit', 'study_summary_id', 'storage_datetime', 'in_stock_detail')
+AND s.alias = 'ad_spec_tiss_blocks'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('storage_master_id' , 'aliquot_type' , 'aliquot_use_counter', 'qc_hb_stored_by')
+AND s.alias = 'ad_spec_tubes';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('temperature' , 'temp_unit', 'study_summary_id', 'storage_datetime', 'in_stock_detail')
+AND s.alias = 'ad_spec_tubes'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0', sfo.flag_search = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'sd_tissue_susp';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_code' , 'creation_datetime', 'creation_by', 'creation_site',
+'qc_hb_macs_nb_cycles', 'qc_hb_macs_nb_incubations', 'qc_hb_macs_enzymatic_milieu', 'qc_hb_viability_perc', 'qc_hb_tissue_source_in_serum')
+AND s.alias = 'sd_tissue_susp'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0', sfo.flag_search = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'qc_hb_sd_der_pbmc';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_code' , 'creation_datetime', 'creation_by', 'creation_site')
 AND s.alias = 'qc_hb_sd_der_pbmc'; 
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0', sfo.flag_search = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'sd_der_plasmas';
 
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_code' , 'creation_datetime', 'creation_by', 'creation_site', 'hemolysis_signs')
+AND s.alias = 'sd_der_plasmas'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0', sfo.flag_search = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND s.alias = 'sd_der_serums';
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_search = '1', sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_code' , 'creation_datetime', 'creation_by', 'creation_site', 'hemolysis_signs')
+AND s.alias = 'sd_der_serums'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('storage_master_id' , 'aliquot_type' , 'aliquot_use_counter', 'qc_hb_stored_by')
+AND s.alias = 'ad_der_cell_tubes_incl_ml_vol'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('temperature' , 'temp_unit', 'study_summary_id', 'storage_datetime', 'in_stock_detail')
+AND s.alias = 'ad_der_cell_tubes_incl_ml_vol'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_type')
+AND sfi.model = 'GeneratedParentSample'
+AND s.alias = 'ad_der_cell_tubes_incl_ml_vol'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('storage_master_id' , 'aliquot_type' , 'aliquot_use_counter', 'qc_hb_stored_by')
+AND s.alias = 'ad_der_tubes_incl_ml_vol'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '1'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('temperature' , 'temp_unit', 'study_summary_id', 'storage_datetime', 'in_stock_detail')
+AND s.alias = 'ad_der_tubes_incl_ml_vol'; 
+
+UPDATE structure_formats sfo INNER JOIN structure_fields sfi INNER JOIN structures s
+SET  sfo.flag_index = '0'
+WHERE sfi.id = sfo.structure_field_id
+AND sfo.structure_id = s.id
+AND sfi.field IN ('sample_type')
+AND sfi.model = 'GeneratedParentSample'
+AND s.alias = 'ad_der_tubes_incl_ml_vol'; 
+
+UPDATE `datamart_browsing_controls`
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster')
+OR id2 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
 
 -- ---------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
 
-- VALIDATE previous line WITH URSZULA
-
 - UPDATE PERMISSION: NO ACCESS TO FORMS, MATERIAL, EQUIP., SOP, LIMITED ACCESS TO STUDY, NO REPROD HIST
-- REVIEW ALL FLAG_SEARCH FLAG_INDEX FOR DATABROWSER (INCLUDING MASTER/DETAIL MODEL)
-- RUN DB VALIDATION
 
--- Tester les vu
--- Tester le meld
