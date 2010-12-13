@@ -84,7 +84,6 @@ class BatchSetsController extends DatamartAppController {
 			);
 			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
 			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
-			unset($_SESSION['tmp_batch_set']);
 		}else{
 			$this->redirect('/pages/err_datamart_system_error', null, true);
 		}
