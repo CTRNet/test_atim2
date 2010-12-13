@@ -913,7 +913,7 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 DELETE FROM datamart_adhoc;
-INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+INSERT INTO `datamart_adhoc` 
 (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
 `form_links_for_results`, 
 `sql_query_for_results`, 
@@ -1041,7 +1041,7 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
 '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+INSERT INTO `datamart_adhoc` 
 (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
 `form_links_for_results`, 
 `sql_query_for_results`, 
@@ -1107,7 +1107,7 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
 '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+INSERT INTO `datamart_adhoc` 
 (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
 `form_links_for_results`, 
 `sql_query_for_results`, 
@@ -1179,7 +1179,7 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' AND `type`='input'), 
 '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-INSERT INTO `qc_chum_hb`.`datamart_adhoc` 
+INSERT INTO `datamart_adhoc` 
 (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, 
 `form_links_for_results`, 
 `sql_query_for_results`, 
@@ -1736,6 +1736,8 @@ UPDATE `datamart_browsing_controls`
 SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0'
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster')
 OR id2 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
+
+select 'done' FROM users;
 
 -- ---------------------------------------------------------------------
 - TASKS TODO BEFORE GO LIVE -
