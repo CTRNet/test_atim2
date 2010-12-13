@@ -289,12 +289,12 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @see Model::afterFind()
 	 */
 	public function afterFind($results){
-		$AliquotUse = AppModel::atimNew("inventorymanagement", "AliquotUse", true);
 		foreach($results as &$result){
-			if(is_array($result) && isset($result['AliquotMaster'])){
-				$result['Generated']['aliquot_use_counter'] = $AliquotUse->find('count', array('conditions' => array('AliquotUse.aliquot_master_id' => $result['AliquotMaster']['id'])));
+			if(is_array($result) && isset($result['AliquotUse'])){
+				$result['Generated']['aliquot_use_counter'] = count($result['AliquotUse']);
 			}
 		}
+		pr($results);
 		return $results;
 	}
 }
