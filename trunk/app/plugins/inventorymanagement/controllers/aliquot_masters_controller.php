@@ -1641,8 +1641,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else{
 			//submit
 			$aliquot_ctrl = $this->AliquotControl->findById($this->data['realiquot_into']);
+			$remove_when_empty = $this->data['remove_when_empty'];
+			$this->set('remove_when_empty', $remove_when_empty);
 			$this->set('realiquot_into', $this->data['realiquot_into']);
 			unset($this->data['realiquot_into']);
+			unset($this->data['remove_when_empty']);
 			//-----
 			//do not invert or AliquotUse validation won't work
 			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_no_vol');
@@ -1691,7 +1694,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 				}
 				//create uses
-				$errors = $this->AliquotMaster->defineRealiquot($this->data, false);
+				$errors = $this->AliquotMaster->defineRealiquot($this->data, $remove_when_empty);
 				if(empty($errors)){
 					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
 				}else{
