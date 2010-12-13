@@ -1136,7 +1136,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//victory, redirect to virtual batch set
 				//$_SESSION data was set into the define children function
 				if($collection_id == null){
-					$this->flash('your data has been saved', '/datamart/batch_sets/lsitall/0');
+					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
 				}else{
 					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
 				}
@@ -1595,8 +1595,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(count($aliquots) > 1){
 			foreach($aliquots as $aliquot){
 				if($aliquot['AliquotMaster']['aliquot_control_id'] != $sample_ctrl_id || $aliquot['SampleMaster']['sample_control_id'] != $aliquot_ctrl_id){
-					//TODO, redirect with msg, diff types.
-					$this->redirect('/pages/err_inv_system_error', null, true);
+					$this->flash(__("you cannot realiquot those elements together because they are of diferent types", true), "javascript:history.back();", 5);
 				}
 			}
 		}
@@ -1604,8 +1603,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sample_to_aliquot_ctrl_id = $this->SampleToAliquotControl->find('first', array('conditions' => array('SampleToAliquotControl.sample_control_id' => $sample_ctrl_id, 'SampleToAliquotControl.aliquot_control_id' => $aliquot_ctrl_id)));
 		$possibilities = $this->RealiquotingControl->find('all', array('conditions' => array('RealiquotingControl.parent_sample_to_aliquot_control_id' => $sample_to_aliquot_ctrl_id['SampleToAliquotControl']['id'])));
 		if(empty($possibilities)){
-			//TODO, redirect with msg, cannot be realiquoted
-			$this->redirect('/pages/err_inv_system_error', null, true);
+			$this->flash(__("you cannot realiquot those elements", true), "javascript:history.back();", 5);
 		}
 		$possible_ctrl_ids = array();
 		foreach($possibilities as $possibility){
@@ -1624,26 +1622,90 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}	
 	
 	function realiquot(){
+		$aliquots = null;
 		if(empty($this->data)){
 			$this->redirect("/pages/err_inv_no_data", null, true);
 		}else if(isset($this->data[0]) && isset($this->data[0]['ids']) && isset($this->data[0]['realiquot_into'])){
 			//initial display
+			$this->set('realiquot_into', $this->data[0]['realiquot_into']);
+			$aliquot_ctrl = $this->AliquotControl->findById($this->data[0]['realiquot_into']);
+			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot,realiquot_vol", 'struct_vol');
+			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_no_vol');
+			$aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
+			
+			//build data array
+			$this->data = array();
+			foreach($aliquots as $aliquot){
+				$this->data[] = array('parent' => $aliquot, 'children' => array());
+			}
 		}else{
 			//submit
-			//TODO - validate
-			//if win -> win
-			//if fail, reload!
+			$aliquot_ctrl = $this->AliquotControl->findById($this->data['realiquot_into']);
+			$this->set('realiquot_into', $this->data['realiquot_into']);
+			unset($this->data['realiquot_into']);
+			//-----
+			//do not invert or AliquotUse validation won't work
+			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_no_vol');
+			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot,realiquot_vol", 'struct_vol');
+			//-----
+			$new_data = array();
+			$aliquot_errors = array();
+			$use_errors = array();
+			$barcodes = array();
+			//validate new aliquots
+			foreach($this->data as $parent_id => &$children){
+				$new_children = array();
+				$parent = $this->AliquotMaster->findById($parent_id);
+				foreach($children as &$child){
+					$child['AliquotMaster']['aliquot_control_id'] = $aliquot_ctrl['AliquotControl']['id'];
+					$child['AliquotMaster']['sample_master_id'] = $parent['AliquotMaster']['sample_master_id'];
+					$child['AliquotMaster']['collection_id'] = $parent['AliquotMaster']['collection_id'];
+					$this->AliquotMaster->set($child);
+					$this->AliquotMaster->validates();
+					$this->AliquotUse->set($child);
+					$this->AliquotUse->validates();
+					$new_children[] = $child;
+					$aliquot_errors = array_merge($aliquot_errors, $this->AliquotMaster->validationErrors);
+					$use_errors = array_merge($use_errors, $this->AliquotUse->validationErrors);
+					$barcodes[] = $child['AliquotMaster']['barcode'];
+				}
+				
+				$new_data[] = array('parent' => $parent, 'children' => $new_children);
+			}
+			if($this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.barcode' => $barcodes))) != 0
+			|| count($barcodes) != count(array_unique($barcodes))){
+				$aliquot_errors['barcode'] = __('barcodes must be unique', true);
+			}
+			if(empty($aliquot_errors) && empty($use_errors)){
+				//Validation successfull
+				//save
+				//create aliquots
+				foreach($this->data as $parent_id => &$children){
+					foreach($children as &$child){
+						$this->AliquotMaster->id = null;
+						$this->AliquotMaster->set($child);
+						$this->AliquotMaster->save();
+						$child['AliquotMaster']['id'] = $this->AliquotMaster->id;
+						$child['AliquotUse']['use_datetime'] = $child['AliquotMaster']['storage_datetime'];
+						$child['FunctionManagement']['use'] = true; 
+					}
+				}
+				//create uses
+				$errors = $this->AliquotMaster->defineRealiquot($this->data, false);
+				if(empty($errors)){
+					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+				}else{
+					pr($errors);
+				}
+			}else{
+				//validation failed
+				$this->AliquotMaster->validationErrors = $aliquot_errors;
+				$this->AliquotUse->validationErrors = $use_errors;
+				$this->data = $new_data;
+			}
 		}
-		$aliquot_ctrl = $this->AliquotControl->findById($this->data[0]['realiquot_into']);
-		$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_vol');
-		$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'], 'struct_no_vol');
-		$this->set('aliquot_type', $aliquot_ctrl['AliquotControl']['aliquot_type']);
 		
-		$aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
-		$this->data = array();
-		foreach($aliquots as $aliquot){
-			$this->data[] = array('parent' => $aliquot, 'children' => array());
-		}
+		$this->set('aliquot_type', $aliquot_ctrl['AliquotControl']['aliquot_type']);
 	}
 	
 	function autocompleteBarcode(){

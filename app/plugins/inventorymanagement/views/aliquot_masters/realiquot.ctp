@@ -1,5 +1,4 @@
 <?php 
-	
 	$first = true;
 	$final_options = array(
 			"type" 		=> "addgrid", 
@@ -7,7 +6,7 @@
 			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/"),
 			"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
 			"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type));
-	while($data = array_pop($this->data)){
+	while($data = array_shift($this->data)){
 		$parent = $data['parent'];
 		$options = $final_options;
 		if($first){
@@ -17,6 +16,7 @@
 		if(count($this->data) == 0){
 			$options['settings']['form_bottom'] = true;
 			$options['settings']['actions'] = true;
+			$options['extras'] = '<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>';
 		}
 		$options['settings']['header'] = sprintf(__('realiquoting %s', true), $parent['AliquotMaster']['barcode']);
 		$options['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
