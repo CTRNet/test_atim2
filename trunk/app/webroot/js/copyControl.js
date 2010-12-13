@@ -23,7 +23,6 @@ function initCopyControl(){
 	
 	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + window.pasteOnAllLinesStr + '" href="#no">' + window.pasteOnAllLinesStr + '</a></span>';
 	if($(".copy").length > 0){
-		console.log($(".copy").length);
 		//add copy all button into a new tfoot
 		$(".copy").each(function(){
 			var table = getParentElement($(this), "TABLE");
