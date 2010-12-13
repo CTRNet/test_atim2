@@ -25,11 +25,14 @@ class Browser extends DatamartAppModel {
 	 * @param int $node_id The current node id. 
 	 * @param string $plugin_name The name of the plugin to use in export to csv link
 	 * @param string $model_name The name of the model to use in export to csv link
+	 * @param string $data_model
+	 * @param string $model_pkey
+	 * @param string $data_pkey
 	 * @param string $structure_name The name of the structure to use in export to csv link
 	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $data_model = null, $model_pkey = null, $data_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, $structure_name, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
 		$DatamartStructure = AppModel::atimNew("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
