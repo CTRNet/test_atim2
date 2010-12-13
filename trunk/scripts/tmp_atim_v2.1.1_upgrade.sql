@@ -299,7 +299,6 @@ WHERE `form_alias` = 'ed_all_study_research' AND `detail_tablename` = 'ed_all_st
 DROP TABLE `providers`;
 DROP TABLE `providers_revs`;
 
-
 -- realiquot in batch
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`)VALUES 
 (NULL , '1', 'realiquot', '/inventorymanagement/aliquot_masters/realiquotInit/', '1');
@@ -321,4 +320,34 @@ INSERT INTO structures(`alias`) VALUES ('realiquot');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='realiquot'), (SELECT id FROM structure_fields WHERE `model`='AliquotUse' AND `tablename`='aliquot_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  ), '1', '5100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0');
 
+-- Update the tablename for EventDetail models
+UPDATE `structure_fields` SET `tablename` = 'ed_breast_lab_pathologies'
+WHERE `tablename` = 'ed_breast_lab_pathology';
 
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_followups'
+WHERE `tablename` = 'ed_all_clinical_followup';
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_clinical_presentations'
+WHERE `tablename` = 'ed_all_clinical_presentation';
+
+UPDATE `structure_fields` SET `tablename` = 'ed_all_lifestyle_smokings'
+WHERE `tablename` = 'ed_all_lifestyle_smoking';
+
+UPDATE `structure_fields` SET `tablename` = 'ed_breast_screening_mammograms'
+WHERE `tablename` = 'ed_breast_screening_mammogram';
+
+-- Delete depricated annotation events. Forms are no longer in the system or in use.
+DELETE FROM `event_controls`
+WHERE `form_alias` = 'ed_all_adverse_events_adverse_event';
+
+DELETE FROM `event_controls`
+WHERE `form_alias` = 'ed_all_protocol_followup';
+
+-- Fix breast path report form. Two fields mistakenly dropped in previous version.
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(NULL , '', 'Clinicalannotation', 'EventDetail', 'ed_breast_lab_pathologies', 'frozen_section', 'frozen section', '', 'input', 'size=20', '', NULL , 'help_frozen section', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(NULL , '', 'Clinicalannotation', 'EventDetail', 'ed_breast_lab_pathologies', 'resection_margins', 'resection_margin', '', 'input', 'size=20', '', NULL , 'help_resection margin', 'open', 'open', 'open', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(NULL, (SELECT `id` FROM `structures` WHERE `alias` = 'ed_breast_lab_pathology'), (SELECT `id` FROM `structure_fields` WHERE `tablename` = 'ed_breast_lab_pathologies' AND `field` = 'frozen_section'), '2', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
+(NULL, (SELECT `id` FROM `structures` WHERE `alias` = 'ed_breast_lab_pathology'), (SELECT `id` FROM `structure_fields` WHERE `tablename` = 'ed_breast_lab_pathologies' AND `field` = 'resection_margins'), '2', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
