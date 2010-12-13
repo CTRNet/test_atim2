@@ -518,7 +518,7 @@ function uncheckAll( $div ) {
 			$(this).click(function(){
 				var counter = $(scope).find(".addLineCount").length == 1 ? $(scope).find(".addLineCount").val() : 1;
 				while(counter > 0){
-					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/name="data\[%d\]\[/g, 'name="data[' + lineIncrement ++ + '][') + "</tr>");
+					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/\[%d\]\[/g, '[' + lineIncrement ++ + '][') + "</tr>");
 					counter --;
 				}
 				var newLines = $(tableBody).find("tr.newLine");
