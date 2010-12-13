@@ -12,6 +12,7 @@
 
 	<?php 
 		echo $html->css('style');
+		echo $html->charset('UTF-8');
 	 ?>
 
 	
