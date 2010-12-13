@@ -16,7 +16,10 @@
 		if(count($this->data) == 0){
 			$options['settings']['form_bottom'] = true;
 			$options['settings']['actions'] = true;
-			$options['extras'] = '<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>';
+			$options['extras'] = 
+				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>'
+				.__("remove empty aliquots from stocks", true).$this->Form->input("remove_when_empty", array('type' => 'checkbox', 'value' => 1, 'checked' => isset($remove_when_empty) && $remove_when_empty, "id" => false, "div" => false, "label" => false));
+			
 		}
 		$options['settings']['header'] = sprintf(__('realiquoting %s', true), $parent['AliquotMaster']['barcode']);
 		$options['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
