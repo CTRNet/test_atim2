@@ -609,7 +609,7 @@ class StructuresHelper extends Helper {
 						echo "<dt>",$table_row_part['label'],"</dt><dd>";
 						$first_line = false;
 					}
-					if(isset($data_unit[$table_row_part['model']]) && isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+					if(array_key_exists($table_row_part['model'], $data_unit) && array_key_exists($table_row_part['field'], $data_unit[$table_row_part['model']])){
 						echo $this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null), " ";
 					}else if(Configure::read('debug') > 0){
 						AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
@@ -1999,8 +1999,9 @@ class StructuresHelper extends Helper {
 
 	
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
-		if(is_array($data_unit)
+		if(is_array($data_unit) 
 		&& array_key_exists($table_row_part['model'], $data_unit) 
+		&& is_array($data_unit[$table_row_part['model']])
 		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
