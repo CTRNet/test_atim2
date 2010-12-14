@@ -351,3 +351,115 @@ INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `t
 INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (NULL, (SELECT `id` FROM `structures` WHERE `alias` = 'ed_breast_lab_pathology'), (SELECT `id` FROM `structure_fields` WHERE `tablename` = 'ed_breast_lab_pathologies' AND `field` = 'frozen_section'), '2', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', ''),
 (NULL, (SELECT `id` FROM `structures` WHERE `alias` = 'ed_breast_lab_pathology'), (SELECT `id` FROM `structure_fields` WHERE `tablename` = 'ed_breast_lab_pathologies' AND `field` = 'resection_margins'), '2', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0000-00-00 00:00:00', '', '0000-00-00 00:00:00', '');
+
+-- Add value domain for Canadian Provinces and Territories
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(NULL , 'provinces', 'locked', '', NULL);
+SET @VD_ID= LAST_INSERT_ID();
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'british columbia', 'british columbia');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 2, 1, 'british columbia');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'alberta', 'alberta');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 1, 1, 'alberta');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'saskatchewan', 'saskatchewan');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 12, 1, 'saskatchewan');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'manitoba', 'manitoba');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 3, 1, 'manitoba');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'ontario', 'ontario');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 9, 1, 'ontario');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'quebec', 'quebec');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 11, 1, 'quebec');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'nova scotia', 'nova scotia');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 7, 1, 'nova scotia');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'new brunswick', 'new brunswick');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 4, 1, 'new brunswick');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'newfoundland', 'newfoundland');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 5, 1, 'newfoundland');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'prince edward island', 'prince edward island');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 10, 1, 'prince edward island');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'yukon', 'yukon');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 13, 1, 'yukon');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'northwest territories', 'northwest territories');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 6, 1, 'northwest territories');
+
+INSERT INTO `structure_permissible_values` (`id`, `value`, `language_alias`) VALUES
+(NULL, 'nunavut', 'nunavut');
+SET @PV_ID= LAST_INSERT_ID();
+INSERT INTO `structure_value_domains_permissible_values` (`id`, `structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `language_alias`) VALUES
+(NULL, @VD_ID, @PV_ID, 8, 1, 'nunavut');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('british columbia', 'British Columbia', 'Colombie britannique'),
+('alberta', 'Alberta', 'Alberta'), 
+('saskatchewan', 'Saskatchewan', 'Saskatchewan'), 
+('manitoba', 'Manitoba', 'Manitoba'), 
+('ontario', 'Ontario', 'Ontario'), 
+('quebec', 'Quebec', ''), 
+('nova scotia', 'Nova Scotia', 'Nouvelle-Écosse'), 
+('new brunswick', 'New Brunswick', 'Nouveau-Brunswick'), 
+('newfoundland', 'Newfoundland', 'Terre-Neuve et Labrador'), 
+('prince edward island', 'Prince Edward Island', 'l''île du Prince-Édouard'), 
+('yukon', 'Yukon Territory', '(territoire du) Yukon'), 
+('northwest territories', 'Northwest Territories', '(territoires du) Nord-Ouest'), 
+('nunavut', 'Nunavut', 'Nunavut');
+
+-- Link province value domain to contact form, user profile and study
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `value_domain_control` = 'locked', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'provinces')
+WHERE `structure_fields`.`tablename` = 'users' AND `structure_fields`.`field` = 'region' AND `structure_fields`.`type` = 'input';
+
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `value_domain_control` = 'locked', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'provinces')
+WHERE `structure_fields`.`tablename` = 'participant_contacts' AND `structure_fields`.`field` = 'region' AND `structure_fields`.`type` = 'input';
+
+UPDATE `structure_fields` 
+SET `type` = 'select', `setting` = '', `value_domain_control` = 'locked', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'provinces')
+WHERE `structure_fields`.`tablename` = 'study_contacts' AND `structure_fields`.`field` = 'address_province' AND `structure_fields`.`type` = 'input';
+
