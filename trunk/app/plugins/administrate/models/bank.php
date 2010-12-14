@@ -8,13 +8,10 @@ class Bank extends AdministrateAppModel {
 			$result = $this->find('first', array('conditions'=>array('Bank.id'=>$variables['Bank.id'])));
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, $result['Bank']['name']),
-					'title'			=>	array( NULL, $result['Bank']['name']),
-					'description'	=>	array(
-						__('description', TRUE)		=>	__($result['Bank']['description'], TRUE)
-					)
-				)
+				'menu'			=>	array( NULL, $result['Bank']['name'] ),
+				'title'			=>	array( NULL, $result['Bank']['name'] ),
+				'data'			=> $result,
+				'structure alias'=>'banks'
 			);
 		}
 		return $return;

@@ -25,17 +25,10 @@ class QualityCtrl extends InventoryManagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'Summary' => array(
-					'menu' => array('quality control abbreviation', ' : ' . $qc_data['QualityCtrl']['run_id']),
-					'title' => array(null, __('quality control abbreviation', true) . ' : ' . $qc_data['QualityCtrl']['run_id']),
-
-					'description' => array(
-						__('qc run number', true) => __($qc_data['QualityCtrl']['run_id'], true),
-						__('qc type', true) => __($qc_data['QualityCtrl']['type'], true),
-						__('qc tool', true) => array($qc_data['QualityCtrl']['tool'], 'tool'),
-						__('date', true) => $qc_data['QualityCtrl']['date']
-					)
-				)
+				'menu' => array('quality control abbreviation', ' : ' . $qc_data['QualityCtrl']['run_id']),
+				'title' => array(null, __('quality control abbreviation', true) . ' : ' . $qc_data['QualityCtrl']['run_id']),
+	 			'data'			=> $result,
+				'structure alias'=>'qualityctrls'
 			);
 		}	
 		
