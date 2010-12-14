@@ -35,16 +35,10 @@ class User extends AppModel {
 			$display_name = $display_name ? $display_name : $result['User']['username'];
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $display_name ),
-					'title'			=>	array( NULL, $display_name ),
-					
-					'description'	=>	array(
-						'username'	=>	$result['User']['username'],
-						'email'		=>	$result['User']['email'],
-						'created'	=>	$result['User']['created']
-					)
-				)
+				'menu'			=>	array( NULL, $display_name ),
+				'title'			=>	array( NULL, $display_name ),
+				'data'			=> $result,
+				'structure alias' => 'users'
 			);
 		}
 		
