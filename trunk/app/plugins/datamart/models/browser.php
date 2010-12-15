@@ -147,7 +147,7 @@ class Browser extends DatamartAppModel {
 									'default' => __('no filter', true))
 								);
 				if(strlen($browsing_structures[$current_id]['control_model']) > 0){
-					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null; 
+					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null;
 					$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
 				}
 			}
@@ -197,6 +197,7 @@ class Browser extends DatamartAppModel {
 				array_intersect($ids_filter, $tmp_ids);
 			}
 		}
+		$ids_filter[] = 0;
 		if($ids_filter != null){
 			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
 		}
