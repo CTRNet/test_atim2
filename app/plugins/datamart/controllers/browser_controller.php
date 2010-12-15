@@ -224,7 +224,7 @@ class BrowserController extends DatamartAppController {
 					//we have an empty set, bail out! (don't save empty result)
 					if($control_id == $last_control_id){
 						//go back 1 page
-						$this->flash(__("no data matches your search", true), "javascript:history.back();", 5);
+						$this->flash(__("no data matches your search parameters", true), "javascript:history.back();", 5);
 					}else{
 						//go to the last node
 						$this->flash(sprintf(__("you cannot browse to the requested entities because there is no [%s] matching your request", true), $browsing['DatamartStructure']['display_name']), "/datamart/browser/browse/".$parent_node."/", 5);
