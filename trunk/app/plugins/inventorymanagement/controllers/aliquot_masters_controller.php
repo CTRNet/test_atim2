@@ -1663,6 +1663,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$child['AliquotMaster']['aliquot_control_id'] = $aliquot_ctrl['AliquotControl']['id'];
 					$child['AliquotMaster']['sample_master_id'] = $parent['AliquotMaster']['sample_master_id'];
 					$child['AliquotMaster']['collection_id'] = $parent['AliquotMaster']['collection_id'];
+					$child['AliquotMaster']['current_volume'] = $child['AliquotMaster']['initial_volume']; 
 					$this->AliquotMaster->set($child);
 					$this->AliquotMaster->validates();
 					$this->AliquotUse->set($child);
