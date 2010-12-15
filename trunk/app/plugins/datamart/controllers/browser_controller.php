@@ -141,6 +141,7 @@ class BrowserController extends DatamartAppController {
 			$model_name_to_search = null;
 			$model_key_name = null;
 			$use_sub_model = null;
+			$first_iteration = true;
 			//direct access, save nodes
 			foreach($direct_id_arr as $control_id){
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $control_id)));
@@ -218,6 +219,19 @@ class BrowserController extends DatamartAppController {
 					"raw" => true,
 					"serialized_search_params" => serialize($org_search_conditions),
 				));
+				
+				if(count($save_ids) == 0){
+					//we have an empty set, bail out! (don't save empty result)
+					if($control_id == $last_control_id){
+						//go back 1 page
+						$this->flash(__("no data matches your search", true), "javascript:history.back();", 5);
+					}else{
+						//go to the last node
+						$this->flash(sprintf(__("you cannot browse to the requested entities because there is no [%s] matching your request", true), $browsing['DatamartStructure']['display_name']), "/datamart/browser/browse/".$parent_node."/", 5);
+					}
+					return ;	
+				}
+				
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 				if(empty($tmp)){
 					//save fullset
@@ -234,13 +248,7 @@ class BrowserController extends DatamartAppController {
 				}
 				$this->BrowsingIndex->id = null;
 				$parent_node = $save['BrowsingResult']['id'];
-				
-				if(count($save_ids) == 0){
-					//we have an empty set, bail out!
-					$last_control_id = $control_id;
-					$this->BrowsingIndex->validationErrors[] = __("you cannot browse to the requested entities because some intermediary elements do not exist", true);
-					break;	
-				}
+				$first_iteration = false;
 			}
 			
 			//all nodes saved, now load the proper form
