@@ -510,13 +510,14 @@ function uncheckAll( $div ) {
 	function initAddLine(scope){
 		$(scope).find(".addLineLink").each(function(){
 			//get the table row
-			var tableBody = $(getParentElement(this, "TABLE")).find("tbody");
+			var table = $(getParentElement(this, "TABLE"));
+			var tableBody = $(table).find("tbody");
 			var lastLine = $(tableBody).find("tr:last");
 			var templateLineHtml = lastLine.html();
 			$(lastLine).remove();
 			var lineIncrement = $(tableBody).find("tr").length;
 			$(this).click(function(){
-				var counter = $(scope).find(".addLineCount").length == 1 ? $(scope).find(".addLineCount").val() : 1;
+				var counter = $(table).find(".addLineCount").length == 1 ? $(table).find(".addLineCount").val() : 1;
 				while(counter > 0){
 					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/\[%d\]\[/g, '[' + lineIncrement ++ + '][') + "</tr>");
 					counter --;
