@@ -1604,6 +1604,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$possibilities = $this->RealiquotingControl->find('all', array('conditions' => array('RealiquotingControl.parent_sample_to_aliquot_control_id' => $sample_to_aliquot_ctrl_id['SampleToAliquotControl']['id'])));
 		if(empty($possibilities)){
 			$this->flash(__("you cannot realiquot those elements", true), "javascript:history.back();", 5);
+			return;
 		}
 		$possible_ctrl_ids = array();
 		foreach($possibilities as $possibility){
