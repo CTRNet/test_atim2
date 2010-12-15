@@ -524,6 +524,8 @@ function uncheckAll( $div ) {
 				}
 				var newLines = $(tableBody).find("tr.newLine");
 				initRemoveLine(newLines);
+				initAutocomplete(newLines);
+				initToolPopup(newLines);
 				if(typeof(copyControl) != 'undefined'){
 					bindCopyCtrl(newLines);
 				}
