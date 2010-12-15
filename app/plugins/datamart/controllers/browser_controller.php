@@ -43,6 +43,10 @@ class BrowserController extends DatamartAppController {
 		
 	function browse($parent_node = 0, $control_id = 0){
 		$this->Structures->set("empty", "empty");
+		$browsing = null;
+		$load_data = false;
+		$check_list = false;
+		$last_control_id = 0;
 		if(empty($this->data)){
 			if($parent_node == 0){
 				//new access
@@ -54,62 +58,11 @@ class BrowserController extends DatamartAppController {
 				//direct node access
 				$this->set('parent_node', $parent_node);
 				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
-				$model_to_import = null;
-				$model_name_to_search = null;
-				$use_key = null;
-				$result_structure = null;
-				//check for detailed structure
-				$search_conditions = unserialize($browsing['BrowsingResult']['serialized_search_params']);
-				$sub_models_id_filter = array();
-				if(strlen($browsing['DatamartStructure']['control_model']) > 0 && $browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
-					$alternate_info = Browser::getAlternateStructureInfo(
-						$browsing['DatamartStructure']['plugin'], 
-						$browsing['DatamartStructure']['control_model'], 
-						$browsing['BrowsingResult']['browsing_structures_sub_id']);
-					$alternate_alias = $alternate_info['form_alias'];
-					$result_structure = $this->Structures->get('form', $alternate_alias);
-					$model_to_import = $browsing['DatamartStructure']['control_master_model'];
-					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
-					$use_key = "id";
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
-					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
-					$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
-				}else{
-					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
-					$model_to_import = $browsing['DatamartStructure']['model'];
-					$model_name_to_search = $browsing['DatamartStructure']['model'];
-					$use_key = $browsing['DatamartStructure']['use_key'];
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
-					$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
-				}
-				
-				
-				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
-				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $model_name_to_search.".".$use_key." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
-				
-				$this->set('top', "/datamart/browser/browse/".$parent_node."/"); 
-				$this->set('type', "checklist");
-				$this->set('checklist_key', $model_name_to_search.".".$use_key);
-				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
-				$this->set("dropdown_options", 
-					$this->Browser->getDropdownOptions(
-						$browsing['DatamartStructure']['id'], 
-						$parent_node, 
-						$browsing['DatamartStructure']['plugin'], 
-						$model_name_to_search,
-						$browsing['DatamartStructure']['model'],
-						$use_key,
-						$browsing['DatamartStructure']['use_key'], 
-						$result_structure['Structure']['alias'], 
-						$sub_models_id_filter
-					)
-				);
-				$this->Structures->set("datamart_browser_start");
-				$this->set("result_structure", $result_structure);
-				$this->set('index', $browsing['DatamartStructure']['index_link']);
+				$load_data = true;
+				$check_list = true;
 			}
 		}else{
-			//browsing access (search form or checklist)
+			// ->browsing access<- (search form or checklist)
 			if(isset($this->data['Browser']['search_for'])){
 				//search_for is taken from the dropdown
 				if(strpos($this->data['Browser']['search_for'], "/") > 0){
@@ -124,16 +77,17 @@ class BrowserController extends DatamartAppController {
 			}else{
 				$check_list = true;
 			}
-			//direct access array
-			$sub_structure_id = null;
-			if(strpos($control_id, "-") !== false){
-				list($control_id , $sub_structure_id) = explode("-", $control_id);
+			
+			$sub_structure_id = null;//control id for master/detail
+			if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
+				list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
 			}
-			$direct_id_arr = explode("_", $control_id);
-			//save selected subset
+			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
+			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
+			
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
 			if(isset($this->data[$parent['DatamartStructure']['model']]) && isset($this->data['Browser'])){
-				//if parent model found and not from a search form
+				//save selected subset if parent model found and from a checklist 
 				$ids = array();
 				if(count($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]) == 1 
 				&& strpos($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false){
@@ -164,17 +118,15 @@ class BrowserController extends DatamartAppController {
 				));
 				
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
-				if(empty($tmp)){
-					//current set does not exists, check for parent
-					if($parent['BrowsingResult']['id_csv'] != $id_csv){
-						//no identical parent exists, save!
-						$this->BrowsingResult->id = null;
-						$this->BrowsingResult->save($save);
-						$parent_node = $this->BrowsingResult->id;
-						$this->BrowsingResult->id = null;
-					}
-				}else{
+				if(!empty($tmp)){
+					//current set already exists, use it
 					$parent_node = $tmp['BrowsingResult']['id'];
+				}else if($parent['BrowsingResult']['id_csv'] != $id_csv){
+					//current set does not exists and no identical parent exists, save!
+					$this->BrowsingResult->id = null;
+					$this->BrowsingResult->save($save);
+					$parent_node = $this->BrowsingResult->id;
+					$this->BrowsingResult->id = null;
 				}
 			}
 			
@@ -293,64 +245,95 @@ class BrowserController extends DatamartAppController {
 			
 			//all nodes saved, now load the proper form
 			if($check_list){
-				//checkboxes
 				$parent_node = $save['BrowsingResult']['id'];
-				$sub_models_id_filter = array();
-				if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
-					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
-					$alternate_alias = $alternate_info['form_alias'];
-					$this->Structures->set($alternate_alias, "result_structure");
-					$this->set('checklist_key', $browsing['DatamartStructure']['control_master_model'].".id");
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
-					$browsing['BrowsingResult']['browsing_structures_sub_id'] = $sub_structure_id;
-					$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
-					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
-					$use_key = "id";
-					$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
-				}else{
-					$this->set('checklist_key', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
-					$this->set("result_structure", $result_structure); 
-					$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
-					$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
-					$model_name_to_search = $browsing['DatamartStructure']['model'];
-					$use_key = $browsing['DatamartStructure']['use_key'];
-				}
-				$this->set("dropdown_options", 
-					$this->Browser->getDropdownOptions(
-						$last_control_id, 
-						$parent_node, 
-						$browsing['DatamartStructure']['plugin'], 
-						$model_name_to_search,
-						$browsing['DatamartStructure']['model'],
-						$use_key, 
-						$browsing['DatamartStructure']['use_key'], 
-						$result_structure['Structure']['alias'], 
-						$sub_models_id_filter
-					)
-				);
-				$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
-				$this->set('type', "checklist");
-				$this->Structures->set("datamart_browser_start");
-				$this->set('top', "/datamart/browser/browse/".$save['BrowsingResult']['id']."/");
-				$this->set('parent_node', $parent_node);
-				$this->set('index', $browsing['DatamartStructure']['index_link']);
+				$browsing['BrowsingResult'] = $save['BrowsingResult'];
 			}else{
 				//search screen
-				$this->set('type', "search");
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $last_control_id)));
-				if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
-					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
-					$alternate_alias = $alternate_info['form_alias'];
-					$this->Structures->set($alternate_alias);
-					$last_control_id .= "-".$sub_structure_id;
-					$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
-				}else{
-					$this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id'])); 
-					$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
-				}
-				$this->set('top', "/datamart/browser/browse/".$parent_node."/".$last_control_id."/");
-				$this->set('parent_node', $parent_node);
 			}
+		}
+		
+		//handle display data
+		if($check_list){
+			$model_to_import = null;
+			$model_name_to_search = null;
+			$use_key = null;
+			$result_structure = null;
+			//check for detailed structure
+			$sub_models_id_filter = array();
+			if(strlen($browsing['DatamartStructure']['control_model']) > 0 && $browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
+				$alternate_info = Browser::getAlternateStructureInfo(
+					$browsing['DatamartStructure']['plugin'], 
+					$browsing['DatamartStructure']['control_model'], 
+					$browsing['BrowsingResult']['browsing_structures_sub_id']);
+				$alternate_alias = $alternate_info['form_alias'];
+				$result_structure = $this->Structures->get('form', $alternate_alias);
+				$model_to_import = $browsing['DatamartStructure']['control_master_model'];
+				$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
+				$use_key = "id";
+				$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
+				$sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
+				$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
+			}else{
+				$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
+				$model_to_import = $browsing['DatamartStructure']['model'];
+				$model_name_to_search = $browsing['DatamartStructure']['model'];
+				$use_key = $browsing['DatamartStructure']['use_key'];
+				$this->set("header", array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
+				$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+			}
+			
+			if($load_data){
+				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $model_name_to_search.".".$use_key." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
+			}
+			
+			$this->set('top', "/datamart/browser/browse/".$parent_node."/");
+			$this->set('parent_node', $parent_node);
+			$this->set('type', "checklist");
+			$this->set('checklist_key', $model_name_to_search.".".$use_key);
+			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
+			$structure_alias = null;
+			if(isset($result_structure['Structure']['alias'])){
+				$structure_alias = $result_structure['Structure']['alias'];
+			}else{
+				$tmp = array();
+				foreach($result_structure['Structure'] as $structure){
+					$tmp[] = $structure['alias'];
+				}
+				$structure_alias = implode(",", $tmp);
+			}
+			$this->set("dropdown_options", 
+				$this->Browser->getDropdownOptions(
+					$browsing['DatamartStructure']['id'], 
+					$parent_node, 
+					$browsing['DatamartStructure']['plugin'], 
+					$model_name_to_search,
+					$browsing['DatamartStructure']['model'],
+					$use_key,
+					$browsing['DatamartStructure']['use_key'], 
+					$structure_alias, 
+					$sub_models_id_filter
+				)
+			);
+			$this->Structures->set("datamart_browser_start");
+			$this->set("result_structure", $result_structure);
+			$this->set('index', $browsing['DatamartStructure']['index_link']);
+		}else if($browsing != null){
+			//search screen
+			$this->set('type', "search");
+			if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
+				$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
+				$alternate_alias = $alternate_info['form_alias'];
+				$this->Structures->set($alternate_alias);
+				$last_control_id .= "-".$sub_structure_id;
+				$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
+			}else{
+				$this->set("atim_structure", $this->Structures->getFormById($browsing['DatamartStructure']['structure_id'])); 
+				$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)));
+			}
+			$this->set('top', "/datamart/browser/browse/".$parent_node."/".$last_control_id."/");
+			$this->set('parent_node', $parent_node);
 		}
 	}
 }
