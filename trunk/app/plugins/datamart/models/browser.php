@@ -350,23 +350,22 @@ class Browser extends DatamartAppModel {
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search['search_conditions'])){
-							$structure_id_to_load = null;
+							$structure = null;
 							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
 								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
 								$alternate_alias = $alternate_alias['form_alias'];
-								$alternate_structure = StructuresComponent::$singleton->get('form', $alternate_alias);
-							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
+								$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	//unset the serialization on the sub model since it's already in the title
 							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
 							 	$tmp_model = AppModel::atimNew($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
 							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id'])));
 							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
-								$structure_id_to_load = $cell['DatamartStructure']['structure_id'];
+								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 							}
 							if(count($search['search_conditions'])){//count might be zero if the only condition was the sub type
-								$info .= __("search", true)." - ".$search_datetime."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
+								$info .= __("search", true)." - ".$search_datetime."<br/><br/>".Browser::formatSearchToPrint($search, $structure);
 							}else{
 								$info .= __("direct access", true)." - ".$search_datetime;
 							}
@@ -395,7 +394,7 @@ class Browser extends DatamartAppModel {
 	 * @param Int $structure_id The structure id to base the search params on
 	 * @return An html string of a table containing the search formated params
 	 */
-	static function formatSearchToPrint(array $search_params, $structure_id){
+	static function formatSearchToPrint(array $search_params, array $structure){
 		$params = $search_params['search_conditions'];
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
@@ -416,8 +415,6 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$structures_component = StructuresComponent::$singleton;
-		$sf = $structures_component->getFormById($structure_id);
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can ben a string or an array
 		foreach($params as $key => $value_element){
@@ -452,7 +449,7 @@ class Browser extends DatamartAppModel {
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf['Sfs'] as $sf_unit){
+			foreach($structure['Sfs'] as $sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
