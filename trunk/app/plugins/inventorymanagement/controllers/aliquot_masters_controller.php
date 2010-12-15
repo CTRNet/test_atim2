@@ -1590,8 +1590,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquots)){
 			$this->redirect('/pages/err_inv_system_error', null, true);
 		}
-		$sample_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
-		$aliquot_ctrl_id = $aliquots[0]['SampleMaster']['sample_control_id'];
+		$aliquot_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
+		$sample_ctrl_id = $aliquots[0]['SampleMaster']['sample_control_id'];
 		if(count($aliquots) > 1){
 			foreach($aliquots as $aliquot){
 				if($aliquot['AliquotMaster']['aliquot_control_id'] != $sample_ctrl_id || $aliquot['SampleMaster']['sample_control_id'] != $aliquot_ctrl_id){
@@ -1599,7 +1599,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
-		
 		$sample_to_aliquot_ctrl_id = $this->SampleToAliquotControl->find('first', array('conditions' => array('SampleToAliquotControl.sample_control_id' => $sample_ctrl_id, 'SampleToAliquotControl.aliquot_control_id' => $aliquot_ctrl_id)));
 		$possibilities = $this->RealiquotingControl->find('all', array('conditions' => array('RealiquotingControl.parent_sample_to_aliquot_control_id' => $sample_to_aliquot_ctrl_id['SampleToAliquotControl']['id'])));
 		if(empty($possibilities)){
