@@ -463,3 +463,7 @@ UPDATE `structure_fields`
 SET `type` = 'select', `setting` = '', `value_domain_control` = 'locked', `structure_value_domain` = (SELECT `id` FROM `structure_value_domains` WHERE `domain_name` = 'provinces')
 WHERE `structure_fields`.`tablename` = 'study_contacts' AND `structure_fields`.`field` = 'address_province' AND `structure_fields`.`type` = 'input';
 
+ALTER TABLE aliquot_review_masters
+ DROP FOREIGN KEY FK_aliquot_review_masters_aliquot_masters,
+ CHANGE aliquot_masters_id aliquot_master_id INT DEFAULT NULL,
+ ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters`(`id`);
