@@ -65,8 +65,8 @@ class BatchSetsController extends DatamartAppController {
 		
 		if($batch_set_id > 0){
 			$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
-			if(!$this->isUserAuthorizedToProcess($batch_set)) {
-				$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+			if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
+				return;
 			}
 			foreach ( $batch_set['BatchId'] as $fields ) {
 				$lookup_ids[] = $fields['lookup_id'];
@@ -282,9 +282,10 @@ class BatchSetsController extends DatamartAppController {
 		$this->BatchSet->id = $target_batch_set_id;
 	   
 		$batch_set = $this->BatchSet->read();
-		if(!$this->isUserAuthorizedToProcess($batch_set)) {
-			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
-		}	   
+		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)){
+				return;
+			}
+		
 	    
 		if($batch_set['BatchSet']['datamart_structure_id']){
 			$datamart_structure = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
@@ -357,8 +358,8 @@ class BatchSetsController extends DatamartAppController {
 			if ( $this->BatchSet->save($this->data) ) $this->atimFlash( 'your data has been updated','/datamart/batch_sets/listall/'.$type_of_list.'/'.$batch_set_id );
 		} else {
 			$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
-			if(!$this->isUserAuthorizedToProcess($batch_set)) {
-				$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+			if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)){
+				return;
 			}
 			if($batch_set['BatchSet']['datamart_structure_id']){
 				$tmp = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
@@ -370,8 +371,8 @@ class BatchSetsController extends DatamartAppController {
 	
 	function delete( $type_of_list='all', $batch_set_id=0 ) {
 		$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
-		if(!$this->isUserAuthorizedToProcess($batch_set)) {
-			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)) {
+			return;
 		}
 		$this->BatchSet->delete( $batch_set_id );
 		$this->atimFlash( 'your data has been deleted', '/datamart/batch_sets/index' );
@@ -412,8 +413,8 @@ class BatchSetsController extends DatamartAppController {
 	
 	function remove($batch_set_id) {
 		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
-		if(!$this->isUserAuthorizedToProcess($batch_set)) {
-			$this->atimFlash('your are not allowed to work on this batchset', '/datamart/batch_sets/index/');
+		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)){
+			return;
 		}
 				
 		// set function variables, makes script readable :)
@@ -447,36 +448,6 @@ class BatchSetsController extends DatamartAppController {
 		exit();
 		
 	}
-	
-	function isUserAuthorizedToProcess($batch_set_data) {
-		if(empty($batch_set_data) 
-		|| (!(array_key_exists('user_id', $batch_set_data['BatchSet'])
-		&& array_key_exists('group_id', $batch_set_data['BatchSet'])
-		&& array_key_exists('sharing_status', $batch_set_data['BatchSet'])))) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
-		}
-		
-		switch($batch_set_data['BatchSet']['sharing_status']) {
-			case 'user' :
-				if($batch_set_data['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id']) {
-					return true;
-				}
-				break;
-			case 'group' :
-				if($batch_set_data['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id']) {
-					return true;
-				}
-				break;
-			case 'all' :
-				return true;
-				break;
-			default:
-				$this->redirect('/pages/err_datamart_system_error', null, true);
-		}
-		
-		return false;
-	}	
-	
 }
 
 ?>

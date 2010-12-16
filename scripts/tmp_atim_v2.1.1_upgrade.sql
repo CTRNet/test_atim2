@@ -467,3 +467,12 @@ ALTER TABLE aliquot_review_masters
  DROP FOREIGN KEY FK_aliquot_review_masters_aliquot_masters,
  CHANGE aliquot_masters_id aliquot_master_id INT DEFAULT NULL,
  ADD FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters`(`id`);
+ 
+ALTER TABLE datamart_batch_sets
+ ADD COLUMN locked BOOLEAN NOT NULL DEFAULT false AFTER flag_use_query_results;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Datamart', 'BatchSet', 'datamart_batch_sets', 'locked', 'locked', '', 'checkbox', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='querytool_batch_set '), (SELECT id FROM structure_fields WHERE `model`='BatchSet' AND `tablename`='datamart_batch_sets' AND `field`='locked' AND `language_label`='locked' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
