@@ -484,13 +484,247 @@ SET al.aliquot_label = REPLACE(al.aliquot_label, 'PBMC', 'LB')
 WHERE sm.id = al.sample_master_id
 AND sm.sample_type = 'b cell';
 
--- amplified rna
+UPDATE consent_masters SET consent_status = 'pending' WHERE consent_status = 'sent';
+UPDATE i18n SET fr = 'Memo' WHERE id = 'memo';
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0'
+WHERE str.alias IN ('miscidentifiers_for_participant_search', 'participants') 
+AND sfi.field IN ('is_anonymous')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'Participant', 'participants', 'is_anonymous', 'is anonymous', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='is_anonymous' AND `type`='select'), '4', '1', 'anonymous data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0');
+
+-- sd_spe_ascites
 
 UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
 SET sfo.flag_search = '0', sfo.flag_index  = '0'
-WHERE str.alias IN ('sd_der_amplified_rnas') 
-AND sfi.field IN ('initial_specimen_sample_type','sample_type','xxxxxx','xxxx','xxxxx','xxxxx')
+WHERE str.alias IN ('sd_spe_ascites') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index  = '1'
+WHERE str.alias IN ('sd_spe_ascites') 
+AND sfi.field IN ('sample_code','sample_label',
+'supplier_dept','reception_by','reception_datetime',
+'type_code', 'sequence_number')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- sd_undetailed_derivatives
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('sd_undetailed_derivatives') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index  = '1'
+WHERE str.alias IN ('sd_undetailed_derivatives') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_label', 'sample_code',
+'creation_datetime', 'creation_by', 'creation_site')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- ad_ascite_cell_tubes
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ad_ascite_cell_tubes') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('ad_ascite_cell_tubes') 
+AND sfi.field IN ('aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'code', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id', 
+'tmp_storage_method', 'tmp_storage_solution')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_ascite_cell_tubes') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_type', 'aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'storage_coord_x', 'storage_coord_y', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id', 
+'tmp_storage_method', 'tmp_storage_solution', 'current_volume')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_ascite_cell_tubes') 
+AND sfi.field IN ('aliquot_volume_unit')
+AND sfo.display_order = '72'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- ad_der_tubes_incl_ml_vol
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ad_der_tubes_incl_ml_vol') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ml_vol') 
+AND sfi.field IN ('aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'code', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ml_vol') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_type', 'aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'storage_coord_x', 'storage_coord_y', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id',
+'current_volume')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ml_vol') 
+AND sfi.field IN ('aliquot_volume_unit')
+AND sfo.display_order = '72'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- sd_der_cell_cultures
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('sd_der_cell_cultures') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index  = '1'
+WHERE str.alias IN ('sd_der_cell_cultures') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_label', 'sample_code',
+'creation_datetime', 'creation_by', 'creation_site',
+'culture_status', 'culture_status_reason', 'cell_passage_number', 'tmp_collection_method', 'tmp_hormon', 'tmp_solution', 'tmp_percentage_of_oxygen', 'tmp_percentage_of_serum')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- ad_der_cell_slides
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ad_der_cell_slides') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('ad_der_cell_slides') 
+AND sfi.field IN ('aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'code', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id', 
+'immunochemistry')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_der_cell_slides') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_type', 'aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'storage_coord_x', 'storage_coord_y', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id',
+'immunochemistry')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- ad_cell_culture_tubes
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ad_cell_culture_tubes') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('ad_cell_culture_tubes') 
+AND sfi.field IN ('aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'code', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id', 
+'cell_passage_number', 'tmp_storage_solution')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_cell_culture_tubes') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_type', 'aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'storage_coord_x', 'storage_coord_y', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id',
+'cell_passage_number', 'tmp_storage_solution', 'current_volume')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_cell_culture_tubes') 
+AND sfi.field IN ('aliquot_volume_unit')
+AND sfo.display_order = '72'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+DELETE FROM i18n WHERE id = 'cell passage number';
+INSERT INTO i18n (id,en,fr) VALUES ('cell passage number', 'Cell Passage Number', 'Nbr de passages cellulaire');
+
+-- sd_der_dnas
+-- sd_der_rnas
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('sd_der_dnas', 'sd_der_rnas') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index  = '1'
+WHERE str.alias IN ('sd_der_dnas', 'sd_der_rnas') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_label', 'sample_code',
+'creation_datetime', 'creation_by', 'creation_site',
+'source_cell_passage_number', 'tmp_source_milieu', 'tmp_source_storage_method', 'tmp_extraction_method')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- sd_der_amplified_rnas
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('sd_der_dnas', 'sd_der_amplified_rnas') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1', sfo.flag_index  = '1'
+WHERE str.alias IN ('sd_der_dnas', 'sd_der_amplified_rnas') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_label', 'sample_code',
+'creation_datetime', 'creation_by', 'creation_site',
+'tmp_amplification_method', 'tmp_amplification_number')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+-- ad_der_tubes_incl_ul_vol_and_conc
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '0', sfo.flag_index  = '0'
+WHERE str.alias IN ('ad_der_tubes_incl_ul_vol_and_conc') 
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_search = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ul_vol_and_conc') 
+AND sfi.field IN ('aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'code', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id', 
+'concentration', 'concentration_unit', 'tmp_storage_solution')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ul_vol_and_conc') 
+AND sfi.field IN ('initial_specimen_sample_type', 'sample_type', 'aliquot_label', 'barcode', 'in_stock', 'in_stock_detail',
+'selection_label', 'storage_coord_x', 'storage_coord_y', 'storage_datetime', 'temperature', 'temp_unit','study_summary_id',
+'concentration', 'concentration_unit', 'tmp_storage_solution', 'current_volume')
+AND sfi.model NOT IN ('GeneratedParentSample')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_index  = '1'
+WHERE str.alias IN ('ad_der_tubes_incl_ul_vol_and_conc') 
+AND sfi.field IN ('aliquot_volume_unit')
+AND sfo.display_order = '72'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
@@ -502,13 +736,24 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
 
-
-
-
-
-
-
-
+sd_spe_bloods
+ad_spec_tubes_incl_ml_vol
+ad_spec_whatman_papers
+ad_der_cell_tubes_incl_ml_vol
+sd_der_blood_cells
+sd_der_pbmcs
+sd_der_plasmas
+sd_der_serums
+sd_spe_cystic_fluids
+sd_spe_other_fluids
+sd_spe_pericardial_fluids
+sd_spe_peritoneal_washes
+sd_spe_pleural_fluids
+sd_spe_tissues
+ad_spec_tiss_blocks
+ad_spec_tiss_cores
+ad_spec_tiss_slides
+sd_spe_urines
 
 
 
@@ -549,6 +794,7 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 #('', '', '0', '', 'other_contacts_if_die', 'other contacts if deceased', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open'), 
 #('', '', '0', '', 'denied', 'denied', '', 'integer', '', '',  NULL , '', 'open', 'open', 'open');
 
+
 #ajouter ligne 125 de databrowser_controller.php
 #INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) VALUES ('qc_nd_procure_consent_stats_report', '', '', '1', '1', '1', '1');
 #INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -566,4 +812,5 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 #((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_contacts_if_die' AND `language_label`='other contacts if deceased' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'), 
 #((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='denied' AND `language_label`='denied' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
 #
-
+# Verifier l'ecriture des accents dans collection Lieu de prélèvement  et Banque 
+# supprimer check box dans les search: select alias,field,`type`,`override_stype`,`search` from view_structures where search like '1%' AND (type = 'checkbox' or override_stype LIKE '%checkbox%' )
