@@ -1,4 +1,4 @@
-﻿DROP VIEW IF EXISTS view_collections;
+DROP VIEW IF EXISTS view_collections;
 CREATE VIEW view_collections AS 
 SELECT 
 col.id AS collection_id,
@@ -1009,4 +1009,3 @@ DELETE FROM i18n WHERE id = 'kidney';
 INSERT INTO i18n (id,en,fr) VALUES ('kidney', 'Kidney', 'Rein');
 
 UPDATE users set flag_active = '1';
-
