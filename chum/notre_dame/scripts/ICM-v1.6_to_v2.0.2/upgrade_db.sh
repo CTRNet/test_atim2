@@ -17,7 +17,7 @@ echo "****            ICM 1.6 to 2.1 MIGRATION             ****"
 echo "*********************************************************"
 echo "WARNING: It's assumed you have already run script 0-Check..."
 
-if false; then
+if true; then
   	echo "~~~~Dumping database~~~~"
 	mysqldump -u $2 -p$3 $1 > ATiM_utf8.sql
 	echo Fixing iso
@@ -45,7 +45,7 @@ if true; then
 		5-atim_v2.0.2A_upgrade.sql
 		6-LoadCustomApplicationData_v2.0.2A.sql
 		7-atim_v2.1.0_upgrade.sql
-# 		8-LoadCustomApplicationData_v2.1.0.sql
+ 		8-LoadCustomApplicationData_v2.1.0.sql
 		 )
 	
 	for file in ${files[@]} 
@@ -74,9 +74,17 @@ php populateRevs.php $1 $2 $3
 echo "done"
 
 echo "~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~"
-
-echo "UPDATE USERS PRIVILEGES";
-
+echo "";
+echo "";
+echo "";
+echo "";
+echo "";
+echo "TODO: YOU HAVE TO UPDATE USERS PRIVILEGES!!!!!!!!!!";
+echo "";
+echo "";
+echo "";
+echo "";
+echo "";
 #echo running tmp_full_2.0.2A_script.sql
 #mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_full_2.0.2A_script.sql
 

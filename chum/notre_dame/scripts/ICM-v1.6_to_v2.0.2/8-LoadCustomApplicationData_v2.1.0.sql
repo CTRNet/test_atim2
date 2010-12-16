@@ -1008,4 +1008,5 @@ UPDATE aliquot_masters SET notes = '' WHERE `notes` LIKE '%utilisation actuellem
 DELETE FROM i18n WHERE id = 'kidney';
 INSERT INTO i18n (id,en,fr) VALUES ('kidney', 'Kidney', 'Rein');
 
+UPDATE users set flag_active = '1';
 
