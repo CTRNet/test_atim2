@@ -108,10 +108,24 @@ SELECT DISTINCT `date_captured` , `age_at_menopause` , `menopause_age_certainty`
 FROM reproductive_histories;
 -- -> 0 records
 
--- check #16 : Check no source block has been defined
+-- check #16 : Only 4 slides are linked to a block
 SELECT DISTINCT `ad_block_id` FROM `ad_tissue_slides`;
--- -> 0 records
--- NOTE: 4 records exist now. Keep in mind and rebuild relation in prod.
+SELECT 
+CONCAT(bl_mst.aliquot_type, ' ', bl_mst.barcode, ' - ', bl_mst.aliquot_label) AS block, 
+'=>',
+CONCAT(sl_mst.aliquot_type, ' ', sl_mst.barcode, ' - ', sl_mst.aliquot_label) AS slide, 
+CONCAT(bl_mst.sample_master_id, '-', sl_mst.sample_master_id ) AS sample_master_id_check
+FROM aliquot_masters AS sl_mst
+INNER JOIN ad_tissue_slides AS sl_det ON sl_det.aliquot_master_id = sl_mst.id
+INNER JOIN aliquot_masters AS bl_mst ON bl_mst.id = sl_det.ad_block_id; 
++--------------------------------------------------------------+----+---------------------------------------------------------------+------------------------+
+| block                                                        | => | slide                                                         | sample_master_id_check |
++--------------------------------------------------------------+----+---------------------------------------------------------------+------------------------+
+| block tmp_T-17115_75421 - TOV - 2273 unknown BLOC 2010-07-28 | => | slide tmp_T-17115_75424 - TOV - 2273 unknown SLIDE 2010-07-28 | 17115-17115            |
+| block tmp_T-17168_75425 - NOV - 2277 D BLOC 2010-07-28       | => | slide tmp_T-17168_75426 - NOV - 2277 D SLIDE 2010-07-28       | 17168-17168            |
+| block tmp_T-27343_75427 - TOV - 2261 EP BLOC 2010-07-28      | => | slide tmp_T-27343_75428 - TOV - 2261 EP SLIDE 2010-07-28      | 27343-27343            |
+| block tmp_T-17750_75429 - TOV - 2349 G BLOC 2010-07-28       | => | slide tmp_T-17750_75434 - TOV - 2349 G SLIDE 2010-07-28       | 17750-17750            |
++--------------------------------------------------------------+----+---------------------------------------------------------------+------------------------+
 
 -- check #17 : Check no error into the derivative sample label creation
 SELECT spec.id AS spec_sample_master_id, spec.collection_id AS spec_collection_id, CONCAT('%',spec.sample_label,'%') AS spec_sample_label, 

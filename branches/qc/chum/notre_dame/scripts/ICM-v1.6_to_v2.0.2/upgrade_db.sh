@@ -60,14 +60,22 @@ if true; then
 fi
 
 echo "~~~~Run php scripts~~~~"
+
 echo "run rebuildLeftRight.php"
 php rebuildLeftRight.php $1 $2 $3
 echo "done"
+
 echo "run create_language_file.php"
 php create_language_file.php $1 $2 $3
 echo "done"
+
+echo "run populateRevs.php"
+php populateRevs.php $1 $2 $3
+echo "done"
+
 echo "~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~"
 
+echo "UPDATE USERS PRIVILEGES";
 
 #echo running tmp_full_2.0.2A_script.sql
 #mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_full_2.0.2A_script.sql
