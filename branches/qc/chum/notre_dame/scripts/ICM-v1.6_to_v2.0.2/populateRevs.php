@@ -10,7 +10,7 @@
 $database_schema = $argv[1];
 $user = $argv[2];
 $password = $argv[3];
-$database_schema = "localhost";
+$server = "localhost";
 
 global $db;
 $db = @new mysqli($server, $user, $password, $database_schema);
