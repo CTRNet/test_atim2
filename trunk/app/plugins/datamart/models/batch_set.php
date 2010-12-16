@@ -80,6 +80,48 @@ class BatchSet extends DatamartAppModel {
 		
 		return $this->find('all', array('conditions' => $available_batchsets_conditions));
 	}
+	
+	/**
+	 * @desc Verifies if a user can read/write a batchset. If it fails, the browser 
+	 * will be redirected to a flash screen.
+	 * @param array $batchset The batchset data
+	 * @param boolean $must_be_unlocked If true, the batchset must be unlocked to authorize access.
+	 */
+	public function isUserAuthorizedToRw(array $batchset, $must_be_unlocked){
+		if(empty($batchset) 
+		|| (!(array_key_exists('user_id', $batchset['BatchSet'])
+		&& array_key_exists('group_id', $batchset['BatchSet'])
+		&& array_key_exists('sharing_status', $batchset['BatchSet'])))) {
+			AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		$allowed = null;
+		switch($batchset['BatchSet']['sharing_status']){
+			case 'user' :
+				$allowed = $batchset['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id'];
+				break;
+			case 'group' :
+				$allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
+				break;
+			case 'all' :
+				$allowed = true;
+				break;
+			default:
+				AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		if(!$allowed){
+			AppController::getInstance()->atimFlash('your are not allowed to work on this batchset', 'javascript:history.back()', 5);
+			return false;
+		}
+		
+		if($must_be_unlocked && $batchset['BatchSet']['locked']){
+			AppController::getInstance()->atimFlash('this batchset is locked', 'javascript:history.back()', 5);
+			return false;
+		}
+		
+		return true;
+	}
 }
 
 ?>
