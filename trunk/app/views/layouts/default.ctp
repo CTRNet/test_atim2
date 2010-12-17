@@ -7,14 +7,9 @@ ob_start('ob_gzhandler');
 <head>
 
 	<?php
-		//cookie manipulation to counter cake problems. see eventum #1032
-		if(isset($_COOKIE[Configure::read("Session.cookie")])){
-			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100), "/");
-		}
-		
+		AppController::atimSetCookie();
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
-		
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
@@ -38,6 +33,7 @@ ob_start('ob_gzhandler');
 			var root_url = "<?php echo($this->webroot); ?>";
 			var webroot_dir = root_url + "/app/webroot/";
 			var locale = "<?php echo($locale); ?>";
+			var sessionExpiration = (new Date()).getTime() + <?php echo ($session_delay_sec + 1) * 1000; ?>;
 			var STR_OR = "<?php __('or'); ?>";
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
