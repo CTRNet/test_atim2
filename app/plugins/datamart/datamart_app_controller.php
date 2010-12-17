@@ -1,6 +1,13 @@
 <?php
 
 class DatamartAppController extends AppController {
+	
+	/**
+	 * The limit of records to display before considering it an 
+	 * oversized resut set
+	 * @var int 
+	 */
+	static public $display_limit = 400;
 
 	function beforeFilter() {
 		parent::beforeFilter();

@@ -6,22 +6,7 @@
 	$settings = array();
 	if($type == "checklist"){
 		$links['top'] = $top;
-		if(count($this->data) > 400){
-			//overflow
-			?>
-			<ul class="error">
-				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
-				.__("if you browse further ahead, all matches of the current set will be used", true)); ?>.</li>
-			</ul>
-			<?php
-			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
-			$key_parts = explode(".", $checklist_key);
-			$ids = array();
-			foreach($this->data as $data_unit){
-				$ids[] = $data_unit[$key_parts[0]][$key_parts[1]];
-			}
-			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".implode(',', $ids)."'/>\n");
-		}else{
+		if(is_array($this->data)){
 			//normal display
 			$links['checklist'] = array(
 					$checklist_key_name.']['=>'%%'.$checklist_key.'%%'
@@ -32,6 +17,17 @@
 			$tmp_header = isset($header) ? $header : "";
 			$header = "";
 			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
+		}else{
+			//overflow
+			?>
+			<ul class="error">
+				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
+				.__("if you browse further ahead, all matches of the current set will be used", true)); ?>.</li>
+			</ul>
+			<?php
+			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
+			$key_parts = explode(".", $checklist_key);
+			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".$this->data."'/>\n");
 		}
 		$is_datagrid = true;
 		$type = "add";

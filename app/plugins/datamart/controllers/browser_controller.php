@@ -44,7 +44,6 @@ class BrowserController extends DatamartAppController {
 	function browse($parent_node = 0, $control_id = 0){
 		$this->Structures->set("empty", "empty");
 		$browsing = null;
-		$load_data = false;
 		$check_list = false;
 		$last_control_id = 0;
 		if(empty($this->data)){
@@ -58,7 +57,6 @@ class BrowserController extends DatamartAppController {
 				//direct node access
 				$this->set('parent_node', $parent_node);
 				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent_node)));
-				$load_data = true;
 				$check_list = true;
 			}
 		}else{
@@ -137,7 +135,6 @@ class BrowserController extends DatamartAppController {
 			}
 			$result_structure = null;
 			$browsing = null;
-			$save_ids = array();
 			$model_name_to_search = null;
 			$model_key_name = null;
 			$use_sub_model = null;
@@ -168,6 +165,7 @@ class BrowserController extends DatamartAppController {
 				
 				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
+				$key = $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'];
 				if($use_sub_model){
 					//adding filtering search condition
 					$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $sub_structure_id;
@@ -184,7 +182,7 @@ class BrowserController extends DatamartAppController {
 						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")")));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
-							$search_conditions[$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']][] = $data_unit[$use_model][$use_field];
+							$search_conditions[$key][] = $data_unit[$use_model][$use_field];
 						}
 					}else{
 						//ids are already contained in the child
@@ -199,28 +197,27 @@ class BrowserController extends DatamartAppController {
 							foreach($tmp_data as $unit){
 								$tmp_ids[] = $unit[$browsing['DatamartStructure']['model']][$browsing['DatamartStructure']['use_key']];
 							}
-							$search_conditions[] = $browsing['DatamartStructure']['control_master_model'].".id IN (".implode(", ", $tmp_ids).")";
+							$key = $browsing['DatamartStructure']['control_master_model'].".id";
+							$search_conditions[] = $key." IN (".implode(", ", $tmp_ids).")";
 						}else{
-							$search_conditions[] = $control_data['BrowsingControl']['use_field']." IN (".$parent['BrowsingResult']['id_csv'].")";
+							$key = $control_data['BrowsingControl']['use_field'];
+							$search_conditions[] = $key." IN (".$parent['BrowsingResult']['id_csv'].")";
 						}
 					}
 				}
-				$this->data = $this->ModelToSearch->find('all', array('conditions' => $search_conditions));
-				$save_ids = array();
-				foreach($this->data as $data_unit){
-					$save_ids[] = $data_unit[$model_name_to_search][$model_key_name];
-				}
+				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("GROUP_CONCAT(".$key.") AS ids"), 'GROUP BY NULL'));
+				$save_ids = $save_ids[0][0]['ids'];
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
 					"parent_node_id" => $parent_node,
 					"browsing_structures_id" => $control_id,
 					"browsing_structures_sub_id" => $use_sub_model ? $sub_structure_id : 0,
-					"id_csv" => implode(",", $save_ids),
+					"id_csv" => $save_ids,
 					"raw" => true,
 					"serialized_search_params" => serialize($org_search_conditions),
 				));
 				
-				if(count($save_ids) == 0){
+				if(strlen($save_ids) == 0){
 					//we have an empty set, bail out! (don't save empty result)
 					if($control_id == $last_control_id){
 						//go back 1 page
@@ -291,11 +288,20 @@ class BrowserController extends DatamartAppController {
 				$sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
 			}
 			
-			if($load_data){
-				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
-				$this->data = strlen($browsing['BrowsingResult']['id_csv']) > 0 ? $this->ModelToSearch->find('all', array('conditions' => $model_name_to_search.".".$use_key." IN (".$browsing['BrowsingResult']['id_csv'].")")) : array();
+			$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+			if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
+				$conditions = $model_name_to_search.".".$use_key." IN (".$browsing['BrowsingResult']['id_csv'].")";
+				//fetch the count since deletions might make the set smaller than the count of ids
+				$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
+				if($count > self::$display_limit){
+					$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("GROUP_CONCAT(".$model_name_to_search.".".$use_key.") AS ids"), 'GROUP BY NULL'));
+					$this->data = $data[0][0]['ids'];
+				}else{
+					$this->data = $this->ModelToSearch->find('all', array('conditions' => $conditions));
+				}
+			}else{
+				$this->data = array();
 			}
-			
 			$this->set('top', "/datamart/browser/browse/".$parent_node."/");
 			$this->set('parent_node', $parent_node);
 			$this->set('type', "checklist");
