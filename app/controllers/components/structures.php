@@ -20,16 +20,27 @@ class StructuresComponent extends Object {
 			$alias = explode(",", $alias);			
 		}
 		$structure = array('Structure' => array(), 'Sfs' => array());
+		$all_structures = array();
 		foreach($alias as $alias_unit){
-			$tmp = $this->getSingleStructure($alias_unit);
-			foreach ($tmp['rules'] as $model => $rules){
-				$this->controller->{ $model }->validate = $rules;
+			$struct_unit = $this->getSingleStructure($alias_unit);
+			$all_structures[] = $struct_unit;
+			foreach ($struct_unit['rules'] as $model => $rules){
+				//reset validate for newly loaded structure models
+				$this->controller->{ $model }->validate = array();
 			}
-			if(isset($tmp['structure']['Sfs'])){
-				$structure['Sfs'] = array_merge($tmp['structure']['Sfs'], $structure['Sfs']);
-				$structure['Structure'][] = $tmp['structure']['Structure'];
+			if(isset($struct_unit['structure']['Sfs'])){
+				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
+				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 			}
 		}
+		
+		//rules are formatted, apply them
+		foreach($all_structures as $struct_unit){
+			foreach ($struct_unit['rules'] as $model => $rules){
+				$this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+			}
+		}
+		
 		if(count($alias) > 1){
 			self::sortStructure($structure);
 		}else if(count($structure['Structure']) == 1){

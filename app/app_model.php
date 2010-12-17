@@ -4,6 +4,7 @@ class AppModel extends Model {
 	
 	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
 	private $validation_in_progress = false;
+	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
 
 	//The values in this array can trigger magic actions when applied to a field settings
 	private static $magic_coding_icd_trigger_array = array(
@@ -40,6 +41,10 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
+		
+		if(!isset(self::$auto_validation[$this->name])){
+			$this->buildAutoValidation($this->name, $this);
+		}
 	}
 	
 	
@@ -298,7 +303,6 @@ class AppModel extends Model {
 			$detail_field		= $settings['detail_field'];
 
 			$associated = NULL;
-			
 			if (isset($this->data[$master_class][$control_foreign]) && $this->data[$master_class][$control_foreign] ) {
 				// use CONTROL_ID to get control row
 				$associated = $this->$control_class->find('first',array('conditions' => array($control_class.'.id' => $this->data[$master_class][$control_foreign])));
@@ -318,11 +322,21 @@ class AppModel extends Model {
 			
 			$use_form_alias = $associated[$control_class][$form_alias];
 			$use_table_name = $associated[$control_class][$detail_field];
-			
 			if($use_form_alias){
 				$detail_class_instance = new AppModel(array('table' => $use_table_name, 'name' => $detail_class, 'alias' => $detail_class));
 				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
+					//attach auto validation
+					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
+					if(!isset(self::$auto_validation[$auto_validation_name])){
+						$this->buildAutoValidation($auto_validation_name, $detail_class_instance);
+					}
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
+					foreach(self::$auto_validation[$auto_validation_name] as $field_name => $rules){
+						if(!isset($detail_class_instance->validate[$field_name])){
+							$detail_class_instance->validate[$field_name] = array();
+						}
+						$detail_class_instance->validate[$field_name] = array_merge($detail_class_instance->validate[$field_name], $rules);
+					}
 					$detail_class_instance->set($this->data);
 					$valid_detail_class = $detail_class_instance->validates();
 					if(!$valid_detail_class){
@@ -359,6 +373,28 @@ class AppModel extends Model {
 		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
 		return $loaded_class;
 	}
+	
+	/**
+	 * @desc Builds automatic string length validations based on the field type 
+	 * @param string $use_name The name under which to record the validations
+	 * @param string $model The model to base the validations on
+	 */
+	static function buildAutoValidation($use_name, $model){
+		if(is_array($model->_schema)){
+			$auto_validation = array();
+			foreach($model->_schema as $field_name => $field_data){
+				if($field_data['type'] == "string"){
+					$auto_validation[$field_name][] = array(
+								'rule' => array("maxLength", $field_data['length']), 
+								'allowEmpty' => true, 
+								'required' => null,
+								'message' => sprintf(__("the string length must not exceed %d characters", true), $field_data['length'])
+					);
+				}
+			}
+			self::$auto_validation[$use_name] = $auto_validation;
+		}
+	} 
 }
 
 ?>
