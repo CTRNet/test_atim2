@@ -480,10 +480,12 @@ function uncheckAll( $div ) {
 			});
 		}
 	}
-	
 	//tool_popup
 	function initToolPopup(scope){
 		$(scope).find(".tool_popup").click(function(){
+//			if((new Date).getTime() > sessionExpiration){
+//				document.location = "";
+//			}
 			var parent_elem = $(this).parent().children();
 			toolTarget = null;
 			for(i = 0; i < parent_elem.length; i ++){
@@ -626,6 +628,13 @@ function uncheckAll( $div ) {
 		
 		initAddLine(document);
 		initRemoveLine(document);
+		
+		$(document).ajaxError(function(event, xhr, settings, exception){
+			if(xhr.status == 403){
+				//access denied, most likely a session timeout
+				document.location = "";
+			}
+		});
 	}
 
 	function debug(str){

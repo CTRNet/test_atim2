@@ -459,12 +459,19 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	/**
+	 * @desc cookie manipulation to counter cake problems. see eventum #1032
+	 */
+	static function atimSetCookie(){
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 10), "/");
+		}
+	}
 }
 
-
-	
 	AppController::init();
-		
+
 	function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null){
 		if(class_exists("CakeLog")){
 			$CakeLog = CakeLog::getInstance();
