@@ -54,6 +54,7 @@ class Structure extends AppModel {
 
 			if(($this->simple && isset($structure['Sfs'])) || (!$this->simple && isset($structure['StructureFormat']))){
 				foreach ($structure[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
+					$auto_validation = isset(AppModel::$auto_validation[$sf['model']]) ? AppModel::$auto_validation[$sf['model']] : array(); 
 					if (!isset($rules[$sf['model']])){
 						$rules[$sf['model']] = array();
 					}
@@ -139,7 +140,13 @@ class Structure extends AppModel {
 						}
 						
 						$rules[$sf['model']][$sf['field']][] = $rule_array;
-						
+					}
+					
+					if(isset($auto_validation[$sf['field']])){
+						foreach($auto_validation[$sf['field']] as $rule_array){
+							$rule_array['message'] .= " (".__($sf['language_label'], true).")";
+							$rules[$sf['model']][$sf['field']][] = $rule_array;
+						}
 					}
 				}
 			}
