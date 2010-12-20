@@ -33,6 +33,7 @@ class StructuresHelper extends Helper {
 				'name_prefix'	=> NULL,
 				'pagination'	=> true,
 				'columns_names' => array(), // columns names - usefull for reports. only works in detail views
+				'stretch'		=> true, //the structure will take full page width
 				
 				'all_fields'	=> false, // FALSE acts on structures datatable settings, TRUE ignores them and displays ALL FIELDS in a form regardless
 				'add_fields'	=> false, // if TRUE, adds an "add another" link after form to allow another row to be appended
@@ -447,11 +448,12 @@ class StructuresHelper extends Helper {
 	private function buildDetail(array $atim_structure, array $options, $data_unit){
 		$table_index = $this->buildStack($atim_structure, $options);
 		// display table...
-		echo('
-			<table class="structure" cellspacing="0">
+		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" '; 
+		echo '
+			<table class="structure" cellspacing="0"'.$stretch.'>
 			<tbody>
 				<tr>
-		');
+		';
 		
 		// each column in table 
 		$count_columns = 0;
@@ -735,11 +737,12 @@ class StructuresHelper extends Helper {
 		$structure_count = 0;
 		$structure_index = array(1 => $table_structure);
 						
-		echo('
-			<table class="structure" cellspacing="0">
+		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" '; 
+		echo '
+			<table class="structure" cellspacing="0"'.$stretch.'>
 				<tbody>
 					<tr>
-		');
+		';
 		
 		foreach($structure_index as $table_key => $table_index){
 			$structure_count++;
@@ -969,11 +972,12 @@ class StructuresHelper extends Helper {
 				$options['links']['tree'][$model_name] = $this->generateLinksList(null, $tree_links, 'index');
 			}
 		}
-		echo('
-			<table class="structure" cellspacing="0">
+		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" '; 
+		echo '
+			<table class="structure" cellspacing="0"'.$stretch.'>
 			<tbody>
 				<tr>
-		');
+		';
 		
 		$structure_count = 0;
 		$structure_index = array( 1 => array() ); 

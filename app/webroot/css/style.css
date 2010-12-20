@@ -92,6 +92,7 @@ div.wrapper {
 
 div.outerWrapper{
 	min-height: 300px;
+	background-color: #fff;
 }
 
 div#header {
@@ -848,6 +849,7 @@ span.help {
 			width: 30%;
 			font-weight: bold;
 			color: #000;
+			white-space: nowrap;
 		}
 		div.wrapper table.structure td.content {
 			color: #666;
