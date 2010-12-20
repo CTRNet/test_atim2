@@ -2158,49 +2158,49 @@ ORDER BY AliquotMaster.barcode;',
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo');
 DELETE FROM `structures` WHERE `alias` LIKE 'datamart_adhoc_qr_1001_demo';
 
-INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`) 
 VALUES 
-(NULL, 'datamart_adhoc_qr_1001_demo', NULL, '', '', '1', '1', '0', '1');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+(NULL, 'datamart_adhoc_qr_1001_demo', NULL, '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input'),
-'0', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'),
-'0', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type'),
-'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' ),
-'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime'),
-'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label'),
-'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label'),
-'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x'),
-'0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+'0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y'),
-'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature'),
-'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit'),
-'0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id'),
-'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1001_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label'),
-'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+'0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE structure_formats
 SET `flag_override_setting` = '1', `setting` = 'tool=csv'
@@ -2251,25 +2251,24 @@ ORDER BY Participant.participant_identifier;',
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo');
 DELETE FROM `structures` WHERE `alias` LIKE 'datamart_adhoc_qr_1002_demo';
 
-INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`) 
 VALUES 
-(NULL, 'datamart_adhoc_qr_1002_demo', NULL, '', '', '1', '1', '0', '1');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+(NULL, 'datamart_adhoc_qr_1002_demo', NULL, '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier'),
-'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='sex'),
-'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='sample_type'),
-'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='aliquot_type'),
-'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'),
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='datamart_adhoc_qr_1002_demo'), 
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='in_stock'),
-'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
-
-
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0');
 
