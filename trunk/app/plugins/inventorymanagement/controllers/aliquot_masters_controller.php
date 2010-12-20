@@ -1115,25 +1115,45 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else if(!empty($this->data)){
 			//save
 			AliquotUse::$mValidate = $this->AliquotUse->validate;
-			$remove_when_empty = $this->data['remove_when_empty'];
-			$this->set('remove_when_empty', $remove_when_empty);
-			unset($this->data['remove_when_empty']);
-			$errors = $this->AliquotMaster->defineRealiquot($this->data, $remove_when_empty);
+			$errors = array();
+			//validate parent stock detail
+			$prev_data = $this->data;
+			foreach($this->data as $parent_id => &$children){
+				$this->AliquotMaster->set(array("AliquotMaster" => array("id" => $parent_id, "in_stock" => $children['AliquotMaster']['in_stock'], "in_stock_detail" => $children['AliquotMaster']['in_stock_detail'])));
+				if(!$this->AliquotMaster->validates()){
+					$errors = array_merge($this->AliquotMaster->validationErrors);
+				}
+				unset($children['AliquotMaster']);
+			}
+			if(empty($errors)){
+				//no stock detail error, try to save realiquoting
+				$errors = $this->AliquotMaster->defineRealiquot($this->data);
+			}
 			if(!empty($errors)){
 				$this->AliquotMaster->validationErrors = $errors;
 				$ids = array();
-				$prev_data = $this->data;
 				foreach($prev_data as $parent_aliquot_id => $foo){
-					$ids[] = $parent_aliquot_id;
+						$ids[] = $parent_aliquot_id;
 				}
 				$parent_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $ids)));
 				$build_data = false;
 				$this->data = array();
 				foreach($parent_aliquots as $parent_aliquot){
+					$parent_aliquot['AliquotMaster']['in_stock'] = $prev_data[$parent_aliquot['AliquotMaster']['id']]['AliquotMaster']['in_stock'];
+					$parent_aliquot['AliquotMaster']['in_stock_detail'] = $prev_data[$parent_aliquot['AliquotMaster']['id']]['AliquotMaster']['in_stock_detail'];
+					unset($prev_data[$parent_aliquot['AliquotMaster']['id']]['AliquotMaster']);
 					$this->data[] = array('parent' => $parent_aliquot, 'children' => $prev_data[$parent_aliquot['AliquotMaster']['id']]);
 				}
 			}else{
-				//victory, redirect to virtual batch set
+				//realiquoting done, save parent stock detail
+				foreach($this->data as $parent_id => $children){
+					$this->AliquotMaster->id = $parent_id;
+					$this->AliquotMaster->set(array("AliquotMaster" => array("id" => $parent_id, "in_stock" => $prev_data[$parent_id]['AliquotMaster']['in_stock'], "in_stock_detail" => $prev_data[$parent_id]['AliquotMaster']['in_stock_detail'])));
+					if(!$this->AliquotMaster->save()){
+						$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+					}
+				}
+				//redirect to virtual batch set
 				//$_SESSION data was set into the define children function
 				if($collection_id == null){
 					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
@@ -1233,6 +1253,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
+		$this->Structures->set('in_stock_detail', 'in_stock_detail');
 	}
 	
 	function listAllRealiquotedParents($collection_id, $sample_master_id, $aliquot_master_id) {
