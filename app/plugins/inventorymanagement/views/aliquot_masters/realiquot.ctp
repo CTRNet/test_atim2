@@ -1,34 +1,45 @@
 <?php 
 	$first = true;
-	$final_options = array(
-			"type" 		=> "addgrid", 
-			"data" 		=> array(),
-			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/"),
-			"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
-			"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type));
+	$options = array(
+			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/")
+	);
+	$options_parent = array_merge($options, array(
+		"type" => "edit",
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)
+	));
+	$options_children = array_merge($options, array(
+		"type" => "addgrid",
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
+	));
+	
 	while($data = array_shift($this->data)){
 		$parent = $data['parent'];
-		$options = $final_options;
+		$final_options_parent = $options_parent;
+		$final_options_children = $options_children;
 		if($first){
-			$options['settings']['form_top'] = true;
+			$final_options_parent['settings']['form_top'] = true;
 			$first = false;
 		}
 		if(count($this->data) == 0){
-			$options['settings']['form_bottom'] = true;
-			$options['settings']['actions'] = true;
-			$options['extras'] = 
-				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>'
-				.__("remove empty aliquots from stocks", true).$this->Form->input("remove_when_empty", array('type' => 'checkbox', 'value' => 1, 'checked' => isset($remove_when_empty) && $remove_when_empty, "id" => false, "div" => false, "label" => false));
-			
+			$final_options_children['settings']['form_bottom'] = true;
+			$final_options_children['settings']['actions'] = true;
+			$final_options_children['extras'] = 
+				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>';
 		}
-		$options['settings']['header'] = sprintf(__('realiquoting %s', true), $parent['AliquotMaster']['barcode']);
-		$options['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
-		$options['override']['AliquotMaster.aliquot_volume_unit'] = $parent['AliquotMaster']["aliquot_volume_unit"];
-		$options['data'] = $data['children'];
+		$final_options_parent['settings']['header'] = sprintf(__('realiquoting %s', true), $parent['AliquotMaster']['barcode']);
+		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
+		$final_options_parent['data'] = $parent;
+		
+		$final_options_children['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
+		$final_options_children['override']['AliquotMaster.aliquot_volume_unit'] = $parent['AliquotMaster']["aliquot_volume_unit"];
+		$final_options_children['data'] = $data['children'];
+		
+		$structures->build($in_stock_detail, $final_options_parent);
 		if(strlen($parent['AliquotMaster']["aliquot_volume_unit"])){ 
-			$structures->build($struct_vol, $options);
+			$structures->build($struct_vol, $final_options_children);
 		}else{
-			$structures->build($struct_no_vol, $options);
+			$structures->build($struct_no_vol, $final_options_children);
 		}
 	}
 ?>

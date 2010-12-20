@@ -111,7 +111,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @return array validation errors. If the array is empty, the realiquoting has been done, otherwise it's been aborted. On success,
 	 * realiquoted children ids are put into $_SESSION['tmp_batch_set'] to allow the redirection to a temporary batch set.	 
 	 */
-	public function defineRealiquot(array $data, $remove_from_stocks_if_empty){
+	public function defineRealiquot(array $data, $remove_from_stocks_if_empty = false){
 		$AliquotUse = AppModel::atimNew("inventorymanagement", "AliquotUse", true);
 		$AliquotUse->validate = AliquotUse::$mValidate;
 		$relations = array();

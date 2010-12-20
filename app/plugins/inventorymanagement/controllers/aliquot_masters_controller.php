@@ -1641,11 +1641,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else{
 			//submit
 			$aliquot_ctrl = $this->AliquotControl->findById($this->data['realiquot_into']);
-			$remove_when_empty = $this->data['remove_when_empty'];
-			$this->set('remove_when_empty', $remove_when_empty);
 			$this->set('realiquot_into', $this->data['realiquot_into']);
 			unset($this->data['realiquot_into']);
-			unset($this->data['remove_when_empty']);
 			//-----
 			//do not invert or AliquotUse validation won't work
 			$this->Structures->set($aliquot_ctrl['AliquotControl']['form_alias'].",realiquot", 'struct_no_vol');
@@ -1659,6 +1656,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($this->data as $parent_id => &$children){
 				$new_children = array();
 				$parent = $this->AliquotMaster->findById($parent_id);
+				$parent['AliquotMaster']['in_stock'] = $children['AliquotMaster']['in_stock'];
+				$parent['AliquotMaster']['in_stock_detail'] = $children['AliquotMaster']['in_stock_detail'];
+				$this->AliquotMaster->set($parent);
+				$this->AliquotMaster->validates();
+				$aliquot_errors = array_merge($aliquot_errors, $this->AliquotMaster->validationErrors);
+				unset($children['AliquotMaster']);//remove non children data
 				foreach($children as &$child){
 					$child['AliquotMaster']['aliquot_control_id'] = $aliquot_ctrl['AliquotControl']['id'];
 					$child['AliquotMaster']['sample_master_id'] = $parent['AliquotMaster']['sample_master_id'];
@@ -1682,8 +1685,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			if(empty($aliquot_errors) && empty($use_errors)){
 				//Validation successfull
-				//save
-				//create aliquots
+				//update aliquots parents stock status, but do not commit right away
+				$data_source = $this->AliquotMaster->getDataSource();
+				$data_source->begin($this->AliquotMaster);
+				foreach($new_data as $unit){
+					$this->AliquotMaster->set($unit['parent']);
+					$this->AliquotMaster->save();//already validated earlier
+				}
+				
+				//create children aliquots
 				foreach($this->data as $parent_id => &$children){
 					foreach($children as &$child){
 						$this->AliquotMaster->id = null;
@@ -1694,12 +1704,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$child['FunctionManagement']['use'] = true; 
 					}
 				}
-				//create uses
-				$errors = $this->AliquotMaster->defineRealiquot($this->data, $remove_when_empty);
+				
+				//create uses/realiquoting
+				$errors = $this->AliquotMaster->defineRealiquot($this->data);
 				if(empty($errors)){
+					$data_source->commit($this->AliquotMasters);
 					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
 				}else{
-					pr($errors);
+					$data_source->rollback($this->AliquotMasters);
+					$this->redirect('/pages/err_inv_system_error', null, true);
 				}
 			}else{
 				//validation failed
@@ -1708,7 +1721,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->data = $new_data;
 			}
 		}
-		
+		$this->Structures->set('in_stock_detail', 'in_stock_detail');
 		$this->set('aliquot_type', $aliquot_ctrl['AliquotControl']['aliquot_type']);
 	}
 	

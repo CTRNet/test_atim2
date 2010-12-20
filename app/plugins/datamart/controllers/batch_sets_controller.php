@@ -80,7 +80,8 @@ class BatchSetsController extends DatamartAppController {
 				'sharing_status'		=> '',
 				'created_by'			=> '',
 				'created'				=> AppController::getFormatedDatetimeString(date("Y-m-d H:i")),
-				'flag_use_query_results'=> false
+				'flag_use_query_results'=> false,
+				'locked'				=> false
 			);
 			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
 			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
