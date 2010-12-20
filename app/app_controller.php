@@ -464,7 +464,7 @@ class AppController extends Controller {
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
 	static function atimSetCookie(){
-		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 360);
+		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
 		}
