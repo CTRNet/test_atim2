@@ -860,4 +860,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 119, 118, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11);
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(16, 132, 18);
+
+
 
