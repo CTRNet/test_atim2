@@ -7,7 +7,7 @@ ob_start('ob_gzhandler');
 <head>
 
 	<?php
-		AppController::atimSetCookie();
+		$session_delay_sec = AppController::atimSetCookie();
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
 	?>
