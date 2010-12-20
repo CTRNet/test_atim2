@@ -13,7 +13,7 @@ class DatamartAppModel extends AppModel {
 	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey){
 		$batch_set = AppModel::atimNew("datamart", "BatchSet", true);
 		$datamart_structures = AppModel::atimNew("datamart", "DatamartStructure", true);
-		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'DatamartStructure.model' => $model_name)));
+		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'DatamartStructure.model' => $data_model)));
 		$datamart_structure_id = count($d_struct) ? $d_struct['DatamartStructure']['id'] : 0;
 		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id);
 		$batch_set_menu[] = array(
