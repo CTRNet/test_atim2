@@ -272,6 +272,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		// Save Data
+		$data['id'] = $aliquot_master_id;
 		$this->id = $aliquot_master_id;
 		if(!$this->save(array("AliquotMaster" => $data))){
 			return false;
