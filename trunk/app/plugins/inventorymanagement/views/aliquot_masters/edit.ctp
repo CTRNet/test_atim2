@@ -7,7 +7,7 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
+//	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
 				
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override);
