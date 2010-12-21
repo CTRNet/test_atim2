@@ -50,7 +50,7 @@ function initCopyControl(){
  */
 function copyLine(line){
 	copyBuffer = new Object();
-	$(line).find("input:not([type=hidden]), select").each(function(){
+	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 		debug($(this).attr("name") + " - " + name + "- " + $(this).attr("type") + " - " + $(this).val());
@@ -70,7 +70,7 @@ function copyLine(line){
  * @return
  */
 function pasteLine(line){
-	$(line).find("input:not([type=hidden]), select").each(function(){
+	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
 		if(!$(this).attr("readonly") && !$(this).attr("disabled")){
 			var nameArray = $(this).attr("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
