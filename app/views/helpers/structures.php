@@ -59,9 +59,9 @@ class StructuresHelper extends Helper {
 				)
 			),
 			
-			'override'	=> array(),
-			
-			'extras'		=> array() // HTML added to structure blindly, each in own COLUMN
+			'override'			=> array(),
+			'dropdown_options' 	=> array(),
+			'extras'			=> array() // HTML added to structure blindly, each in own COLUMN
 		);
 
 	private static $default_settings_arr = array(
@@ -1447,7 +1447,9 @@ class StructuresHelper extends Helper {
 							}
 						}
 								
-						if(count($sfs['StructureValueDomain']) > 0){
+						if(isset($options['dropdown_options'][$sfs['model'].".".$sfs['field']])){
+							$dropdown_result = $options['dropdown_options'][$sfs['model'].".".$sfs['field']]; 
+						}else if(count($sfs['StructureValueDomain']) > 0){
 							if(strlen($sfs['StructureValueDomain']['source']) > 0){
 								//load source
 								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
