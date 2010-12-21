@@ -84,10 +84,11 @@ class AppModel extends Model {
 			$this->data[$this->name]['modified_by'] = 0;
 		}
 		
-		// Manage float record
+		
 		foreach($this->_schema as $field_name => $field_properties) {
 			$tmp_type = $field_properties['type'];
 			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
+				// Manage float record
 				if(isset($this->data[$this->name][$field_name])) {
 					$this->data[$this->name][$field_name] = str_replace(",", ".", $this->data[$this->name][$field_name]);
 					$this->data[$this->name][$field_name] = str_replace(" ", "", $this->data[$this->name][$field_name]);
@@ -97,6 +98,10 @@ class AppModel extends Model {
 						if(strpos($this->data[$this->name][$field_name], "-.") === 0) $this->data[$this->name][$field_name] = "-0".substr($this->data[$this->name][$field_name], 1);
 					} 
 				}
+			}else if(($tmp_type == "datetime" || $tmp_type == "date" || $tmp_type == "time") 
+			&& isset($this->data[$this->name][$field_name]) && empty($this->data[$this->name][$field_name])){
+				//manage date so that the generated query contains NULL instead of an empty string
+				unset($this->data[$this->name][$field_name]);
 			}
 		}
 
@@ -196,7 +201,7 @@ class AppModel extends Model {
 						return null;
 					}
 				}
-	
+				
 				//manage meridian
 				if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
 					$data['meridian'] = 'pm';
