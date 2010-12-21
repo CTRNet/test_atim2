@@ -16,6 +16,6 @@
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
-	echo($final_atim_structure['Structure']['alias']);
+	
 	$structures->build( $final_atim_structure, $final_options );		
 ?>
