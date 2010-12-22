@@ -1,5 +1,16 @@
 
 
+--------------------------
+-- Menu Changes --
+--------------------------
+
+
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_68' LIMIT 1 ;
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_75' LIMIT 1 ;
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_79' LIMIT 1 ;
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_1_3_5' LIMIT 1 ;
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_2_2' LIMIT 1 ;
+UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_24' LIMIT 1 ;
 -- Participants
 
 -- Remove Cause of Death and Secondary Cause of Death
@@ -861,6 +872,5 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 119, 118, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11);
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(16, 132, 18);
-
 
 
