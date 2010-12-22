@@ -1360,7 +1360,7 @@ class StructuresHelper extends Helper {
 						if(count($sfs['StructureValidation']) > 0 && $options['type'] != "search"){
 							
 							foreach($sfs['StructureValidation'] as $validation){
-								if($validation['flag_not_empty'] || $validation['flag_required']){
+								if($validation['rule'] == 'notEmpty'){
 									$settings["class"] .= " required";
 									$settings["required"] = "required";
 									break;
