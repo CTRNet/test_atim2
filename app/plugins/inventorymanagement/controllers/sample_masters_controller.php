@@ -873,6 +873,98 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		return $formatted_data;
 	}
+	
+	function batchDerivativeInit(){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		//extract valid ids
+		$ids = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => $this->data['ViewSample']['sample_master_id']), 'fields' => array('GROUP_CONCAT(SampleMaster.id) AS ids'), 'recursive' => -1));
+		$ids = $ids[0][0]['ids'];
+		if(empty($ids)){
+			$this->flash(__("no data!", true), "javascript:history.back();", 5);
+		}
+		
+		$controls = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => explode(',', $ids)), 'fields' => array('SampleMaster.sample_control_id'), 'group' => array('SampleMaster.sample_control_id'), 'recursive' => -1));
+		if(count($controls) != 1){
+			$this->flash(__("you must select samples with a common type", true), "javascript:history.back();", 5);
+		}
+		
+		$possibilities = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('parent_sample_control_id' => $controls[0]['SampleMaster']['sample_control_id'])));
+		if(empty($possibilities)){
+			$this->flash(__("you cannot create derivatives for this sample type", true), "javascript:history.back();", 5);
+		}
+		
+		foreach($possibilities as $possibility){
+			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
+		}
+		
+		$this->Structures->set('derivative_init');
+		$this->set('ids', $ids);
+	}
+	
+	function batchDerivative(){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		if(!isset($this->data['SampleMaster']['sample_control_id']) || $this->data['SampleMaster']['sample_control_id'] == ''){
+			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
+		}
+		$control = $this->SampleControl->findById($this->data['SampleMaster']['sample_control_id']);
+		$this->Structures->set($control['SampleControl']['form_alias']);
+		$this->set('control', $control);
+		if(isset($this->data['SampleMaster']['ids'])){
+			//first access
+			$samples = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => explode(",", $this->data['SampleMaster']['ids'])), 'recursive' => -1));
+			$this->data = array();
+			foreach($samples as $sample){
+				$this->data[] = array('parent' => $sample, 'children' => array());
+			}
+		}else{
+			//save/post access
+			$control_id = $control['SampleControl']['id'];
+			$control_type = $control['SampleControl']['sample_type'];
+			$errors = array();
+			unset($this->data['SampleMaster']);
+			$prev_data = $this->data;
+			$this->data = array();
+			foreach($prev_data as $parent_id => &$children){
+				$parent = $this->SampleMaster->findById($parent_id);
+				foreach($children as &$child){
+					$child['SampleMaster']['sample_control_id'] = $control_id;
+					$child['SampleMaster']['collection_id'] = $parent['SampleMaster']['collection_id'];
+					$child['SampleMaster']['initial_specimen_sample_id'] = $parent['SampleMaster']['initial_specimen_sample_id'];
+					$child['SampleMaster']['initial_specimen_sample_type'] = $parent['SampleMaster']['initial_specimen_sample_type'];
+					$this->SampleMaster->set($child);
+					if(!$this->SampleMaster->validates()){
+						$errors = array_merge($errors, $this->SampleMaster->validationErrors);
+					}
+				}
+				$this->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
+			}
+			if(empty($errors)){
+				//save
+				$_SESSION['tmp_batch_set']['BatchId'] = array();
+				foreach($prev_data as $parent_id => &$children){
+					foreach($children as &$child){
+						$this->SampleMaster->id = null;
+						$this->SampleMaster->set($child);
+						$this->SampleMaster->save();
+						$_SESSION['tmp_batch_set']['BatchId'][] = $this->SampleMaster->id; 
+						$child['SampleMaster']['sample_code'] = $this->createSampleCode($this->SampleMaster->id, $child, $control);
+						$this->SampleMaster->set($child);
+						$this->SampleMaster->save();
+					}
+				}
+				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
+				$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+			}else{
+				$this->SampleMaster->validationErrors = $errors;
+			}
+		}
+	}
 }
 	
 ?>

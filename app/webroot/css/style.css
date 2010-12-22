@@ -1810,3 +1810,7 @@ div.extra{
 span.incompleteMenuTitle{
 	cursor: help;
 }
+
+.red{
+	color: red;	
+}
