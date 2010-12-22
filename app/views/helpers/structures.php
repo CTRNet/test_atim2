@@ -666,6 +666,10 @@ class StructuresHelper extends Helper {
 								__( 'supported value', true ) => $table_row_part['settings']['options']
 						);
 					}
+				}else if(isset($table_row_part['settings']['disabled']) && $table_row_part['settings']['disabled'] == 'disabled' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
+					//the current value must be the first option (to have it printed in the hidden field)
+					$tmp = array_keys($table_row_part['settings']['options']);
+					$current_value = $tmp[0];
 				}
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
