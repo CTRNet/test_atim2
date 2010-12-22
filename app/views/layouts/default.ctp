@@ -29,7 +29,7 @@ ob_start('ob_gzhandler');
 		}
 		?>
 		
-		<script type="text/javascript">
+		<script>
 			var root_url = "<?php echo($this->webroot); ?>";
 			var webroot_dir = root_url + "/app/webroot/";
 			var locale = "<?php echo($locale); ?>";
@@ -41,6 +41,10 @@ ob_start('ob_gzhandler');
 			var STR_DELETE_CONFIRM = "<?php __( 'core_are you sure you want to delete this data?') ?>";
 			var STR_YES = "<?php __('yes'); ?>";
 			var STR_NO = "<?php __('no'); ?>";
+			var STR_COPY = "<?php echo(__("copy", null)); ?>";
+			var STR_PASTE = "<?php echo(__("paste")); ?>";
+			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
+						
 		</script>
 	<!--[if IE 7]>
 	<?php
