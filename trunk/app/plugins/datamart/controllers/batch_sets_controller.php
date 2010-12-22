@@ -75,7 +75,7 @@ class BatchSetsController extends DatamartAppController {
 			$batch_set['BatchSet'] = array(
 				'user_id'				=> $_SESSION['Auth']['User']['id'],
 				'datamart_structure_id'	=> $_SESSION['tmp_batch_set']['datamart_structure_id'],
-				'title'					=> __('temporary batch set', true),
+				'title'					=> '<span class="red">'.strtoupper(__('temporary batch set', true)).'</span>',
 				'description'			=> '',
 				'sharing_status'		=> '',
 				'created_by'			=> '',

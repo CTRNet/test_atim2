@@ -505,4 +505,25 @@ INNER JOIN structure_fields AS sfi ON sfo.structure_field_id=sfi.id
 INNER JOIN structures AS str ON str.id = sfo.structure_id
 LEFT JOIN structure_value_domains AS svd ON svd.id = sfi.structure_value_domain;
 
+-- derivatives in batch
+INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
+((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create derivative', '/inventorymanagement/sample_masters/batchDerivativeInit/', true);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('derivative', '', '', 'Inventorymanagement.SampleMaster::getDerivativesDropdown');
+
+INSERT INTO structures(`alias`) VALUES ('derivative_init');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'SampleMaster', 'sample_masters', 'sample_control_id', '', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='derivative') , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='derivative_init'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE structure_formats SET flag_addgrid='1' WHERE structure_id IN(SELECT id FROM structures WHERE alias IN(SELECT form_alias FROM sample_controls)) AND flag_add='1';
+UPDATE structure_formats SET flag_addgrid_readonly='1' WHERE structure_id IN(SELECT id FROM structures WHERE alias IN(SELECT form_alias FROM sample_controls)) AND flag_add_readonly='1';
+
+INSERT INTO structures(`alias`) VALUES ('sample_masters');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `language_help`=''), '1', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0');
+UPDATE sample_controls SET form_alias=CONCAT('sample_masters,', form_alias);
+
+UPDATE structure_fields SET  `language_label`='',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options')  WHERE model='Browser' AND tablename='' AND field='search_for' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datamart_browser_options');
+
 DROP VIEW view_structures;
