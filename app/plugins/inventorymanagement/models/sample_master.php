@@ -2,7 +2,6 @@
 
 class SampleMaster extends InventorymanagementAppModel {
 	
-	private static $parent_sample_dropdown = array();
 	public static $derivatives_dropdown = array();
 	
 	var $belongsTo = array(       
@@ -72,12 +71,8 @@ class SampleMaster extends InventorymanagementAppModel {
 		return $return;
 	}
 
-	public function setParentSampleDropdown(array $dropdown){
-		self::$parent_sample_dropdown = $dropdown;
-	}
-	
 	public function getParentSampleDropdown(){
-		return self::$parent_sample_dropdown;
+		return array();
 	}
 	
 	public function getDerivativesDropdown(){

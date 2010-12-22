@@ -7,9 +7,10 @@
 	);
 	
 	$structure_override = array();
+	$dropdown_options = array('SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''));
 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links, 'override' => $structure_override);
+	$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

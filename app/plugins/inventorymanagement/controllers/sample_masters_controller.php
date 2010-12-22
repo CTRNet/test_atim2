@@ -403,7 +403,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);	
 	
 		// Calulate spent time between:
@@ -496,7 +496,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		// Set parent data
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);
 		
 		// Set new sample control information
@@ -653,7 +653,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
