@@ -365,22 +365,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$data['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($data);
 				if(!$this->AliquotMaster->validates()){
-					$errors = array_merge($errors, $this->AliquotMaster->validationErrors);
+					$errors = array_merge_recursive($errors, $this->AliquotMaster->validationErrors);
 				}
 			}
 					
-			// Launch validations
-			
-			// -> Barcode validation
-			$duplicated_barcode_validation = $this->isDuplicatedAliquotBarcode($this->data);
-			if($duplicated_barcode_validation['is_duplicated_barcode']) {
-				// Duplicated barcodes have been detected
-				if(!isset($errors['barcode'])){
-					$errors['barcode'] = array();
-				}
-				$errors['barcode'] = array_merge($errors['barcode'], $duplicated_barcode_validation['messages']);
-			}
-			
 			$submitted_data_validates = count($errors) == 0;
 			
 			$hook_link = $this->hook('presave_process');
@@ -559,14 +547,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->AliquotMaster->set($this->data);
 			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
-			$duplicated_barcode_validation = $this->isDuplicatedAliquotBarcode($this->data);
-			if($duplicated_barcode_validation['is_duplicated_barcode']){
-				$submitted_data_validates = false;
-				if(!isset($this->AliquotMaster->validationErrors['barcode'])){
-					$this->AliquotMaster->validationErrors['barcode'] = array();
-				}
-				$this->AliquotMaster->validationErrors['barcode'] = array_merge($this->AliquotMaster->validationErrors['barcode'], $duplicated_barcode_validation['messages']); 
-			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1081,7 +1061,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($this->data as $parent_id => &$children){
 				$this->AliquotMaster->set(array("AliquotMaster" => array("id" => $parent_id, "in_stock" => $children['AliquotMaster']['in_stock'], "in_stock_detail" => $children['AliquotMaster']['in_stock_detail'])));
 				if(!$this->AliquotMaster->validates()){
-					$errors = array_merge($this->AliquotMaster->validationErrors);
+					$errors = array_merge_recursive($errors, $this->AliquotMaster->validationErrors);
 				}
 				unset($children['AliquotMaster']);
 			}
@@ -1289,93 +1269,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		return null;
 	}
 	
-	/**
-	 * Check created barcodes are not duplicated and set error if they are.
-	 * 
-	 * Note: 
-	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
-	 *  - Has been created to allow customisation.
-	 * 
-	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
-	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
-	 * 	or
-	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
-	 *
-	 * @return  Following results array:
-	 * 	array(
-	 * 		'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
-	 * 		'messages' => array($message_1, $message_2, ...)
-	 * 	)
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	 
-	function isDuplicatedAliquotBarcode($aliquots_data) {
-		$is_duplicated_barcode = false;
-		
-		$new_barcodes = array();
-		$duplicated_barcodes = array();
-				
-		// check data structure
-		$is_multi_records_data = true;
-		if(is_array($aliquots_data)) {
-			if(isset($aliquots_data['AliquotMaster'])) {
-				// Single record to manage as multi records
-				$aliquots_data = array('0' => $aliquots_data);
-				$is_multi_records_data = false;
-			} else {
-				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
-				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
-					// Multi records: Nothing to do				
-				} else {
-					$this->redirect('/pages/err_inv_system_error', null, true);
-				}
-			}
-		} else {
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-		
-		// Check duplicated barcode into submited record
-		foreach($aliquots_data as $new_aliquot) {
-			$barcode = $new_aliquot['AliquotMaster']['barcode'];
-			if(empty($barcode)) {
-				// Not studied
-			} else if(isset($new_barcodes[$barcode])) {
-				$duplicated_barcodes[$barcode] = $barcode;
-			} else {
-				$new_barcodes[$barcode] = isset($new_aliquot['AliquotMaster']['id']) ? $new_aliquot['AliquotMaster']['id'] : 0;
-			}
-		}
-		
-		// Check duplicated barcode into db
-		$criteria = array('AliquotMaster.barcode' => array_keys($new_barcodes));
-		$aliquots_having_duplicated_barcode = $this->AliquotMaster->atim_list(array('conditions' => $criteria));
-		if(!empty($aliquots_having_duplicated_barcode)) {
-			foreach($aliquots_having_duplicated_barcode as $duplicate) {
-				if($duplicate['AliquotMaster']['id'] != $new_barcodes[$duplicate['AliquotMaster']['barcode']]){
-					//they are not the same id, this is really a dupe
-					$duplicated_barcodes[$barcode] = $barcode;
-				}
-			}			
-		}
-		
-		// Set errors
-		$messages = array();
-		if(!empty($duplicated_barcodes)) {
-			// Set boolean
-			$is_duplicated_barcode = true;
-			
-			// Set error message
-			$str_barcodes_in_error = ' ';
-			foreach($duplicated_barcodes as $barcode) {
-				$str_barcodes_in_error .= '[' . $barcode . '] ';
-			}
-			$messages[]	= __('barcode must be unique', true) . ' ' . __('please check following barcodes', true) . $str_barcodes_in_error; 
-		}
-		
-		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
-	}
+	
 	
 	/**
 	 * Check both aliquot storage definition and aliquot positions and set error if required.
@@ -1643,7 +1537,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$parent['AliquotMaster']['in_stock_detail'] = $children['AliquotMaster']['in_stock_detail'];
 				$this->AliquotMaster->set($parent);
 				$this->AliquotMaster->validates();
-				$aliquot_errors = array_merge($aliquot_errors, $this->AliquotMaster->validationErrors);
+				$aliquot_errors = array_merge_recursive($aliquot_errors, $this->AliquotMaster->validationErrors);
 				unset($children['AliquotMaster']);//remove non children data
 				foreach($children as &$child){
 					$child['AliquotMaster']['aliquot_control_id'] = $aliquot_ctrl['AliquotControl']['id'];
@@ -1655,8 +1549,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotUse->set($child);
 					$this->AliquotUse->validates();
 					$new_children[] = $child;
-					$aliquot_errors = array_merge($aliquot_errors, $this->AliquotMaster->validationErrors);
-					$use_errors = array_merge($use_errors, $this->AliquotUse->validationErrors);
+					$aliquot_errors = array_merge_recursive($aliquot_errors, $this->AliquotMaster->validationErrors);
+					$use_errors = array_merge_recursive($use_errors, $this->AliquotUse->validationErrors);
 					$barcodes[] = $child['AliquotMaster']['barcode'];
 				}
 				
@@ -1781,20 +1675,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$this->AliquotMaster->id = NULL;
 						$this->AliquotMaster->set($child);
 						if(!$this->AliquotMaster->validates()){
-							$errors = array_merge($errors, $this->AliquotMaster->validationErrors);
+							$errors = array_merge_recursive($errors, $this->AliquotMaster->validationErrors);
 						}
 						$all_aliquots[] = $child;
 					}
 					$this->data[] = array('parent' => $sample, 'children' => $children);
 				}
-				//barcode validation
-				$duplicate_info = $this->isDuplicatedAliquotBarcode($all_aliquots);
-				if($duplicate_info['is_duplicated_barcode']){
-					if(!isset($errors['barcode'])){
-						$errors['barcode'] = array();
-					}
-					$errors['barcode'] = array_merge($errors['barcode'], $duplicate_info['messages']);
-				}
+				
 				if(empty($errors)){
 					//all clear, save!
 					echo "save";

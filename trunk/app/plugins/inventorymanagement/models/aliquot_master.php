@@ -36,6 +36,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	public static $aliquot_type_dropdown = array();
 	public static $storage = null;
+	private $barcodes = array();//barcode validation, key = barcode, value = id
 	
 	function summary($variables=array()) {
 		$return = false;
@@ -315,6 +316,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$this->validationErrors[$field] = $msg;
 			}
 		}
+		
+		if(isset($current_data['barcode'])){
+			$dupe_data = $this->isDuplicatedAliquotBarcode($this->data);
+			if($dupe_data['is_duplicated_barcode']){
+				$this->validationErrors['barcode'] = $dupe_data['messages'];
+			}
+		}
 		parent::validates($options);
 		return empty($this->validationErrors);
 	}
@@ -432,6 +440,92 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
+	}
+	
+	/**
+	 * Check created barcodes are not duplicated and set error if they are.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return  Following results array:
+	 * 	array(
+	 * 		'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+	 * 		'messages' => array($message_1, $message_2, ...)
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function isDuplicatedAliquotBarcode($aliquots_data) {
+		$is_duplicated_barcode = false;
+		$duplicated_barcodes = array();
+				
+		// check data structure
+		$is_multi_records_data = true;
+		if(is_array($aliquots_data)) {
+			if(isset($aliquots_data['AliquotMaster'])) {
+				// Single record to manage as multi records
+				$aliquots_data = array('0' => $aliquots_data);
+				$is_multi_records_data = false;
+			} else {
+				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
+				if(!is_array($tmp_arr_to_test) || !isset($tmp_arr_to_test[0]['AliquotMaster'])) {
+					$this->redirect('/pages/err_inv_system_error', null, true);
+				}
+			}
+		} else {
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		// Check duplicated barcode into submited record
+		$new_barcodes = array();
+		foreach($aliquots_data as $new_aliquot) {
+			$barcode = $new_aliquot['AliquotMaster']['barcode'];
+			if(empty($barcode)) {
+				// Not studied
+			} else if(isset($this->barcodes[$barcode])) {
+				$duplicated_barcodes[$barcode] = $barcode;
+			} else {
+				$this->barcodes[$barcode] = isset($new_aliquot['AliquotMaster']['id']) ? $new_aliquot['AliquotMaster']['id'] : 0;
+				$new_barcodes[] = $barcode;
+			}
+		}
+		
+		// Check duplicated barcode into db
+		$criteria = array('AliquotMaster.barcode' => $new_barcodes);
+		$aliquots_having_duplicated_barcode = $this->atim_list(array('conditions' => $criteria));
+		if(!empty($aliquots_having_duplicated_barcode)) {
+			foreach($aliquots_having_duplicated_barcode as $duplicate) {
+				if($duplicate['AliquotMaster']['id'] != $this->barcodes[$duplicate['AliquotMaster']['barcode']]){
+					//they are not the same id, this is really a dupe
+					$duplicated_barcodes[$barcode] = $barcode;
+				}
+			}			
+		}
+		
+		// Set errors
+		$messages = array();
+		if(!empty($duplicated_barcodes)) {
+			// Set boolean
+			$is_duplicated_barcode = true;
+			
+			// Set error message
+			$str_barcodes_in_error = ' ';
+			foreach($duplicated_barcodes as $barcode) {
+				$str_barcodes_in_error .= '[' . $barcode . '] ';
+			}
+			$messages[]	= __('barcode must be unique', true) . ' ' . __('please check following barcode(s)', true) . $str_barcodes_in_error; 
+		}
+		
+		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
 	}
 }
 
