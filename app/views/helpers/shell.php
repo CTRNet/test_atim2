@@ -127,9 +127,17 @@ class ShellHelper extends Helper {
 			$display_errors = array();
 			foreach ( $this->validationErrors as $model ) {
 				foreach ( $model as $field ) {
-					$display_errors[] = '
-						<li>'.__($field, true).'</li>
-					';
+					if(is_array($field)){
+						foreach($field as $field_unit){
+							$display_errors[] = '
+								<li>'.__($field_unit, true).'</li>
+							';
+						}
+					}else{
+						$display_errors[] = '
+							<li>'.__($field, true).'</li>
+						';
+					}
 				}
 			}
 			$display_errors_html = 

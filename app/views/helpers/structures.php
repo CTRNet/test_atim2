@@ -1305,15 +1305,16 @@ class StructuresHelper extends Helper {
 			foreach($atim_structure['Sfs'] AS $sfs){
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
-						"name" => "",
-						"model" => $sfs['model'],
-						"field" => $sfs['field'],
-						"heading" => __($sfs['language_heading'], true),
-						"label" => __($sfs['language_label'], true),
-						"tag" => __($sfs['language_tag'], true),
-						"type" => $sfs['type'],
-						"help" => strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
-						"setting" => $sfs['setting']//required for icd10 magic
+						"name" 		=> "",
+						"model" 	=> $sfs['model'],
+						"field" 	=> $sfs['field'],
+						"heading" 	=> __($sfs['language_heading'], true),
+						"label" 	=> __($sfs['language_label'], true),
+						"tag" 		=> __($sfs['language_tag'], true),
+						"type" 		=> $sfs['type'],
+						"help" 		=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
+						"setting" 	=> $sfs['setting'],//required for icd10 magic
+						"default"	=> $sfs['default']
 					);
 					$append_field_tool = "";
 					$settings = $my_default_settings_arr;
@@ -1440,7 +1441,7 @@ class StructuresHelper extends Helper {
 							if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
 								//check if the field can be empty or not
 								foreach($sfs['StructureValidation'] as $validation){
-									if($validation['flag_not_empty']){
+									if($validation['rule'] == 'notEmpty'){
 										$add_blank = false;
 										break;
 									}
