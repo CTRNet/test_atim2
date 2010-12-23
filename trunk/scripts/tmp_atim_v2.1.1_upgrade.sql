@@ -541,3 +541,27 @@ INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, fl
 ((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/batchAddInit/', true);
 
 UPDATE structure_fields SET `default`='yes - available' WHERE field='in_stock' and model='AliquotMaster';
+
+UPDATE menus SET display_order = '1' WHERE use_link LIKE '/datamart/%' AND language_title LIKE 'data browser';
+UPDATE menus SET display_order = '2' WHERE use_link LIKE '/datamart/%' AND language_title LIKE 'adhoc';
+UPDATE menus SET display_order = '3' WHERE use_link LIKE '/datamart/%' AND language_title LIKE 'batch sets';
+UPDATE menus SET display_order = '4' WHERE use_link LIKE '/datamart/%' AND language_title LIKE 'reports';
+UPDATE menus SET use_link = '/datamart/browser/index' WHERE id = 'qry-CAN-1';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('batch actions', 'Batch Actions', 'Traitement par lot'),
+('batchset','Batchset','Lot de données'),
+('create aliquots','Create Aliquots','Créer aliquots'),
+('create derivative','Create Derivative' ,'Créer dérivés'),
+('error_participant identifier required','The participant identifier is required!','L''identifiant du participant est requis!'),
+('invalid date','Invalid Date','Date invalide'),
+('invalid datetime','Invalid Datetime','Date et heure invalides'),
+('no data matches your search parameters','No data matches your search parameters!','Aucune données ne correspond à vos critères de recherche!'),
+('select an action','Select An Action','Sélectionner une action'),
+('the string length must not exceed %d characters','The string length must not exceed %d characters!',
+'La longueur de la chaîne de caractères ne doit pas dépasser %d caractères!'),
+('this field is required','This field is required!','Ce champ est requis!'),
+('you cannot browse to the requested entities because there is no [%s] matching your request',
+'You cannot browse to the requested entities because there is no [%s] matching your request!',
+'Vous ne pouvez pas naviguer vers les entités demandées parce qu''il n''y a pas de [% s] correspondant à votre requête!');
+
