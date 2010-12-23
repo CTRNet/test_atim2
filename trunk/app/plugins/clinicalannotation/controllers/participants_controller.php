@@ -16,7 +16,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ClinicalCollectionLink',
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.TreatmentMaster',
-		'Clinicalannotation.MiscIdentifier', 
 		'Clinicalannotation.MiscIdentifierControl',
 		'Codingicd.CodingIcd10Who',
 		'Codingicd.CodingIcd10Ca'
