@@ -305,11 +305,16 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @see Model::validates()
 	 */
 	function validates($options = array()){
+		//NL Comment 20101223: Create a function to validate aliquot one by one or in batch.
 		$current_data = $this->data['AliquotMaster'];
 		if(isset($current_data['in_stock']) && $current_data['in_stock'] == 'no' 
 		&& (!empty($current_data['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
 			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
 		}
+
+		//NL Comment 20101223: Remove from this function for many raison
+		// -- Will be run many times if datagrid
+		// -- Not sure that saved data will be always into $this->data
 		$storage_validation = $this->validateAliquotStorageData($this->data);
 		if(!$storage_validation['submitted_data_validates']){
 			foreach($storage_validation['messages_sorted_per_field'] as $field => $msg){
@@ -317,13 +322,18 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 		}
 		
+		//NL Comment 20101223: Remove from this function for many raison
+		// -- Will be run many times if datagrid
+		// -- Not sure that saved data will be always into $this->data
 		if(isset($current_data['barcode'])){
 			$dupe_data = $this->isDuplicatedAliquotBarcode($this->data);
 			if($dupe_data['is_duplicated_barcode']){
 				$this->validationErrors['barcode'] = $dupe_data['messages'];
 			}
 		}
+		
 		parent::validates($options);
+		
 		return empty($this->validationErrors);
 	}
 	
