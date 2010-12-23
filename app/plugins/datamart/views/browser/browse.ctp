@@ -38,6 +38,7 @@
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
+	$links['bottom'] = array("new" => "/datamart/browser/browse/");
 	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : __("select an action", true)))));
 ?>
 <script type="text/javascript">
