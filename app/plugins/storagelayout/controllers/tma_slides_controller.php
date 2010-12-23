@@ -94,7 +94,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$submitted_data_validates = true;
 			
 			// Check the slide storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
+			$arr_storage_selection_results = $this->StorageMaster->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
 					
 			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
 			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
@@ -247,7 +247,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$submitted_data_validates = true;
 			
 			// Check the slide storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
+			$arr_storage_selection_results = $this->StorageMaster->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
 					
 			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
 			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							

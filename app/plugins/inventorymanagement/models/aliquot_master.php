@@ -34,7 +34,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 			 	'dependent' => true)
 	);
 	
-	public static $realiquot_into_dropdown = array();
+	public static $aliquot_type_dropdown = array();
+	public static $storage = null;
 	
 	function summary($variables=array()) {
 		$return = false;
@@ -281,7 +282,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	public function getRealiquotDropdown(){
-		return self::$realiquot_into_dropdown;	
+		return self::$aliquot_type_dropdown;	
 	}
 	
 	
@@ -296,6 +297,141 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 		}
 		return $results;
+	}
+	
+	/**
+	 * @desc Additional validation rule to validate stock status and storage.
+	 * @see Model::validates()
+	 */
+	function validates($options = array()){
+		$current_data = $this->data['AliquotMaster'];
+		if(isset($current_data['in_stock']) && $current_data['in_stock'] == 'no' 
+		&& (!empty($current_data['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
+			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
+		}
+		$storage_validation = $this->validateAliquotStorageData($this->data);
+		if(!$storage_validation['submitted_data_validates']){
+			foreach($storage_validation['messages_sorted_per_field'] as $field => $msg){
+				$this->validationErrors[$field] = $msg;
+			}
+		}
+		parent::validates($options);
+		return empty($this->validationErrors);
+	}
+	
+	/**
+	 * Check both aliquot storage definition and aliquot positions and set error if required.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return Following results array:
+	 * 	array(
+	 * 		'submitted_data_validates' => TRUE when data are validated,
+	 * 		'messages_sorted_per_field' => array ($field_name => array($message_1, $message_2, ...))
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function validateAliquotStorageData(&$aliquots_data) {
+		$submitted_data_validates = true;
+				
+		$arr_preselected_storages = array();
+		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
+		
+		// check data structure
+		$is_multi_records_data = true;
+		if(is_array($aliquots_data)) {
+			if(isset($aliquots_data['AliquotMaster'])) {
+				// Single record to manage as multi records
+				$aliquots_data = array('0' => $aliquots_data);
+				$is_multi_records_data = false;
+			} else {
+				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
+				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
+					// Multi records: Nothing to do				
+				} else {
+					AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
+				}
+			}
+		} else {
+			AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
+		}
+		
+		if(self::$storage == null){
+			self::$storage = AppModel::atimNew("storagelayout", "StorageMaster", true);
+		}
+		
+		// Launch validation		
+		foreach ($aliquots_data as $key => $new_aliquot) {
+			if(isset($new_aliquot['FunctionManagement']['recorded_storage_selection_label']) 
+			|| isset($new_aliquot['AliquotMaster']['storage_master_id'])){
+				$is_sample_core = isset($new_aliquot['AliquotMaster']['aliquot_type']) && ($new_aliquot['AliquotMaster']['aliquot_type'] == 'core');
+				
+				// Check the aliquot storage definition (selection label versus selected storage_master_id)
+				$arr_storage_selection_results = self::$storage->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id'], $is_sample_core);
+						
+				$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
+				$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
+		
+				if(!empty($arr_storage_selection_results['storage_definition_error'])) {
+					$submitted_data_validates = false;
+					$error_msg = $arr_storage_selection_results['storage_definition_error'];
+					$storage_validation_errors['id'][$error_msg] = $error_msg;		
+				
+				} else {
+					// Check aliquot position within storage
+					$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
+					$arr_position_results = self::$storage->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
+								
+					// Manage errors
+					if(!empty($arr_position_results['position_definition_error'])) {
+						$submitted_data_validates = false;
+						$error = $arr_position_results['position_definition_error'];
+						if($arr_position_results['error_on_x']){
+							$storage_validation_errors['x'][$error] = $error; 
+						} 
+						if($arr_position_results['error_on_y']){
+							$storage_validation_errors['y'][$error] = $error; 
+						}	
+					}
+									
+					// Reset aliquot storage data
+					$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
+					$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
+					$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
+					$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
+				}
+				
+				// Update $aliquots_data for the studied record
+				$aliquots_data[$key] = $new_aliquot;
+			}
+		}
+		
+		// Set preselected storage list		
+		//TODO still good?
+//		$this->StorageMaster->storage_dropdown = $this->formatPreselectedStoragesForDisplay($arr_preselected_storages);
+				
+		// Manage error message
+		$messages = array();
+		$messages['storage_master_id'] = $storage_validation_errors['id']; 
+		$messages['storage_coord_x'] = $storage_validation_errors['x']; 
+		$messages['storage_coord_y'] = $storage_validation_errors['y']; 
+		
+		if(!$is_multi_records_data) {
+			// Reset correctly single record data
+			$aliquots_data = $aliquots_data['0'];
+		}
+		
+		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
 	}
 }
 
