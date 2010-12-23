@@ -538,4 +538,6 @@ DELETE FROM structure_validations WHERE rule='' or rule LIKE ('maxLength%');
 
 -- aliquots in batch (from samples)
 INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
-((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/add/', true);
+((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/batchAddInit/', true);
+
+UPDATE structure_fields SET `default`='yes - available' WHERE field='in_stock' and model='AliquotMaster';

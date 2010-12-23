@@ -15,7 +15,7 @@
 				$links['index'] = array(array('link' => $index, 'icon' => 'detail'));
 			}
 			$tmp_header = isset($header) ? $header : "";
-			$header = "";
+			$header = __("select an action", true);
 			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header)));
 		}else{
 			//overflow
@@ -38,7 +38,7 @@
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : ""))));
+	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : __("select an action", true)))));
 ?>
 <script type="text/javascript">
 var datamartActions = true;

@@ -875,33 +875,21 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function batchDerivativeInit(){
-		if(empty($this->data)){
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
+		$init_data = $this->batchInit(
+			$this->SampleMaster, 
+			"ViewSample", 
+			"sample_master_id", 
+			"sample_control_id", 
+			$this->ParentToDerivativeSampleControl, 
+			"parent_sample_control_id",
+			__("you cannot create derivatives for this sample type", true));
 		
-		//extract valid ids
-		$ids = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => $this->data['ViewSample']['sample_master_id']), 'fields' => array('GROUP_CONCAT(SampleMaster.id) AS ids'), 'recursive' => -1));
-		$ids = $ids[0][0]['ids'];
-		if(empty($ids)){
-			$this->flash(__("no data!", true), "javascript:history.back();", 5);
-		}
-		
-		$controls = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => explode(',', $ids)), 'fields' => array('SampleMaster.sample_control_id'), 'group' => array('SampleMaster.sample_control_id'), 'recursive' => -1));
-		if(count($controls) != 1){
-			$this->flash(__("you must select samples with a common type", true), "javascript:history.back();", 5);
-		}
-		
-		$possibilities = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('parent_sample_control_id' => $controls[0]['SampleMaster']['sample_control_id'])));
-		if(empty($possibilities)){
-			$this->flash(__("you cannot create derivatives for this sample type", true), "javascript:history.back();", 5);
-		}
-		
-		foreach($possibilities as $possibility){
+		foreach($init_data['possibilities'] as $possibility){
 			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
 		}
 		
 		$this->Structures->set('derivative_init');
-		$this->set('ids', $ids);
+		$this->set('ids', $init_data['ids']);
 	}
 	
 	function batchDerivative(){
