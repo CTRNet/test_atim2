@@ -1139,21 +1139,45 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->layout = 'ajax';
 		//debug = 0 to avoid printing debug queries that would break the javascript array
 		Configure::write('debug', 0);
-		
 		//query the database
-		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
-		$storage_masters = $this->StorageMaster->find('all', array(
-			'conditions' => array(
+		$term = trim(str_replace('_', '\_', str_replace('%', '\%', $_GET['term'])));
+		$conditions = array(
 			'StorageMaster.Selection_label LIKE' => $term.'%'
-			),
-			'fields' => array('StorageMaster.selection_label'),
+			);
+		$rpos = strripos($term, "[");
+		if($rpos){
+			$term2a = substr($term, 0, $rpos - 1);
+			$term2b = substr($term, $rpos + 1);
+			if($term2b[strlen($term2b) - 1] == "]"){
+				$term2b = substr($term2b, -1);
+			}
+			$tmp_condition = $conditions;
+			$conditions = array();
+			$conditions['or'][] = $tmp_condition;
+			$conditions['or'][] = array('StorageMaster.Selection_label LIKE' => $term2a, 'StorageMaster.code LIKE' => $term2b.'%');
+		}
+		$storage_masters = $this->StorageMaster->find('all', array(
+			'conditions' => $conditions,
+			'fields' => array('StorageMaster.selection_label', 'GROUP_CONCAT(StorageMaster.code) AS codes'),
+			'group' => array('StorageMaster.selection_label'),
+			'recursive' => -1,
 			'limit' => 10
 		));
-		
 		//build javascript textual array
 		$result = "";
+		$count = 0;
 		foreach($storage_masters as $storage_master){
-			$result .= '"'.$storage_master['StorageMaster']['selection_label'].'", ';
+			$codes = explode(",", $storage_master[0]['codes']);
+			foreach($codes as $code){
+				$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$code.']", ';
+				++ $count;
+				if($count > 9){
+					break;
+				}
+			}
+			if($count > 9){
+				break;
+			}
 		}
 		if(sizeof($result) > 0){
 			$result = substr($result, 0, -2);

@@ -103,7 +103,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		return array();
 	}
 	
-/**
+	/**
 	 * Check both a storage selection label matches a storage master id and the defined storage is not a TMA. 
 	 * 
 	 * This function should be used to validate data entry when user is trying to set position of 
@@ -416,7 +416,23 @@ class StorageMaster extends StoragelayoutAppModel {
 			$array_to_display = array_combine($array_to_order, $array_to_order); 
 		}
 		return array('array_to_display' => $array_to_display, 'array_to_order' => array_flip($array_to_order));
-	} 
+	}
+
+	/**
+	 * @desc Finds the storage id 
+	 * @param String $storage_label_and_code a single string with the format "label [code]"
+	 * @return id when found, false otherwise
+	 */
+	function getStorageId($storage_label_and_code){
+		$matches = array();
+		if(preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storage_label_and_code, $matches, PREG_SET_ORDER) > 0){
+			$storage = $this->find('first', array('conditions' => array('selection_label' => $matches[0][1], 'code' => $matches[0][2]), 'recursive' => -1));
+			if(!empty($storage)){
+				return $storage['StorageMaster']['id'];
+			}
+		}
+		return false;
+	}
 }
 
 ?>
