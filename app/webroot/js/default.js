@@ -632,6 +632,9 @@ function uncheckAll( $div ) {
 				document.location = "";
 			}
 		});
+		
+		//focus on first field
+		$("input, select, textarea").first().focus();
 	}
 
 	function debug(str){
