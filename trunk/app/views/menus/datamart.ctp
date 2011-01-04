@@ -1,4 +1,8 @@
 <?php
+	echo "<h2 style='padding: 7px;'>";
+	__('query tool description');
+	echo "</h2>";
+	
 	$atim_content = array();
 	$atim_content['menu'] = '';
 	

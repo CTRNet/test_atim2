@@ -585,3 +585,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 -- datamart menu
 UPDATE menus SET use_link='/menus/datamart/' WHERE id='qry-CAN-1'; 
+UPDATE menus SET language_description='allows you to browse from one data type to another through various search forms. This tool is flexible and made for general use.' WHERE id='qry-CAN-1-1';
+UPDATE menus SET language_description='allows you to build result sets with custom queries. This tool is not flexible.' WHERE id='qry-CAN-2';
+UPDATE menus SET language_description='lists the already created batch sets' WHERE id='qry-CAN-3';
+UPDATE menus SET language_description='allows you to generate various reports based on ATiM data' WHERE id='qry-CAN-1-2 ';
