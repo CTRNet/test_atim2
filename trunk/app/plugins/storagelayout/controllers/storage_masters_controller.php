@@ -193,7 +193,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 		if(empty($this->data)) {
 			$this->data = array();
-			$this->data['StorageMaster']['storage_type'] = $storage_control_data['StorageControl']['storage_type'];
+			$this->data['StorageMaster']['storage_control_id'] = $storage_control_data['StorageControl']['id'];
 			$this->data = $this->setStorageCoordinateValues($storage_control_data, $this->data);
 	
 		} else {			

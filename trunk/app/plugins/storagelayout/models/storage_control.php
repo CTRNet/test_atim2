@@ -14,7 +14,7 @@ class StorageControl extends StoragelayoutAppModel {
 		
 		// Build tmp array to sort according to translated value
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $storage_control) {
-			$result[$storage_control['StorageControl']['storage_type']] = __($storage_control['StorageControl']['storage_type'], true);
+			$result[$storage_control['StorageControl']['id']] = __($storage_control['StorageControl']['storage_type'], true);
 		}
 		asort($result);
 
