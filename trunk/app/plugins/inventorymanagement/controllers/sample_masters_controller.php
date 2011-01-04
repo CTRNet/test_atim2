@@ -890,6 +890,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$this->Structures->set('derivative_init');
 		$this->set('ids', $init_data['ids']);
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 	}
 	
 	function batchDerivative(){
@@ -952,6 +953,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->SampleMaster->validationErrors = $errors;
 			}
 		}
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 	}
 }
 	

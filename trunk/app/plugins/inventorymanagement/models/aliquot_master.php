@@ -435,8 +435,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		// Set preselected storage list		
-		//TODO still good?
-//		$this->StorageMaster->storage_dropdown = $this->formatPreselectedStoragesForDisplay($arr_preselected_storages);
 				
 		// Manage error message
 		$messages = array();
