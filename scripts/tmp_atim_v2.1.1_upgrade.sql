@@ -583,3 +583,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'You cannot browse to the requested entities because there is no [%s] matching your request!',
 'Vous ne pouvez pas naviguer vers les entités demandées parce qu''il n''y a pas de [%s] correspondant à votre requête!');
 
+-- datamart menu
+UPDATE menus SET use_link='/menus/datamart/' WHERE id='qry-CAN-1'; 
