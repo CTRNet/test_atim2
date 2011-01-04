@@ -1843,7 +1843,7 @@ class StructuresHelper extends Helper {
 		
 			$display_class_array = array_reverse($display_class_array);
 		}
-		
+
 		$display_class_array[1] = isset($display_class_array[1]) ? strtolower($display_class_array[1]) : ''; 
 		$display_class_array[2] = isset($display_class_array[2]) ? strtolower($display_class_array[2]) : '';
 
@@ -1851,12 +1851,16 @@ class StructuresHelper extends Helper {
 		if(isset(self::$display_class_mapping[$display_class_array[0]])){
 			$display_class_name = self::$display_class_mapping[$display_class_array[0]];
 		}else if($display_class_array[0] == "plugin"){
-			if($display_class_array[1] == 'menus' && $display_class_array[2] == 'tools'){
-				$display_class_name = 'tools';
+			if($display_class_array[1] == 'menus'){
+				if($display_class_array[2] == 'tools'){
+					$display_class_name = 'tools';
+				}else if($display_class_array[2] == 'datamart'){
+					$display_class_name = 'datamart';
+				}else{
+					$display_class_name = 'home';
+				}
 			}else if($display_class_array[1] == 'users' && $display_class_array[2] == 'logout'){
 				$display_class_name = 'logout';
-			}else if($display_class_array[1] == 'menus'){
-				$display_class_name = 'home';
 			}else if(array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)){
 				$display_class_name = $display_class_array[1];
 			}else{
