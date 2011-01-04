@@ -182,12 +182,14 @@ function uncheckAll( $div ) {
 			var dayField = null;
 			var date = null;
 			for(var i = 0; i < dateFields.length; i ++){
+				var tmpStr = $(dateFields[i]).attr("name");
+				var tmpLen = tmpStr.length;
 				if(dateFields[i].nodeName != "SPAN"){
-					if($(dateFields[i]).attr("name").substr(-7) == "][year]"){
+					if(tmpStr.substr(tmpLen - 7) == "][year]"){
 						yearField = dateFields[i];
-					}else if($(dateFields[i]).attr("name").substr(-8) == "][month]"){
+					}else if(tmpStr.substr(tmpLen - 8) == "][month]"){
 						monthField = dateFields[i];
-					}else if($(dateFields[i]).attr("name").substr(-6) == "][day]"){
+					}else if(tmpStr.substr(tmpLen - 6) == "][day]"){
 						dayField = dateFields[i];
 					}
 				}

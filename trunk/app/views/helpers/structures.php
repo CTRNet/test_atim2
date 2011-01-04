@@ -197,6 +197,7 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
+		echo $atim_structure['Structure']['alias'];
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -1930,6 +1931,7 @@ class StructuresHelper extends Helper {
 			list($year, $month, $day) = explode("-", $date);
 		}
 		$result = "";
+		unset($attributes['options']);//fixes an IE js bug where $(select).val() returns an error if "options" is present as an attribute
 		if(datetime_input_type == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
