@@ -88,10 +88,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->set('aliquot_list', $this->AliquotReviewMaster->getAliquotListForReview($sample_master_id, (($review_control_data['AliquotReviewControl']['aliquot_type_restriction'] == 'all')? null : $review_control_data['AliquotReviewControl']['aliquot_type_restriction'])));
 		}		
 		
-		// Set default data
-		$specimen_review_data = array();
-		$aliquot_review_data = array(array('AliquotReviewMaster' => array('id' => __('new', true))));
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/specimen_reviews/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));		
@@ -114,8 +110,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		
 		if ( empty($this->data) ) {
 			$this->data = NULL;
-			$this->set('specimen_review_data', $specimen_review_data);
-			$this->set('aliquot_review_data', $aliquot_review_data);
+			$this->set('specimen_review_data', array());
+			$this->set('aliquot_review_data', array());
 
 		} else {
 	
@@ -178,7 +174,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 				$is_aliquot_use_created = false;
 				if($is_aliquot_review_defined) {
-					
+					$use_data_source = $this->AliquotUse->getDataSource();
+					$use_data_source->begin($this->AliquotUse);
 					foreach($aliquot_review_data as $key => $new_aliquot_review) {
 						// 1- Save aliquot use... won't save used volume!
 						$aliquot_use_id = null;
@@ -205,6 +202,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						$new_aliquot_review['AliquotReviewMaster']['aliquot_use_id'] = $aliquot_use_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					}
+					$use_data_source->commit($this->AliquotUse);
 				}
 				
 				$this->atimFlash(__('your data has been saved', true).  
@@ -271,7 +269,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	
 	function edit($collection_id, $sample_master_id, $specimen_review_id, $undo = false) {
 		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }		
-		
 		// MANAGE DATA
 		
 		// Get sample data
@@ -328,7 +325,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		if ( empty($this->data) || $undo ) {
 			$this->data = NULL;
 			$this->set('specimen_review_data', $initial_specimen_review_data);
-			$initial_aliquot_review_data_list[] = array('AliquotReviewMaster' => array('id' => __('new', true)));
 			$this->set('aliquot_review_data', $initial_aliquot_review_data_list);
 				
 		} else {
@@ -338,7 +334,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			unset($this->data['SpecimenReviewMaster']);
 			unset($this->data['SpecimenReviewDetail']);
 			$aliquot_review_data = array_values($this->data);//compact the array as some key might be missing
-			$aliquot_review_data[] = array('AliquotReviewMaster' => array('id' => __('new', true)));
 			$this->data = NULL;
 			
 			foreach($aliquot_review_data as $key => $new_aliquot_review) {
@@ -396,23 +391,23 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				
 				$is_aliquot_use_managed = false;
+				
 				if($is_aliquot_review_defined) {
-					
 					// Build aliquot review array with id = key
 					$initial_aliquot_review_data_from_id = array();
 					foreach($initial_aliquot_review_data_list as $initial_aliquot_review) {
 						$initial_aliquot_review_data_from_id[$initial_aliquot_review['AliquotReviewMaster']['id']] = array('AliquotReviewMaster' => $initial_aliquot_review['AliquotReviewMaster']);	
 					}
 					
-					// Launch process to update/create/delete aliquot review 
+					// Launch process to update/create/delete aliquot review
+					$use_data_source = $this->AliquotUse->getDataSource();
+					$use_data_source->begin($this->AliquotUse); 
 					foreach($aliquot_review_data as $key => $submitted_aliquot_review) {
-						
 						if(isset($initial_aliquot_review_data_from_id[$submitted_aliquot_review['AliquotReviewMaster']['id']])) {
-
-					//---------------------------------------------------------------------------
-					// 1- Existing aliquot review to update
-					//---------------------------------------------------------------------------
-							
+							//---------------------------------------------------------------------------
+							// 1- Existing aliquot review to update
+							//---------------------------------------------------------------------------
+								
 							$aliquot_review_id = $submitted_aliquot_review['AliquotReviewMaster']['id'];
 							$initial_aliquot_review = $initial_aliquot_review_data_from_id[$aliquot_review_id];
 							unset($initial_aliquot_review_data_from_id[$aliquot_review_id]);
@@ -423,7 +418,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							
 							if(array_key_exists('aliquot_masters_id', $initial_aliquot_review['AliquotReviewMaster'])) {
 								$is_aliquot_use_managed = true;
-								
 								if($initial_aliquot_review['AliquotReviewMaster']['aliquot_masters_id'] != $submitted_aliquot_review['AliquotReviewMaster']['aliquot_masters_id']) {
 									// 1.1.a The studied aliquot has been changed
 									
@@ -468,19 +462,17 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 									}
 								}
 							}
-							
 							// *** 1.2 Update Aliquot Review *** 
 							
 							$this->AliquotReviewMaster->id = $aliquot_review_id;
 							$submitted_aliquot_review['AliquotReviewMaster']['aliquot_use_id'] = $aliquot_use_id_to_record;
 							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
-							
-						} else {
+							$use_data_source->commit($this->AliquotUse);
+						}else{
 							
 					//---------------------------------------------------------------------------
 					// 2- New aliquot review to create
 					//---------------------------------------------------------------------------
-							
 							// *** 1.1- Save aliquot use... won't save used volume! ***
 							$aliquot_use_id = null;
 							if(array_key_exists('aliquot_masters_id', $submitted_aliquot_review['AliquotReviewMaster']) && (!empty($submitted_aliquot_review['AliquotReviewMaster']['aliquot_masters_id']))) {
@@ -506,7 +498,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							$submitted_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_id;					
 							$submitted_aliquot_review['AliquotReviewMaster']['aliquot_use_id'] = $aliquot_use_id;
 							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
-
+							$use_data_source->commit($this->AliquotUse);
 						}
 					}
 					
