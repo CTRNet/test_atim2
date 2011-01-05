@@ -78,10 +78,10 @@ body {
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 
-div.wrapper {
+div.outerWrapper div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
-	background: none;
+	background-color: #fff;
 	border: 1px solid #243340;
 	border-color: #243340;
 	border-top: none;
@@ -92,7 +92,6 @@ div.wrapper {
 
 div.outerWrapper{
 	min-height: 300px;
-	background-color: #fff;
 }
 
 div#header {
@@ -1399,6 +1398,8 @@ li.selected    { background-color: #ffb; }
 
 body.flash {
 	background: rgb(72,102,128);
+	background: -webkit-gradient(linear, left top, right top, from(#486880), color-stop(50%, #aaf), to(#486880)); /* for webkit browsers */
+	background: -moz-linear-gradient(left, #486880,  #aaf, #486880); /* for firefox 3.6+ */
 }
 
 body.flash div.wrapper {
@@ -1813,4 +1814,8 @@ span.incompleteMenuTitle{
 
 .red{
 	color: red;	
+}
+
+small{
+	font-size: 65%;
 }

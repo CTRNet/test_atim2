@@ -3,11 +3,6 @@
 <head>
 	
 	<title><?php echo $page_title.' &laquo; '.__('core_appname', true); ?></title>
-	
-	<?php if ( Configure::read("debug") == 0 ) { ?>
-	<meta http-equiv="Refresh" content="<?php echo $pause?>; url=<?php echo $url?>" />
-	<?php } ?>
-
 	<link rel="shortcut icon" href="favicon.ico" type="image/ico" />
 
 	<?php 
@@ -21,9 +16,12 @@
 <body class="flash">
 
     <div class="wrapper">
-        <a href="<?php echo $url; ?>"> <?php echo __( $message, true ); ?> </a>
+		<a href="<?php echo $url; ?>"> 
+        	<?php echo __( $message, true ); ?>
+        	<br/>
+	        <small><?php __('click to continue'); ?></small>
+		</a>
     </div>
-    
     <?php
     	echo $this->element('sql_dump');
     ?>
