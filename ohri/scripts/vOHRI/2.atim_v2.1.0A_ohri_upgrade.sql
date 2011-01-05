@@ -1791,7 +1791,67 @@ AND str.alias = 'studysummaries'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("synchronous", "synchronous");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin"),  (SELECT id FROM structure_permissible_values WHERE value="synchronous" AND language_alias="synchronous"), "4", "1");
 
+UPDATE structure_value_domains_permissible_values SET flag_active=false WHERE id IN(1605, 1606);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("serous", "serous");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  (SELECT id FROM structure_permissible_values WHERE value="serous" AND language_alias="serous"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("transitional", "transitional");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  (SELECT id FROM structure_permissible_values WHERE value="transitional" AND language_alias="transitional"), "8", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("granulosa", "granulosa");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  (SELECT id FROM structure_permissible_values WHERE value="granulosa" AND language_alias="granulosa"), "9", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("cystadenoma", "cystadenoma");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  (SELECT id FROM structure_permissible_values WHERE value="cystadenoma" AND language_alias="cystadenoma"), "10", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "11", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ohri_disease_status', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("", "");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="" AND language_alias=""), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("remission", "remission");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="remission" AND language_alias="remission"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("regression", "regression");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="regression" AND language_alias="regression"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("stable", "stable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="stable" AND language_alias="stable"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("progressing", "progressing");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="progressing" AND language_alias="progressing"), "1", "1");
+UPDATE structure_fields SET type='select', setting='', structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='ohri_disease_status') WHERE id='1863';
+
+ALTER TABLE txd_chemos
+ADD ohri_line_of_chemo varchar(20);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ohri_line_of_chemo', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("first line", "first line");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_line_of_chemo"),  (SELECT id FROM structure_permissible_values WHERE value="first line" AND language_alias="first line"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("second line", "second line");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_line_of_chemo"),  (SELECT id FROM structure_permissible_values WHERE value="second line" AND language_alias="second line"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("third line", "third line");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_line_of_chemo"),  (SELECT id FROM structure_permissible_values WHERE value="third line" AND language_alias="third line"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("fourth line", "fourth line");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_line_of_chemo"),  (SELECT id FROM structure_permissible_values WHERE value="fourth line" AND language_alias="fourth line"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("> fourth line", "> fourth line");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_line_of_chemo"),  (SELECT id FROM structure_permissible_values WHERE value="> fourth line" AND language_alias="> fourth line"), "5", "1");
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'clinicalannotation', 'TreatmentDetail', 'txd_chemos',  'ohri_line_of_chemo', 'line of chemo', '', 'select', '', '', (SELECT id FROM structure_value_domains where domain_name='ohri_line_of_chemo'), '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES
+((SELECT id FROM structures WHERE alias='txd_chemos'), LAST_INSERT_ID(), 1, 10, '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'); 
+
+
+INSERT INTO i18n (id, en, fr) VALUES
+('synchronous', 'synchronous', "Synchrones"),
+("serous", "Serous", "Séreux"),
+("transitional", "Transitional", "Transitoire"),
+-- ("granulosa", "Granulosa", "??"), ?????
+("cystadenoma", "Cystadenoma", "Cystadénome"),
+("remission", "Remission", "Rémission"),
+("regression", "Regression", "Régression"),
+("progression", "Progression", "Progression"),
+("first line", "First line", "Première ligne"),
+("second line", "Second line", "Deuxième ligne"),
+("third line", "Thrid line", "Troisième ligne"),
+("fourth line", "Fourth line", "Quatrième ligne"),
+("> fourth line", "> Fourth line", "> Quatrième ligne");
 
 
 - ajouter ligne suivante au trunk
