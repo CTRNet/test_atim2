@@ -645,4 +645,5 @@ ALTER TABLE aliquot_masters_revs
  DROP COLUMN coord_x_order,
  DROP COLUMN coord_y_order; 
 	
-
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('click to continue', 'Click to continue', 'Cliquez pour continuer');
