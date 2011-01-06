@@ -604,7 +604,7 @@ DELETE FROM i18n WHERE id IN ('an aliquot being not in stock can not be linked t
 'more than one storages matche the selection label [%s]',
 'no storage matches the selection label [%s]',
 'the barcode [%s] has already been recorded',
-'you can not record barcode [%s] twice',
+'you can not record barcode [%s] twice','no aliquot has been defined as source aliquot',
 'see line %s');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
@@ -619,6 +619,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('more than one storages matche the selection label [%s]', 'More than one storages matche the selection label [%s]!', 'Plus d''un entreposage correspond à l''identifiant de sélection [%s]!'),
 	('no storage matches the selection label [%s]', 'No storage matches the selection label [%s]!', 'Aucun entreposage ne correspond à l''identifiant de sélection [%s]!'),
 ('the barcode [%s] has already been recorded', 'The barcode [%s] has already been recorded!', 'Le barcode [%s] a déjà été enregistré!'),
+('no aliquot has been defined as source aliquot', 'No aliquot has been defined as source aliquot!', 'Aucun aliquot n''a été défini comme aliquot source!'),
 	('you can not record barcode [%s] twice', 'You can not record barcode [%s] twice!', 'Vous ne pouvez enregistrer le barcode [%s] deux fois!'),
 	('see line %s', 'See ligne(s) %s!', 'Voir ligne(s) %s!');	 	
 
@@ -645,4 +646,3 @@ ALTER TABLE aliquot_masters_revs
  DROP COLUMN coord_y_order; 
 	
 
-'no aliquot has been defined as source aliquot'
