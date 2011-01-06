@@ -172,7 +172,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!is_null($predefined_parent_storage_id)) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
-			$predefined_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->createStorageTitleForDisplay($predefined_parent_storage_data);;
+			$predefined_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data);;
 			$this->set('predefined_parent_storage_list', $predefined_parent_storage_list);	
 		}
 		
@@ -360,9 +360,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			if($is_new_parent_storage){
 				// Parent storage has been changed, delete coordinate values
 				$this->data['StorageMaster']['parent_storage_coord_x'] = null;
-				$this->data['StorageMaster']['coord_x_order'] = null;
 				$this->data['StorageMaster']['parent_storage_coord_y'] = null;
-				$this->data['StorageMaster']['coord_y_order'] = null;
 			}
 			
 			// Validates data
@@ -502,13 +500,9 @@ class StorageMastersController extends StoragelayoutAppController {
 			$storage_data_to_update = array();
 			if(isset($this->data['StorageMaster']['parent_storage_coord_x'])) { 		
 				$storage_data_to_update['StorageMaster']['parent_storage_coord_x'] = $this->data['StorageMaster']['parent_storage_coord_x']; 
-				$coord_x_order = (is_null($this->data['StorageMaster']['parent_storage_coord_x']) || ($this->data['StorageMaster']['parent_storage_coord_x'] == ''))? null: $arr_allowed_x_position['array_to_order'][$this->data['StorageMaster']['parent_storage_coord_x']];
-				$storage_data_to_update['StorageMaster']['coord_x_order'] = $coord_x_order; 
 			}	
 			if(isset($this->data['StorageMaster']['parent_storage_coord_y'])) { 
 				$storage_data_to_update['StorageMaster']['parent_storage_coord_y'] = $this->data['StorageMaster']['parent_storage_coord_y']; 
-				$coord_y_order = (is_null($this->data['StorageMaster']['parent_storage_coord_y']) || ($this->data['StorageMaster']['parent_storage_coord_y'] == ''))? null: $arr_allowed_y_position['array_to_order'][$this->data['StorageMaster']['parent_storage_coord_y']];
-				$storage_data_to_update['StorageMaster']['coord_y_order'] = $coord_y_order; 
 			}	
 			
 			// Validates data
@@ -598,7 +592,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$storage_content = $this->formatStorageTreeView($storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
-			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
+			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '-1'));
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
@@ -1135,6 +1129,18 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	function autocompleteLabel(){
+		
+		//-- NOTE ----------------------------------------------------------
+		//
+		// This function is linked to functions of the StorageMaster model 
+		// called getStorageDataFromStorageLabelAndCode() and
+		// getStorageLabelAndCodeForDisplay().
+		//
+		// When you override the autocompleteLabel() function, check 
+		// if you need to override these functions.
+		//  
+		//------------------------------------------------------------------
+		
 		//layout = ajax to avoid printing layout
 		$this->layout = 'ajax';
 		//debug = 0 to avoid printing debug queries that would break the javascript array

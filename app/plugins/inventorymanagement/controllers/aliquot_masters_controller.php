@@ -304,6 +304,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			case 'specimen':
 				$bool_is_specimen = true;
 				break;
+				
 			case 'derivative':
 				$bool_is_specimen = false;
 				break;
@@ -353,7 +354,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 			// Manage volume
 			$errors = array();
-			foreach($this->data as $key => &$data) {				
+			$record_counter = 0;
+			foreach($this->data as $key => &$data) {	
+				$record_counter++;
+										
 				// Set AliquotMaster.initial_volume
 				if(array_key_exists('initial_volume', $this->data[$key]['AliquotMaster'])){
 					if(empty($aliquot_control_data['AliquotControl']['volume_unit'])){
@@ -362,13 +366,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$data['AliquotMaster']['current_volume'] = $data['AliquotMaster']['initial_volume'];				
 				}
 				
+				// Validate and update position data
 				$data['AliquotMaster']['aliquot_control_id'] = $aliquot_control_id;
 				$this->AliquotMaster->set($data);
 				if(!$this->AliquotMaster->validates()){
-					$errors = array_merge_recursive($errors, $this->AliquotMaster->validationErrors);
+					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
+						$errors[$field][$msg][] = $record_counter;
+					}
 				}
+				
+				// Reste data to get position data
+				$data = $this->AliquotMaster->data;
 			}
-					
+								
 			$submitted_data_validates = count($errors) == 0;
 			
 			$hook_link = $this->hook('presave_process');
@@ -393,7 +403,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 				return;
 			} else {
 				// Set error message
-				$this->AliquotMaster->validationErrors = $errors;
+				$this->AliquotMaster->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$this->AliquotMaster->validationErrors[$field][] = __($msg, true) . ' ' . str_replace('%s', implode(",", $lines), __('see line %s',true));					
+					}
+				}
 			}	
 		}
 	}
@@ -504,7 +519,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)){ 
 			$this->redirect('/pages/err_inv_no_data', null, true); 
 		}		
-
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -525,10 +540,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE DATA RECORD
 		
 		if(empty($this->data)){
+			$aliquot_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $aliquot_data['StorageMaster']));
 			$this->data = $aliquot_data;
-			
-			$tmp_arr_preselected_storages = empty($aliquot_data['StorageMaster']['id'])? array(): array($aliquot_data['StorageMaster']['id'] => array('StorageMaster' => $aliquot_data['StorageMaster']));
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($tmp_arr_preselected_storages));
+
 		}else{
 			//Update data
 			if(array_key_exists('initial_volume', $this->data['AliquotMaster']) && empty($aliquot_data['AliquotControl']['volume_unit'])) { 
@@ -538,7 +552,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// Launch validations
 			
 			$submitted_data_validates = true;
-			$errors = array();
 					
 			// -> Fields validation
 			//  --> AliquotMaster
@@ -547,6 +560,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->AliquotMaster->set($this->data);
 			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
+			
+			// Reste data to get position data
+			$this->data = $this->AliquotMaster->data;
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -900,7 +916,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			$aliquots_defined_as_source = array();
 			$errors = array();	
+			$line_counter = 0;
 			foreach($this->data as $key => $new_studied_aliquot){
+				$line_counter++;
+				
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as source
 				
@@ -911,24 +930,26 @@ class AliquotMastersController extends InventoryManagementAppController {
 					// Check volume
 					if((!empty($new_studied_aliquot['AliquotUse']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
-						$errors['AliquotUse']['used_volume']['no volume has to be recorded for this aliquot type'] = '-'; 
-						$new_studied_aliquot['AliquotUse']['used_volume'] = '#err#';
+						$errors['AliquotUse']['used_volume']['no volume has to be recorded for this aliquot type'][] = $line_counter; 
 						$submitted_data_validates = false;			
 					} else if(empty($new_studied_aliquot['AliquotUse']['used_volume'])) {
 						// Change '0' to null
 						$new_studied_aliquot['AliquotUse']['used_volume'] = null;
 					}
-					
+									
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->set($new_studied_aliquot);
 					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
+					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error][] = $line_counter; }					
 					
+					// Reste data to get position data (not really required for this function)
+					$new_studied_aliquot = $this->AliquotMaster->data;				
+
 					// Launch Aliquot Use validation
 					$this->AliquotUse->set($new_studied_aliquot);
 					$submitted_data_validates = ($this->AliquotUse->validates())? $submitted_data_validates: false;
-					foreach($this->AliquotUse->invalidFields() as $field => $error) { $errors['AliquotUse'][$field][$error] = '-'; }
+					foreach($this->AliquotUse->invalidFields() as $field => $error) { $errors['AliquotUse'][$field][$error][] = $line_counter; }
 					
 					// Add record to array of tested aliquots
 					$aliquots_defined_as_source[] = $new_studied_aliquot;		
@@ -939,7 +960,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			
 			if(empty($aliquots_defined_as_source)) { 
-				$this->AliquotUse->validationErrors[] = 'no aliquot has been defined as source aliquot';	
+				$this->AliquotUse->validationErrors['use'] = 'no aliquot has been defined as source aliquot';	
 				$submitted_data_validates = false;			
 			}
 
@@ -953,19 +974,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 				foreach($errors as $model => $field_messages) {
 					$this->{$model}->validationErrors = array();
 					foreach($field_messages as $field => $messages) {
-						foreach($messages as $message => $tmp) {
-							if(!array_key_exists($field, $this->{$model}->validationErrors)) {
-								$this->{$model}->validationErrors[$field] = $message;
-							} else {
-								$this->{$model}->validationErrors[] = $message;
-							}
+						foreach($messages as $message => $lines) {
+							pr($model);
+							pr($field);
+							$this->{$model}->validationErrors[$field][] = __($message, true) . ' ' . str_replace('%s', implode(",", $lines), __('see line %s',true));
 						}
 					}
 				}
 				
 			} else {
 				// Launch save process
-					
+								
 				// Parse records to save
 				foreach($aliquots_defined_as_source as $new_source_aliquot) {
 					// Get Source Aliquot Master Id
@@ -1269,110 +1288,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		return null;
 	}
 	
-	
-	
-	/**
-	 * Check both aliquot storage definition and aliquot positions and set error if required.
-	 * 
-	 * Note: 
-	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
-	 *  - Has been created to allow customisation.
-	 * 
-	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
-	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
-	 * 	or
-	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
-	 *
-	 * @return Following results array:
-	 * 	array(
-	 * 		'submitted_data_validates' => TRUE when data are validated,
-	 * 		'messages_sorted_per_field' => array ($field_name => array($message_1, $message_2, ...))
-	 * 	)
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
-	 */
-	 
 	function validateAliquotStorageData(&$aliquots_data) {
-		$submitted_data_validates = true;
-				
-		$arr_preselected_storages = array();
-		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
-		
-		// check data structure
-		$is_multi_records_data = true;
-		if(is_array($aliquots_data)) {
-			if(isset($aliquots_data['AliquotMaster'])) {
-				// Single record to manage as multi records
-				$aliquots_data = array('0' => $aliquots_data);
-				$is_multi_records_data = false;
-			} else {
-				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
-				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
-					// Multi records: Nothing to do				
-				} else {
-					$this->redirect('/pages/err_inv_system_error', null, true);
-				}
-			}
-		} else {
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-		
-		// Launch validation		
-		foreach ($aliquots_data as $key => $new_aliquot) {
-			$is_sample_core = false;
-			if(isset($new_aliquot['AliquotMaster']['aliquot_type']) && ($new_aliquot['AliquotMaster']['aliquot_type'] == 'core')) $is_sample_core = true;
-			
-			// Check the aliquot storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id'], $is_sample_core);
-					
-			$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
-	
-			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
-				$submitted_data_validates = false;
-				$error_msg = $arr_storage_selection_results['storage_definition_error'];
-				$storage_validation_errors['id'][$error_msg] = $error_msg;		
-			
-			} else {
-				// Check aliquot position within storage
-				$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
-				$arr_position_results = $this->Storages->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
-							
-				// Manage errors
-				if(!empty($arr_position_results['position_definition_error'])) {
-					$submitted_data_validates = false;
-					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x']) { $storage_validation_errors['x'][$error] = $error; } 
-					if($arr_position_results['error_on_y']) { $storage_validation_errors['y'][$error] = $error; }	
-				}
-								
-				// Reset aliquot storage data
-				$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-				$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
-				$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-				$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
-			}
-			
-			// Update $aliquots_data for the studied record
-			$aliquots_data[$key] = $new_aliquot;
-		}
-		
-		// Set preselected storage list		
-		$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_preselected_storages));
-				
-		// Manage error message
-		$messages = array();
-		foreach($storage_validation_errors['id'] as $error) { $messages['storage_master_id'][] = $error; }
-		foreach($storage_validation_errors['x'] as $error) { $messages['storage_coord_x'][] = $error; }
-		foreach($storage_validation_errors['y'] as $error) { $messages['storage_coord_y'][] = $error; }
-		
-		if(!$is_multi_records_data) {
-			// Reset correctly single record data
-			$aliquots_data = $aliquots_data['0'];
-		}
-		
-		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
+		pr('deprecated');
+		$this->redirect('/pages/err_inv_system_error', null, true);
 	}
 
 	/**
@@ -1429,30 +1347,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 		return date('Y-m-d G:i');
-	}
-	
-	/**
-	 * Format Preselected Storages data array for display.
-	 * 
-	 * @param $arr_preselected_storages PreselectedStorages data
-	 * 
-	 * @return Preselected storage list into array having following structure: 
-	 * 	array($storage_master_id => $storage_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatPreselectedStoragesForDisplay($arr_preselected_storages) {
-		$formatted_data = array('' => '');
-		
-		if(!empty($arr_preselected_storages)) {
-			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $this->StorageMaster->createStorageTitleForDisplay($storage_data);
-			}
-		}
-	
-		return $formatted_data;
 	}
 	
 	function realiquotInit($aliquot_id = null){
