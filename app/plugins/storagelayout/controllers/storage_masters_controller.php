@@ -92,7 +92,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
 		$this->set('parent_storage_id', $parent_storage_id);		
-		$this->set('storage_path', $this->StorageMaster->getStoragePath($parent_storage_id));
+		$this->data['Generated']['path'] =  $this->StorageMaster->getStoragePath($parent_storage_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -445,8 +445,8 @@ class StorageMastersController extends StoragelayoutAppController {
 			return;
 		}
 
-		$this->set('storage_path', $this->StorageMaster->getStoragePath($parent_storage_id));
-
+		$storage_data['Generated']['path'] =  $this->StorageMaster->getStoragePath($parent_storage_id);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
