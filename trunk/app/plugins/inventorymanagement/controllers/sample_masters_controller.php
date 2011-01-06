@@ -3,8 +3,7 @@
 class SampleMastersController extends InventorymanagementAppController {
 
 	var $components = array(
-		'Inventorymanagement.Samples', 
-		'Inventorymanagement.Aliquots');
+		'Inventorymanagement.Samples');
 
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -725,7 +724,7 @@ class SampleMastersController extends InventorymanagementAppController {
 							foreach($source_aliquots as $source_data) {
 								$use_ids[] = $source_data['SourceAliquot']['aliquot_use_id'];
 							}
-							if(!$this->Aliquots->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+							if(!$this->AliquotUse->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 						}
 					}
 
