@@ -16,5 +16,8 @@ mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_upgrade.sql
 echo running tmp_atim_v2.1.1_demo_data.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_demo_data.sql
 
+echo running custom.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < custom.sql
+
 
 echo done
