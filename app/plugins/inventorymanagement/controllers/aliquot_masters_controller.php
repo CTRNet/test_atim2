@@ -1,8 +1,7 @@
 <?php
 class AliquotMastersController extends InventoryManagementAppController {
 	
-	var $components = array( 
-		'Storagelayout.Storages');
+	var $components = array();
 	
 	var $uses = array(
 		'Inventorymanagement.Collection',
