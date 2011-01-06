@@ -46,7 +46,6 @@
 	}
 		
 	$structure_override = array();
-	$structure_override['Generated.path'] = $storage_path;
 	
 	if(!$bool_define_position) {
 		// No sorage position within parent can be set	
