@@ -589,3 +589,60 @@ UPDATE menus SET language_description='allows you to browse from one data type t
 UPDATE menus SET language_description='allows you to build result sets with custom queries. This tool is not flexible.' WHERE id='qry-CAN-2';
 UPDATE menus SET language_description='lists the already created batch sets' WHERE id='qry-CAN-3';
 UPDATE menus SET language_description='allows you to generate various reports based on ATiM data' WHERE id='qry-CAN-1-2 ';
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('storage_master_id') AND tablename IN ('aliquot_masters','tma_slides'));
+DELETE FROM structure_fields WHERE field IN ('storage_master_id') AND tablename IN ('aliquot_masters','tma_slides');
+
+DELETE FROM i18n WHERE id IN ('an aliquot being not in stock can not be linked to a storage',
+'only sample core can be stored into tma block',
+'an x coordinate does not match format',
+'an y coordinate does not match format',
+'an x coordinate needs to be defined',
+'an y coordinate needs to be defined',
+'no x coordinate has to be recorded when no storage is selected',
+'no y coordinate has to be recorded when no storage is selected',
+'more than one storages matche the selection label [%s]',
+'no storage matches the selection label [%s]',
+'the barcode [%s] has already been recorded',
+'you can not record barcode [%s] twice',
+'see line %s');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+	('an aliquot being not in stock can not be linked to a storage', 'An aliquot flagged ''Not in stock'' cannot also have storage location and label completed.', 'Un aliquot non en stock ne peut être attaché à un entreposage!'),
+('only sample core can be stored into tma block','Only sample core can be stored into tma block!', 'Seules les cores d''échantillons peuvent être entreposés dans des blocs de TMA!'),
+	('an x coordinate does not match format', 'An x coordinate does not match format!', 'Le format d''une coordonnée x n''est pas bon!'),
+	('an y coordinate does not match format', 'An y coordinate does not match format!', 'Le format d''une coordonnée y n''est pas bon!'),
+	('an x coordinate needs to be defined', 'An x coordinate needs to be defined!', 'Une coordonnée x doit être définie!'),
+	('an y coordinate needs to be defined', 'An y coordinate needs to be defined!', 'Une coordonnée y doit être définie!'),
+	('no x coordinate has to be recorded when no storage is selected', 'No x coordinate has to be recorded when no storage is selected!', 'Aucune coordonnée x ne doit être enregistrée si l''entreposage n''est pas sélectionné!'),
+	('no y coordinate has to be recorded when no storage is selected', 'No y coordinate has to be recorded when no storage is selected!', 'Aucune coordonnée y ne doit être enregistrée si l''entreposage n''est pas sélectionné!'),
+('more than one storages matche the selection label [%s]', 'More than one storages matche the selection label [%s]!', 'Plus d''un entreposage correspond à l''identifiant de sélection [%s]!'),
+	('no storage matches the selection label [%s]', 'No storage matches the selection label [%s]!', 'Aucun entreposage ne correspond à l''identifiant de sélection [%s]!'),
+('the barcode [%s] has already been recorded', 'The barcode [%s] has already been recorded!', 'Le barcode [%s] a déjà été enregistré!'),
+	('you can not record barcode [%s] twice', 'You can not record barcode [%s] twice!', 'Vous ne pouvez enregistrer le barcode [%s] deux fois!'),
+	('see line %s', 'See ligne(s) %s!', 'Voir ligne(s) %s!');	 	
+
+DELETE FROM `structure_validations`
+WHERE `rule` LIKE 'custom,/^(?!err!).*$/';
+
+ALTER TABLE storage_masters
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order; 
+ALTER TABLE storage_masters_revs
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order; 
+ALTER TABLE tma_slides
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order;  
+ALTER TABLE tma_slides_revs
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order;  
+ALTER TABLE aliquot_masters
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order;  
+ALTER TABLE aliquot_masters_revs
+ DROP COLUMN coord_x_order,
+ DROP COLUMN coord_y_order; 
+	
+
+'no aliquot has been defined as source aliquot'

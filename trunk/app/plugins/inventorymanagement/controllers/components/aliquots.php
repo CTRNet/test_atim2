@@ -31,9 +31,7 @@ class AliquotsComponent extends Object {
 	function removeAliquotStorageData($aliquot_master_data) {
 		$aliquot_master_data['storage_master_id'] = null;
 		$aliquot_master_data['storage_coord_x'] = null;
-		$aliquot_master_data['coord_x_order'] = null;
-		$aliquot_master_data['storage_coord_y'] = null;
-		$aliquot_master_data['coord_y_order'] = null;	
+		$aliquot_master_data['storage_coord_y'] = null;	
 		
 		return $aliquot_master_data;
 	}

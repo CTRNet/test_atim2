@@ -36,8 +36,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	public static $aliquot_type_dropdown = array();
 	public static $storage = null;
-	private $barcodes = array();//barcode validation, key = barcode, value = id
 	
+	private $barcodes = array();//barcode validation, key = barcode, value = id	
+		
 	function summary($variables=array()) {
 		$return = false;
 		
@@ -267,8 +268,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 			$data['storage_master_id'] = NULL;
 			$data['storage_coord_x'] = NULL;
 			$data['storage_coord_y'] = NULL;
-			$data['coord_x_order'] = NULL;
-			$data['coord_y_order'] = NULL;
 			$data['in_stock'] = 'no';
 			$data['in_stock_detail'] = 'empty';
 		}
@@ -305,31 +304,17 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @see Model::validates()
 	 */
 	function validates($options = array()){
-		//NL Comment 20101223: Create a function to validate aliquot one by one or in batch.
-		$current_data = $this->data['AliquotMaster'];
-		if(isset($current_data['in_stock']) && $current_data['in_stock'] == 'no' 
-		&& (!empty($current_data['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
+		pr('WARNING!!: aliquot data can be updated into AliquotMaster->validates() function: be sure to reset data into controller using $this->AliquotMaster->data!');
+						
+		if(isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' 
+		&& (!empty($this->data['AliquotMaster']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
 			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
 		}
-
-		//NL Comment 20101223: Remove from this function for many raison
-		// -- Will be run many times if datagrid
-		// -- Not sure that saved data will be always into $this->data
-		$storage_validation = $this->validateAliquotStorageData($this->data);
-		if(!$storage_validation['submitted_data_validates']){
-			foreach($storage_validation['messages_sorted_per_field'] as $field => $msg){
-				$this->validationErrors[$field] = $msg;
-			}
-		}
 		
-		//NL Comment 20101223: Remove from this function for many raison
-		// -- Will be run many times if datagrid
-		// -- Not sure that saved data will be always into $this->data
-		if(isset($current_data['barcode'])){
-			$dupe_data = $this->isDuplicatedAliquotBarcode($this->data);
-			if($dupe_data['is_duplicated_barcode']){
-				$this->validationErrors['barcode'] = $dupe_data['messages'];
-			}
+		$this->data = $this->validateAndUpdateAliquotStorageData($this->data);
+		
+		if(isset($this->data['AliquotMaster']['barcode'])){
+			$this->checkDuplicatedAliquotBarcode($this->data);
 		}
 		
 		parent::validates($options);
@@ -339,115 +324,43 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	/**
 	 * Check both aliquot storage definition and aliquot positions and set error if required.
-	 * 
-	 * Note: 
-	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
-	 *  - Has been created to allow customisation.
-	 * 
-	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
-	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
-	 * 	or
-	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
-	 *
-	 * @return Following results array:
-	 * 	array(
-	 * 		'submitted_data_validates' => TRUE when data are validated,
-	 * 		'messages_sorted_per_field' => array ($field_name => array($message_1, $message_2, ...))
-	 * 	)
-	 * 
-	 * @author N. Luc
-	 * @date 2007-08-15
 	 */
 	 
-	function validateAliquotStorageData(&$aliquots_data) {
-		$submitted_data_validates = true;
-				
-		$arr_preselected_storages = array();
-		$storage_validation_errors = array('id' => array(), 'x' => array(), 'y' => array());
+	function validateAndUpdateAliquotStorageData($aliquot_data) {
 		
 		// check data structure
-		$is_multi_records_data = true;
-		if(is_array($aliquots_data)) {
-			if(isset($aliquots_data['AliquotMaster'])) {
-				// Single record to manage as multi records
-				$aliquots_data = array('0' => $aliquots_data);
-				$is_multi_records_data = false;
-			} else {
-				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
-				if(is_array($tmp_arr_to_test) && isset($tmp_arr_to_test[0]['AliquotMaster'])) {
-					// Multi records: Nothing to do				
-				} else {
-					AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
-				}
-			}
-		} else {
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
 			AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
 		}
 		
+		// Load model
 		if(self::$storage == null){
 			self::$storage = AppModel::atimNew("storagelayout", "StorageMaster", true);
 		}
-		
+				
 		// Launch validation		
-		foreach ($aliquots_data as $key => $new_aliquot) {
-			if(isset($new_aliquot['FunctionManagement']['recorded_storage_selection_label']) 
-			|| isset($new_aliquot['AliquotMaster']['storage_master_id'])){
-				$is_sample_core = isset($new_aliquot['AliquotMaster']['aliquot_type']) && ($new_aliquot['AliquotMaster']['aliquot_type'] == 'core');
-				
-				// Check the aliquot storage definition (selection label versus selected storage_master_id)
-				$arr_storage_selection_results = self::$storage->validateStorageIdVersusSelectionLabel($new_aliquot['FunctionManagement']['recorded_storage_selection_label'], $new_aliquot['AliquotMaster']['storage_master_id'], $is_sample_core);
-						
-				$new_aliquot['AliquotMaster']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-				$arr_preselected_storages += $arr_storage_selection_results['matching_storage_list'];
-		
-				if(!empty($arr_storage_selection_results['storage_definition_error'])) {
-					$submitted_data_validates = false;
-					$error_msg = $arr_storage_selection_results['storage_definition_error'];
-					$storage_validation_errors['id'][$error_msg] = $error_msg;		
-				
-				} else {
-					// Check aliquot position within storage
-					$storage_data = (empty($new_aliquot['AliquotMaster']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$new_aliquot['AliquotMaster']['storage_master_id']]);
-					$arr_position_results = self::$storage->validatePositionWithinStorage($new_aliquot['AliquotMaster']['storage_master_id'], $new_aliquot['AliquotMaster']['storage_coord_x'], $new_aliquot['AliquotMaster']['storage_coord_y'], $storage_data);
-								
-					// Manage errors
-					if(!empty($arr_position_results['position_definition_error'])) {
-						$submitted_data_validates = false;
-						$error = $arr_position_results['position_definition_error'];
-						if($arr_position_results['error_on_x']){
-							$storage_validation_errors['x'][$error] = $error; 
-						} 
-						if($arr_position_results['error_on_y']){
-							$storage_validation_errors['y'][$error] = $error; 
-						}	
-					}
-									
-					// Reset aliquot storage data
-					$new_aliquot['AliquotMaster']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-					$new_aliquot['AliquotMaster']['coord_x_order'] = $arr_position_results['position_x_order'];
-					$new_aliquot['AliquotMaster']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-					$new_aliquot['AliquotMaster']['coord_y_order'] = $arr_position_results['position_y_order'];
-				}
-				
-				// Update $aliquots_data for the studied record
-				$aliquots_data[$key] = $new_aliquot;
-			}
+		if(array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('recorded_storage_selection_label', $aliquot_data['FunctionManagement'])) {
+			$is_sample_core = isset($aliquot_data['AliquotMaster']['aliquot_type']) && ($aliquot_data['AliquotMaster']['aliquot_type'] == 'core');
+			
+			// Check the aliquot storage definition
+			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
+			
+			// Update aliquot data
+			$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
+			if($arr_storage_selection_results['change_position_x_to_uppercase']) $aliquot_data['AliquotMaster']['storage_coord_x'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_x']);
+			if($arr_storage_selection_results['change_position_y_to_uppercase']) $aliquot_data['AliquotMaster']['storage_coord_y'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_y']);
+			
+			// Set error
+			if(!empty($arr_storage_selection_results['storage_definition_error'])) $this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
+			if(!empty($arr_storage_selection_results['position_x_error'])) $this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
+			if(!empty($arr_storage_selection_results['position_y_error'])) $this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
+
+		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
 		}
 		
-		// Set preselected storage list		
-				
-		// Manage error message
-		$messages = array();
-		$messages['storage_master_id'] = $storage_validation_errors['id']; 
-		$messages['storage_coord_x'] = $storage_validation_errors['x']; 
-		$messages['storage_coord_y'] = $storage_validation_errors['y']; 
-		
-		if(!$is_multi_records_data) {
-			// Reset correctly single record data
-			$aliquots_data = $aliquots_data['0'];
-		}
-		
-		return array('submitted_data_validates' => $submitted_data_validates, 'messages_sorted_per_field' => $messages);
+		return $aliquot_data;
 	}
 	
 	/**
@@ -472,69 +385,37 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @date 2007-08-15
 	 */
 	 
-	function isDuplicatedAliquotBarcode($aliquots_data) {
-		$is_duplicated_barcode = false;
-		$duplicated_barcodes = array();
-				
+	function checkDuplicatedAliquotBarcode($aliquot_data) {
+			
 		// check data structure
-		$is_multi_records_data = true;
-		if(is_array($aliquots_data)) {
-			if(isset($aliquots_data['AliquotMaster'])) {
-				// Single record to manage as multi records
-				$aliquots_data = array('0' => $aliquots_data);
-				$is_multi_records_data = false;
-			} else {
-				$tmp_arr_to_test = array_values($aliquots_data);	// Use in case user created aliquots in batch and hidden the first row of the datagrid
-				if(!is_array($tmp_arr_to_test) || !isset($tmp_arr_to_test[0]['AliquotMaster'])) {
-					$this->redirect('/pages/err_inv_system_error', null, true);
-				}
-			}
-		} else {
-			$this->redirect('/pages/err_inv_system_error', null, true);
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true);
 		}
+				
+		$barcode = $aliquot_data['AliquotMaster']['barcode'];
 		
 		// Check duplicated barcode into submited record
-		$new_barcodes = array();
-		foreach($aliquots_data as $new_aliquot) {
-			$barcode = $new_aliquot['AliquotMaster']['barcode'];
-			if(empty($barcode)) {
-				// Not studied
-			} else if(isset($this->barcodes[$barcode])) {
-				$duplicated_barcodes[$barcode] = $barcode;
-			} else {
-				$this->barcodes[$barcode] = isset($new_aliquot['AliquotMaster']['id']) ? $new_aliquot['AliquotMaster']['id'] : 0;
-				$new_barcodes[] = $barcode;
-			}
+		if(empty($barcode)) {
+			// Not studied
+		} else if(isset($this->barcodes[$barcode])) {
+			$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice', true));
+		} else {
+			$this->barcodes[$barcode] = '';
 		}
 		
 		// Check duplicated barcode into db
-		$criteria = array('AliquotMaster.barcode' => $new_barcodes);
-		$aliquots_having_duplicated_barcode = $this->atim_list(array('conditions' => $criteria));
+		$criteria = array('AliquotMaster.barcode' => $barcode);
+		$aliquots_having_duplicated_barcode = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => $barcode), 'recursive' => -1));;
 		if(!empty($aliquots_having_duplicated_barcode)) {
 			foreach($aliquots_having_duplicated_barcode as $duplicate) {
-				if($duplicate['AliquotMaster']['id'] != $this->barcodes[$duplicate['AliquotMaster']['barcode']]){
-					//they are not the same id, this is really a dupe
-					$duplicated_barcodes[$barcode] = $barcode;
+				if((!array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
+					$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded', true));
 				}
 			}			
 		}
-		
-		// Set errors
-		$messages = array();
-		if(!empty($duplicated_barcodes)) {
-			// Set boolean
-			$is_duplicated_barcode = true;
-			
-			// Set error message
-			$str_barcodes_in_error = ' ';
-			foreach($duplicated_barcodes as $barcode) {
-				$str_barcodes_in_error .= '[' . $barcode . '] ';
-			}
-			$messages[]	= __('barcode must be unique', true) . ' ' . __('please check following barcode(s)', true) . $str_barcodes_in_error; 
-		}
-		
-		return array('is_duplicated_barcode' => $is_duplicated_barcode, 'messages' => $messages);
 	}
+	
 }
 
 ?>
