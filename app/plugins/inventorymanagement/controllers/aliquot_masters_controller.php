@@ -2,7 +2,6 @@
 class AliquotMastersController extends InventoryManagementAppController {
 	
 	var $components = array( 
-		'Inventorymanagement.Aliquots', 
 		'Storagelayout.Storages');
 	
 	var $uses = array(
@@ -595,8 +594,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Delete storage data
 		$this->AliquotMaster->id = $aliquot_master_id;
-		$aliquot_data_to_save = $this->Aliquots->removeAliquotStorageData(array());
-		if(!$this->AliquotMaster->save(array('AliquotMaster' => $aliquot_data_to_save))) {
+		$aliquot_data_to_save = 
+			array('AliquotMaster' => array(
+				'storage_master_id' => null,
+				'storage_coord_x' => null,
+				'storage_coord_y' => null));
+		if(!$this->AliquotMaster->save($aliquot_data_to_save, false)) {
 			$this->redirect('/pages/err_inv_record_err', null, true);
 		}
 		
@@ -993,7 +996,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 					// Set aliquot master data					
 					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] = 'no')) {
 						// Delete aliquot storage data
-						$new_source_aliquot['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($new_source_aliquot['AliquotMaster']);
+						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
+						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;
+						$new_source_aliquot['AliquotMaster']['storage_coord_y'] = null;	
+					
 					}
 					
 					// Set aliquot use data
