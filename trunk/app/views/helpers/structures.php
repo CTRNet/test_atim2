@@ -197,7 +197,7 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
-		echo $atim_structure['Structure']['alias'];
+//		pr($atim_structure['Structure']);
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -1107,7 +1107,7 @@ class StructuresHelper extends Helper {
 					foreach($table_row as $table_row_part){
 						//carefull with the white spaces as removing them the can break the display in IE
 						echo '<span class="nowrap">';
-						if($table_row_part['type'] != 'hidden'){
+						if($table_row_part['type'] != 'hidden' && strlen($table_row_part['label'])){
 							echo '<span class="divider">|</span> ';
 						}
 						echo $this->getPrintableField(
