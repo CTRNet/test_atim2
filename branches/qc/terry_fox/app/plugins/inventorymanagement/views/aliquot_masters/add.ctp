@@ -6,18 +6,20 @@
 		)
 	);
 	
-	$structure_override = array();
-	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
+	$structure_override = $override_data;
+	$dropdown_options = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
+	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options, 'type' => 'addgrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
-		
+	if($hook_link){
+		require($hook_link); 
+	}
+
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
+	$structures->build($final_atim_structure, $final_options);	
 	
 ?>
 

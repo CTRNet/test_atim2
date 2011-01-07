@@ -2,7 +2,7 @@
 
 class StorageMastersController extends StoragelayoutAppController {
 
-	var $components = array('Storagelayout.Storages');
+	var $components = array();
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
@@ -92,7 +92,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
 		$this->set('parent_storage_id', $parent_storage_id);		
-		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
+		$this->data['Generated']['path'] =  $this->StorageMaster->getStoragePath($parent_storage_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -107,7 +107,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		}
 		
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
@@ -172,7 +172,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if(!is_null($predefined_parent_storage_id)) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
-			$predefined_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->createStorageTitleForDisplay($predefined_parent_storage_data);;
+			$predefined_parent_storage_list[$predefined_parent_storage_id] = $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data);;
 			$this->set('predefined_parent_storage_list', $predefined_parent_storage_list);	
 		}
 		
@@ -193,7 +193,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 		if(empty($this->data)) {
 			$this->data = array();
-			$this->data['StorageMaster']['storage_type'] = $storage_control_data['StorageControl']['storage_type'];
+			$this->data['StorageMaster']['storage_control_id'] = $storage_control_data['StorageControl']['id'];
 			$this->data = $this->setStorageCoordinateValues($storage_control_data, $this->data);
 	
 		} else {			
@@ -302,7 +302,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		}
 		
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
@@ -360,9 +360,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			if($is_new_parent_storage){
 				// Parent storage has been changed, delete coordinate values
 				$this->data['StorageMaster']['parent_storage_coord_x'] = null;
-				$this->data['StorageMaster']['coord_x_order'] = null;
 				$this->data['StorageMaster']['parent_storage_coord_y'] = null;
-				$this->data['StorageMaster']['coord_y_order'] = null;
 			}
 			
 			// Validates data
@@ -447,8 +445,8 @@ class StorageMastersController extends StoragelayoutAppController {
 			return;
 		}
 
-		$this->set('storage_path', $this->Storages->getStoragePath($parent_storage_id));
-
+		$storage_data['Generated']['path'] =  $this->StorageMaster->getStoragePath($parent_storage_id);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
@@ -460,7 +458,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%');
 		}
 		
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
@@ -479,9 +477,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE (SECOND)FORM TO DEFINE STORAGE POSITION INTO PARENT 
 		
 		// Build predefined list of allowed positions
-		$arr_allowed_x_position = $this->Storages->buildAllowedStoragePosition($parent_storage_data, 'x');
+		$arr_allowed_x_position = $this->StorageMaster->buildAllowedStoragePosition($parent_storage_data, 'x');
 		$this->set('a_coord_x_list', $arr_allowed_x_position['array_to_display']);
-		$arr_allowed_y_position = $this->Storages->buildAllowedStoragePosition($parent_storage_data, 'y');
+		$arr_allowed_y_position = $this->StorageMaster->buildAllowedStoragePosition($parent_storage_data, 'y');
 		$this->set('a_coord_y_list', $arr_allowed_y_position['array_to_display']);
 		
 		// Set structure 				
@@ -502,13 +500,9 @@ class StorageMastersController extends StoragelayoutAppController {
 			$storage_data_to_update = array();
 			if(isset($this->data['StorageMaster']['parent_storage_coord_x'])) { 		
 				$storage_data_to_update['StorageMaster']['parent_storage_coord_x'] = $this->data['StorageMaster']['parent_storage_coord_x']; 
-				$coord_x_order = (is_null($this->data['StorageMaster']['parent_storage_coord_x']) || ($this->data['StorageMaster']['parent_storage_coord_x'] == ''))? null: $arr_allowed_x_position['array_to_order'][$this->data['StorageMaster']['parent_storage_coord_x']];
-				$storage_data_to_update['StorageMaster']['coord_x_order'] = $coord_x_order; 
 			}	
 			if(isset($this->data['StorageMaster']['parent_storage_coord_y'])) { 
 				$storage_data_to_update['StorageMaster']['parent_storage_coord_y'] = $this->data['StorageMaster']['parent_storage_coord_y']; 
-				$coord_y_order = (is_null($this->data['StorageMaster']['parent_storage_coord_y']) || ($this->data['StorageMaster']['parent_storage_coord_y'] == ''))? null: $arr_allowed_y_position['array_to_order'][$this->data['StorageMaster']['parent_storage_coord_y']];
-				$storage_data_to_update['StorageMaster']['coord_y_order'] = $coord_y_order; 
 			}	
 			
 			// Validates data
@@ -598,7 +592,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$storage_content = $this->formatStorageTreeView($storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
-			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'StorageMaster.coord_x_order ASC, StorageMaster.coord_y_order ASC', 'recursive' => '-1'));
+			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '-1'));
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
@@ -610,7 +604,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
 		if(!empty($storage_data)) {
-			if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+			if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 				// Check storage supports custom coordinates and disable access to coordinates menu option if required
 				$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 			}
@@ -754,7 +748,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/storageLayout/%%StorageMaster.id%%');
 	
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
@@ -1135,25 +1129,61 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	function autocompleteLabel(){
+		
+		//-- NOTE ----------------------------------------------------------
+		//
+		// This function is linked to functions of the StorageMaster model 
+		// called getStorageDataFromStorageLabelAndCode() and
+		// getStorageLabelAndCodeForDisplay().
+		//
+		// When you override the autocompleteLabel() function, check 
+		// if you need to override these functions.
+		//  
+		//------------------------------------------------------------------
+		
 		//layout = ajax to avoid printing layout
 		$this->layout = 'ajax';
 		//debug = 0 to avoid printing debug queries that would break the javascript array
 		Configure::write('debug', 0);
-		
 		//query the database
-		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
-		$storage_masters = $this->StorageMaster->find('all', array(
-			'conditions' => array(
+		$term = trim(str_replace('_', '\_', str_replace('%', '\%', $_GET['term'])));
+		$conditions = array(
 			'StorageMaster.Selection_label LIKE' => $term.'%'
-			),
-			'fields' => array('StorageMaster.selection_label'),
+			);
+		$rpos = strripos($term, "[");
+		if($rpos){
+			$term2a = substr($term, 0, $rpos - 1);
+			$term2b = substr($term, $rpos + 1);
+			if($term2b[strlen($term2b) - 1] == "]"){
+				$term2b = substr($term2b, -1);
+			}
+			$tmp_condition = $conditions;
+			$conditions = array();
+			$conditions['or'][] = $tmp_condition;
+			$conditions['or'][] = array('StorageMaster.Selection_label LIKE' => $term2a, 'StorageMaster.code LIKE' => $term2b.'%');
+		}
+		$storage_masters = $this->StorageMaster->find('all', array(
+			'conditions' => $conditions,
+			'fields' => array('StorageMaster.selection_label', 'GROUP_CONCAT(StorageMaster.code) AS codes'),
+			'group' => array('StorageMaster.selection_label'),
+			'recursive' => -1,
 			'limit' => 10
 		));
-		
 		//build javascript textual array
 		$result = "";
+		$count = 0;
 		foreach($storage_masters as $storage_master){
-			$result .= '"'.$storage_master['StorageMaster']['selection_label'].'", ';
+			$codes = explode(",", $storage_master[0]['codes']);
+			foreach($codes as $code){
+				$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$code.']", ';
+				++ $count;
+				if($count > 9){
+					break;
+				}
+			}
+			if($count > 9){
+				break;
+			}
 		}
 		if(sizeof($result) > 0){
 			$result = substr($result, 0, -2);
