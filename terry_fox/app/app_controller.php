@@ -148,6 +148,7 @@ class AppController extends Controller {
 		define('VALID_INTEGER_POSITIVE', '/^[+]?[\\s]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT', '/^[-+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT_POSITIVE', '/^[+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
+		define('VALID_24TIME', '/^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/');
 		
 		//ripped from validation.php date + time
 		define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|2\\d)\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8])))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
@@ -277,19 +278,36 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		$divider = $nbsp_spaces ? "&nbsp;" : " ";
-		if(is_numeric($month)){
-			$month_str = AppController::getCalInfo($short_months);
-			$month = $month_str[(int)$month];
-		}
-		if(date_format == 'MDY') {
-			$result = $month.$divider.$day.$divider.$year;
-		}else if (date_format == 'YMD') {
-			$result = $year.$divider.$month.$divider.$day;
-		}else { // default of DATE_FORMAT=='DMY'
-			$result = $day.$divider.$month.$divider.$year;
+		if($year == 0 && $month == 0 && $day == 0){
+			$result = "";
+		}else{
+			$divider = $nbsp_spaces ? "&nbsp;" : " ";
+			if(is_numeric($month)){
+				$month_str = AppController::getCalInfo($short_months);
+				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
+			}
+			if(date_format == 'MDY') {
+				$result = $month.$divider.$day.$divider.$year;
+			}else if (date_format == 'YMD') {
+				$result = $year.$divider.$month.$divider.$day;
+			}else { // default of DATE_FORMAT=='DMY'
+				$result = $day.$divider.$month.$divider.$year;
+			}
 		}
 		return $result;
+	}
+	
+	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
+		if(time_format == 12){
+			$meridiem = $hour > 12 ? "PM" : "AM";
+			$hour %= 12;
+			if($hour == 0){
+				$hour = 12;
+			}
+			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+		}else{
+			return $hour.":".$minutes;
+		}
 	}
 	
 	/**
@@ -301,10 +319,11 @@ class AppController extends Controller {
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-			list($date, $time) = explode(" ", $datetime_string);
-			list($year, $month, $day) = explode("-", $date);
-			$formated_date = AppController::getFormatedDateString($year, $month, $day);
-			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+		list($date, $time) = explode(" ", $datetime_string);
+		list($year, $month, $day) = explode("-", $date);
+		list($hour, $minutes, ) = explode(":", $time);
+		$formated_date = self::getFormatedDateString($year, $month, $day);
+		return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
@@ -392,6 +411,22 @@ class AppController extends Controller {
 		return $formatted_date;
 	}
 	
+	/**
+	 * Clones the first level of an array
+	 * @param array $arr The array to clone
+	 */
+	static function cloneArray(array $arr){
+		$result = array();
+		foreach($arr as $k => $v){
+			if(is_array($v)){
+				$result[$k] = self::cloneArray($v);
+			}else{
+				$result[$k] = $v;
+			}
+		}
+		return $result;
+	}
+	
 	static function addWarningMsg($msg){
 		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
 	}
@@ -404,12 +439,75 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Builds the value definition array for an updateAll call
+	 * @param array They data array to build the values with
+	 */
+	static function getUpdateAllValues(array $data){
+		$result = array();
+		foreach($data as $model => $fields){
+			foreach($fields as $name => $value){
+				if(is_array($value)){
+					if(strlen($value['year'])){
+						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
+					}
+				}else if(strlen($value)){
+					$result[$model.".".$name] = "'".$value."'";
+				}
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * @desc cookie manipulation to counter cake problems. see eventum #1032
+	 */
+	static function atimSetCookie(){
+		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
+		}
+		return $session_delay;
+	}
+	
+	/**
+	 * @desc Global function to initialize a batch action. Redirect/flashes on error.
+	 * @param AppModek $model The model to work on
+	 * @param string $data_model_name The model name used in $this->data
+	 * @param string $data_key The data key name used in $this->data
+	 * @param string $control_key_name The name of the control field used in the model table
+	 * @param AppModel $possibilities_model The model to fetch the possibilities from
+	 * @param string $possibilities_parent_key The possibilities parent key to base the search on
+	 * @return An array with the ids and the possibilities
+	 */
+	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		//extract valid ids
+		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
+		$ids = $ids[0][0]['ids'];
+		if(empty($ids)){
+			$this->flash(__("no data!", true), "javascript:history.back();", 5);
+		}
+		
+		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
+		if(count($controls) != 1){
+			$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+		}
+		
+		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name])));
+		if(empty($possibilities)){
+			$this->flash($no_possibilities_msg, "javascript:history.back();", 5);
+		}
+		
+		return array('ids' => $ids, 'possibilities' => $possibilities);
+	}
 }
 
-
-	
 	AppController::init();
-		
+
 	function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null){
 		if(class_exists("CakeLog")){
 			$CakeLog = CakeLog::getInstance();

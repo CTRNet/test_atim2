@@ -1,7 +1,7 @@
 <?php
 class ProductMastersController extends ClinicalannotationAppController {
 
-	var $components = array('Inventorymanagement.Samples');
+	var $components = array();
 	
 	var $uses = array(
 		'Clinicalannotation.Participant',
@@ -29,7 +29,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 		
 		foreach($participant_collections as $new_collection) {
 			$participant_collection_ids[] = $new_collection['Collection']['id'];
-			$new_collection_contents = $this->Samples->buildCollectionContentForTreeView($new_collection['Collection']['id'], $studied_specimen_sample_control_id);
+			$new_collection_contents = $this->SampleMaster->buildCollectionContentForTreeView($new_collection['Collection']['id'], $studied_specimen_sample_control_id);
 			if(is_null($studied_specimen_sample_control_id)) {
 				// Add collection data
 				$data_for_tree_view[] = array('Collection' => $new_collection['Collection'], 'children' => $new_collection_contents);

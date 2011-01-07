@@ -18,19 +18,18 @@ class BatchSet extends DatamartAppModel {
 	
 	function summary( $variables=array() ) {
 		$return = array(
-			'Summary' => array(
-				'menu' => array(null)));
+				'menu' => array(null));
 			
 		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
 			switch($variables['Param.Type_Of_List']) {
 				case 'group':
-					$return['Summary']['menu'] = array('group batch sets');
+					$return['menu'] = array('group batch sets');
 					break;
 				case 'user':
-					$return['Summary']['menu'] = array('my batch sets');
+					$return['menu'] = array('my batch sets');
 					break;
 				case 'all':
-					$return['Summary']['menu'] = array('all batch sets');
+					$return['menu'] = array('all batch sets');
 					break;
 				default:	
 			}	
@@ -39,8 +38,8 @@ class BatchSet extends DatamartAppModel {
 		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
 			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
 			if(!empty($batchset_data)) {
-				$return['Summary']['title'] = array(null, __('batchset information', null));
-				$return['Summary']['description'] = array(
+				$return['title'] = array(null, __('batchset information', null));
+				$return['description'] = array(
 					__('title', true) => $batchset_data['BatchSet']['title'],
 					__('model', true) => $batchset_data['BatchSet']['model'],
 					__('created', true) => $batchset_data['BatchSet']['created']);	
@@ -63,6 +62,66 @@ class BatchSet extends DatamartAppModel {
 		return ($batch_set);
 	}
 	
+	/**
+	 * @param string $plugin
+	 * @param string $model
+	 * @param string $datamart_structure_id
+	 * @return array Compatible Batch sets
+	 */
+	public function getCompatibleBatchSets($plugin, $model, $datamart_structure_id){
+		$available_batchsets_conditions = array(
+			array('OR' => array('AND' => array('BatchSet.plugin' => $plugin, 'BatchSet.model' => $model), 
+					'BatchSet.datamart_structure_id' => $datamart_structure_id)),
+			'OR' => array(
+				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
+				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
+				'BatchSet.sharing_status' => 'all')
+		);
+		
+		return $this->find('all', array('conditions' => $available_batchsets_conditions));
+	}
+	
+	/**
+	 * @desc Verifies if a user can read/write a batchset. If it fails, the browser 
+	 * will be redirected to a flash screen.
+	 * @param array $batchset The batchset data
+	 * @param boolean $must_be_unlocked If true, the batchset must be unlocked to authorize access.
+	 */
+	public function isUserAuthorizedToRw(array $batchset, $must_be_unlocked){
+		if(empty($batchset) 
+		|| (!(array_key_exists('user_id', $batchset['BatchSet'])
+		&& array_key_exists('group_id', $batchset['BatchSet'])
+		&& array_key_exists('sharing_status', $batchset['BatchSet'])))) {
+			AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		$allowed = null;
+		switch($batchset['BatchSet']['sharing_status']){
+			case 'user' :
+				$allowed = $batchset['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id'];
+				break;
+			case 'group' :
+				$allowed = $batchset['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id'];
+				break;
+			case 'all' :
+				$allowed = true;
+				break;
+			default:
+				AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+		}
+		
+		if(!$allowed){
+			AppController::getInstance()->atimFlash('your are not allowed to work on this batchset', 'javascript:history.back()', 5);
+			return false;
+		}
+		
+		if($must_be_unlocked && $batchset['BatchSet']['locked']){
+			AppController::getInstance()->atimFlash('this batchset is locked', 'javascript:history.back()', 5);
+			return false;
+		}
+		
+		return true;
+	}
 }
 
 ?>

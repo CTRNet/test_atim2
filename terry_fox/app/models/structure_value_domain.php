@@ -10,18 +10,18 @@ class StructureValueDomain extends AppModel {
 			'foreignKey'	=>	false,
 			'finderQuery'	=> '
 				SELECT 
-					StructurePermissibleValue.* 
+					StructurePermissibleValue.*, display_order
 				FROM 
 					structure_value_domains,
-					structure_value_domains_permissible_values,
+					structure_value_domains_permissible_values AS Svdpv,
 					structure_permissible_values AS StructurePermissibleValue 
 				WHERE 
 					structure_value_domains.id={$__cakeID__$} 
-					AND structure_value_domains.id=structure_value_domains_permissible_values.structure_value_domain_id
-					AND structure_value_domains_permissible_values.flag_active="1"
-					AND structure_value_domains_permissible_values.structure_permissible_value_id=StructurePermissibleValue.id
+					AND structure_value_domains.id=Svdpv.structure_value_domain_id
+					AND Svdpv.flag_active="1"
+					AND Svdpv.structure_permissible_value_id=StructurePermissibleValue.id
 				ORDER BY
-					structure_value_domains_permissible_values.display_order ASC
+					Svdpv.display_order ASC
 				'
 		)
 	);

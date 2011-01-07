@@ -30,16 +30,8 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->Structures->set('miscidentifiers_for_participant_search');
 			
 		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($this->viewVars['atim_structure']);
-
-		$belongs_to_details = array(
-			'belongsTo' => array(
-				'Participant' => array(
-					'className' => 'Clinicalannotation.Participant',
-					'foreignKey' => 'participant_id')));
-					
-		$this->MiscIdentifier->bindModel($belongs_to_details, false);						
+							
 		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
-		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('Participant')), false);
 
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['MiscIdentifier']['count'];
@@ -49,6 +41,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if($hook_link){
 			require($hook_link); 
 		}
+		
 	}
 	
 	function listall( $participant_id ) {

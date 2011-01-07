@@ -78,10 +78,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 		if(!empty($treatment_master_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();
-			foreach($this->ProtocolMaster->getProtocolPermissibleValuesFromId($treatment_master_data['TreatmentControl']['applied_protocol_control_id']) as $new_available_protocol) {
-				$available_protocols[$new_available_protocol['value']] = $new_available_protocol['default'];
-			}
-			$this->set('available_protocols', $available_protocols);
+			ProtocolMaster::$protocol_dropdown = $this->ProtocolMaster->getProtocolPermissibleValuesFromId($treatment_master_data['TreatmentControl']['applied_protocol_control_id']);
 		}
 		
 		// Set diagnosis data for diagnosis selection (radio button)
@@ -145,10 +142,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 
 		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();
-			foreach($this->ProtocolMaster->getProtocolPermissibleValuesFromId($tx_control_data['TreatmentControl']['applied_protocol_control_id']) as $new_available_protocol) {
-				$available_protocols[$new_available_protocol['value']] = $new_available_protocol['default'];
-			}
-			$this->set('available_protocols', $available_protocols);
+			ProtocolMaster::$protocol_dropdown = $this->ProtocolMaster->getProtocolPermissibleValuesFromId($tx_control_data['TreatmentControl']['applied_protocol_control_id']);
 		}
 
 		$this->set('initial_display', (empty($this->data)? true : false));
