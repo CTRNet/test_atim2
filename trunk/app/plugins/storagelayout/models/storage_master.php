@@ -28,6 +28,63 @@ class StorageMaster extends StoragelayoutAppModel {
 		return $return;
 	}
 	
+	function validates($options = array()){
+		pr('WARNING!!: storage data can be updated into StorageMaster->validates() function: be sure to reset data into controller using $this->StorageMaster->data!');
+
+		if(!(array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
+			AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true);
+		}		
+		
+		// Check parent storage definition
+		$parent_storage_selection_results = $this->validateAndGetStorageData($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['StorageMaster']['parent_storage_coord_x'], $this->data['StorageMaster']['parent_storage_coord_y']);
+		$parent_storage_data = $parent_storage_selection_results['storage_data'];
+					
+		// Update storage data
+		$this->data['StorageMaster']['parent_id'] = isset($parent_storage_data['StorageMaster']['id'])? $parent_storage_data['StorageMaster']['id'] : null;
+		
+		if(array_key_exists('id', $this->data['StorageMaster']) && ($this->data['StorageMaster']['parent_id'] === $this->data['StorageMaster']['id'])) {
+			$this->validationErrors['recorded_storage_selection_label'] = 'you can not define the studied storage as the parent storage too';
+			
+		} else if(!empty($parent_storage_data) && (strcmp($parent_storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+			$this->validationErrors['recorded_storage_selection_label'] = 'you can not define a tma block as a parent storage';
+					
+		} else {
+			if($parent_storage_selection_results['change_position_x_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
+			if($parent_storage_selection_results['change_position_y_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
+			
+			// Set error
+			if(!empty($parent_storage_selection_results['storage_definition_error'])) $this->validationErrors['recorded_storage_selection_label'] = $parent_storage_selection_results['storage_definition_error'];
+			if(!empty($parent_storage_selection_results['position_x_error'])) $this->validationErrors['parent_storage_coord_x'] = $parent_storage_selection_results['position_x_error'];
+			if(!empty($parent_storage_selection_results['position_y_error'])) $this->validationErrors['parent_storage_coord_y'] = $parent_storage_selection_results['position_y_error'];
+		}		
+			
+		$this->IsDuplicatedStorageBarCode($this->data);		
+				
+		parent::validates($options);
+		
+		return empty($this->validationErrors);
+	}
+	
+	function IsDuplicatedStorageBarCode($storage_data) {
+		if(empty($storage_data['StorageMaster']['barcode'])) {
+			return false;
+		}
+		
+		// Check duplicated barcode into db
+		$barcode = $storage_data['StorageMaster']['barcode'];
+		$criteria = array('StorageMaster.barcode' => $barcode);
+		$storage_having_duplicated_barcode = $this->find('all', array('conditions' => $criteria, 'recursive' => -1));;
+		if(!empty($storage_having_duplicated_barcode)) {
+			foreach($storage_having_duplicated_barcode as $duplicate) {
+				if((!array_key_exists('id', $storage_data['StorageMaster'])) || ($duplicate['StorageMaster']['id'] != $storage_data['StorageMaster']['id'])) {
+					$this->validationErrors['barcode'] = 'barcode must be unique';
+				}
+				
+			}			
+		}
+				
+	}	
+	
 	/**
 	 * Get permissible values array gathering storages, except those having TMA type. 
 	 * 
@@ -192,7 +249,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		
 		// Get allowed position for this storage coordinate
 		$arr_allowed_position = $this->buildAllowedStoragePosition($storage_data, $coord);
-		
+				
 		// Check position
 		if(array_key_exists($position, $arr_allowed_position['array_to_display'])) {
 			return $validation_results;
@@ -205,7 +262,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 		
 		// Position value has not been validated
-		$validation_results['validated'] = 0;
+		$validation_results['validated'] = false;
 				
 		return $validation_results;
 	}
@@ -274,7 +331,8 @@ class StorageMaster extends StoragelayoutAppModel {
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
-					$coordinates = $this->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
+					$storage_coordinate = AppModel::atimNew("Storagelayout", "StorageCoordinate", true);
+					$coordinates = $storage_coordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
 					if(!empty($coordinates)) {
 						foreach($coordinates as $new_coordinate) {
 							$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];

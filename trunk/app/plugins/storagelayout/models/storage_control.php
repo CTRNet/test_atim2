@@ -57,6 +57,30 @@ class StorageControl extends StoragelayoutAppModel {
 
 		return true;
 	 }	
+	 
+	function getStorageLayoutDescription($storage_control_data) {
+		$description = '';
+
+		if(isset($storage_control_data['StorageControl']['coord_x_title'])) {
+			// Set horizontal layout desciption
+			$description .= __($storage_control_data['StorageControl']['coord_x_title'], true) . ' (' .
+				(isset($storage_control_data['StorageControl']['coord_x_type'])? __('type', true). ' ' . __($storage_control_data['StorageControl']['coord_x_type'], true): '').
+				(isset($storage_control_data['StorageControl']['coord_x_size'])? ' / '. __('coordinate size', true). ' ' . __($storage_control_data['StorageControl']['coord_x_size'], true): '').
+				')';
+				
+				
+			if(isset($storage_control_data['StorageControl']['coord_y_title'])) {
+				// Set vertical layout desciption
+				$description .= '<br>';
+				$description .= __($storage_control_data['StorageControl']['coord_y_title'], true) . ' (' .
+					(isset($storage_control_data['StorageControl']['coord_y_type'])? __('type', true). ' ' . __($storage_control_data['StorageControl']['coord_y_type'], true): '').
+					(isset($storage_control_data['StorageControl']['coord_y_size'])? ' / '. __('coordinate size', true). ' ' . __($storage_control_data['StorageControl']['coord_y_size'], true): '').
+					')';
+			}
+		}
+		
+		return (empty($description)? 'n/a' : $description);
+	}
 }
 
 ?>
