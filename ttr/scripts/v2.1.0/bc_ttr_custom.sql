@@ -27,6 +27,10 @@ UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_4' 
 
 #-- Participants
 
+
+ALTER TABLE `participants`
+  ADD COLUMN `bc_ttr_phn` varchar(20) DEFAULT NULL;
+
 #-- Remove Cause of Death and Secondary Cause of Death
 
 
@@ -1054,6 +1058,8 @@ UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(18, 41, 51);
 
 
 -- Collections 
+
+
 
 -- Hide Bank ID
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
