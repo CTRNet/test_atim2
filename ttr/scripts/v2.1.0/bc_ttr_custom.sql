@@ -1075,20 +1075,47 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 ('Inventorymanagement', 'Collection', 'collections', 'bc_ttr_collected_by', 'collected by', '', 'select', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bc_ttr_collected_by' AND `language_label`='collected by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('collected by',  '',  'Collected By',  '');
 
 
+-- Drop Down Option for BC TTR Collected By
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_collected_by', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_collected_by')  WHERE model='Collection' AND tablename='collections' AND field='bc_ttr_collected_by' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Sindy Babinszky", "Sindy Babinszky");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_collected_by"),  (SELECT id FROM structure_permissible_values WHERE value="Sindy Babinszky" AND language_alias="Sindy Babinszky"), "1", "1");
 
 
 
+-- Add BC TTR Received By
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'Collection', 'collections', 'bc_ttr_tb_received_by', 'received by', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bc_ttr_tb_received_by' AND `language_label`='received by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('received by',  '',  'Received By',  '');
 
 
+-- Drop Down Option for BC TTR TB Received By
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_tb_received_by', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tb_received_by')  WHERE model='Collection' AND tablename='collections' AND field='bc_ttr_tb_received_by' AND `type`='select' AND structure_value_domain  IS NULL ;
 
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Sindy Babinszky", "Sindy Babinszky");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tb_received_by"),  (SELECT id FROM structure_permissible_values WHERE value="Sindy Babinszky" AND language_alias="Sindy Babinszky"), "1", "1");
 
 
+-- Add BC TTR TB Received Datetime
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'Collection', 'collections', 'bc_ttr_tb_received_datetime', 'bc ttr tb received datetime', '', 'datetime', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bc_ttr_tb_received_datetime' AND `language_label`='received datetime' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('received datetime',  '',  'Received Datetime',  '');
 
 
 
