@@ -647,3 +647,142 @@ ALTER TABLE aliquot_masters_revs
 	
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('click to continue', 'Click to continue', 'Cliquez pour continuer');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Storagelayout', 'StorageMaster', '', 'layout_description', 'storage layout description', '', 'textarea', 'rows=2,cols=60', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_surr_tmp'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_rooms'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_incubators'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_tma_blocks'), 
+(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'Generated' AND field IN ('coord_x_title', 'coord_x_type', 'coord_x_size', 'coord_y_title', 'coord_y_type', 'coord_y_size'));
+DELETE FROM structure_fields WHERE model = 'Generated' AND field IN ('coord_x_title', 'coord_x_type', 'coord_x_size', 'coord_y_title', 'coord_y_type', 'coord_y_size');
+
+UPDATE structure_fields
+SET type = 'input', setting = 'size=4', language_label = 'position into parent storage'
+WHERE tablename = 'storage_masters' AND field = 'parent_storage_coord_x';
+UPDATE structure_fields
+SET type = 'input', setting = 'size=4'
+WHERE tablename = 'storage_masters' AND field = 'parent_storage_coord_y';
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp'), 
+(SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `field`='recorded_storage_selection_label' ), 
+'0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_x' ), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_y' ), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_surr_tmp'), 
+(SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `field`='recorded_storage_selection_label' ), 
+'0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_surr_tmp'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_x' ), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_undetail_stg_with_surr_tmp'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_y' ), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_rooms'), 
+(SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `field`='recorded_storage_selection_label' ), 
+'0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='std_rooms'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_x' ), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_rooms'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_y' ), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_incubators'), 
+(SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `field`='recorded_storage_selection_label' ), 
+'0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='std_incubators'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_x' ), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_incubators'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_y' ), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='std_tma_blocks'), 
+(SELECT id FROM structure_fields WHERE `plugin`='Storagelayout' AND `model`='FunctionManagement' AND `field`='recorded_storage_selection_label' ), 
+'0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='std_tma_blocks'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_x' ), 
+'0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='std_tma_blocks'), 
+(SELECT id FROM structure_fields WHERE `tablename`='storage_masters' AND `field`='parent_storage_coord_y' ), 
+'0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename` LIKE 'storage_masters' AND `field` LIKE 'parent_id');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename` LIKE 'storage_masters' AND `field` LIKE 'parent_id');
+DELETE FROM structure_fields WHERE `tablename` LIKE 'storage_masters' AND `field` LIKE 'parent_id';
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('std_2_dim_position_selection', 'std_1_dim_position_selection'));
+DELETE FROM structure_fields WHERE `field` LIKE 'parent_coord_x_title' AND `field` LIKE 'parent_coord_y_title';
+
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('storage layout description', 'Layout Description', 'Description de l''entreposage'),
+('parent storage','Parent Storage','Entreposage Parent'),
+('position into parent storage','Position Into Parent Storage','Position dans l''entreposage parent');
+
+UPDATE structure_formats SET flag_edit = '0', flag_edit_readonly = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'selection_label' AND tablename = 'storage_masters')
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('std_tma_blocks', 'std_incubators', 'std_rooms', 'std_undetail_stg_with_tmp', 'std_undetail_stg_with_surr_tmp'));
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('you can not define a tma block as a parent storage',
+'You can not define a tma block as a parent storage!', 'Un bloc TMA ne peut être défini comme un entreposage ''parent''!'),
+('you can not define the studied storage as the parent storage too', 
+'You can not define the studied storage as the parent storage!', 'L''entreposage étudié ne peut pas être aussi le parent!');
+
+ALTER TABLE storage_controls
+DROP COLUMN form_alias_for_children_pos;
+
+
+
+
+
+
+

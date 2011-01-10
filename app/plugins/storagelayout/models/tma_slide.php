@@ -61,7 +61,7 @@ class TmaSlide extends StoragelayoutAppModel {
 			
 		// Check duplicated barcode into db
 		$criteria = array('TmaSlide.barcode' => $barcode);
-		$slides_having_duplicated_barcode = $this->find('all', array('conditions' => array('TmaSlide.barcode' => $barcode), 'recursive' => -1));;
+		$slides_having_duplicated_barcode = $this->find('all', array('conditions' => $criteria, 'recursive' => -1));;
 		if(!empty($slides_having_duplicated_barcode)) {
 			foreach($slides_having_duplicated_barcode as $duplicate) {
 				if((!array_key_exists('id', $tma_slide_data['TmaSlide'])) || ($duplicate['TmaSlide']['id'] != $tma_slide_data['TmaSlide']['id'])) {
