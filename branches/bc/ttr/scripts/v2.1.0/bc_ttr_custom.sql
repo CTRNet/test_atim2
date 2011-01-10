@@ -1,8 +1,11 @@
 
 
---------------------------
--- Menu Changes --
---------------------------
+
+
+
+#--------------------------
+#-- Menu Changes --
+#--------------------------
 
 
 UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_68' LIMIT 1 ;
@@ -22,12 +25,12 @@ UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_4' 
 
 
 
--- Participants
+#-- Participants
 
--- Remove Cause of Death and Secondary Cause of Death
+#-- Remove Cause of Death and Secondary Cause of Death
 
 
--- PHN
+#-- PHN
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='bc_ttr_phn' AND `language_label`='phn' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '3', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
@@ -36,7 +39,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES ('phn', '', 'PHN', 'PHN'
 
 
 
--- Consents ( cd_nationals)
+#-- Consents ( cd_nationals)
 
 
 ALTER TABLE `consent_masters`
@@ -70,39 +73,40 @@ ALTER TABLE `consent_masters`
   ADD COLUMN `bc_ttr_date_referral_withdrawn` date DEFAULT NULL;
 
 
--- Delete Unused Data Fields in Consent Form
+#-- Delete Unused Data Fields in Consent Form
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-67' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='date_first_contact' AND `language_label`='first contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='NULL' AND `structure_value_domain` IS NULL  AND `language_help`='help_date_first_contact' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
--- Delete obsolete structure fields and validations
+
+#-- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-67' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='date_first_contact' AND `language_label`='first contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='NULL' AND `structure_value_domain` IS NULL  AND `language_help`='help_date_first_contact' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
 DELETE FROM structure_fields WHERE (`public_identifier`='DE-67' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='date_first_contact' AND `language_label`='first contact' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='NULL' AND `structure_value_domain` IS NULL  AND `language_help`='help_date_first_contact' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-78' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `language_label`='translator used' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='access_medical_information') AND `language_help`='help_translator_indicator' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
--- Delete obsolete structure fields and validations
+#-- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-78' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `language_label`='translator used' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='access_medical_information') AND `language_help`='help_translator_indicator' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
 DELETE FROM structure_fields WHERE (`public_identifier`='DE-78' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `language_label`='translator used' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='access_medical_information') AND `language_help`='help_translator_indicator' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-79' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `language_label`='' AND `language_tag`='translator signature captured' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `language_help`='help_translator_signature' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
--- Delete obsolete structure fields and validations
+#-- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-79' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `language_label`='' AND `language_tag`='translator signature captured' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `language_help`='help_translator_signature' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
 DELETE FROM structure_fields WHERE (`public_identifier`='DE-79' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `language_label`='' AND `language_tag`='translator signature captured' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `language_help`='help_translator_signature' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-66' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='route_of_referral' AND `language_label`='' AND `language_tag`='route of referral' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='recruit_route') AND `language_help`='help_route_of_referral' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
--- Delete obsolete structure fields and validations
+#-- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-66' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='route_of_referral' AND `language_label`='' AND `language_tag`='route of referral' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='recruit_route') AND `language_help`='help_route_of_referral' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
 DELETE FROM structure_fields WHERE (`public_identifier`='DE-66' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='route_of_referral' AND `language_label`='' AND `language_tag`='route of referral' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='recruit_route') AND `language_help`='help_route_of_referral' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-77' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `language_label`='' AND `language_tag`='person handling consent' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_consent_person' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 -- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-77' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `language_label`='' AND `language_tag`='person handling consent' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_consent_person' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
 DELETE FROM structure_fields WHERE (`public_identifier`='DE-77' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `language_label`='' AND `language_tag`='person handling consent' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_consent_person' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 
--- delete structure_formats
+#-- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-72' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='status_date' AND `language_label`='status date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='NULL' AND `structure_value_domain` IS NULL  AND `language_help`='help_status_date' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open');
 -- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='DE-72' AND `plugin`='Clinicalannotation' AND `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='status_date' AND `language_label`='status date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='NULL' AND `structure_value_domain` IS NULL  AND `language_help`='help_status_date' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open'));
@@ -110,32 +114,32 @@ DELETE FROM structure_fields WHERE (`public_identifier`='DE-72' AND `plugin`='Cl
 
 
 
--- Consent Closed
+#-- Consent Closed
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_consent_closed', 'consent closed', '', 'select', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_consent_closed' AND `language_label`='consent closed' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
--- Protocol
+#-- Protocol
 
 
 
--- Diagnosis
+#-- Diagnosis
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_diagnosis', 'diagnosis', '', 'input', 'size=20', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_diagnosis' AND `language_label`='diagnosis' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 
--- Nurse Log Cancer Type
+#-- Nurse Log Cancer Type
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_cancer_type', 'nurse log cancer type', '', 'select', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_diagnosis' AND `language_label`='diagnosis' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_cancer_type' AND `language_label`='nurse log cancer type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
--- Referral Souce
+#-- Referral Souce
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_referral_source', 'referral source', '', 'select', '', '',  NULL , '');
@@ -144,7 +148,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
--- Phone home, work, cell, fax, email
+#-- Phone home, work, cell, fax, email
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_home_phone', 'home phone', '', 'input', 'size=20', '',  NULL , '');
@@ -175,7 +179,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_email' AND `language_label`='email' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 
---  iroc number
+#--  iroc number
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_iroc_number', 'iroc number', '', 'input', 'size=10', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
@@ -188,14 +192,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_iroc_flag' AND `language_label`='iroc flag' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 
--- pathologist (column 2)
+#-- pathologist (column 2)
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_pathologist', 'pathologist', '', 'select', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_pathologist' AND `language_label`='pathologist' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1');
 
 
--- Drop Down List for Pathologist
+#-- Drop Down List for Pathologist
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_pathologist', '', '', NULL);
 
 
@@ -841,10 +845,9 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thoracentesis',  '',  'Thoracentesis',  '');
 
 
---
---
+
 -- Create Correspondences Menu
---
+
 INSERT INTO `atim`.`menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_200', 'clin_CAN_1', '0', '3', 'correspondence', 'correspondence', '/clinicalannotation/correspondences/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('correspondence',  '',  'Correspondence',  'Correspondence');
 
@@ -1035,9 +1038,8 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 
 
---------------------------
--- Inventory Management --
---------------------------
+
+-- Inventory Management
 
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 119, 118, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11);
@@ -1050,9 +1052,8 @@ UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(18, 41, 51);
 
 
 
---------------------------
--- Collections --
---------------------------
+
+-- Collections 
 
 -- Hide Bank ID
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
