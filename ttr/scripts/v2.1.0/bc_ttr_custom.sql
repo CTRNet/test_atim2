@@ -814,6 +814,31 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('TTR-2009-03-20',  '', 
 
 
 
+-- Drop Down Option for Surgery
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_consent_surgery', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_consent_surgery')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='bc_ttr_consent_surgery' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+-- Yes, Cancel, On-hold, Paracentesis, Thoracentesis
+
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Yes" AND language_alias="Yes"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="No" AND language_alias="No"), "2", "1");
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("On-hold", "On-hold");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="On-hold" AND language_alias="On-hold"), "3", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('On-hold',  '',  'On-hold',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Paracentesis", "Paracentesis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Paracentesis" AND language_alias="Paracentesis"), "4", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Paracentesis',  '',  'Paracentesis',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Thoracentesis", "Thoracentesis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Thoracentesis" AND language_alias="Thoracentesis"), "5", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thoracentesis',  '',  'Thoracentesis',  '');
 
 
 --
@@ -1018,5 +1043,58 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 119, 118, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11);
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(16, 132, 18);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(15, 24);
+
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(18, 41, 51);
+
+
+
+--------------------------
+-- Collections --
+--------------------------
+
+-- Hide Bank ID
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
+
+-- Hide Collection Datetime Accuracy
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='collection_datetime_accuracy' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator'));
+
+-- Hide Collection SOP 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list'));
+
+
+-- Hide Collection Property
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='collection_property' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property'));
+
+
+
+-- Add BC TTR Collected By
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'Collection', 'collections', 'bc_ttr_collected_by', 'collected by', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bc_ttr_collected_by' AND `language_label`='collected by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '2', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('collected by',  '',  'Collected By',  '');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
