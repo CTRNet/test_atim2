@@ -877,9 +877,79 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_pathologies' AND `field`='cytology'), 
 '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'); 
 
+-- Event : lab - chemistry --
+
+CREATE TABLE IF NOT EXISTS `ohri_ed_lab_chemistries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `CA125_u_ml` decimal(10,2) DEFAULT NULL,
+    
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ohri_ed_lab_chemistries`
+  ADD CONSTRAINT `ohri_ed_lab_chemistries_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `ohri_ed_lab_chemistries_revs` (
+  `id` int(11) NOT NULL,
+  
+  `CA125_u_ml` decimal(10,2) DEFAULT NULL,
+    
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'ohri', 'lab', 'chemistry', 1, 'ohri_ed_lab_chemistries', 'ohri_ed_lab_chemistries', 0, 'lab|ohri|chemistry');
+
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
+VALUES
+(null, '', 'Clinicalannotation', 'EventDetail', 'ohri_ed_lab_chemistries', 'CA125_u_ml', 'CA125 u/ml', '', 'float_positive', 'size=5', '', NULL, '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
+VALUES 
+('ohri_ed_lab_chemistries', '', '', '1', '1', '0', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site' AND `language_label`='event_form_type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `language_help`=''), 
+'1', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list')  AND `language_help`=''), 
+'1', '-9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 
+'1', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), 
+(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `language_label`='summary' AND `language_tag`='' AND `type`='textarea' AND `setting`='cols=40,rows=6' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 
+'1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
+
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_chemistries' AND `field`='CA125_u_ml'), 
+'2', '20', 'data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'); 
+
+INSERT IGNORE into i18n (id,en) VALUES ('chemistry', 'Chemistry'),('CA125 u/ml','CA125 (U/ml)');
+
 -- Event : presentation --
 
-CREATE TABLE IF NOT EXISTS `ohri_ed_clinical_presentations` (
+CREATE TABLE IF NOT EXISTS `ohri_ed_lab_markers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
   `brca` varchar(50) DEFAULT NULL,
@@ -896,10 +966,10 @@ CREATE TABLE IF NOT EXISTS `ohri_ed_clinical_presentations` (
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `ohri_ed_clinical_presentations`
-  ADD CONSTRAINT `ohri_ed_clinical_presentations_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+ALTER TABLE `ohri_ed_lab_markers`
+  ADD CONSTRAINT `ohri_ed_lab_markers_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
 
-CREATE TABLE IF NOT EXISTS `ohri_ed_clinical_presentations_revs` (
+CREATE TABLE IF NOT EXISTS `ohri_ed_lab_markers_revs` (
   `id` int(11) NOT NULL,
   
   `brca` varchar(50) DEFAULT NULL,
@@ -919,7 +989,7 @@ CREATE TABLE IF NOT EXISTS `ohri_ed_clinical_presentations_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-(null, 'ohri', 'clinical', 'presentation', 1, 'ohri_ed_clinical_presentations', 'ohri_ed_clinical_presentations', 0, 'clinical|ohri|presentation');
+(null, 'ohri', 'lab', 'markers', 1, 'ohri_ed_lab_markers', 'ohri_ed_lab_markers', 0, 'lab|ohri|markers');
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ("wild type", "wild type"),
@@ -958,32 +1028,32 @@ VALUES
 
 INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `created`, `created_by`, `modified`, `modified_by`) 
 VALUES
-(null, '', 'Clinicalannotation', 'EventDetail', 'ohri_ed_clinical_presentations', 'brca', 'brca', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_brca_result'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-(null, '', 'Clinicalannotation', 'EventDetail', 'ohri_ed_clinical_presentations', 'platinum', 'platinum', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_platinum_result'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+(null, '', 'Clinicalannotation', 'EventDetail', 'ohri_ed_lab_markers', 'brca', 'brca', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_brca_result'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+(null, '', 'Clinicalannotation', 'EventDetail', 'ohri_ed_lab_markers', 'platinum', 'platinum', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_platinum_result'), '', 'open', 'open', 'open', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 INSERT INTO structures(`alias`, `language_title`, `language_help`, `flag_add_columns`, `flag_edit_columns`, `flag_search_columns`, `flag_detail_columns`) 
 VALUES 
-('ohri_ed_clinical_presentations', '', '', '1', '1', '0', '1');
+('ohri_ed_lab_markers', '', '', '1', '1', '0', '1');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
 (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site' AND `language_label`='event_form_type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `language_help`=''), 
 '1', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
 (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list')  AND `language_help`=''), 
 '1', '-9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
 (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 
 '1', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'),
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
 (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `language_label`='summary' AND `language_tag`='' AND `type`='textarea' AND `setting`='cols=40,rows=6' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 
 '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1'), 
 
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
-(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_presentations' AND `field`='brca'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_markers' AND `field`='brca'), 
 '2', '20', 'data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'),
-((SELECT id FROM structures WHERE alias='ohri_ed_clinical_presentations'), 
-(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_clinical_presentations' AND `field`='platinum'), 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_markers'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_markers' AND `field`='platinum'), 
 '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
 
 -- Event : ctscan --
@@ -1065,7 +1135,7 @@ VALUES
 ('ohri', 'OHRI', 'IRHO'),
 ('ctscan', 'CT-Scan', ''),
 ('brca', 'BRCA', ''),
-('platinum', 'Pplatinum', ''),
+('platinum', 'Platinum', ''),
 ('wild type', 'Wild Type', ''),
 ('BRCA mutation known but not identified', 'BRCA mutation known but not identified', ''),
 ('BRCA1 mutated', 'BRCA1 mutated', ''),
@@ -1810,13 +1880,13 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("", "");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="" AND language_alias=""), "1", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("remission", "remission");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="remission" AND language_alias="remission"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="remission" AND language_alias="remission"), "2", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("regression", "regression");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="regression" AND language_alias="regression"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="regression" AND language_alias="regression"), "3", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("stable", "stable");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="stable" AND language_alias="stable"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="stable" AND language_alias="stable"), "4", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("progressing", "progressing");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="progressing" AND language_alias="progressing"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="ohri_disease_status"),  (SELECT id FROM structure_permissible_values WHERE value="progressing" AND language_alias="progressing"), "5", "1");
 UPDATE structure_fields SET type='select', setting='', structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='ohri_disease_status') WHERE id='1863';
 
 ALTER TABLE txd_chemos
@@ -1837,24 +1907,76 @@ INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES
 ((SELECT id FROM structures WHERE alias='txd_chemos'), LAST_INSERT_ID(), 1, 10, '', 0, '', 0, '', 0, '', 0, '', 0, '', 0, '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1'); 
 
-
-INSERT INTO i18n (id, en, fr) VALUES
-('synchronous', 'synchronous', "Synchrones"),
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('synchronous', 'Synchronous', "Synchrones"),
 ("serous", "Serous", "Séreux"),
 ("transitional", "Transitional", "Transitoire"),
--- ("granulosa", "Granulosa", "??"), ?????
+('line of chemo','Line of Chemo', ''),
+("granulosa", "Granulosa", ""), 
 ("cystadenoma", "Cystadenoma", "Cystadénome"),
 ("remission", "Remission", "Rémission"),
 ("regression", "Regression", "Régression"),
 ("progression", "Progression", "Progression"),
+('progressing','Progressing',''),
 ("first line", "First line", "Première ligne"),
 ("second line", "Second line", "Deuxième ligne"),
 ("third line", "Thrid line", "Troisième ligne"),
 ("fourth line", "Fourth line", "Quatrième ligne"),
 ("> fourth line", "> Fourth line", "> Quatrième ligne");
 
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'ohri_tumour_histopathology');
+SET @value = 'clear cells';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '1' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'cystadenoma';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '2' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'endometrioid';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '3' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'granulosa';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '4' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'high grade serous';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '5' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'low grade serous';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '6' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'mixed';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '7' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'mucinous';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '8' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'serous';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '9' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'undifferentiated';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '10' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'other';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '11' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
 
-- ajouter ligne suivante au trunk
-- INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
-- VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'quality_control_type');
+SET @value = 'agarose gel';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '1' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'bioanalyzer';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '2' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'pcr';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '5' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'spectrophotometer';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '6' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("immunohistochemistry", "immunohistochemistry");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"),  (SELECT id FROM structure_permissible_values WHERE value="immunohistochemistry" AND language_alias="immunohistochemistry"), "4", "1");
+
+ALTER TABLE quality_ctrls
+	ADD `qc_type_precision` varchar(250) DEFAULT NULL AFTER `type`;
+ALTER TABLE quality_ctrls_revs
+	ADD `qc_type_precision` varchar(250) DEFAULT NULL AFTER `type`;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'QualityCtrl', 'quality_ctrls', 'qc_type_precision', '', 'qc type precision', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_type_precision' AND `language_label`='' AND `language_tag`='qc type precision' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1');
+	
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('immunohistochemistry', 'Immunohistochemistry', "Immunohistochimie"),
+('qc type precision', 'Precision', "Précision"),
+('markers', 'Markers', ''),
+('a markers report can only be created once per participant', 'A markers report can only be created once per participant!', '');
+
+
+
+
 
