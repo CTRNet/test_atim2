@@ -1010,4 +1010,4 @@ INSERT INTO i18n (id,en,fr) VALUES ('kidney', 'Kidney', 'Rein');
 
 UPDATE users set flag_active = '1';
 
-SELECT * from aros_acos WHERE aco_id IN (SELECT id FROM acos WHERE alias = 'controllers')
+DELETE from aros_acos WHERE aco_id NOT IN (SELECT id FROM acos WHERE alias = 'controllers');
