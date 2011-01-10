@@ -770,33 +770,35 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('TTR-2009-03-20'
 
 
 -- Drop Down Option for Surgery
-INSERT IGNORE INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_consent_surgery', '', '', NULL);
+INSERT IGNORE INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_surgery', '', '', NULL);
 
-UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_consent_surgery')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='bc_ttr_consent_surgery' AND `type`='select' AND structure_value_domain  IS NULL ;
+INSERT IGNORE INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'bc_ttr_surgery', 'bc_ttr_surgery', '', 'select', ' ', '', (SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_surgery') , 'help_form_version');
 
--- Yes, Cancel, On-hold, Paracentesis, Thoracentesis
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='bc_ttr_surgery' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_surgery') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='bc_ttr_surgery' AND type='select' AND structure_value_domain  IS NULL );
 
 
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Yes" AND language_alias="Yes"), "1", "1");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="No" AND language_alias="No"), "2", "1");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Yes" AND language_alias="Yes"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="No" AND language_alias="No"), "2", "1");
 
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("On-hold", "On-hold");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="On-hold" AND language_alias="On-hold"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="On-hold" AND language_alias="On-hold"), "3", "1");
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('On-hold',  '',  'On-hold',  '');
 
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Paracentesis", "Paracentesis");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Paracentesis" AND language_alias="Paracentesis"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Paracentesis" AND language_alias="Paracentesis"), "4", "1");
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Paracentesis',  '',  'Paracentesis',  '');
 
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Thoracentesis", "Thoracentesis");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Thoracentesis" AND language_alias="Thoracentesis"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="Thoracentesis" AND language_alias="Thoracentesis"), "5", "1");
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thoracentesis',  '',  'Thoracentesis',  '');
 
 
-
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('bc_ttr_surgery',  '',  'Surgery',  '');
 
 
 
