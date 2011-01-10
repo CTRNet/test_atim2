@@ -702,12 +702,22 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Verbal',  '',  
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Closed", "Closed");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_consent_process_status"),  (SELECT id FROM structure_permissible_values WHERE value="Closed" AND language_alias="Closed"), "5", "1");
 
+#-----------------
+-- SURGEON
+#-----------------
+
+-- Change Surgeon to select field
+
+UPDATE structure_formats SET `flag_override_type`='1', `type`='select', `flag_override_setting`='1', `setting`=' ' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND type='input' AND structure_value_domain  IS NULL );
 
 -- Drop Down Value Options for Surgeons
+
 INSERT IGNORE INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_surgeon', '', '', NULL);
 
-UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_surgeon')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND `type`='select' AND structure_value_domain  IS NULL ;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'surgeon', 'surgeon', '', 'select', ' ', '', (SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_surgeon') , 'help_form_version');
 
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='surgeon' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_surgeon') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='surgeon' AND type='input' AND structure_value_domain  IS NULL );
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Alscher", "Alscher");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_surgeon"),  (SELECT id FROM structure_permissible_values WHERE value="Alscher" AND language_alias="Alscher"), "1", "1");
