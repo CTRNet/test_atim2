@@ -818,3 +818,39 @@ UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT
 
 
 
+
+#-----------------------
+-- Inventory Management
+#------------------------
+
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 119, 118, 142, 143, 141, 144, 7, 130, 8, 9, 101, 102, 140, 11);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(16, 132, 18);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(15, 24);
+
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(18, 41, 51);
+
+
+
+#-----------------
+-- Collections 
+#----------------
+
+
+-- Hide Bank ID
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
+
+-- Hide Collection Datetime Accuracy
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='collection_datetime_accuracy' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator'));
+
+-- Hide Collection SOP 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list'));
+
+
+-- Hide Collection Property
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='collection_property' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property'));
+
+
+
