@@ -117,18 +117,35 @@ ALTER TABLE `collections`
   ADD COLUMN `bc_ttr_collected_by` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_collection_type` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_blood_collection_status` varchar(20) DEFAULT NULL,
-  ADD COLUMN `bc_ttr_tissue_collection_status` varchar(20) DEFAULT NULL;
+  ADD COLUMN `bc_ttr_tissue_collection_status` varchar(30) DEFAULT NULL;
   
  
 ALTER TABLE `collections_revs`
   ADD COLUMN `bc_ttr_collected_by` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_collection_type` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_blood_collection_status` varchar(20) DEFAULT NULL,
-  ADD COLUMN `bc_ttr_tissue_collection_status` varchar(20) DEFAULT NULL;
+  ADD COLUMN `bc_ttr_tissue_collection_status` varchar(30) DEFAULT NULL;
   
 
+ALTER TABLE `sd_spe_bloods`
+  ADD COLUMN `bc_ttr_blood_drawn_datetime` datetime DEFAULT NULL,
+  ADD COLUMN `bc_ttr_room_temperature` varchar(5) DEFAULT NULL;
+
+ALTER TABLE `sd_spe_bloods_revs`
+  ADD COLUMN `bc_ttr_blood_drawn_datetime` datetime DEFAULT NULL,
+  ADD COLUMN `bc_ttr_room_temperature` varchar(5) DEFAULT NULL;
 
 
+ALTER TABLE `sd_spe_tissues`
+  ADD COLUMN `bc_ttr_time_anaesthesia_ready` time DEFAULT NULL,
+  ADD COLUMN `bc_ttr_time_incision` time DEFAULT NULL,
+  ADD COLUMN `bc_ttr_collection_pathologist` varchar(30) DEFAULT NULL,
+  ADD COLUMN `bc_ttr_after_hour_collection` char(3) DEFAULT NULL;
 
-
-
+ALTER TABLE `sd_spe_tissues_revs`
+  ADD COLUMN `bc_ttr_time_anaesthesia_ready` time DEFAULT NULL,
+  ADD COLUMN `bc_ttr_time_incision` time DEFAULT NULL,
+  ADD COLUMN `bc_ttr_collection_pathologist` varchar(30) DEFAULT NULL,
+  ADD COLUMN `bc_ttr_after_hour_collection` char(3) DEFAULT NULL;
+  
+  
