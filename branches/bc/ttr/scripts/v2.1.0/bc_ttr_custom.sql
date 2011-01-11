@@ -800,6 +800,21 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thoracentesis',
 
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('bc_ttr_surgery',  '',  'Surgery',  '');
 
+-- This is to fix the structure format error in Consent form
+UPDATE `atim`.`structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1892 LIMIT 1 ;
+UPDATE `atim`.`structure_formats` SET `flag_override_setting` = '0' WHERE `structure_formats`.`id` =1181 LIMIT 1 ;
+UPDATE `atim`.`structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1893 LIMIT 1 ;
+
+
+-- Remove Unneeded fields in Participant form
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='cod_icd10_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='participant_identifier' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='race' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='race'));
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='secondary_cod_icd10_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='dob_date_accuracy' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator'));
+
+-- Remove readonly on PHN
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='bc_ttr_phn' AND type='input' AND structure_value_domain  IS NULL );
 
 
 
