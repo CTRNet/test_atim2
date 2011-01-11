@@ -519,7 +519,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
-		}	
+		}
 		
 		// MANAGE DATA RECORD
 		

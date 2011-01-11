@@ -76,6 +76,7 @@ class SampleMaster extends InventorymanagementAppModel {
 	}
 	
 	public function getParentSampleDropdown(){
+		
 		return self::$parent_sample_dropdown;
 	}
 }
