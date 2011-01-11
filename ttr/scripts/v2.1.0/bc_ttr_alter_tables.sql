@@ -114,23 +114,18 @@ CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences_revs` (
 
 
 ALTER TABLE `collections`
+  ADD COLUMN `bc_ttr_collected_by` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_collection_type` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_blood_collection_status` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_tissue_collection_status` varchar(20) DEFAULT NULL;
   
  
 ALTER TABLE `collections_revs`
+  ADD COLUMN `bc_ttr_collected_by` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_collection_type` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_blood_collection_status` varchar(20) DEFAULT NULL,
   ADD COLUMN `bc_ttr_tissue_collection_status` varchar(20) DEFAULT NULL;
   
-
-
-
-
--- ADD COLUMN `bc_ttr_tb_received_by` varchar(20) DEFAULT NULL,
--- ADD COLUMN `bc_ttr_tb_received_datetime` datetime DEFAULT NULL,
-
 
 
 
