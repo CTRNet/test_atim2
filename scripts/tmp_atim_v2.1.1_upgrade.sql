@@ -759,7 +759,6 @@ DELETE FROM structure_fields WHERE `tablename` LIKE 'storage_masters' AND `field
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('std_2_dim_position_selection', 'std_1_dim_position_selection'));
 DELETE FROM structure_fields WHERE `field` LIKE 'parent_coord_x_title' AND `field` LIKE 'parent_coord_y_title';
 
-
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
 ('storage layout description', 'Layout Description', 'Description de l''entreposage'),
@@ -780,7 +779,43 @@ VALUES
 ALTER TABLE storage_controls
 DROP COLUMN form_alias_for_children_pos;
 
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'cell culture'),(SELECT id FROM sample_controls WHERE sample_type = 'protein'),0);
 
+SET @domain_id = (SELECT id FROM `structure_value_domains` WHERE `domain_name` LIKE 'quality_control_type');
+SET @value = 'agarose gel';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '1' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'bioanalyzer';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '2' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'pcr';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '5' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+SET @value = 'spectrophotometer';
+UPDATE `structure_value_domains_permissible_values` SET display_order = '6' WHERE `structure_value_domain_id` = @domain_id AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value = @value AND language_alias = @value);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("immunohistochemistry", "immunohistochemistry");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"),  (SELECT id FROM structure_permissible_values WHERE value="immunohistochemistry" AND language_alias="immunohistochemistry"), "4", "1");
+
+ALTER TABLE quality_ctrls
+	ADD `qc_type_precision` varchar(250) DEFAULT NULL AFTER `type`;
+ALTER TABLE quality_ctrls_revs
+	ADD `qc_type_precision` varchar(250) DEFAULT NULL AFTER `type`;
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Inventorymanagement', 'QualityCtrl', 'quality_ctrls', 'qc_type_precision', '', 'qc type precision', 'input', '', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, 
+`flag_index`, `flag_detail`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_type_precision' AND `language_label`='' AND `language_tag`='qc type precision' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', 
+'', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1');
+	
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('immunohistochemistry', 'Immunohistochemistry', "Immunohistochimie"),
+('qc type precision', 'Precision', "Précision");
+
+UPDATE structure_formats SET display_order = '9' WHERE structure_id = (SELECT id FROM structures WHERE alias='qualityctrls') 
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type');
 
 
 
