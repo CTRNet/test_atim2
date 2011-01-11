@@ -58,4 +58,21 @@ FROM atim.sample_masters sm, collections col
 WHERE sm.collection_id = col.id 
 
 
+-- ATIM sd_spe_bloods
+INSERT INTO atim.sd_spe_bloods( id, sample_master_id, collected_tube_nbr, bc_ttr_blood_drawn_datetime, bc_ttr_room_temperature )
+SELECT sm.id, sm.id, col.number_of_blood_tubes , col.blood_drawn_datetime, col.room_temperature
+FROM atim.sample_masters sm, collections col 
+WHERE sm.collection_id = col.id 
+and col.collection_type = 'blood'
+
+
+-- ATIM sd_spe_tissues
+INSERT INTO atim.sd_spe_tissues( id, sample_master_id, bc_ttr_time_anaesthesia_ready, bc_ttr_time_incision, bc_ttr_collection_pathologist, bc_ttr_after_hour_collection )
+SELECT sm.id, sm.id, col.time_anaesthesia_ready , col.time_incision, col.pathologist, col.after_hour_collection
+FROM atim.sample_masters sm, collections col 
+WHERE sm.collection_id = col.id 
+and col.collection_type = 'tissue'
+
+
+
 
