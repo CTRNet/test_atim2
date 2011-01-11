@@ -95,7 +95,7 @@ class SampleMaster extends InventorymanagementAppModel {
 	 * @since 2009-09-13
 	 */
 	
-	function buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id = null) {
+	function buildCollectionContentForTreeView($collection_id, $display_aliquots, $studied_specimen_sample_control_id = null) {
 		// Search collection content to display		
 		$criteria = array();
 		if($studied_specimen_sample_control_id) { 
@@ -107,7 +107,11 @@ class SampleMaster extends InventorymanagementAppModel {
 			$criteria['SampleMaster.initial_specimen_sample_id'] = array_keys($studied_collection_specimens);	
 		}
 		$criteria['SampleMaster.collection_id'] = $collection_id;
-		$this->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
+		if($display_aliquots) {
+			$this->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'AliquotMaster' => array('AliquotControl', 'StorageMaster')));
+		} else {
+			$this->contain(array('SampleControl', 'SpecimenDetail', 'DerivativeDetail'));
+		}
 		$collection_content_to_display = $this->find('threaded', array('conditions' => $criteria, 'order' => 'SampleMaster.sample_type DESC, SampleMaster.sample_code DESC', 'recursive' => '3'));
 		if(empty($collection_content_to_display)) {
 			return array(); 
@@ -117,9 +121,9 @@ class SampleMaster extends InventorymanagementAppModel {
 		if(self::$aliquot_master_model == null){
 			self::$aliquot_master_model = AppModel::atimNew("Inventorymanagement", "AliquotMaster", true);
 		}
-			
+				
 		// Build formatted collection data for tree view
-		return $this->completeCollectionContentForTreeView($collection_content_to_display);
+		return $this->completeCollectionContentForTreeView($collection_content_to_display, $display_aliquots);
 	}
 	
 	/**
@@ -134,7 +138,7 @@ class SampleMaster extends InventorymanagementAppModel {
 	 * @since 2009-09-13
 	 */
 	
-	function completeCollectionContentForTreeView($children_list) {
+	function completeCollectionContentForTreeView($children_list, $display_aliquots) {
 		$formatted_children_data = array();
 		
 		foreach($children_list as $key => $new_sample){
@@ -145,25 +149,29 @@ class SampleMaster extends InventorymanagementAppModel {
 			}else if($new_sample['SampleMaster']['sample_type'] == "tissue"){
 				$formatted_sample_data['0']['detail_type'] = __($new_sample['SampleDetail']['tissue_source'], true);
 			}
-			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children']);
+			$formatted_sample_data['children'] = $this->completeCollectionContentForTreeView($new_sample['children'], $display_aliquots);
 			
 			// Add Aliquot
-			$new_sample_aliquots = $new_sample['AliquotMaster'];
-			$new_sample_aliquots = array_reverse($new_sample_aliquots);
-			foreach($new_sample_aliquots as $new_aliquot) {
-				$aliquot_control_data = $new_aliquot['AliquotControl'];
-				unset($new_aliquot['AliquotControl']);
-				$storage_master_data = $new_aliquot['StorageMaster'];
-				unset($new_aliquot['StorageMaster']);
-				$formatted_aliquot_data = array(
-					'AliquotMaster' => $new_aliquot, 
-					'StorageMaster' => $storage_master_data);
-				if($new_aliquot['aliquot_type'] == "block"){
-					$aliquot = self::$aliquot_master_model->find('first', array('conditions' => array('AliquotMaster.id' => $new_aliquot['id'])));
-					$formatted_aliquot_data[0]['detail_type'] = __($aliquot['AliquotDetail']['block_type'], true);
-				}
-				array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
-			}			
+			if($display_aliquots) {
+				$new_sample_aliquots = $new_sample['AliquotMaster'];
+				$new_sample_aliquots = array_reverse($new_sample_aliquots);
+				foreach($new_sample_aliquots as $new_aliquot) {
+					$aliquot_control_data = $new_aliquot['AliquotControl'];
+					unset($new_aliquot['AliquotControl']);
+					$storage_master_data = $new_aliquot['StorageMaster'];
+					unset($new_aliquot['StorageMaster']);
+					$formatted_aliquot_data = array(
+						'AliquotMaster' => $new_aliquot, 
+						'StorageMaster' => $storage_master_data);
+					if($new_aliquot['aliquot_type'] == "block"){
+						$aliquot = self::$aliquot_master_model->find('first', array('conditions' => array('AliquotMaster.id' => $new_aliquot['id'])));
+						$formatted_aliquot_data[0]['detail_type'] = __($aliquot['AliquotDetail']['block_type'], true);
+					}
+					array_unshift($formatted_sample_data['children'], $formatted_aliquot_data);
+				}	
+			}
+
+			// Reset Data
 			$children_list[$key] = $formatted_sample_data;
 		}
 		

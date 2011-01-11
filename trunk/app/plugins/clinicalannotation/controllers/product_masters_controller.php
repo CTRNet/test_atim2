@@ -13,11 +13,23 @@ class ProductMastersController extends ClinicalannotationAppController {
 		'Inventorymanagement.SampleControl'
 	);
 	
-	function productsTreeView($participant_id, $studied_specimen_sample_control_id = null) {
+	function productsTreeView($participant_id, $filter_option = null) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
 
+		$display_aliquots = true;
+		$studied_specimen_sample_control_id = null;
+		
 		// MANAGE DATA
 		
+		// Manage filter data
+		if(!is_null($filter_option)) {	
+			$option_for_tree_view = explode("|", $filter_option);			
+			if(sizeof($option_for_tree_view) != 2)  { $this->redirect('/pages/err_clin_system_error', null, true); }
+			
+			$display_aliquots = $option_for_tree_view[0];
+			$studied_specimen_sample_control_id = empty($option_for_tree_view[1])? null : $option_for_tree_view[1];
+		}
+				
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
@@ -29,7 +41,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 		
 		foreach($participant_collections as $new_collection) {
 			$participant_collection_ids[] = $new_collection['Collection']['id'];
-			$new_collection_contents = $this->SampleMaster->buildCollectionContentForTreeView($new_collection['Collection']['id'], $studied_specimen_sample_control_id);
+			$new_collection_contents = $this->SampleMaster->buildCollectionContentForTreeView($new_collection['Collection']['id'], $display_aliquots, $studied_specimen_sample_control_id);
 			if(is_null($studied_specimen_sample_control_id)) {
 				// Add collection data
 				$data_for_tree_view[] = array('Collection' => $new_collection['Collection'], 'children' => $new_collection_contents);
@@ -60,17 +72,22 @@ class ProductMastersController extends ClinicalannotationAppController {
 		}
 		$this->set('specimen_type_list', $specimen_type_list);
 		
+		// Set filter value to build filter button
+		$this->set('display_aliquots_filter_value', $display_aliquots);
+		$this->set('studied_specimen_sample_control_id_filter_value', $studied_specimen_sample_control_id);
+		
 		// Set filter value
-		$filter_value = 'no filter';
+		$filter_value = '';
 		if($studied_specimen_sample_control_id) {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
 				unset($_SESSION['ClinicalAnnotation']['productsTreeView']['Filter']);
 				$this->redirect('/pages/err_inv_system_error', null, true); 
 			}
-			$filter_value = $sample_control_data['SampleControl']['sample_type'];
+			$filter_value = __($sample_control_data['SampleControl']['sample_type'], true);
 		}		
-		$this->set('filter_value', $filter_value);
+		if(!$display_aliquots) $filter_value .= (empty($filter_value)? '' : ' - ') . __('no aliquot displayed', true);
+		$this->set('filter_value', (empty($filter_value)? 'no filter' : $filter_value));
 		
 		// Set menu variables
 		$this->set('atim_menu_variables', array('Participant.id' => $participant_id));

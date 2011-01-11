@@ -817,7 +817,8 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 UPDATE structure_formats SET display_order = '9' WHERE structure_id = (SELECT id FROM structures WHERE alias='qualityctrls') 
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type');
 
-
-
-
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('no aliquot displayed', 'No aliquot displayed', 'Aucun aliquot affiché'),
+('only samples', 'Only Samples', 'Échantillons seulement'),
+('samples & aliquots', 'Samples & Aliquots', 'Échantillons & Aliquots');
 

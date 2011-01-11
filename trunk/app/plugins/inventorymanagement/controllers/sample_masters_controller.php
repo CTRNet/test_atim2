@@ -70,30 +70,40 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
+	function contentTreeView($collection_id, $filter_option = null) {
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_inv_funct_param_missing', null, true); 
 		}
-
+		
+		$display_aliquots = true;
+		$studied_specimen_sample_control_id = null;
+		
 		// MANAGE DATA
 
-		// Set filter
-		if(!$studied_specimen_sample_control_id) {
+		// Manage filter data
+		if(is_null($filter_option)) {
 			if(isset($_SESSION['InventoryManagement']['treeView']['Filter'])) {
-				$studied_specimen_sample_control_id = $_SESSION['InventoryManagement']['treeView']['Filter'];
+				$filter_option = $_SESSION['InventoryManagement']['treeView']['Filter'];
 			}
 		} else {
-			if($studied_specimen_sample_control_id == '-1') {
+			if($filter_option == '-1') {
 				// User unactived filter
-				$studied_specimen_sample_control_id = null;
+				$filter_option = null;
 				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 			} else {
-				$_SESSION['InventoryManagement']['treeView']['Filter'] = $studied_specimen_sample_control_id;
+				$_SESSION['InventoryManagement']['treeView']['Filter'] = $filter_option;
 			}
 		}
-		
+		if(!is_null($filter_option)) {	
+			$option_for_tree_view = explode("|", $filter_option);			
+			if(sizeof($option_for_tree_view) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
+			
+			$display_aliquots = $option_for_tree_view[0];
+			$studied_specimen_sample_control_id = empty($option_for_tree_view[1])? null : $option_for_tree_view[1];
+		}
+					
 		// Get formatted collection samples data to display
-		$this->data = $this->SampleMaster->buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id);
+		$this->data = $this->SampleMaster->buildCollectionContentForTreeView($collection_id, $display_aliquots, $studied_specimen_sample_control_id);
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();
@@ -115,17 +125,22 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		$this->set('specimen_type_list', $specimen_type_list);
 
+		// Set filter value to build filter button
+		$this->set('display_aliquots_filter_value', $display_aliquots);
+		$this->set('studied_specimen_sample_control_id_filter_value', $studied_specimen_sample_control_id);
+		
 		// Set filter value
-		$filter_value = 'no filter';
+		$filter_value = '';
 		if($studied_specimen_sample_control_id) {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
 				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 				$this->redirect('/pages/err_inv_system_error', null, true); 
 			}
-			$filter_value = $sample_control_data['SampleControl']['sample_type'];
+			$filter_value = __($sample_control_data['SampleControl']['sample_type'], true);
 		}
-		$this->set('filter_value', $filter_value);
+		if(!$display_aliquots) $filter_value .= (empty($filter_value)? '' : ' - ') . __('no aliquot displayed', true);
+		$this->set('filter_value', (empty($filter_value)? 'no filter' : $filter_value));
 		
 		// Get the current menu object. 
 		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%');
