@@ -26,5 +26,36 @@ blood_collection_status
 FROM collections
 
 
+-- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+ALTER TABLE  `sample_masters` DROP INDEX  `unique_sample_code`
+
+-- ATIM sample_masters
+INSERT INTO atim.sample_masters( id, collection_id , sample_control_id )
+SELECT id , id,  IF ( collection_type = 'blood', 2, 3)
+FROM collections
+
+
+-- Update the sample code  ( B - Blood, T - Tissue)
+
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'B - ' , id)  
+WHERE sample_control_id = 2
+
+
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'T - ' , id)  
+WHERE sample_control_id = 3
+
+
+-- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
+
+
+-- ATIM specimen_details
+INSERT INTO atim.specimen_details( id, sample_master_id, reception_by, reception_datetime )
+SELECT sm.id, sm.id , col.tb_received_by, col.tb_received_datetime
+FROM atim.sample_masters sm, collections col 
+WHERE sm.collection_id = col.id 
+
 
 
