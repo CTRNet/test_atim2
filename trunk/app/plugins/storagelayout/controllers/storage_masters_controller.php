@@ -832,7 +832,20 @@ class StorageMastersController extends StoragelayoutAppController {
 					$data_array[$i][$type][$x_key] = null;
 					$data_array[$i][$type][$y_key] = null;
 					$data_array[$i][$type][$storage_parent_key] = null;
+					
+					if($type == "StorageMaster") {
+						// Set new selection label 
+						$data_array[$i][$type]['selection_label'] = $this->getStorageSelectionLabel($data_array[$i]);	
+						
+						// Set new temperature
+						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+							$data_array[$i][$type]['temperature'] = null;
+							$data_array[$i][$type]['temp_unit'] = null;
+						}
+					}
+					
 					$trash = true;
+
 				}else if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 'u'){
 					//unclassified
 					$data_array[$i][$type][$x_key] = null;
@@ -845,8 +858,16 @@ class StorageMastersController extends StoragelayoutAppController {
 				//clean the array asap to gain efficiency
 				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
 				$UpdaterObject->save($data_array[$i], false);
-
+				
 				if($trash){
+					if($type == "StorageMaster") {
+						$this->updateChildrenStorageSelectionLabel($data_array[$i][$type]['id'], $data_array[$i]);
+						
+						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+							$this->updateChildrenSurroundingTemperature($data_array[$i][$type]['id'], null, null);
+						}
+					}
+					
 					unset($data_array[$i]);
 				}
 			}
