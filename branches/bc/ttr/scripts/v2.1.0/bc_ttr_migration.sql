@@ -55,7 +55,9 @@ INSERT INTO atim.consent_masters(id, date_of_referral , reason_denied ,  surgeon
 SELECT id,  referral_datetime , reason_denied , surgeon , consent_closed ,   protocol , diagnosis       , cancer_type , referral_source , home_phone , cell_phone , work_phone , fax_number , email , IROC_number , IROC_flag , pathologist , consent_id , or_facility   , date_consent_signed , blood_collected , participant_id ,1, date_denied , date_withdrawn , created , created_by , modified , modified_by ,smoking_history ,	pack_years ,years_since_quit ,	contact_for_genetic_research ,	 date_referral_withdrawn, 	 consent_method ,	 consent_version 	, surgery 	, acq_tissue_collected, 	 ttr_appt_datetime ,	 path_spec, 	 acquisition_id ,	 referral_memo , mrn,	consent_status,	or_datetime	,	 decline_use_of_blood_samples ,	 BRT_flag  
 FROM consents;
 
--- ATIM collections and specimens migration 
+#----------------------------------------------------------
+-- COLLECTIONS and SAMPLES (Blood Tubes and Virtual Tissue) 
+#------------------------------------------------------------
 
 INSERT INTO atim.collections
 (id, acquisition_label, bc_ttr_collected_by, collection_datetime, collection_site, collection_notes, bc_ttr_collection_type, created, created_by, modified, modified_by, bc_ttr_tissue_collection_status, bc_ttr_blood_collection_status )
@@ -113,9 +115,81 @@ FROM atim.sample_masters sm, collections col
 WHERE sm.collection_id = col.id 
 and col.collection_type = 'tissue';
 
+#-------------
+-- Blood Cells
+#-------------
+
+-- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
+
+
+-- Insert into table  for Blood Cells (Buffy Coat) specimen
+INSERT INTO atim.sample_masters
+(sample_category, sample_control_id, sample_type, initial_specimen_sample_type, collection_id, bc_ttr_ttrdb_acquisition_label, bc_ttr_buffy_coat_lab_tech )
+SELECT 
+'derivative','7', 'blood cell', 'blood', tcol.id,  
+tcol.acquisition_label, tcol.buffy_coat_lab_tech
+FROM  ttrdb.collections tcol  
+WHERE  
+( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'buffy_coat' ) > 0 ;
+
+
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'BLD-C - ' , id)  
+WHERE sample_control_id = 7;
+
+-- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
+
+
+-- Insert Blood Cell (Buffy Coat) Derivative into sample detail table
+INSERT INTO atim.sd_der_blood_cells (sample_master_id, bc_ttr_buffy_coat_lab_tech )
+SELECT smt.id, smt.bc_ttr_buffy_coat_lab_tech
+FROM atim.sample_masters smt
+WHERE smt.sample_code LIKE '%BLD-C%'
+ 
+ 
+ 
+#------------------
+-- PLASMA
+#-----------------
+
+
+-- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
+
+-- Insert into  table  for Plasma Derivative Sample 
+INSERT INTO atim.sample_masters
+(sample_category, sample_control_id, sample_type, initial_specimen_sample_type, collection_id,  bc_ttr_ttrdb_acquisition_label, bc_ttr_plasma_lab_tech, bc_ttr_plasma_duration, bc_ttr_plasma_Gval, bc_ttr_plasma_temperature, bc_ttr_plasma_transporter_time )
+SELECT 
+'derivative','9', 'plasma', 'blood', tcol.id, 
+tcol.acquisition_label, tcol.plasma_lab_tech, tcol.plasma_duration, tcol.plasma_Gval,
+tcol.plasma_temperature, tcol.plasma_transporter_time
+FROM  ttrdb.collections tcol  
+WHERE  
+( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'plasma' ) > 0 ;
 
 
 
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'PLS - ' , id)  
+WHERE sample_control_id = 9;
+
+
+-- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
+
+
+-- Insert Plasma Derivatives
+INSERT INTO atim.sd_der_plasmas (sample_master_id, bc_ttr_plasma_lab_tech, bc_ttr_plasma_duration, 
+ bc_ttr_plasma_Gval, bc_ttr_plasma_temperature, bc_ttr_plasma_transporter_time  )
+SELECT smt.id, smt.bc_ttr_plasma_lab_tech, smt.bc_ttr_plasma_duration, smt.bc_ttr_plasma_Gval, smt.bc_ttr_plasma_temperature, smt.bc_ttr_plasma_transporter_time
+FROM atim.sample_masters smt
+WHERE smt.sample_code LIKE '%PLS%'
+ 
+
+
+#---------------------
 -- tissues blocks
 -- TODO: invalid entries - the 2 following queries show that there are some invalid records
 #select count(*) from sd_tissueblocks;
