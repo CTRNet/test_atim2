@@ -155,10 +155,9 @@ ALTER TABLE `sd_spe_tissues_revs`
 #------------------------
 
 
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `bc_ttr_buffy_coat_lab_tech`
-
-ALTER TABLE  atim.`sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
 
 -- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
 ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
