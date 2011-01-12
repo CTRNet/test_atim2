@@ -36,17 +36,25 @@
 			);
 		}
 		
-		$structure_override = array(
-			'Adhoc.id' => $atim_menu_variables['Adhoc.id'],
-			'Adhoc.sql_query_for_results' => $final_query
-		);
+		$extras = '
+			<input type="hidden" name="data[Adhoc][id]" value="'.$atim_menu_variables['Adhoc.id'].'"/>
+			<input type="hidden" name="data[Adhoc][sql_query_for_results]" value="'.$final_query.'"/>
+		'; 
 		
-		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array())); 
+		
+		$structures->build( $atim_structure_for_add, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => array('end' => $extras))); 
 ?>
 <script type="text/javascript">
-var batchSetControls = true;
-var batchSetFormActionMsgSelectAnOption = "<?php __("select an action") ?>";
-var batchSetFormActionMsgSelectAtLeast = "<?php __("check at least one element from the batch set") ?>";
+var datamartActions = true;
+var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
+var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";
 </script>
-<?php 
-echo $javascript->link('batchset')."\n";
+<a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
+<div class="hidden ui-widget">
+<input id="search_for" type="hidden" name="data[Browser][search_for]"/>
+<ul class='actionDropdown'>
+	<?php 
+	DatamartAppController::printList($actions, "", $this->webroot);
+	?>
+</ul>
+</div>

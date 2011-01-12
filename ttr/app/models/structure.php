@@ -28,30 +28,6 @@ class Structure extends AppModel {
 		$this->simple = true;
 	}
 	
-	function summary( $variables=array() ) {
-		$return = false;
-		
-		if (isset($variables['Structure.id']) ) {
-			$result = $this->find('first', array('conditions'=>array('Structure.id'=>$variables['Structure.id'])));
-			
-			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['Structure']['alias'] ),
-					'title'			=>	array( NULL, $result['Structure']['alias'] ),
-					
-					'description'	=>	array(
-						'id'			=>	$result['Structure']['id'],
-						'title'		=>	$result['Structure']['language_title'],
-						'help'		=>	$result['Structure']['language_help'],
-						'created'	=>	$result['Structure']['created']
-					)
-				)
-			);
-		}
-		
-		return $return;
-	}
-	
 	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
 		
 		$structure = parent::find('first', $fields, $order, $recursive);
@@ -78,6 +54,7 @@ class Structure extends AppModel {
 
 			if(($this->simple && isset($structure['Sfs'])) || (!$this->simple && isset($structure['StructureFormat']))){
 				foreach ($structure[$this->simple ? 'Sfs' : 'StructureFormat'] as $sf){
+					$auto_validation = isset(AppModel::$auto_validation[$sf['model']]) ? AppModel::$auto_validation[$sf['model']] : array(); 
 					if (!isset($rules[$sf['model']])){
 						$rules[$sf['model']] = array();
 					}
@@ -110,8 +87,6 @@ class Structure extends AppModel {
 						$sf['StructureValidation'][] = array(
 							'structure_field_id' => $sf['structure_field_id'],
 							'rule' => $tmp_rule, 
-							'flag_required' => false, 
-							'flag_not_empty' => false,
 							'on_action' => NULL,
 							'language_message' => $tmp_msg);
 					}
@@ -128,15 +103,11 @@ class Structure extends AppModel {
 							$rule = split(',',$validation['rule']);
 						}
 						
-						if($validation['flag_not_empty']){
-							$rule[] = 'notEmpty';
-						}
-	
 						if(count($rule) == 1){
 							$rule = $rule[0];
 						}else if(count($rule) == 0){
 							if(Configure::read('debug') > 0){
-								AppController::addWarningMsg(sprintf(__("the validation with id [%d] is invalid. a rule and/or a flag_not_empty must be defined", true), $validation['id']));
+								AppController::addWarningMsg(sprintf(__("the validation with id [%d] is invalid. a rule must be defined", true), $validation['id']));
 							}
 							continue;
 						}
@@ -144,8 +115,7 @@ class Structure extends AppModel {
 						
 						$rule_array = array(
 							'rule' => $rule,
-							'allowEmpty' => !$validation['flag_not_empty'],
-							'required' => $validation['flag_required'] ? true : false
+							'allowEmpty' => $rule != 'notEmpty'
 						);
 						
 						if($validation['on_action']){
@@ -153,9 +123,12 @@ class Structure extends AppModel {
 						}
 						if($validation['language_message']){
 							$rule_array['message'] = __($validation['language_message'], true);
-							if(strlen($sf['language_label']) > 0){
-								$rule_array['message'] .= " (".__($sf['language_label'], true).")";
-							}
+						}else if($rule_array['rule'] == 'notEmpty'){
+							$rule_array['message'] = __("this field is required", true);
+						}
+				
+						if(strlen($sf['language_label']) > 0 && isset($rule_array['message'])){
+							$rule_array['message'] .= " (".__($sf['language_label'], true).")";
 						}
 						
 						if (!isset($rules[ $sf['model']][$sf['field']])){
@@ -163,7 +136,13 @@ class Structure extends AppModel {
 						}
 						
 						$rules[$sf['model']][$sf['field']][] = $rule_array;
-						
+					}
+					
+					if(isset($auto_validation[$sf['field']])){
+						foreach($auto_validation[$sf['field']] as $rule_array){
+							$rule_array['message'] .= " (".__($sf['language_label'], true).")";
+							$rules[$sf['model']][$sf['field']][] = $rule_array;
+						}
 					}
 				}
 			}

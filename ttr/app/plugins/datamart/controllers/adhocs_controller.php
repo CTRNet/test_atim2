@@ -131,16 +131,12 @@ class AdhocsController extends DatamartAppController {
 			$this->set( 'data_for_detail', $adhoc);
 			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $type_to ));
 		}
-		$this->set( 'atim_structure_for_add', $this->Structures->get( 'form', 'querytool_adhoc_to_batchset' ) );
+		$this->Structures->set('datamart_browser_start', 'atim_structure_for_add');
 		
 		// do search for RESULTS, using THIS->DATA if any
 		
 		// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
-		
-		$model_to_import = ( $adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'].'.' : '' ).$adhoc['Adhoc']['model'];
-		App::import('Model',$model_to_import);
-		
-		$this->ModelToSearch = new $adhoc['Adhoc']['model'];
+		$this->ModelToSearch = AppModel::atimNew($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
 		$criteria = array();
@@ -260,9 +256,10 @@ class AdhocsController extends DatamartAppController {
 		if ( !isset($_SESSION['ctrapp_core']['datamart']['search_criteria']) ) { $_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL; }
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = $save_this_search_data;
 		// save for display
-		
-		$this->BatchSet->setActionsDropdown($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], $adhoc['Adhoc']['form_alias_for_results'], false);
+
+		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
 		$this->set( 'save_this_search_data', $save_this_search_data );
+		$this->set('actions', $actions);
 	}
 	
 	function process() {
@@ -303,10 +300,7 @@ class AdhocsController extends DatamartAppController {
 		}
 		
 		// do search for RESULTS, using THIS->DATA if any
-		$model_to_import = ( $adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'].'.' : '' ).$adhoc_result['Adhoc']['model'];
-		App::import('Model',$model_to_import);
-		
-		$this->ModelToSearch = new $adhoc_model;
+		$this->ModelToSearch = AppModel::atimNew($adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'] : '', $adhoc_result['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = array(0);

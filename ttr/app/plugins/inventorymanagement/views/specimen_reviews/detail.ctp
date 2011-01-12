@@ -37,7 +37,6 @@
 			'actions'=>false, 
 	
 			'header' => __('aliquot review', null),
-			'separator' => true, 
 			'form_top' => false,
 			'form_bottom'=>false
 		);	

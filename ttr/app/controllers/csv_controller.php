@@ -1,12 +1,18 @@
 <?php
 class CsvController extends AppController {
 	var $uses = array();
-	
+
+	/**
+	 * Fetches data and returns it in a CSV
+	 * @param string $plugin
+	 * @param string $model_name The model to use to fetch the data
+	 * @param string $model_pkey The key to use to fetch the data
+	 * @param string $structure_alias The structure to render the data
+	 * @param string $data_model The model to look for in the data array
+	 * @param string $data_pkey The pkey to look for in the data array
+	 */
 	function csv($plugin, $model_name, $model_pkey, $structure_alias, $data_model = null, $data_pkey = null){
-		if(!App::import('Model', $plugin.".".$model_name)){
-			$this->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model_name, NULL, TRUE );
-		}
-		$this->ModelToSearch = new $model_name;
+		$this->ModelToSearch = AppModel::atimNew($plugin, $model_name, true);
 		
 		if($data_pkey == null){
 			$data_pkey = $model_pkey;

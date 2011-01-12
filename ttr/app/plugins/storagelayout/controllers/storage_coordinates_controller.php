@@ -2,7 +2,7 @@
 
 class StorageCoordinatesController extends StoragelayoutAppController {
 	
-	var $components = array('Storagelayout.Storages');
+	var $components = array();
 	
 	var $uses = array(
 		'Storagelayout.StorageControl',
@@ -26,7 +26,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 		
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
 			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
@@ -54,7 +54,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
 			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}
@@ -110,7 +110,7 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
 
-		if(!$this->Storages->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
+		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
 			$this->redirect('/pages/err_sto_system_error', null, true); 
 		}

@@ -42,7 +42,6 @@
 			'actions'=>false, 
 			'tabindex' => '2000',
 			'header' => __('aliquot review', null),
-			'separator' => true, 
 			'form_top' => false,
 			'form_bottom'=>false
 		);	
@@ -59,11 +58,11 @@
 			'form_top' => false
 		);
 		
-		$structure_override = array();
-		$structure_override['AliquotReviewMaster.aliquot_masters_id'] = $aliquot_list;	
+		$structure_override['AliquotReviewMaster.id'] = 'new';
+		$dropdown_options['AliquotReviewMaster.aliquot_masters_id'] = $aliquot_list;	
 		
 		$final_atim_structure = $aliquot_review_structure;
-		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'datagrid', 'settings'=> $structure_settings, 'override' => $structure_override);
+		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'addgrid', 'settings'=> $structure_settings, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
 		
 		$hook_link = $structures->hook('aliquot_review');
 		if( $hook_link ) { require($hook_link); } 
@@ -80,5 +79,4 @@ var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
-var pathReviewEditRemoveLastLine = true;
 </script>

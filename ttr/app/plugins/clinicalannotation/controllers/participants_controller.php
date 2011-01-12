@@ -16,7 +16,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Clinicalannotation.ClinicalCollectionLink',
 		'Clinicalannotation.ReproductiveHistory',
 		'Clinicalannotation.TreatmentMaster',
-		'Clinicalannotation.MiscIdentifier', 
 		'Clinicalannotation.MiscIdentifierControl',
 		'Codingicd.CodingIcd10Who',
 		'Codingicd.CodingIcd10Ca'
@@ -299,6 +298,37 @@ class ParticipantsController extends ClinicalannotationAppController {
 					'time' => $time,
 					'event' => $value['event']));
 			}
+		}
+	}
+	
+	function batchEdit(){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_clin_no_data', null, true);
+		}
+		if(isset($this->data['Participant']['id']) && is_array($this->data['Participant']['id'])){
+			//display
+			$ids = array_filter($this->data['Participant']['id']);
+			$this->data[0]['ids'] = implode(",", $ids);
+			
+		}else if(isset($this->data[0]['ids']) && strlen($this->data[0]['ids'])){
+			//save
+			$participants = $this->Participant->find('all', array('conditions' => array('Participant.id' => explode(",", $this->data[0]['ids']))));
+			$this->Structures->set('participants');
+			//fake participant to validate
+			$this->Participant->set($this->data);
+			if($this->Participant->validates()){
+				$ids = explode(",", $this->data[0]['ids']);
+				$this->Participant->updateAll(
+					AppController::getUpdateAllValues(array("Participant" => $this->data['Participant'])),
+					array('Participant.id' => $ids)
+				);
+				
+				$_SESSION['ctrapp_core']['search']['criteria'] = array("Participant.id" => $ids);
+				$this->atimFlash('your data has been updated', '/clinicalannotation/Participants/search/');
+			}
+			
+		}else{
+			$this->redirect('/pages/err_clin_no_data', null, true);
 		}
 	}
 }

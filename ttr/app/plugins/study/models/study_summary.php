@@ -13,16 +13,10 @@ class StudySummary extends StudyAppModel
 			$result = $this->find('first', array('conditions'=>array('StudySummary.id'=>$variables['StudySummary.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
-					'title'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
-					
-					'description'	=>	array(
-						__('disease site', TRUE)	=>	__($result['StudySummary']['disease_site'], TRUE),
-						__('type', TRUE)			=>	__($result['StudySummary']['study_type'], TRUE),
-						__('summary', TRUE)		    =>  $result['StudySummary']['summary']
-					)
-				)
+				'menu'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
+				'title'			=>	array( NULL, $result['StudySummary']['title'], TRUE),
+				'data'			=> $result,
+				'structure alias'=>'studysummaries'
 			);
 		}
 		
