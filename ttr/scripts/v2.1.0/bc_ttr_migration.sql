@@ -142,12 +142,11 @@ WHERE sample_control_id = 7;
 -- Put Constraint back as Unique Sample code in ATIM sample masters
 CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
 
-
 -- Insert Blood Cell (Buffy Coat) Derivative into sample detail table
 INSERT INTO atim.sd_der_blood_cells (sample_master_id, bc_ttr_buffy_coat_lab_tech )
 SELECT smt.id, smt.bc_ttr_buffy_coat_lab_tech
 FROM atim.sample_masters smt
-WHERE smt.sample_code LIKE '%BLD-C%'
+WHERE smt.sample_code LIKE '%BLD-C%';
  
  
  
@@ -156,7 +155,7 @@ WHERE smt.sample_code LIKE '%BLD-C%'
 #-----------------
 
 
--- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+-- Drop Constraint Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
 ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
 
 -- Insert into  table  for Plasma Derivative Sample 
@@ -186,7 +185,7 @@ INSERT INTO atim.sd_der_plasmas (sample_master_id, bc_ttr_plasma_lab_tech, bc_tt
  bc_ttr_plasma_Gval, bc_ttr_plasma_temperature, bc_ttr_plasma_transporter_time  )
 SELECT smt.id, smt.bc_ttr_plasma_lab_tech, smt.bc_ttr_plasma_duration, smt.bc_ttr_plasma_Gval, smt.bc_ttr_plasma_temperature, smt.bc_ttr_plasma_transporter_time
 FROM atim.sample_masters smt
-WHERE smt.sample_code LIKE '%PLS%'
+WHERE smt.sample_code LIKE '%PLS%';
  
 
 
