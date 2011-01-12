@@ -39,6 +39,7 @@ class SampleMastersControllerCustom extends SampleMastersController{
 				$this->data['SampleMaster']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];
 				$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
 			}else{
+				$this->data['Collection']['collection_property'] = 'participant collection';
 				$this->Collection->set($this->data);
 				$submitted_data_validates = $this->Collection->validates();
 				
