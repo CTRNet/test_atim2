@@ -10,19 +10,19 @@ fi
 echo running tmp_atim_v2.1.0A_script_FULL.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.0A_script_FULL.sql
 
-#echo running tmp_atim_v2.1.1_demo_data.sql
-#mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_demo_data.sql
+echo running v2.1.0/bc_ttr_alter_tables.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_alter_tables.sql
+
+#echo running v2.1.0/bc_ttr_migration.sql
+#mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_migration.sql
+
+echo running v2.1.0/bc_ttr_custom.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_custom.sql
 
 echo running tmp_atim_v2.1.1_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.1.1_upgrade.sql
 
-echo running bc_ttr_alter_tables.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_alter_tables.sql
-
-#echo running bc_ttr_migration.sql
-#mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_migration.sql
-
 echo running bc_ttr_custom.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.1.0/bc_ttr_custom.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < bc_ttr_custom.sql
 
 echo done
