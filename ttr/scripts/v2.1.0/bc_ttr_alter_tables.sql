@@ -188,6 +188,68 @@ INSERT INTO atim.sd_der_blood_cells (sample_master_id, bc_ttr_buffy_coat_lab_tec
 SELECT smt.id, smt.bc_ttr_buffy_coat_lab_tech
 FROM atim.sample_masters smt
 WHERE smt.sample_code LIKE '%BLD-C%'
+ 
+ 
+#------------------------
+--   Plasma
+#------------------------
+
+
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`;
+
+-- ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`
+
+ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`;
+
+
+
+
+
+-- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
+
+-- Insert into temporary table  for Plasma Derivative Sample 
+INSERT INTO atim.sample_masters
+(sample_category, sample_control_id, sample_type, initial_specimen_sample_type, collection_id,     bc_ttr_ttrdb_acquisition_label, bc_ttr_plasma_lab_tech, bc_ttr_plasma_duration, bc_ttr_plasma_Gval, bc_ttr_plasma_temperature, bc_ttr_plasma_transporter_time )
+SELECT 
+'derivative','9', 'plasma', 'blood', tcol.id, 
+tcol.acquisition_label, tcol.plasma_lab_tech, tcol.plasma_duration, tcol.plasma_Gval,
+tcol.plasma_temperature, tcol.plasma_transporter_time
+FROM  ttrdb.collections tcol  
+WHERE  
+( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'plasma' ) > 0 ;
+
+
+
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'PLS - ' , id)  
+WHERE sample_control_id = 9;
+
+
+-- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
+
+
+-- Insert Plasma Derivatives
+INSERT INTO atim.sd_der_plasmas (sample_master_id, bc_ttr_plasma_lab_tech, bc_ttr_plasma_duration, 
+ bc_ttr_plasma_Gval, bc_ttr_plasma_temperature, bc_ttr_plasma_transporter_time  )
+SELECT smt.id, smt.bc_ttr_plasma_lab_tech, smt.bc_ttr_plasma_duration, smt.bc_ttr_plasma_Gval, smt.bc_ttr_plasma_temperature, smt.bc_ttr_plasma_transporter_time
+FROM atim.sample_masters smt
+WHERE smt.sample_code LIKE '%PLS%'
+ 
+
+
+#------------------------
+--   Tissue Blocks
+#------------------------
   
  
 ALTER TABLE ad_blocks
@@ -225,6 +287,13 @@ ALTER TABLE ad_blocks_revs
  ADD COLUMN bc_ttr_tissue_subsite VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN bc_ttr_block_observation VARCHAR(50) NOT NULL DEFAULT '';
  
+ 
+ 
+#------------------------
+--   Tissue Slides
+#------------------------
+
+
 ALTER TABLE ad_tissue_slides
  ADD COLUMN bc_ttr_date_created DATE DEFAULT NULL,
  ADD COLUMN bc_ttr_slide_stain VARCHAR(50) NOT NULL DEFAULT '',
