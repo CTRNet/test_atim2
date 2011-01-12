@@ -148,4 +148,51 @@ ALTER TABLE `sd_spe_tissues_revs`
   ADD COLUMN `bc_ttr_collection_pathologist` varchar(30) DEFAULT NULL,
   ADD COLUMN `bc_ttr_after_hour_collection` char(3) DEFAULT NULL;
   
-  
+ALTER TABLE ad_blocks
+ ADD COLUMN bc_ttr_tissue_site VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_tissue_type VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_size_of_tumour VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_tissue_observation VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_time_of_removal TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_page_time TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_arrival_in_patho_lab TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_pathologist_presence TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_in_transporter TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_transporter VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_path_reference VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_size1 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_size2 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_size3 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_subsite VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_block_observation VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE ad_blocks_revs
+ ADD COLUMN bc_ttr_tissue_site VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_tissue_type VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_size_of_tumour VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_tissue_observation VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_time_of_removal TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_page_time TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_arrival_in_patho_lab TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_pathologist_presence TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_in_transporter TIME DEFAULT NULL,
+ ADD COLUMN bc_ttr_transporter VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_path_reference VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_size1 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_size2 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_size3 FLOAT DEFAULT NULL,
+ ADD COLUMN bc_ttr_tissue_subsite VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_block_observation VARCHAR(50) NOT NULL DEFAULT '';
+ 
+ALTER TABLE ad_tissue_slides
+ ADD COLUMN bc_ttr_date_created DATE DEFAULT NULL,
+ ADD COLUMN bc_ttr_slide_stain VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_slide_location VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_lab_technician VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_time_removed_from_formalin TIME DEFAULT NULL;
+ALTER TABLE ad_tissue_slides_revs
+ ADD COLUMN bc_ttr_date_created DATE DEFAULT NULL,
+ ADD COLUMN bc_ttr_slide_stain VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_slide_location VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_lab_technician VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN bc_ttr_time_removed_from_formalin TIME DEFAULT NULL;
+ 
