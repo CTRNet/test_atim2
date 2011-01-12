@@ -773,8 +773,8 @@ INSERT IGNORE INTO i18n (id,en,fr)
 VALUES 
 ('you can not define a tma block as a parent storage',
 'You can not define a tma block as a parent storage!', 'Un bloc TMA ne peut être défini comme un entreposage ''parent''!'),
-('you can not define the studied storage as the parent storage too', 
-'You can not define the studied storage as the parent storage!', 'L''entreposage étudié ne peut pas être aussi le parent!');
+('you can not store your storage inside itself', 
+'You can not store your storage inside itself!', 'L''entreposage étudié ne peut pas être entreposé à l''interieur de lui même!');
 
 ALTER TABLE storage_controls
 DROP COLUMN form_alias_for_children_pos;
