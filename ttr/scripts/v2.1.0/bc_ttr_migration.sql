@@ -119,7 +119,8 @@ and col.collection_type = 'tissue';
 -- Blood Cells
 #-------------
 
--- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+-- Drop Constraint in Unique Sample code in ATIM sample masters
+
 ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
 
 
@@ -138,7 +139,7 @@ UPDATE atim.sample_masters
 SET sample_code = CONCAT( 'BLD-C - ' , id)  
 WHERE sample_control_id = 7;
 
--- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+-- Put Constraint back as Unique Sample code in ATIM sample masters
 CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
 
 
