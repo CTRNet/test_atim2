@@ -2,7 +2,7 @@
 
 class SpecimenReviewsController extends InventoryManagementAppController {
 
-	var $components = array('Inventorymanagement.Aliquots');
+	var $components = array();
 		
 	var $uses = array(
 		'Inventorymanagement.Collection',
