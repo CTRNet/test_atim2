@@ -37,12 +37,6 @@ UPDATE atim.storage_masters AS c
  SET c.code=CONCAT('B1199 - ', c.id), c.temperature=p.temperature WHERE c.box_id IS NOT NULL;
 INSERT INTO atim.std_boxs(storage_master_id, created_by, modified, modified_by) (SELECT id, created_by, modified, modified_by FROM atim.storage_masters WHERE box_id IS NOT NULL);
 
-ALTER TABLE atim.storage_masters
- ADD UNIQUE KEY `unique_code` (`code`);
- #storage_masters
- #shelves
- #towers
- #boxes
 
 -- ATIM Participants
 INSERT INTO atim.participants (id, title, first_name, middle_name, last_name, date_of_birth, sex, bc_ttr_phn, notes,  created, created_by, modified, modified_by)
@@ -121,41 +115,94 @@ and col.collection_type = 'tissue';
 
 
 
-/*
+
 -- tissues blocks
 -- TODO: invalid entries - the 2 following queries show that there are some invalid records
 #select count(*) from sd_tissueblocks;
 #select count(*) from sd_tissueblocks as st inner join sample_masters as sm on st.sample_master_id=sm.id;
+-- WARNING: DELETING INVALID RECORDS, DECIDE IF ITS RIGHT OR WRONG
+DELETE FROM sd_tissueblocks WHERE sample_master_id NOT IN(SELECT id FROM sample_masters);
 ALTER TABLE atim.aliquot_masters
- ADD COLUMN tmp_id int DEFAULT NULL;
- ADD COLUMN bc_ttr_prev_storage_id int DEFAULT NULL;
+ ADD COLUMN tmp_id int DEFAULT NULL,
+ ADD COLUMN tmp_slide_id int DEFAULT NULL,
+ ADD COLUMN bc_ttr_prev_storage_id int DEFAULT NULL,
+ ADD KEY (tmp_id),
+ ADD KEY (tmp_slide_id);
 
 CREATE TABLE atim.tmp_blocks (SELECT barcode, storage_master_id, bc_ttr_prev_storage_id, storage_coord_x, storage_coord_y, storage_datetime, 
 sample_master_id , aliquot_type , aliquot_control_id ,collection_id, a.created, a.created_by    , a.modified , a.modified_by, 
  bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation, block_type
  FROM atim.aliquot_masters AS a INNER JOIN atim.ad_blocks LIMIT 0);
 ALTER TABLE atim.tmp_blocks ADD column tid int auto_increment primary key;
-INSERT INTO atim.tmp_blocks (barcode, storage_master_id, bc_ttr_prev_storage_id, storage_coord_x, storage_coord_y, storage_datetime, sample_master_id, aliquot_type , aliquot_control_id ,collection_id, created, created_by, modified , modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation, block_type)  
-(SELECT sample_barcode, box_id, previous_box_id, row_id, col_id, stored_datetime, sample_master_id ,'block',4, collection_id, sm.created, sm.created_by    , sm.modified , sm.modified_by, tissue_type_id , tissue_site_id , tissue_subsite_id , size_of_tumour , tissue_observation , tissue_removal_time , page_time , tissue_arrival_pathlab_time , pathologist_presence_time , tissue_into_transporter_time , transporter , path_ref , size1 , size2 , size3 , block_observation, sample_type FROM sd_tissueblocks INNER JOIN sample_masters AS sm ON sd_tissueblocks.sample_master_id=sm.id);
-#TODO: remove update storage_master_id when storages are imported
-UPDATE atim.tmp_blocks SET storage_master_id=1; 
+INSERT INTO atim.tmp_blocks (barcode, storage_master_id, bc_ttr_prev_storage_id, storage_coord_x, storage_coord_y, storage_datetime, aliquot_type , aliquot_control_id ,collection_id, created, created_by, modified , modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation, block_type, tid)  
+(SELECT sample_barcode, box_id, previous_box_id, row_id, col_id, stored_datetime ,'block',4, collection_id, sm.created, sm.created_by    , sm.modified , sm.modified_by, tissue_type_id , tissue_site_id , tissue_subsite_id , size_of_tumour , tissue_observation , tissue_removal_time , page_time , tissue_arrival_pathlab_time , pathologist_presence_time , tissue_into_transporter_time , transporter , path_ref , size1 , size2 , size3 , block_observation, sample_type, sm.id FROM sd_tissueblocks INNER JOIN sample_masters AS sm ON sd_tissueblocks.sample_master_id=sm.id);
+
+UPDATE atim.tmp_blocks AS c
+LEFT JOIN atim.storage_masters AS p ON c.storage_master_id=p.box_id
+SET c.storage_master_id=p.id;
+UPDATE atim.tmp_blocks AS c
+LEFT JOIN atim.sample_masters AS p ON p.collection_id=c.collection_id
+SET c.sample_master_id=p.id;
+
 INSERT INTO atim.aliquot_masters (barcode, storage_master_id, bc_ttr_prev_storage_id, storage_coord_x, storage_coord_y, storage_datetime, collection_id, sample_master_id , aliquot_type , aliquot_control_id ,created, created_by    , modified , modified_by, tmp_id)
 (SELECT barcode, storage_master_id, bc_ttr_prev_storage_id, storage_coord_x, storage_coord_y, storage_datetime, collection_id, sample_master_id, aliquot_type , aliquot_control_id , created, created_by    , modified , modified_by, tid FROM atim.tmp_blocks);
-INSERT INTO atim.ad_blocks (aliquot_master_id, created, created_by    , modified , modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation)
-(SELECT (SELECT id FROM atim.aliquot_masters WHERE tmp_id=tid), created, created_by, modified , modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation FROM atim.tmp_blocks);
-UPDATE aliquot_masters SET tmp_id=NULL;
-DROP TABLE tmp_blocks;
+INSERT INTO atim.ad_blocks (aliquot_master_id, created, created_by    , modified , modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation, block_type)
+(SELECT p.id, c.created, c.created_by, c.modified , c.modified_by, bc_ttr_tissue_site , bc_ttr_tissue_type , bc_ttr_tissue_subsite , bc_ttr_size_of_tumour , bc_ttr_tissue_observation , bc_ttr_time_of_removal , bc_ttr_page_time , bc_ttr_tissue_arrival_in_patho_lab , bc_ttr_pathologist_presence , bc_ttr_tissue_in_transporter , bc_ttr_transporter , bc_ttr_path_reference , bc_ttr_size1 , bc_ttr_size2 , bc_ttr_size3 ,bc_ttr_block_observation, block_type FROM atim.tmp_blocks AS c INNER JOIN atim.aliquot_masters AS p ON c.tid=p.tmp_id);
+DROP TABLE atim.tmp_blocks;
+
+
+
 
 -- tissues slides
--- TODO: in_stock
+-- WARNING: DELETEING INVALID sample_master RECORD
+DELETE FROM sample_masters WHERE id=43301;
+DELETE FROM sd_tissueslides WHERE sample_master_id=43301;
+-- WARNING: DELETING INVALID RECORDS, DECIDE IF ITS RIGHT OR WRONG (seen with SELECT count(*) FROM sd_tissueslides WHERE sample_master_id NOT IN(SELECT id FROM sample_masters);)
+DELETE FROM sd_tissueslides WHERE sample_master_id NOT IN(SELECT id FROM sample_masters);
+CREATE TABLE atim.tmp_slides(SELECT  barcode     , aliquot_type , aliquot_control_id , collection_id , sample_master_id, in_stock , storage_datetime    , storage_master_id , storage_coord_x , storage_coord_y , product_code , notes , bc_ttr_prev_storage_id , bc_ttr_date_created ,bc_ttr_slide_stain , bc_ttr_slide_location , bc_ttr_lab_technician , bc_ttr_time_removed_from_formalin, p.created   , p.created_by    , p.modified , p.modified_by FROM atim.aliquot_masters AS p LEFT JOIN atim.ad_tissue_slides ON NULL LIMIT 0);
+ALTER TABLE atim.tmp_slides
+ ADD COLUMN tid int DEFAULT NULL,
+ ADD COLUMN old_sample_id int DEFAULT NULL;
+ 
+INSERT INTO atim.tmp_slides (barcode     , aliquot_type , aliquot_control_id , collection_id , in_stock , storage_datetime    , storage_master_id , storage_coord_x , storage_coord_y , notes , bc_ttr_prev_storage_id , bc_ttr_date_created ,bc_ttr_slide_stain , bc_ttr_slide_location , bc_ttr_lab_technician , bc_ttr_time_removed_from_formalin, created   , created_by    , modified , modified_by, tid, old_sample_id)
+(SELECT  sample_barcode ,'slide',5, collection_id, sample_status, stored_datetime     , box_id , row_id , col_id , slide_notes , previous_box_id , date_slide_created , slide_stain , current_slide_location , lab_tech, time_removed_from_formalin , p.created             , p.created_by    , p.modified , p.modified_by , p.id, parent_sample_id FROM sample_masters AS p INNER JOIN sd_tissueslides AS c ON c.sample_master_id=p.id); 
+UPDATE atim.tmp_slides AS c
+LEFT JOIN atim.storage_masters AS p ON c.storage_master_id=p.box_id
+SET c.storage_master_id=p.id;
+UPDATE atim.tmp_slides AS c
+LEFT JOIN atim.aliquot_masters AS p ON p.tmp_id=c.old_sample_id
+SET c.sample_master_id=p.sample_master_id;
 
-CREATE TABLE atim.tmp_slides(SELECT   aliquot_type , aliquot_control_id , sample_master_id , bc_ttr_slide_stain , bc_ttr_date_created , notes , bc_ttr_slide_location , bc_ttr_lab_technician ,bc_ttr_time_removed_from_formalin, a.created , a.created_by , a.modified , a.modified_by FROM atim.aliquot_masters AS a INNER JOIN atim.ad_tissue_slides LIMIT 0); 
-ALTER TABLE atim.tmp_slides ADD column tid int auto_increment primary key;
-INSERT INTO atim.tmp_slides(aliquot_type , aliquot_control_id , sample_master_id , bc_ttr_slide_stain , bc_ttr_date_created , notes , bc_ttr_slide_location , bc_ttr_lab_technician ,bc_ttr_time_removed_from_formalin, created , created_by , modified , modified_by)
-(SELECT 'slide',5,sample_master_id , slide_stain , date_slide_created , slide_notes , current_slide_location , lab_tech  , time_removed_from_formalin , created , created_by , modified , modified_by FROM sd_tissueslides); 
-INSERT INTO aliquot_masters(aliquot_type , aliquot_control_id , collection_id , sample_master_id , notes, created , created_by , modified , modified_by, tmp_id)
-(SELECT  aliquot_type , aliquot_control_id , (SELECT collection_id FROM sample_masters WHERE id=sample_master_id), (SELECT sample_master_id FROM atim.aliquot_masters WHERE  , notes, created , created_by , modified , modified_by, tid FROM tmp_slides);
-*/
+INSERT INTO atim.aliquot_masters (barcode     , aliquot_type , aliquot_control_id , collection_id , in_stock , storage_datetime    , storage_master_id , storage_coord_x , storage_coord_y , notes , bc_ttr_prev_storage_id, created   , created_by    , modified , modified_by, sample_master_id, tmp_slide_id)
+(SELECT barcode, aliquot_type , aliquot_control_id , collection_id , in_stock , storage_datetime    , storage_master_id , storage_coord_x , storage_coord_y , notes , bc_ttr_prev_storage_id, created   , created_by    , modified , modified_by, sample_master_id, tid FROM atim.tmp_slides); 
+INSERT INTO atim.ad_tissue_slides(aliquot_master_id, bc_ttr_date_created ,bc_ttr_slide_stain , bc_ttr_slide_location , bc_ttr_lab_technician , bc_ttr_time_removed_from_formalin)
+(SELECT p.id, bc_ttr_date_created ,bc_ttr_slide_stain , bc_ttr_slide_location , bc_ttr_lab_technician , bc_ttr_time_removed_from_formalin FROM atim.tmp_slides AS c INNER JOIN atim.aliquot_masters AS p on c.tid=p.tmp_slide_id);
+ALTER TABLE atim.aliquot_uses 
+ ADD COLUMN child_id int default null,
+ ADD INDEX (child_id);
+INSERT INTO atim.aliquot_uses(aliquot_master_id, use_definition, use_recorded_into_table, child_id, use_code)
+(SELECT p.id, "realiquoted to", "realiquotings", c.tid, c.barcode FROM atim.tmp_slides AS c INNER JOIN atim.aliquot_masters AS p ON c.old_sample_id=p.tmp_id);
+INSERT INTO atim.realiquotings(parent_aliquot_master_id, child_aliquot_master_id, aliquot_use_id)
+(SELECT c.aliquot_master_id, p.id, c.id FROM atim.aliquot_uses AS c INNER JOIN atim.aliquot_masters AS p ON c.child_id=p.tmp_slide_id);
+ALTER TABLE atim.aliquot_uses 
+ DROP child_id;
 
 -- TODO: create a rev for aliquots with an old box id
 -- TODO: rebuild lft/rgt for storages. See scripts/utilities/rebuildLeftRight.php
+
+
+
+
+
+
+
+
+
+
+
+
+ALTER TABLE atim.storage_masters
+ ADD UNIQUE KEY `unique_code` (`code`),
+ DROP COLUMN old_id,
+ DROP COLUMN tower_id,
+ DROP COLUMN box_id;
