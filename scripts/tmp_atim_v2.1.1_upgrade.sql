@@ -822,3 +822,8 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('only samples', 'Only Samples', 'Échantillons seulement'),
 ('samples & aliquots', 'Samples & Aliquots', 'Échantillons & Aliquots');
 
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'StructurePermissibleValuesCustom' AND field IN ('en', 'fr'))
+
+
+
+
