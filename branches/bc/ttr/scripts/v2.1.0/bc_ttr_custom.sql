@@ -1,4 +1,9 @@
-
+-- hack for script compatibility
+ALTER TABLE structure_formats
+ ADD flag_addgrid varchar(10),
+ ADD flag_addgrid_readonly varchar(10),
+ ADD flag_editgrid varchar(10),
+ ADD flag_editgrid_readonly varchar(10);
 
 #--------------------------
 #-- Menu Changes --
@@ -838,16 +843,6 @@ UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(18, 41, 51);
 -- Collections 
 #----------------
 
--- collection type
-REPLACE INTO i18n (id, en, fr) VALUES
-("collection type", "Collection type", "Type de collection");
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
-('Inventorymanagement', 'Collection', 'collections', 'bc_ttr_collection_type', 'collection type', '', 'select', '', '',  330 , '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bc_ttr_collection_type'), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '1', '1');
--- TODO: create that field into view_collections
-
-
 -- Hide Bank ID
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
 
@@ -927,7 +922,7 @@ INSERT INTO structure_value_domains (domain_name) VALUES
 
 INSERT INTO structures(`alias`) VALUES ('bc_ttr_be_block');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
-('', 'BcTtrBeBlock', '', 'batch_count', 'batch count', '', 'integer_positive', '', '',  NULL , ''), 
+('Inventorymanagement', 'AliquotMaster', '', 'batch_count', 'batch count', '', 'integer_positive', '', '',  NULL , ''), 
 ('Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'block_type', 'block type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='block_type') , ''), 
 ('Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'bc_ttr_tissue_type', 'tissue type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tissue_type') , ''), 
 ('Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'bc_ttr_tissue_site', 'tissue site', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tissue_site') , ''), 
@@ -948,7 +943,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 ('Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'bc_ttr_tissue_subsite', 'tissue subsite', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tissue_subsite') , '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='bc_ttr_be_block'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBeBlock' AND `tablename`='' AND `field`='batch_count' AND `language_label`='batch count' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='bc_ttr_be_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='' AND `field`='batch_count' AND `language_label`='batch count' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_ttr_be_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='block_type' AND `language_label`='block type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='block_type')  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_ttr_be_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_tissue_type' AND `language_label`='tissue type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tissue_type')  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_ttr_be_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_tissue_site' AND `language_label`='tissue site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_tissue_site')  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
@@ -983,3 +978,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='bc_ttr_be_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='bc_ttr_be_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='bc_ttr_lab_technician' AND `language_label`='lab technician' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+UPDATE structure_formats SET flag_datagrid='1' WHERE flag_addgrid='1' OR flag_editgrid='1';
+UPDATE structure_formats SET flag_datagrid_readonly='1' WHERE flag_addgrid_readonly='1' OR flag_editgrid_readonly='1';
+
+ALTER TABLE structure_formats
+ DROP COLUMN flag_addgrid,
+ DROP COLUMN flag_addgrid_readonly,
+ DROP COLUMN flag_editgrid,
+ DROP COLUMN flag_editgrid_readonly;
