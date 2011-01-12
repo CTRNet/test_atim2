@@ -148,6 +148,48 @@ ALTER TABLE `sd_spe_tissues_revs`
   ADD COLUMN `bc_ttr_collection_pathologist` varchar(30) DEFAULT NULL,
   ADD COLUMN `bc_ttr_after_hour_collection` char(3) DEFAULT NULL;
   
+
+
+#------------------------
+--   Blood Cells
+#------------------------
+
+
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`
+ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `bc_ttr_buffy_coat_lab_tech`
+
+ALTER TABLE  atim.`sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`
+
+-- Drop Constraint in Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+ALTER TABLE  atim.`sample_masters` DROP INDEX  `unique_sample_code`;
+
+
+-- Insert into temporary table  for Blood Cells (Buffy Coat) specimen
+INSERT INTO atim.sample_masters
+(sample_category, sample_control_id, sample_type, initial_specimen_sample_type, collection_id,     bc_ttr_ttrdb_acquisition_label, bc_ttr_buffy_coat_lab_tech )
+SELECT 
+'derivative','7', 'blood cell', 'blood', tcol.id,  
+tcol.acquisition_label, tcol.buffy_coat_lab_tech
+FROM  ttrdb.collections tcol  
+WHERE  
+( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'buffy_coat' ) > 0 ;
+
+
+UPDATE atim.sample_masters
+SET sample_code = CONCAT( 'BLD-C - ' , id)  
+WHERE sample_control_id = 7;
+
+-- Put Constraint back as Unique Sample code in ATIM sample masters - we need to put this constraint back after the following transaction
+CREATE UNIQUE INDEX unique_sample_code ON atim.sample_masters ( sample_code );
+
+
+-- Insert Blood Cell (Buffy Coat) Derivative into sample detail table
+INSERT INTO atim.sd_der_blood_cells (sample_master_id, bc_ttr_buffy_coat_lab_tech )
+SELECT smt.id, smt.bc_ttr_buffy_coat_lab_tech
+FROM atim.sample_masters smt
+WHERE smt.sample_code LIKE '%BLD-C%'
+  
+ 
 ALTER TABLE ad_blocks
  ADD COLUMN bc_ttr_tissue_site VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN bc_ttr_tissue_type VARCHAR(50) NOT NULL DEFAULT '',
@@ -196,3 +238,4 @@ ALTER TABLE ad_tissue_slides_revs
  ADD COLUMN bc_ttr_lab_technician VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN bc_ttr_time_removed_from_formalin TIME DEFAULT NULL;
  
+  
