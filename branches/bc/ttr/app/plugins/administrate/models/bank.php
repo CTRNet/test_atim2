@@ -8,13 +8,10 @@ class Bank extends AdministrateAppModel {
 			$result = $this->find('first', array('conditions'=>array('Bank.id'=>$variables['Bank.id'])));
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, $result['Bank']['name']),
-					'title'			=>	array( NULL, $result['Bank']['name']),
-					'description'	=>	array(
-						__('description', TRUE)		=>	__($result['Bank']['description'], TRUE)
-					)
-				)
+				'menu'			=>	array( NULL, $result['Bank']['name'] ),
+				'title'			=>	array( NULL, $result['Bank']['name'] ),
+				'data'			=> $result,
+				'structure alias'=>'banks'
 			);
 		}
 		return $return;
@@ -36,8 +33,7 @@ class Bank extends AdministrateAppModel {
 	}
 	
 	function isBeingUsed($bank_id){
-		App::import("Model", "Administrate.Group");
-		$this->Group = new Group();
+		$this->Group = AppModel::atimNew("Administrate", "Group", true);
 		$data = $this->Group->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
 		return !empty($data);
 	}

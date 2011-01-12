@@ -13,15 +13,10 @@ class Drug extends DrugAppModel {
 			$result = $this->find('first', array('conditions'=>array('Drug.id'=>$variables['Drug.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['Drug']['generic_name']),
-					'title'			=>	array( NULL, $result['Drug']['generic_name']),
-					
-					'description'	=>	array(
-						__('type', true)		=>	__($result['Drug']['type'], true),
-						__('description', true)   =>  $result['Drug']['description']
-					)
-				)
+				'menu'			=>	array( NULL, $result['Drug']['generic_name']),
+				'title'			=>	array( NULL, $result['Drug']['generic_name']),
+				'data'			=> $result,
+				'structure alias'=>'drugs'
 			);
 		}
 		

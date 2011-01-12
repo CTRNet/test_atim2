@@ -1,10 +1,21 @@
 var orgAction = null;
-function initBrowser(){
+var removeConfirmed = false;
+
+function initDatamartActions(){
+	if(!window.errorYouMustSelectAnAction){
+		window.errorYouMustSelectAnAction = "js untranslated errorYouMustSelectAnAction";	
+	}
+	if(!window.errorYouNeedToSelectAtLeastOneItem){
+		window.errorYouNeedToSelectAtLeastOneItem = "js untranslated errorYouNeedToSelectAtLeastOneItem";	
+	}
+
 	orgAction = $("form").attr("action");
 
 	if($("#search_for").length == 1){ 
-		$(".form.submit").click(function(){
-			return validateSubmit();
+		$(".form.submit").unbind('click').attr("onclick", "").click(function(){
+			if(validateSubmit()){
+				$("form").submit();
+			}
 		});
 	}
 
@@ -37,6 +48,16 @@ function initBrowser(){
 		parent.append($("#hierarchy")).append($("#search_for"));
 		getParentElement($("#hierarchy"), "TD").css("width", "100%");
 	}
+	
+	//popup to confirm removal (batchset)
+	$(".button.confirm").click(function(){
+		removeConfirmed = true;
+		$("#popup").popup('close');
+		$("#submit_button").click();
+	});
+	$(".button.close").click(function(){
+		$("#popup").popup('close');
+	});
 }
 
 function validateSubmit(){
@@ -46,6 +67,10 @@ function validateSubmit(){
 	}
 	if($(":checkbox").length > 0 && $(":checkbox[checked=true]").length == 0){
 		errors.push(errorYouNeedToSelectAtLeastOneItem);
+	}else if($("form").attr("action").indexOf("remove") != -1 && !removeConfirmed){
+		//popup do you wish do remove
+		$("#popup").popup();
+		return false;
 	}
 	
 	if(errors.length > 0){

@@ -78,10 +78,10 @@ body {
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 
-div.wrapper {
+div.outerWrapper div.wrapper {
 	clear: both;
 	margin: 0 10px 10px 10px;
-	background: none;
+	background-color: #fff;
 	border: 1px solid #243340;
 	border-color: #243340;
 	border-top: none;
@@ -532,18 +532,12 @@ div.menu.level_0 {
 	line-height: 1.2em;
 	color: #ccf;
 }
-div.menu.level_0 .at span:not(.untranslated) {
+div.menu.level_0 .at span.mainTitle{
 	color: #fff;
 	/* font-weight: bold; */
 	font-size: 14px;
 	text-decoration: none;
 	/* text-transform: uppercase; */
-}
-div.menu.level_0 span.without_summary {
-	display: block;
-	/* margin-top: 6px;
-	margin-bottom: 6px; */
-	margin-bottom: 14px;
 }
 
 /* -=main menu above the large content area */
@@ -854,6 +848,7 @@ span.help {
 			width: 30%;
 			font-weight: bold;
 			color: #000;
+			white-space: nowrap;
 		}
 		div.wrapper table.structure td.content {
 			color: #666;
@@ -1403,6 +1398,8 @@ li.selected    { background-color: #ffb; }
 
 body.flash {
 	background: rgb(72,102,128);
+	background: -webkit-gradient(linear, left top, right top, from(#486880), color-stop(50%, #aaf), to(#486880)); /* for webkit browsers */
+	background: -moz-linear-gradient(left, #486880,  #aaf, #486880); /* for firefox 3.6+ */
 }
 
 body.flash div.wrapper {
@@ -1528,7 +1525,7 @@ div.wrapper table.structure td .databrowser td .info td{
 	/*background-image: url(../img/dataBrowser/node_active.png);*/
 }
 
-.databrowser td.h-line.active {
+.databrowser td.h-line.active, .databrowser tr:nth-child(1) td:nth-child(1){
 	background-image: url(../img/dataBrowser/h-line_active.png);
 }
 
@@ -1809,4 +1806,16 @@ div.extra{
 
 .center{
 	text-align: center;	
+}
+
+span.incompleteMenuTitle{
+	cursor: help;
+}
+
+.red{
+	color: red;	
+}
+
+small{
+	font-size: 65%;
 }

@@ -439,12 +439,75 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Builds the value definition array for an updateAll call
+	 * @param array They data array to build the values with
+	 */
+	static function getUpdateAllValues(array $data){
+		$result = array();
+		foreach($data as $model => $fields){
+			foreach($fields as $name => $value){
+				if(is_array($value)){
+					if(strlen($value['year'])){
+						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
+					}
+				}else if(strlen($value)){
+					$result[$model.".".$name] = "'".$value."'";
+				}
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * @desc cookie manipulation to counter cake problems. see eventum #1032
+	 */
+	static function atimSetCookie(){
+		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
+		}
+		return $session_delay;
+	}
+	
+	/**
+	 * @desc Global function to initialize a batch action. Redirect/flashes on error.
+	 * @param AppModek $model The model to work on
+	 * @param string $data_model_name The model name used in $this->data
+	 * @param string $data_key The data key name used in $this->data
+	 * @param string $control_key_name The name of the control field used in the model table
+	 * @param AppModel $possibilities_model The model to fetch the possibilities from
+	 * @param string $possibilities_parent_key The possibilities parent key to base the search on
+	 * @return An array with the ids and the possibilities
+	 */
+	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		//extract valid ids
+		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
+		$ids = $ids[0][0]['ids'];
+		if(empty($ids)){
+			$this->flash(__("no data!", true), "javascript:history.back();", 5);
+		}
+		
+		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
+		if(count($controls) != 1){
+			$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+		}
+		
+		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name])));
+		if(empty($possibilities)){
+			$this->flash($no_possibilities_msg, "javascript:history.back();", 5);
+		}
+		
+		return array('ids' => $ids, 'possibilities' => $possibilities);
+	}
 }
 
-
-	
 	AppController::init();
-		
+
 	function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null){
 		if(class_exists("CakeLog")){
 			$CakeLog = CakeLog::getInstance();

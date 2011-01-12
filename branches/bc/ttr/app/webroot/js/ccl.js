@@ -8,12 +8,14 @@ function initCcl(){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
 		});
-		$("#popup").popup('close');
+		if(popupLoaded){
+			$("#popup").popup('close');
+		}
 		$("#collection_loading").show();
 		$("#collection_frame").html("");
 		return false;
 	};
-	
+
 	$("#collection_new").attr("checked", true);
 	$("#collection_search").click(function(){
 		$("#collection_search").attr("checked", false);

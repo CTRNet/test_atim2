@@ -7,14 +7,9 @@ ob_start('ob_gzhandler');
 <head>
 
 	<?php
-		//cookie manipulation to counter cake problems. see eventum #1032
-		if(isset($_COOKIE[Configure::read("Session.cookie")])){
-			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100), "/");
-		}
-		
+		$session_delay_sec = AppController::atimSetCookie();
 		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
-		
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
@@ -34,10 +29,11 @@ ob_start('ob_gzhandler');
 		}
 		?>
 		
-		<script type="text/javascript">
+		<script>
 			var root_url = "<?php echo($this->webroot); ?>";
 			var webroot_dir = root_url + "/app/webroot/";
 			var locale = "<?php echo($locale); ?>";
+			var sessionExpiration = (new Date()).getTime() + <?php echo ($session_delay_sec + 1) * 1000; ?>;
 			var STR_OR = "<?php __('or'); ?>";
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
@@ -45,6 +41,10 @@ ob_start('ob_gzhandler');
 			var STR_DELETE_CONFIRM = "<?php __( 'core_are you sure you want to delete this data?') ?>";
 			var STR_YES = "<?php __('yes'); ?>";
 			var STR_NO = "<?php __('no'); ?>";
+			var STR_COPY = "<?php echo(__("copy", null)); ?>";
+			var STR_PASTE = "<?php echo(__("paste")); ?>";
+			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
+						
 		</script>
 	<!--[if IE 7]>
 	<?php
@@ -74,7 +74,7 @@ ob_start('ob_gzhandler');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.4.2.min')."\n";
+	echo $javascript->link('jquery-1.4.4.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";
@@ -82,7 +82,7 @@ ob_start('ob_gzhandler');
 	echo $javascript->link('fg.menu.js')."\n";
 	echo $javascript->link('default')."\n";
 	echo $javascript->link('storage_layout')."\n";
-	echo $javascript->link('browser')."\n";
+	echo $javascript->link('datamart')."\n";
 	echo $javascript->link('copyControl')."\n";
 	echo $javascript->link('ccl')."\n";
 	?>
@@ -92,7 +92,6 @@ ob_start('ob_gzhandler');
 			initJsControls();
 		});
 	</script>
-	
 	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>

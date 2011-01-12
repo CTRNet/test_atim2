@@ -120,11 +120,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 		// do search for RESULTS, using THIS->DATA if any
 		
 			// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
-			
-			$model_to_import = ( $adhoc['Adhoc']['plugin']? $adhoc['Adhoc']['plugin'].'.' : '' ).$adhoc['Adhoc']['model'];
-			App::import('Model',$model_to_import);
-			
-			$this->ModelToSearch = new $adhoc['Adhoc']['model'];
+			$this->ModelToSearch = AppModel::atimNew($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 				
 			// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
 			$criteria = array();

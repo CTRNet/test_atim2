@@ -2,9 +2,7 @@
 
 class SampleMastersController extends InventorymanagementAppController {
 
-	var $components = array(
-		'Inventorymanagement.Samples', 
-		'Inventorymanagement.Aliquots');
+	var $components = array();
 
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -72,30 +70,40 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function contentTreeView($collection_id, $studied_specimen_sample_control_id = null) {
+	function contentTreeView($collection_id, $filter_option = null) {
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_inv_funct_param_missing', null, true); 
 		}
-
+		
+		$display_aliquots = true;
+		$studied_specimen_sample_control_id = null;
+		
 		// MANAGE DATA
 
-		// Set filter
-		if(!$studied_specimen_sample_control_id) {
+		// Manage filter data
+		if(is_null($filter_option)) {
 			if(isset($_SESSION['InventoryManagement']['treeView']['Filter'])) {
-				$studied_specimen_sample_control_id = $_SESSION['InventoryManagement']['treeView']['Filter'];
+				$filter_option = $_SESSION['InventoryManagement']['treeView']['Filter'];
 			}
 		} else {
-			if($studied_specimen_sample_control_id == '-1') {
+			if($filter_option == '-1') {
 				// User unactived filter
-				$studied_specimen_sample_control_id = null;
+				$filter_option = null;
 				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 			} else {
-				$_SESSION['InventoryManagement']['treeView']['Filter'] = $studied_specimen_sample_control_id;
+				$_SESSION['InventoryManagement']['treeView']['Filter'] = $filter_option;
 			}
 		}
-		
+		if(!is_null($filter_option)) {	
+			$option_for_tree_view = explode("|", $filter_option);			
+			if(sizeof($option_for_tree_view) != 2)  { $this->redirect('/pages/err_inv_system_error', null, true); }
+			
+			$display_aliquots = $option_for_tree_view[0];
+			$studied_specimen_sample_control_id = empty($option_for_tree_view[1])? null : $option_for_tree_view[1];
+		}
+					
 		// Get formatted collection samples data to display
-		$this->data = $this->Samples->buildCollectionContentForTreeView($collection_id, $studied_specimen_sample_control_id);
+		$this->data = $this->SampleMaster->buildCollectionContentForTreeView($collection_id, $display_aliquots, $studied_specimen_sample_control_id);
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
 		$atim_structure = array();
@@ -117,17 +125,22 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		$this->set('specimen_type_list', $specimen_type_list);
 
+		// Set filter value to build filter button
+		$this->set('display_aliquots_filter_value', $display_aliquots);
+		$this->set('studied_specimen_sample_control_id_filter_value', $studied_specimen_sample_control_id);
+		
 		// Set filter value
-		$filter_value = 'no filter';
+		$filter_value = '';
 		if($studied_specimen_sample_control_id) {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
 				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
 				$this->redirect('/pages/err_inv_system_error', null, true); 
 			}
-			$filter_value = $sample_control_data['SampleControl']['sample_type'];
+			$filter_value = __($sample_control_data['SampleControl']['sample_type'], true);
 		}
-		$this->set('filter_value', $filter_value);
+		if(!$display_aliquots) $filter_value .= (empty($filter_value)? '' : ' - ') . __('no aliquot displayed', true);
+		$this->set('filter_value', (empty($filter_value)? 'no filter' : $filter_value));
 		
 		// Get the current menu object. 
 		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%');
@@ -403,7 +416,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 		
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);	
 	
 		// Calulate spent time between:
@@ -496,7 +509,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		// Set parent data
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);
 		
 		// Set new sample control information
@@ -653,7 +666,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
 
-		$this->SampleMaster->setParentSampleDropdown($this->formatParentSampleDataForDisplay($parent_sample_data));
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -725,7 +738,7 @@ class SampleMastersController extends InventorymanagementAppController {
 							foreach($source_aliquots as $source_data) {
 								$use_ids[] = $source_data['SourceAliquot']['aliquot_use_id'];
 							}
-							if(!$this->Aliquots->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+							if(!$this->AliquotUse->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 						}
 					}
 
@@ -872,6 +885,88 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		return $formatted_data;
+	}
+	
+	function batchDerivativeInit(){
+		$init_data = $this->batchInit(
+			$this->SampleMaster, 
+			"ViewSample", 
+			"sample_master_id", 
+			"sample_control_id", 
+			$this->ParentToDerivativeSampleControl, 
+			"parent_sample_control_id",
+			__("you cannot create derivatives for this sample type", true));
+		
+		foreach($init_data['possibilities'] as $possibility){
+			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
+		}
+		
+		$this->Structures->set('derivative_init');
+		$this->set('ids', $init_data['ids']);
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+	}
+	
+	function batchDerivative(){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		if(!isset($this->data['SampleMaster']['sample_control_id']) || $this->data['SampleMaster']['sample_control_id'] == ''){
+			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
+		}
+		$control = $this->SampleControl->findById($this->data['SampleMaster']['sample_control_id']);
+		$this->Structures->set($control['SampleControl']['form_alias']);
+		$this->set('control', $control);
+		if(isset($this->data['SampleMaster']['ids'])){
+			//first access
+			$samples = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.id' => explode(",", $this->data['SampleMaster']['ids'])), 'recursive' => -1));
+			$this->data = array();
+			foreach($samples as $sample){
+				$this->data[] = array('parent' => $sample, 'children' => array());
+			}
+		}else{
+			//save/post access
+			$control_id = $control['SampleControl']['id'];
+			$control_type = $control['SampleControl']['sample_type'];
+			$errors = array();
+			unset($this->data['SampleMaster']);
+			$prev_data = $this->data;
+			$this->data = array();
+			foreach($prev_data as $parent_id => &$children){
+				$parent = $this->SampleMaster->findById($parent_id);
+				foreach($children as &$child){
+					$child['SampleMaster']['sample_control_id'] = $control_id;
+					$child['SampleMaster']['collection_id'] = $parent['SampleMaster']['collection_id'];
+					$child['SampleMaster']['initial_specimen_sample_id'] = $parent['SampleMaster']['initial_specimen_sample_id'];
+					$child['SampleMaster']['initial_specimen_sample_type'] = $parent['SampleMaster']['initial_specimen_sample_type'];
+					$this->SampleMaster->set($child);
+					if(!$this->SampleMaster->validates()){
+						$errors = array_merge($errors, $this->SampleMaster->validationErrors);
+					}
+				}
+				$this->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
+			}
+			if(empty($errors)){
+				//save
+				$_SESSION['tmp_batch_set']['BatchId'] = array();
+				foreach($prev_data as $parent_id => &$children){
+					foreach($children as &$child){
+						$this->SampleMaster->id = null;
+						$this->SampleMaster->set($child);
+						$this->SampleMaster->save();
+						$_SESSION['tmp_batch_set']['BatchId'][] = $this->SampleMaster->id; 
+						$child['SampleMaster']['sample_code'] = $this->createSampleCode($this->SampleMaster->id, $child, $control);
+						$this->SampleMaster->set($child);
+						$this->SampleMaster->save();
+					}
+				}
+				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
+				$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+			}else{
+				$this->SampleMaster->validationErrors = $errors;
+			}
+		}
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 	}
 }
 	

@@ -2,7 +2,7 @@
 
 class QualityCtrlsController extends InventoryManagementAppController {
 	
-	var $components = array('Inventorymanagement.Aliquots');
+	var $components = array();
 	
 	var $uses = array(
 		'Inventorymanagement.Collection',
@@ -184,7 +184,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->QualityCtrl->id = $quality_ctrl_id;	
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				//TODO Add test to verifiy date and created_by have been modified before to launch update function
-				if(!$this->Aliquots->updateAliquotUses($aliquot_use_ids, $this->data['QualityCtrl']['date'], $this->data['QualityCtrl']['run_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+				if(!$this->AliquotUse->updateAliquotUses($aliquot_use_ids, $this->data['QualityCtrl']['date'], $this->data['QualityCtrl']['run_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
 				$this->atimFlash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
@@ -352,7 +352,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					// set aliquot master data					
 					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] = 'no')) {
 						// Delete aliquot storage data
-						$new_used_aliquot['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($new_used_aliquot['AliquotMaster']);
+						$new_used_aliquot['AliquotMaster']['storage_master_id'] = null;
+						$new_used_aliquot['AliquotMaster']['storage_coord_x'] = null;
+						$new_used_aliquot['AliquotMaster']['storage_coord_y'] = null;	
 					}
 									
 					// Set aliquot use data
@@ -380,7 +382,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					if(!$this->QualityCtrlTestedAliquot->save($qc_aliquot_data)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 
 					// - Update aliquot current volume
-					if(!$this->Aliquots->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					if(!$this->AliquotMaster->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 

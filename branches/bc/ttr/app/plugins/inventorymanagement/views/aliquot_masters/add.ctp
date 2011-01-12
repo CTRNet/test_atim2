@@ -7,9 +7,10 @@
 	);
 	
 	$structure_override = $override_data;
-
+	$dropdown_options = array();
+	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'addgrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
+	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options, 'type' => 'addgrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

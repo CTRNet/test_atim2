@@ -182,12 +182,14 @@ function uncheckAll( $div ) {
 			var dayField = null;
 			var date = null;
 			for(var i = 0; i < dateFields.length; i ++){
+				var tmpStr = $(dateFields[i]).attr("name");
+				var tmpLen = tmpStr.length;
 				if(dateFields[i].nodeName != "SPAN"){
-					if($(dateFields[i]).attr("name").substr(-7) == "][year]"){
+					if(tmpStr.substr(tmpLen - 7) == "][year]"){
 						yearField = dateFields[i];
-					}else if($(dateFields[i]).attr("name").substr(-8) == "][month]"){
+					}else if(tmpStr.substr(tmpLen - 8) == "][month]"){
 						monthField = dateFields[i];
-					}else if($(dateFields[i]).attr("name").substr(-6) == "][day]"){
+					}else if(tmpStr.substr(tmpLen - 6) == "][day]"){
 						dayField = dateFields[i];
 					}
 				}
@@ -480,10 +482,12 @@ function uncheckAll( $div ) {
 			});
 		}
 	}
-	
 	//tool_popup
 	function initToolPopup(scope){
 		$(scope).find(".tool_popup").click(function(){
+//			if((new Date).getTime() > sessionExpiration){
+//				document.location = "";
+//			}
 			var parent_elem = $(this).parent().children();
 			toolTarget = null;
 			for(i = 0; i < parent_elem.length; i ++){
@@ -510,19 +514,22 @@ function uncheckAll( $div ) {
 	function initAddLine(scope){
 		$(scope).find(".addLineLink").each(function(){
 			//get the table row
-			var tableBody = $(getParentElement(this, "TABLE")).find("tbody");
+			var table = $(getParentElement(this, "TABLE"));
+			var tableBody = $(table).find("tbody");
 			var lastLine = $(tableBody).find("tr:last");
 			var templateLineHtml = lastLine.html();
 			$(lastLine).remove();
 			var lineIncrement = $(tableBody).find("tr").length;
 			$(this).click(function(){
-				var counter = $(scope).find(".addLineCount").length == 1 ? $(scope).find(".addLineCount").val() : 1;
+				var counter = $(table).find(".addLineCount").length == 1 ? $(table).find(".addLineCount").val() : 1;
 				while(counter > 0){
-					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/name="data\[%d\]\[/g, 'name="data[' + lineIncrement ++ + '][') + "</tr>");
+					$(tableBody).append("<tr class='newLine'>" + templateLineHtml.replace(/\[%d\]\[/g, '[' + lineIncrement ++ + '][') + "</tr>");
 					counter --;
 				}
 				var newLines = $(tableBody).find("tr.newLine");
 				initRemoveLine(newLines);
+				initAutocomplete(newLines);
+				initToolPopup(newLines);
 				if(typeof(copyControl) != 'undefined'){
 					bindCopyCtrl(newLines);
 				}
@@ -543,8 +550,8 @@ function uncheckAll( $div ) {
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
 		}
-		if(typeof(browser) != 'undefined'){
-			initBrowser();
+		if(typeof(datamartActions) != 'undefined'){
+			initDatamartActions();
 		}
 		if(typeof(copyControl) != 'undefined'){
 			initCopyControl();
@@ -561,8 +568,13 @@ function uncheckAll( $div ) {
 		if(typeof(batchSetControls) != 'undefined'){
 			initBatchSetControls();
 		}
-		if(typeof(pathReviewEditRemoveLastLine) != 'undefined'){
-			var elem = $(getParentElement($(".addLineCount"), "TABLE")).find("tbody tr:last").remove();
+		if(typeof(realiquotInit) != 'undefined'){
+			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
+				if($("select").val().length > 0){
+					$("form").submit();
+				}
+				return false;
+			});
 		}
 		
 		initDeleteConfirm();
@@ -615,6 +627,16 @@ function uncheckAll( $div ) {
 		
 		initAddLine(document);
 		initRemoveLine(document);
+		
+		$(document).ajaxError(function(event, xhr, settings, exception){
+			if(xhr.status == 403){
+				//access denied, most likely a session timeout
+				document.location = "";
+			}
+		});
+		
+		//focus on first field
+		$("input, select, textarea").first().focus();
 	}
 
 	function debug(str){

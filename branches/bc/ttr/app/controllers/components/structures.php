@@ -20,16 +20,27 @@ class StructuresComponent extends Object {
 			$alias = explode(",", $alias);			
 		}
 		$structure = array('Structure' => array(), 'Sfs' => array());
+		$all_structures = array();
 		foreach($alias as $alias_unit){
-			$tmp = $this->getSingleStructure($alias_unit);
-			foreach ($tmp['rules'] as $model => $rules){
-				$this->controller->{ $model }->validate = $rules;
+			$struct_unit = $this->getSingleStructure($alias_unit);
+			$all_structures[] = $struct_unit;
+			foreach ($struct_unit['rules'] as $model => $rules){
+				//reset validate for newly loaded structure models
+				$this->controller->{ $model }->validate = array();
 			}
-			if(isset($tmp['structure']['Sfs'])){
-				$structure['Sfs'] = array_merge($tmp['structure']['Sfs'], $structure['Sfs']);
-				$structure['Structure'][] = $tmp['structure']['Structure'];
+			if(isset($struct_unit['structure']['Sfs'])){
+				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
+				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 			}
 		}
+		
+		//rules are formatted, apply them
+		foreach($all_structures as $struct_unit){
+			foreach ($struct_unit['rules'] as $model => $rules){
+				$this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+			}
+		}
+		
 		if(count($alias) > 1){
 			self::sortStructure($structure);
 		}else if(count($structure['Structure']) == 1){
@@ -51,7 +62,7 @@ class StructuresComponent extends Object {
 			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
 		}
 		if(count($alias) > 1){
-			self::sortStructure($result['structure']['Sfs']);
+			self::sortStructure($result['structure']);
 		}else if(count($result['structure']['Structure']) == 1){
 			$result['structure']['Structure'] = $result['structure']['Structure'][0];
 		}
@@ -117,8 +128,7 @@ class StructuresComponent extends Object {
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['structure']['Sfs'] as $sfs){
 					if(strpos($sfs['setting'], $trigger) !== false){
-						App::import("Model", "codingicd.".$key);
-						new $key;//instantiate it
+						$key = AppModel::atimNew('codingicd', $key, true);
 						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
@@ -252,10 +262,8 @@ class StructuresComponent extends Object {
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
 							if (is_array($data)){
-								App::import('Model', $form_fields[$form_fields_key]['plugin'].'.'.$model);
-								// App::import('Model', 'Clinicalannotation.'.$model);
 								
-								$format_data_model = new $model;
+								$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
 								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 								if(is_array($data)){
 									$data = array_unique($data);
@@ -460,16 +468,8 @@ class StructuresComponent extends Object {
 				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
 			}
 
-			// load MODEL, and override with CUSTOM model if it exists...
-			$pulldown_model_object = new $pulldown_model;
-				
-			// check for CUSTOM models, and use that if exists
-			$custom_pulldown_plugin = $pulldown_plugin;
-			$custom_pulldown_model = $pulldown_model.'Custom';
-				
-			if ( App::import('Model',$custom_pulldown_object) ) {
-				$pulldown_model_object = new $custom_pulldown_model;
-			}
+			// load MODEL
+			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
 
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);

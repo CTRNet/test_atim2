@@ -8,7 +8,7 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		),
 	);
 	
-	var $hasOne = array(
+	var $hasMany = array(
 		'ClinicalCollectionLink' => array(
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'diagnosis_master_id'));
