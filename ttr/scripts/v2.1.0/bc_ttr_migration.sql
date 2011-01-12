@@ -15,7 +15,7 @@ INSERT INTO atim.std_freezers(storage_master_id, created_by, modified, modified_
 -- TODO: you have towers without a proper freezer. Run SELECT id FROM towers WHERE storage_id NOT IN(SELECT id FROM storages);
 INSERT INTO `atim`.`storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES
 (NULL, 'tower', 'T', NULL, NULL, NULL, NULL, NULL, NULL, '0', '0', '0', '0', '1', NULL, NULL, '1', 'std_undetail_stg_with_surr_tmp', 'std_towers', 'tower');
-CREATE TABLE atim.std_towers (SELECT * FROM std_shelfs LIMIT 1);
+CREATE TABLE atim.std_towers (SELECT * FROM atim.std_shelfs LIMIT 1);
 ALTER TABLE atim.std_towers
  MODIFY id int NOT NULL AUTO_INCREMENT PRIMARY KEY;
 INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, set_temperature, temp_unit, parent_id, tower_id, created, created_by, modified, modified_by)
