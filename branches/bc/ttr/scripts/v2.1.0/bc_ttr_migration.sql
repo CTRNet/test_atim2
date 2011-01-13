@@ -1,4 +1,5 @@
 -- Storages
+UPDATE atim.storage_controls SET flag_active=false WHERE id!=6;
 -- TODO: Complete with details
 ALTER TABLE atim.storage_masters
  DROP INDEX unique_code,
@@ -28,15 +29,14 @@ INSERT INTO atim.std_towers(storage_master_id, created_by, modified, modified_by
 -- Boxes
 INSERT INTO `atim`.`storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES 
 (NULL, 'box 1,1-9,9', 'B1199', 'column', 'integer', '9', 'row', 'integer', '9', '0', '0', '0', '0', '1', NULL, NULL, '1', 'std_undetail_stg_with_surr_tmp', 'std_boxs', 'box 1,1-9,9');
-INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, set_temperature, temp_unit, parent_id, box_id, created, created_by, modified, modified_by)
-(SELECT NULL, 22, 'box', false, 'celsius', p.id, c.id, c.created, c.created_by, c.modified, c.modified_by 
+INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, set_temperature, temp_unit, parent_id, box_id, created, created_by, modified, modified_by, selection_label)
+(SELECT NULL, 22, 'box', false, 'celsius', p.id, c.id, c.created, c.created_by, c.modified, c.modified_by, description 
 FROM boxes AS c
 LEFT JOIN atim.storage_masters AS p ON c.tower_id=p.tower_id);
 UPDATE atim.storage_masters AS c 
  LEFT JOIN atim.storage_masters AS p ON c.parent_id=p.id
  SET c.code=CONCAT('B1199 - ', c.id), c.temperature=p.temperature WHERE c.box_id IS NOT NULL;
 INSERT INTO atim.std_boxs(storage_master_id, created_by, modified, modified_by) (SELECT id, created_by, modified, modified_by FROM atim.storage_masters WHERE box_id IS NOT NULL);
-
 
 -- ATIM Participants
 INSERT INTO atim.participants (id, title, first_name, middle_name, last_name, date_of_birth, sex, bc_ttr_phn, notes,  created, created_by, modified, modified_by)
@@ -262,8 +262,9 @@ ALTER TABLE atim.aliquot_uses
  DROP child_id;
 
 -- TODO: create a rev for aliquots with an old box id
--- TODO: rebuild lft/rgt for storages. See scripts/utilities/rebuildLeftRight.php
 
+-- TODO: rebuild lft/rgt for storages. See scripts/utilities/rebuildLeftRight.php
+-- TODO: populate revs tables
 
 
 
