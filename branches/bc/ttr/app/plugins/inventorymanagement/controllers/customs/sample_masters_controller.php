@@ -12,11 +12,6 @@ class SampleMastersControllerCustom extends SampleMastersController{
 			}
 				
 			// Set parent data
-			$dropdown = array();
-			foreach($this->SampleControl->find('all') as $ctrl_unit){
-				$dropdown[$ctrl_unit['SampleControl']['id']] = __($ctrl_unit['SampleControl']['sample_type'], true);
-			}
-			$this->SampleMaster->setParentSampleDropdown($dropdown);
 			$this->set('parent_sample_master_id', null);
 
 			// Set new sample control information
