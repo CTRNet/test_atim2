@@ -73,8 +73,13 @@ class PreferencesController extends CustomizeAppController {
 			
 			$this->User->set($this->data);
 			$this->Config->set($this->data);
-			if($this->User->validates() && $this->Config->validates() && $this->User->save($this->data) && $this->Config->save($this->data)){
-				$this->atimFlash('your data has been updated','/customize/preferences/index');
+			
+			if($this->User->validates() && $this->Config->validates()) {
+				if($this->User->save($this->data, false) && $this->Config->save($this->data, false)){
+					$this->atimFlash('your data has been updated','/customize/preferences/index');
+				} else {
+					$this->redirect( '/pages/err_cust_system_error', NULL, TRUE ); 
+				}
 			}
 			
 		}else{
