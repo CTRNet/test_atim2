@@ -822,6 +822,16 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('only samples', 'Only Samples', 'Échantillons seulement'),
 ('samples & aliquots', 'Samples & Aliquots', 'Échantillons & Aliquots');
 
+DELETE FROM structure_permissible_values_customs WHERE value LIKE 'custom_laboratory_staff_%';
+DELETE FROM structure_permissible_values_customs WHERE value LIKE 'custom_laboratory_site_%';
+DELETE FROM structure_permissible_values_customs WHERE value LIKE 'collection_site_%';
+DELETE FROM structure_permissible_values_customs WHERE value LIKE 'custom_supplier_dept_%';
+
+DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'custom_laboratory_staff_%';
+DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'custom_laboratory_site_%';
+DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'collection_site_%';
+DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'custom_supplier_dept_%';
+
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'StructurePermissibleValuesCustom' AND field IN ('en', 'fr'))
 
 

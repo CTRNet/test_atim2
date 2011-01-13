@@ -404,7 +404,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->AliquotMaster->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
-						$this->AliquotMaster->validationErrors[$field][] = __($msg, true) . ' ' . str_replace('%s', implode(",", $lines), __('see line %s',true));					
+						$this->AliquotMaster->validationErrors[$field][] = __($msg, true) . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s',true));					
 					}
 				}
 			}	
@@ -979,7 +979,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						foreach($messages as $message => $lines) {
 							pr($model);
 							pr($field);
-							$this->{$model}->validationErrors[$field][] = __($message, true) . ' ' . str_replace('%s', implode(",", $lines), __('see line %s',true));
+							$this->{$model}->validationErrors[$field][] = __($message, true) . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s',true));
 						}
 					}
 				}
