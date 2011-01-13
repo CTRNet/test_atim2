@@ -832,8 +832,9 @@ DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'custom_l
 DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'collection_site_%';
 DELETE FROM structure_permissible_values_customs_revs WHERE value LIKE 'custom_supplier_dept_%';
 
-DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'StructurePermissibleValuesCustom' AND field IN ('en', 'fr'))
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model = 'StructurePermissibleValuesCustom' AND field IN ('en', 'fr'));
 
-
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_cust_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 
