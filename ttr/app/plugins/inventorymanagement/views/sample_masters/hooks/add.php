@@ -8,7 +8,7 @@ if(isset($collections)){
 			'actions' 		=> false,
 			'form_bottom'	=> false),
 		'override'	=> array(
-			'Collection.bc_ttr_collection_type'	=> __($sample_control_data['SampleControl']['id'], true))));
+			'Collection.bc_ttr_collection_type'	=> __($sample_control_data['SampleControl']['sample_type'], true))));
 	
 	$final_options['settings']['form_top'] = false;
 }
