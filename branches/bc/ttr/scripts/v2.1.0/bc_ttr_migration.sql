@@ -115,6 +115,39 @@ FROM atim.sample_masters sm, collections col
 WHERE sm.collection_id = col.id 
 and col.collection_type = 'tissue';
 
+
+
+-- UPDATE sample_master sample_type for tissue and blood
+
+update sample_masters
+set sample_type = 'blood'
+where sample_code LIKE '%B -%'
+and sample_control_id = 2;
+
+update sample_masters
+set sample_type = 'tissue'
+where sample_code LIKE '%T -%'
+and sample_control_id = 3;
+
+
+-- update parent id of blood cell
+update sample_masters sm1 , sample_masters sm2
+set sm2.parent_id = sm1.id
+where sm2.collection_id = sm1.collection_id
+and sm1.sample_control_id = 2
+and sm2.sample_control_id = 7
+
+-- update parent id of plasma
+update sample_masters sm1 , sample_masters sm2
+set sm2.parent_id = sm1.id
+where sm2.collection_id = sm1.collection_id
+and sm1.sample_control_id = 2
+and sm2.sample_control_id = 9
+
+
+
+
+
 #-------------
 -- Blood Cells
 #-------------
