@@ -359,27 +359,27 @@ INSERT INTO `aliquot_masters_revs` (`id`, `barcode`, `aliquot_type`, `aliquot_co
 --
 
 INSERT INTO `aliquot_uses` (`id`, `aliquot_master_id`, `use_definition`, `use_code`, `use_details`, `use_recorded_into_table`, `used_volume`, `use_datetime`, `used_by`, `study_summary_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '1.00000', '2003-04-23 13:35:00', 'custom_laboratory_staff_1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:05:01', 1, 0, NULL),
+(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '1.00000', '2003-04-23 13:35:00', 'laboratory staff 1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:05:01', 1, 0, NULL),
 (2, 3, 'realiquoted to', 'b1_wp1', '', 'realiquotings', '3.40000', '2003-04-23 13:35:00', '', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 0, NULL),
 (3, 1, 'sample derivative creation', 'PBMC - 2', '', 'source_aliquots', '5.00000', '2003-04-23 17:18:00', '', NULL, '2010-05-28 16:19:41', 1, '2010-05-28 16:19:41', 1, 0, NULL),
-(4, 10, 'aliquot shipment', 'UPS98409', '', 'order_items', NULL, '2010-05-31 13:04:00', 'custom_laboratory_staff_2', NULL, '2010-05-28 16:33:47', 1, '2010-05-28 16:33:47', 1, 0, NULL),
-(5, 25, 'realiquoted to', '442332', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'custom_laboratory_staff_2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
-(6, 25, 'realiquoted to', '442332e', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'custom_laboratory_staff_2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
-(7, 28, 'quality control', 'QC - 1', '#1245', 'quality_ctrl_tested_aliquots', '11.00000', '2009-11-04 00:00:00', 'custom_laboratory_staff_etc', NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 0, NULL);
+(4, 10, 'aliquot shipment', 'UPS98409', '', 'order_items', NULL, '2010-05-31 13:04:00', 'laboratory staff 2', NULL, '2010-05-28 16:33:47', 1, '2010-05-28 16:33:47', 1, 0, NULL),
+(5, 25, 'realiquoted to', '442332', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
+(6, 25, 'realiquoted to', '442332e', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
+(7, 28, 'quality control', 'QC - 1', '#1245', 'quality_ctrl_tested_aliquots', '11.00000', '2009-11-04 00:00:00', 'laboratory staff etc', NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 0, NULL);
 
 --
 -- Dumping data for table `aliquot_uses_revs`
 --
 
 INSERT INTO `aliquot_uses_revs` (`id`, `aliquot_master_id`, `use_definition`, `use_code`, `use_details`, `use_recorded_into_table`, `used_volume`, `use_datetime`, `used_by`, `study_summary_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '2.00000', '2003-04-23 13:35:00', 'custom_laboratory_staff_1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 1, '2010-05-28 16:04:30', 0, NULL),
+(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '2.00000', '2003-04-23 13:35:00', 'laboratory staff 1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 1, '2010-05-28 16:04:30', 0, NULL),
 (2, 3, 'realiquoted to', 'b1_wp1', '', 'realiquotings', '3.40000', '2003-04-23 13:35:00', '', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 2, '2010-05-28 16:04:30', 0, NULL),
-(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '1.00000', '2003-04-23 13:35:00', 'custom_laboratory_staff_1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:05:01', 1, 3, '2010-05-28 16:05:01', 0, NULL),
+(1, 3, 'realiquoted to', 'b1_tb2', '', 'realiquotings', '1.00000', '2003-04-23 13:35:00', 'laboratory staff 1', NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:05:01', 1, 3, '2010-05-28 16:05:01', 0, NULL),
 (3, 1, 'sample derivative creation', 'PBMC - 2', '', 'source_aliquots', '5.00000', '2003-04-23 17:18:00', '', NULL, '2010-05-28 16:19:41', 1, '2010-05-28 16:19:41', 1, 4, '2010-05-28 16:19:42', 0, NULL),
-(4, 10, 'aliquot shipment', 'UPS98409', '', 'order_items', NULL, '2010-05-31 13:04:00', 'custom_laboratory_staff_2', NULL, '2010-05-28 16:33:47', 1, '2010-05-28 16:33:47', 1, 5, '2010-05-28 16:33:47', 0, NULL),
-(5, 25, 'realiquoted to', '442332', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'custom_laboratory_staff_2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 6, '2010-09-24 19:27:45', 0, NULL),
-(6, 25, 'realiquoted to', '442332e', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'custom_laboratory_staff_2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 7, '2010-09-24 19:27:45', 0, NULL),
-(7, 28, 'quality control', 'QC - 1', '#1245', 'quality_ctrl_tested_aliquots', '11.00000', '2009-11-04 00:00:00', 'custom_laboratory_staff_etc', NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 8, '2010-09-24 19:28:54', 0, NULL);
+(4, 10, 'aliquot shipment', 'UPS98409', '', 'order_items', NULL, '2010-05-31 13:04:00', 'laboratory staff 2', NULL, '2010-05-28 16:33:47', 1, '2010-05-28 16:33:47', 1, 5, '2010-05-28 16:33:47', 0, NULL),
+(5, 25, 'realiquoted to', '442332', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 6, '2010-09-24 19:27:45', 0, NULL),
+(6, 25, 'realiquoted to', '442332e', '', 'realiquotings', '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 7, '2010-09-24 19:27:45', 0, NULL),
+(7, 28, 'quality control', 'QC - 1', '#1245', 'quality_ctrl_tested_aliquots', '11.00000', '2009-11-04 00:00:00', 'laboratory staff etc', NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 8, '2010-09-24 19:28:54', 0, NULL);
 
 --
 -- Dumping data for table `ar_breast_tissue_slides`
@@ -473,9 +473,9 @@ INSERT INTO `clinical_collection_links_revs` (`id`, `participant_id`, `collectio
 --
 
 INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `collection_datetime_accuracy`, `sop_master_id`, `collection_property`, `collection_notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'OV_9874_20030423', 2, 'collection_site_1', '2003-04-23 09:08:00', '', 1, 'participant collection', '', '2010-05-28 14:35:51', 1, '2010-05-28 14:35:51', 1, 0, NULL),
-(2, 'Coll6798', 2, 'collection_site_2', '1999-09-03 07:12:00', '', NULL, 'participant collection', '', '2010-09-24 19:18:58', 1, '2010-09-24 19:18:58', 1, 0, NULL),
-(3, '80kd', 2, 'collection_site_2', '1995-04-13 00:00:00', '', NULL, 'participant collection', '', '2010-09-24 19:33:26', 1, '2010-09-24 19:33:26', 1, 0, NULL),
+(1, 'OV_9874_20030423', 2, 'collection site 1', '2003-04-23 09:08:00', '', 1, 'participant collection', '', '2010-05-28 14:35:51', 1, '2010-05-28 14:35:51', 1, 0, NULL),
+(2, 'Coll6798', 2, 'collection site 2', '1999-09-03 07:12:00', '', NULL, 'participant collection', '', '2010-09-24 19:18:58', 1, '2010-09-24 19:18:58', 1, 0, NULL),
+(3, '80kd', 2, 'collection site 2', '1995-04-13 00:00:00', '', NULL, 'participant collection', '', '2010-09-24 19:33:26', 1, '2010-09-24 19:33:26', 1, 0, NULL),
 (4, '8894', NULL, '', NULL, '', NULL, 'participant collection', '', '2010-09-24 19:42:43', 1, '2010-09-24 19:42:43', 1, 0, NULL);
 
 --
@@ -483,9 +483,9 @@ INSERT INTO `collections` (`id`, `acquisition_label`, `bank_id`, `collection_sit
 --
 
 INSERT INTO `collections_revs` (`id`, `acquisition_label`, `bank_id`, `collection_site`, `collection_datetime`, `collection_datetime_accuracy`, `sop_master_id`, `collection_property`, `collection_notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 'OV_9874_20030423', 2, 'collection_site_1', '2003-04-23 09:08:00', '', 1, 'participant collection', '', '2010-05-28 14:35:51', 1, '2010-05-28 14:35:51', 1, 1, '2010-05-28 14:35:51', 0, NULL),
-(2, 'Coll6798', 2, 'collection_site_2', '1999-09-03 07:12:00', '', NULL, 'participant collection', '', '2010-09-24 19:18:58', 1, '2010-09-24 19:18:58', 1, 2, '2010-09-24 19:18:58', 0, NULL),
-(3, '80kd', 2, 'collection_site_2', '1995-04-13 00:00:00', '', NULL, 'participant collection', '', '2010-09-24 19:33:26', 1, '2010-09-24 19:33:26', 1, 3, '2010-09-24 19:33:26', 0, NULL),
+(1, 'OV_9874_20030423', 2, 'collection site 1', '2003-04-23 09:08:00', '', 1, 'participant collection', '', '2010-05-28 14:35:51', 1, '2010-05-28 14:35:51', 1, 1, '2010-05-28 14:35:51', 0, NULL),
+(2, 'Coll6798', 2, 'collection site 2', '1999-09-03 07:12:00', '', NULL, 'participant collection', '', '2010-09-24 19:18:58', 1, '2010-09-24 19:18:58', 1, 2, '2010-09-24 19:18:58', 0, NULL),
+(3, '80kd', 2, 'collection site 2', '1995-04-13 00:00:00', '', NULL, 'participant collection', '', '2010-09-24 19:33:26', 1, '2010-09-24 19:33:26', 1, 3, '2010-09-24 19:33:26', 0, NULL),
 (4, '8894', NULL, '', NULL, '', NULL, 'participant collection', '', '2010-09-24 19:42:43', 1, '2010-09-24 19:42:43', 1, 4, '2010-09-24 19:42:43', 0, NULL);
 
 --
@@ -562,8 +562,8 @@ INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral
 INSERT INTO `derivative_details` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 2, '', '', '2003-04-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 0, NULL),
 (2, 3, '', '', '2010-05-04 02:03:00', '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 0, NULL),
-(3, 5, 'custom_laboratory_site_2', 'custom_laboratory_staff_2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 0, NULL),
-(4, 7, 'custom_laboratory_site_1', 'custom_laboratory_staff_2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
+(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 0, NULL),
+(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
 (5, 9, '', '', NULL, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 0, NULL),
 (6, 10, '', '', NULL, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 0, NULL);
 
@@ -575,8 +575,8 @@ INSERT INTO `derivative_details_revs` (`id`, `sample_master_id`, `creation_site`
 (1, 2, '', '', '2003-05-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:14', 1, 1, '2010-05-28 16:18:14', 0, NULL),
 (1, 2, '', '', '2003-04-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 2, '2010-05-28 16:18:56', 0, NULL),
 (2, 3, '', '', '2010-05-04 02:03:00', '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 3, '2010-05-28 16:24:54', 0, NULL),
-(3, 5, 'custom_laboratory_site_2', 'custom_laboratory_staff_2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 4, '2010-09-24 19:22:50', 0, NULL),
-(4, 7, 'custom_laboratory_site_1', 'custom_laboratory_staff_2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 5, '2010-09-24 19:35:16', 0, NULL),
+(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 4, '2010-09-24 19:22:50', 0, NULL),
+(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 5, '2010-09-24 19:35:16', 0, NULL),
 (5, 9, '', '', NULL, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 6, '2010-09-24 19:43:34', 0, NULL),
 (6, 10, '', '', NULL, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 7, '2010-09-24 19:43:47', 0, NULL);
 
@@ -827,19 +827,19 @@ INSERT INTO `orders_revs` (`id`, `order_number`, `short_title`, `description`, `
 --
 
 INSERT INTO `order_items` (`id`, `date_added`, `added_by`, `status`, `created`, `created_by`, `modified`, `modified_by`, `order_line_id`, `shipment_id`, `aliquot_master_id`, `aliquot_use_id`, `deleted`, `deleted_date`) VALUES
-(1, '2010-05-29', 'custom_laboratory_staff_2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 4, 0, NULL),
-(2, '2010-05-29', 'custom_laboratory_staff_2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, NULL, 0, NULL);
+(1, '2010-05-29', 'laboratory staff 2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 4, 0, NULL),
+(2, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, NULL, 0, NULL);
 
 --
 -- Dumping data for table `order_items_revs`
 --
 
 INSERT INTO `order_items_revs` (`id`, `date_added`, `added_by`, `status`, `created`, `created_by`, `modified`, `modified_by`, `order_line_id`, `shipment_id`, `aliquot_master_id`, `aliquot_use_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, '2010-05-29', 'custom_laboratory_staff_2', 'pending', '2010-05-28 16:31:11', 1, '2010-05-28 16:31:11', 1, 1, NULL, 10, NULL, 1, '2010-05-28 16:31:11', 0, NULL),
+(1, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:31:11', 1, '2010-05-28 16:31:11', 1, 1, NULL, 10, NULL, 1, '2010-05-28 16:31:11', 0, NULL),
 (2, NULL, '', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:06', 1, 1, NULL, 11, NULL, 2, '2010-05-28 16:32:06', 0, NULL),
-(1, '2010-05-29', 'custom_laboratory_staff_2', 'pending', '2010-05-28 16:31:11', 1, '2010-05-28 16:32:28', 1, 1, NULL, 10, NULL, 3, '2010-05-28 16:32:28', 0, NULL),
-(2, '2010-05-29', 'custom_laboratory_staff_2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, NULL, 4, '2010-05-28 16:32:28', 0, NULL),
-(1, '2010-05-29', 'custom_laboratory_staff_2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 4, 5, '2010-05-28 16:33:47', 0, NULL);
+(1, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:31:11', 1, '2010-05-28 16:32:28', 1, 1, NULL, 10, NULL, 3, '2010-05-28 16:32:28', 0, NULL),
+(2, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, NULL, 4, '2010-05-28 16:32:28', 0, NULL),
+(1, '2010-05-29', 'laboratory staff 2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 4, 5, '2010-05-28 16:33:47', 0, NULL);
 
 --
 -- Dumping data for table `order_lines`
@@ -968,21 +968,21 @@ INSERT INTO `protocol_masters_revs` (`id`, `protocol_control_id`, `name`, `notes
 --
 
 INSERT INTO `quality_ctrls` (`id`, `qc_code`, `sample_master_id`, `type`, `tool`, `run_id`, `run_by`, `date`, `score`, `unit`, `conclusion`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'QC - 1', 5, 'bioanalyzer', '', '#1245', 'custom_laboratory_staff_etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 0, NULL),
-(2, 'QC - 2', 6, 'bioanalyzer', '', '6885', 'custom_laboratory_staff_2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 0, NULL),
-(3, 'QC - 3', 10, 'spectrophotometer', '', '332e', 'custom_laboratory_staff_2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 0, NULL);
+(1, 'QC - 1', 5, 'bioanalyzer', '', '#1245', 'laboratory staff etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 0, NULL),
+(2, 'QC - 2', 6, 'bioanalyzer', '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 0, NULL),
+(3, 'QC - 3', 10, 'spectrophotometer', '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 0, NULL);
 
 --
 -- Dumping data for table `quality_ctrls_revs`
 --
 
 INSERT INTO `quality_ctrls_revs` (`id`, `qc_code`, `sample_master_id`, `type`, `tool`, `run_id`, `run_by`, `date`, `score`, `unit`, `conclusion`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, NULL, 5, 'bioanalyzer', '', '#1245', 'custom_laboratory_staff_etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 1, '2010-09-24 19:28:34', 0, NULL),
-(1, 'QC - 1', 5, 'bioanalyzer', '', '#1245', 'custom_laboratory_staff_etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 2, '2010-09-24 19:28:34', 0, NULL),
-(2, NULL, 6, 'bioanalyzer', '', '6885', 'custom_laboratory_staff_2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 3, '2010-09-24 19:38:53', 0, NULL),
-(2, 'QC - 2', 6, 'bioanalyzer', '', '6885', 'custom_laboratory_staff_2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 4, '2010-09-24 19:38:53', 0, NULL),
-(3, NULL, 10, 'spectrophotometer', '', '332e', 'custom_laboratory_staff_2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 5, '2010-09-24 19:45:49', 0, NULL),
-(3, 'QC - 3', 10, 'spectrophotometer', '', '332e', 'custom_laboratory_staff_2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 6, '2010-09-24 19:45:49', 0, NULL);
+(1, NULL, 5, 'bioanalyzer', '', '#1245', 'laboratory staff etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 1, '2010-09-24 19:28:34', 0, NULL),
+(1, 'QC - 1', 5, 'bioanalyzer', '', '#1245', 'laboratory staff etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 2, '2010-09-24 19:28:34', 0, NULL),
+(2, NULL, 6, 'bioanalyzer', '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 3, '2010-09-24 19:38:53', 0, NULL),
+(2, 'QC - 2', 6, 'bioanalyzer', '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 4, '2010-09-24 19:38:53', 0, NULL),
+(3, NULL, 10, 'spectrophotometer', '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 5, '2010-09-24 19:45:49', 0, NULL),
+(3, 'QC - 3', 10, 'spectrophotometer', '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 6, '2010-09-24 19:45:49', 0, NULL);
 
 --
 -- Dumping data for table `quality_ctrl_tested_aliquots`
@@ -1474,14 +1474,14 @@ INSERT INTO `sd_spe_tissues_revs` (`id`, `sample_master_id`, `tissue_source`, `t
 --
 
 INSERT INTO `shipments` (`id`, `shipment_code`, `recipient`, `facility`, `delivery_street_address`, `delivery_city`, `delivery_province`, `delivery_postal_code`, `delivery_country`, `shipping_company`, `shipping_account_nbr`, `datetime_shipped`, `datetime_received`, `shipped_by`, `created`, `created_by`, `modified`, `modified_by`, `order_id`, `deleted`, `deleted_date`) VALUES
-(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'custom_laboratory_staff_2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 0, NULL);
+(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 0, NULL);
 
 --
 -- Dumping data for table `shipments_revs`
 --
 
 INSERT INTO `shipments_revs` (`id`, `shipment_code`, `recipient`, `facility`, `delivery_street_address`, `delivery_city`, `delivery_province`, `delivery_postal_code`, `delivery_country`, `shipping_company`, `shipping_account_nbr`, `datetime_shipped`, `datetime_received`, `shipped_by`, `created`, `created_by`, `modified`, `modified_by`, `order_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'custom_laboratory_staff_2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 1, '2010-05-28 16:33:18', 0, NULL);
+(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 1, '2010-05-28 16:33:18', 0, NULL);
 
 --
 -- Dumping data for table `sidebars`
@@ -1565,9 +1565,9 @@ INSERT INTO `source_aliquots_revs` (`id`, `sample_master_id`, `aliquot_master_id
 --
 
 INSERT INTO `specimen_details` (`id`, `sample_master_id`, `supplier_dept`, `reception_by`, `reception_datetime`, `reception_datetime_accuracy`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'custom_supplier_dept_1', 'custom_laboratory_staff_2', '2003-04-23 13:02:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:59:44', 1, 0, NULL),
-(2, 4, 'custom_supplier_dept_2', 'custom_laboratory_staff_1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 0, NULL),
-(3, 6, 'custom_supplier_dept_2', 'custom_laboratory_staff_1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 0, NULL),
+(1, 1, 'supplier dept 1', 'laboratory staff 2', '2003-04-23 13:02:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:59:44', 1, 0, NULL),
+(2, 4, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 0, NULL),
+(3, 6, 'supplier dept 2', 'laboratory staff 1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 0, NULL),
 (4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 0, NULL);
 
 --
@@ -1575,10 +1575,10 @@ INSERT INTO `specimen_details` (`id`, `sample_master_id`, `supplier_dept`, `rece
 --
 
 INSERT INTO `specimen_details_revs` (`id`, `sample_master_id`, `supplier_dept`, `reception_by`, `reception_datetime`, `reception_datetime_accuracy`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'custom_supplier_dept_1', 'custom_laboratory_staff_2', '2003-04-23 13:08:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:58:57', 1, 1, '2010-05-28 15:58:58', 0, NULL),
-(1, 1, 'custom_supplier_dept_1', 'custom_laboratory_staff_2', '2003-04-23 13:02:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:59:44', 1, 2, '2010-05-28 15:59:44', 0, NULL),
-(2, 4, 'custom_supplier_dept_2', 'custom_laboratory_staff_1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 3, '2010-09-24 19:19:33', 0, NULL),
-(3, 6, 'custom_supplier_dept_2', 'custom_laboratory_staff_1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 4, '2010-09-24 19:33:56', 0, NULL),
+(1, 1, 'supplier dept 1', 'laboratory staff 2', '2003-04-23 13:08:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:58:57', 1, 1, '2010-05-28 15:58:58', 0, NULL),
+(1, 1, 'supplier dept 1', 'laboratory staff 2', '2003-04-23 13:02:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:59:44', 1, 2, '2010-05-28 15:59:44', 0, NULL),
+(2, 4, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 3, '2010-09-24 19:19:33', 0, NULL),
+(3, 6, 'supplier dept 2', 'laboratory staff 1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 4, '2010-09-24 19:33:56', 0, NULL),
 (4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:42:56', 1, 5, '2010-09-24 19:42:56', 0, NULL),
 (4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 6, '2010-09-24 19:43:12', 0, NULL);
 
@@ -2083,6 +2083,43 @@ INSERT INTO `tx_masters_revs` (`id`, `tx_control_id`, `tx_method`, `disease_site
 -- Dumping data for table `user_logs`
 --
 
+--
+-- Other
+--
+
+INSERT INTO `structure_permissible_values_customs` (`id`, `control_id`, `value`, `en`, `fr`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 1, 'laboratory staff 1', 'Lab Staff 1', 'Lab Staff 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(2, 1, 'laboratory staff 2', 'Lab Staff 2', 'Lab Staff 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(3, 1, 'laboratory staff etc', 'Lab Staff ...', 'Lab Staff ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+
+(4, 2, 'laboratory site 1', 'Lab Site 1', 'Lab Site 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(5, 2, 'laboratory site 2', 'Lab Site 2', 'Lab Site 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(6, 2, 'laboratory site etc', 'Lab Site ...', 'Lab Site ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+
+(7, 3, 'collection site 1', 'Col Site 1', 'Col Site 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(8, 3, 'collection site 2', 'Col Site 2', 'Col Site 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(9, 3, 'collection site etc', 'Col Site ...', 'Col Site ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+
+(10, 4, 'supplier dept 1', 'Sup Dept 1', 'Sup Dept 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(11, 4, 'supplier dept 2', 'Sup Dept 2', 'Sup Dept 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL),
+(12, 4, 'supplier dept etc', 'Sup Dept ...', 'Sup Dept ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL);
+
+INSERT INTO `structure_permissible_values_customs_revs` (`id`, `control_id`, `value`, `en`, `fr`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+(1, 1, 'laboratory staff 1', 'Lab Staff 1', 'Lab Staff 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 1, '0000-00-00 00:00:00'),
+(2, 1, 'laboratory staff 2', 'Lab Staff 2', 'Lab Staff 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 2, '0000-00-00 00:00:00'),
+(3, 1, 'laboratory staff etc', 'Lab Staff ...', 'Lab Staff ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 3, '0000-00-00 00:00:00'),
+
+(4, 2, 'laboratory site 1', 'Lab Site 1', 'Lab Site 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 4, '0000-00-00 00:00:00'),
+(5, 2, 'laboratory site 2', 'Lab Site 2', 'Lab Site 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 5, '0000-00-00 00:00:00'),
+(6, 2, 'laboratory site etc', 'Lab Site ...', 'Lab Site ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 6, '0000-00-00 00:00:00'),
+
+(7, 3, 'collection site 1', 'Col Site 1', 'Col Site 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 7, '0000-00-00 00:00:00'),
+(8, 3, 'collection site 2', 'Col Site 2', 'Col Site 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 8, '0000-00-00 00:00:00'),
+(9, 3, 'collection site etc', 'Col Site ...', 'Col Site ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 9, '0000-00-00 00:00:00'),
+
+(10, 4, 'supplier dept 1', 'Sup Dept 1', ''Sup Dept 1, '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 10, '0000-00-00 00:00:00'),
+(11, 4, 'supplier dept 2', 'Sup Dept 2', 'Sup Dept 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 11, '0000-00-00 00:00:00'),
+(12, 4, 'supplier dept etc', 'Sup Dept ...', 'Sup Dept ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 12, '0000-00-00 00:00:00');
 
 SET FOREIGN_KEY_CHECKS=1;
 
