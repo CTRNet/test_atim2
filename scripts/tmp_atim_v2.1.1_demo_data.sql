@@ -2117,7 +2117,7 @@ INSERT INTO `structure_permissible_values_customs_revs` (`id`, `control_id`, `va
 (8, 3, 'collection site 2', 'Col Site 2', 'Col Site 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 8, '0000-00-00 00:00:00'),
 (9, 3, 'collection site etc', 'Col Site ...', 'Col Site ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 9, '0000-00-00 00:00:00'),
 
-(10, 4, 'supplier dept 1', 'Sup Dept 1', ''Sup Dept 1, '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 10, '0000-00-00 00:00:00'),
+(10, 4, 'supplier dept 1', 'Sup Dept 1', 'Sup Dept 1', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 10, '0000-00-00 00:00:00'),
 (11, 4, 'supplier dept 2', 'Sup Dept 2', 'Sup Dept 2', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 11, '0000-00-00 00:00:00'),
 (12, 4, 'supplier dept etc', 'Sup Dept ...', 'Sup Dept ...', '0000-00-00 00:00:00', 0, NULL, 0, 0, NULL, 12, '0000-00-00 00:00:00');
 
