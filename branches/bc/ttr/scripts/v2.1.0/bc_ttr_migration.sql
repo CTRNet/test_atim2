@@ -119,26 +119,26 @@ and col.collection_type = 'tissue';
 
 -- UPDATE sample_master sample_type for tissue and blood
 
-update sample_masters
+update atim.sample_masters
 set sample_type = 'blood'
 where sample_code LIKE '%B -%'
 and sample_control_id = 2;
 
-update sample_masters
+update atim.sample_masters
 set sample_type = 'tissue'
 where sample_code LIKE '%T -%'
 and sample_control_id = 3;
 
 
 -- update parent id of blood cell
-update sample_masters sm1 , sample_masters sm2
+update atim.sample_masters sm1 , atim.sample_masters sm2
 set sm2.parent_id = sm1.id
 where sm2.collection_id = sm1.collection_id
 and sm1.sample_control_id = 2
 and sm2.sample_control_id = 7
 
 -- update parent id of plasma
-update sample_masters sm1 , sample_masters sm2
+update atim.sample_masters sm1 , atim.sample_masters sm2
 set sm2.parent_id = sm1.id
 where sm2.collection_id = sm1.collection_id
 and sm1.sample_control_id = 2
@@ -163,9 +163,9 @@ INSERT INTO atim.sample_masters
 SELECT 
 'derivative','7', 'blood cell', 'blood', tcol.id,  
 tcol.acquisition_label, tcol.buffy_coat_lab_tech
-FROM  ttrdb.collections tcol  
+FROM  collections tcol  
 WHERE  
-( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'buffy_coat' ) > 0 ;
+( SELECT Count(*) FROM sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'buffy_coat' ) > 0 ;
 
 
 UPDATE atim.sample_masters
@@ -198,9 +198,9 @@ SELECT
 'derivative','9', 'plasma', 'blood', tcol.id, 
 tcol.acquisition_label, tcol.plasma_lab_tech, tcol.plasma_duration, tcol.plasma_Gval,
 tcol.plasma_temperature, tcol.plasma_transporter_time
-FROM  ttrdb.collections tcol  
+FROM  collections tcol  
 WHERE  
-( SELECT Count(*) FROM ttrdb.sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'plasma' ) > 0 ;
+( SELECT Count(*) FROM sample_masters tsm WHERE tsm.collection_id =  tcol.id AND tsm.sample_type = 'plasma' ) > 0 ;
 
 
 
