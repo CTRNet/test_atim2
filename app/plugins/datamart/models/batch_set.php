@@ -17,9 +17,8 @@ class BatchSet extends DatamartAppModel {
 	);
 	
 	function summary( $variables=array() ) {
-		$return = array(
-				'menu' => array(null));
-			
+		$return = array('menu' => array(null));
+					
 		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
 			switch($variables['Param.Type_Of_List']) {
 				case 'group':
@@ -39,10 +38,9 @@ class BatchSet extends DatamartAppModel {
 			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
 			if(!empty($batchset_data)) {
 				$return['title'] = array(null, __('batchset information', null));
-				$return['description'] = array(
-					__('title', true) => $batchset_data['BatchSet']['title'],
-					__('model', true) => $batchset_data['BatchSet']['model'],
-					__('created', true) => $batchset_data['BatchSet']['created']);	
+				$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
+				$return['structure alias'] = 'querytool_batch_set';
+				$return['data'] = $batchset_data;
 			}
 		}
 		
