@@ -838,3 +838,28 @@ INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use
 ('err_cust_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 
+UPDATE menus SET language_description = 'query tool data browser description' WHERE id = 'qry-CAN-1-1';
+UPDATE menus SET language_description = 'query tool reports description' WHERE id = 'qry-CAN-1-2';
+UPDATE menus SET language_description = 'query tool dadhoc description' WHERE id = 'qry-CAN-2';
+UPDATE menus SET language_description = 'query tool batch sets description' WHERE id = 'qry-CAN-3';
+
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('query tool data browser description', 
+'Flexible tool used for running specific data research. The process enables the user to browse sequentially different data search forms.', 
+'Outil flexible utilisé pour exécuter des recherches spécifiques de données. Le processus de navigation permet à l''utilisateur de parcourir successivement différents formulaires de recherche de données.'),
+
+('query tool reports description', 
+'Reports generated from recorded data.', 
+'Rapports construits à partir des données enregistrées.'),
+
+('query tool dadhoc description', 
+'Custom queries used for searching specific data based on predefined criteria.', 
+'Requêtes personnalisées utilisées pour rechercher des données spécifiques sur la base de critères prédéfinis.'),
+
+('query tool batch sets description', 
+'Dataset defined subsequently in order to process/analyze this data together: Data export, performing the same process on all, data sharing, etc..', 
+'Ensemble de données défini ulterieurement dans le but de traiter/analyser ces données ensemble: Export de données, exécution d''un même processus sur l''ensemble des données, partage de données, etc.');
+
+
+
+
