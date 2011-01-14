@@ -860,6 +860,13 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 'Dataset defined subsequently in order to process/analyze this data together: Data export, performing the same process on all, data sharing, etc..', 
 'Ensemble de données défini ulterieurement dans le but de traiter/analyser ces données ensemble: Export de données, exécution d''un même processus sur l''ensemble des données, partage de données, etc.');
 
+INSERT IGNORE INTO i18n (id, en, fr) VALUES ('report','Report','Rapport');
 
+UPDATE structure_formats 
+SET flag_summary = '0' 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set');
 
-
+UPDATE structure_formats 
+SET flag_summary = '1' 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='BatchSet' AND `field` IN ('title', 'model', 'description'));
