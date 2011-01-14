@@ -1143,6 +1143,10 @@ a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center
 a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
 a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
 a.plugin.underdev {background: url("../img/icons/under_dev_32x32.png") no-repeat center center;}
+a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") no-repeat center center;}
+a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
+a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
+a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
 td.id a,
 td.id a:hover,
 table.tree ul a,

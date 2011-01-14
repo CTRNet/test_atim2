@@ -820,7 +820,10 @@ AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Quality
 INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('no aliquot displayed', 'No aliquot displayed', 'Aucun aliquot affiché'),
 ('only samples', 'Only Samples', 'Échantillons seulement'),
-('samples & aliquots', 'Samples & Aliquots', 'Échantillons & Aliquots');
+('samples & aliquots', 'Samples & Aliquots', 'Échantillons & Aliquots'),
+('custom queries', 'Custom Queries', 'Requêtes personalisées');
+
+UPDATE menus SET language_title='custom queries' WHERE id='qry-CAN-2';
 
 DELETE FROM structure_permissible_values_customs WHERE value LIKE 'custom_laboratory_staff_%';
 DELETE FROM structure_permissible_values_customs WHERE value LIKE 'custom_laboratory_site_%';
