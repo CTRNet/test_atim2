@@ -1855,6 +1855,7 @@ class StructuresHelper extends Helper {
 				if($display_class_array[2] == 'tools'){
 					$display_class_name = 'tools';
 				}else if($display_class_array[2] == 'datamart'){
+					
 					$display_class_name = 'datamart';
 				}else{
 					$display_class_name = 'home';
@@ -1863,9 +1864,13 @@ class StructuresHelper extends Helper {
 				$display_class_name = 'logout';
 			}else if(array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)){
 				$display_class_name = $display_class_array[1];
+				if($display_class_name == "datamart" && isset($display_class_array[2])){
+					$display_class_name .= " ".$display_class_array[2];
+				}
 			}else{
 				$display_class_name = 'default';
 			}
+			
 			$display_class_name = 'plugin '.$display_class_name;
 		}else if($link_name && $link_location){
 			$display_class_name = $this->generateLinkClass(NULL, $link_location);
