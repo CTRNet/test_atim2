@@ -1,15 +1,15 @@
 <?php
 $database['ip'] = "127.0.0.1";
-$database['port'] = "3306";
+$database['port'] = "8889";
 $database['user'] = "root";
-$database['pwd'] = "";
-$database['schema'] = "ATiM-Test";
+$database['pwd'] = "root";
+$database['schema'] = "atim_terry_fox";
 $database['charset'] = "utf8";
 
 $config['printQueries'] = true;
 $config['insertRevs'] = false;
 $config['input type'] = "xls";
-$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.12.xls";
+$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.13.xls";//RECONFIGURE colleciton->bank
 $config['xls header rows'] = 2;
 
 //-----addon querries------
@@ -66,10 +66,58 @@ $config['xls header rows'] = 2;
 global $created;
 $created_id = 1;
 
-//require_once("tablesMapping/participants.php");
-//require_once("tablesMapping/qc_tf_dxd_eocs.php");
-//require_once("tablesMapping/qc_tf_dxd_other_primary_cancers.php");
-//require_once("tablesMapping/qc_tf_ed_eocs.php");
-//require_once("tablesMapping/qc_tf_ed_other_primary_cancer.php");
-require_once("tablesMapping/collections.php");
+class MyTime{
+	public static $months = array(
+		"january"	=> "01",
+		"janvier"	=> "01",
+		"february"	=> "02",
+		"février"	=> "02",
+		"fevrier"	=> "02",
+		"march"		=> "03",
+		"mars"		=> "03",
+		"april"		=> "04",
+		"avril"		=> "04",
+		"may"		=> "05",
+		"mai"		=> "05",
+		"june"		=> "06",
+		"juin"		=> "06",
+		"july"		=> "07",
+		"juillet"	=> "07",
+		"august"	=> "08",
+		"août"		=> "08",
+		"aout"		=> "08",
+		"september"	=> "09",
+		"septembre"	=> "09",
+		"october"	=> "10",
+		"octobre"	=> "10",
+		"november"	=> "11",
+		"novembre"	=> "11",
+		"december"	=> "12",
+		"décembre"	=> "12",
+		"decembre"	=> "12"
+	);
+	
+	public static $full_date_pattern 	= '/([^ \t0-9]+)[ \t]*([0-9]{1,2})[ \t]*\,[ \t]*([0-9]{4})/';
+	public static $short_date_pattern	= '/([^ \t0-9]+)[ \t]*\,[ \t]*([0-9]{4})/';
+}
+
+function postRead(Model $m){
+	//rearrange dates
+	foreach($m->custom_data['date_fields'] as $date_field){
+		$matches = array();
+		if(preg_match_all(MyTime::$full_date_pattern, $m->values[$date_field], $matches, PREG_OFFSET_CAPTURE) > 0){
+			$m->values[$date_field] = $matches[3][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-".sprintf("%02d", $matches[2][0][0]);
+		}else if(preg_match_all(MyTime::$short_date_pattern, $m->values[$date_field], $matches, PREG_OFFSET_CAPTURE) > 0){
+			$m->values[$date_field] = $matches[2][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-01";
+		}
+	}
+}
+
+require_once("tablesMapping/participants.php");
+require_once("tablesMapping/qc_tf_dxd_eocs.php");
+require_once("tablesMapping/qc_tf_dxd_other_primary_cancers.php");
+require_once("tablesMapping/qc_tf_ed_eocs.php");
+require_once("tablesMapping/qc_tf_ed_other_primary_cancer.php");
+//require_once("tablesMapping/collections.php");
+
 ?>

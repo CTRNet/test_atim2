@@ -1,29 +1,29 @@
 <?php
-$qc_tf_ed_eocs["app_data"]["file"] = "2";
-$qc_tf_ed_eocs["app_data"]["pkey"] = "Patient Biobank Number
+$pkey = "Patient Biobank Number
 (required)";
 
-$qc_tf_ed_eocs["master"]["event_control_id"] = "@35";
-$qc_tf_ed_eocs["master"]["event_date"] = "Date of event (beginning) Date";
-$qc_tf_ed_eocs["master"]["event_type"] = "Event Type";
+$fields = array(
+	"participant_id" => $pkey,
+	"event_control_id" => "@35",
+	"event_date" => "Date of event (beginning) Date",
+	"event_type" => "Event Type"
+);
 
-$qc_tf_ed_eocs["detail"]["date_accuracy"] = "Date of event (beginning) Accuracy";
-$qc_tf_ed_eocs["detail"]["event_date_end"] = "Date of event (end) Date";
-$qc_tf_ed_eocs["detail"]["event_date_end_accuracy"] = "Date of event (end) Accuracy";
-$qc_tf_ed_eocs["detail"]["drug1"] = "Chimiotherapy Precision Drug1";
-$qc_tf_ed_eocs["detail"]["drug2"] = "Chimiotherapy Precision Drug2";
-$qc_tf_ed_eocs["detail"]["drug3"] = "Chimiotherapy Precision Drug3";
-$qc_tf_ed_eocs["detail"]["drug4"] = "Chimiotherapy Precision Drug4";
-$qc_tf_ed_eocs["detail"]["ca125_precision"] = "CA125  Precision (U)";
-$qc_tf_ed_eocs["detail"]["ct_scan_precision"] = "CT Scan Precision";
-
-
-//do not modify this section
-$qc_tf_ed_eocs["app_data"]['parent_key'] = "participant_id";
-$qc_tf_ed_eocs["app_data"]['child'] = array();
-$qc_tf_ed_eocs["app_data"]['master_table_name'] = "event_masters";
-$qc_tf_ed_eocs["app_data"]['save_id'] = true;
-$tables['qc_tf_ed_eocs'] = $qc_tf_ed_eocs;
-//-------------------------------
+$detail_fields = array(
+	"date_accuracy" => "Date of event (beginning) Accuracy",
+	"event_date_end" => "Date of event (end) Date",
+	"event_date_end_accuracy" => "Date of event (end) Accuracy",
+	"drug1" => "Chimiotherapy Precision Drug1",
+	"drug2" => "Chimiotherapy Precision Drug2",
+	"drug3" => "Chimiotherapy Precision Drug3",
+	"drug4" => "Chimiotherapy Precision Drug4",
+	"ca125_precision" => "CA125  Precision (U)",
+	"ct_scan_precision" => "CT Scan Precision"
+);
 
 
+$tables['qc_tf_ed_eocs'] = new MasterDetailModel(2, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_eocs', 'event_master_id', $detail_fields);
+$tables['qc_tf_ed_eocs']->custom_data = array("date_fields" => array(
+	$fields["event_date"], 
+	$detail_fields["event_date_end"]));
+$tables['qc_tf_ed_eocs']->post_read_function = 'postRead';
