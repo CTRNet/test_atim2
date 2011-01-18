@@ -1,19 +1,28 @@
 <?php
-$qc_tf_ed_eocs["app_data"]["file"] = "4";
-$qc_tf_ed_eocs["app_data"]["pkey"] = "Patient Biobank Number
+$pkey = "Patient Biobank Number
 (required)";
 
-$qc_tf_ed_eocs["master"]["event_control_id"] = "@36";
+$fields = array(
+	"participant_id" => $pkey,
+	"event_control_id" => "@36",
+	"event_date" => "Date of event (beginning) Date",
+	"event_type" => "Event Type"
+);
 
-$qc_tf_ed_eocs["detail"][""] = "";
+$detail_fields = array(
+	"date_accuracy" => "Date of event (beginning) Accuracy",
+	"end_date" => "Date of event (end) Date",
+	"end_date_accuracy" => "Date of event (end) Accuracy",
+	"drug1" => "Chimiotherapy Precision Drug1",
+	"drug2" => "Chimiotherapy Precision Drug2",
+	"drug3" => "Chimiotherapy Precision Drug3",
+	"drug4" => "Chimiotherapy Precision Drug4"
+);
 
 
-//do not modify this section
-$qc_tf_ed_eocs["app_data"]['parent_key'] = "participant_id";
-$qc_tf_ed_eocs["app_data"]['child'] = array();
-$qc_tf_ed_eocs["app_data"]['master_table_name'] = "event_masters";
-$qc_tf_ed_eocs["app_data"]['save_id'] = true;
-$tables['qc_tf_ed_eocs'] = $qc_tf_ed_eocs;
-//-------------------------------
 
-
+$tables['qc_tf_ed_other_primary_cancers'] = new MasterDetailModel(4, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_other_primary_cancers', 'event_master_id', $detail_fields);
+$tables['qc_tf_ed_other_primary_cancers']->custom_data = array("date_fields" => array(
+	$fields["event_date"], 
+	$detail_fields["end_date"]));
+$tables['qc_tf_ed_other_primary_cancers']->post_read_function = 'postRead';

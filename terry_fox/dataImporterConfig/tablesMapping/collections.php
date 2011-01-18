@@ -1,17 +1,25 @@
 <?php
-$collections["app_data"]["pkey"] = "id";
-$collections["app_data"]["file"] = "5";
+$pkey = "Patient Biobank Number
+(required)";
 
-$collections["master"]["acquisition_label"] = "";
-$collections["master"]["bank_id"] = "bank_id";
-$collections["master"]["collection_datetime"] = "Date of Specimen Collection Date";
-$collections["master"]["collection_datetime_accuracy"] = "Date of Specimen Collection Accuracy";
+$fields = array(
+	"bank_id" => "@3",
+	"collection_datetime" => "Date of Specimen Collection Date",
+	"collection_datetime_accuracy" => "Date of Specimen Collection Accuracy"
+);
 
 
-//do not modify this section
-$collections["app_data"]['save_id'] = true;
-$collections["app_data"]['master_table_name'] = "collections";
-$tables['collections'] = $collections;
-//-------------------------------
+
+
+$tables['collections'] = new Model(5, $pkey, array(), true, NULL, 'participants', $fields);
+$tables['collections']->custom_data = array("date_fields" => array(
+	$fields["date_of_birth"], 
+	$fields["date_of_death"], 
+	$fields["qc_tf_suspected_date_of_death"], 
+	$fields["qc_tf_last_contact"]));
+$tables['participants']->post_read_function = 'postRead';
+
+//TODO: Post queries and job done
+
 ?>
 
