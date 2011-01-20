@@ -12,6 +12,8 @@
 	
 	$this->data = $this->setHospitalizationDuration($this->data);
 	
+	$this->data = $this->setIntensiveCareDuration($this->data);
+	
 	$this->setScores($event_control_data['EventControl']['event_type']);
     
 ?>

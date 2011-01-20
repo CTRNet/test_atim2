@@ -1,11 +1,6 @@
 <?php
 
 	// --------------------------------------------------------------------------------
-	// *.surgery : Add Durations (Intensive care, hospitatlisation, etc)
-	// --------------------------------------------------------------------------------
-	$this->data = $this->addSurgeryDurations($this->data, $treatment_master_data);
-	
-	// --------------------------------------------------------------------------------
 	// *.surgery : Add survival time
 	// --------------------------------------------------------------------------------
 	$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));

@@ -145,45 +145,6 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 	}
 	
 	// --------------------------------------------------------------------------------
-	// *.surgery : Add Durations (Intensive care, hospitatlisation, etc)
-	// --------------------------------------------------------------------------------
-	
-	/** 
- 	 * Set medical past history precisions list for clinical.hepatobiliary.***medical_past_history.
- 	 * 
- 	 * @param $tx_data Data of the created/studied trt.
- 	 * @param $tx_control Tx control of the created/studied trt.
- 	 * 
- 	 * @return Update trt data
- 	 **/
- 	 
-	function addSurgeryDurations( $tx_data, $tx_control ) { 
-		$tx_type_title = 
-			$tx_control['TreatmentControl']['disease_site'].'-'.
-			$tx_control['TreatmentControl']['tx_method'];
-			
-		$pattern = '/^(.*)-surgery?/';
-		if(preg_match($pattern, $tx_type_title)) { 
-			//ic_1_duration_in_days duration
-			$tx_data['TreatmentDetail']['ic_1_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_1_start_date'], $tx_data['TreatmentDetail']['ic_1_end_date']);
-			
-			//ic_22_duration_in_days duration
-			$tx_data['TreatmentDetail']['ic_2_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_2_start_date'], $tx_data['TreatmentDetail']['ic_2_end_date']);
-			
-			//ic_1_duration_in_days duration
-			$tx_data['TreatmentDetail']['ic_3_duration_in_days'] = $this->getSpentTime($tx_data['TreatmentDetail']['ic_3_start_date'], $tx_data['TreatmentDetail']['ic_3_end_date']);
-			
-			$tx_data['TreatmentDetail']['total_ic_duration_in_days'] =
-				(empty($tx_data['TreatmentDetail']['ic_1_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_1_duration_in_days']) +
-				(empty($tx_data['TreatmentDetail']['ic_2_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_2_duration_in_days']) +
-				(empty($tx_data['TreatmentDetail']['ic_3_duration_in_days'])? 0: $tx_data['TreatmentDetail']['ic_3_duration_in_days']);
-		}
-		
-		return $tx_data;
-		
-	}
-	
-	// --------------------------------------------------------------------------------
 	// *.surgery : Add survival time
 	// --------------------------------------------------------------------------------
 	
