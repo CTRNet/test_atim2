@@ -63,40 +63,55 @@ class EventMastersControllerCustom extends EventMastersController {
  	
  	function setHospitalizationDuration( $event_data ) { 
  		if(isset($event_data['EventDetail']['hospitalization_end_date']) 
- 		&& isset($event_data['EventMaster']['event_date'])) {
- 			
+ 		&& isset($event_data['EventMaster']['event_date'])) {			
 			$start_date = $event_data['EventMaster']['event_date'];
-			$end_date =  $event_data['EventDetail']['hospitalization_end_date'];				
-
-			if(empty($start_date['month']) || empty($start_date['day']) || empty($start_date['year']) 
-			|| empty($end_date['month']) || empty($end_date['day']) || empty($end_date['year'])){
-				// At least one date is missing to continue
-					
-			} else {
-				// ** GET TIME IN DAYS **
-				$start = mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']);
-				$end = mktime(0, 0, 0, $end_date['month'], $end_date['day'], $end_date['year']);
-				$spent_time = $end - $start;
-				
-				$result = '';
-				if(($start === false)||($end === false)){
-					// Error in the date
-					$result = '';	
-				} else if($spent_time < 0){
-					// Error in the date
-					$result = '';
-				} else if($spent_time == 0){
-					// Nothing to change to $arr_spent_time
-					$result = '0';
-				} else {
-					// Return spend time in days
-					$result = floor($spent_time / 86400);
-				}
-				$event_data['EventDetail']['hospitalization_duration_in_days'] = $result;
-			}
+			$end_date =  $event_data['EventDetail']['hospitalization_end_date'];	
+			$event_data['EventDetail']['hospitalization_duration_in_days'] = $this->getDuration($start_date,$end_date);			
  		}
  			
  		return $event_data;		
+ 	}
+ 	
+	function setIntensiveCareDuration( $event_data ) { 
+ 		if(isset($event_data['EventDetail']['intensive_care_end_date']) 
+ 		&& isset($event_data['EventMaster']['event_date'])) {
+			$start_date = $event_data['EventMaster']['event_date'];
+			$end_date =  $event_data['EventDetail']['intensive_care_end_date'];			
+			$event_data['EventDetail']['intensive_care_duration_in_days'] = $this->getDuration($start_date,$end_date);
+ 		}
+ 			
+ 		return $event_data;		
+ 	}
+ 	
+ 	function getDuration($start_date, $end_date) {
+ 		$result = '';
+		
+		if(empty($start_date['month']) || empty($start_date['day']) || empty($start_date['year']) 
+		|| empty($end_date['month']) || empty($end_date['day']) || empty($end_date['year'])){
+			// At least one date is missing to continue	
+			
+		} else {
+			// ** GET TIME IN DAYS **
+			$start = mktime(0, 0, 0, $start_date['month'], $start_date['day'], $start_date['year']);
+			$end = mktime(0, 0, 0, $end_date['month'], $end_date['day'], $end_date['year']);
+			$spent_time = $end - $start;
+			
+			if(($start === false)||($end === false)){
+				// Error in the date
+				$result = '';	
+			} else if($spent_time < 0){
+				// Error in the date
+				$result = '';
+			} else if($spent_time == 0){
+				// Nothing to change to $arr_spent_time
+				$result = '0';
+			} else {
+				// Return spend time in days
+				$result = floor($spent_time / 86400);
+			}
+		}
+		
+		return $result; 		
  	}
  	 	
   	/** 
