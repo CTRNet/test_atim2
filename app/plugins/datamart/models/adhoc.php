@@ -19,13 +19,13 @@ class Adhoc extends DatamartAppModel {
 
 			switch($variables['Param.Type_Of_List']) {
 				case 'all':
-					$return['menu'] = array('all');
+					$return['menu'] = array(__('all', true));
 					break;
 				case 'favourites':
-					$return['menu'] = array('my favourites');
+					$return['menu'] = array(__('my favourites',true));
 					break;
 				case 'saved':
-					$return['menu'] = array('my saved searches');
+					$return['menu'] = array(__('my saved searches',true));
 					break;
 				default:	
 			}	
