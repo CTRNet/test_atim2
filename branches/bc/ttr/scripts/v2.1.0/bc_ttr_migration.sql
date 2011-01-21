@@ -345,16 +345,9 @@ FROM  ttrdb.sample_masters tsm
 WHERE  tsm.sample_type = 'buffy_coat' ;
 
 
--- Update Volume information
-UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
-SET  am.initial_volume = sd.quantity,
-     am.current_volume = sd.available_quantity
-WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
-AND   am.bc_ttr_sample_type = 'buffy_coat' ; 
 
--- Update Storage information
+-- Last aliquot_master id(31702)
 
--- last aliquot_master id(31702)
 -- Insert into REAL table for Aliquot Master  (Blood Celll or Buffy Coat)
 
 INSERT INTO atim.aliquot_masters
@@ -364,6 +357,13 @@ SELECT
 barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
 FROM  atim.a_tmp_tubes   
 
+
+-- Update Volume information
+UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
+SET  am.initial_volume = sd.quantity,
+     am.current_volume = sd.available_quantity
+WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
+AND   am.bc_ttr_sample_type = 'buffy_coat' ; 
 
 -- Update Collection ID
 UPDATE atim.aliquot_masters
