@@ -374,7 +374,8 @@ WHERE aliquot_control_id = '8' ;
 UPDATE atim.aliquot_masters am, atim.sample_masters sm
 SET am.sample_master_id = sm.id 
 WHERE  am.collection_id = sm.collection_id
-AND    sm.sample_type = 'blood cell' ; 
+AND    sm.sample_type = 'blood cell' 
+AND    am.bc_ttr_sample_type = 'buffy_coat';
 
 
 -- Insert into table for Aliquot Tube Detail (Blood Celll or Buffy Coat)
@@ -436,8 +437,8 @@ WHERE aliquot_control_id = '8' ;
 UPDATE atim.aliquot_masters am, atim.sample_masters sm
 SET am.sample_master_id = sm.id 
 WHERE  am.collection_id = sm.collection_id
-AND    sm.sample_type = 'plasma' ; 
-
+AND    sm.sample_type = 'plasma' 
+AND    am.bc_ttr_sample_type = 'plasma';
 
 -- Insert into table for Aliquot Tube Detail (Plasma)
 
