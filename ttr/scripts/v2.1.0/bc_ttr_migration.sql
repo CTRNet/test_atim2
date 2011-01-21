@@ -385,5 +385,69 @@ SELECT
 id, created, created_by, modified, modified_by
 FROM  atim.aliquot_masters  
 WHERE aliquot_control_id = '8' ; 
+
+
+
+--
+--  Aliquot Plasma
+--
+
+-- Create Temp Plasma Aliquot container
+
+CREATE TABLE atim.a_tmp_tubes_plasma (SELECT barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_master_id, storage_coord_x, storage_coord_y, created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+ FROM atim.aliquot_masters AS a  LIMIT 0);
+
+  
+-- Insert into  TEMP table  for Aliquot  Master ( Plasma ) 
+INSERT INTO atim.a_tmp_tubes
+(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_master_id, storage_coord_x, storage_coord_y, created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
+SELECT 
+sample_barcode, 'tube',  '8', sample_status, stored_datetime, box_id, col_id, row_id, created, 
+created_by, modified, modified_by, previous_box_id, release_barcode, sample_type, 
+collection_id, parent_sample_id, id
+FROM  ttrdb.sample_masters tsm  
+WHERE  tsm.sample_type = 'plasma' ;
+
+ 
+-- Insert into REAL table for Aliquot Master  (PLASMA)
+
+INSERT INTO atim.aliquot_masters
+(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_coord_x, storage_coord_y, 
+created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
+SELECT 
+barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+FROM  atim.a_tmp_tubes   
+WHERE  bc_ttr_sample_type = 'plasma' ;
+
+
+-- Update Volume information
+UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
+SET  am.initial_volume = sd.quantity,
+     am.current_volume = sd.available_quantity
+WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
+AND   am.bc_ttr_sample_type = 'plasma' ; 
+
+-- Update Collection ID
+UPDATE atim.aliquot_masters
+SET collection_id = bc_ttr_old_collection_id
+WHERE aliquot_control_id = '8' ; 
+
+-- Update Sample Master ID
+UPDATE atim.aliquot_masters am, atim.sample_masters sm
+SET am.sample_master_id = sm.id 
+WHERE  am.collection_id = sm.collection_id
+AND    sm.sample_type = 'plasma' ; 
+
+
+-- Insert into table for Aliquot Tube Detail (Plasma)
+
+INSERT INTO atim.ad_tubes
+(aliquot_master_id, created, created_by, modified, modified_by)
+SELECT 
+id, created, created_by, modified, modified_by
+FROM  atim.aliquot_masters  
+WHERE bc_ttr_sample_type = 'plasma' ; 
+
+
  
  
