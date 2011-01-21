@@ -22,13 +22,13 @@ class BatchSet extends DatamartAppModel {
 		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
 			switch($variables['Param.Type_Of_List']) {
 				case 'group':
-					$return['menu'] = array('group batch sets');
+					$return['menu'] = array(__('group batch sets',true));
 					break;
 				case 'user':
-					$return['menu'] = array('my batch sets');
+					$return['menu'] = array(__('my batch sets',true));
 					break;
 				case 'all':
-					$return['menu'] = array('all batch sets');
+					$return['menu'] = array(__('all batch sets',true));
 					break;
 				default:	
 			}	
