@@ -149,7 +149,7 @@ and sm2.sample_control_id = 9
 
 
 #-------------
--- Blood Cells
+-- Blood Cells Derivative
 #-------------
 
 -- Drop Constraint in Unique Sample code in ATIM sample masters
@@ -184,7 +184,7 @@ WHERE smt.sample_code LIKE '%BLD-C%';
  
  
 #------------------
--- PLASMA
+-- PLASMA Derivative
 #-----------------
 
 
@@ -302,24 +302,12 @@ ALTER TABLE atim.aliquot_uses
 
 
 
-
-
-
-
-
-
-
 ALTER TABLE atim.storage_masters
  ADD UNIQUE KEY `unique_code` (`code`),
  DROP COLUMN old_id,
  DROP COLUMN tower_id,
  DROP COLUMN box_id;
 
- 
- 
- 
- 
- 
  
  
  
@@ -356,6 +344,13 @@ collection_id, parent_sample_id, id
 FROM  ttrdb.sample_masters tsm  
 WHERE  tsm.sample_type = 'buffy_coat' ;
 
+
+-- Update Volume information
+UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
+SET  am.initial_volume = sd.quantity,
+     am.current_volume = sd.available_quantity
+WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
+AND   am.bc_ttr_sample_type = 'buffy_coat' ; 
 
 -- Update Storage information
 
