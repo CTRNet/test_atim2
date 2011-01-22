@@ -324,7 +324,6 @@ ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_old_collection_id` VARCHAR( 20 
 
 ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_old_parent_sample_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 
-
 ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_old_sample_master_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 
 -- Create Temp Buffy Coat Aliquot container
@@ -450,5 +449,83 @@ FROM  atim.aliquot_masters
 WHERE bc_ttr_sample_type = 'plasma' ; 
 
 
+
+
+--
+-- Whatman Paper Aliquot
+--
+
+ALTER TABLE  atim.`ad_whatman_papers` ADD  `bc_ttr_dna_card_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+
+ALTER TABLE  atim.`ad_whatman_papers` ADD  `bc_ttr_dna_card_lot_no` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+
+ALTER TABLE  atim.`ad_whatman_papers` ADD  `bc_ttr_dna_card_spot` TINYINT( 4 ) NULL AFTER  `deleted_date`;
+
+
+-- Create Temp Whatman paper Aliquot container
+CREATE TABLE atim.a_tmp_whatman_paper (SELECT barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_master_id, storage_coord_x, storage_coord_y, created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+ FROM atim.aliquot_masters AS a  LIMIT 0);
+ 
+ 
+ 
+-- Insert into  TEMP table  for Aliquot  Master( Blood Cells  or Buffy Coat ) 
+INSERT INTO atim.a_tmp_whatman_paper
+(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_master_id, storage_coord_x, storage_coord_y, created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
+SELECT 
+sample_barcode, 'whatman paper',  '6', sample_status, stored_datetime, box_id, col_id, row_id, created, 
+created_by, modified, modified_by, previous_box_id, release_barcode, sample_type, 
+collection_id, parent_sample_id, id
+FROM  ttrdb.sample_masters tsm  
+WHERE  tsm.sample_type = 'dna_card ';
+
+
+ 
+ 
+-- Insert into REAL table for Aliquot Master  (WHATMAN PAPER)
+
+INSERT INTO atim.aliquot_masters
+(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_coord_x, storage_coord_y, 
+created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
+SELECT 
+barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+FROM  atim.a_tmp_whatman_paper   
+WHERE  bc_ttr_sample_type = 'dna_card' ;
+
+ 
+
+
+-- Update Collection ID
+UPDATE atim.aliquot_masters
+SET collection_id = bc_ttr_old_collection_id
+WHERE aliquot_control_id = '6' ; 
+
+-- Update Sample Master ID
+UPDATE atim.aliquot_masters am, atim.sample_masters sm
+SET am.sample_master_id = sm.id 
+WHERE  am.collection_id = sm.collection_id
+AND    sm.sample_type = 'blood' 
+AND    am.bc_ttr_sample_type = 'dna_card';
+
+-- Insert into table for Aliquot Whatman
+
+INSERT INTO atim.ad_whatman_papers
+(aliquot_master_id, created, created_by, modified, modified_by)
+SELECT 
+id, created, created_by, modified, modified_by
+FROM  atim.aliquot_masters  am
+WHERE am.bc_ttr_sample_type = 'dna_card' ; 
+ 
+ 
+-- Update  Card Lot, Card type and Spot
+UPDATE atim.ad_whatman_papers ad,   atim.aliquot_masters am,     ttrdb.sd_dnacards sd
+SET  ad.bc_ttr_dna_card_type = sd.card_type,
+          ad.bc_ttr_dna_card_lot_no = sd.card_lot_no,
+	      ad.bc_ttr_dna_card_spot = sd.spot
+WHERE   ad.aliquot_master_id = am.id
+AND   am.bc_ttr_old_sample_master_id = sd.sample_master_id
+AND   am.bc_ttr_sample_type = 'dna_card' ; 
+ 
+ 
+ 
  
  
