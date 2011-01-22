@@ -135,14 +135,14 @@ update atim.sample_masters sm1 , atim.sample_masters sm2
 set sm2.parent_id = sm1.id
 where sm2.collection_id = sm1.collection_id
 and sm1.sample_control_id = 2
-and sm2.sample_control_id = 7
+and sm2.sample_control_id = 7;
 
 -- update parent id of plasma
 update atim.sample_masters sm1 , atim.sample_masters sm2
 set sm2.parent_id = sm1.id
 where sm2.collection_id = sm1.collection_id
 and sm1.sample_control_id = 2
-and sm2.sample_control_id = 9
+and sm2.sample_control_id = 9;
 
 
 
