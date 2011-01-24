@@ -354,7 +354,7 @@ INSERT INTO atim.aliquot_masters
 created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
 SELECT 
 barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
-FROM  atim.a_tmp_tubes   
+FROM  atim.a_tmp_tubes;   
 
 
 -- Update Volume information
