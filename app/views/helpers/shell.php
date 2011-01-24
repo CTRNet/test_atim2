@@ -85,11 +85,12 @@ class ShellHelper extends Helper {
 		$return .= "<fieldset>";//the fieldset is present to manage the display for wide forms such as addgrids		
 		$return .= '
 			<!-- start #header -->
-			<div id="header">
+			<div id="header"><div>
 				<h1>'.__('core_appname', true).'</h1>
+				<h2>'.__('core_installname', true).'</h2>
 				'.$root_menu_for_header.'
 				'.$main_menu_for_header.'
-			</div>
+			</div></div>
 			<!-- end #header -->
 			
 		';	

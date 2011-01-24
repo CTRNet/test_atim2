@@ -94,7 +94,7 @@ div.outerWrapper{
 	min-height: 300px;
 }
 
-div#header {
+#header {
 	position: relative;
 	
 	margin: 0 0 10px 0;
@@ -106,13 +106,21 @@ div#header {
 	color: #fff;
 }
 
-div#header h1 {
+#header div{
 	width: 725px; 
 	height: 64px;
 	padding: 14px 0 7px 225px;
 	margin: 0;
 	font: normal 26px/1em Arial Black, Arial Bold, Impact, sans-serif;
 	background: url(../img/header_bk_new_01.png) bottom left no-repeat;
+}
+#header h1{
+	white-space: nowrap;
+}
+#header h2{
+	white-space: nowrap;
+	font-size: 85%;
+	margin-top: 10px;	
 }
 	
 
