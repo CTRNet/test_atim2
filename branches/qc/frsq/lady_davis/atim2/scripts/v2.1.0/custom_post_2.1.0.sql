@@ -17,13 +17,3 @@ INSERT INTO i18n (`id`, `en`, `fr`) VALUES
 ("contains", "Contains", "Contient"),
 ("extraction method", "Extraction method", "Méthode d'extraction"),
 ("storage solution", "Storage solution", "Solution d'entreposage");
-
-
-
-select `ccl`.`collection_id` AS `collection_id`,`collections`.`bank_id` AS `bank_id`,`collections`.`sop_master_id` AS `sop_master_id`,`ccl`.`participant_id` AS `participant_id`,`ccl`.`diagnosis_master_id` AS `diagnosis_master_id`,`ccl`.`consent_master_id` AS `consent_master_id`,`collections`.`acquisition_label` AS `acquisition_label`,`collections`.`collection_site` AS `collection_site`,`collections`.`collection_datetime` AS `collection_datetime`,`collections`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`collections`.`collection_property` AS `collection_property`,`collections`.`collection_notes` AS `collection_notes`,`collections`.`deleted` AS `deleted`,`collections`.`deleted_date` AS `deleted_date`,`mi`.`identifier_value` AS `participant_identifier`,`banks`.`name` AS `bank_name`,`sops`.`title` AS `sop_title`,`sops`.`code` AS `sop_code`,`sops`.`version` AS `sop_version`,`sops`.`sop_group` AS `sop_group`,`sops`.`type` AS `type`,`collections`.`qc_lady_type` AS `qc_lady_type`,`collections`.`qc_lady_follow_up` AS `qc_lady_follow_up` from 
-(((((`collections` 
-left join `clinical_collection_links` `ccl` on(((`collections`.`id` = `ccl`.`collection_id`) and (`ccl`.`deleted` <> 1)))) 
-left join `participants` on(((`ccl`.`participant_id` = `participants`.`id`) and (`participants`.`deleted` <> 1)))) 
-left join `banks` on(((`collections`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) 
-left join `sop_masters` `sops` on(((`collections`.`sop_master_id` = `sops`.`id`) and (`sops`.`deleted` <> 1)))) 
-left join `misc_identifiers` `mi` on(((`mi`.`participant_id` = `participants`.`id`) and (lcase(substr(`mi`.`identifier_value`,1,1)) = lcase(substr(`collections`.`qc_lady_type`,1,1)))))) */;

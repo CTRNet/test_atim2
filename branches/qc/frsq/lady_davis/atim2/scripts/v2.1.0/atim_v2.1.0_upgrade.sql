@@ -3,7 +3,7 @@
 -- an existing ATiM installation. Be sure to backup your database before running this script!
 
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.0', NOW(), VERSION NUMBER REQUIRED);
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.1.0', NOW(), 2093);
 
 TRUNCATE `acos`;
 
