@@ -1,3 +1,16 @@
+DIE -- TODO: Verify the query to generate the collection
+UPDATE misc_identifiers SET identifier_value=SUBSTR(identifier_value, 3), misc_identifier_control_id=9, identifier_name='collection' WHERE misc_identifier_control_id IN(1,2,3,4);
+ALTER TABLE misc_identifiers
+ ADD COLUMN delete_me int not null default 0;
+UPDATE misc_identifiers AS mi1
+LEFT JOIN misc_identifiers AS mi2 ON mi1.participant_id=mi2.participant_id AND mi1.id < mi2.id AND mi2.misc_identifier_control_id=9
+SET mi2.delete_me=1
+WHERE mi1.misc_identifier_control_id=9;
+DELETE FROM misc_identifiers WHERE delete_me=1;
+ALTER TABLE misc_identifiers
+ DROP COLUMN delete_me;
+
+
 INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `autoincrement_name`, `display_order`, `misc_identifier_format`, `flag_once_per_participant`) VALUES
 ('collection', '1', 'main_participant_id', 8, '%%key_increment%%', '1');
 
@@ -27,14 +40,22 @@ CREATE VIEW `view_collections` AS SELECT `col`.`id` AS `collection_id`,`col`.`ba
 `col`.`created` AS `created`,
 `col`.`qc_lady_type` AS qc_lady_type, `col`.`qc_lady_follow_up` AS qc_lady_follow_up,
 `sd`.`supplier_dept_grouped` AS qc_lady_supplier_dept_grouped
-FROM (((`collections`, `col` left join `clinical_collection_links`, `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) 
-LEFT JOIN `participants`, `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
-LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1))))
-LEFT JOIN `misc_identifiers` AS `mi` ON (((`mi`.`participant_id` = `part`.`id`) AND (LCASE(SUBSTR(`mi`.`identifier_value`,1,1)) = LCASE(SUBSTR(`col`.`qc_lady_type`,1,1)))))
+FROM `collections` AS `col` 
+LEFT JOIN `clinical_collection_links` AS `link` ON `col`.`id` = `link`.`collection_id` AND `link`.`deleted` <> 1 
+LEFT JOIN `participants` AS `part` ON `link`.`participant_id` = `part`.`id` AND `part`.`deleted` <> 1 
+LEFT JOIN `banks` ON `col`.`bank_id` = `banks`.`id` AND `banks`.`deleted` <> 1
+LEFT JOIN `misc_identifiers` AS `mi` ON `mi`.`participant_id` = `part`.`id` AND mi.misc_identifier_control_id=9
 LEFT JOIN qc_lady_supplier_depts2 AS sd ON sd.collection_id=col.id
-WHERE (`col`.`deleted` <> 1);
+WHERE `col`.`deleted` <> 1;
 
 INSERT INTO `structure_fields` (`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES 
 ('', '', 'ViewCollection', 'view_collection', 'qc_lady_supplier_dept_grouped', 'supplier departments', '', 'input', '', '', NULL , '', 'open', 'open', 'open');
 INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE model='ViewCollection' AND field='qc_lady_supplier_dept_grouped'), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '1');
+
+UPDATE structure_formats SET language_label='participant collection identifier', flag_override_label='1' WHERE structure_field_id=925;
+UPDATE structure_formats SET flag_add='0', flag_edit='0', flag_index='0', flag_search='0', flag_detail='0' WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE field='acquisition_label');
+
+REPLACE INTO i18n(id, en, fr) VALUES
+('participant collection identifier', "Participant Collection Identifier", "Identifiant de collection du participant"),
+("supplier departments", "Supplier Departments", "Départements fournisseur");
