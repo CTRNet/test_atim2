@@ -34,6 +34,11 @@ class DropdownsController extends AdministrateAppController {
 				'StructurePermissibleValuesCustom' => array('value' => "")));
 		}else{
 			//validate and save
+			
+			$errors_tracking = array();
+			
+			// A - Launch Business Rules Validation
+			
 			$current_values = array();
 			$current_en = array();
 			$current_fr = array();
@@ -48,47 +53,50 @@ class DropdownsController extends AdministrateAppController {
 				$existing_en[$unit['StructurePermissibleValuesCustom']['en']] = null;
 				$existing_fr[$unit['StructurePermissibleValuesCustom']['fr']] = null;
 			}
+			
+			$row_counter = 0;
 			foreach($this->data as &$data_unit){
+				$row_counter++;
 				
 				// 1- Check 'value'
 				
 				$data_unit['StructurePermissibleValuesCustom'] = array_map("trim", $data_unit['StructurePermissibleValuesCustom']);
 				if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['value'], $existing_values)){
-					$this->StructurePermissibleValuesCustom->validationErrors['value'] = sprintf(__('a specified %s already exists for that dropdown', true), __("value", true));
+					$errors_tracking['value'][sprintf(__('a specified %s already exists for that dropdown', true), __("value", true))][] = $row_counter;
 				}
 				if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['value'], $current_values)){
-					$this->StructurePermissibleValuesCustom->validationErrors['value'] = sprintf(__('you cannot declare the same %s more than once', true), __("value", true));
+					$errors_tracking['value'][sprintf(__('you cannot declare the same %s more than once', true), __("value", true))][] = $row_counter;
 				}
 				if(strlen($data_unit['StructurePermissibleValuesCustom']['value']) > $max_length){
-					$this->StructurePermissibleValuesCustom->validationErrors['value'] = sprintf(__('%s cannot exceed %d characters', true), __("value", true), $max_length);
+					$errors_tracking['value'][sprintf(__('%s cannot exceed %d characters', true), __("value", true), $max_length)][] = $row_counter;
 				}
 				
 				// 2- Check 'en'
 				
 				if(!(is_null($data_unit['StructurePermissibleValuesCustom']['en']) || ($data_unit['StructurePermissibleValuesCustom']['en'] == ''))) {
 					if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['en'], $existing_en)){
-						$this->StructurePermissibleValuesCustom->validationErrors['en'] = sprintf(__('a specified %s already exists for that dropdown', true), __("english translation", true));
+						$errors_tracking['en'][sprintf(__('a specified %s already exists for that dropdown', true), __("english translation", true))][] = $row_counter;
 					}
 					if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['en'], $current_en)){
-						$this->StructurePermissibleValuesCustom->validationErrors['en'] = sprintf(__('you cannot declare the same %s more than once', true), __("english translation", true));
+						$errors_tracking['en'][sprintf(__('you cannot declare the same %s more than once', true), __("english translation", true))][] = $row_counter;
 					}	
 				}
 				if(strlen($data_unit['StructurePermissibleValuesCustom']['en']) > $this->StructurePermissibleValuesCustom->_schema['en']['length']){
-					$this->StructurePermissibleValuesCustom->validationErrors['en'] = sprintf(__('%s cannot exceed %d characters', true), __("english translation", true), $this->StructurePermissibleValuesCustom->_schema['en']['length']);
+					$errors_tracking['en'][sprintf(__('%s cannot exceed %d characters', true), __("english translation", true), $this->StructurePermissibleValuesCustom->_schema['en']['length'])][] = $row_counter;
 				}
 				
 				// 3- Check 'fr'
 				
 				if(!(is_null($data_unit['StructurePermissibleValuesCustom']['fr']) || ($data_unit['StructurePermissibleValuesCustom']['fr'] == ''))) {
 					if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['fr'], $existing_fr)){
-						$this->StructurePermissibleValuesCustom->validationErrors['fr'] = sprintf(__('a specified %s already exists for that dropdown', true), __("french translation", true));
+						$errors_tracking['fr'][sprintf(__('a specified %s already exists for that dropdown', true), __("french translation", true))][] = $row_counter;
 					}
 					if(array_key_exists($data_unit['StructurePermissibleValuesCustom']['fr'], $current_fr)){
-						$this->StructurePermissibleValuesCustom->validationErrors['fr'] = sprintf(__('you cannot declare the same %s more than once', true), __("french translation", true));
+						$errors_tracking['fr'][sprintf(__('you cannot declare the same %s more than once', true), __("french translation", true))][] = $row_counter;
 					}
 				}
 				if(strlen($data_unit['StructurePermissibleValuesCustom']['fr']) > $this->StructurePermissibleValuesCustom->_schema['fr']['length']){
-					$this->StructurePermissibleValuesCustom->validationErrors['fr'] = sprintf(__('%s cannot exceed %d characters', true), __("french translation", true), $this->StructurePermissibleValuesCustom->_schema['fr']['length']);
+					$errors_tracking['fr'][sprintf(__('%s cannot exceed %d characters', true), __("french translation", true), $this->StructurePermissibleValuesCustom->_schema['fr']['length'])][] = $row_counter;
 				}
 				
 				$current_values[$data_unit['StructurePermissibleValuesCustom']['value']] = null;
@@ -97,32 +105,42 @@ class DropdownsController extends AdministrateAppController {
 			}
 			unset($data_unit);
 
-			$save = true;
-			if(empty($this->StructurePermissibleValuesCustom->validationErrors)){
-				//validate all
+			// B - Launch Structure Fields Validation
+			
+			$row_counter = 0;
+			foreach($this->data as $data_unit) {
+				$row_counter++;
+				$this->StructurePermissibleValuesCustom->id = null;
+				$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
+				$this->StructurePermissibleValuesCustom->set($data_unit);
+				if(!$this->StructurePermissibleValuesCustom->validates()){
+					foreach($this->StructurePermissibleValuesCustom->validationErrors as $field => $msg) {
+						$errors_tracking[$field][$msg][] = $row_counter;
+					}
+				}
+			}
+
+			// Launch Save Process
+			
+			if(empty($errors_tracking)){
+				//save all
 				$tmp_data = AppController::cloneArray($this->data);
 				while($data_unit = array_pop($tmp_data)){
 					$this->StructurePermissibleValuesCustom->id = null;
 					$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
 					$this->StructurePermissibleValuesCustom->set($data_unit);
-					if(!$this->StructurePermissibleValuesCustom->validates()){
-						$save = false;
-						break;
+					if(!$this->StructurePermissibleValuesCustom->save($data_unit)) {
+						 $this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); 
 					}
 				}
-
-				if($save){
-					//save all
-					$tmp_data = AppController::cloneArray($this->data);
-					while($data_unit = array_pop($tmp_data)){
-						$this->StructurePermissibleValuesCustom->id = null;
-						$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
-						$this->StructurePermissibleValuesCustom->set($data_unit);
-						if(!$this->StructurePermissibleValuesCustom->save($data_unit)) {
-							 $this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); 
-						}
+				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
+			
+			} else {
+				$this->StructurePermissibleValuesCustom->validationErrors = array();
+				foreach($errors_tracking as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						 $this->StructurePermissibleValuesCustom->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s',true));
 					}
-					$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 				}
 			}
 		}
@@ -155,7 +173,7 @@ class DropdownsController extends AdministrateAppController {
 			if(!(is_null($this->data['StructurePermissibleValuesCustom']['en']) 
 			|| ($this->data['StructurePermissibleValuesCustom']['en'] == '')
 			|| ($this->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en']))) {
-				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.en' => $this->data['StructurePermissibleValuesCustom']['en'], 'StructurePermissibleValuesCustom.id != '.$value_id))); 
+				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.en' => $this->data['StructurePermissibleValuesCustom']['en'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id))); 
 				if(!empty($tmp)){
 					$this->StructurePermissibleValuesCustom->validationErrors['en'] = sprintf(__('a specified %s already exists for that dropdown', true), __("english translation", true));
 					$skip_save = true;
@@ -171,7 +189,7 @@ class DropdownsController extends AdministrateAppController {
 			if(!(is_null($this->data['StructurePermissibleValuesCustom']['fr']) 
 			|| ($this->data['StructurePermissibleValuesCustom']['fr'] == '')
 			|| ($this->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr']))) {
-				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.fr' => $this->data['StructurePermissibleValuesCustom']['fr'], 'StructurePermissibleValuesCustom.id != '.$value_id)));
+				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.fr' => $this->data['StructurePermissibleValuesCustom']['fr'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id)));
 				if(!empty($tmp)){
 					$this->StructurePermissibleValuesCustom->validationErrors['fr'] = sprintf(__('a specified %s already exists for that dropdown', true), __("french translation", true));
 					$skip_save = true;
