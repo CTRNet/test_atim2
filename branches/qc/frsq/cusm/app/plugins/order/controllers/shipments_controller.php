@@ -2,7 +2,7 @@
 
 class ShipmentsController extends OrderAppController {
 
-	var $components = array('Inventorymanagement.Aliquots');
+	var $components = array();
 		
 	var $uses = array(
 		'Order.Shipment', 
@@ -119,7 +119,7 @@ class ShipmentsController extends OrderAppController {
 				// Update aliquot use
 				if(!empty($linked_aliquot_uses)) {
 					//TODO Add test to verifiy date and created_by have been modified before to launch update function	
-					if(!$this->Aliquots->updateAliquotUses($linked_aliquot_uses, $this->data['Shipment']['datetime_shipped'], $this->data['Shipment']['shipped_by'])) { $this->redirect('/pages/err_order_system_error', null, true); }
+					if(!$this->AliquotUse->updateAliquotUses($linked_aliquot_uses, $this->data['Shipment']['datetime_shipped'], $this->data['Shipment']['shipped_by'])) { $this->redirect('/pages/err_order_system_error', null, true); }
 				}
 				
 				// Redirect
@@ -295,8 +295,10 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master = array();
 					$aliquot_master['AliquotMaster']['in_stock'] = 'no';
 					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
-					$aliquot_master['AliquotMaster'] = $this->Aliquots->removeAliquotStorageData($aliquot_master['AliquotMaster']);
-					
+					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
+					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
+					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
+		
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_order_record_err', null, true); }										
 					

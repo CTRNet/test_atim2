@@ -35,16 +35,10 @@ class User extends AppModel {
 			$display_name = $display_name ? $display_name : $result['User']['username'];
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $display_name ),
-					'title'			=>	array( NULL, $display_name ),
-					
-					'description'	=>	array(
-						'username'	=>	$result['User']['username'],
-						'email'		=>	$result['User']['email'],
-						'created'	=>	$result['User']['created']
-					)
-				)
+				'menu'			=>	array( NULL, $display_name ),
+				'title'			=>	array( NULL, $display_name ),
+				'data'			=> $result,
+				'structure alias' => 'users'
 			);
 		}
 		
@@ -56,7 +50,7 @@ class User extends AppModel {
 		$all_users_data = $this->find('all', array('recursive' => '-1'));
 		$result = array();
 		foreach($all_users_data as $data) {
-			$result[] = array('value' => $data['User']['id'], 'default' => $data['User']['first_name'] . ' ' . $data['User']['last_name']); 
+			$result[$data['User']['id']] = $data['User']['first_name'] . ' ' . $data['User']['last_name']; 
 		}
 		return $result;
 	}

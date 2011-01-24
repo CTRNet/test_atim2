@@ -2,7 +2,7 @@
 
 class TmaSlidesController extends StoragelayoutAppController {
 	
-	var $components = array('Storagelayout.Storages');
+	var $components = array();
 	
 	var $uses = array(
 		'Storagelayout.StorageMaster',
@@ -82,56 +82,21 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
-		if(empty($this->data)) {
-			// Set default value
-			$this->set('arr_preselected_storages_for_display', array());
-
-		} else {			
+		if(!empty($this->data)) {
 			// Set tma block storage master id
 			$this->data['TmaSlide']['tma_block_storage_master_id'] = $tma_block_storage_master_id;
 			
 			// Validates data
 			$submitted_data_validates = true;
 			
-			// Check the slide storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
-					
-			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
-			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
+			$this->TmaSlide->set($this->data);
+			if(!$this->TmaSlide->validates()){
 				$submitted_data_validates = false;
-				$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
+			}
 			
-			} else {
-				// Check slide position within storage
-				$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
-				$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
+			// Reste data to get position data
+			$this->data = $this->TmaSlide->data;
 				
-				// Manage errors
-				if(!empty($arr_position_results['position_definition_error'])) {
-					$submitted_data_validates = false;
-					$error = $arr_position_results['position_definition_error'];	
-					if($arr_position_results['error_on_x'] && $arr_position_results['error_on_y']) {	
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error; 
-						$this->TmaSlide->validationErrors['storage_coord_y'] = ' ';
-					} else if($arr_position_results['error_on_x']) {
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;					
-					} else if($arr_position_results['error_on_y']) {	
-						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;					
-					}				
-				}
-								
-				// Reset slide storage data
-				$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-				$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
-				$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-				$this->data['TmaSlide']['coord_y_order'] = $arr_position_results['position_y_order'];
-			}
-			
-			if($this->isDuplicatedTmaSlideBarcode($this->data)) {
-				$submitted_data_validates = false;
-			}
-			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
@@ -139,7 +104,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			
 			if($submitted_data_validates) {
 				// Save data	
-				if ($this->TmaSlide->save($this->data)) {
+				if ($this->TmaSlide->save($this->data, false)) {
 					$this->atimFlash('your data has been saved', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
 				}
 			}
@@ -230,57 +195,24 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if(empty($this->data)) {
-			$this->data = $tma_slide_data;	
+			$tma_slide_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $tma_slide_data['StorageMaster']));
+			$this->data = $tma_slide_data;
 			
-			// Get parent storage data
-			$parent_storage_data = array();
-			if(!empty($tma_slide_data['TmaSlide']['storage_master_id'])) {
-				$parent_storage_data = $this->StorageMaster->atim_list(array('conditions' => array('StorageMaster.id' => $tma_slide_data['TmaSlide']['storage_master_id'])));
-				if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
-			}
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($parent_storage_data));			
-
 		} else {
 			//Update data
 			
 			// Validates data
 			$submitted_data_validates = true;
 			
-			// Check the slide storage definition (selection label versus selected storage_master_id)
-			$arr_storage_selection_results = $this->Storages->validateStorageIdVersusSelectionLabel($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['TmaSlide']['storage_master_id']);
-					
-			$this->data['TmaSlide']['storage_master_id'] = $arr_storage_selection_results['selected_storage_master_id'];
-			$this->set('arr_preselected_storages_for_display', $this->formatPreselectedStoragesForDisplay($arr_storage_selection_results['matching_storage_list']));							
-			if(!empty($arr_storage_selection_results['storage_definition_error'])) {
-				$submitted_data_validates = false;
-				$this->TmaSlide->validationErrors['storage_master_id'] = $arr_storage_selection_results['storage_definition_error'];		
-			
-			} else {
-				// Check slide position within storage
-				$storage_data = (empty($this->data['TmaSlide']['storage_master_id'])? null: $arr_storage_selection_results['matching_storage_list'][$this->data['TmaSlide']['storage_master_id']]);
-				$arr_position_results = $this->Storages->validatePositionWithinStorage($this->data['TmaSlide']['storage_master_id'], $this->data['TmaSlide']['storage_coord_x'], $this->data['TmaSlide']['storage_coord_y'], $storage_data);
-				if(!empty($arr_position_results['position_definition_error'])) {
-					$submitted_data_validates = false;
-					$error = $arr_position_results['position_definition_error'];
-					if($arr_position_results['error_on_x'] && $arr_position_results['error_on_y']) {	
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error; 
-						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;
-					} else if($arr_position_results['error_on_x']) {
-						$this->TmaSlide->validationErrors['storage_coord_x'] = $error;					
-					} else if($arr_position_results['error_on_y']) {	
-						$this->TmaSlide->validationErrors['storage_coord_y'] = $error;					
-					}
-				}				
-				$this->data['TmaSlide']['storage_coord_x'] = $arr_position_results['validated_position_x'];
-				$this->data['TmaSlide']['coord_x_order'] = $arr_position_results['position_x_order'];
-				$this->data['TmaSlide']['storage_coord_y'] = $arr_position_results['validated_position_y'];
-				$this->data['TmaSlide']['coord_y_order'] = $arr_position_results['position_y_order'];			
-			}
-			
-			if($this->isDuplicatedTmaSlideBarcode($this->data, $tma_slide_id)) {
+			$this->data['TmaSlide']['id'] = $tma_slide_id;
+			$this->TmaSlide->set($this->data);
+			if(!$this->TmaSlide->validates()){
 				$submitted_data_validates = false;
 			}
 			
+			// Reste data to get position data
+			$this->data = $this->TmaSlide->data;
+						
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
@@ -289,7 +221,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 			if($submitted_data_validates) {
 				// Save tma slide data
 				$this->TmaSlide->id = $tma_slide_id;		
-				if($this->TmaSlide->save($this->data)) { 				
+				if($this->TmaSlide->save($this->data, false)) { 				
 					$this->atimFlash('your data has been updated', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id); 
 				}
 			}	
@@ -337,40 +269,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 	
 	/**
-	 * Check the tma slide barcode does not already exist and set error if this one already exists.
-	 * 
-	 * @param $tma_slide_data TMA slide data.
-	 * @param $tma_slide_id Id of the tma slide when this one is known.
-	 * 
-	 * @return Return true if barcode has already been set.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-02-04
-	 */
-	 
-	function isDuplicatedTmaSlideBarcode($tma_slide_data, $tma_slide_id = null) {
-		if(empty($tma_slide_data['TmaSlide']['barcode'])) {
-			return false;
-		}
-
-		// Build list of TMA slide having the same barcode
-		$duplicated_tma_barcodes = $this->TmaSlide->find('list', array('conditions' => array('TmaSlide.barcode' => $tma_slide_data['TmaSlide']['barcode']), 'recursive' => '-1'));
-
-		if(empty($duplicated_tma_barcodes)) {
-			// The new barcode does not exist into the db
-			return false;
-		} else if((!empty($tma_slide_id)) && isset($duplicated_tma_barcodes[$tma_slide_id]) && (sizeof($duplicated_tma_barcodes) == 1)) {
-			// TMA slide has been created therefore and the recorded barcode is the barcode of the studied TMA slide
-			return false;			
-		}
-		
-		// The same barcode exists for at least one TMA slide different than the studied one
-		$this->TmaSlide->validationErrors['barcode']	= 'barcode must be unique';
-		
-		return true;	
-	}
-	
-	/**
 	 * Check tma slide can be deleted.
 	 * 
 	 * @param $tma_slide_id Id of the tma slide when this one is known.
@@ -387,29 +285,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	/**
-	 * Format Preselected Storages data array for display.
-	 * 
-	 * @param $arr_preselected_storages PreselectedStorages data
-	 * 
-	 * @return Preselected storage list into array having following structure: 
-	 * 	array($storage_master_id => $storage_title_built_by_function)
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */	
-	 
-	function formatPreselectedStoragesForDisplay($arr_preselected_storages) {
-		$formatted_data = array();
-		
-		if(!empty($arr_preselected_storages)) {
-			foreach ($arr_preselected_storages as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $this->StorageMaster->createStorageTitleForDisplay($storage_data);
-			}
-		}
-	
-		return $formatted_data;
-	}	
 }
 
 ?>

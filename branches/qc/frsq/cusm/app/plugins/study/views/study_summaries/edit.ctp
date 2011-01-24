@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/study/study_summaries/edit/%%StudySummary.id%%/',
+		'top'=>'/study/study_summaries/edit/'.$atim_menu_variables['StudySummary.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/study/study_summaries/detail/%%StudySummary.id%%/'
+			'cancel'=>'/study/study_summaries/detail/'.$atim_menu_variables['StudySummary.id'].'/'
 		)
 	);
 	

@@ -6,31 +6,26 @@ class Adhoc extends DatamartAppModel {
 	
 	function summary( $variables=array() ) {
 			
-		$return = array(
-			'Summary' => array(
-				'menu' => array(null)));
+		$return = array();
 			
 		if ( isset($variables['Adhoc.id']) && (!empty($variables['Adhoc.id'])) ) {
 			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
 			if(!empty($adhoc_data)) {
-				$return['Summary']['menu'] = array($adhoc_data['Adhoc']['title']);
-				$return['Summary']['title'] = array(null, $adhoc_data['Adhoc']['title']);
-				$return['Summary']['description'] = array(
-					__('model', true) => $adhoc_data['Adhoc']['model'],
-					__('description', true) => $adhoc_data['Adhoc']['description']);	
+				$return['menu'] = array($adhoc_data['Adhoc']['title']);
+				$return['title'] = array(null, $adhoc_data['Adhoc']['title']);
 			}
 		
 		} else if(isset($variables['Param.Type_Of_List'])) {
 
 			switch($variables['Param.Type_Of_List']) {
 				case 'all':
-					$return['Summary']['menu'] = array('all');
+					$return['menu'] = array(__('all', true));
 					break;
 				case 'favourites':
-					$return['Summary']['menu'] = array('my favourites');
+					$return['menu'] = array(__('my favourites',true));
 					break;
 				case 'saved':
-					$return['Summary']['menu'] = array('my saved searches');
+					$return['menu'] = array(__('my saved searches',true));
 					break;
 				default:	
 			}	

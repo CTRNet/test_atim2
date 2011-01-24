@@ -1,5 +1,4 @@
 <?php
-
 class StructuresComponent extends Object {
 	
 	var $controller;
@@ -16,18 +15,71 @@ class StructuresComponent extends Object {
 	 * @param $alias Form alias of the new structure
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
 	 */
-	function set( $alias=NULL, $structure_name = 'atim_structure' ) {
-		foreach ( $this->get('rules', $alias) as $model=>$rules ) $this->controller->{ $model }->validate = $rules;
-		$this->controller->set( $structure_name, $this->get('form', $alias) );
+	function set($alias = NULL, $structure_name = 'atim_structure'){
+		if(!is_array($alias)){
+			$alias = explode(",", $alias);			
+		}
+		$structure = array('Structure' => array(), 'Sfs' => array());
+		$all_structures = array();
+		foreach($alias as $alias_unit){
+			$struct_unit = $this->getSingleStructure($alias_unit);
+			$all_structures[] = $struct_unit;
+			foreach ($struct_unit['rules'] as $model => $rules){
+				//reset validate for newly loaded structure models
+				$this->controller->{ $model }->validate = array();
+			}
+			if(isset($struct_unit['structure']['Sfs'])){
+				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
+				$structure['Structure'][] = $struct_unit['structure']['Structure'];
+			}
+		}
+		
+		//rules are formatted, apply them
+		foreach($all_structures as $struct_unit){
+			foreach ($struct_unit['rules'] as $model => $rules){
+				$this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
+			}
+		}
+		
+		if(count($alias) > 1){
+			self::sortStructure($structure);
+		}else if(count($structure['Structure']) == 1){
+			$structure['Structure'] = $structure['Structure'][0];
+		}
+		$this->controller->set($structure_name, $structure);
 	}
 	
-	function get( $mode=NULL, $alias=NULL ) {
+	function get($mode = null, $alias = NULL){
+		$result = array('structure' => array('Structure' => array(), 'Sfs' => array()), 'rules' => array());
+		if(!is_array($alias)){
+			$alias = explode(",", $alias);
+		}
+
+		foreach($alias as $alias_unit){
+			$tmp = $this->getSingleStructure($alias_unit);
+			$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
+			$result['structure']['Structure'][] = $tmp['structure']['Structure'];
+			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+		}
+		if(count($alias) > 1){
+			self::sortStructure($result['structure']);
+		}else if(count($result['structure']['Structure']) == 1){
+			$result['structure']['Structure'] = $result['structure']['Structure'][0];
+		}
+		if($mode == 'rule' || $mode == 'rules'){
+			$result = $result['rules'];
+		}else if($mode == 'form'){
+			$result = $result['structure'];
+		}
+		return $result;
+	}
+	
+	function getSingleStructure($alias = NULL){
 		$return = array();
-		$mode		= strtolower($mode);
-		$alias	= $alias ? strtolower($alias) : str_replace('_','',$this->controller->params['controller']);
+		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
 		$structure_cache_directory = "../tmp/cache/structures/";
-		$fname = $structure_cache_directory.$mode.".".$alias.".cache";
+		$fname = $structure_cache_directory.".".$alias.".cache";
 		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
 			$fhandle = fopen($fname, 'r');
 			$return = unserialize(fread($fhandle, filesize($fname)));
@@ -54,7 +106,7 @@ class StructuresComponent extends Object {
 				$this->Component_Structure = new Structure;
 				
 				$result = $this->Component_Structure->find(
-								( ( $mode=='rule' || $mode=='rules' ) ? 'rules' : 'first'), 
+								'first',
 								array(
 									'conditions'	=>	array( 'Structure.alias' => $alias ), 
 									'recursive'		=>	5
@@ -72,24 +124,39 @@ class StructuresComponent extends Object {
 		}
 		
 		//CodingIcd magic, import every model required for that structure
-		if(isset($return['StructureFormat'])){
+		if(isset($return['structure']['Sfs'])){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
-				foreach($return['StructureFormat'] as $sfo){
-					if(($sfo['flag_override_setting'] && strpos($sfo['setting'], $trigger) !== false)
-					|| strpos($sfo['StructureField']['setting'], $trigger) !== false){
-						App::import("Model", "codingicd.".$key);
-						new $key;//instantiate it
-						$return['Structure']['CodingIcdCheck'] = true;
+				foreach($return['structure']['Sfs'] as $sfs){
+					if(strpos($sfs['setting'], $trigger) !== false){
+						$key = AppModel::atimNew('codingicd', $key, true);
+						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
 				}
 			}
 		}
 		return $return;
-		
 	}
 	
-	function parse_search_conditions( $atim_structure=NULL ) {
+	/**
+	 * Sorts a structure based on display_column and display_order.
+	 * @param array $atim_structure
+	 */
+	public static function sortStructure(&$atim_structure){
+		if(count($atim_structure['Sfs'])){
+			// Sort the data with ORDER descending, FIELD ascending 
+			foreach($atim_structure['Sfs'] as $key => $row){
+				$sort_order_0[$key] = $row['display_column'];
+				$sort_order_1[$key] = $row['display_order'];
+				$sort_order_2[$key] = $row['model'];
+			}
+			
+			// multisort, PHP array 
+			array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
+		}
+	}
+	
+	function parse_search_conditions($atim_structure = NULL){
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -97,13 +164,14 @@ class StructuresComponent extends Object {
 		$form_fields = array();
 		
 		// if no STRUCTURE provided, try and get one
-		if ( $atim_structure===NULL ){
-			$atim_structure = $this->get();
+		if($atim_structure===NULL){
+			$atim_structure = $this->getSingleStructure();
+			$atim_structure = $atim_structure['structure'];
 		}
-		$simplified_structure = self::simplifyForm($atim_structure);
+		
 		// format structure data into SEARCH CONDITONS format
-		if ( isset($simplified_structure['SimplifiedField']) ) {
-			foreach ($simplified_structure['SimplifiedField'] as $value) {
+		if (isset($atim_structure['Sfs'])){
+			foreach ($atim_structure['Sfs'] as $value) {
 				if(!$value['flag_search']){
 					//don't waste cpu cycles on non search parameters
 					continue;
@@ -112,13 +180,15 @@ class StructuresComponent extends Object {
 				// for RANGE values, which should be searched over with a RANGE...
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
-				if ( $value['type']=='number'
-				|| $value['type']=='integer'
-				|| $value['type']=='integer_positive'
-				|| $value['type']=='float'
-				|| $value['type']=='float_positive' 
-				|| $value['type']=='date' 
-				|| $value['type']=='datetime'
+				$value_type = $value['type'];
+				if ($value_type == 'number'
+				|| $value_type == 'integer'
+				|| $value_type == 'integer_positive'
+				|| $value_type == 'float'
+				|| $value_type == 'float_positive' 
+				|| $value_type == 'date' 
+				|| $value_type == 'datetime'
+				|| $value_type == 'time'
 				|| (strpos($value['setting'], "range") !== false)
 						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
 					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
@@ -129,20 +199,16 @@ class StructuresComponent extends Object {
 					$form_fields[$form_fields_key.'_end']['plugin']			= $value['plugin'];
 					$form_fields[$form_fields_key.'_end']['model']			= $value['model'];
 					$form_fields[$form_fields_key.'_end']['field']			= $value['field'];
-					$form_fields[$form_fields_key.'_end']['key']				= $form_fields_key.' <=';
-				}
-				
-				// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-				else if ( $value['type'] == 'select' || isset($this->controller->data['exact_search'])){
-					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
+					$form_fields[$form_fields_key.'_end']['key']			= $form_fields_key.' <=';
+				}else if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
+					// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
+					$form_fields[$form_fields_key]['plugin']= $value['plugin'];
 					$form_fields[$form_fields_key]['model']	= $value['model'];
 					$form_fields[$form_fields_key]['field']	= $value['field'];
 					
 					$form_fields[$form_fields_key]['key']		= $value['model'].'.'.$value['field'];
-				}
-				
-				// all other types, a generic SQL fragment...
-				else {
+				}else {
+					// all other types, a generic SQL fragment...
 					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
 					$form_fields[$form_fields_key]['model']	= $value['model'];
 					$form_fields[$form_fields_key]['field']	= $value['field'];
@@ -170,17 +236,16 @@ class StructuresComponent extends Object {
 		
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
-		foreach ( $this->controller->data as $model=>$fields ) {
+		foreach($this->controller->data as $model => $fields){
 			if(is_array($fields)){
-				foreach ( $fields as $key=>$data ) {
+				foreach($fields as $key => $data){
 					$form_fields_key = $model.'.'.$key;
 					// if MODEL data was passed to this function, use it to generate SQL criteria...
-					if ( count($form_fields) ) {
-						
+					if(count($form_fields)){
 						// add search element to CONDITIONS array if not blank & MODEL data included Model/Field info...
-						if ( (!empty($data) || $data == "0")  && isset( $form_fields[$form_fields_key] ) ) {
+						if((!empty($data) || $data == "0")  && isset($form_fields[$form_fields_key])){
 							// if CSV file uploaded...
-							if ( is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name'] ) {
+							if(is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name']){
 								
 								// set $DATA array based on contents of uploaded FILE
 								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
@@ -194,31 +259,30 @@ class StructuresComponent extends Object {
 								
 								unset($this->controller->data[$model][$key.'_with_file_upload']);
 							}
-							
+
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
-							if ( is_array($data) ) {
-								App::import('Model', $form_fields[$form_fields_key]['plugin'].'.'.$model);
-								// App::import('Model', 'Clinicalannotation.'.$model);
+							if (is_array($data)){
 								
-								$format_data_model = new $model;
-								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4);
-								if ( is_array($data) ) {
+								$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
+								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
+								if(is_array($data)){
 									$data = array_unique($data);
-									
 									$data = array_filter($data, "StructuresComponent::myFilter");
 								}
 								
-								if ( !count($data) ) $data = '';
+								if (!count($data)){
+									$data = '';
+								}
 							}
 							
 							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip
-							if ( $data || $data == "0" ) {
+							if ($data || $data == "0"){
 								
 								if(isset($form_fields[$form_fields_key]['cast_icd'])){
 									//special magical icd case
 									eval('$instance = '.$form_fields[$form_fields_key]['cast_icd'].'::getInstance();');
 									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
-								}else if ( strpos($form_fields[$form_fields_key]['key'], ' LIKE')!==false ) {
+								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
@@ -236,7 +300,6 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
-		// return CONDITIONS for search form
 		return $conditions;
 	}
 	
@@ -371,49 +434,8 @@ class StructuresComponent extends Object {
 			$this->Component_Structure = new Structure();
 		}
 		$data = $this->Component_Structure->find('first', array('conditions' => array('Structure.id' => $id), 'recursive' => -1));
-		return $this->get('form', $data['Structure']['alias']);
-	}
-	
-	function getSimplifiedFormById($id){
-		$form = $this->getFormById($id);
-		foreach($form['StructureFormat'] as &$sfo){
-			if(isset($sfo['StructureField']['StructureValueDomain']['source']) && strlen($sfo['StructureField']['StructureValueDomain']['source']) > 0){
-				$sfo['StructureField']['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sfo['StructureField']['StructureValueDomain']['source']); 
-			}
-		}
-		return StructuresComponent::simplifyForm($form);
-	}
-	
-	/**
-	 * Flattens a form so that all information is on the same level and that there is no need to evaluate override flags all the time
-	 * @param array $form The form to simplify
-	 */
-	static function simplifyForm(array $form){
-		$result['Structure'] = $form['Structure'];
-		$sfo_to_copy = array("structure_id", "structure_field_id", "display_column", "display_order", "language_heading", "flag_add", "flag_add_readonly",
-			"flag_edit", "flag_edit_readonly", "flag_search", "flag_search_readonly", "flag_datagrid", "flag_datagrid_readonly", "flag_index",
-			"flag_detail");
-		$sfi_to_copy = array("public_identifier", "plugin", "model", "tablename", "field", "structure_value_domain", "StructureValueDomain",
-			"StructureValidation");
-		foreach($form['StructureFormat'] as $sfo){
-			$ssfield = array();
-			$ssfield["structure_format_id"] = $sfo['id'];
-			foreach($sfo_to_copy as $unit){
-				$ssfield[$unit] = $sfo[$unit];
-			}
-			foreach($sfi_to_copy as $unit){
-				$ssfield[$unit] = $sfo['StructureField'][$unit];
-			}
-			$ssfield['language_label'] = $sfo['flag_override_label'] ? $sfo['language_label'] : $sfo['StructureField']['language_label'];
-			$ssfield['language_tag'] = $sfo['flag_override_tag'] ? $sfo['language_tag'] : $sfo['StructureField']['language_tag'];
-			$ssfield['language_help'] = $sfo['flag_override_help'] ? $sfo['language_help'] : $sfo['StructureField']['language_help'];
-			$ssfield['type'] = $sfo['flag_override_type'] ? $sfo['type'] : $sfo['StructureField']['type'];
-			$ssfield['setting'] = $sfo['flag_override_setting'] ? $sfo['setting'] : $sfo['StructureField']['setting'];
-			$ssfield['default'] = $sfo['flag_override_default'] ? $sfo['default'] : $sfo['StructureField']['default'];
-			$result['SimplifiedField'][] = $ssfield;
-		}
-		
-		return $result;
+		$tmp = $this->getSingleStructure($data['structure']['Structure']['alias']);
+		return $tmp['structure'];
 	}
 	
 	/**
@@ -446,16 +468,8 @@ class StructuresComponent extends Object {
 				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
 			}
 
-			// load MODEL, and override with CUSTOM model if it exists...
-			$pulldown_model_object = new $pulldown_model;
-				
-			// check for CUSTOM models, and use that if exists
-			$custom_pulldown_plugin = $pulldown_plugin;
-			$custom_pulldown_model = $pulldown_model.'Custom';
-				
-			if ( App::import('Model',$custom_pulldown_object) ) {
-				$pulldown_model_object = new $custom_pulldown_model;
-			}
+			// load MODEL
+			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
 
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
