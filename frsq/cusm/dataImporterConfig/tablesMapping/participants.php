@@ -50,7 +50,7 @@ $tables['participants']->custom_data = array(
 	"date_fields" => array(
 		$fields["date_of_birth"] => $fields["dob_date_accuracy"], 
 		$fields["date_of_death"] => $fields["dod_date_accuracy"] 
-);
+));
 $tables['participants']->post_read_function = 'postRead';
 $tables['participants']->post_write_function = 'postParticipantWrite';
 ?>
