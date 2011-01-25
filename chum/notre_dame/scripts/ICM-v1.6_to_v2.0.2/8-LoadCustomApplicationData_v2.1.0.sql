@@ -1012,6 +1012,8 @@ UPDATE users set flag_active = '1';
 
 DELETE from aros_acos WHERE aco_id NOT IN (SELECT id FROM acos WHERE alias = 'controllers');
 
+UPDATE structure_fields SET setting='class=range' WHERE field IN('sardo_participant_id', 'participant_identifier');
+
 control qualiteé: Le choix appareil ne marche pas
 Aliquot ADN se met a non disponible si on fait un control de qualite
 Pour les aliquots de culture cellulaire: On aimerait un flag pour dire mycoplasme free.
