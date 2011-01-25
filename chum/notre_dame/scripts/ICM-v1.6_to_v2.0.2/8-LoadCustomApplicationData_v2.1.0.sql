@@ -1014,13 +1014,16 @@ DELETE from aros_acos WHERE aco_id NOT IN (SELECT id FROM acos WHERE alias = 'co
 
 UPDATE structure_fields SET setting='class=range' WHERE field IN('sardo_participant_id', 'participant_identifier');
 
-RENAME TABLE ed_all_procure_lifestyle TO qc_nd_ed_all_procure_lifestyle;
-UPDATE structure_fields SET tablename='qc_nd_ed_all_procure_lifestyle' WHERE tablename='ed_all_procure_lifestyle';
-UPDATE event_controls SET detail_tablename='qc_nd_ed_all_procure_lifestyle', form_alias='qc_nd_ed_all_procure_lifestyle' WHERE detail_tablename='ed_all_procure_lifestyle';
+RENAME TABLE ed_all_procure_lifestyles TO qc_nd_ed_all_procure_lifestyles;
+RENAME TABLE ed_all_procure_lifestyles_revs TO qc_nd_ed_all_procure_lifestyles_revs;
+UPDATE structure_fields SET tablename='qc_nd_ed_all_procure_lifestyles' WHERE tablename='ed_all_procure_lifestyle';
+UPDATE event_controls SET detail_tablename='qc_nd_ed_all_procure_lifestyles', form_alias='qc_nd_ed_all_procure_lifestyle' WHERE detail_tablename='ed_all_procure_lifestyle';
 UPDATE structures SET alias='qc_nd_ed_all_procure_lifestyle' WHERE alias='ed_all_procure_lifestyle';
 ALTER TABLE qc_nd_ed_all_procure_lifestyle
  ADD COLUMN validated BOOLEAN NOT NULL DEFAULT false;
-INSERT INTO `atim_nd`.`structure_fields` (
+ALTER TABLE qc_nd_ed_all_procure_lifestyle_revs
+ ADD COLUMN validated BOOLEAN NOT NULL DEFAULT false;
+INSERT INTO `structure_fields` (
 `public_identifier` ,
 `plugin` ,
 `model` ,
@@ -1035,14 +1038,25 @@ INSERT INTO `atim_nd`.`structure_fields` (
 `language_help` ,
 `validation_control` ,
 `value_domain_control` ,
-`field_control` ,
+`field_control`
 )VALUES 
-('', '', 'EventDetail', 'qc_nd_ed_all_procure_lifestyle', 'validated', 'validated', '', 'checkbox', '', '', NULL , '', 'open', 'open', 'open');
-INSERT INTO `atim_nd`.`structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_nd_ed_all_procure_lifestyle'), (SELECT id FROM structure_fields WHERE field='validated' AND model='EventDetail' AND tablename='qc_nd_ed_all_procure_lifestyle'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+('', '', 'EventDetail', 'qc_nd_ed_all_procure_lifestyles', 'validated', 'validated', '', 'checkbox', '', '', NULL , '', 'open', 'open', 'open');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_all_procure_lifestyle'), (SELECT id FROM structure_fields WHERE field='validated' AND model='EventDetail' AND tablename='qc_nd_ed_all_procure_lifestyles'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
 
 REPLACE INTO i18n(id, en, fr) VALUES
-("validated", "Validated", "Validé");
+("validated", "Validated", "Validé"),
+("from center", "From center", Du centre");
+
+ALTER TABLE participants
+ ADD COLUMN qc_nd_from_center VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs
+ ADD COLUMN qc_nd_from_center VARCHAR(50) NOT NULL DEFAULT '';
+INSERT INTO `structure_fields` (`public_identifier` ,`plugin` ,`model` ,`tablename` ,`field` ,`language_label` ,`language_tag` ,`type` ,`setting` ,`default` ,`structure_value_domain` ,`language_help` ,`validation_control` ,`value_domain_control` ,`field_control`)VALUES 
+('', '', 'Participant', 'participants', 'qc_nd_from_center', 'from center', '', 'input', '', '', NULL , '', 'open', 'open', 'open');
+INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE field='qc_nd_from_center' AND model='Participant' AND tablename='participants'), '4', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
+
 
 control qualiteé: Le choix appareil ne marche pas
 Aliquot ADN se met a non disponible si on fait un control de qualite
