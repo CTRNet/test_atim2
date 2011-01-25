@@ -340,7 +340,7 @@ SELECT
 sample_barcode, 'tube',  '8', sample_status, stored_datetime, box_id, col_id, row_id, created, 
 created_by, modified, modified_by, previous_box_id, release_barcode, sample_type, 
 collection_id, parent_sample_id, id
-FROM  ttrdb.sample_masters tsm  
+FROM  sample_masters tsm  
 WHERE  tsm.sample_type = 'buffy_coat' ;
 
 
@@ -358,7 +358,7 @@ FROM  atim.a_tmp_tubes;
 
 
 -- Update Volume information
-UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
+UPDATE atim.aliquot_masters am, sd_bloodproducts sd
 SET  am.initial_volume = sd.quantity,
      am.current_volume = sd.available_quantity
 WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
@@ -405,7 +405,7 @@ SELECT
 sample_barcode, 'tube',  '8', sample_status, stored_datetime, box_id, col_id, row_id, created, 
 created_by, modified, modified_by, previous_box_id, release_barcode, sample_type, 
 collection_id, parent_sample_id, id
-FROM  ttrdb.sample_masters tsm  
+FROM  sample_masters tsm  
 WHERE  tsm.sample_type = 'plasma' ;
 
  
@@ -421,7 +421,7 @@ WHERE  bc_ttr_sample_type = 'plasma' ;
 
 
 -- Update Volume information
-UPDATE atim.aliquot_masters am, ttrdb.sd_bloodproducts sd
+UPDATE atim.aliquot_masters am, sd_bloodproducts sd
 SET  am.initial_volume = sd.quantity,
      am.current_volume = sd.available_quantity
 WHERE am.bc_ttr_old_sample_master_id = sd.sample_master_id
@@ -475,7 +475,7 @@ SELECT
 sample_barcode, 'whatman paper',  '6', sample_status, stored_datetime, box_id, col_id, row_id, created, 
 created_by, modified, modified_by, previous_box_id, release_barcode, sample_type, 
 collection_id, parent_sample_id, id
-FROM  ttrdb.sample_masters tsm  
+FROM  sample_masters tsm  
 WHERE  tsm.sample_type = 'dna_card ';
 
 
@@ -517,7 +517,7 @@ WHERE am.bc_ttr_sample_type = 'dna_card' ;
  
  
 -- Update  Card Lot, Card type and Spot
-UPDATE atim.ad_whatman_papers ad,   atim.aliquot_masters am,     ttrdb.sd_dnacards sd
+UPDATE atim.ad_whatman_papers ad,   atim.aliquot_masters am,     sd_dnacards sd
 SET  ad.bc_ttr_dna_card_type = sd.card_type,
           ad.bc_ttr_dna_card_lot_no = sd.card_lot_no,
 	      ad.bc_ttr_dna_card_spot = sd.spot
