@@ -38,3 +38,6 @@ final custom script.
 mysql -u root -p atim --default-character-set=utf8 < tmp_atim_v2.1.1_upgrade.sql
 mysql -u root -p atim --default-character-set=utf8 < bc_ttr_custom.sql
 
+5- Build left rght data for storage + selection label
+
+php rebuildLeftRight.php atim root 

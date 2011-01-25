@@ -34,3 +34,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_block_observation' AND `structure_value_domain`  IS NULL  ), '1', '89', '', '1', 'bc ttr block observation', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 
 UPDATE structure_fields SET setting='' WHERE id IN(1887, 1888);
+
+ALTER TABLE `storage_masters` ADD `label_precision` VARCHAR( 50 ) NULL AFTER `short_label` ;
+ALTER TABLE `storage_masters_revs` ADD `label_precision` VARCHAR( 50 ) NULL AFTER `short_label` ;

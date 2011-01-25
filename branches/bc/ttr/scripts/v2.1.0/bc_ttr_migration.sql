@@ -7,8 +7,8 @@ ALTER TABLE atim.storage_masters
  ADD COLUMN tower_id int,
  ADD COLUMN box_id int;
 -- freezer
-INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, set_temperature, temperature, temp_unit, old_id, created, created_by, modified, modified_by) 
-(SELECT NULL, 6, 'freezer', true, storage_temp, 'celsius', id,created, created_by, modified, modified_by FROM storages);
+INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, short_label, selection_label, set_temperature, temperature, temp_unit, old_id, created, created_by, modified, modified_by) 
+(SELECT NULL, 6, 'freezer', replace( description, 'Freezer ', '' ) ,replace( description, 'Freezer', '' ) ,true, storage_temp, 'celsius', id,created, created_by, modified, modified_by FROM storages);
 UPDATE atim.storage_masters SET code=CONCAT('FRE - ', id);
 INSERT INTO atim.std_freezers(storage_master_id, created_by, modified, modified_by) (SELECT id, created_by, modified, modified_by FROM atim.storage_masters);
 
@@ -19,8 +19,8 @@ INSERT INTO `atim`.`storage_controls` (`id`, `storage_type`, `storage_type_code`
 CREATE TABLE atim.std_towers (SELECT * FROM atim.std_shelfs LIMIT 1);
 ALTER TABLE atim.std_towers
  MODIFY id int NOT NULL AUTO_INCREMENT PRIMARY KEY;
-INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, set_temperature, temp_unit, parent_id, tower_id, created, created_by, modified, modified_by)
-(SELECT NULL, 21, 'tower', false, 'celsius', (SELECT id FROM atim.storage_masters WHERE old_id=storage_id), id, created, created_by, modified, modified_by FROM towers);
+INSERT INTO atim.storage_masters(code, storage_control_id, storage_type, selection_label, set_temperature, temp_unit, parent_id, tower_id, created, created_by, modified, modified_by)
+(SELECT NULL, 21, 'tower', description, false, 'celsius', (SELECT id FROM atim.storage_masters WHERE old_id=storage_id), id, created, created_by, modified, modified_by FROM towers);
 UPDATE atim.storage_masters AS c 
  LEFT JOIN atim.storage_masters AS p ON c.parent_id=p.id
  SET c.code=CONCAT('T - ', c.id), c.temperature=p.temperature WHERE c.tower_id IS NOT NULL;
