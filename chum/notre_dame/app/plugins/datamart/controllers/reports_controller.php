@@ -110,16 +110,14 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new participant
 		if(!isset($this->Participant)) {
-			App::import("Model", "Clinicalannotation.Participant");
-			$this->Participant = new Participant();
+			$this->Participant = AppModel::atimNew("Clinicalannotation", "Participant", true);
 		}
 		$conditions = $search_on_date_range? array("Participant.created >= '$start_date_for_sql'", "Participant.created <= '$end_date_for_sql'") : array();
 		$data['0']['new_participants_nbr'] = $this->Participant->find('count', (array('conditions' => $conditions)));		
 
 		// Get new consents obtained
 		if(!isset($this->ConsentMaster)) {
-			App::import("Model", "Clinicalannotation.ConsentMaster");
-			$this->ConsentMaster = new ConsentMaster();
+			$this->ConsentMaster = AppModel::atimNew("Clinicalannotation", "ConsentMaster", true);
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
 		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		

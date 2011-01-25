@@ -60,7 +60,7 @@
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
-		'type' => 'radiolist', 
+		'type' => 'index', 
 		'data' => $order_line_data,
 		'links'=> $structure_links, 
 		'settings'=> $structure_settings, 

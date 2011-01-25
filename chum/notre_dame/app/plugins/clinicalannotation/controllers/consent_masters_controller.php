@@ -7,8 +7,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.ConsentDetail',
 		'Clinicalannotation.ConsentControl',
 		'Clinicalannotation.Participant',
-		'Clinicalannotation.ClinicalCollectionLink',
-		'Provider.Provider'
+		'Clinicalannotation.ClinicalCollectionLink'
 	);
 	
 	var $paginate = array('ConsentMaster'=>array('limit' => pagination_amount,'order'=>'ConsentMaster.date_first_contact ASC')); 

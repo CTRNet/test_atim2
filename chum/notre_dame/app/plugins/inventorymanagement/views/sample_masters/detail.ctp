@@ -54,7 +54,7 @@
 
 	// Set override
 	$structure_override = array();
-	$structure_override['SampleMaster.parent_id'] = $parent_sample_data_for_display;
+	$dropdown_options = array('SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''));
 	
 	// BUILD FORM
 
@@ -65,7 +65,7 @@
 		// 1- SAMPLE DETAIL	
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'links' => $structure_links, 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -81,7 +81,7 @@
 		// 1- SAMPLE DETAIL	
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'settings' => array('actions' => false), 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -97,7 +97,7 @@
 		$structure_override = array();
 		
 		$final_atim_structure = $aliquots_listall_structure; 
-		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null), 'separator' => true));
+		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null)));
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquots');
