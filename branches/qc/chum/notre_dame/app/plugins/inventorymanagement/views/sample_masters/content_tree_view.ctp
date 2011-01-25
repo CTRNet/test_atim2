@@ -7,10 +7,6 @@
 		'tree'=>array(
 			'SampleMaster'		=> 'SampleMaster',
 			'AliquotMaster'	=> 'AliquotMaster'
-		),		
-		'columns' => array(
-			1	=> array('width' => '30%'),
-			10	=> array('width' => '70%')
 		)
 	);
 	
@@ -18,11 +14,13 @@
 	
 	$specimen_type_filter_links = array();
 	foreach ($specimen_type_list as $type => $sample_control_id) {
-		$specimen_type_filter_links[__($type,true)] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control_id;
+		$specimen_type_filter_links[__($type,true)] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $display_aliquots_filter_value . '|' . $sample_control_id;
 	}
 	ksort($specimen_type_filter_links);
+	
+	$specimen_type_filter_links[($display_aliquots_filter_value? 'only samples': 'samples & aliquots')] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . ($display_aliquots_filter_value? 0: 1) . '|' . $studied_specimen_sample_control_id_filter_value;	
 	$specimen_type_filter_links['no filter'] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/-1';	
-		
+			
 	$add_links = array();
 	foreach ($specimen_sample_controls_list as $sample_control) {
 		$add_links[__($sample_control['SampleControl']['sample_type'],true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];

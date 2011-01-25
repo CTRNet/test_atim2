@@ -8,19 +8,16 @@
 			'SampleMaster' => 'SampleMaster',
 			'AliquotMaster' => 'AliquotMaster'
 		),		
-		'columns' => array(
-			1	=> array('width' => '30%'),
-			10	=> array('width' => '70%')
-		),
 		'header' => __('filter', null) . ': '. $filter_value
 	);
 	
 	// LINKS
-	
+
 	$specimen_type_filter_links = array();
 	foreach ($specimen_type_list as $type => $sample_control_id) {
-		$specimen_type_filter_links[$type] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'].'/'.$sample_control_id;
+		$specimen_type_filter_links[$type] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'].'/'.$display_aliquots_filter_value.'|'.$sample_control_id;
 	}
+	$specimen_type_filter_links[($display_aliquots_filter_value? 'only samples': 'samples & aliquots')] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'].'/'.($display_aliquots_filter_value? 0: 1).'|'.$studied_specimen_sample_control_id_filter_value;	
 	$specimen_type_filter_links['no filter'] = '/clinicalannotation/product_masters/productsTreeView/'.$atim_menu_variables['Participant.id'];	
 		
 	$structure_links = array(

@@ -13,7 +13,7 @@
 	//$filex = fopen("../app/locale/error/ERROR_MESSAGES/error.po", "w+t");
 	
 	//Establishes a connection to the MySQL server
-	$connection = @mysql_connect("localhost", "root", "root")
+	$connection = @mysql_connect("127.0.0.1:8889", "root", "root")
 					or die("Could not connect to MySQL");
 	if(!mysql_set_charset("latin1", $connection)){
 		die("We failed");
