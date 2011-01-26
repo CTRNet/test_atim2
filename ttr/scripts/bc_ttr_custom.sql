@@ -93,3 +93,65 @@ INSERT INTO derivative_details
 SELECT id, created, created_by, modified, modified_by, deleted
 FROM  sample_masters WHERE sample_category = 'derivative'; 
 
+-- clean up revs tables...
+
+ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_lot_no` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_spot` TINYINT( 4 ) NULL AFTER  `deleted_date`;
+
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_sample_master_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_parent_sample_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_collection_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_sample_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_release_barcode` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_previous_box_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+
+ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`;
+ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+
+ALTER TABLE  atim.`sd_der_blood_cells_revs` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+
+ALTER TABLE atim.aliquot_masters_revs
+ ADD COLUMN tmp_id int DEFAULT NULL,
+ ADD COLUMN tmp_slide_id int DEFAULT NULL;
+
+ALTER TABLE atim.aliquot_masters_revs
+ ADD COLUMN bc_ttr_prev_storage_id int DEFAULT NULL;
+
+ALTER TABLE aliquot_review_masters_revs CHANGE   `aliquot_masters_id` `aliquot_master_id` int(11) DEFAULT NULL;
+
+DROP TABLE tmp_slides;
+DROP TABLE a_tmp_tubes;
+DROP TABLE a_tmp_tubes_plasma;
+DROP TABLE a_tmp_whatman_paper;
+
+CREATE TABLE IF NOT EXISTS `std_towers_revs` (
+  `id` int(11) NOT NULL,
+  
+  `storage_master_id` int(11) DEFAULT NULL,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+
+
