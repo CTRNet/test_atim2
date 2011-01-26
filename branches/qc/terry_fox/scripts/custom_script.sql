@@ -11,3 +11,6 @@ UPDATE structure_formats SET `display_order`='19' WHERE structure_id=(SELECT id 
 
 UPDATE structure_fields SET  `model`='EventDetail',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_eoc_event_type')  WHERE model='EventMaster' AND tablename='qc_tf_ed_eocs' AND field='m_event_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_eoc_event_type');
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND type='date' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='qc_tf_suspected_date_of_death' AND type='date' AND structure_value_domain  IS NULL );
+
