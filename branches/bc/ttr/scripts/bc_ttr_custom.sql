@@ -60,8 +60,6 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='short_label' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='temp_unit' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code'));
 
--- -- --
-
 -- update parent id of blood cell
 update atim.sample_masters spec , atim.sample_masters der
 set der.parent_id = spec.id
@@ -85,10 +83,13 @@ SET deri.initial_specimen_sample_id = spec.id, deri.initial_specimen_sample_type
 WHERE spec.id = deri.parent_id AND spec.sample_category = 'specimen'
 AND deri.sample_category = 'derivative';
 
+INSERT INTO specimen_details
+(sample_master_id, created, created_by, modified, modified_by, deleted)
+SELECT id, created, created_by, modified, modified_by, deleted
+FROM  sample_masters WHERE sample_category = 'specimen'; 
 
+INSERT INTO derivative_details
+(sample_master_id, created, created_by, modified, modified_by, deleted)
+SELECT id, created, created_by, modified, modified_by, deleted
+FROM  sample_masters WHERE sample_category = 'derivative'; 
 
-
-
-
-
-	

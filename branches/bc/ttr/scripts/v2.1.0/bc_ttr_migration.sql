@@ -300,22 +300,11 @@ ALTER TABLE atim.aliquot_uses
 -- TODO: populate revs tables
 
 
-
-
-ALTER TABLE atim.storage_masters
- ADD UNIQUE KEY `unique_code` (`code`),
- DROP COLUMN old_id,
- DROP COLUMN tower_id,
- DROP COLUMN box_id;
-
- 
- 
- 
-
 --
 -- ALIQUOT Buffy Coat
 --
 ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_previous_box_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  atim.`aliquot_masters` ADD  `nl_tmp_box_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_release_barcode` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 
 ALTER TABLE  atim.`aliquot_masters` ADD  `bc_ttr_sample_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
@@ -350,10 +339,10 @@ WHERE  tsm.sample_type = 'buffy_coat' ;
 -- Insert into REAL table for Aliquot Master  (Blood Celll or Buffy Coat)
 
 INSERT INTO atim.aliquot_masters
-(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_coord_x, storage_coord_y, 
+(barcode, aliquot_type, aliquot_control_id,  in_stock, nl_tmp_box_id, storage_datetime, storage_coord_x, storage_coord_y, 
 created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
 SELECT 
-barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+barcode, aliquot_type, aliquot_control_id, in_stock, storage_master_id, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
 FROM  atim.a_tmp_tubes;   
 
 
@@ -412,10 +401,10 @@ WHERE  tsm.sample_type = 'plasma' ;
 -- Insert into REAL table for Aliquot Master  (PLASMA)
 
 INSERT INTO atim.aliquot_masters
-(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_coord_x, storage_coord_y, 
+(barcode, aliquot_type, aliquot_control_id,  in_stock, nl_tmp_box_id, storage_datetime, storage_coord_x, storage_coord_y, 
 created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
 SELECT 
-barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+barcode, aliquot_type, aliquot_control_id, in_stock, storage_master_id, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
 FROM  atim.a_tmp_tubes   
 WHERE  bc_ttr_sample_type = 'plasma' ;
 
@@ -484,10 +473,10 @@ WHERE  tsm.sample_type = 'dna_card ';
 -- Insert into REAL table for Aliquot Master  (WHATMAN PAPER)
 
 INSERT INTO atim.aliquot_masters
-(barcode, aliquot_type, aliquot_control_id,  in_stock, storage_datetime, storage_coord_x, storage_coord_y, 
+(barcode, aliquot_type, aliquot_control_id,  in_stock, nl_tmp_box_id, storage_datetime, storage_coord_x, storage_coord_y, 
 created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id)
 SELECT 
-barcode, aliquot_type, aliquot_control_id, in_stock, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
+barcode, aliquot_type, aliquot_control_id, in_stock, storage_master_id, storage_datetime, storage_coord_x, storage_coord_y,  created, created_by, modified, modified_by, bc_ttr_previous_box_id, bc_ttr_release_barcode, bc_ttr_sample_type, bc_ttr_old_collection_id, bc_ttr_old_parent_sample_id, bc_ttr_old_sample_master_id 
 FROM  atim.a_tmp_whatman_paper   
 WHERE  bc_ttr_sample_type = 'dna_card' ;
 
@@ -525,7 +514,23 @@ WHERE   ad.aliquot_master_id = am.id
 AND   am.bc_ttr_old_sample_master_id = sd.sample_master_id
 AND   am.bc_ttr_sample_type = 'dna_card' ; 
  
+UPDATE atim.aliquot_masters as al, atim.storage_masters as sm
+SET al.storage_master_id = sm.id
+WHERE al.nl_tmp_box_id  = sm.box_id
+AND al.bc_ttr_previous_box_id IS NOT NULL;
  
  
+ALTER TABLE atim.storage_masters
+ ADD COLUMN v1_box_id int;
  
+UPDATE atim.storage_masters 
+  SET v1_box_id = box_id;
  
+ALTER TABLE atim.storage_masters
+ADD UNIQUE KEY `unique_code` (`code`),
+DROP COLUMN old_id,
+DROP COLUMN tower_id,
+DROP COLUMN box_id;
+ 
+ALTER TABLE atim.aliquot_masters
+  DROP COLUMN nl_tmp_box_id; 
