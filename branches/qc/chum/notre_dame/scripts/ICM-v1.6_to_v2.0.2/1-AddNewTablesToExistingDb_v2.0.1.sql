@@ -1,5 +1,5 @@
 #Drop all unused or unmigrated existing tables 
-
+SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS
 `ad_cell_cores`,
 `ad_cell_slides`,
@@ -6177,3 +6177,4 @@ CREATE TABLE IF NOT EXISTS `versions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
+SET FOREIGN_KEY_CHECKS=1;
