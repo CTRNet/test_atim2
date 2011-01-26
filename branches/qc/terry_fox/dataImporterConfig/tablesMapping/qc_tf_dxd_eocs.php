@@ -6,7 +6,8 @@ $fields = array(
 	"diagnosis_control_id" => "@14",
 	"dx_date" => "Date of EOC Diagnosis Date",
 	"dx_date_accuracy" => "Date of EOC Diagnosis Accuracy",
-	"age_at_dx" => "Age at Time of Diagnosis (yr)"
+	"age_at_dx" => "Age at Time of Diagnosis (yr)",
+	"tumour_grade" => "Grade",
 );
 
 $detail_fields = array(
@@ -19,7 +20,6 @@ $detail_fields = array(
 	"fallopian_tube_lesion" => "fallopian tube lesions",
 	"laterality" => "Laterality",
 	"histopathology" => "Histopathology",
-	"tumor_grade" => "Grade",
 	"figo" => "FIGO ",
 	"residual_disease" => "Residual Disease",
 	"site_1_of_tumor_progression" => "Site 1 of Primary Tumor Progression (metastasis)  If Applicable",
@@ -31,8 +31,8 @@ $detail_fields = array(
 
 $tables['qc_tf_dxd_eocs'] = new MasterDetailModel(1, $pkey, array(), false, "participant_id", 'diagnosis_masters', $fields, 'qc_tf_dxd_eocs', 'diagnosis_master_id', $detail_fields);
 $tables['qc_tf_dxd_eocs']->custom_data = array("date_fields" => array(
-	$fields["dx_date"], 
-	$detail_fields["date_of_progression_recurrence"], 
-	$detail_fields["date_of_ca125_progression"]));
+	$fields["dx_date"]									=> $fields["dx_date_accuracy"], 
+	$detail_fields["date_of_progression_recurrence"]	=> $detail_fields["date_of_progression_recurrence_accuracy"], 
+	$detail_fields["date_of_ca125_progression"]			=> $detail_fields["date_of_ca125_progression_accu"]));
 $tables['qc_tf_dxd_eocs']->post_read_function = 'postRead';
 
