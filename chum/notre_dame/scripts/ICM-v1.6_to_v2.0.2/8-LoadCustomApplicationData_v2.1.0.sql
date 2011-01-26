@@ -1019,9 +1019,9 @@ RENAME TABLE ed_all_procure_lifestyles_revs TO qc_nd_ed_all_procure_lifestyles_r
 UPDATE structure_fields SET tablename='qc_nd_ed_all_procure_lifestyles' WHERE tablename='ed_all_procure_lifestyle';
 UPDATE event_controls SET detail_tablename='qc_nd_ed_all_procure_lifestyles', form_alias='qc_nd_ed_all_procure_lifestyle' WHERE detail_tablename='ed_all_procure_lifestyle';
 UPDATE structures SET alias='qc_nd_ed_all_procure_lifestyle' WHERE alias='ed_all_procure_lifestyle';
-ALTER TABLE qc_nd_ed_all_procure_lifestyle
+ALTER TABLE qc_nd_ed_all_procure_lifestyles
  ADD COLUMN validated BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE qc_nd_ed_all_procure_lifestyle_revs
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs
  ADD COLUMN validated BOOLEAN NOT NULL DEFAULT false;
 INSERT INTO `structure_fields` (
 `public_identifier` ,
@@ -1046,7 +1046,7 @@ INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_
 
 REPLACE INTO i18n(id, en, fr) VALUES
 ("validated", "Validated", "Validé"),
-("from center", "From center", Du centre");
+("from center", "From center", "Du centre");
 
 ALTER TABLE participants
  ADD COLUMN qc_nd_from_center VARCHAR(50) NOT NULL DEFAULT '';
@@ -1057,8 +1057,41 @@ INSERT INTO `structure_fields` (`public_identifier` ,`plugin` ,`model` ,`tablena
 INSERT INTO `structure_formats` (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE field='qc_nd_from_center' AND model='Participant' AND tablename='participants'), '4', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
 
+INSERT INTO structures(alias) VALUES ('qc_nd_procure_consent_stats_report');
+INSERT INTO structure_fields (public_identifier, plugin, model, tablename, field                          , language_label                        , language_tag, type   , setting, `default`, structure_value_domain, language_help, validation_control, value_domain_control, field_control) VALUES
+('', '', '0', '', 'questionnaire', 'questionnaire', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'participant', 'participants', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'urine', 'urine', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'blood', 'blood', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'annual_followup', 'annual followup', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'contact_if_info_req', 'contact if info required', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'contact_if_discovery', 'contact if discovery', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'study_other_diseases', 'study other diseases', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'contact_if_disco_other_diseases', 'contact if discovery on other diseases', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'other_contacts_if_die', 'other contacts if deceased', '', 'integer', '', '', NULL, '', 'open', 'open', 'open'),
+('', '', '0', '', 'denied', 'denied', '', 'integer', '', '', NULL, '', 'open', 'open', 'open');
+
+
+INSERT INTO structure_formats ( structure_id , structure_field_id , display_column , display_order , language_heading , flag_override_label , language_label , flag_override_tag , language_tag , flag_override_help , language_help , flag_override_type , type , flag_override_setting , setting , flag_override_default , `default` , flag_add , flag_add_readonly , flag_edit , flag_edit_readonly , flag_search , flag_search_readonly , flag_datagrid , flag_datagrid_readonly , flag_index , flag_detail) VALUES
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='date_from' AND language_label='from' AND type='date'), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='action' AND language_label='action' AND type='select'), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='questionnaire' AND language_label='questionnaire' AND type='integer'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='participant' AND language_label='participants' AND type='integer'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='urine' AND language_label='urine' AND type='integer'), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='blood' AND language_label='blood' AND type='integer'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='annual_followup' AND language_label='annual followup' AND type='integer'), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='contact_if_info_req' AND language_label='contact if info required' AND type='integer'), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='contact_if_discovery' AND language_label='contact if discovery' AND type='integer'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='study_other_diseases' AND language_label='study other diseases' AND type='integer'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='contact_if_disco_other_diseases' AND language_label='contact if discovery on other diseases' AND type='integer'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='other_contacts_if_die' AND language_label='other contacts if deceased' AND type='integer'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
+((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='denied' AND language_label='denied' AND type='integer'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+ 
+
+
 
 control qualiteé: Le choix appareil ne marche pas
 Aliquot ADN se met a non disponible si on fait un control de qualite
 Pour les aliquots de culture cellulaire: On aimerait un flag pour dire mycoplasme free.
  bug de chantale https://10.52.47.134/ATiM/?from=/clinicalannotation/sample_masters/listall/7313
+
