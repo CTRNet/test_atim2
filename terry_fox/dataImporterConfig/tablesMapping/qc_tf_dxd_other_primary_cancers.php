@@ -25,6 +25,6 @@ $detail_fields = array(
 
 $tables['qc_tf_dxd_other_primary_cancers'] = new MasterDetailModel(3, $pkey, array(), false, "participant_id", 'diagnosis_masters', $fields, 'qc_tf_dxd_other_primary_cancers', 'diagnosis_master_id', $detail_fields);
 $tables['qc_tf_dxd_other_primary_cancers']->custom_data = array("date_fields" => array(
-	$fields["dx_date"], 
-	$detail_fields["date_of_progression_recurrence"]));
+	$fields["dx_date"]									=> $fields["dx_date_accuracy"], 
+	$detail_fields["date_of_progression_recurrence"]	=> $detail_fields["date_of_progression_recurrence_accuracy"]));
 $tables['qc_tf_dxd_other_primary_cancers']->post_read_function = 'postRead';
