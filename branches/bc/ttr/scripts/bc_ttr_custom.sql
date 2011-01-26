@@ -50,7 +50,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='storagemasters'), 
 (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='label_precision' AND `language_label`='' AND `language_tag`='-' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-UPDATE storage_controls SET set_temperature = 'FALSE', is_tma_block = 'FALSE' WHERE alias IN ('box 1,1-9,9', 'tower');
+UPDATE storage_controls SET set_temperature = 'FALSE', is_tma_block = 'FALSE' WHERE storage_type IN ('box 1,1-9,9', 'tower');
 
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='code' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='storage_control_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='storage_type'));
@@ -59,6 +59,34 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='temp_unit' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code'));
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='short_label' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='temp_unit' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code'));
+
+-- -- --
+
+-- update parent id of blood cell
+update atim.sample_masters spec , atim.sample_masters der
+set der.parent_id = spec.id
+where der.collection_id = spec.collection_id
+and spec.sample_type = 'blood'
+and der.sample_type = 'blood cell';
+
+-- update parent id of plasma
+update atim.sample_masters spec , atim.sample_masters der
+set der.parent_id = spec.id
+where der.collection_id = spec.collection_id
+and spec.sample_type = 'blood'
+and der.sample_type = 'plasma';
+
+UPDATE sample_masters 
+SET initial_specimen_sample_id = id, initial_specimen_sample_type = sample_type
+WHERE sample_category = 'specimen';
+
+UPDATE sample_masters spec, sample_masters deri
+SET deri.initial_specimen_sample_id = spec.id, deri.initial_specimen_sample_type = spec.sample_type
+WHERE spec.id = deri.parent_id AND spec.sample_category = 'specimen'
+AND deri.sample_category = 'derivative';
+
+
+
 
 
 
