@@ -152,6 +152,38 @@ CREATE TABLE IF NOT EXISTS `std_towers_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+INSERT INTO storage_masters_revs (`id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_created`)
+(SELECT `id`, `code`, `storage_type`, `storage_control_id`, `parent_id`, `lft`, `rght`, `barcode`, `short_label`, `label_precision`, `selection_label`, `storage_status`, `parent_storage_coord_x`, `parent_storage_coord_y`, `set_temperature`, `temperature`, `temp_unit`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `modified_by` FROM `storage_masters` );
+
+INSERT INTO aliquot_masters_revs (`id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `aliquot_volume_unit`, `in_stock`, `in_stock_detail`, `study_summary_id`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `bc_ttr_old_sample_master_id`, `bc_ttr_old_parent_sample_id`, `bc_ttr_old_collection_id`, `bc_ttr_sample_type`, `bc_ttr_release_barcode`, `bc_ttr_previous_box_id`, `tmp_id`, `tmp_slide_id`, `bc_ttr_prev_storage_id`, `version_created`)
+(SELECT `id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `aliquot_volume_unit`, `in_stock`, `in_stock_detail`, `study_summary_id`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `created`, `created_by`, `created`, `created_by`, `bc_ttr_old_sample_master_id`, `bc_ttr_old_parent_sample_id`, `bc_ttr_old_collection_id`, `bc_ttr_sample_type`, `bc_ttr_release_barcode`, `bc_ttr_previous_box_id`, `tmp_id`, `tmp_slide_id`, `bc_ttr_prev_storage_id`, `created` 
+FROM aliquot_masters
+WHERE bc_ttr_previous_box_id IS NOT NULL AND bc_ttr_previous_box_id != '0');
+
+UPDATE aliquot_masters_revs amrevs, storage_masters stor
+SET amrevs.storage_master_id = stor.id
+WHERE amrevs.bc_ttr_previous_box_id IS NOT NULL AND amrevs.bc_ttr_previous_box_id != '0'
+AND amrevs.bc_ttr_previous_box_id = stor.v1_box_id;
+
+INSERT INTO aliquot_masters_revs (`id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `aliquot_volume_unit`, `in_stock`, `in_stock_detail`, `study_summary_id`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `bc_ttr_old_sample_master_id`, `bc_ttr_old_parent_sample_id`, `bc_ttr_old_collection_id`, `bc_ttr_sample_type`, `bc_ttr_release_barcode`, `bc_ttr_previous_box_id`, `tmp_id`, `tmp_slide_id`, `bc_ttr_prev_storage_id`, `version_created`)
+(SELECT `id`, `barcode`, `aliquot_type`, `aliquot_control_id`, `collection_id`, `sample_master_id`, `sop_master_id`, `initial_volume`, `current_volume`, `aliquot_volume_unit`, `in_stock`, `in_stock_detail`, `study_summary_id`, `storage_datetime`, `storage_master_id`, `storage_coord_x`, `storage_coord_y`, `product_code`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `bc_ttr_old_sample_master_id`, `bc_ttr_old_parent_sample_id`, `bc_ttr_old_collection_id`, `bc_ttr_sample_type`, `bc_ttr_release_barcode`, `bc_ttr_previous_box_id`, `tmp_id`, `tmp_slide_id`, `bc_ttr_prev_storage_id`, `modified` FROM aliquot_masters);
+
+ALTER TABLE aliquot_masters
+ DROP column bc_ttr_previous_box_id;
+ALTER TABLE aliquot_masters_revs
+ DROP column bc_ttr_previous_box_id;	
+
+ALTER TABLE storage_masters
+ DROP column v1_box_id;
 
 
+
+
+-- TODO
+-- Check data integrity: ex: 
+--         aliquot.storage_master_id linked to an existing storage FK.
+--         aliquot postion is validated no value = 'a' instead '1', etc
+--         no aliquot.in_stock_value = 'not available', see drop down value to test.
+--         no aliquot is linked to a storage when in_stock = 'no'
+--         move /plugins/inventorymanagement/controllers/bc_ttr_batch_entry_controller.php to custom folder
 
