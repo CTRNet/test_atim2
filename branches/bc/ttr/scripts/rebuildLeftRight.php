@@ -5,6 +5,8 @@
  * @description: Rebuilds the lft/rght numbering for a given table
  */
 
+//$argv = array('1'=>'atim','2'=>'root','3'=>'');
+
 Fmlh::launch($argv[1], $argv[2], $argv[3]);
 Fmlh::launchSelectionLabelUpdate($argv[1], $argv[2], $argv[3]);
 
