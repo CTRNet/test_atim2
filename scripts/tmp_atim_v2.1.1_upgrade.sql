@@ -873,3 +873,10 @@ UPDATE structure_formats
 SET flag_summary = '1' 
 WHERE structure_id = (SELECT id FROM structures WHERE alias='querytool_batch_set') 
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='BatchSet' AND `field` IN ('title', 'model', 'description'));
+
+-- Fix issue 1275
+
+ALTER TABLE participant_messages
+ MODIFY `due_date` date  DEFAULT NULL;
+ALTER TABLE participant_messages_revs
+ MODIFY `due_date` date  DEFAULT NULL;
