@@ -1976,7 +1976,9 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('markers', 'Markers', ''),
 ('a markers report can only be created once per participant', 'A markers report can only be created once per participant!', '');
 
-
-
+ALTER TABLE participant_messages
+ MODIFY `due_date` date  DEFAULT NULL;
+ALTER TABLE participant_messages_revs
+ MODIFY `due_date` date  DEFAULT NULL;
 
 
