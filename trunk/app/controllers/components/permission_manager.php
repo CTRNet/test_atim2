@@ -29,13 +29,13 @@ class PermissionManagerComponent extends Object {
 		
 		// If there are no Aco entries, build the entire list.
 		if(! $this->controller->Acl->Aco->find('count',array('fields' => 'Aco.id')) ){
-			$this->controller->Acl->Aco->deleteAll(); // reset auto increment
+			$this->controller->Acl->Aco->deleteAll(array()); // reset auto increment
 			$this->buildAcl();
 		}
 		
 		// If there are no permissions in the DB, set up the defaults
 		if(! $this->controller->Acl->Aco->Permission->find('count',array('fields' => 'Permission.id')) ){
-			$this->controller->Acl->Aco->deleteAll(); // reset auto increment
+			$this->controller->Acl->Aco->deleteAll(array()); // reset auto increment
 			$this->initDB();
 		}
 	}
