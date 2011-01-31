@@ -1987,6 +1987,8 @@ WHERE misc_identifier_name = 'ohri_bank_participant_id';
 INSERT IGNORE INTO i18n (id, en) VALUES
 ('this bank number has already been recorded for another participant' , 'This bank number has already been recorded for another participant!');
 
+TRUNCATE user_login_attempts;
+TRUNCATE user_logs;
 
 
 
