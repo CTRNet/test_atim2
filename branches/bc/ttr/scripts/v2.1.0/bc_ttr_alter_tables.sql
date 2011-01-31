@@ -92,6 +92,30 @@ CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences` (
   KEY `participant_id` (`participant_id`)
 ) ENGINE=InnoDb  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;  
 
+
+
+  
+DROP TABLE IF EXISTS `correspondences`;
+CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `participant_id` int(11) NOT NULL DEFAULT '0',
+  `bc_ttr_correspondence_datetime` datetime DEFAULT NULL,
+  `bc_ttr_correspondence_nurse` varchar(50) DEFAULT NULL,
+  `bc_ttr_correspondence_type` varchar(50) DEFAULT NULL,
+  `bc_ttr_purpose` varchar(50) DEFAULT NULL,
+  `bc_ttr_location` varchar(50) DEFAULT NULL,
+  `bc_ttr_correspondence_notes` text,
+  `created` datetime DEFAULT NULL,
+  `created_by` varchar(50)  DEFAULT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` varchar(50)  DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `participant_id` (`participant_id`)
+) ENGINE=InnoDb  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;  
+
+
 DROP TABLE IF EXISTS `bc_ttr_correspondences_revs`;
 CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences_revs` (
   `id` int(11) NOT NULL,
