@@ -534,3 +534,25 @@ DROP COLUMN box_id;
  
 ALTER TABLE atim.aliquot_masters
   DROP COLUMN nl_tmp_box_id; 
+  
+  
+  
+--  
+-- Update In Stock to appropriate values
+--
+
+update aliquot_masters 
+set in_stock = 'Yes & Available'
+where in_stock  = '';
+
+update aliquot_masters 
+set in_stock = 'Yes & Available'
+where in_stock is NULL;
+ 
+update aliquot_masters 
+set in_stock = 'Yes & Available'
+where in_stock = 'available';
+
+update aliquot_masters 
+set in_stock = 'No'
+where in_stock = 'not available';  
