@@ -986,3 +986,196 @@ ALTER TABLE structure_formats
  DROP COLUMN flag_addgrid_readonly,
  DROP COLUMN flag_editgrid,
  DROP COLUMN flag_editgrid_readonly;
+ 
+ 
+ 
+ 
+ -- Insert and Update BC TTR Correspondences
+ 
+#--------------------------------------------
+#-- Create Correspondences Menu
+#--------------------------------------------
+INSERT INTO `atim`.`menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_200', 'clin_CAN_1', '0', '3', 'correspondence', 'correspondence', '/clinicalannotation/correspondences/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('correspondence',  '',  'Correspondence',  'Correspondence');
+
+
+INSERT INTO structures(`alias`) VALUES ('correspondences');
+
+
+-- Correspondence Datetime
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_correspondence_datetime', 'correspondence date time', ' ', 'datetime', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_correspondence_datetime' AND `language_label`='correspondence date time' AND `language_tag`=' ' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+ 
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('correspondence date time',  '',  'Correspondence Datetime',  '');
+
+-- TTR bc_ttr_correspondence_nurse
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_correspondence_nurse', 'ttr nurse', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_correspondence_nurse' AND `language_label`='ttr nurse' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+ 
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('ttr nurse',  '',  'TTR Nurse',  '');
+
+
+-- Correspondence Type
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_correspondence_type', 'correspondence type', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_correspondence_type' AND `language_label`='correspondence type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('correspondence type',  '',  'Type',  '');
+
+-- Purpose
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_purpose', 'purpose', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_purpose' AND `language_label`='purpose' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('purpose',  '',  'Purpose',  '');
+
+-- Location
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_location', 'location', '', 'select', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_location' AND `language_label`='location' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('location',  '',  'Location',  '');
+
+--
+-- TODO  Correspondence Notes
+--
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Clinicalannotation', 'Correspondence', 'bc_ttr_correspondences', 'bc_ttr_correspondence_notes', 'notes', '', 'text', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='correspondences'), (SELECT id FROM structure_fields WHERE `model`='Correspondence' AND `tablename`='bc_ttr_correspondences' AND `field`='bc_ttr_correspondence_notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='text' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1');
+
+
+
+
+-- Drop Down Value Options for TTR Nurse
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_correspondence_nurse', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_correspondence_nurse')  WHERE model='Correspondence' AND tablename='bc_ttr_correspondences' AND field='bc_ttr_correspondence_nurse' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Jodi Le Blanc", "Jodi Le Blanc");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_nurse"),  (SELECT id FROM structure_permissible_values WHERE value="Jodi Le Blanc" AND language_alias="Jodi Le Blanc"), "1", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Jodi Le Blanc',  '',  'Jodi Le Blanc',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Rebecca Barnes", "Rebecca Barnes");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_nurse"),  (SELECT id FROM structure_permissible_values WHERE value="Rebecca Barnes" AND language_alias="Rebecca Barnes"), "2", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Rebecca Barnes',  '',  'Rebecca Barnes',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Sindy Babinszky", "Sindy Babinszky");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_nurse"),  (SELECT id FROM structure_permissible_values WHERE value="Sindy Babinszky" AND language_alias="Sindy Babinszky"), "3", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Sindy Babinszky',  '',  'Sindy Babinszky',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Elizabeth Mason", "Elizabeth Mason");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_nurse"),  (SELECT id FROM structure_permissible_values WHERE value="Elizabeth Mason" AND language_alias="Elizabeth Mason"), "4", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Elizabeth Mason',  '',  'Elizabeth Mason',  '');
+
+-- Drop Down Value Options for Correspondence Type
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_correspondence_type', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_correspondence_type')  WHERE model='Correspondence' AND tablename='bc_ttr_correspondences' AND field='bc_ttr_correspondence_type' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("By Phone", "By Phone");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_type"),  (SELECT id FROM structure_permissible_values WHERE value="By Phone" AND language_alias="By Phone"), "1", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('By Phone',  '',  'By Phone',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("In Person", "In Person");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_type"),  (SELECT id FROM structure_permissible_values WHERE value="In Person" AND language_alias="In Person"), "2", "1");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Other", "Other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_correspondence_type"),  (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "3", "1");
+
+
+-- 
+-- Drop Down Value Options for Purpose
+--
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_purpose', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_purpose')  WHERE model='Correspondence' AND tablename='bc_ttr_correspondences' AND field='bc_ttr_purpose' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Arrange Consent Appt.", "Arrange Consent Appt.");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_purpose"),  (SELECT id FROM structure_permissible_values WHERE value="Arrange Consent Appt." AND language_alias="Arrange Consent Appt."), "1", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Arrange Consent Appt.',  '',  'Arrange Consent Appt.',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Sign Consent", "Sign Consent");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_purpose"),  (SELECT id FROM structure_permissible_values WHERE value="Sign Consent" AND language_alias="Sign Consent"), "2", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Sign Consent',  '',  'Sign Consent',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES(" Post-op Follow-up", " Post-op Follow-up");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_purpose"),  (SELECT id FROM structure_permissible_values WHERE value=" Post-op Follow-up" AND language_alias=" Post-op Follow-up"), "3", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES (' Post-op Follow-up',  '',  ' Post-op Follow-up',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Other", "Other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_purpose"),  (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "4", "1");
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("IROC", "IROC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_purpose"),  (SELECT id FROM structure_permissible_values WHERE value="IROC" AND language_alias="IROC"), "5", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('IROC',  '',  'IROC',  '');
+
+--
+-- Drop Down Value Options for Location
+-- 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('bc_ttr_location', '', '', NULL);
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='bc_ttr_location')  WHERE model='Correspondence' AND tablename='bc_ttr_correspondences' AND field='bc_ttr_location' AND `type`='select' AND structure_value_domain  IS NULL ;
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Victoria General", "Victoria General");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="Victoria General" AND language_alias="Victoria General"), "1", "1");
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Royal Jubilee", "Royal Jubilee");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="Royal Jubilee" AND language_alias="Royal Jubilee"), "2", "1");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("VicGH-PAC", "VicGH-PAC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="VicGH-PAC" AND language_alias="VicGH-PAC"), "3", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VicGH-PAC',  '',  'VicGH-PAC',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("VicGH-ward", "VicGH-ward");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="VicGH-ward" AND language_alias="VicGH-ward"), "4", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VicGH-ward',  '',  'VicGH-ward',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("VicGH-SDC", "VicGH-SDC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="VicGH-SDC" AND language_alias="VicGH-SDC"), "5", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VicGH-SDC',  '',  'VicGH-SDC',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("RJH-PAC", "RJH-PAC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="RJH-PAC" AND language_alias="RJH-PAC"), "6", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('RJH-PAC',  '',  'RJH-PAC',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("RJH-ward", "RJH-ward");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="RJH-ward" AND language_alias="RJH-ward"), "7", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('RJH-ward',  '',  'RJH-ward',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("RJH-SDC", "RJH-SDC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="RJH-SDC" AND language_alias="RJH-SDC"), "8", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('RJH-SDC',  '',  'RJH-SDC',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("VICC", "VICC");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="VICC" AND language_alias="VICC"), "9", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VICC',  '',  'VICC',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Other", "Other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "10", "1");
+ 
+ 
+ 
