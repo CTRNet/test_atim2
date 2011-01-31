@@ -1980,5 +1980,14 @@ ALTER TABLE participant_messages
  MODIFY `due_date` date  DEFAULT NULL;
 ALTER TABLE participant_messages_revs
  MODIFY `due_date` date  DEFAULT NULL;
+ 
+UPDATE misc_identifier_controls SET autoincrement_name = '', misc_identifier_format = ''
+WHERE misc_identifier_name = 'ohri_bank_participant_id';
+
+INSERT IGNORE INTO i18n (id, en) VALUES
+('this bank number has already been recorded for another participant' , 'This bank number has already been recorded for another participant!');
+
+
+
 
 
