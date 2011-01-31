@@ -266,4 +266,196 @@ ALTER TABLE ad_tissue_slides_revs
  ADD COLUMN bc_ttr_lab_technician VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN bc_ttr_time_removed_from_formalin TIME DEFAULT NULL;
  
+
+
+-- -------------------------------
+--   Specimen and Aliquot Review 
+-- -------------------------------
+
+
+--
+-- Table structure for table `spr_ovarian_cancer_types`
+--
+
+
+CREATE TABLE IF NOT EXISTS `spr_ovarian_cancer_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `other_type` varchar(250) DEFAULT NULL,
+  `tumour_grade_score_nuclei` decimal(5,1) DEFAULT NULL,
+  `tumour_grade_score_mitosis` decimal(5,1) DEFAULT NULL,
+  `tumour_grade_score_architecture` decimal(5,1) DEFAULT NULL,
+  `tumour_grade_score_total` decimal(5,1) DEFAULT NULL,
+  `tumour_grade_category` varchar(100) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_spr_ovarian_cancer_types_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Constraints for table `spr_ovarian_cancer_types`
+--
+ALTER TABLE `spr_ovarian_cancer_types`
+  ADD CONSTRAINT `FK_spr_ovarian_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `spr_generic_cancer_types`
+--
+
+
+CREATE TABLE IF NOT EXISTS `spr_generic_cancer_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `other_type` varchar(250) DEFAULT NULL,
+  `tumour_grade_category` varchar(100) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_spr_generic_cancer_types_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Constraints for table `spr_generic_cancer_types`
+--
+ALTER TABLE `spr_generic_cancer_types`
+  ADD CONSTRAINT `FK_spr_generic_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+
+
+  
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `spr_colon_cancer_types`
+--
+
+CREATE TABLE IF NOT EXISTS `spr_colon_cancer_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `other_type` varchar(250) DEFAULT NULL,
+  `tumour_grade_category` varchar(100) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_spr_colon_cancer_types_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Constraints for table `spr_colon_cancer_types`
+--
+ALTER TABLE `spr_colon_cancer_types`
+  ADD CONSTRAINT `FK_spr_colon_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+  
+  
+
+--  AR Aliquot Review Section --------------------------------------------------------
+
+--
+-- Table structure for table `ar_ovarian_tissue_slides`
+--
+
+CREATE TABLE IF NOT EXISTS `ar_ovarian_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) NOT NULL,
+  `invasive_percentage` decimal(5,1) DEFAULT NULL,
+  `normal_percentage` decimal(5,1) DEFAULT NULL,
+  `stroma_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_percentage` decimal(5,1) DEFAULT NULL,
+  `inflammation` int(4) DEFAULT NULL,
+  `quality_score` int(4) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_ar_ovarian_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `ar_ovarian_tissue_slides`
+  ADD CONSTRAINT `FK_ar_ovarian_tissue_slides_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);
+
+  
+
+--
+-- Table structure for table `ar_generic_tissue_slides`
+--
+
+CREATE TABLE IF NOT EXISTS `ar_generic_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) NOT NULL,
+  `invasive_percentage` decimal(5,1) DEFAULT NULL,
+  `in_situ_percentage` decimal(5,1) DEFAULT NULL,
+  `normal_percentage` decimal(5,1) DEFAULT NULL,
+  `stroma_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_percentage` decimal(5,1) DEFAULT NULL,
+  `inflammation` int(4) DEFAULT NULL,
+  `quality_score` int(4) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_ar_generic_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `ar_generic_tissue_slides`
+  ADD CONSTRAINT `FK_ar_generic_tissue_slides_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);  
+  
+
+--
+-- Table structure for table `ar_colon_tissue_slides`
+--
+
+CREATE TABLE IF NOT EXISTS `ar_colon_tissue_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aliquot_review_master_id` int(11) DEFAULT NULL,
+  `type` varchar(100) NOT NULL,
+  `invasive_percentage` decimal(5,1) DEFAULT NULL,
+  `in_situ_percentage` decimal(5,1) DEFAULT NULL,
+  `normal_percentage` decimal(5,1) DEFAULT NULL,
+  `stroma_percentage` decimal(5,1) DEFAULT NULL,
+  `necrosis_percentage` decimal(5,1) DEFAULT NULL,
+  `inflammation` int(4) DEFAULT NULL,
+  `quality_score` int(4) DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_ar_colon_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+ALTER TABLE `ar_colon_tissue_slides`
+  ADD CONSTRAINT `FK_ar_colon_tissue_slides_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);   
+  
+
   
