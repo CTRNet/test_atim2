@@ -1989,6 +1989,17 @@ INSERT IGNORE INTO i18n (id, en) VALUES
 
 TRUNCATE user_login_attempts;
 TRUNCATE user_logs;
+TRUNCATE acos;
+
+TRUNCATE clinical_collection_links;
+TRUNCATE clinical_collection_links_revs;
+
+TRUNCATE collections;
+TRUNCATE collections_revs;
+
+TRUNCATE participants;
+TRUNCATE participants_revs;
+TRUNCATE missing_translations;
 
 
 
