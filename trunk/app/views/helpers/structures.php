@@ -1484,24 +1484,17 @@ class StructuresHelper extends Helper {
 								}
 							}else{
 								$tmp_dropdown_result = $this->StructureValueDomain->find('first', array(
+									'recursive' => 2,
 									'conditions' => 
 										array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
 								if(count($tmp_dropdown_result['StructurePermissibleValue']) > 0){
 									$tmp_result = array();
-									$current_order = $tmp_dropdown_result['StructurePermissibleValue'][0]['Svdpv']['display_order'];
-									$current_element = 1;
+									//sort based on flag and on order
 									foreach($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry){
-										if($tmp_entry['Svdpv']['display_order'] != $current_order){
-											if(count($tmp_result) > 1){
-												asort($tmp_result);
-											}
-											$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
-											$tmp_result = array();
-											$current_order = $tmp_entry['Svdpv']['display_order']; 
-										}
-										$tmp_result[$tmp_entry['value']] = __($tmp_entry['language_alias'], true);
-										$current_element ++;
+										$tmp_result[$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
 									}
+									asort($tmp_result);
+									$tmp_result = array_map(create_function('$str', 'return substr($str, 4);'), $tmp_result);
 		
 									$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
 								}
