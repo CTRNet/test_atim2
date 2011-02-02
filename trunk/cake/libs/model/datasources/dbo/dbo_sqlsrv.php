@@ -189,8 +189,7 @@ class DboSqlSrv extends DboSource {
  * @access protected
  */
 	function _execute($sql) {
-		$result = sqlsrv_query($this->connection, str_replace('"', "'", $sql));
-		echo sqlsrv_num_rows($result);
+		$result = sqlsrv_query($this->connection, $sql);
 		$this->__lastQueryHadError = ($result === false);
 		
 		return $result;
@@ -436,7 +435,8 @@ class DboSqlSrv extends DboSource {
 	function lastError() {
 		if ($this->__lastQueryHadError) {
 			$error = sqlsrv_errors(SQLSRV_ERR_ALL);
-			if ($error && !preg_match('/contexto de la base de datos a|contesto di database|changed database|contexte de la base de don|datenbankkontext/i', $error[0]['message'])) {
+			$error = $error[0]['message'];
+			if ($error && !preg_match('/contexto de la base de datos a|contesto di database|changed database|contexte de la base de don|datenbankkontext/i', $error)) {
 				return $error;
 			}
 		}

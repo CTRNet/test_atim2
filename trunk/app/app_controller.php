@@ -80,12 +80,12 @@ class AppController extends Controller {
 //		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
 		
 		if(sizeof(AppController::$missing_translations) > 0){
-			$query = "INSERT IGNORE INTO missing_translations VALUES ";
+			App::import("Model", "MissingTranslation");
+			$mt = new MissingTranslation();
 			foreach(AppController::$missing_translations as $missing_translation){
-				$query .= '("'.str_replace('"', '\\"', str_replace("\\", "\\\\", $missing_translation)).'"), ';
+				$mt->set(array("MissingTranslation" => array("id" => $missing_translation)));
+				$mt->save();//ignore errors, kind of insert ingnore
 			}
-			$query = substr($query, 0, strlen($query) -2);
-			$this->{$this->params["models"][0]}->query($query);
 		}
 	}
 	
