@@ -241,12 +241,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->flash('no new sample aliquot could be actually defined as tested aliquot', '/inventorymanagement/quality_ctrls/detail/'. $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
 		}
 		
-		// Set array to get id from barcode
-		$aliquot_id_by_barcode = array();
-		foreach($available_sample_aliquots as $aliquot_data){
-			$aliquot_id_by_barcode[$aliquot_data['AliquotMaster']['barcode']] = $aliquot_data['AliquotMaster']['id']; 
-		}		
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$sample_id_parameter = ($qc_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
@@ -280,10 +274,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if($new_studied_aliquot['FunctionManagement']['use']){
 					// New aliquot defined as used
 
-					// Get child aliquot master id
-					if(!isset($aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-					$new_studied_aliquot['AliquotMaster']['id'] = $aliquot_id_by_barcode[$new_studied_aliquot['AliquotMaster']['barcode']];
-					
 					// Check volume
 					if((!empty($new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
