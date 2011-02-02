@@ -190,15 +190,27 @@ class AppController extends Controller {
 		
 		// get CONFIG for logged in user
 		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND user_id="'.$logged_in_user.'"'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				"user_id" => $logged_in_user
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
 		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$logged_in_group.'" AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				"Config.group_id" => $logged_in_group,
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
 		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		
 		// parse result, set configs/defines
@@ -457,5 +469,9 @@ class AppController extends Controller {
 				$controller->redirect('/pages/err_query?err_msg='.urlencode($errstr.$traceMsg));
 			}
 		}
+	}
+	
+	function now(){
+		return date("Y-m-d H:i:s");
 	}
 ?>
