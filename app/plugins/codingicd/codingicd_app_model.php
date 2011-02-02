@@ -35,13 +35,19 @@ class CodingicdAppModel extends AppModel {
 			$search_fields[] = "id";
 		}
 		
+		if (!$db =& ConnectionManager::getDataSource($this->useDbConfig)) {
+			return false;
+		}
+
+			
 		foreach($terms as $term){
 			if($exact_search){
 				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
 			}else{
 				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
 			}
-			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST ('".$term."' IN BOOLEAN MODE)";
+			$term = $db->value($term);
+			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
 		}
 		
 		if($limit != null){
