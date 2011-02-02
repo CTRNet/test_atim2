@@ -210,7 +210,12 @@ class AliquotMaster extends InventoryManagementAppModel {
 		if(empty($aliquot_master_id)){
 			AppController::getInstance()->redirect('/pages/err_inv_funct_param_missing', null, true); 
 		}
-		
+pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
+pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
+pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
+pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
+return true;
+
 		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
 		
 		if(empty($aliquot_data)){
