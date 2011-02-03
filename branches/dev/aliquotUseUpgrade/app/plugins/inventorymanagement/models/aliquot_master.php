@@ -309,7 +309,7 @@ return true;
 	 * @see Model::validates()
 	 */
 	function validates($options = array()){
-		pr('WARNING!!: aliquot data can be updated into AliquotMaster->validates() function: be sure to reset data into controller using $this->AliquotMaster->data!');
+		pr('WARNING!!: aliquot storage data can be updated into AliquotMaster->validates() function: be sure to reset data into controller using $this->AliquotMaster->data!');
 						
 		if(isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' 
 		&& (!empty($this->data['AliquotMaster']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){

@@ -290,6 +290,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
 					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
+
+					// Reste data to get position data (not really required for this function)
+					$new_studied_aliquot = $this->AliquotMaster->data;
 					
 					// Launch Aliquot Use validation
 					$this->QualityCtrlTestedAliquot->set($new_studied_aliquot);
