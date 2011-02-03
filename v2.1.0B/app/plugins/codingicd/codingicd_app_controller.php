@@ -25,10 +25,6 @@ class CodingicdAppController extends AppController {
 			$this->Structures->set("codingicd_".$lang);
 			$limit = 25;
 			
-			if (!$db =& ConnectionManager::getDataSource($model_to_use->useDbConfig)) {
-				return false;
-			}
-
 			$this->data = $model_to_use->globalSearch(array($this->data[0]['term']), isset($this->data['exact_search']) && $this->data['exact_search'], $search_fields_suffix, false, $limit + 1);
 			
 			if(count($this->data) > $limit){
