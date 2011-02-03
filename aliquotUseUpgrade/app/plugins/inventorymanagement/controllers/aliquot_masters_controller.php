@@ -1342,7 +1342,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//redirect to virtual batch set
 				//$_SESSION data was set into the define children function
 				if($collection_id == null){
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				}else{
 					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
 				}
