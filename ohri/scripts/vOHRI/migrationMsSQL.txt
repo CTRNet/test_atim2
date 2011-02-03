@@ -18,6 +18,13 @@ UPDATE versions SET created=NOW(), modified=NOW();
 -- To run in MsSQL database 
 -- see http://www.codeproject.com/KB/database/migrate-mysql-to-mssql.aspx for help
 
+EXEC master.dbo.sp_addlinkedserver 
+@server = N'MYSQL', 
+@srvproduct=N'MySQL', 
+@provider=N'MSDASQL', 
+@provstr=N'DRIVER={MySQL ODBC 5.1 Driver}; SERVER=localhost; 
+	DATABASE=atim_ohri; USER=root; PASSWORD=root; OPTION=3';
+
 SELECT * INTO atim_ohri.dbo.acos                                          FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.acos                                          	');
 SELECT * INTO atim_ohri.dbo.ad_bags                                       FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.ad_bags                                       	');
 SELECT * INTO atim_ohri.dbo.ad_bags_revs                                  FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.ad_bags_revs                                  	');
@@ -376,3 +383,5 @@ SELECT * INTO atim_ohri.dbo.view_aliquots                                 FROM o
 SELECT * INTO atim_ohri.dbo.view_collections                              FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.view_collections                              	');
 SELECT * INTO atim_ohri.dbo.view_samples                                  FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.view_samples                                  	');
 SELECT * INTO atim_ohri.dbo.view_structures                               FROM openquery(MYSQL, 'SELECT * FROM atim_ohri.view_structures                               	');
+
+CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;
