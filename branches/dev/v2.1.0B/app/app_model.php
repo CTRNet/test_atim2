@@ -183,6 +183,32 @@ class AppModel extends Model {
 	static function getMagicCodingIcdTriggerArray(){
 		return self::$magic_coding_icd_trigger_array;
 	}
+	
+	/**
+	 * Removes the empty dates from the saving process
+	 * TODO: This is a problem because of the "notEmpty" validation that can no longer work on those fields
+	 * @see Model::save()
+	 */
+	function save($data = null, $validate = true, $fieldList = array()){
+		$date_types = array("timestamp", "date");
+		if($data != null && isset($data[$this->name])){
+			$keys = array_keys($data[$this->name]);
+			foreach($keys as $key){
+				if(isset($this->_schema[$key]) && in_array($this->_schema[$key]['type'], $date_types)){
+					if(is_string($data[$this->name][$key])){
+						if(strlen($data[$this->name][$key]) == 0){
+							unset($data[$this->name][$key]);
+						}
+					}else if(isset($data[$this->name][$key]['year']) && strlen($data[$this->name][$key]['year']) == 0
+					&& isset($data[$this->name][$key]['month']) && strlen($data[$this->name][$key]['month']) == 0
+					&& isset($data[$this->name][$key]['day']) && strlen($data[$this->name][$key]['day']) == 0){
+						unset($data[$this->name][$key]);
+					}
+				}  
+			}
+		}
+		return parent::save($data, $validate, $fieldList);
+	}
 }
 
 ?>
