@@ -988,15 +988,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$new_source_aliquot['AliquotMaster']['storage_coord_y'] = null;	
 					}
 					
-					// Set aliquot use data
-					$new_source_aliquot['AliquotUse']['aliquot_master_id'] = $aliquot_master_id;
-					$new_source_aliquot['AliquotUse']['use_definition'] = 'sample derivative creation';
-					$new_source_aliquot['AliquotUse']['use_code'] = $sample_data['SampleMaster']['sample_code'];
-					$new_source_aliquot['AliquotUse']['use_details'] = '';
-					$new_source_aliquot['AliquotUse']['use_datetime'] = $sample_data['DerivativeDetail']['creation_datetime'];
-					$new_source_aliquot['AliquotUse']['used_by'] = $sample_data['DerivativeDetail']['creation_by'];
-					$new_source_aliquot['AliquotUse']['use_recorded_into_table'] = 'source_aliquots';					
-					
 					// Save data:
 					// - AliquotMaster
 					$this->AliquotMaster->id = $aliquot_master_id;

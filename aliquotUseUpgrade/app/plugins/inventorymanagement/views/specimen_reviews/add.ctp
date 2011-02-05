@@ -13,7 +13,7 @@
 	);
 	
 	// 1- SPECIMEN REVIEW
-	
+pr($aliquot_list);	
 	$structure_settings = array(
 		'actions'=> ($is_aliquot_review_defined? false : true), 
 		'tabindex' => '1000',
@@ -52,7 +52,7 @@
 		);
 		
 		$structure_override['AliquotReviewMaster.id'] = 'new';
-		$dropdown_options['AliquotReviewMaster.aliquot_masters_id'] = $aliquot_list;	
+		$dropdown_options['AliquotReviewMaster.aliquot_master_id'] = $aliquot_list;	
 		
 		$final_atim_structure = $aliquot_review_structure;
 		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'addgrid', 'settings'=> $structure_settings, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
