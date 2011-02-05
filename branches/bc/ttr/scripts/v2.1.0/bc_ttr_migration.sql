@@ -513,6 +513,11 @@ SET  ad.bc_ttr_dna_card_type = sd.card_type,
 WHERE   ad.aliquot_master_id = am.id
 AND   am.bc_ttr_old_sample_master_id = sd.sample_master_id
 AND   am.bc_ttr_sample_type = 'dna_card' ; 
+
+
+
+-- Update Storage masters
+
  
 UPDATE atim.aliquot_masters as al, atim.storage_masters as sm
 SET al.storage_master_id = sm.id
@@ -541,18 +546,21 @@ ALTER TABLE atim.aliquot_masters
 -- Update In Stock to appropriate values
 --
 
-update aliquot_masters 
+update atim.aliquot_masters 
 set in_stock = 'Yes & Available'
 where in_stock  = '';
 
-update aliquot_masters 
+update atim.aliquot_masters 
 set in_stock = 'Yes & Available'
 where in_stock is NULL;
  
-update aliquot_masters 
+update atim.aliquot_masters 
 set in_stock = 'Yes & Available'
 where in_stock = 'available';
 
-update aliquot_masters 
+update atim.aliquot_masters 
 set in_stock = 'No'
-where in_stock = 'not available';  
+where in_stock = 'not available';
+
+
+  

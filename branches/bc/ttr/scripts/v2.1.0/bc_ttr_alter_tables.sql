@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences` (
 
   
 DROP TABLE IF EXISTS `correspondences`;
-CREATE TABLE IF NOT EXISTS `bc_ttr_correspondences` (
+CREATE TABLE IF NOT EXISTS `correspondences` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `participant_id` int(11) NOT NULL DEFAULT '0',
   `bc_ttr_correspondence_datetime` datetime DEFAULT NULL,

@@ -981,16 +981,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET flag_datagrid='1' WHERE flag_addgrid='1' OR flag_editgrid='1';
 UPDATE structure_formats SET flag_datagrid_readonly='1' WHERE flag_addgrid_readonly='1' OR flag_editgrid_readonly='1';
 
-ALTER TABLE structure_formats
- DROP COLUMN flag_addgrid,
- DROP COLUMN flag_addgrid_readonly,
- DROP COLUMN flag_editgrid,
- DROP COLUMN flag_editgrid_readonly;
  
  
  
  
- -- Insert and Update BC TTR Correspondences
+-- Insert and Update BC TTR Correspondences
  
 #--------------------------------------------
 #-- Create Correspondences Menu
@@ -1176,6 +1171,13 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VICC',  '',  'VICC',  
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Other", "Other");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "10", "1");
+
+-- Always add the following drop data fields at the end of file. 
+ALTER TABLE structure_formats
+ DROP COLUMN flag_addgrid,
+ DROP COLUMN flag_addgrid_readonly,
+ DROP COLUMN flag_editgrid,
+ DROP COLUMN flag_editgrid_readonly;
  
  
  
