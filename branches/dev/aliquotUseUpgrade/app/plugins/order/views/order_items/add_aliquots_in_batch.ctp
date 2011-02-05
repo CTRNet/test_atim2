@@ -37,8 +37,7 @@
 
 	// BUILD FORM
 	$structures->build($final_atim_structure, $final_options);
-	echo("</form>");
-	
+		
 	
 	// 3- ORDER LINES SELECTION
 
@@ -67,7 +66,7 @@
 		'override'=>$structure_override);
 	
 	// CUSTOM CODE
-		$hook_link = $structures->hook();
+	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
