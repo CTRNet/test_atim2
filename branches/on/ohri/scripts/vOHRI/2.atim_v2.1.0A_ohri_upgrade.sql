@@ -2053,7 +2053,7 @@ CREATE TABLE IF NOT EXISTS `spr_ohri_ovarian_tissues_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-
 INSERT IGNORE INTO i18n (id, en) VALUES ('ohri - ovarian tissue', 'OHRI - Ovarian Tissue');
 
-
+UPDATE structure_fields SET language_label = 'aliquot label' WHERE model IN ('AliquotMaster','ViewAliquot') AND field = 'barcode';
+INSERT IGNORE INTO i18n (id, en) VALUES ('aliquot label', 'Label'), ('unlinked', 'Unlinked');
