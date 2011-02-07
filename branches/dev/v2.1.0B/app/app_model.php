@@ -190,6 +190,13 @@ class AppModel extends Model {
 	 * @see Model::save()
 	 */
 	function save($data = null, $validate = true, $fieldList = array()){
+		{
+			//temporary fix for a weird behaviour
+			$data[$this->name]['created'] = now();
+			$data[$this->name]['deleted'] = 0;
+			$data[$this->name]['modified'] = now();
+		}
+		
 		$date_types = array("timestamp", "date");
 		if($data != null && isset($data[$this->name])){
 			$keys = array_keys($data[$this->name]);
