@@ -22,20 +22,30 @@ class MenusController extends AppController {
 		
 		// get ANNOUNCEMENTS for main menu
 		if ( !$set_of_menus ) {
-			$findAll_conditions[] = 'date_start<=NOW()';
-			$findAll_conditions[] = 'date_end>=NOW()';
-			$findAll_conditions[] = '(group_id="0" OR group_id="'.$_SESSION['Auth']['User']['group_id'].'")';
+			$this->set( 'announcements_data', $this->Announcement->find( 'all', array('conditions'=> array(
+					'date_start <=' => now(),
+					'date_end >=' => now(),
+					'group_id' => array(0, $_SESSION['Auth']['User']['group_id'])
+				),
+				'order'=>'date DESC') ) );
 		
-			$this->set( 'announcements_data', $this->Announcement->find( 'all', array( 'conditions'=>$findAll_conditions, 'order'=>'date DESC') ) );
-		
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=> array(
+					"Menu.parent_id" => "MAIN_MENU_1",
+					"Menu.flag_active" => 1
+				), 
+				'order'=>'Menu.display_order ASC')
+			);
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
 		}
 		
 		else {
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
-			
+			$menu_data = $this->Menu->find('all',array('conditions'=> array(
+					"Menu.parent_id" => "core_CAN_33",
+					"Menu.flag_active" => 1
+				), 
+				'order'=>'Menu.display_order ASC')
+			);
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
 		}
 		
