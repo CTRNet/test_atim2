@@ -20,7 +20,7 @@ class UsersController extends AppController {
 				$login_data = array(
 						"username" => $this->data['User']['username'],
 						"ip_addr" => $_SERVER['REMOTE_ADDR'],
-						"succeed" => true
+						"succeed" => 1
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_msg'] = array();//init
@@ -31,7 +31,7 @@ class UsersController extends AppController {
 			$login_data = array(
 						"username" => $this->data['User']['username'],
 						"ip_addr" => $_SERVER['REMOTE_ADDR'],
-						"succeed" => false
+						"succeed" => 0//must insert 0 instead of false for MsSQL
 			);
 			$this->UserLoginAttempt->save($login_data);
 			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->data['User']['username'])));
