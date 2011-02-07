@@ -10,11 +10,16 @@ class ViewCollectionCustom extends ViewCollection {
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-		
+			
+			$collection_title = (empty($collection_data['ViewCollection']['ohri_bank_participant_id']))? __('unlinked', true) : $collection_data['ViewCollection']['ohri_bank_participant_id'];
+			if(!empty($collection_data['ViewCollection']['collection_datetime'])) {
+				$collection_title .= ' ' . substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
+			}
+			
 			$return = array(
 				'Summary' => array(
-					'menu' => array(null, $collection_data['ViewCollection']['acquisition_label']),
-					'title' => array(null, __('collection', true) . ' : ' . $collection_data['ViewCollection']['acquisition_label']),
+					'menu' => array(null, $collection_title),
+					'title' => array(null, __('collection', true) . ' : ' . $collection_title),
 					
 					'description'=> array(
 						__('participant code', true) => $collection_data['ViewCollection']['participant_identifier'],
