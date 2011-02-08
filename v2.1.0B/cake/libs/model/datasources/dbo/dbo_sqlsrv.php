@@ -691,10 +691,7 @@ class DboSqlSrv extends DboSource {
 			foreach ($row as $index => $field) {
 				list($table, $column) = $this->map[$index];
 				
-				if(is_numeric($row[$index]) && is_string($row[$index]) && $row[$index] == $row[$index] + 0){
-					//fixes a model association problem (eg.: "1" !== 1) in dbo_source->__mergeHasMany
-					$row[$index] += 0;
-				}else if(is_a($row[$index], 'DateTime')){
+				if(is_a($row[$index], 'DateTime')){
 					$dateTimeObj = $row[$index];
 					$row[$index] = $dateTimeObj->format('Y-m-d H:i:s');
 				}
