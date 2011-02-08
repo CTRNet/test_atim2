@@ -562,5 +562,82 @@ update atim.aliquot_masters
 set in_stock = 'No'
 where in_stock = 'not available';
 
+--
+--  Path Collection Review Migration Script
+-- 
+
+
+-- Fix old  ttrdb database that have no cancer_types in path_collection_reviews
+
+update path_collection_reviews pcr, collections col,  consents c
+set pcr.cancer_type  = c.cancer_type
+where pcr.collection_id = col.id
+and col.acquisition_label = c.acquisition_id
+and  (pcr.cancer_type IS NULL OR pcr.cancer_type = '');
+
+-- clean up old ttrdb database by classifying all cancer types to  four categories: breast, ovarian, colon and generic
+
+update path_collection_reviews pcr
+set cancer_type = 'colon'
+where ( cancer_type LIKE '%Colon%' or cancer_type LIKE '%GI Large Bowel%');
+
+update path_collection_reviews pcr
+set cancer_type = 'ovarian'
+where ( cancer_type LIKE '%ovarian%' or cancer_type LIKE '%Endometrial%' );
+
+-- update the rest of cancer type as generic
+update path_collection_reviews pcr
+set cancer_type = 'generic'
+where cancer_type NOT IN ( 'breast', 'colon', 'ovarian', 'generic' );
+
+-- Create new review controls 
+
+delete from atim.specimen_review_controls where id = 2;
+
+INSERT INTO atim.specimen_review_controls (`id`, `sample_control_id`, `aliquot_review_control_id`, `specimen_sample_type`, `review_type`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES
+(2, 3, 2, 'tissue', 'colon review', 1, 'spr_colon_cancer_types', 'spr_colon_cancer_types', 'tissue|colon review'),
+(3, 3, 3, 'tissue', 'ovarian review', 1, 'spr_ovarian_cancer_types', 'spr_ovarian_cancer_types', 'tissue|ovarian review'),
+(4, 3, 4, 'tissue', 'generic review', 1, 'spr_generic_cancer_types', 'spr_generic_cancer_types', 'tissue|generic review');
+
+
+-- create  temp table for specimen_review_masters  (srm) with no constraint 
+-- insert from path collection review
+-- update control id based on review type
+-- insert into real srm
+
+create table atim.temp_specimen_review_masters  ( select  *   from specimen_review_masters  limit 0);
+
+INSERT INTO atim.temp_specimen_review_masters
+( id,   specimen_sample_type, review_type,  collection_id, review_date, review_status, pathologist, notes, created, created_by, modified, modified_by  )
+SELECT id  , 'tissue',  cancer_type,  collection_id ,review_date,  review_status, pathologist,  comments, created, created_by, modified, modified_by
+FROM path_collection_reviews ;
+
+
+--  update control id based on cancer_type : breast, ovarian, colon, generic
+
+UPDATE atim.temp_specimen_review_masters
+SET specimen_review_control_id = 1
+WHERE review_type = 'breast';
+
+UPDATE atim.temp_specimen_review_masters
+SET specimen_review_control_id = 2
+WHERE review_type = 'colon';
+
+UPDATE atim.temp_specimen_review_masters
+SET specimen_review_control_id = 3
+WHERE review_type = 'ovarian';
+
+UPDATE atim.temp_specimen_review_masters
+SET specimen_review_control_id = 4
+WHERE review_type = 'generic';
+
+
+-- update sample_master_id based on ATIM Specimen Tissue Type
+
+UPDATE  atim.temp_specimen_review_masters  temp  , atim.sample_masters  sm
+SET temp.sample_master_id =  sm.id
+WHERE  temp.collection_id = sm.collection_id
+AND sm.sample_type  LIKE '%tissue%';
+
 
   
