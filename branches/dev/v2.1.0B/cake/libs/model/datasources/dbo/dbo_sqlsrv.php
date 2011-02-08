@@ -248,6 +248,12 @@ class DboSqlSrv extends DboSource {
 				'length' => intval($column[0]['Length']),
 				'key' => ($column[0]['Key'] == '1') ? 'primary' : false
 			);
+			
+			if($fields[$field]['type'] == 'text' && $fields[$field]['length'] == 8){
+				//datetime is returned as text with length 8, fix it
+				$fields[$field]['type'] = 'datetime';
+			}
+			
 			if ($fields[$field]['default'] === 'null') {
 				$fields[$field]['default'] = null;
 			} else {
@@ -690,6 +696,9 @@ class DboSqlSrv extends DboSource {
 				if(is_numeric($row[$index]) && is_string($row[$index]) && $row[$index] == $row[$index] + 0){
 					//fixes a model association problem (eg.: "1" !== 1) in dbo_source->__mergeHasMany
 					$row[$index] += 0;
+				}else if(is_a($row[$index], 'DateTime')){
+					$dateTimeObj = $row[$index];
+					$row[$index] = $dateTimeObj->format('Y-m-d H:i:s');
 				}
 				
 				$resultRow[$table][$column] = $row[$index];
