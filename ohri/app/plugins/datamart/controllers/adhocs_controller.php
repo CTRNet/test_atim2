@@ -12,9 +12,9 @@ class AdhocsController extends DatamartAppController {
 	);
 	
 	var $paginate = array(
-		'Adhoc'				=>array('limit'=>pagination_amount),
-		'AdhocFavourite'	=>array('limit'=>pagination_amount),
-		'AdhocSaved'		=>array('limit'=>pagination_amount)
+		'Adhoc'				=>array('limit'=>pagination_amount,'order'=>'Adhoc.description ASC'),
+		'AdhocFavourite'	=>array('limit'=>pagination_amount,'order'=>'Adhoc.description ASC'),
+		'AdhocSaved'		=>array('limit'=>pagination_amount,'order'=>'Adhoc.description ASC')
 	); 
 	
 	function index( $type_of_list='all' ) {

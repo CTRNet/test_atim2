@@ -24,8 +24,9 @@ class CodingicdAppController extends AppController {
 			$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 			$this->Structures->set("codingicd_".$lang);
 			$limit = 25;
+			$term = mysql_real_escape_string($this->data[0]['term']);
 			
-			$this->data = $model_to_use->globalSearch(array($this->data[0]['term']), isset($this->data['exact_search']) && $this->data['exact_search'], $search_fields_suffix, false, $limit + 1);
+			$this->data = $model_to_use->globalSearch(array($term), isset($this->data['exact_search']) && $this->data['exact_search'], $search_fields_suffix, false, $limit + 1);
 			
 			if(count($this->data) > $limit){
 				unset($this->data[$limit]);

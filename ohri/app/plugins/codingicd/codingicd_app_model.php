@@ -35,46 +35,22 @@ class CodingicdAppModel extends AppModel {
 			$search_fields[] = "id";
 		}
 		
-		if (!$db =& ConnectionManager::getDataSource($this->useDbConfig)) {
-			return false;
-		}
-		$cm = ConnectionManager::getInstance();
-		$sql_driver = $cm->config->{$this->useDbConfig}['driver'];
-			
 		foreach($terms as $term){
-			if($sql_driver == "mysql"){
-				if($exact_search){
-					$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
-				}else{
-					$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
-				}
-				$term = $db->value($term);
-				$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
-			}else if($sql_driver == "sqlsrv"){
-				if($exact_search){
-					$term = preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1 $2", trim($term));
-					$term = $db->value($term);
-					foreach($search_fields as $search_field){
-						$conditions[] = $search_field." LIKE ".$db->value($term);
-					}
-				}else{
-					$term = "%".preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1%$2", trim($term))."%";
-					foreach($search_fields as $search_field){
-						$conditions[] = $search_field." LIKE ".$db->value($term);
-					}
-				}
+			if($exact_search){
+				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
 			}else{
-				die ("No implementation for sql driver [".$sql_driver."]");
+				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
 			}
+			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST ('".$term."' IN BOOLEAN MODE)";
 		}
 		
 		if($limit != null){
 			$data = $this->find('all', array(
-				'conditions' => array("OR" => $conditions),
+				'conditions' => array(implode(" OR ", $conditions)),
 				'limit' => $limit));
 		}else{
 			$data = $this->find('all', array(
-				'conditions' => array("OR" => $conditions)));
+				'conditions' => array(implode(" OR ", $conditions))));
 		}
 		return self::convertDataToNeutralIcd($data);
 		
