@@ -5,7 +5,6 @@ ALTER TABLE participant_messages
 ALTER TABLE participant_messages_revs
  MODIFY `due_date` date  DEFAULT NULL;
  
--- FMLH
 ALTER TABLE structure_formats 
  MODIFY flag_override_label BOOLEAN NOT NULL DEFAULT false,
  MODIFY flag_override_tag BOOLEAN NOT NULL DEFAULT false,
@@ -80,3 +79,4 @@ UPDATE structures SET flag_search_columns=0 WHERE flag_search_columns=1;
 UPDATE structures SET flag_search_columns=1 WHERE flag_search_columns=2;
 UPDATE structures SET flag_detail_columns=0 WHERE flag_detail_columns=1;
 UPDATE structures SET flag_detail_columns=1 WHERE flag_detail_columns=2;
+
