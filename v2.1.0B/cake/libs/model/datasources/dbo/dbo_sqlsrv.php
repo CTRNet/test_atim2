@@ -249,11 +249,6 @@ class DboSqlSrv extends DboSource {
 				'key' => ($column[0]['Key'] == '1') ? 'primary' : false
 			);
 			
-			if($fields[$field]['type'] == 'text' && $fields[$field]['length'] == 8){
-				//datetime is returned as text with length 8, fix it
-				$fields[$field]['type'] = 'datetime';
-			}
-			
 			if ($fields[$field]['default'] === 'null') {
 				$fields[$field]['default'] = null;
 			} else {
@@ -530,6 +525,9 @@ class DboSqlSrv extends DboSource {
 			list($col, $limit) = explode('(', $col);
 		}
 
+		if($col == 'datetime2'){
+			$col = 'datetime';
+		}
 		if (in_array($col, array('date', 'time', 'datetime', 'timestamp'))) {
 			return $col;
 		}
