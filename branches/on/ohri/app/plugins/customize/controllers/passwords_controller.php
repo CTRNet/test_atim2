@@ -27,7 +27,7 @@ class PasswordsController extends CustomizeAppController {
 						
 						unset($this->data['User']['new_password']);
 						unset($this->data['User']['confirm_password']);
-						$this->data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];					
+						
 						if ( $this->User->save( $this->data ) ) {
 							$this->atimFlash( 'your data has been updated','/customize/passwords/index' );
 						}
