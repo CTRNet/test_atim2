@@ -1172,6 +1172,36 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('VICC',  '',  'VICC',  
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Other", "Other");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_location"),  (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "10", "1");
 
+
+
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue block',  '',  'Tissue Block',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('batch count',  '',  'Batch Count',  '');
+-- INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue site',  '',  'Tissue Site',  '');
+-- INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue subsite',  '',  'Tissue Subsite',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue type',  '',  'Tissue Type',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('size of tumour',  '',  'Size of Tumour',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue observation',  '',  'Tissue Observation',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('time of removal',  '',  'Time of Removal',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('large',  '',  'Large',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('page time',  '',  'Page time',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue arrival in pathology lab',  '',  'Tissue arrival in pathology lab',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('pathologist presence',  '',  'Pathologist Presence',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue in transporter',  '',  'Tissue in transporter',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('transporter',  '',  'Transporter',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('path reference',  '',  'Path Reference',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('size (cm)',  '',  'Size (cm)',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('block observation',  '',  'Block observation',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('storage box',  '',  'Storage box',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('datetime stored',  '',  'Datetime stored',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue slide',  '',  'Tissue Slide',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('one slide created per tissue block',  '',  'one slide created per tissue block',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide stain',  '',  'Slide stain',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide location',  '',  'Slide location',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('lab technician',  '',  'Lab Technician',  '');
+
+
+
+
 -- Always add the following drop data fields at the end of file. 
 ALTER TABLE structure_formats
  DROP COLUMN flag_addgrid,
