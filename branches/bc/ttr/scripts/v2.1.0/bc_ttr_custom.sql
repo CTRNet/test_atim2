@@ -1198,7 +1198,7 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('one slide created per 
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide stain',  '',  'Slide stain',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide location',  '',  'Slide location',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('lab technician',  '',  'Lab Technician',  '');
-
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('batch entry',  '',  'Batch Entry',  '');
 
 
 
