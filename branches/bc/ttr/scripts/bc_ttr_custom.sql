@@ -83,10 +83,17 @@ SET deri.initial_specimen_sample_id = spec.id, deri.initial_specimen_sample_type
 WHERE spec.id = deri.parent_id AND spec.sample_category = 'specimen'
 AND deri.sample_category = 'derivative';
 
-INSERT INTO specimen_details
-(sample_master_id, created, created_by, modified, modified_by, deleted)
-SELECT id, created, created_by, modified, modified_by, deleted
-FROM  sample_masters WHERE sample_category = 'specimen'; 
+-- INSERT INTO specimen_details
+-- (sample_master_id, created, created_by, modified, modified_by, deleted)
+-- SELECT id, created, created_by, modified, modified_by, deleted
+-- FROM  sample_masters WHERE sample_category = 'specimen'; 
+
+UPDATE specimen_details spec, sample_masters samp
+SET spec.created = samp.created,
+spec.created_by = samp.created_by,
+spec.modified = samp.modified,
+spec.modified_by = samp.modified
+WHERE spec.sample_master_id = samp.id;
 
 INSERT INTO derivative_details
 (sample_master_id, created, created_by, modified, modified_by, deleted)
