@@ -5,7 +5,7 @@ NOTE:
 drop database ttrdb;
 create database ttrdb;
 
-mysql -u root -p ttrdb --default-character-set=utf8 < .\v2.1.0\ttr_v1_db.sql
+mysql -u root -p ttrdb --default-character-set=utf8 < .\v2.1.0\ttr_v2_db.sql
 
 ---------------------------------------------------------------------------------
 
