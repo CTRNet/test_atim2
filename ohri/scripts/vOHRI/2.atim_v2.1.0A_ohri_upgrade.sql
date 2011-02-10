@@ -643,10 +643,10 @@ AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='diagnosismasters'), 
 (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='ohri_tumor_site'), 
-'1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='diagnosismasters'), 
-(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='histopathology'), 
-'1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0');
+'1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0'); 
+-- ((SELECT id FROM structures WHERE alias='diagnosismasters'), 
+-- (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='histopathology'), 
+-- '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 -- Event : follow up --
 
@@ -2057,3 +2057,16 @@ INSERT IGNORE INTO i18n (id, en) VALUES ('ohri - ovarian tissue', 'OHRI - Ovaria
 
 UPDATE structure_fields SET language_label = 'aliquot label' WHERE model IN ('AliquotMaster','ViewAliquot') AND field = 'barcode';
 INSERT IGNORE INTO i18n (id, en) VALUES ('aliquot label', 'Label'), ('unlinked', 'Unlinked');
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_datagrid = '0',sfo.flag_datagrid_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field = 'barcode' AND sfi.model = 'StorageMaster'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+
+
+
