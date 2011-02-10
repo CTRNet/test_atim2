@@ -1,5 +1,5 @@
 NOTE:
- - run commande line into scripts folder...
+ - run command line into scripts folder...
  - the current ttr data should be into the ""ttrdb" 
 
 drop database ttrdb;
