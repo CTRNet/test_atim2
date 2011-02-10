@@ -605,7 +605,7 @@ INSERT INTO atim.specimen_review_controls (`id`, `sample_control_id`, `aliquot_r
 -- update control id based on review type
 -- insert into real srm
 
-create table atim.temp_specimen_review_masters  ( select  *   from specimen_review_masters  limit 0);
+create table atim.temp_specimen_review_masters  ( select  *   from atim.specimen_review_masters  limit 0);
 
 INSERT INTO atim.temp_specimen_review_masters
 ( id,   specimen_sample_type, review_type,  collection_id, review_date, review_status, pathologist, notes, created, created_by, modified, modified_by  )
@@ -638,6 +638,16 @@ UPDATE  atim.temp_specimen_review_masters  temp  , atim.sample_masters  sm
 SET temp.sample_master_id =  sm.id
 WHERE  temp.collection_id = sm.collection_id
 AND sm.sample_type  LIKE '%tissue%';
+
+
+-- TODO: Need to update the spr_breast and other detail information
+
+-- ALTERNATIVE : Update Old TTRDB   Path Collection Review
+-- ALTER TABLE  ttrdb.`path_collection_reviews` ADD  `based_on_sample_barcode` VARCHAR(30)  NULL AFTER `sample_master_id`;
+
+-- UPDATE  ttrdb.`path_collection_reviews` pcr,  ttrdb.sample_masters sm
+-- SET pcr.based_on_sample_barcode = sm.sample_barcode
+-- WHERE  pcr.sample_master_id = sm.id;
 
 
   
