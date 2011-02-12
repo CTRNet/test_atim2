@@ -889,14 +889,14 @@ INSERT INTO structures(`alias`) VALUES ('BcTtrBloodCell');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('', 'BcTtrBloodCell', '', 'batch_count', 'batch count', '', 'integer_positive', '', '',  NULL , ''), 
 ('', 'BcTtrBloodCell', '', 'box', 'box', '', 'autocomplete', 'url=/storagelayout/storage_masters/autocompleteLabel', '',  NULL , ''), 
-('', 'BcTtrBloodCell', '', 'starting_x', 'sarting column', '', 'input', '', '',  NULL , ''), 
+('', 'BcTtrBloodCell', '', 'starting_x', 'starting column', '', 'input', '', '',  NULL , ''), 
 ('', 'BcTtrBloodCell', '', 'starting_y', 'starting row', '', 'input', '', '',  NULL , ''), 
 ('', 'BcTtrBloodCell', '', 'datetime_stored', 'stored datetime', '', 'datetime', '', '',  NULL , ''), 
 ('', 'BcTtrBloodCell', '', 'volume', 'volume (ml)', '', 'float_positive', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_datagrid`, `flag_datagrid_readonly`, `flag_index`, `flag_detail`) VALUES 
 ((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='batch_count' AND `language_label`='batch count' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='box' AND `language_label`='box' AND `language_tag`='' AND `type`='autocomplete' AND `setting`='url=/storagelayout/storage_masters/autocompleteLabel' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='starting_x' AND `language_label`='sarting column' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='starting_x' AND `language_label`='starting column' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='starting_y' AND `language_label`='starting row' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='datetime_stored' AND `language_label`='stored datetime' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='BcTtrBloodCell'), (SELECT id FROM structure_fields WHERE `model`='BcTtrBloodCell' AND `tablename`='' AND `field`='volume' AND `language_label`='volume (ml)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0');
@@ -1184,13 +1184,13 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue observation',  
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('time of removal',  '',  'Time of Removal',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('large',  '',  'Large',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('page time',  '',  'Page time',  '');
-INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue arrival in pathology lab',  '',  'Tissue arrival in pathology lab',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue_arrival_in_patho_lab',  '',  'Tissue arrival in pathology lab',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('pathologist presence',  '',  'Pathologist Presence',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue in transporter',  '',  'Tissue in transporter',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('transporter',  '',  'Transporter',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('path reference',  '',  'Path Reference',  '');
-INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('size (cm)',  '',  'Size (cm)',  '');
-INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('block observation',  '',  'Block observation',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('size',  '',  'Size (cm)',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('bc_ttr_block_observation',  '',  'Block observation',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('storage box',  '',  'Storage box',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('datetime stored',  '',  'Datetime stored',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue slide',  '',  'Tissue Slide',  '');
@@ -1199,10 +1199,38 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide stain',  '',  'S
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('slide location',  '',  'Slide location',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('lab technician',  '',  'Lab Technician',  '');
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('batch entry',  '',  'Batch Entry',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('frozen block',  '',  'Frozen Block',  '');
 
 
 
--- Always add the following drop data fields at the end of file. 
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('starting column',  '',  'Starting Column',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('starting row',  '',  'Starting Row',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('volume (ml)',  '',  'Volume (ml)',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('stored datetime',  '',  'Stored Datetime',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('dna card',  '',  'DNA Card',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('lot #',  '',  'Lot #',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('time created',  '',  'Time Created',  '');
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('time stored',  '',  'Time Stored',  '');
+
+
+
+
+-- Modify Blood Collection form by removing unwanted fields. 
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='is_problematic' AND type='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='yesno'));
+ 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list'));
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SpecimenDetail' AND tablename='' AND field='supplier_dept' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept'));
+ 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleDetail' AND tablename='' AND field='blood_type' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type'));
+ 
+ 
+
+
+
+
+-- Always add the following drop data fields at the END OF FILE. 
 ALTER TABLE structure_formats
  DROP COLUMN flag_addgrid,
  DROP COLUMN flag_addgrid_readonly,
