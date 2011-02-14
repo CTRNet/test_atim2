@@ -27,6 +27,7 @@ $detail_fields = array(
 	"progression_time_in_months" => "progression time (months)",
 	"follow_up_from_ovarectomy_in_months" => "Follow-up from ovarectomy (months)",
 	"survival_from_ovarectomy_in_months" => "Survival from diagnosis (months)",
+	"progression_status" => "Progression status"
 );
 
 $tables['qc_tf_dxd_eocs'] = new MasterDetailModel(1, $pkey, array(), false, "participant_id", 'diagnosis_masters', $fields, 'qc_tf_dxd_eocs', 'diagnosis_master_id', $detail_fields);
