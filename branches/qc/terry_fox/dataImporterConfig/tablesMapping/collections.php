@@ -97,8 +97,8 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array_merge($insert, $created);
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
-		if(is_numeric($m->values['Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)'])){
-			for($i = $m->values['Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)']; $i > 0; ++ $i){
+		if(is_numeric($m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"])){
+			for($i = $m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]; $i > 0; -- $i){
 				$insert = array(
 					"aliquot_type"			=> "'block'",
 					"aliquot_control_id"	=> "4",
