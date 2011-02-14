@@ -205,8 +205,8 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("GROUP_CONCAT(".$key.") AS ids"), 'GROUP BY NULL'));
-				$save_ids = $save_ids[0][0]['ids'];
+				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array($key." AS ids")));
+				$save_ids = implode(",", array_map(create_function('$val', 'return $val["ViewAliquot"]["ids"];'), $save_ids));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
 					"parent_node_id" => $parent_node,
@@ -294,8 +294,8 @@ class BrowserController extends DatamartAppController {
 				//fetch the count since deletions might make the set smaller than the count of ids
 				$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
 				if($count > self::$display_limit){
-					$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("GROUP_CONCAT(".$model_name_to_search.".".$use_key.") AS ids"), 'GROUP BY NULL'));
-					$this->data = $data[0][0]['ids'];
+					$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array($model_name_to_search.".".$use_key." AS ids")));
+					$this->data = implode(",", array_map(create_function('$val', 'return $val["ViewAliquot"]["ids"];'), $data));
 				}else{
 					$this->data = $this->ModelToSearch->find('all', array('conditions' => $conditions));
 				}
