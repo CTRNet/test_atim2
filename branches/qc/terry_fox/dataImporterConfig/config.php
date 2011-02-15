@@ -9,9 +9,11 @@ $database['charset'] = "utf8";
 $config['printQueries'] = true;
 $config['insertRevs'] = false;
 $config['input type'] = "xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUM-COEUR-clinical data-v0.1.13.xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.13.xls";
-$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TTR-COEUR-clinical data v1.13.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUM-COEUR-clinical data-v0.1.14.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.14.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TTR-COEUR-clinical data-v0.1.14.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/McGill-COEUR- v0-1.14.xls";
+
 $config['xls header rows'] = 2;
 date_default_timezone_set("America/Montreal");
 
@@ -27,7 +29,7 @@ $addonQueries['end'][] = "TRUNCATE id_linking";
 $addonQueries['end'][] = "UPDATE misc_identifiers AS i
 INNER JOIN misc_identifier_controls AS c ON i.misc_identifier_control_id=c.id
 SET i.identifier_name=c.misc_identifier_name, i.identifier_abrv=c.misc_identifier_name_abbrev";
-
+$addonQueries['end'][] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
 
 
 global $created;
@@ -103,15 +105,15 @@ function postRead(Model $m){
 			if(strlen($m->values[$date_field]) != 10){
 				echo "WARNING ON DATE [",$old_val,"] month[".strtolower($matches[1][0][0])."](B)\n";
 			}
-			if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['d']){
-				$m->values[$accuracy_field] = 'd';
+			if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['m']){
+				$m->values[$accuracy_field] = 'm';
 			}
 		}else if(is_numeric($m->values[$date_field])){
 			if($m->values[$date_field] < 2500){
 				//only year
 				$m->values[$date_field] = $m->values[$date_field]."-01-01";
-				if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['m']){
-					$m->values[$accuracy_field] = 'm';
+				if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['y']){
+					$m->values[$accuracy_field] = 'y';
 				}
 			}else{
 				//excel date integer representation
