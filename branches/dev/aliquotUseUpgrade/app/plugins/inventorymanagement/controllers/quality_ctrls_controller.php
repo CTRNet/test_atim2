@@ -8,7 +8,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.QualityCtrlTestedAliquot'
 	);
