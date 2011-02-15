@@ -516,6 +516,21 @@ class AppController extends Controller {
 		
 		return array('ids' => $ids, 'possibilities' => $possibilities);
 	}
+	
+	/**
+	 * Replaces the array key (generally of a find) with an inner value
+	 * @param array $in_array
+	 * @param string $model The model ($in_array[$model])
+	 * @param string $field The field (new key = $in_array[$model][$field])
+	 * @return array
+	 */
+	static function defineArrayKey($in_array, $model, $field){
+		$out_array = array();
+		foreach($in_array as $val){
+			$out_array[$val[$model][$field]] = $val;
+		}
+		return $out_array;
+	}
 }
 
 	AppController::init();
