@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'ctrnet_trunk',
+		'database' => 'ali_use_reb',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

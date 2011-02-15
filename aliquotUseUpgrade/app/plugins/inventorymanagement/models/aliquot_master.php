@@ -17,9 +17,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'foreignKey'    => 'storage_master_id'));
                                  
 	var $hasMany = array(
-		'AliquotUse' => array(
-			'className'   => 'Inventorymanagement.AliquotUse',
-			'foreignKey'  => 'aliquot_master_id'),
 		'RealiquotingParent' => array(
 			'className' => 'Inventorymanagement.Realiquoting',
 			'foreignKey' => 'child_aliquot_master_id'),

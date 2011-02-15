@@ -21,7 +21,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.AliquotMaster',
 		
 		'Inventorymanagement.SourceAliquot',
-		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.SpecimenReviewMaster',
 		
@@ -729,17 +728,6 @@ class SampleMastersController extends InventorymanagementAppController {
 						// DerivativeDetail
 						$this->DerivativeDetail->id = $sample_data['DerivativeDetail']['id'];
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-					
-						// Update source aliquot use data
-						//TODO Add test to verifiy date and created_by have been modified  before to launch update function
-						$source_aliquots = $this->SourceAliquot->find('all', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
-						if(!empty($source_aliquots)) {
-							$use_ids = array();
-							foreach($source_aliquots as $source_data) {
-								$use_ids[] = $source_data['SourceAliquot']['aliquot_use_id'];
-							}
-							if(!$this->AliquotUse->updateAliquotUses($use_ids, $this->data['DerivativeDetail']['creation_datetime'], $this->data['DerivativeDetail']['creation_by'])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-						}
 					}
 
 					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
