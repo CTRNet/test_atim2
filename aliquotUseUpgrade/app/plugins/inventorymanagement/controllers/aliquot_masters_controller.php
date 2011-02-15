@@ -700,6 +700,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
+	function redirectToAliquotUseDetail($url) {
+		$this->redirect(str_replace('|', '/', $url));
+	}
+	
 	function detailAliquotInternalUse($aliquot_master_id, $aliquot_use_id) {
 		if((!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
 			
@@ -811,79 +815,36 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function deleteAliquotInternalUse($aliquot_master_id, $aliquot_use_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }	
-pr('todo');exit;
+		if((!$aliquot_master_id) || (!$aliquot_use_id)) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }	
+		
  		// MANAGE DATA
 		
 		// Get the use data
-		$use_data = $this->AliquotUse->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id, 'AliquotUse.id' => $aliquot_use_id)));
-		if(empty($use_data)) { exit;$this->redirect('/pages/err_inv_no_data', null, true); }		
+		$use_data = $this->AliquotInternalUse->find('first', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id, 'AliquotInternalUse.id' => $aliquot_use_id)));
+		if(empty($use_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
+		
+		$hook_link = $this->hook('delete');
+		if( $hook_link ) { require($hook_link); }
 
-		// Set url to display next page
-		$flash_url = '';
-		switch($redirect) {
-			case 'realiquoting':
-				$flash_url = '/inventorymanagement/aliquot_masters/listAllRealiquotedParents/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param;
-				break;
-			case 'sourcealiquot':
-				$flash_url = '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $extra_param . '/';
-				break;
-			case 'qualitycontrol':
-				$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $extra_param . '/';
-				break;
-			default:
-				$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id;
-		}
+		$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $use_data['AliquotMaster']['collection_id'] . '/' . $use_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_master_id;		
 		
-		// Set Use Detail table
-		$AliquotUseDetail = null;
-		if(!empty($use_data['AliquotUse']['use_recorded_into_table'])) {
-			switch($use_data['AliquotUse']['use_recorded_into_table']) {
-				case $this->QualityCtrlTestedAliquot->useTable:
-					$AliquotUseDetail = $this->QualityCtrlTestedAliquot;
-					break;
-				case $this->Realiquoting->useTable:
-					$AliquotUseDetail = $this->Realiquoting;
-					break;				
-				case $this->SourceAliquot->useTable:
-					$AliquotUseDetail = $this->SourceAliquot;
-					break;	
-				default:
-					$this->flash('deletion of this type of use is currently not supported from use list', $flash_url);
-					return;								
-			}
-		}
-	
 		// LAUNCH DELETION
-		
-		// -> Delete use detail if exists	
 		$deletion_done = true;
-		if(!is_null($AliquotUseDetail)) {
-			$aliquot_use_detail = $AliquotUseDetail->find('first', array('conditions' => array('aliquot_use_id' => $aliquot_use_id), 'recursive' => '-1'));
-			if(empty($aliquot_use_detail)) { $this->redirect('/pages/err_inv_no_data', null, true); }
-			$aliquot_use_detail_id = $aliquot_use_detail[$AliquotUseDetail->name]['id']; 
-			if(!$AliquotUseDetail->atim_delete($aliquot_use_detail_id)) { $deletion_done = false; }
-		}
 		
 		// -> Delete use
 		if($deletion_done) {
-			if(!$this->AliquotUse->atim_delete($aliquot_use_id)) { $deletion_done = false; }	
+			if(!$this->AliquotInternalUse->atim_delete($aliquot_use_id)) { $deletion_done = false; }	
 		}
 		
 		// -> Delete use
 		if($deletion_done) {
 			if(!$this->AliquotMaster->updateAliquotCurrentVolume($aliquot_master_id)) { $deletion_done = false; }
 		}
-		
 		if($deletion_done) {
 			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}	
-	}
-	
-	function redirectToAliquotUseDetail($url) {
-		$this->redirect(str_replace('|', '/', $url));
 	}
 	
 	/* ----------------------------- SOURCE ALIQUOTS ---------------------------- */
