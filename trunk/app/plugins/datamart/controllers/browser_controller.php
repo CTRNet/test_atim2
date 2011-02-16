@@ -205,7 +205,8 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$key.") AS ids")));
+
+				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'].") AS ids")));
 				$save_ids = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
@@ -304,6 +305,7 @@ class BrowserController extends DatamartAppController {
 				$direction_parent = array();
 				$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 				$result_structure = $this->Browser->checklist_result_structure;
+				$header = $this->Browser->checklist_header;
 				unset($result_structure['Structure']);
 				if($merge_to > $parent_node){
 					$start_id = $merge_to;
@@ -316,16 +318,11 @@ class BrowserController extends DatamartAppController {
 				}
 				//fetch from highest id to lowest id
 				$browsing_cache = array();
+				$nodes_to_fetch = array();
 				$datamart_structures_cache[$browsing['DatamartStructure']['id']] = $browsing['DatamartStructure'];
 				while($start_id != $end_id){
 					$nodes_to_fetch[] = $start_id;
-					$browsing = $this->BrowsingResult->find('first', array("conditions" => array('BrowsingResult.id' => $start_id)));
-
-					assert(!empty($browsing)) or die();
-					assert(is_numeric($browsing['BrowsingResult']['parent_node_id'])) or die();
-					
-					$browsing_cache[$start_id] = $browsing;
-					$datamart_structures_cache[$browsing['DatamartStructure']['id']] = $browsing['DatamartStructure'];
+					$browsing = $this->BrowsingResult->mergeStep($start_id, $nodes_to_fetch, $browsing_cache, $datamart_structures_cache);
 					$start_id = $browsing['BrowsingResult']['parent_node_id'];
 				}
 				
@@ -334,8 +331,9 @@ class BrowserController extends DatamartAppController {
 				}else{
 					array_shift($nodes_to_fetch);
 					$nodes_to_fetch[] = $end_id;
+					$this->BrowsingResult->mergeStep($end_id, $nodes_to_fetch, $browsing_cache, $datamart_structures_cache);
 				}
-				
+
 				$iteration_count = 1;
 				foreach($nodes_to_fetch as $node_to_fetch){
 					$browsing = $browsing_cache[$node_to_fetch];
@@ -346,12 +344,18 @@ class BrowserController extends DatamartAppController {
 					if(empty($browsing_control)){
 						$browsing_control = $this->BrowsingControl->find('first', array('conditions' => array('id2' => $latest_struct_id, 'id1' => $browsing['BrowsingResult']['browsing_structures_id'])));
 						assert(!empty($browsing_control)) or die();
-						$control_structure_1 = $latest_struct_id;
-						$control_structure_2 = $datamart_structures_cache[$browsing['BrowsingResult']['browsing_structures_id']];
+
+						list($model, $field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
+
+						$this->data = AppController::defineArrayKey($this->data, $datamart_structures_cache[$latest_struct_id]['model'], $datamart_structures_cache[$latest_struct_id]['use_key']);
+						foreach($this->Browser->checklist_data as &$data_unit){
+							$data_unit = array_merge($data_unit, $this->data[$data_unit[$model][$field]]);
+						}
+						$this->data = $this->Browser->checklist_data;
 					}else{
 						list($model, $field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
 						$control_structure_1 = $datamart_structures_cache[$browsing['BrowsingResult']['browsing_structures_id']];
-						$control_structure_2 = $latest_struct_id;
+//						$control_structure_2 = $latest_struct_id;
 						$this->Browser->checklist_data = AppController::defineArrayKey($this->Browser->checklist_data, $control_structure_1['model'], $control_structure_1['use_key']);
 						foreach($this->data as &$data_unit){
 							$data_unit = array_merge($this->Browser->checklist_data[$data_unit[$model][$field]], $data_unit);
@@ -365,11 +369,12 @@ class BrowserController extends DatamartAppController {
 					}
 					
 					//header merge
+					$header['description'].= " - ".$this->Browser->checklist_header['description'];
 					
 					$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 					++ $iteration_count;
 				}
-				$this->set("header", $this->Browser->checklist_header);
+				$this->set("header", $header);
 				$this->set("result_structure", $result_structure);
 			}
 		}else if($browsing != null){
