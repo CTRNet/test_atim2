@@ -12,7 +12,7 @@ $config['input type'] = "xls";
 //$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUM-COEUR-clinical data-v0.1.14.xls";
 //$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.14.xls";
 //$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TTR-COEUR-clinical data-v0.1.14.xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/McGill-COEUR- v0-1.14.xls";
+$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/McGill-COEUR- v0-1.14.xls";
 
 $config['xls header rows'] = 2;
 date_default_timezone_set("America/Montreal");
@@ -97,13 +97,13 @@ function postRead(Model $m){
 			$m->values[$date_field];
 			$m->values[$date_field] = $matches[4][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-".sprintf("%02d", $matches[2][0][0]);
 			if(strlen($m->values[$date_field]) != 10){
-				echo "WARNING ON DATE [",$old_val,"] (A)\n";
+				echo "WARNING ON DATE [",$old_val,"] (A) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
 			}
 		}else if(preg_match_all(MyTime::$short_date_pattern, $m->values[$date_field], $matches, PREG_OFFSET_CAPTURE) > 0){
 			$old_val = $m->values[$date_field];
 			$m->values[$date_field] = $matches[2][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-01";
 			if(strlen($m->values[$date_field]) != 10){
-				echo "WARNING ON DATE [",$old_val,"] month[".strtolower($matches[1][0][0])."](B)\n";
+				echo "WARNING ON DATE [",$old_val,"] month[".strtolower($matches[1][0][0])."](B) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
 			}
 			if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['m']){
 				$m->values[$accuracy_field] = 'm';
@@ -126,7 +126,7 @@ function postRead(Model $m){
 			//not a standard date, consider unknown
 			$m->values[$accuracy_field] = "u";
 			if(strlen($m->values[$date_field]) != 10){
-				echo "WARNING ON DATE [",$m->values[$date_field],"] (C)\n";
+				echo "WARNING ON DATE [",$m->values[$date_field],"] (C) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
 			}
 		}
 		echo $m->values[$date_field],"\n";
