@@ -112,6 +112,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * realiquoted children ids are put into $_SESSION['tmp_batch_set'] to allow the redirection to a temporary batch set.	 
 	 */
 	public function defineRealiquot(array $data, $remove_from_stocks_if_empty = false){
+//TODO NLUse
+pr('TODO NLUse');
 		$AliquotUse = AppModel::atimNew("inventorymanagement", "AliquotUse", true);
 		$AliquotUse->validate = AliquotUse::$mValidate;
 		$relations = array();
@@ -176,7 +178,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 			
 			foreach($masters_to_update as $aliquot_id => $foo){
-				$this->updateAliquotCurrentVolume($aliquot_id, $remove_from_stocks_if_empty);
+				$this->updateAliquotUseAndVolume($aliquot_id, $remove_from_stocks_if_empty);
 			}
 		}
 		$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;//ViewAliquots
@@ -203,81 +205,89 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @date 2007-08-15
 	 */
 	 
-	function updateAliquotCurrentVolume($aliquot_master_id, $remove_from_stock_if_empty = false){
+	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
 		if(empty($aliquot_master_id)){
 			AppController::getInstance()->redirect('/pages/err_inv_funct_param_missing', null, true); 
 		}
-pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
-pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
-pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
-pr('REFAIRE LA FUNCTION updateAliquotCurrentVolume')	;
-return true;
 
+		// Get aliquot data
 		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
-		
 		if(empty($aliquot_data)){
 			AppController::getInstance()->redirect('/pages/err_inv_no_data', null, true); 
 		}
+
+		// Set variables
+		$aliquot_data_to_save = array();
+		$aliquot_uses = null;
+		
+		if($update_current_volume) {
+			
+			// MANAGE CURRENT VOLUME
+			
+			$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+					
+			// Manage new current volume
+			if(empty($initial_volume)){	
+				// Initial_volume is null or equal to 0
+				// To be sure value and type of both variables are identical
+				$current_volume = $initial_volume;
+						
+			}else {
+				// A value has been set for the intial volume		
+				if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
+					AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
+				}
+						
+				$total_used_volume = 0;
+				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+				foreach($aliquot_uses as $id => $aliquot_use){
+					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
+					if(!empty($used_volume)){
+						// Take used volume in consideration only when this one is not empty
+						if((!is_numeric($used_volume)) || ($used_volume < 0)){
+							AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
+						}
+						$total_used_volume += $used_volume;
+					}
+				}
 				
-		$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
-		$current_volume = $aliquot_data['AliquotMaster']['current_volume'];
-				
-		// Manage new current volume
-		if(empty($initial_volume)){	
-			// Initial_volume is null or equal to 0
-			if($initial_volume === $current_volume) {
-				//Nothing to do
-				return true;
+				$current_volume = round(($initial_volume - $total_used_volume), 5);
+				if($current_volume < 0){
+					$current_volume = 0;
+					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+				}
 			}
 			
-			// To be sure value and type of both variables are identical
-			$current_volume = $initial_volume;
-					
-		}else {
-			// A value has been set for the intial volume		
-			if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
-				AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
+			$aliquot_data_to_save["current_volume"] = $current_volume;
+			if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
+				$aliquot_data_to_save['storage_master_id'] = NULL;
+				$aliquot_data_to_save['storage_coord_x'] = NULL;
+				$aliquot_data_to_save['storage_coord_y'] = NULL;
+				$aliquot_data_to_save['in_stock'] = 'no';
+				$aliquot_data_to_save['in_stock_detail'] = 'empty';
 			}
-					
-			$total_used_volume = 0;
-			foreach($aliquot_data['AliquotUse'] as $id => $aliquot_use){
-				$used_volume = $aliquot_use['used_volume'];
-				if(!empty($used_volume)){
-					// Take used volume in consideration only when this one is not empty
-					if((!is_numeric($used_volume)) || ($used_volume < 0)){
-						AppController::getInstance()->redirect('/pages/err_inv_system_error', null, true); 
-					}
-					$total_used_volume += $used_volume;
-				}
-
-			}
-			$new_current_volume = round(($initial_volume - $total_used_volume), 5);
-			if($new_current_volume < 0){
-				$new_current_volume = 0;
-				$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
-				AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
-			}
-
-			if($new_current_volume === $current_volume) {
-				//Nothing to do
-				return true;
-			}
-			$current_volume = $new_current_volume;
 		}
 		
-		$data["current_volume"] = $current_volume;
-		if($current_volume <= 0 && $remove_from_stock_if_empty){
-			$data['storage_master_id'] = NULL;
-			$data['storage_coord_x'] = NULL;
-			$data['storage_coord_y'] = NULL;
-			$data['in_stock'] = 'no';
-			$data['in_stock_detail'] = 'empty';
+		if($update_uses_counter) {
+			
+			// UPDATE ALIQUOT USE COUNTER	
+		
+			if(is_null($aliquot_uses)) {
+				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+			}
+			
+			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
 		}
 		
-		// Save Data
-		$data['id'] = $aliquot_master_id;
+		
+		// SAVE DATA
+		
+		$aliquot_data_to_save['id'] = $aliquot_master_id;
 		$this->id = $aliquot_master_id;
-		if(!$this->save(array("AliquotMaster" => $data))){
+		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save))){
 			return false;
 		}
 		return true;
@@ -285,20 +295,6 @@ return true;
 	
 	public function getRealiquotDropdown(){
 		return self::$aliquot_type_dropdown;	
-	}
-	
-	
-	/**
-	 * Defines Generated.aliquot_use_counter when AliquotMaster.id is defined
-	 * @see Model::afterFind()
-	 */
-	public function afterFind($results){
-		foreach($results as &$result){
-			if(is_array($result) && isset($result['AliquotUse'])){
-				$result['Generated']['aliquot_use_counter'] = count($result['AliquotUse']);
-			}
-		}
-		return $results;
 	}
 	
 	/**

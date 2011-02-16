@@ -70,7 +70,6 @@ class InventorymanagementAppController extends AppController {
 	 * Get Aliquot data to display into aliquots list view:
 	 *   - Will poulate fields
 	 *         . GeneratedParentSample.*
-	 *         . Generated.aliquot_use_counter 
 	 *         . Generated.realiquoting_data 
 	 *
 	 *	@param $criteria Aliquot Search Criteria
@@ -83,7 +82,8 @@ class InventorymanagementAppController extends AppController {
 	 */
 	 
 	function getAliquotsListData($criteria) {
-		
+//TODO NLUSE	
+pr('TODO NLUSE');	
 		// Search Data
 		$has_many_details = array(
 			'hasMany' => array(
@@ -101,9 +101,6 @@ class InventorymanagementAppController extends AppController {
 		// Manage Data
 		$key_to_sample_parent_id = array();
 		foreach($working_data as $key => $aliquot_data) {
-			// Set aliquot use
-			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
-			
 			// Set realiquoting data
 			$realiquoting_value = 0;
 			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
