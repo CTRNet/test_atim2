@@ -167,10 +167,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		} else {
 			// Launch save process
 			
-			// Get aliquot use ids of the tested aliquots
-			$aliquot_use_ids = array();
-			foreach($qc_data['QualityCtrlTestedAliquot'] as $new_tested_aliquots) { $aliquot_use_ids[] = $new_tested_aliquots['aliquot_use_id']; }
-			
 			// Launch validation
 			$submitted_data_validates = true;
 			
@@ -359,7 +355,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
 
 					// - Update aliquot current volume
-					if(!$this->AliquotMaster->updateAliquotCurrentVolume($aliquot_master_id)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
 				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
@@ -400,7 +396,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		// -> Update volume
 		if($deletion_done) {
-			if(!$this->AliquotMaster->updateAliquotCurrentVolume($tested_aliquot_data['AliquotMaster']['id'])) { $deletion_done = false; }
+			if(!$this->AliquotMaster->updateAliquotUseAndVolume($tested_aliquot_data['AliquotMaster']['id'], true, true)) { $deletion_done = false; }
 		}
 		
 		if($deletion_done) {

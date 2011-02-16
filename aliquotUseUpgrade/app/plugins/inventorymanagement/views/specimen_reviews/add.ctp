@@ -13,7 +13,7 @@
 	);
 	
 	// 1- SPECIMEN REVIEW
-pr($aliquot_list);	
+	
 	$structure_settings = array(
 		'actions'=> ($is_aliquot_review_defined? false : true), 
 		'tabindex' => '1000',

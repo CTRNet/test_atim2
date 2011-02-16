@@ -246,7 +246,10 @@ class ShipmentsController extends OrderAppController {
 					$this->OrderItem->id = $order_item_id;
 					if(!$this->OrderItem->save($order_item_data, false)) { $this->redirect('/pages/err_order_record_err', null, true); }		
 					
-					// Set order line to update
+					// 3- Update Aliquot Use Counter					
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					
+					// 4- Set order line to update
 					$order_line_to_update[$order_line_id] = $order_line_id;
 				}
 				
@@ -307,7 +310,8 @@ class ShipmentsController extends OrderAppController {
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 				$this->AliquotMaster->id = $aliquot_master_id;
-				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { $remove_done = false; }	
+				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { $remove_done = false; }
+				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $remove_done = false; }
 			}
 			
 			// -> Update order line

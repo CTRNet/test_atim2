@@ -174,7 +174,7 @@ INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.
 INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
 WHERE source.deleted != 1
 
-UNION
+UNION ALL
 
 SELECT parent.id AS aliquot_master_id,
 'realiquoted to' AS use_definition, 
@@ -191,7 +191,7 @@ INNER JOIN aliquot_masters AS parent ON parent.id = realiq.parent_aliquot_master
 INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
 WHERE realiq.deleted != 1
 
-UNION 
+UNION ALL
 
 SELECT aliq.id AS aliquot_master_id,
 'quality control' AS use_definition, 
@@ -208,7 +208,7 @@ INNER JOIN aliquot_masters AS aliq ON aliq.id = tested.aliquot_master_id AND ali
 INNER JOIN quality_ctrls AS qc ON qc.id = tested.quality_ctrl_id AND qc.deleted != 1
 WHERE tested.deleted != 1
 
-UNION 
+UNION ALL
 
 SELECT aliq.id AS aliquot_master_id,
 'aliquot shipment' AS use_definition, 
@@ -225,7 +225,7 @@ INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.
 INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
 WHERE item.deleted != 1
 
-UNION
+UNION ALL
 
 SELECT aliq.id AS aliquot_master_id,
 'specimen review' AS use_definition, 
@@ -242,7 +242,7 @@ INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.d
 INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
 WHERE alr.deleted != 1
 
-UNION
+UNION ALL
 
 SELECT aliq.id AS aliquot_master_id,
 'internal use' AS use_definition, 
@@ -315,13 +315,27 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_act
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot internal use code', 'Code', 'Code');
 
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('derivative creation data exists for the deleted aliquot', '', 
+'Your data cannot be deleted! <br>Derivative creation data exists for the deleted aliquot.', 
+'Vos données ne peuvent être supprimées! <br>Des données création d''un dérivé existe pour votre aliquot.'),
+('quality control data exists for the deleted aliquot', '', 
+'Your data cannot be deleted! <br>Quality control data exists for the deleted aliquot.', 
+'Vos données ne peuvent être supprimées! <br>Des données de contrôle de qualité existent pour votre aliquot.');
 
+UPDATE structure_fields 
+SET model = 'AliquotMaster', field = 'use_counter', type = 'integer_positive', setting = 'size=5'
+WHERE model = 'Generated' AND field = 'aliquot_use_counter';
 
+ALTER TABLE aliquot_masters
+	ADD `use_counter` int(6) DEFAULT NULL AFTER `in_stock_detail`;
+ALTER TABLE aliquot_masters_revs
+	ADD `use_counter` int(6) DEFAULT NULL AFTER `in_stock_detail`;
 
-
-
-
-
+UPDATE aliquot_masters as aliq, (SELECT aliquot_master_id, count(*) AS use_nbr FROM view_aliquot_uses GROUP BY aliquot_master_id) AS uses
+SET aliq.use_counter = uses.use_nbr
+WHERE aliq.id = uses.aliquot_master_id
+AND aliq.deleted != 1;
 
 
 
