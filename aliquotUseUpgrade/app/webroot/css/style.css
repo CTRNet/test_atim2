@@ -1502,11 +1502,11 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 
 .databrowser td div{
-	position: relative;
+/*	position: relative;
 	width: 26px;
 	height: 20px;
 	background-position: center;
-	background-repeat: no-repeat;
+	background-repeat: no-repeat;*/
 }
 
 .databrowser img {
@@ -1559,6 +1559,9 @@ div.wrapper table.structure td .databrowser td .info td{
 .databrowser td div.container{
 	/* default icon */
 	background-image: url(../img/icons/fam_fam_silk_help.png);
+	position: relative;
+	width: 26px;
+	height: 20px;
 }
 
 /* databrowser search table icons */
@@ -1608,6 +1611,20 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 .databrowser td.specimen.review div.container{
 	background: url(../img/icons/path_review_16x16.png) center no-repeat;
+}
+
+.databrowser div.controls, .databrowser div.content{
+	display: inline-block;
+}
+.databrowser div.left div.controls{
+	top: 5px;
+	right: 5px;
+	position: absolute;
+}
+.databrowser div.right div.controls{
+	top: 5px;
+	left: 5px;
+	position: absolute;
 }
 
 /* databrowser action dropdown icons */
@@ -1830,4 +1847,11 @@ span.incompleteMenuTitle{
 
 small{
 	font-size: 65%;
+}
+
+.box20x20{
+	display: inline-block;
+	left: 0px;
+	width: 20px;
+	height: 20px;	
 }
