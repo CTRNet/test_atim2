@@ -242,13 +242,20 @@ class Browser extends DatamartAppModel {
 			while($node = array_shift($result)){
 				$children[] = $node['BrowsingResult']['id'];
 			}
-			$merge = (count($linked_types_down) > 0 || $tree_node['active']) && !in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down);
+			
+			//going down the tree
+			$drilldown_allow_merge = !$tree_node['BrowsingResult']['raw'] && in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down); 
+			if($drilldown_allow_merge){
+				//drilldown, remove the last entry to allow the current one to be flag as mergeable 
+				array_pop($linked_types_down);
+			}
+			$merge = (count($linked_types_down) > 0 || $tree_node['active'] || $drilldown_allow_merge) && !in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down);
 			if($merge){
 				array_push($linked_types_down, $tree_node['BrowsingResult']['browsing_structures_id']);
 				if($node_id != $active_node){
 					$tree_node['merge'] = true;
 				}
-			} 
+			}
 			foreach($children as $child){
 				if($merge){
 					$child_node = Browser::getTree($child, $active_node, $linked_types_down, $linked_types_up);
@@ -257,19 +264,21 @@ class Browser extends DatamartAppModel {
 				}
 				$tree_node['children'][] = $child_node;
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
-				if($child_node['active']){
+				if(($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node){
 					array_push($linked_types_up, $child_node['BrowsingResult']['browsing_structures_id']);
-					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up)){
+					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || !$child_node['BrowsingResult']['raw']){
 						$tree_node['merge'] = true;
 					}
 				}
 			}
-			if($merge && !$tree_node['active']){
+			if($merge && !$tree_node['active'] && !$drilldown_allow_merge){
 				//moving back up to active node, we pop
 				array_pop($linked_types_down);
 			}
 		}
-		
+		if(!isset($tree_node['merge'])){
+			$tree_node['merge'] = false;
+		}
 		return $tree_node;
 	}
 	
