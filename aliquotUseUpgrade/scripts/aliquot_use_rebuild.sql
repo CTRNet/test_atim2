@@ -155,7 +155,7 @@ ALTER TABLE aliquot_internal_uses_revs DROP COLUMN use_recorded_into_table;
 
 -- VIEW
 
-DROP VIEW view_aliquot_uses;
+DROP VIEW IF EXISTS view_aliquot_uses;
 CREATE VIEW view_aliquot_uses AS 
 
 SELECT aliq.id AS aliquot_master_id,
@@ -307,9 +307,6 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotInte
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'aliquotuses_system_dependent');
 DELETE FROM structures WHERE alias = 'aliquotuses_system_dependent';
 
-INSERT INTO structure_validations (`structure_field_id`, `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message`) 
-(SELECT (SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND `type`='autocomplete' AND structure_value_domain IS NULL ), `rule`, `flag_empty`, `flag_required`, `on_action`, `language_message` FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND `type`='input' AND structure_value_domain  IS NULL ));
-
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE model='AliquotInternalUse' AND field='use_code'), 'notEmpty', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
@@ -337,6 +334,12 @@ SET aliq.use_counter = uses.use_nbr
 WHERE aliq.id = uses.aliquot_master_id
 AND aliq.deleted != 1;
 
+UPDATE datamart_structures 
+SET model = 'ViewAliquotUse', 
+structure_id = (SELECT id FROM structures WHERE alias = 'viewaliquotuses'),
+use_key = 'aliquot_master_id'
+WHERE model = 'AliquotUse';
+UPDATE datamart_browsing_controls SET use_field = 'ViewAliquotUse.aliquot_master_id' WHERE use_field = 'AliquotUse.aliquot_master_id';
 
 
 
