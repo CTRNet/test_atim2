@@ -663,4 +663,5 @@ class Browser extends DatamartAppModel {
 			$this->data = array();
 		}
 	}
+	
 }
