@@ -135,7 +135,7 @@ class OrderItemsController extends OrderAppController {
   		$aliquot_ids_to_add = null;
 		$url_to_redirect = null;
 		$launch_save_process = false;
-
+		
 		if(empty($this->data) || isset($this->data['BatchSet'])) {
 			// A- User just launched the process: set ids in session
 			
