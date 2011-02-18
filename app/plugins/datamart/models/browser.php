@@ -451,7 +451,7 @@ class Browser extends DatamartAppModel {
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."datamart/browser/browse/";
 					if(isset($cell['merge']) && $cell['merge']){
-						$controls = sprintf($controls, "<a href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."/'>(@)</a>");
+						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']." title='".__("link to current view", true)."'/>&nbsp;</a>");
 					}else{
 						$controls = sprintf($controls, "");
 					}

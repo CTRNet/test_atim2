@@ -1750,6 +1750,14 @@ ul.actionDropdown li a{
 	font-size: 130%;
 }
 
+.databrowser a.link{
+	background : transparent url(../img/icons/link_16x16.gif);
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	text-decoration: none;
+}
+
 .popup_container .wrapper, div.actions{
 	margin: 0px;
 	min-height: 0px;
