@@ -527,7 +527,12 @@ class AppController extends Controller {
 	static function defineArrayKey($in_array, $model, $field){
 		$out_array = array();
 		foreach($in_array as $val){
-			$out_array[$val[$model][$field]] = $val;
+			if(isset($val[$model])){
+				$out_array[$val[$model][$field]][] = $val;
+			}else{
+				//the key cannot be foud
+				$out_array[-1][] = $val;
+			}
 		}
 		return $out_array;
 	}

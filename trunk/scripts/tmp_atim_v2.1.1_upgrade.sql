@@ -863,7 +863,9 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 'Dataset defined subsequently in order to process/analyze this data together: Data export, performing the same process on all, data sharing, etc..', 
 'Ensemble de données défini ulterieurement dans le but de traiter/analyser ces données ensemble: Export de données, exécution d''un même processus sur l''ensemble des données, partage de données, etc.');
 
-INSERT IGNORE INTO i18n (id, en, fr) VALUES ('report','Report','Rapport');
+INSERT IGNORE INTO i18n (id, en, fr) VALUES 
+('report','Report','Rapport'),
+("link to current view", "Link to current view", "Lier à la vue courrante");
 
 UPDATE structure_formats 
 SET flag_summary = '0' 
