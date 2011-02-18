@@ -697,7 +697,7 @@ class StructuresHelper extends Helper {
 			if(isset($table_row_part['tool'])){
 				$display .= $table_row_part['tool'];
 			}
-		}else if(strlen($current_value) > 0){
+		}else if(strlen($current_value) > 1){
 			if($table_row_part['type'] == "date"){
 				list($year, $month, $day) = explode("-", $current_value);
 				$display = AppController::getFormatedDateString($year, $month, $day);
