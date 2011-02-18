@@ -290,51 +290,83 @@ class Browser extends DatamartAppModel {
 	 * @param Int $y The current y location
 	 */
 	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
+		if($tree_node['active']){
+			self::drawActiveLine(&$tree, $x, $y);
+		}
+		
 		$tree[$y][$x] = $tree_node;
 		if(count($tree_node['children'])){
 			$looped = false;
 			$last_arrow_x = NULL;
 			$last_arrow_y = NULL;
 			foreach($tree_node['children'] as $pos => $child){
-				$active = $child['active'] ? " active " : ""; 
-				$tree[$y][$x + 1] = "h-line".$active;
+				$tree[$y][$x + 1] = "h-line";
 				if($looped){
-					$tree[$y][$x] = "arrow".$active;
-					if(strlen($active) > 0 && isset($tree[$y - 1][$x])){
-						$i = 1;
-						while(true){
-							if($tree[$y - $i][$x] == "arrow"){
-								$tree[$y - $i][$x] = "arrow active_straight";
-							}else if($tree[$y - $i][$x] == "v-line"){
-								$tree[$y - $i][$x] = "v-line active"; 
-							}else{
-								break;
-							}
-							$i ++;
-						}
-					}
+					$tree[$y][$x] = "arrow";
 					$last_arrow_x = $x;
 					$last_arrow_y = $y;
 					$curr_y = $y - 1;
 					while(!isset($tree[$curr_y][$x])){
-						$tree[$curr_y][$x] = "v-line".$active;
+						$tree[$curr_y][$x] = "v-line";
 						$curr_y --;
 					}
 				}
+				$active_x = null;
+				$active_y = null;
 				if(!$child['BrowsingResult']['raw'] || !$tree_node['BrowsingResult']['raw']){
 					Browser::buildTree($child, $tree, $x + 2, $y);
 				}else{
-					$tree[$y][$x + 2] = "h-line".$active;
-					$tree[$y][$x + 3] = "h-line".$active;
+					$tree[$y][$x + 2] = "h-line";
+					$tree[$y][$x + 3] = "h-line";
 					Browser::buildTree($child, $tree, $x + 4, $y);
 				}
+				
 				$y ++;
 				$looped = true;
 			}
+			
 			$y --;
 			if($last_arrow_x !== NULL){
 				$tree[$last_arrow_y][$last_arrow_x] = $tree[$last_arrow_y][$last_arrow_x] == "arrow" ? "corner" : "corner active";
 			}
+		}
+	}
+	
+	/**
+	 * Update the line to print it in blue between the given position and the parent node
+	 * @param array $tree
+	 * @param int $active_x The current active node x position
+	 * @param int $active_y The current active node y position
+	 */
+	private static function drawActiveLine(array $tree, $active_x, $active_y){
+		//draw the active line
+		$left_arr = array("h-line", "arrow", "corner");
+		$counter = 0;
+		while($active_x >= 0 && $active_y >= 0){
+			//try left
+			if(isset($tree[$active_y][$active_x - 1])){
+				if(in_array($tree[$active_y][$active_x - 1], $left_arr)){
+					$tree[$active_y][$active_x - 1] .= " active";
+					-- $active_x;
+				}else{
+					//else it's a node
+					break;
+				}
+			}else if(isset($tree[$active_y - 1][$active_x])){
+				if($tree[$active_y - 1][$active_x] == "v-line"){
+					$tree[$active_y - 1][$active_x] .= " active";
+				}else if($tree[$active_y - 1][$active_x] == "arrow"){
+					$tree[$active_y - 1][$active_x] .= " active_straight";
+				}else{
+					//it's a node
+					break;
+				}
+				-- $active_y;
+			}else{
+				break;
+			}
+			++ $counter;
+			assert($counter < 100) or die("invalid loop");
 		}
 	}
 	
