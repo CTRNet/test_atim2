@@ -165,7 +165,7 @@ class BrowserController extends DatamartAppController {
 				
 				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
-				$key = $model_to_import.".".$model_key_name;
+				$select_key = $model_to_import.".".$model_key_name;
 				if($use_sub_model){
 					//adding filtering search condition
 					$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $sub_structure_id;
@@ -182,7 +182,7 @@ class BrowserController extends DatamartAppController {
 						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")")));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
-							$search_conditions[$key][] = $data_unit[$use_model][$use_field];
+							$search_conditions[$select_key][] = $data_unit[$use_model][$use_field];
 						}
 					}else{
 						//ids are already contained in the child
@@ -205,7 +205,7 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$key.") AS ids")));
+				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$select_key.") AS ids")));
 				$save_ids = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
@@ -308,7 +308,7 @@ class BrowserController extends DatamartAppController {
 				$start_id = NULL;
 				$end_id = null;
 				$this->data = $this->Browser->checklist_data;
-				$direction_parent = array();
+				$descending = null;
 				$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 				$result_structure = $this->Browser->checklist_result_structure;
 				$header = $this->Browser->checklist_header;
@@ -316,11 +316,11 @@ class BrowserController extends DatamartAppController {
 				if($merge_to > $parent_node){
 					$start_id = $merge_to;
 					$end_id = $parent_node;
-					$direction_parent = true;
+					$descending = false;
 				}else{
 					$start_id = $parent_node;
 					$end_id = $merge_to;
-					$direction_parent = false;
+					$descending = true;
 				}
 				//fetch from highest id to lowest id
 				$browsing_cache = array();
@@ -332,13 +332,27 @@ class BrowserController extends DatamartAppController {
 					$start_id = $browsing['BrowsingResult']['parent_node_id'];
 				}
 				
-				if($direction_parent){
-					$nodes_to_fetch = array_reverse($nodes_to_fetch);
-				}else{
+				if($descending){
 					array_shift($nodes_to_fetch);
 					$nodes_to_fetch[] = $end_id;
 					$this->BrowsingResult->mergeStep($end_id, $nodes_to_fetch, $browsing_cache, $datamart_structures_cache);
 				}
+				
+				//clear drilldown parents
+				$remove = false;
+				foreach($nodes_to_fetch as $index => $node_to_fetch){
+					if($remove){
+						unset($nodes_to_fetch[$index]);
+						$remove = false;
+					}else{
+						$remove = $browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0;
+					}
+				}
+
+				if(!$descending){
+					$nodes_to_fetch = array_reverse($nodes_to_fetch);
+				}
+				
 
 				$iteration_count = 1;
 				foreach($nodes_to_fetch as $node_to_fetch){
@@ -370,14 +384,31 @@ class BrowserController extends DatamartAppController {
 						}
 
 						$this->data = AppController::defineArrayKey($this->data, $data_model, $data_field);
-						foreach($this->Browser->checklist_data as &$data_unit){
-							if(isset($this->data[$data_unit[$checklist_model][$checklist_field]][$checklist_model])){
-								//remove "as many" relations. Eg.: SampleMaster returns an AliquotMaster array -> remove it
-								unset($this->data[$data_unit[$checklist_model][$checklist_field]][$checklist_model]);
+						$to_remove = array();
+						$tmp_data = array();
+						foreach($this->Browser->checklist_data as $data_unit){
+							if(isset($this->data[$data_unit[$checklist_model][$checklist_field]])){
+								foreach($this->data[$data_unit[$checklist_model][$checklist_field]] as $sub_data_unit){
+									if(isset($sub_data_unit[$checklist_model])){
+										//remove "as many" relations. Eg.: SampleMaster returns an AliquotMaster array -> remove it
+										unset($sub_data_unit[$checklist_model]);
+									}
+									$tmp_data[] = array_merge($data_unit, $sub_data_unit);
+									$to_remove[$data_unit[$checklist_model][$checklist_field]] = null;
+								}
 							}
-							$data_unit = array_merge($data_unit, $this->data[$data_unit[$checklist_model][$checklist_field]]);
 						}
-						$this->data = $this->Browser->checklist_data;
+
+						foreach(array_keys($to_remove) as $remove_id){
+							unset($this->data[$remove_id]);
+						}
+						
+						foreach($this->data as $data_unit){
+							//merge parent w/o child back into the result set
+							$tmp_data = array_merge($data_unit, $tmp_data);
+						}
+
+						$this->data = $tmp_data;
 					}else{
 						list($data_model, $data_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
 						if(!isset($this->data[0][$data_model])){
@@ -396,7 +427,10 @@ class BrowserController extends DatamartAppController {
 						}
 						$this->Browser->checklist_data = AppController::defineArrayKey($this->Browser->checklist_data, $checklist_model, $checklist_field);
 						foreach($this->data as &$data_unit){
-							$data_unit = array_merge($this->Browser->checklist_data[$data_unit[$data_model][$data_field]], $data_unit);
+							$index = $data_unit[$data_model][$data_field];
+							if(isset($this->Browser->checklist_data[$index])){
+								$data_unit = array_merge($this->Browser->checklist_data[$index][0], $data_unit);
+							}
 						}
 					}
 					
