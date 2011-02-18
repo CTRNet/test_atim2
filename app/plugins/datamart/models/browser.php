@@ -290,7 +290,7 @@ class Browser extends DatamartAppModel {
 	 * @param Int $y The current y location
 	 */
 	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
-		if($tree_node['active']){
+		if($tree_node['active'] && $tree != null){
 			self::drawActiveLine(&$tree, $x, $y);
 		}
 		
