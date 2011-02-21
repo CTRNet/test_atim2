@@ -1514,7 +1514,7 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 
 .databrowser td.node{
-	/*background-image: url(../img/dataBrowser/node.png);*/
+	background-image: url(../img/dataBrowser/node.png);
 }
 
 .databrowser td.h-line {
@@ -1534,7 +1534,7 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 
 .databrowser td.node.active{
-	/*background-image: url(../img/dataBrowser/node_active.png);*/
+	background-image: url(../img/dataBrowser/node_active.png);
 }
 
 .databrowser td.h-line.active, .databrowser tr:nth-child(1) td:nth-child(1){
