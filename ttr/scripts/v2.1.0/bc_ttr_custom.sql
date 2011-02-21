@@ -1228,6 +1228,45 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
  
 
 
+-- TISSUE TYPES
+
+-- Convert ttrdb old data sd_tissueblocks from id to name values
+
+-- Drop Down Value Options for Tissue Type
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("normal", "normal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "1", "1");
+-- INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('normal',  '',  'normal',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("normal?", "normal?");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="normal?" AND language_alias="normal?"), "2", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('normal?',  '',  'normal?',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pre-malignant", "pre-malignant");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="pre-malignant" AND language_alias="pre-malignant"), "3", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('pre-malignant',  '',  'pre-malignant',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumour", "tumour");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="tumour" AND language_alias="tumour"), "4", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tumour',  '',  'tumour',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumour/normal", "tumour/normal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="tumour/normal" AND language_alias="tumour/normal"), "5", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tumour/normal',  '',  'tumour/normal',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumour?", "tumour?");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_type"),  (SELECT id FROM structure_permissible_values WHERE value="tumour?" AND language_alias="tumour?"), "6", "1");
+INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tumour?',  '',  'tumour?',  '');
+
 
 
 -- Always add the following drop data fields at the END OF FILE. 
