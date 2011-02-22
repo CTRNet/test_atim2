@@ -337,25 +337,31 @@ class BrowserController extends DatamartAppController {
 					$nodes_to_fetch[] = $end_id;
 					$this->BrowsingResult->mergeStep($end_id, $nodes_to_fetch, $browsing_cache, $datamart_structures_cache);
 				}
+				$this->set("merged_ids", $nodes_to_fetch);
 				
-				//clear drilldown parents
-				$remove = false;
-				foreach($nodes_to_fetch as $index => $node_to_fetch){
-					if($remove){
-						unset($nodes_to_fetch[$index]);
-						$remove = false;
-					}else{
-						$remove = $browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0;
+				if($descending){
+					//clear drilldown parents
+					$remove = $browsing['BrowsingResult']['raw'] == 0;
+					foreach($nodes_to_fetch as $index => $node_to_fetch){
+						if($remove){
+							unset($nodes_to_fetch[$index]);
+							$remove = false;
+						}else{
+							$remove = $browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0;
+						}
 					}
-				}
-
-				if(!$descending){
+				}else{
 					$nodes_to_fetch = array_reverse($nodes_to_fetch);
+					//clear drilldowns
+					foreach($nodes_to_fetch as $index => $node_to_fetch){
+						if($browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0){
+							unset($nodes_to_fetch[$index]);
+						}
+					}
 				}
 				
 
 				$iteration_count = 1;
-				$this->set("merged_ids", $nodes_to_fetch);
 				foreach($nodes_to_fetch as $node_to_fetch){
 					$browsing = $browsing_cache[$node_to_fetch];
 					$this->Browser->fetchChecklist($browsing, self::$display_limit);
