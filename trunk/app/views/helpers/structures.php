@@ -39,7 +39,8 @@ class StructuresHelper extends Helper {
 				'add_fields'	=> false, // if TRUE, adds an "add another" link after form to allow another row to be appended
 				'del_fields'	=> false, // if TRUE, add a "remove" link after each row, to allow it to be removed from the form
 				
-				'tree'			=> array() // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
+				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
+				'data_miss_warn'=> true//in debug mode, prints a warning if data is not found for a field
 			),
 			
 			'links'		=> array(
@@ -614,7 +615,7 @@ class StructuresHelper extends Helper {
 					}
 					if(array_key_exists($table_row_part['model'], $data_unit) && array_key_exists($table_row_part['field'], $data_unit[$table_row_part['model']])){
 						echo $this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null), " ";
-					}else if(Configure::read('debug') > 0){
+					}else if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
 						AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
 					}
 				}
@@ -2035,7 +2036,7 @@ class StructuresHelper extends Helper {
 				$current_value = $table_row_part['default']; 
 			}
 		}else{
-			if(Configure::read('debug') > 0){
+			if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
 				AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
 			}
 			$current_value = "-";
