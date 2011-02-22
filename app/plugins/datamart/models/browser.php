@@ -430,7 +430,7 @@ class Browser extends DatamartAppModel {
 		}while($tmp_node);
 		$fm = Browser::getTree($prev_node, $current_node, $merged_ids);
 		Browser::buildTree($fm, $tree);
-		$result .= "<table class='structure'><tr><td align='center'>".__("browsing", true)
+		$result .= "<table class='structure'><tr><td style='padding-left: 10px;'>".__("browsing", true)
 			."<table class='databrowser'>\n";
 		ksort($tree);
 		
