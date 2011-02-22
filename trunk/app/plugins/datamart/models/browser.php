@@ -265,7 +265,7 @@ class Browser extends DatamartAppModel {
 				}
 				$tree_node['children'][] = $child_node;
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
-				if(($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node){
+				if(!isset($tree_node['merge']) && (($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node)){
 					array_push($linked_types_up, $child_node['BrowsingResult']['browsing_structures_id']);
 					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || !$child_node['BrowsingResult']['raw']){
 						$tree_node['merge'] = true;
