@@ -99,7 +99,8 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				$id_csv = implode(",", $ids);
+
+				$id_csv = implode(",", array_unique($ids));
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_node_id'])));
@@ -206,7 +207,7 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$select_key.") AS ids")));
-				$save_ids = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
+				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
 					"parent_node_id" => $parent_node,
