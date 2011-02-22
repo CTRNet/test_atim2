@@ -355,6 +355,7 @@ class BrowserController extends DatamartAppController {
 				
 
 				$iteration_count = 1;
+				$this->set("merged_ids", $nodes_to_fetch);
 				foreach($nodes_to_fetch as $node_to_fetch){
 					$browsing = $browsing_cache[$node_to_fetch];
 					$this->Browser->fetchChecklist($browsing, self::$display_limit);
@@ -446,6 +447,7 @@ class BrowserController extends DatamartAppController {
 					$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 					++ $iteration_count;
 				}
+				
 				$this->set("header", $header);
 				$this->set("result_structure", $result_structure);
 			}

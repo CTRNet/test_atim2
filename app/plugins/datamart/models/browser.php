@@ -227,11 +227,12 @@ class Browser extends DatamartAppModel {
 	 * Recursively builds a tree node by node.
 	 * @param Int $node_id The node id to fetch
 	 * @param Int $active_node The node to hihglight in the graph
+	 * @param Array $merged_ids The merged nodes ids
 	 * @param Array $linked_types_down Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
 	 * @param Array $linked_types_up Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
 	 * @return An array representing the search tree
 	 */
-	static function getTree($node_id, $active_node, array &$linked_types_down = array(), array &$linked_types_up = array()){
+	static function getTree($node_id, $active_node, $merged_ids, array &$linked_types_down = array(), array &$linked_types_up = array()){
 		$BrowsingResult = new BrowsingResult();
 		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id')));
 		$tree_node = NULL;
@@ -258,9 +259,9 @@ class Browser extends DatamartAppModel {
 			}
 			foreach($children as $child){
 				if($merge){
-					$child_node = Browser::getTree($child, $active_node, $linked_types_down, $linked_types_up);
+					$child_node = Browser::getTree($child, $active_node, $merged_ids, $linked_types_down, $linked_types_up);
 				}else{
-					$child_node = Browser::getTree($child, $active_node, $foo = array(), $linked_types_up);
+					$child_node = Browser::getTree($child, $active_node, $merged_ids, $foo = array(), $linked_types_up);
 				}
 				$tree_node['children'][] = $child_node;
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
@@ -278,6 +279,9 @@ class Browser extends DatamartAppModel {
 		}
 		if(!isset($tree_node['merge'])){
 			$tree_node['merge'] = false;
+		}
+		if(!empty($merged_ids) && (in_array($node_id, $merged_ids) || $node_id == $active_node)){
+			$tree_node['paint_merged'] = true;
 		}
 		return $tree_node;
 	}
@@ -300,14 +304,15 @@ class Browser extends DatamartAppModel {
 			$last_arrow_x = NULL;
 			$last_arrow_y = NULL;
 			foreach($tree_node['children'] as $pos => $child){
-				$tree[$y][$x + 1] = "h-line";
+				$merge = isset($tree_node['paint_merged']) && isset($child['paint_merged']) ? " merged" : "";
+				$tree[$y][$x + 1] = "h-line".$merge;
 				if($looped){
-					$tree[$y][$x] = "arrow";
+					$tree[$y][$x] = "arrow".$merge;
 					$last_arrow_x = $x;
 					$last_arrow_y = $y;
 					$curr_y = $y - 1;
 					while(!isset($tree[$curr_y][$x])){
-						$tree[$curr_y][$x] = "v-line";
+						$tree[$curr_y][$x] = "v-line".$merge;
 						$curr_y --;
 					}
 				}
@@ -316,8 +321,8 @@ class Browser extends DatamartAppModel {
 				if(!$child['BrowsingResult']['raw'] || !$tree_node['BrowsingResult']['raw']){
 					Browser::buildTree($child, $tree, $x + 2, $y);
 				}else{
-					$tree[$y][$x + 2] = "h-line";
-					$tree[$y][$x + 3] = "h-line";
+					$tree[$y][$x + 2] = "h-line".$merge;
+					$tree[$y][$x + 3] = "h-line".$merge;
 					Browser::buildTree($child, $tree, $x + 4, $y);
 				}
 				
@@ -327,7 +332,40 @@ class Browser extends DatamartAppModel {
 			
 			$y --;
 			if($last_arrow_x !== NULL){
-				$tree[$last_arrow_y][$last_arrow_x] = $tree[$last_arrow_y][$last_arrow_x] == "arrow" ? "corner" : "corner active";
+				$check_up_merge = false;
+				$apply_merge = false;
+				if($tree[$last_arrow_y][$last_arrow_x] == "arrow"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner";
+					$check_up_merge = true;
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner merged";
+					$check_up_merge = true;
+					$apply_merge = true;
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow active"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner active";
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged active"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner merged active";
+					$check_up_merge = true;
+					$apply_merge = true;
+				}
+				
+				if($check_up_merge){
+					-- $last_arrow_y;
+					while(is_string($tree[$last_arrow_y][$last_arrow_x])){
+						if($apply_merge){
+							if($tree[$last_arrow_y][$last_arrow_x] == "arrow"){
+								$tree[$last_arrow_y][$last_arrow_x] .= " merged_straight";
+							}else if($tree[$last_arrow_y][$last_arrow_x] == "v-line" || $tree[$last_arrow_y][$last_arrow_x] == "v-line active"){
+								$tree[$last_arrow_y][$last_arrow_x] .= " merged";
+							}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow active_straight"){
+								$tree[$last_arrow_y][$last_arrow_x] = "arrow active_straight merged";
+							}
+						}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged" || $tree[$last_arrow_y][$last_arrow_x] == "arrow merged active"){
+							$apply_merge = true;
+						}
+						-- $last_arrow_y;
+					}
+				}
 			}
 		}
 	}
@@ -340,7 +378,7 @@ class Browser extends DatamartAppModel {
 	 */
 	private static function drawActiveLine(array $tree, $active_x, $active_y){
 		//draw the active line
-		$left_arr = array("h-line", "arrow", "corner");
+		$left_arr = array("h-line", "arrow", "corner", "h-line merged", "arrow merged", "corner merged");
 		$counter = 0;
 		while($active_x >= 0 && $active_y >= 0){
 			//try left
@@ -353,10 +391,12 @@ class Browser extends DatamartAppModel {
 					break;
 				}
 			}else if(isset($tree[$active_y - 1][$active_x])){
-				if($tree[$active_y - 1][$active_x] == "v-line"){
+				if($tree[$active_y - 1][$active_x] == "v-line" || $tree[$active_y - 1][$active_x] == "v-line merged"){
 					$tree[$active_y - 1][$active_x] .= " active";
 				}else if($tree[$active_y - 1][$active_x] == "arrow"){
 					$tree[$active_y - 1][$active_x] .= " active_straight";
+				}else if($tree[$active_y - 1][$active_x] == "arrow merged_straight"){
+					$tree[$active_y - 1][$active_x] = "arrow active_straight merged";
 				}else{
 					//it's a node
 					break;
@@ -372,10 +412,11 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * @param Int $current_node The id of the current node. Its path will be highlighted
+	 * @param array $merged_ids The id of the merged node
 	 * @param String $webroot_url The webroot of ATiM
 	 * @return the html of the table search tree
 	 */
-	static function getPrintableTree($current_node, $webroot_url){
+	static function getPrintableTree($current_node, array $merged_ids, $webroot_url){
 		$result = "";
 		$BrowsingResult = new BrowsingResult();
 		$tmp_node = $current_node;
@@ -387,7 +428,7 @@ class Browser extends DatamartAppModel {
 				$tmp_node = $br['BrowsingResult']['parent_node_id'];
 			}
 		}while($tmp_node);
-		$fm = Browser::getTree($prev_node, $current_node);
+		$fm = Browser::getTree($prev_node, $current_node, $merged_ids);
 		Browser::buildTree($fm, $tree);
 		$result .= "<table class='structure'><tr><td align='center'>".__("browsing", true)
 			."<table class='databrowser'>\n";
@@ -414,6 +455,9 @@ class Browser extends DatamartAppModel {
 					$class = $cell['DatamartStructure']['display_name'];
 					if($cell['active']){
 						$class .= " active ";
+					}
+					if(isset($cell['paint_merged'])){
+						$class .= " merged";
 					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name'], true);
@@ -451,7 +495,7 @@ class Browser extends DatamartAppModel {
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."datamart/browser/browse/";
 					if(isset($cell['merge']) && $cell['merge']){
-						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']." title='".__("link to current view", true)."'/>&nbsp;</a>");
+						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view", true)."'/>&nbsp;</a>");
 					}else{
 						$controls = sprintf($controls, "");
 					}

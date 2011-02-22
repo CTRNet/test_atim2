@@ -1,6 +1,6 @@
 <?php
 	if(isset($parent_node) && $parent_node != 0){
-		echo(Browser::getPrintableTree($parent_node, $this->webroot));
+		echo(Browser::getPrintableTree($parent_node, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
