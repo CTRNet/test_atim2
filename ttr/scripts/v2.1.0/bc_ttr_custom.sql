@@ -1269,6 +1269,416 @@ INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tumour?',  '',  'tumou
 
 
 
+
+-- TISSUE SITES
+
+-- Convert ttrdb data from sd_tissueblocks from id to name values
+-- Drop Down Value Options for Tissue Type
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Breast", "Breast");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Breast" AND language_alias="Breast"), "1", "1");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Colon", "Colon");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Colon" AND language_alias="Colon"), "2", "1");
+
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Colon',  '',  'Colon',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Colo-rectal", "Colo-rectal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Colo-rectal" AND language_alias="Colo-rectal"), "3", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Colo-rectal',  '',  'Colo-rectal',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Uterus", "Uterus");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Uterus" AND language_alias="Uterus"), "4", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Uterus',  '',  'Uterus',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Neck", "Neck");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Neck" AND language_alias="Neck"), "5", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Neck',  '',  'Neck',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Lung", "Lung");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Lung" AND language_alias="Lung"), "6", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Lung',  '',  'Lung',  '');
+
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Adrenal", "Adrenal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Adrenal" AND language_alias="Adrenal"), "7", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Adrenal',  '',  'Adrenal',  '');
+
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Ovary", "Ovary");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Ovary" AND language_alias="Ovary"), "8", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Ovary',  '',  'Ovary',  '');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Omentum", "Omentum");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Omentum" AND language_alias="Omentum"), "9", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Omentum',  '',  'Omentum',  '');
+
+--
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Fallopian tube", "Fallopian tube");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Fallopian tube" AND language_alias="Fallopian tube"), "10", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Fallopian tube',  '',  'Fallopian tube',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Mouth", "Mouth");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Mouth" AND language_alias="Mouth"), "11", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Mouth',  '',  'Mouth',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Maxilla", "Maxilla");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Maxilla" AND language_alias="Maxilla"), "12", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Maxilla',  '',  'Maxilla',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Retroperitoneum", "Retroperitoneum");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Retroperitoneum" AND language_alias="Retroperitoneum"), "13", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Retroperitoneum',  '',  'Retroperitoneum',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Thyroid", "Thyroid");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Thyroid" AND language_alias="Thyroid"), "14", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thyroid',  '',  'Thyroid',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Small Bowel", "Small Bowel");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Small Bowel" AND language_alias="Small Bowel"), "15", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Small Bowel',  '',  'Small Bowel',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Endocervix", "Endocervix");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Endocervix" AND language_alias="Endocervix"), "16", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Endocervix',  '',  'Endocervix',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Back", "Back");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Back" AND language_alias="Back"), "17", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Back',  '',  'Back',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Peritoneum", "Peritoneum");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Peritoneum" AND language_alias="Peritoneum"), "18", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Peritoneum',  '',  'Peritoneum',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Parathyroid", "Parathyroid");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Parathyroid" AND language_alias="Parathyroid"), "19", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Parathyroid',  '',  'Parathyroid',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Stomach", "Stomach");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Stomach" AND language_alias="Stomach"), "20", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Stomach',  '',  'Stomach',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Prostate", "Prostate");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Prostate" AND language_alias="Prostate"), "21", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Prostate',  '',  'Prostate',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Esophagus", "Esophagus");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Esophagus" AND language_alias="Esophagus"), "22", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Esophagus',  '',  'Esophagus',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Kidney", "Kidney");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Kidney" AND language_alias="Kidney"), "23", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Kidney',  '',  'Kidney',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Tongue", "Tongue");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Tongue" AND language_alias="Tongue"), "24", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Tongue',  '',  'Tongue',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Liver", "Liver");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Liver" AND language_alias="Liver"), "25", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Liver',  '',  'Liver',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("GE junction", "GE junction");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="GE junction" AND language_alias="GE junction"), "26", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('GE junction',  '',  'GE junction',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Vulva", "Vulva");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Vulva" AND language_alias="Vulva"), "27", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Vulva',  '',  'Vulva',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Pancreas", "Pancreas");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Pancreas" AND language_alias="Pancreas"), "28", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Pancreas',  '',  'Pancreas',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Cervix", "Cervix");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Cervix" AND language_alias="Cervix"), "29", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Cervix',  '',  'Cervix',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Chest wall", "Chest wall");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Chest wall" AND language_alias="Chest wall"), "30", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Chest wall',  '',  'Chest wall',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Gall bladder", "Gall bladder");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Gall bladder" AND language_alias="Gall bladder"), "31", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Gall bladder',  '',  'Gall bladder',  '');
+
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Thigh", "Thigh");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Thigh" AND language_alias="Thigh"), "32", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thigh',  '',  'Thigh',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Axilla", "Axilla");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Axilla" AND language_alias="Axilla"), "33", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Axilla',  '',  'Axilla',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Head", "Head");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Head" AND language_alias="Head"), "34", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Head',  '',  'Head',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Bladder", "Bladder");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Bladder" AND language_alias="Bladder"), "35", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Bladder',  '',  'Bladder',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Abdomen", "Abdomen");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Abdomen" AND language_alias="Abdomen"), "36", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Abdomen',  '',  'Abdomen',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Seminal Vesicle", "Seminal Vesicle");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Seminal Vesicle" AND language_alias="Seminal Vesicle"), "37", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Seminal Vesicle',  '',  'Seminal Vesicle',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Spleen", "Spleen");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Spleen" AND language_alias="Spleen"), "38", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Spleen',  '',  'Spleen',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Paratoneum", "Paratoneum");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Paratoneum" AND language_alias="Paratoneum"), "39", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Paratoneum',  '',  'Paratoneum',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Groin", "Groin");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Groin" AND language_alias="Groin"), "40", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Groin',  '',  'Groin',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Endometrium/myometrium", "Endometrium/myometrium");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Endometrium/myometrium" AND language_alias="Endometrium/myometrium"), "41", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Endometrium/myometrium',  '',  'Endometrium/myometrium',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Pelvis", "Pelvis");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Pelvis" AND language_alias="Pelvis"), "42", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Pelvis',  '',  'Pelvis',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Larynx", "Larynx");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Larynx" AND language_alias="Larynx"), "43", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Larynx',  '',  'Larynx',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Face", "Face");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Face" AND language_alias="Face"), "44", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Face',  '',  'Face',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Mesenteric nodule", "Mesenteric nodule");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Mesenteric nodule" AND language_alias="Mesenteric nodule"), "45", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Mesenteric nodule',  '',  'Mesenteric nodule',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Lymph node", "Lymph node");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Lymph node" AND language_alias="Lymph node"), "46", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Lymph node',  '',  'Lymph node',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Hypopharynx", "Hypopharynx");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Hypopharynx" AND language_alias="Hypopharynx"), "47", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Hypopharynx',  '',  'Hypopharynx',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Appendix", "Appendix");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Appendix" AND language_alias="Appendix"), "48", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Appendix',  '',  'Appendix',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Eso-stomach junction", "Eso-stomach junction");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Eso-stomach junction" AND language_alias="Eso-stomach junction"), "49", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Eso-stomach junction',  '',  'Eso-stomach junction',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Cerebeller", "Cerebeller");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Cerebeller" AND language_alias="Cerebeller"), "50", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Cerebeller',  '',  'Cerebeller',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Gastric", "Gastric");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Gastric" AND language_alias="Gastric"), "51", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Gastric',  '',  'Gastric',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Tubidal", "Tubidal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Tubidal" AND language_alias="Tubidal"), "52", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Tubidal',  '',  'Tubidal',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Diaphram nodule", "Diaphram nodule");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Diaphram nodule" AND language_alias="Diaphram nodule"), "53", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Diaphram nodule',  '',  'Diaphram nodule',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Ampulla", "Ampulla");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Ampulla" AND language_alias="Ampulla"), "54", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Ampulla',  '',  'Ampulla',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Paratracheal node", "Paratracheal node");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Paratracheal node" AND language_alias="Paratracheal node"), "55", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Paratracheal node',  '',  'Paratracheal node',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Thymus", "Thymus");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Thymus" AND language_alias="Thymus"), "56", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thymus',  '',  'Thymus',  '');
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Plura", "Plura");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Plura" AND language_alias="Plura"), "57", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Plura',  '',  'Plura',  '');
+
+
+--
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("Vagina", "Vagina");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="bc_ttr_tissue_site"),  (SELECT id FROM structure_permissible_values WHERE value="Vagina" AND language_alias="Vagina"), "58", "1");
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Vagina',  '',  'Vagina',  '');
+
+
+-- Update i18n to reflect correct values
+
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue site',  '',  'Tissue Site',  '');
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue subsite',  '',  'Tissue Subsite',  '');
+
+update i18n set id = 'Colon' where id = 'colon';
+update i18n set id = 'Neck' where id = 'neck';
+update i18n set id = 'Back' where id = 'back';
+update i18n set id = 'Stomach' where id = 'stomach';
+update i18n set id = 'Liver' where id = 'liver';
+update i18n set id = 'Pancreas' where id = 'pancreas';
+update i18n set id = 'Spleen' where id = 'spleen';
+update i18n set id = 'Appendix' where id = 'appendix';
+update i18n set id = 'Ampulla' where id = 'ampulla';
+
+
+
+
+
+
 -- Always add the following drop data fields at the END OF FILE. 
 ALTER TABLE structure_formats
  DROP COLUMN flag_addgrid,
