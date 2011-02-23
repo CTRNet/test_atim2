@@ -1664,6 +1664,12 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Vagina',  '',  
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue site',  '',  'Tissue Site',  '');
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue subsite',  '',  'Tissue Subsite',  '');
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('tissue arrival in patho lab',  '',  'Tissue arrival in patho lab',  '');
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('size',  '',  'Size (cm)',  '');
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('bc ttr block observation',  '',  'Block observation',  '');
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('x',  '',  'x',  '');
+INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('frozen_block',  '',  'frozen_block',  '');
+
+
 
 update i18n set id = 'Colon' where id = 'colon';
 update i18n set id = 'Neck' where id = 'neck';
