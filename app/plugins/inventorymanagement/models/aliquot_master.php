@@ -105,91 +105,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	/**
-	 * Creates realiquoting links between aliquots
-	 * @param array $data
-	 * @param boolean $remove_from_stocks_if_empty If true, empty parents aliquots will be removed from storages and made unavailable
-	 * @return array validation errors. If the array is empty, the realiquoting has been done, otherwise it's been aborted. On success,
-	 * realiquoted children ids are put into $_SESSION['tmp_batch_set'] to allow the redirection to a temporary batch set.	 
-	 */
-	public function defineRealiquot(array $data, $remove_from_stocks_if_empty = false){
-//TODO NLUse
-pr('TODO NLUse');
-		$AliquotUse = AppModel::atimNew("inventorymanagement", "AliquotUse", true);
-		$AliquotUse->validate = AliquotUse::$mValidate;
-		$relations = array();
-		$errors = array();
-		$uses = array();
-		$masters_to_update = array();
-		foreach($data as $parent_aliquot_id => $children_aliquots){
-			foreach($children_aliquots as $children_aliquot){
-				if(!$children_aliquot['FunctionManagement']['use']){
-					continue;
-				}
-				if(isset($relations[$children_aliquot['AliquotMaster']['id']])){
-					$errors[] = sprintf(__("circular assignation with [%s]", true), $children_aliquot['AliquotMaster']['barcode']);
-				}
-				$relations[$parent_aliquot_id] = $children_aliquot['AliquotMaster']['id'];
-				
-				//validate
-				$use = array(
-					'AliquotUse' => array(
-						'aliquot_master_id'			=> $parent_aliquot_id,
-						'use_definition'			=> 'realiquoted to',
-						'use_code'					=> $children_aliquot['AliquotMaster']['barcode'],
-						'use_recorded_into_table'	=> 'realiquotings',
-						'used_volume'				=> $children_aliquot['AliquotUse']['used_volume'],
-						'use_datetime'				=> $children_aliquot['AliquotUse']['use_datetime'],
-						'used_by'					=> $children_aliquot['AliquotUse']['used_by']
-					),
-					'AliquotMaster' => array(
-						'id'	=> $children_aliquot['AliquotMaster']['id']
-				));
-				$AliquotUse->set($use);
-				if(!$AliquotUse->validates()){
-					$errors = array_merge($errors, $AliquotUse->validationErrors);
-				}
-				$uses[] = $use;
-			}
-		}
-		
-		if(count($errors) == 0){
-			$Realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
-			//no error, proceed!
-			//create uses
-			$_SESSION['tmp_batch_set']['BatchId'] = array();
-			foreach($uses as $use){
-				//save use
-				$AliquotUse->id = NULL;
-				$AliquotUse->set($use);
-				$AliquotUse->save();
-
-				//save realiquoting
-				$Realiquoting->id = NULL;
-				$Realiquoting->set(array('Realiquoting' => array(
-					'parent_aliquot_master_id'	=> $use['AliquotUse']['aliquot_master_id'],
-					'child_aliquot_master_id'	=> $use['AliquotMaster']['id'],
-					'aliquot_use_id'			=> $AliquotUse->id
-				)));
-				$Realiquoting->save();
-				
-				//note parent_id to update
-				$masters_to_update[$use['AliquotUse']['aliquot_master_id']] = NULL;
-				$_SESSION['tmp_batch_set']['BatchId'][] = $use['AliquotMaster']['id'];
-			}
-			
-			foreach($masters_to_update as $aliquot_id => $foo){
-				$this->updateAliquotUseAndVolume($aliquot_id, $remove_from_stocks_if_empty);
-			}
-		}
-		$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;//ViewAliquots
-		
-		if(count($errors)){
-			unset($_SESSION['tmp_batch_set']);
-		}
-		return $errors;
-	}
-	
-	/**
 	 * Update the current volume of an aliquot.
 	 * 
 	 * Note:
@@ -286,6 +201,13 @@ pr('TODO NLUse');
 		// SAVE DATA
 		
 		$aliquot_data_to_save['id'] = $aliquot_master_id;
+		
+		//---------------------------------------------------------
+		// Set data to empty array to guaranty 
+		// no merge will be done with previous AliquotMaster data
+		// when AliquotMaster set() function will be called again.
+		//---------------------------------------------------------
+		$this->data = array();	//
 		$this->id = $aliquot_master_id;
 		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save))){
 			return false;
@@ -303,7 +225,7 @@ pr('TODO NLUse');
 	 */
 	function validates($options = array()){
 		pr('WARNING!!: aliquot storage data can be updated into AliquotMaster->validates() function: be sure to reset data into controller using $this->AliquotMaster->data!');
-						
+		
 		if(isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' 
 		&& (!empty($this->data['AliquotMaster']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
 			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
@@ -313,8 +235,7 @@ pr('TODO NLUse');
 		
 		if(isset($this->data['AliquotMaster']['barcode'])){
 			$this->checkDuplicatedAliquotBarcode($this->data);
-		}
-		
+		}		
 		parent::validates($options);
 		
 		return empty($this->validationErrors);
