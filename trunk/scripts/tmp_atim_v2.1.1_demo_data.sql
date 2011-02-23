@@ -406,7 +406,7 @@ INSERT INTO `aliquot_review_masters` (`id`, `aliquot_review_control_id`, `specim
 -- Dumping data for table `aliquot_review_masters_revs`
 --
 
-INSERT INTO `aliquot_review_masters_revs` (`id`, `aliquot_review_control_id`, `specimen_review_master_id`, `aliquot_masters_id`, `review_code`, `basis_of_specimen_review`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+INSERT INTO `aliquot_review_masters_revs` (`id`, `aliquot_review_control_id`, `specimen_review_master_id`, `aliquot_master_id`, `review_code`, `basis_of_specimen_review`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 1, 1, 39, 'rv378', 1, '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:48', 0, NULL),
 (2, 1, 1, 37, 'rv378', 0, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 2, '2011-02-10 21:35:48', 0, NULL);
 

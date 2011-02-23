@@ -359,10 +359,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		// check if you need to override these functions.
 		//  
 		//------------------------------------------------------------------------
-		
+				
 		$formatted_data = '';
 		
-		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
+		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
 			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ']';
 		}
 	
