@@ -198,7 +198,6 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
-//		pr($atim_structure['Structure']);
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -684,13 +683,14 @@ class StructuresHelper extends Helper {
 			if(isset($table_row_part['tool'])){
 				$display .= $table_row_part['tool'];
 			}
-		}else if(strlen($current_value) > 1){
-			if($table_row_part['type'] == "date"){
+		}else if(strlen($current_value) > 0){
+			$elligible_as_date = strlen($current_value) > 1;
+			if($table_row_part['type'] == "date" && $elligible_as_date){
 				list($year, $month, $day) = explode("-", $current_value);
 				$display = AppController::getFormatedDateString($year, $month, $day);
-			}else if($table_row_part['type'] == "datetime"){
+			}else if($table_row_part['type'] == "datetime" && $elligible_as_date){
 				$display = AppController::getFormatedDatetimeString($current_value);
-			}else if($table_row_part['type'] == "time"){
+			}else if($table_row_part['type'] == "time" && $elligible_as_date){
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
 			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"){
