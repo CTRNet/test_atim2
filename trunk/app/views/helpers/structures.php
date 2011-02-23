@@ -290,23 +290,23 @@ class StructuresHelper extends Helper {
 		}
 		
 		$data = &$this->data;
-		if(isset($options['stack']['key'])){
-			$tab_key = $options['stack']['key'];
-			$model_prefix = $options['stack']['key'].'.';
-
-			// use DATA passed in through OPTIONS from VIEW
-			// OR use DATA juggled in STACKS in this class' BUILD TREE functions
-			if(is_array($options['data'])){
-				$data = &$options['data'][$options['stack']['key']];
-			}else{
-				// use THIS->DATA by default
-				$data = &$this->data[$options['stack']['key']];
-			}
-		}else{
-			if(is_array($options['data'])){
+//		if(isset($options['stack']['key'])){
+//			$tab_key = $options['stack']['key'];
+//			$model_prefix = $options['stack']['key'].'.';
+//
+//			// use DATA passed in through OPTIONS from VIEW
+//			// OR use DATA juggled in STACKS in this class' BUILD TREE functions
+//			if(is_array($options['data'])){
+//				$data = &$options['data'][$options['stack']['key']];
+//			}else{
+//				// use THIS->DATA by default
+//				$data = &$this->data[$options['stack']['key']];
+//			}
+//		}else{
+//			if(is_array($options['data'])){
 				$data = $options['data'];
-			}
-		}
+//			}
+//		}
 		if($data == null){
 			$data = array();
 		}
@@ -1102,7 +1102,6 @@ class StructuresHelper extends Helper {
 			}
 			
 			$options['type'] = 'index';
-			unset($options['stack']);
 			foreach($table_index as $table_column_key => $table_column){
 				foreach($table_column as $table_row_key => $table_row){
 					foreach($table_row as $table_row_part){
@@ -1110,6 +1109,14 @@ class StructuresHelper extends Helper {
 						echo '<span class="nowrap">';
 						if($table_row_part['type'] != 'hidden' && strlen($table_row_part['label'])){
 							echo '<span class="divider">|</span> ';
+						}
+						if(isset($data_val[$table_row_part['model']])){
+							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
+							if(strlen($table_row_part['format']) > 0){
+								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
+							}else{
+								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
+							}
 						}
 						echo $this->getPrintableField(
 								$table_row_part, 
