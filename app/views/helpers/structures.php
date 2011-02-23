@@ -290,23 +290,9 @@ class StructuresHelper extends Helper {
 		}
 		
 		$data = &$this->data;
-//		if(isset($options['stack']['key'])){
-//			$tab_key = $options['stack']['key'];
-//			$model_prefix = $options['stack']['key'].'.';
-//
-//			// use DATA passed in through OPTIONS from VIEW
-//			// OR use DATA juggled in STACKS in this class' BUILD TREE functions
-//			if(is_array($options['data'])){
-//				$data = &$options['data'][$options['stack']['key']];
-//			}else{
-//				// use THIS->DATA by default
-//				$data = &$this->data[$options['stack']['key']];
-//			}
-//		}else{
-//			if(is_array($options['data'])){
-				$data = $options['data'];
-//			}
-//		}
+		if(is_array($options['data'])){
+			$data = $options['data'];
+		}
 		if($data == null){
 			$data = array();
 		}
@@ -1102,6 +1088,7 @@ class StructuresHelper extends Helper {
 			}
 			
 			$options['type'] = 'index';
+			unset($options['stack']);
 			foreach($table_index as $table_column_key => $table_column){
 				foreach($table_column as $table_row_key => $table_row){
 					foreach($table_row as $table_row_part){
