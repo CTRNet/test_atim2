@@ -1310,4 +1310,5 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 (null, 'realiquot', 'Inventorymanagement', 'AliquotMaster', '/inventorymanagement/aliquot_masters/realiquotInit/', 1),
 (null, 'realiquot', 'Inventorymanagement', 'ViewAliquot', '/inventorymanagement/aliquot_masters/realiquotInit/', 1);
 
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/rtbform%';
 
