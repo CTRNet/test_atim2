@@ -1066,6 +1066,360 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		/* ------------------------------ REALIQUOTING ------------------------------ */
 
+	function realiquotInit($aliquot_id = null){
+						
+		// Get ids of the studied aliquots
+		if(empty($aliquot_id)){
+			$ids = $this->data['ViewAliquot']['aliquot_master_id'];
+			$ids = array_filter($ids);
+		}else{
+			$ids = array($aliquot_id);
+		}
+		$ids[] = 0;
+		$aliquots = $this->AliquotMaster->findAllById($ids);
+		if(empty($aliquots)){
+			$this->redirect('/pages/err_inv_system_error', null, true);
+		}
+		$this->set('aliquot_id', $aliquot_id);
+		
+		// Check aliquot & sample types of the selected aliquots are identical
+		$aliquot_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
+		$sample_ctrl_id = $aliquots[0]['SampleMaster']['sample_control_id'];
+		if(count($aliquots) > 1){
+			foreach($aliquots as $aliquot){
+				if($aliquot['AliquotMaster']['aliquot_control_id'] != $aliquot_ctrl_id || $aliquot['SampleMaster']['sample_control_id'] != $sample_ctrl_id){
+					$this->flash(__("you cannot realiquot those elements together because they are of different types", true), "javascript:history.back();", 5);
+				}
+			}
+		}
+		$this->set('realiquot_from', $aliquot_ctrl_id);
+		
+		// Build list of aliquot type that could be created from the sources
+		$possible_ctrl_ids = $this->RealiquotingControl->getAllowedChildrenCtrlId($sample_ctrl_id, $aliquot_ctrl_id);
+
+		if(empty($possible_ctrl_ids)){
+			$this->flash(__("you cannot realiquot those elements", true), "javascript:history.back();", 5);
+			return;
+		
+		} else if(sizeof($possible_ctrl_ids) == 1) {
+			// Only one available type move to next step
+			$session_data = array();
+			$session_data[0]['realiquot_into'] = $possible_ctrl_ids[0];
+			$session_data[0]['ids'] = implode(",", $ids);
+			$session_data['realiquot_from'] = $aliquot_ctrl_id;
+			
+			$hook_link = $this->hook('redirect');
+			if($hook_link){
+				require($hook_link);
+			}
+					
+			$_SESSION['realiquot_batch_process']['init'] = $session_data;
+			$this->redirect('/inventorymanagement/aliquot_masters/realiquot/'.$aliquot_id);
+		}
+		
+		// Manage display for children type selection
+		$aliquot_ctrls = $this->AliquotControl->findAllById($possible_ctrl_ids);
+		assert(!empty($aliquot_ctrls));
+		foreach($aliquot_ctrls as $aliquot_ctrl){
+			$dropdown[$aliquot_ctrl['AliquotControl']['id']] = __($aliquot_ctrl['AliquotControl']['aliquot_type'], true);
+		}
+		
+		// Set data & structure
+		$this->data[0]['ids'] = implode(",", $ids);
+		AliquotMaster::$aliquot_type_dropdown = $dropdown;
+		$this->Structures->set('aliquot_type_selection');
+		
+		if(empty($aliquot_id)) {
+			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		} else {
+			$atim_menu_link = ($aliquots[0]['SampleMaster']['sample_category'] == 'specimen')? 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+			$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+			$this->set('atim_menu_variables', array(
+				'Collection.id' => $aliquots[0]['AliquotMaster']['collection_id'], 
+				'SampleMaster.id' => $aliquots[0]['AliquotMaster']['sample_master_id'], 
+				'SampleMaster.initial_specimen_sample_id' => $aliquots[0]['SampleMaster']['initial_specimen_sample_id'], 
+				'AliquotMaster.id' => $aliquot_id));
+		}
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+	}	
+	
+	function realiquot($aliquot_id = null){
+		if(isset($_SESSION['realiquot_batch_process']['init']) && (!empty($_SESSION['realiquot_batch_process']['init']))) {
+			// Check init redirect
+			$this->data = $_SESSION['realiquot_batch_process']['init'];
+			unset($_SESSION['realiquot_batch_process']);
+		} else if(empty($this->data)){ $this->redirect("/pages/err_inv_no_data", null, true); }
+		
+		// Get parent an child control data
+		$parent_aliquot_ctrl_id = isset($this->data['realiquot_from'])? $this->data['realiquot_from']: null;
+		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
+		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
+		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
+		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+		
+		// Structure data
+		$this->set('aliquot_id', $aliquot_id);
+		if(empty($aliquot_id)) {
+			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		} else {
+			$parent = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_id), 'recursive' => '0'));
+			if(empty($parent)){
+				$this->redirect('/pages/err_inv_system_error', null, true);
+			}
+			$atim_menu_link = ($parent['SampleMaster']['sample_category'] == 'specimen')? 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+			$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+			$this->set('atim_menu_variables', array(
+				'Collection.id' => $parent['AliquotMaster']['collection_id'], 
+				'SampleMaster.id' => $parent['AliquotMaster']['sample_master_id'], 
+				'SampleMaster.initial_specimen_sample_id' => $parent['SampleMaster']['initial_specimen_sample_id'], 
+				'AliquotMaster.id' => $aliquot_id));
+		}
+				
+		$this->set('aliquot_type', $child_aliquot_ctrl['AliquotControl']['aliquot_type']);
+		$this->set('realiquot_from', $parent_aliquot_ctrl_id);
+		$this->set('realiquot_into', $child_aliquot_ctrl_id);
+			
+		$this->Structures->set('in_stock_detail', 'in_stock_detail');
+		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
+
+		// set data for initial data to allow bank to override data
+		$this->set('created_aliquot_override_data', array(
+			'AliquotMaster.aliquot_type' => $child_aliquot_ctrl['AliquotControl']['aliquot_type'],
+			'AliquotMaster.aliquot_volume_unit' => $child_aliquot_ctrl['AliquotControl']['volume_unit'],
+			'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),
+			'AliquotMaster.in_stock' => 'yes - available',
+	
+			'Realiquoting.realiquoting_datetime' => date('Y-m-d G:i'),
+		
+			'GeneratedParentAliquot.aliquot_volume_unit' => $parent_aliquot_ctrl['AliquotControl']['volume_unit']));
+		
+		if(isset($this->data[0]) && isset($this->data[0]['ids']) && isset($this->data[0]['realiquot_into'])){
+			
+			//1- INITIAL DISPLAY
+			
+			$parent_aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
+			if(empty($parent_aliquots)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			
+			//build data array
+			$this->data = array();
+			foreach($parent_aliquots as $parent_aliquot){
+				if($parent_aliquot_ctrl_id != $parent_aliquot['AliquotMaster']['aliquot_control_id']) { $this->redirect('/pages/err_inv_system_error', null, true); }
+				$this->data[] = array('parent' => $parent_aliquot, 'children' => array());
+			}
+						
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}	
+			
+		}else{
+			
+			// 2- VALIDATE PROCESS
+
+			unset($this->data['realiquot_into']);
+			unset($this->data['realiquot_from']);
+			
+			$errors = array();
+			$validated_data = array();
+			$record_counter = 0;
+			
+			foreach($this->data as $parent_id => $parent_and_children) {
+				$record_counter++;
+				
+				//A- Validate parent aliquot data
+				
+				$this->AliquotMaster->id = null;
+				//---------------------------------------------------------
+				// Set data to empty array to guaranty 
+				// no merge will be done with previous AliquotMaster data
+				// when AliquotMaster set() function will be called again.
+				//---------------------------------------------------------
+				$this->AliquotMaster->data = array();
+				
+				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
+				$parent_aliquot_data['id'] = $parent_id;
+				$parent_aliquot_data['aliquot_control_id'] = $parent_aliquot_ctrl_id;
+				
+				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
+				if(!$this->AliquotMaster->validates()){
+					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
+						$errors[$field][$msg][] = $record_counter;
+					}
+				}
+				
+				// Set parent data to $validated_data
+				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
+				$validated_data[$parent_id]['parent']['FunctionManagement'] = $parent_and_children['FunctionManagement'];
+				$validated_data[$parent_id]['children'] = array();
+				
+				//B- Validate new aliquot created + realiquoting data
+				
+				$new_aliquot_created = false;
+				
+				foreach($parent_and_children as $tmp_id => $child) {
+					
+					if(is_numeric($tmp_id)) {
+						$new_aliquot_created = true;
+						
+						// ** Aliquot **
+							
+						// Set AliquotMaster.initial_volume
+						if(array_key_exists('initial_volume', $child['AliquotMaster'])){
+							if(empty($child_aliquot_ctrl['AliquotControl']['volume_unit'])){
+								$this->redirect('/pages/err_inv_system_error', null, true); 
+							}
+							$child['AliquotMaster']['current_volume'] = $child['AliquotMaster']['initial_volume'];				
+						}
+						
+						// Validate and update position data
+						$this->AliquotMaster->id = null;
+						//---------------------------------------------------------
+						// Set data to empty array to guaranty 
+						// no merge will be done with previous AliquotMaster data
+						// when AliquotMaster set() function will be called again.
+						//---------------------------------------------------------
+						$this->AliquotMaster->data = array();
+						
+						$child['AliquotMaster']['id'] = null;
+						$child['AliquotMaster']['aliquot_control_id'] = $child_aliquot_ctrl_id;
+						$child['AliquotMaster']['aliquot_type'] = $child_aliquot_ctrl['AliquotControl']['aliquot_type'];
+						$child['AliquotMaster']['sample_master_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['sample_master_id'];
+						$child['AliquotMaster']['collection_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['collection_id'];
+						
+						$this->AliquotMaster->set($child);
+						if(!$this->AliquotMaster->validates()){
+							foreach($this->AliquotMaster->validationErrors as $field => $msg) {
+								$errors[$field][$msg][] = $record_counter;
+							}
+						}
+						
+						// Reset data to get position data
+						$child = $this->AliquotMaster->data;						
+
+						// ** Realiquoting **					
+												
+						$this->Realiquoting->set(array('Realiquoting' =>  $child['Realiquoting']));
+						if(!$this->Realiquoting->validates()){
+							foreach($this->Realiquoting->validationErrors as $field => $msg) {
+								$errors[$field][$msg][] = $record_counter;
+							}
+						}
+						
+						// Check volume can be completed
+						if((!empty($child['Realiquoting']['parent_used_volume'])) && empty($child['GeneratedParentAliquot']['aliquot_volume_unit'])) {
+							// No volume has to be recored for this aliquot type				
+							$errors['parent_used_volume']['no volume has to be recorded when the volume unit field is empty'][] = $record_counter;
+						}
+						
+						// Set child data to $validated_data
+						$validated_data[$parent_id]['children'][$tmp_id] = $child;
+					}
+				}
+				
+				if(!$new_aliquot_created) $errors['barcode']['at least one child has to be created'][] = $record_counter;
+			}
+			
+			$this->data = $validated_data;
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}				
+			
+			// 3- SAVE PROCESS
+			
+			if(empty($errors)) { 
+
+				$_SESSION['tmp_batch_set']['BatchId'] = array();	// Set session data to display batchset
+				
+				foreach($this->data as $parent_id => $parent_and_children){
+					
+					// A- Save parent aliquot data
+					
+					//---------------------------------------------------------
+					// Set data to empty array to guaranty 
+					// no merge will be done with previous AliquotMaster data
+					// when AliquotMaster set() function will be called again.
+					//---------------------------------------------------------
+					$this->AliquotMaster->data = array();
+					$this->AliquotMaster->id = $parent_id;
+					
+					$parent_data = $parent_and_children['parent'];
+					if($parent_data['FunctionManagement']['remove_from_storage'] || ($parent_data['AliquotMaster']['in_stock'] == 'no')) {
+						// Delete storage data
+						$parent_data['AliquotMaster']['storage_master_id'] = null;
+						$parent_data['AliquotMaster']['storage_coord_x'] = null;
+						$parent_data['AliquotMaster']['storage_coord_y'] = null;
+					}
+					$parent_data['AliquotMaster']['id'] = $parent_id;
+					
+					if(!$this->AliquotMaster->save(array('AliquotMaster' => $parent_data['AliquotMaster']), false)){
+						$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+					}
+					
+					foreach($parent_and_children['children'] as $children) {
+						
+						$realiquoting_data = array('Realiquoting' => $children['Realiquoting']);
+						unset($children['Realiquoting']);
+						unset($children['FunctionManagement']);
+						unset($children['GeneratedParentAliquot']);
+						
+						// B- Save children aliquot data	
+						
+						$this->AliquotMaster->id = null;
+						//---------------------------------------------------------
+						// Set data to empty array to guaranty 
+						// no merge will be done with previous AliquotMaster data
+						// when AliquotMaster set() function will be called again.
+						//---------------------------------------------------------
+						$this->AliquotMaster->data = array();
+						if(!$this->AliquotMaster->save($children, false)){ 
+							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
+						} 						
+						$child_id = $this->AliquotMaster->getLastInsertId();
+						if(empty($aliquot_id)) $_SESSION['tmp_batch_set']['BatchId'][] = $child_id;
+							
+						// C- Save realiquoting data	
+						
+		  				$realiquoting_data['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
+		 				$realiquoting_data['Realiquoting']['child_aliquot_master_id'] = $child_id;	
+						$this->Realiquoting->id = NULL;
+		  				if(!$this->Realiquoting->save($realiquoting_data, false)){
+							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+						}
+					}
+					
+					// D- Update parent aliquot current volume
+					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
+				}
+				
+				if(empty($aliquot_id)) {
+					$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;	//ViewAliquots
+					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
+				} else {
+					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/' . $parent['AliquotMaster']['collection_id'] . '/' . $parent['AliquotMaster']['sample_master_id']. '/' . $aliquot_id);
+				}
+					
+			} else {
+				$this->AliquotMaster->validationErrors = array();
+				$this->Realiquoting->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$this->AliquotMaster->validationErrors[$field][] = __($msg, true) . ' - ' . str_replace('%s', implode(",", $lines), __('see # %s',true));					
+					} 
+				}
+			}
+		}
+	}
+	
 	function defineRealiquotedChildren($collection_id = null, $sample_master_id = null, $aliquot_master_id = null){
 		$initial_display = false;		// Boolean to define if data for intial display should be built
 		$proceed_with_display = true;	// Boolean to define if entry form should be displayed
@@ -1124,24 +1478,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				// Get aliquot already defined as children
 				$existing_children = array();
 				foreach($parent_aliquot_data['RealiquotingChildren'] as $realiquoting_data) {
-					$existing_children = $realiquoting_data['child_aliquot_master_id'];
+					$existing_children[] = $realiquoting_data['child_aliquot_master_id'];
 				}
 				
 				//Get aliquot type that could be defined as children of the parent aliquot type
-				$criteria = array(
-					'ParentSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
-					'ParentSampleToAliquotControl.aliquot_control_id' => $parent_aliquot_data['AliquotMaster']['aliquot_control_id'],
-					'ParentSampleToAliquotControl.flag_active' => '1',
-					'RealiquotingControl.flag_active' => '1',
-					'ChildSampleToAliquotControl.sample_control_id' => $parent_aliquot_data['SampleMaster']['sample_control_id'], 
-					'ChildSampleToAliquotControl.flag_active' => '1'
-				);	
-				$realiquotind_control_data = $this->RealiquotingControl->find('all', array('conditions' => $criteria));
-				
-				$allowed_children_aliquot_control_ids = array();
-				foreach($realiquotind_control_data as $new_realiquoting_control) {
-					$allowed_children_aliquot_control_ids[] = $new_realiquoting_control['ChildSampleToAliquotControl']['aliquot_control_id'];
-				}
+				$allowed_children_aliquot_control_ids = $this->RealiquotingControl->getAllowedChildrenCtrlId($parent_aliquot_data['SampleMaster']['sample_control_id'], $parent_aliquot_data['AliquotMaster']['aliquot_control_id']);
 				
 				// Search Sample Aliquots could be defined as children aliquot
 				$criteria = array(
@@ -1512,348 +1853,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		return date('Y-m-d G:i');
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	function realiquotInit($aliquot_id = null){
-						
-		// Get ids of the studied aliquots
-		if($aliquot_id == null){
-			$ids = $this->data['ViewAliquot']['aliquot_master_id'];
-			$ids = array_filter($ids);
-		}else{
-			$ids = $aliquots_id;
-		}
-		$ids[] = 0;
-		$aliquots = $this->AliquotMaster->findAllById($ids);
-		if(empty($aliquots)){
-			$this->redirect('/pages/err_inv_system_error', null, true);
-		}
-		
-		// Check aliquot & sample types of the selected aliquots are identical
-		$aliquot_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
-		$sample_ctrl_id = $aliquots[0]['SampleMaster']['sample_control_id'];
-		if(count($aliquots) > 1){
-			foreach($aliquots as $aliquot){
-				if($aliquot['AliquotMaster']['aliquot_control_id'] != $aliquot_ctrl_id || $aliquot['SampleMaster']['sample_control_id'] != $sample_ctrl_id){
-					$this->flash(__("you cannot realiquot those elements together because they are of different types", true), "javascript:history.back();", 5);
-				}
-			}
-		}
-		$this->set('realiquot_from', $aliquot_ctrl_id);
-		
-		// Build list of aliquot type that could be created from the sources
-		$sample_to_aliquot_ctrl_id = $this->SampleToAliquotControl->find('first', array('conditions' => array('SampleToAliquotControl.sample_control_id' => $sample_ctrl_id, 'SampleToAliquotControl.aliquot_control_id' => $aliquot_ctrl_id)));
-		$possibilities = $this->RealiquotingControl->find('all', array('conditions' => array('RealiquotingControl.parent_sample_to_aliquot_control_id' => $sample_to_aliquot_ctrl_id['SampleToAliquotControl']['id'])));
-		if(empty($possibilities)){
-			$this->flash(__("you cannot realiquot those elements", true), "javascript:history.back();", 5);
-			return;
-		
-		} else if(sizeof($possibilities) == 1) {
-			// Only one available type move to next step
-			$session_data = array();
-			$session_data[0]['realiquot_into'] = $possibilities[0]['ChildSampleToAliquotControl']['aliquot_control_id'];
-			$session_data[0]['ids'] = implode(",", $ids);
-			$session_data['realiquot_from'] = $aliquot_ctrl_id;
-			
-			$hook_link = $this->hook('redirect');
-			if($hook_link){
-				require($hook_link);
-			}
-					
-			$_SESSION['realiquot_batch_process']['init'] = $session_data;
-			$this->redirect('/inventorymanagement/aliquot_masters/realiquot/');
-		}
-		
-		// Manage display for children type selection
-		$possible_ctrl_ids = array();
-		foreach($possibilities as $possibility){
-			$possible_ctrl_ids[] = $possibility['ChildSampleToAliquotControl']['aliquot_control_id'];
-		}
-		
-		$aliquot_ctrls = $this->AliquotControl->findAllById($possible_ctrl_ids);
-		assert(!empty($aliquot_ctrls));
-		foreach($aliquot_ctrls as $aliquot_ctrl){
-			$dropdown[$aliquot_ctrl['AliquotControl']['id']] = __($aliquot_ctrl['AliquotControl']['aliquot_type'], true);
-		}
-		
-		// Set data & structure
-		$this->data[0]['ids'] = implode(",", $ids);
-		AliquotMaster::$aliquot_type_dropdown = $dropdown;
-		$this->Structures->set('aliquot_type_selection');
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}
-	}	
-	
-	function realiquot(){
-		if(isset($_SESSION['realiquot_batch_process']['init']) && (!empty($_SESSION['realiquot_batch_process']['init']))) {
-			// Check init redirect
-			$this->data = $_SESSION['realiquot_batch_process']['init'];
-			unset($_SESSION['realiquot_batch_process']);
-		} else if(empty($this->data)){ $this->redirect("/pages/err_inv_no_data", null, true); }
-		
-		// Get parent an child control data
-		$parent_aliquot_ctrl_id = isset($this->data['realiquot_from'])? $this->data['realiquot_from']: null;
-		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
-		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
-		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
-		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-		
-		// Structure data
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
-		
-		$this->set('aliquot_type', $child_aliquot_ctrl['AliquotControl']['aliquot_type']);
-		$this->set('realiquot_from', $parent_aliquot_ctrl_id);
-		$this->set('realiquot_into', $child_aliquot_ctrl_id);
-			
-		$this->Structures->set('in_stock_detail', 'in_stock_detail');
-		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
-
-		// set data for initial data to allow bank to override data
-		$this->set('created_aliquot_override_data', array(
-			'AliquotMaster.aliquot_type' => $child_aliquot_ctrl['AliquotControl']['aliquot_type'],
-			'AliquotMaster.aliquot_volume_unit' => $child_aliquot_ctrl['AliquotControl']['volume_unit'],
-			'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),
-			'AliquotMaster.in_stock' => 'yes - available',
-	
-			'GeneratedParentAliquot.aliquot_volume_unit' => $parent_aliquot_ctrl['AliquotControl']['volume_unit']));
-		
-		if(isset($this->data[0]) && isset($this->data[0]['ids']) && isset($this->data[0]['realiquot_into'])){
-			
-			//1- INITIAL DISPLAY
-			
-			$parent_aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
-			if(empty($parent_aliquots)) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			
-			//build data array
-			$this->data = array();
-			foreach($parent_aliquots as $parent_aliquot){
-				if($parent_aliquot_ctrl_id != $parent_aliquot['AliquotMaster']['aliquot_control_id']) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$this->data[] = array('parent' => $parent_aliquot, 'children' => array());
-			}
-						
-			$hook_link = $this->hook('format');
-			if($hook_link){
-				require($hook_link);
-			}	
-			
-		}else{
-			
-			// 2- VALIDATE PROCESS
-
-			unset($this->data['realiquot_into']);
-			unset($this->data['realiquot_from']);
-			
-			$errors = array();
-			$validated_data = array();
-			$record_counter = 0;
-			
-			foreach($this->data as $parent_id => $parent_and_children) {
-				$record_counter++;
-				
-				//A- Validate parent aliquot data
-				
-				$this->AliquotMaster->id = null;
-				//---------------------------------------------------------
-				// Set data to empty array to guaranty 
-				// no merge will be done with previous AliquotMaster data
-				// when AliquotMaster set() function will be called again.
-				//---------------------------------------------------------
-				$this->AliquotMaster->data = array();
-				
-				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
-				$parent_aliquot_data['id'] = $parent_id;
-				$parent_aliquot_data['aliquot_control_id'] = $parent_aliquot_ctrl_id;
-				
-				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
-				if(!$this->AliquotMaster->validates()){
-					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-						$errors[$field][$msg][] = $record_counter;
-					}
-				}
-				
-				// Set parent data to $validated_data
-				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
-				$validated_data[$parent_id]['parent']['FunctionManagement'] = $parent_and_children['FunctionManagement'];
-				$validated_data[$parent_id]['children'] = array();
-				
-				//B- Validate new aliquot created + realiquoting data
-				
-				$new_aliquot_created = false;
-				
-				foreach($parent_and_children as $tmp_id => $child) {
-					
-					if(is_numeric($tmp_id)) {
-						$new_aliquot_created = true;
-						
-						// ** Aliquot **
-							
-						// Set AliquotMaster.initial_volume
-						if(array_key_exists('initial_volume', $child['AliquotMaster'])){
-							if(empty($child_aliquot_ctrl['AliquotControl']['volume_unit'])){
-								$this->redirect('/pages/err_inv_system_error', null, true); 
-							}
-							$child['AliquotMaster']['current_volume'] = $child['AliquotMaster']['initial_volume'];				
-						}
-						
-						// Validate and update position data
-						$this->AliquotMaster->id = null;
-						//---------------------------------------------------------
-						// Set data to empty array to guaranty 
-						// no merge will be done with previous AliquotMaster data
-						// when AliquotMaster set() function will be called again.
-						//---------------------------------------------------------
-						$this->AliquotMaster->data = array();
-						
-						$child['AliquotMaster']['id'] = null;
-						$child['AliquotMaster']['aliquot_control_id'] = $child_aliquot_ctrl_id;
-						$child['AliquotMaster']['aliquot_type'] = $child_aliquot_ctrl['AliquotControl']['aliquot_type'];
-						$child['AliquotMaster']['sample_master_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['sample_master_id'];
-						$child['AliquotMaster']['collection_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['collection_id'];
-						
-						$this->AliquotMaster->set($child);
-						if(!$this->AliquotMaster->validates()){
-							foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-								$errors[$field][$msg][] = $record_counter;
-							}
-						}
-						
-						// Reset data to get position data
-						$child = $this->AliquotMaster->data;						
-
-						// ** Realiquoting **					
-												
-						$this->Realiquoting->set(array('Realiquoting' =>  $child['Realiquoting']));
-						if(!$this->Realiquoting->validates()){
-							foreach($this->Realiquoting->validationErrors as $field => $msg) {
-								$errors[$field][$msg][] = $record_counter;
-							}
-						}
-						
-						// Check volume can be completed
-						if((!empty($child['Realiquoting']['parent_used_volume'])) && empty($child['GeneratedParentAliquot']['aliquot_volume_unit'])) {
-							// No volume has to be recored for this aliquot type				
-							$errors['parent_used_volume']['no volume has to be recorded when the volume unit field is empty'][] = $record_counter;
-						}
-						
-						// Set child data to $validated_data
-						$validated_data[$parent_id]['children'][$tmp_id] = $child;
-					}
-				}
-				
-				if(!$new_aliquot_created) $errors['barcode']['at least one child has to be created'][] = $record_counter;
-			}
-			
-			$this->data = $validated_data;
-			
-			$hook_link = $this->hook('presave_process');
-			if($hook_link){
-				require($hook_link);
-			}				
-			
-			// 3- SAVE PROCESS
-			
-			if(empty($errors)) { 
-
-				$_SESSION['tmp_batch_set']['BatchId'] = array();	// Set session data to display batchset
-				
-				foreach($this->data as $parent_id => $parent_and_children){
-					
-					// A- Save parent aliquot data
-					
-					//---------------------------------------------------------
-					// Set data to empty array to guaranty 
-					// no merge will be done with previous AliquotMaster data
-					// when AliquotMaster set() function will be called again.
-					//---------------------------------------------------------
-					$this->AliquotMaster->data = array();
-					$this->AliquotMaster->id = $parent_id;
-					
-					$parent_data = $parent_and_children['parent'];
-					if($parent_data['FunctionManagement']['remove_from_storage'] || ($parent_data['AliquotMaster']['in_stock'] == 'no')) {
-						// Delete storage data
-						$parent_data['AliquotMaster']['storage_master_id'] = null;
-						$parent_data['AliquotMaster']['storage_coord_x'] = null;
-						$parent_data['AliquotMaster']['storage_coord_y'] = null;
-					}
-					$parent_data['AliquotMaster']['id'] = $parent_id;
-					
-					if(!$this->AliquotMaster->save(array('AliquotMaster' => $parent_data['AliquotMaster']), false)){
-						$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-					}
-					
-					foreach($parent_and_children['children'] as $children) {
-						
-						$realiquoting_data = array('Realiquoting' => $children['Realiquoting']);
-						unset($children['Realiquoting']);
-						unset($children['FunctionManagement']);
-						unset($children['GeneratedParentAliquot']);
-						
-						// B- Save children aliquot data	
-						
-						$this->AliquotMaster->id = null;
-						//---------------------------------------------------------
-						// Set data to empty array to guaranty 
-						// no merge will be done with previous AliquotMaster data
-						// when AliquotMaster set() function will be called again.
-						//---------------------------------------------------------
-						$this->AliquotMaster->data = array();
-						if(!$this->AliquotMaster->save($children, false)){ 
-							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
-						} 						
-						$child_id = $this->AliquotMaster->getLastInsertId();
-						$_SESSION['tmp_batch_set']['BatchId'][] = $child_id;
-							
-						// C- Save realiquoting data	
-						
-		  				$realiquoting_data['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
-		 				$realiquoting_data['Realiquoting']['child_aliquot_master_id'] = $child_id;	
-						$this->Realiquoting->id = NULL;
-		  				if(!$this->Realiquoting->save($realiquoting_data, false)){
-							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-						}
-					}
-					
-					// D- Update parent aliquot current volume
-					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
-				}
-				
-				$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;	//ViewAliquots
-				
-				$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
-				
-//				//redirect to virtual batch set
-//				//$_SESSION data was set into the define children function
-//				if($collection_id == null){
-//					
-//				}else{
-//					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
-//				}				
-				
-
-				
-				
-			} else {
-				$this->AliquotMaster->validationErrors = array();
-				$this->Realiquoting->validationErrors = array();
-				foreach($errors as $field => $msg_and_lines) {
-					foreach($msg_and_lines as $msg => $lines) {
-						$this->AliquotMaster->validationErrors[$field][] = __($msg, true) . ' - ' . str_replace('%s', implode(",", $lines), __('see # %s',true));					
-					} 
-				}
-			}
-		}
-	}
-	
 	function autocompleteBarcode(){
 		//layout = ajax to avoid printing layout
 		$this->layout = 'ajax';
@@ -1881,7 +1880,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function batchAddInit(){
-//TODO NLUse
+//TODO NL Validate function
 pr('TODO NLUse');
 		$init_data = $this->batchInit(
 			$this->SampleMaster, 
@@ -1901,7 +1900,7 @@ pr('TODO NLUse');
 	}
 	
 	function batchAdd(){
-//TODO NLUse
+//TODO NL Validate function
 pr('TODO NLUse');
 		if(empty($this->data)){
 			$this->redirect('/pages/err_inv_system_error', null, true);

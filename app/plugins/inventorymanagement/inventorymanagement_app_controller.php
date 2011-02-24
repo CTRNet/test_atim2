@@ -82,7 +82,7 @@ class InventorymanagementAppController extends AppController {
 	 */
 	 
 	function getAliquotsListData($criteria) {
-//TODO NLUSE	
+//TODO Define if we want to keep this function to display aliquot parent/child	
 pr('TODO NLUSE');	
 		// Search Data
 		$has_many_details = array(

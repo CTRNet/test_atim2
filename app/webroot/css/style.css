@@ -1123,6 +1123,7 @@ a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_1
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
+a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 
 li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }

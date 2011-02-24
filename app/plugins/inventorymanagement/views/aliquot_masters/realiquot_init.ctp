@@ -4,7 +4,7 @@
 	$final_options = array(
 		'type' => 'add', 
 		'settings' => array('header' => __('realiquoting process', true) . ' - ' . __('selection', true)),
-		'links' => array('top' => '/inventorymanagement/aliquot_masters/realiquot/'),
+		'links' => array('top' => '/inventorymanagement/aliquot_masters/realiquot/'.$aliquot_id),
 		'extras' => '<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>'
 	);
 	
