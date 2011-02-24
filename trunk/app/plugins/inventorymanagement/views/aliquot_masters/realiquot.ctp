@@ -1,7 +1,7 @@
 <?php 
 	$first = true;
 	$options = array(
-			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/")
+			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/".$aliquot_id)
 	);
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
