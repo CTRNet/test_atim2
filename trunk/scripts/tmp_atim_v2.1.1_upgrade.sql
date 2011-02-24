@@ -1311,4 +1311,6 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 (null, 'realiquot', 'Inventorymanagement', 'ViewAliquot', '/inventorymanagement/aliquot_masters/realiquotInit/', 1);
 
 UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/rtbform%';
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_rtb_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
