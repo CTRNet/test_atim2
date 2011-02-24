@@ -1,10 +1,10 @@
 <?php
 	$structure_links = array(
-		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/'
+		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/',
+		'bottom' => array('cancel' => $url_to_cancel)
 	);
 	if(isset($atim_menu_variables['Collection.id'])){
 		$structure_links['top'] .= $atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'; 
-		$structure_links['bottom'] = array('cancel' => '/inventorymanagement/aliquot_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'); 
 	}
 	$structure_settings = array('pagination'=>false, 'form_top' => false, 'form_bottom' => false, 'actions' => false);
 

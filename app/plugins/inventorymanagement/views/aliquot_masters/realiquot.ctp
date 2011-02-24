@@ -1,8 +1,11 @@
 <?php 
 	$first = true;
 	$options = array(
-			"links"		=> array("top" => "/inventorymanagement/aliquot_masters/realiquot/".$aliquot_id)
+			"links"		=> array(
+				"top" => "/inventorymanagement/aliquot_masters/realiquot/".$aliquot_id,
+				'bottom' => array('cancel' => $url_to_cancel))
 	);
+	
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
 		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)
