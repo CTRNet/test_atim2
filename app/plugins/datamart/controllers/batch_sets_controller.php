@@ -59,7 +59,7 @@ class BatchSetsController extends DatamartAppController {
 	}
 	
 	function listall($type_of_list='all', $batch_set_id=0){
-		$atim_menu_variables = array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id );
+		$atim_menu_variables = array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id, 'BatchSet.temporary_batchset' => false);
 		$this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
 		$lookup_ids = array();
 		
@@ -83,7 +83,7 @@ class BatchSetsController extends DatamartAppController {
 				'flag_use_query_results'=> false,
 				'locked'				=> false
 			);
-			$atim_menu_variables['BatchSet.id'] = 'temporary_batchset';
+			$atim_menu_variables['BatchSet.temporary_batchset'] = true;
 			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
 			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
 		}else{
