@@ -495,7 +495,7 @@ class AppController extends Controller {
 	 */
 	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
 		if(empty($this->data)){
-			$this->redirect('/pages/err_inv_system_error', null, true);
+			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		}
 		//extract valid ids
 		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
