@@ -136,7 +136,7 @@ class OrderItemsController extends OrderAppController {
 		$url_to_redirect = null;
 		$launch_save_process = false;
 		
-		if(empty($this->data) || isset($this->data['BatchSet'])) {
+		if(empty($this->data) || isset($this->data['BatchSet']) || isset($this->data['node'])) {
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -154,29 +154,21 @@ class OrderItemsController extends OrderAppController {
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
 				
 					
-			} else if(isset($this->data['BatchSet'])){
+			} else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
 				// Add aliquots from batchset
 						
-				// Get batchset id
-				$batch_set_id = $this->data['BatchSet']['id'];
-				
 				// Build redirect url
-				$url_to_redirect = '/datamart/batch_sets/listall/all/' . $batch_set_id;
+				$url_to_redirect = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 			
-				$aliquot_master_ids = array();
+				$studied_aliquot_master_ids = array();
 				if(isset($this->data['AliquotMaster'])) {
-					$aliquot_master_ids = $this->data['AliquotMaster']['id'];
+					$studied_aliquot_master_ids = $this->data['AliquotMaster']['id'];
 				} else if(isset($this->data['ViewAliquot'])) {
-					$aliquot_master_ids = $this->data['ViewAliquot']['aliquot_master_id'];
+					$studied_aliquot_master_ids = $this->data['ViewAliquot']['aliquot_master_id'];
 				} else {
-					$this->redirect('/pages/err_order_system_errorsss', null, true); 
+					$this->redirect('/pages/err_order_system_errors', null, true); 
 				}
-				foreach($aliquot_master_ids as $new_id){ 
-					if(!empty($new_id)){ 
-						$studied_aliquot_master_ids[] = $new_id; 
-					}
-				}
-				$aliquot_master_ids = null;
+				$studied_aliquot_master_ids = array_filter($studied_aliquot_master_ids);
 				$this->data = null;
 				
 				//Check all aliquots have been defined once
