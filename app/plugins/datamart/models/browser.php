@@ -434,12 +434,6 @@ class Browser extends DatamartAppModel {
 			."<table class='databrowser'>\n";
 		ksort($tree);
 		
-		//find longest line
-		$max = 0;
-		foreach($tree as $y => $line){
-			$max = max($max, count($line));
-		}
-		$half_width = $max / 2;
 		foreach($tree as $y => $line){
 			$result .= '<tr><td></td>';//print a first empty column, css will print an highlighted h-line in the top left cell
 			$last_x = -1;
@@ -500,7 +494,7 @@ class Browser extends DatamartAppModel {
 						$controls = sprintf($controls, "");
 					}
 					$box = "<div class='info %s'>%s%s</div>";
-					if($x < $half_width){
+					if($x < 16){
 						//right
 						$box = sprintf($box, "right", $controls, $content);
 					}else{
