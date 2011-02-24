@@ -229,7 +229,13 @@ pr('TODO NLUSE');
 		$spent_time_msg = '';
 		if(!empty($spent_time_data)) {	
 			if(!is_null($spent_time_data['message'])) {
-				$spent_time_msg = ($spent_time_data['message'] == '0')? $spent_time_data['message'] : __($spent_time_data['message'], TRUE); 
+				if($spent_time_data['message'] == '0') {
+					$spent_time_msg = $spent_time_data['message'];
+				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
+					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
+				} else {
+					$spent_time_msg = __($spent_time_data['message'], TRUE);
+				}
 			} else {
 				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
 								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 
