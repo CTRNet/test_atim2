@@ -82,7 +82,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
 			if(empty($sample_control_data)) { 
 				unset($_SESSION['ClinicalAnnotation']['productsTreeView']['Filter']);
-				$this->redirect('/pages/err_inv_system_error', null, true); 
+				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
 			}
 			$filter_value = __($sample_control_data['SampleControl']['sample_type'], true);
 		}		

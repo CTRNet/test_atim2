@@ -129,7 +129,7 @@ pr('TODO NLUSE');
 		// Add GeneratedParentSample Data
 		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
 		foreach($key_to_sample_parent_id as $key => $parent_id) {
-			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
 		}
 			
