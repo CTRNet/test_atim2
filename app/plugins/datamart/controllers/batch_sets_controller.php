@@ -59,7 +59,7 @@ class BatchSetsController extends DatamartAppController {
 	}
 	
 	function listall($type_of_list='all', $batch_set_id=0){
-		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id ) );
+		$atim_menu_variables = array( 'Param.Type_Of_List'=>$type_of_list, 'BatchSet.id'=>$batch_set_id );
 		$this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
 		$lookup_ids = array();
 		
@@ -83,14 +83,14 @@ class BatchSetsController extends DatamartAppController {
 				'flag_use_query_results'=> false,
 				'locked'				=> false
 			);
+			$atim_menu_variables['BatchSet.id'] = 'temporary_batchset';
 			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
 			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
 		}else{
 			$this->redirect('/pages/err_datamart_system_error', null, true);
 		}
-
+		$this->set( 'atim_menu_variables',  $atim_menu_variables);
 		
-
 		// add COUNT of IDS to array results, for form list 
 		$batch_set['BatchSet']['count_of_BatchId'] = count($lookup_ids);
 		$lookup_ids[] = 0; 
