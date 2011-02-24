@@ -33,15 +33,20 @@ class BatchSet extends DatamartAppModel {
 				default:	
 			}	
 		}
-					
+						
 		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
-			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
-			if(!empty($batchset_data)) {
-				$return['title'] = array(null, __('batchset information', null));
-				$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
-				$return['structure alias'] = 'querytool_batch_set';
-				$return['data'] = $batchset_data;
+			if(is_numeric($variables['BatchSet.id'])) {
+				$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
+				if(!empty($batchset_data)) {
+					$return['title'] = array(null, __('batchset information', null));
+					$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
+					$return['structure alias'] = 'querytool_batch_set';
+					$return['data'] = $batchset_data;
+				}				
+			} else if ($variables['BatchSet.id'] == 'temporary_batchset') {
+				$return['menu'] = array(null, __('temporary batch set', true));				
 			}
+
 		}
 		
 		return $return;
