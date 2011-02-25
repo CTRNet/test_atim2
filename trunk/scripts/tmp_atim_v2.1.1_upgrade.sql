@@ -36,12 +36,12 @@ UPDATE structure_formats SET flag_addgrid=flag_datagrid, flag_editgrid=flag_data
 flag_addgrid_readonly=flag_datagrid_readonly, flag_editgrid_readonly=flag_datagrid_readonly;
 
 UPDATE structure_formats SET flag_summary=flag_index;
-ALTER TABLE structure_fields ADD COLUMN flag_anonymous TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+ALTER TABLE structure_fields ADD COLUMN flag_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER field_control;
 
 CREATE VIEW view_structure_formats_simplified AS 
 SELECT sfo.id AS structure_format_id, sfi.id AS structure_field_id, sfo.structure_id AS structure_id,
 sfi.plugin AS plugin, sfi.model AS model, sfi.tablename AS tablename, sfi.field AS field, sfi.structure_value_domain AS structure_value_domain,
-sfi.flag_anonymous AS flag_anonymous,
+sfi.flag_confidential AS flag_confidential,
 IF(sfo.flag_override_label = '1', sfo.language_label, sfi.language_label) AS language_label,
 IF(sfo.flag_override_tag = '1', sfo.language_tag, sfi.language_tag) AS language_tag,
 IF(sfo.flag_override_help = '1', sfo.language_help, sfi.language_help) AS language_help,
@@ -493,6 +493,7 @@ DROP VIEW view_structure_formats_simplified;
 CREATE VIEW view_structure_formats_simplified AS 
 SELECT str.alias AS structure_alias, sfo.id AS structure_format_id, sfi.id AS structure_field_id, sfo.structure_id AS structure_id,
 sfi.plugin AS plugin, sfi.model AS model, sfi.tablename AS tablename, sfi.field AS field, sfi.structure_value_domain AS structure_value_domain, svd.domain_name AS structure_value_domain_name,
+sfi.flag_confidential AS flag_confidential,
 IF(sfo.flag_override_label = '1', sfo.language_label, sfi.language_label) AS language_label,
 IF(sfo.flag_override_tag = '1', sfo.language_tag, sfi.language_tag) AS language_tag,
 IF(sfo.flag_override_help = '1', sfo.language_help, sfi.language_help) AS language_help,
@@ -1280,7 +1281,10 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'Vous ne pouvez pas réalqiuoter ces éléments ensembles car ce ne sont pas et le même type d''échantillon et le même type d''aliquot!'),
 ('at least one child has not been defined', 'At least one child has not been defined!', 'Au moins un enfant doit être défini!'),
 ('at least one child has to be created', 'At least one child has to be created!', 'Au moins un enfant doit être créé!'),
-('see # %s', 'See # %s!', 'Voir # %s!');
+('see # %s', 'See # %s!', 'Voir # %s!'),
+("due to your restriction on confidential data, your search did not return confidential identifiers", "Due to your restriction on confidential data, your search did not return confidential identifiers", "Étant donné votre restriction sur les données confidentielles, les identifiants confidentiels ne sont pas inclus dans le résultat de votre recherche"),
+("access denied", "Access denied", "Accès non autorisé"),
+("you are not authorized to reach that page because you cannot input data into confidential fields", "You are not authorized to reach that page because you cannot input data into confidential fields", "Vous n'êtes pas autorisé à atteindre cette page car vous ne pouvez pas entrer d'information dans les champs confidentiels");
 
 
 ALTER TABLE groups ADD COLUMN flag_show_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER bank_id;
@@ -1292,10 +1296,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='permissions2'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='flag_show_confidential' AND `language_label`='show confidential' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
 -- delete structure_formats
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='permissions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_anonymous`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='permissions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 -- Delete obsolete structure fields and validations
-DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_anonymous`='0'));
-DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_anonymous`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`) VALUES
 (null, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'add to order', '/order/order_items/addAliquotsInBatch/', 1);
@@ -1314,3 +1318,20 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/rtbform%';
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 ('err_rtb_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
+
+INSERT INTO  `atim_new`.`pages` (
+`id` ,
+`error_flag` ,
+`language_title` ,
+`language_body` ,
+`use_link` ,
+`created` ,
+`created_by` ,
+`modified` ,
+`modified_by`
+)
+VALUES (
+'err_confidential',  '0',  'access denied',  'you are not authorized to reach that page because you cannot input data into confidential fields',  '',  'NOW()',  '',  'NOW()',  ''
+);
+
+ALTER TABLE misc_identifier_controls ADD COLUMN flag_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 1;

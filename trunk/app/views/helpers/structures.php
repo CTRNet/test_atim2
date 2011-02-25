@@ -624,7 +624,12 @@ class StructuresHelper extends Helper {
 	private function getPrintableField(array $table_row_part, array $options, $current_value, $key, $field_name_suffix){
 		$display = null;
 		$field_name = $table_row_part['name'].$field_name_suffix;
-		if($options['links']['top'] && $options['settings']['form_inputs']){
+		if($table_row_part['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+				$display = CONFIDENTIAL_CHAR;
+				if($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search"){
+					AppController::getInstance()->redirect("/pages/err_confidential");
+				}
+		}else if($options['links']['top'] && $options['settings']['form_inputs']){
 			if($table_row_part['type'] == "date"){
 				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "datetime"){
@@ -1301,16 +1306,17 @@ class StructuresHelper extends Helper {
 			foreach($atim_structure['Sfs'] AS $sfs){
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
-						"name" 		=> "",
-						"model" 	=> $sfs['model'],
-						"field" 	=> $sfs['field'],
-						"heading" 	=> __($sfs['language_heading'], true),
-						"label" 	=> __($sfs['language_label'], true),
-						"tag" 		=> __($sfs['language_tag'], true),
-						"type" 		=> $sfs['type'],
-						"help" 		=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
-						"setting" 	=> $sfs['setting'],//required for icd10 magic
-						"default"	=> $sfs['default']
+						"name" 				=> "",
+						"model" 			=> $sfs['model'],
+						"field" 			=> $sfs['field'],
+						"heading" 			=> __($sfs['language_heading'], true),
+						"label" 			=> __($sfs['language_label'], true),
+						"tag" 				=> __($sfs['language_tag'], true),
+						"type" 				=> $sfs['type'],
+						"help" 				=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
+						"setting" 			=> $sfs['setting'],//required for icd10 magic
+						"default"			=> $sfs['default'],
+						"flag_confidential"	=> $sfs['flag_confidential']
 					);
 					$append_field_tool = "";
 					$settings = $my_default_settings_arr;

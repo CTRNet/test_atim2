@@ -142,6 +142,8 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
+		define('CONFIDENTIAL_CHAR', ' ⃠');
+		
 		// ATiM2 configuration variables from Datatable
 		
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
