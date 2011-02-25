@@ -52,8 +52,11 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		$this->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
-		
-		$this->set('identifier_controls_list', $this->MiscIdentifierControl->find('all', array('conditions' => array('flag_active' => '1'))));
+		$conditions = array('flag_active' => '1');
+		if(!$_SESSION['Auth']['User']['flag_show_confidential']){
+			$conditions["flag_confidential"] = 0;
+		}
+		$this->set('identifier_controls_list', $this->MiscIdentifierControl->find('all', array('conditions' => $conditions)));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -88,6 +91,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
+		if($controls['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+			AppController::getInstance()->redirect("/pages/err_confidential");
+		}
 		if(empty($controls)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
 		
 		if($controls['MiscIdentifierControl']['flag_once_per_participant']) {
@@ -169,7 +175,10 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 					'foreignKey' => 'misc_identifier_control_id')));
 
 		$this->MiscIdentifier->bindModel($belongs_to_details);						
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));		
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));
+		if($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+			AppController::getInstance()->redirect("/pages/err_confidential");
+		}		
 		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('MiscIdentifierControl')));
 
 		if(empty($misc_identifier_data) || (!isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) { $this->redirect( '/pages/err_clin_no_data', null, true ); }

@@ -1,5 +1,6 @@
 <?php
 class MiscIdentifierControl extends ClinicalannotationAppModel {
+	private $confidential_ids = null;
 	
  	/**
 	 * Get permissible values array gathering all existing misc identifier names.
@@ -56,7 +57,18 @@ class MiscIdentifierControl extends ClinicalannotationAppModel {
 		asort($result);
 
 		return $result;
-	}	
+	}
+
+	function getConfidentialIds(){
+		if($this->confidential_ids == null){
+			$misc_controls = $this->find('all', array('fields' => array('MiscIdentifierControl.id'), 'conditions' => array('flag_confidential' => 1)));
+			$this->confidential_ids = array();
+			foreach($misc_controls as $misc_control){
+				$this->confidential_ids[] = $misc_control['MiscIdentifierControl']['id'];
+			}
+		}
+		return $this->confidential_ids;
+	}
 	
 }
 
