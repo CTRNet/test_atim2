@@ -2416,6 +2416,62 @@ SET `flag_override_setting` = '1', `setting` = 'class=range'
 WHERE structure_id = (SELECT id FROM structures WHERE alias='QR_AQ_complexe_3')
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label');
 
+-- ### QR_SM_4_Demo ###
+
+DELETE FROM `datamart_adhoc` WHERE `id` = 4;
+INSERT INTO `datamart_adhoc` 
+(`id`, `title`, `description`, `plugin`,`model`, 
+`form_alias_for_search`, `form_alias_for_results`, 
+`form_links_for_results`, 
+`sql_query_for_results`, 
+`flag_use_query_results`) 
+VALUES 
+('4', 'QR_SM_4_Demo','Search based on Participant + Samples criteria & Display Participant + Samples data<br>
+(<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_query_results</b> = 1)',
+'Inventorymanagement',
+'SampleMaster', 
+'QR_SM_complexe', 'QR_SM_complexe', 
+'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|sample detail=>/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/', 
+'SELECT 
+SampleMaster.id,
+SampleMaster.collection_id,
+Participant.id,
+Participant.participant_identifier,
+Participant.sex,
+SampleMaster.sample_type,
+SampleMaster.sample_code
+FROM participants AS Participant
+INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
+INNER JOIN collections AS Collection ON Collection.id = link.collection_id
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id
+WHERE TRUE
+AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
+AND Participant.sex = "@@Participant.sex@@" 
+AND SampleMaster.sample_type = "@@SampleMaster.sample_type@@"
+ORDER BY Participant.participant_identifier;', 
+1);
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='QR_SM_complexe');
+DELETE FROM `structures` WHERE `alias` LIKE 'QR_SM_complexe';
+
+INSERT INTO `structures` (`id`, `alias`, `description`, `language_title`, `language_help`) 
+VALUES 
+(NULL, 'QR_SM_complexe', NULL, '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='participant_identifier'),
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='sex'),
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), 
+
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='sample_type'),
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='sample_code'),
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '0');
 
 
 

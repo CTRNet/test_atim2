@@ -1334,3 +1334,36 @@ VALUES (
 );
 
 ALTER TABLE misc_identifier_controls ADD COLUMN flag_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 1;
+
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), 'create derivative', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/batchAddInit/', 1);
+
+INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, `flag_active`) VALUES
+(null, 'create derivative', 'Inventorymanagement', 'SampleMaster', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
+(null, 'create derivative', 'Inventorymanagement', 'ViewSample', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
+
+(null, 'create aliquots', 'Inventorymanagement', 'SampleMaster', '/inventorymanagement/aliquot_masters/batchAddInit/', 1),
+(null, 'create aliquots', 'Inventorymanagement', 'ViewSample', '/inventorymanagement/aliquot_masters/batchAddInit/', 1);
+
+UPDATE structure_fields SET language_label = 'select a derivative type'
+WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative');
+
+UPDATE structure_formats SET `flag_detail`='1',`flag_edit`='1',`flag_edit_readonly`='1'  WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='sample_type' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type'));
+UPDATE structure_formats SET `flag_detail`='1',`flag_edit`='1',`flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='sample_code' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_detail`='1',`flag_edit`='1',`flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_detail`='1',`flag_edit`='1',`flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='participant_identifier' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE structure_formats SET `flag_addgrid`='0' 
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='notes' AND type='textarea' AND structure_value_domain  IS NULL );
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+("batch init no data", '', ''),
+("you cannot create derivatives for this sample type", 'You cannot create derivatives for this sample type!', 'Aucun dérivé ne peut être créé pour ce type d''échantillon!'),
+("you must select elements with a common type", 'You must select elements with a common type!', 'Vous devez sélectionner des éléments ayant le même type!'),
+('you are not authorized to reach that page because you cannot input data into confidential fields', 
+'You are not authorized to reach that page because you cannot input data into confidential fields!', 
+'Vous n''êtes pas authorisé à afficher cette page car vous n''avez pas la permission de saisir des données confidentielles!'),
+('select a derivative type', 'Derivative Type', 'Type du dérivé '),
+('derivative creation process', 'Derivative Creation Process', 'Processus de création de dérivés'),
+("you must select a derivative type", 'You must select a derivative type!', 'Vous devez sélectionner un type de dérivé');

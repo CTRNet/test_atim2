@@ -1,8 +1,22 @@
 <?php
 
-	$structures->build($atim_structure, array(
+	$final_atim_structure = $atim_structure; 
+	$final_options = array(
 		'type' => 'add', 
-		'links' => array('top' => '/inventorymanagement/sample_masters/batchDerivative'),
-		'settings' => array(
-			'header' => __('select a derivative type', true)),
-		'extras' => '<input type="hidden" name="data[SampleMaster][ids]" value="'.$ids.'"/>'));
+		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('selection', true)),
+		'links' => array(
+			'top' => '/inventorymanagement/sample_masters/batchDerivative',
+			'bottom' => array('cancel' => $url_to_cancel)),
+		'extras' => '<input type="hidden" name="data[SampleMaster][ids]" value="'.$ids.'"/>'
+	);
+	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+
+	// BUILD FORM
+	$structures->build($final_atim_structure, $final_options);			
+
+?>
