@@ -1814,6 +1814,11 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Lymph node',  '
 
 
 
+-- Add is_Large flag field in ad_blocks table 
+ALTER TABLE  atim.`ad_blocks` ADD  `bc_ttr_is_large` TINYINT( 1 ) NOT NULL  DEFAULT '0' AFTER  `deleted_date`;
+
+
+
 -- Always add the following drop data fields at the END OF FILE. 
 ALTER TABLE structure_formats
  DROP COLUMN flag_addgrid,
