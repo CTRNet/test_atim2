@@ -503,17 +503,18 @@ class AppController extends Controller {
 		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
 		$ids = $ids[0][0]['ids'];
 		if(empty($ids)){
-			$this->flash(__("no data!", true), "javascript:history.back();", 5);
+			return array('error' => "batch init no data");
 		}
 		
 		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
 		if(count($controls) != 1){
-			$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+			return array('error' => "you must select elements with a common type");
 		}
 		
-		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name])));
+		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name], 'flag_active' => '1')));
+		
 		if(empty($possibilities)){
-			$this->flash($no_possibilities_msg, "javascript:history.back();", 5);
+			return array('error' => $no_possibilities_msg);
 		}
 		
 		return array('ids' => $ids, 'possibilities' => $possibilities);

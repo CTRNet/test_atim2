@@ -1077,7 +1077,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else if(isset($this->data['ViewAliquot'])) {
 				$ids = $this->data['ViewAliquot']['aliquot_master_id'];
 			} else {
-				$this->redirect('/pages/err_order_system_errors', null, true); 
+				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 			}
 			$ids = array_filter($ids);	
 		} else {
@@ -1087,7 +1087,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Find parent aliquot
 		$ids[] = 0;
 		$aliquots = $this->AliquotMaster->findAllById($ids);
-		if(empty($aliquots)){pr('llasc');exit;
+		if(empty($aliquots)){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		}
 		$this->set('aliquot_id', $aliquot_id);
@@ -1108,7 +1108,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(count($aliquots) > 1){
 			foreach($aliquots as $aliquot){
 				if(($aliquot['AliquotMaster']['aliquot_control_id'] != $aliquot_ctrl_id) || ($aliquot['SampleMaster']['sample_control_id'] != $sample_ctrl_id)) {
-					$this->flash(__("you cannot realiquot those elements together because they are of different types", true), $url_to_redirect);
+					$this->flash(__("you cannot realiquot those elements together because they are of different types", true), $url_to_cancel);
 					return;
 				}
 			}
@@ -1174,7 +1174,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(isset($_SESSION['realiquot_batch_process']['init']) && (!empty($_SESSION['realiquot_batch_process']['init']))) {
 			// Check init redirect
 			$this->data = $_SESSION['realiquot_batch_process']['init'];
-			unset($_SESSION['realiquot_batch_process']);
+			unset($_SESSION['realiquot_batch_process']['init']);
 		} else if(empty($this->data)){ $this->redirect("/pages/err_inv_no_data", null, true); }
 		
 		// Get parent an child control data
@@ -1348,7 +1348,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 				}
 				
-				if(!$new_aliquot_created) $errors['barcode']['at least one child has to be created'][] = $record_counter;
+				if(!$new_aliquot_created) $errors[]['at least one child has to be created'][] = $record_counter;
 			}
 			
 			$this->data = $validated_data;
@@ -1427,7 +1427,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				unset($_SESSION['realiquot_batch_process']);
 				if(empty($aliquot_id)) {
-					$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;	//ViewAliquots
+					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				} else {
 					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/' . $parent['AliquotMaster']['collection_id'] . '/' . $parent['AliquotMaster']['sample_master_id']. '/' . $aliquot_id);
@@ -1701,8 +1702,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
-				$_SESSION['tmp_batch_set']['datamart_structure_id'] = 1;	//ViewAliquots
-				
+				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
+								
 				//redirect to virtual batch set
 				//$_SESSION data was set into the define children function
 				if($collection_id == null){
