@@ -69,89 +69,33 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function contentTreeView($collection_id, $filter_option = null) {
+	function contentTreeView($collection_id, $sample_master_id = 0, $is_ajax = false){
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); 
 		}
-		
-		$display_aliquots = true;
-		$studied_specimen_sample_control_id = null;
-		
-		// MANAGE DATA
-
-		// Manage filter data
-		if(is_null($filter_option)) {
-			if(isset($_SESSION['InventoryManagement']['treeView']['Filter'])) {
-				$filter_option = $_SESSION['InventoryManagement']['treeView']['Filter'];
-			}
-		} else {
-			if($filter_option == '-1') {
-				// User unactived filter
-				$filter_option = null;
-				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
-			} else {
-				$_SESSION['InventoryManagement']['treeView']['Filter'] = $filter_option;
-			}
+		if($is_ajax){
+			$this->layout = 'ajax';
+			Configure::write('debug', 0);
 		}
-		if(!is_null($filter_option)) {	
-			$option_for_tree_view = explode("|", $filter_option);			
-			if(sizeof($option_for_tree_view) != 2)  { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
-			
-			$display_aliquots = $option_for_tree_view[0];
-			$studied_specimen_sample_control_id = empty($option_for_tree_view[1])? null : $option_for_tree_view[1];
-		}
-					
-		// Get formatted collection samples data to display
-		$this->data = $this->SampleMaster->buildCollectionContentForTreeView($collection_id, $display_aliquots, $studied_specimen_sample_control_id);
-		// MANAGE FORM, MENU AND ACTION BUTTONS	
-			 	
-		$atim_structure = array();
-		$atim_structure['SampleMaster']	= $this->Structures->get('form','sample_masters_for_collection_tree_view');
+		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
 		$this->set('atim_structure', $atim_structure);
-
-		// Get all sample control types to build the add to selected button
-		$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null);
-		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
-
-		// Get all collection specimen type list to build the filter button
-		$specimen_type_list = array();
-		$specimen_type_list_temp = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
-		foreach($specimen_type_list_temp as $new_specimen_type) {
-			$sample_control_id = $new_specimen_type['SampleMaster']['sample_control_id'];
-			$sample_type = $new_specimen_type['SampleMaster']['sample_type'];
-			$specimen_type_list[$sample_type] = $sample_control_id;
+		$this->set("collection_id", $collection_id);
+		$this->set("is_ajax", $is_ajax);
+		if($sample_master_id == 0){
+			//fetch all
+			$this->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id IS NULL"), 'recursive' => -1));
+		}else{
+			$this->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'recursive' => -1));
+			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
+			$this->data = array_merge($this->data, $aliquots);
 		}
-		$this->set('specimen_type_list', $specimen_type_list);
-
-		// Set filter value to build filter button
-		$this->set('display_aliquots_filter_value', $display_aliquots);
-		$this->set('studied_specimen_sample_control_id_filter_value', $studied_specimen_sample_control_id);
-		
-		// Set filter value
-		$filter_value = '';
-		if($studied_specimen_sample_control_id) {
-			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('id' => $studied_specimen_sample_control_id)));
-			if(empty($sample_control_data)) { 
-				unset($_SESSION['InventoryManagement']['treeView']['Filter']);
-				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
-			}
-			$filter_value = __($sample_control_data['SampleControl']['sample_type'], true);
-		}
-		if(!$display_aliquots) $filter_value .= (empty($filter_value)? '' : ' - ') . __('no aliquot displayed', true);
-		$this->set('filter_value', (empty($filter_value)? 'no filter' : $filter_value));
-		
-		// Get the current menu object. 
-		$atim_menu = $this->Menus->get('/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%');
-		$this->set('atim_menu', $atim_menu);
-
-		// Set menu variables
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
+		
 	}
 	
 	function listAll($collection_id, $initial_specimen_sample_id, $filter_option = null) {

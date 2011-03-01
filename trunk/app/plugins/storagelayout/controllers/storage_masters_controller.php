@@ -364,26 +364,33 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * plus both aliquots and TMA slides stored into those storages starting from a specific parent storage.
 	 * 
 	 * @param $storage_master_id Storage master id of the studied storage that will be used as tree root.
+	 * @param int $is_ajax
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
 	 * @updated A. Suggitt
 	 */
 	 
-	function contentTreeView($storage_master_id = NULL) {
-		// MANAGE STORAGE DATA
+	function contentTreeView($storage_master_id = 0, $is_ajax = false){
+		if($is_ajax){
+			$this->layout = 'ajax';
+			Configure::write('debug', 0);
+		}
+		$this->set("is_ajax", $is_ajax);
 		
+		// MANAGE STORAGE DATA
 		// Get the storage data
 		$storage_data = null;
 		$atim_menu = array();
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght']), 'contain' => array('AliquotMaster', 'TmaSlide' => array('Block')), 'recursive' => '2'));
-			$storage_content = $this->formatStorageTreeView($storage_content);
+			$storage_content = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
+			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+			$storage_content = array_merge($aliquots, $storage_content);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
-			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '-1'));
+			$storage_content = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
@@ -419,7 +426,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }				
+		if($hook_link){ 
+			require($hook_link);
+		}				
 	}		
 	
 	/**

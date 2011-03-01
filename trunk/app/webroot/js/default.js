@@ -546,6 +546,18 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAjaxClass(scope){
+		//ajax controls
+		//evals the json within the class of the element and calls the method defined in callback
+		//the callback method needs to take this and json as parameters
+		$(scope).find(".ajax").click(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+			return false;
+		});
+	}
+	
 	function initJsControls(){
 		if(typeof(storageLayout) != 'undefined'){
 			initStorageLayout();
@@ -568,6 +580,10 @@ function uncheckAll( $div ) {
 		if(typeof(batchSetControls) != 'undefined'){
 			initBatchSetControls();
 		}
+		if(typeof(ajaxTreeView) != undefined){
+			initAjaxTreeView(document);
+		}
+		
 		if(typeof(realiquotInit) != 'undefined'){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
 				if($("select").val().length > 0){
@@ -587,30 +603,7 @@ function uncheckAll( $div ) {
 			$('form').highlight('tr');
 		}
 		
-		//tree view controls
-		$(".reveal:not(.not_allowed)").each(function(){
-			var cssClass = $(this).attr("class");
-			if(cssClass.indexOf("{") > -1){
-				var json = getJsonFromClass(cssClass);
-				$(this).toggle(function(){
-					$("#tree_" + json.tree).stop(true, true);
-					$("#tree_" + json.tree).show("blind", {}, 350);
-				}, function(){
-					$("#tree_" + json.tree).stop(true, true);
-					$("#tree_" + json.tree).hide("blind", {}, 350);
-				});
-			}
-		});
-		
-		//ajax controls
-		//evals the json within the class of the element and calls the method defined in callback
-		//the callback method needs to take this and json as parameters
-		$(".ajax").click(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
+		activateNodeExpandButton(document);
 		
 		initAutocomplete(document);
 		initAdvancedControls(document);
@@ -618,6 +611,7 @@ function uncheckAll( $div ) {
 		initTooltips();
 		initActions();
 		initSummary();
+		initAjaxClass(document);
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
