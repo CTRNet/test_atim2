@@ -530,7 +530,7 @@ function uncheckAll( $div ) {
 				initRemoveLine(newLines);
 				initAutocomplete(newLines);
 				initToolPopup(newLines);
-				if(typeof(copyControl) != 'undefined'){
+				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
 				$(newLines).removeClass("newLine");
@@ -559,32 +559,33 @@ function uncheckAll( $div ) {
 	}
 	
 	function initJsControls(){
-		if(typeof(storageLayout) != 'undefined'){
+		if(window.storageLayout){
 			initStorageLayout();
 		}
-		if(typeof(datamartActions) != 'undefined'){
+		if(window.datamartActions){
 			initDatamartActions();
 		}
-		if(typeof(copyControl) != 'undefined'){
+		if(window.copyControl){
 			initCopyControl();
 		}
-		if(typeof(aliquotVolumeCheck) != 'undefined'){
+		if(window.aliquotVolumeCheck){
 			initAliquotVolumeCheck();
 		}
-		if(typeof(actionControl) != 'undefined'){
-			initActionControl(actionControl);
+		if(window.actionControl){
+			initActionControl(window.actionControl);
 		}
-		if(typeof(ccl) != 'undefined'){
+		if(window.ccl){
 			initCcl();
 		}
-		if(typeof(batchSetControls) != 'undefined'){
+		if(window.batchSetControls){
 			initBatchSetControls();
 		}
-		if(typeof(ajaxTreeView) != undefined){
+		if(window.ajaxTreeView){
 			initAjaxTreeView(document);
 		}
 		
-		if(typeof(realiquotInit) != 'undefined'){
+		
+		if(window.realiquotInit){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
 				if($("select").val().length > 0){
 					$("form").submit();
@@ -603,7 +604,9 @@ function uncheckAll( $div ) {
 			$('form').highlight('tr');
 		}
 		
-		activateNodeExpandButton(document);
+		if(window.activateNodeExpandButton){
+			activateNodeExpandButton(document);
+		}
 		
 		initAutocomplete(document);
 		initAdvancedControls(document);
