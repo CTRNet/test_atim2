@@ -3,7 +3,6 @@
 	// SETTINGS
 	
 	$structure_settings = array(
-		'header' => __('filter', true) . ': ' . __($filter_value, true),
 		'tree'=>array(
 			'SampleMaster'		=> 'SampleMaster',
 			'AliquotMaster'	=> 'AliquotMaster'
@@ -11,26 +10,20 @@
 	);
 	
 	// LINKS
+	$bottom = array();
+	if(!$is_ajax){
+		$specimen_type_filter_links = '/underdev/';
 	
-	$specimen_type_filter_links = array();
-	foreach ($specimen_type_list as $type => $sample_control_id) {
-		$specimen_type_filter_links[__($type,true)] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . $display_aliquots_filter_value . '|' . $sample_control_id;
-	}
-	ksort($specimen_type_filter_links);
-	
-	$specimen_type_filter_links[($display_aliquots_filter_value? 'only samples': 'samples & aliquots')] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/' . ($display_aliquots_filter_value? 0: 1) . '|' . $studied_specimen_sample_control_id_filter_value;	
-	$specimen_type_filter_links['no filter'] = '/inventorymanagement/sample_masters/contentTreeView/' . $atim_menu_variables['Collection.id'] . '/-1';	
-			
-	$add_links = array();
-	foreach ($specimen_sample_controls_list as $sample_control) {
-		$add_links[__($sample_control['SampleControl']['sample_type'],true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
-	}
-	ksort($add_links);
+		$search_type_links = array();
+		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
+		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
+		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 		
-	$search_type_links = array();
-	$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-	$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
+		$bottom = array(
+			'add' => $add_links,
+			'filter' => $specimen_type_filter_links,
+			'new search' => $search_type_links);
+	}
 
 	$structure_links = array(
 		'tree'=>array(
@@ -55,11 +48,10 @@
 				)
 			)
 		),
-		'bottom' => array(
-			'add' => $add_links,
-			'filter' => $specimen_type_filter_links,
-			'new search' => $search_type_links
+		'tree_expand' => array(
+			'SampleMaster' => '/inventorymanagement/sample_masters/contentTreeView/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
 		),
+		'bottom' => $bottom,
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
@@ -89,14 +81,14 @@
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
 	
-?>
-								
-<script>
-var loadingStr = "<?php echo(__("loading", null)); ?>";
-</script>
-
-<?php 
-
-	echo $javascript->link('treeViewControl')."\n";
+	if(!$is_ajax){
+		?>
+		<script>
+		var loadingStr = "<?php echo(__("loading", null)); ?>";
+		var ajaxTreeView = true;
+		</script>
+		<?php 
+		echo $javascript->link('treeViewControl')."\n";
+	}
 
 ?>

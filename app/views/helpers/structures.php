@@ -49,6 +49,7 @@ class StructuresHelper extends Helper {
 				'bottom'		=> array(),
 				
 				'tree'			=> array(),
+				'tree_expand'	=> array(),
 				
 				'checklist'		=> array(), // keys are checkbox NAMES (model.field) and values are checkbox VALUES
 				'radiolist'		=> array(), // keys are radio button NAMES (model.field) and values are radio button VALUES
@@ -1028,11 +1029,11 @@ class StructuresHelper extends Helper {
 			}
 		}
 				
-		echo('
+		echo'
 				</tr>
 			</tbody>
 			</table>
-		'); 
+			';
 	}
 	
 	/**
@@ -1056,27 +1057,31 @@ class StructuresHelper extends Helper {
 				
 			// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
 				
-			$unique_id = self::$tree_node_id ++;
 			// reveal sub ULs if sub ULs exist
-			if(count($children)){
-				echo('<a class="reveal {\'tree\' : \''.$unique_id.'\'}" href="#" onclick="return false;">+</a> ');
-			} else {
-				echo('<a class="reveal not_allowed" onclick="return false;">+</a> ');
-			}
-			
+			$links = "";
+			$expand_key = "tree";
+			$expand_value = self::$tree_node_id ++;
 			if(count($options['links']['tree'])){
-				echo('<div><span class="divider">|</span> ');	
+				echo '<div><span class="divider">|</span> ';	
 				$i = 0;
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
 						//apply prebuilt links
-						echo($this->strReplaceLink($options['links']['tree'][$model_name], $data_val));
+						$links = $this->strReplaceLink($options['links']['tree'][$model_name], $data_val);
+						if(isset($model_array['id'])){
+							$expand_key = $model_name;
+							$expand_value = $model_array['id'];
+							break;
+						}
 					}
 				}
 			}else if (count($options['links']['index'])){
 				//apply prebuilt links
-				echo '<div><span class="divider">|</span> ', $this->strReplaceLink($options['links']['tree'][$model_name], $data_val);
+				$links .= '<div><span class="divider">|</span> '.$this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
 			}
+			
+			echo '<a class="reveal not_allowed notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> ';
+			echo $links;
 		
 			if(count($options['settings']['tree'])){
 				foreach($data_val as $model_name => $model_array){
@@ -1104,7 +1109,7 @@ class StructuresHelper extends Helper {
 						}
 						if(isset($data_val[$table_row_part['model']])){
 							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
-							if(strlen($table_row_part['format']) > 0){
+							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
 								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
 							}else{
 								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
@@ -1126,9 +1131,9 @@ class StructuresHelper extends Helper {
 			
 			// create sub-UL, calling this NODE function again, if model has any CHILDREN
 			if(count($children)){
-				echo('
-					<ul id="tree_'.$unique_id.'" style="display:none;">
-				');
+				echo '
+					<ul id="',$expand_key,'_',$expand_value,'" style="display:none;">
+				';
 				
 				$this->buildTreeNode($atim_structures, $options, $children);
 				echo('
