@@ -1822,7 +1822,23 @@ UPDATE structure_fields SET  `tablename`='ad_blocks' WHERE model='AliquotDetail'
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_is_large' AND `language_label`='large' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 
+-- Update Block type to ATiM format
 
+UPDATE ad_blocks
+SET block_type = 'paraffin'  
+WHERE block_type = 'paraffin_block';
+
+UPDATE ad_blocks
+SET bc_ttr_is_large = 1  
+WHERE block_type = 'large_frozen_block';
+
+UPDATE ad_blocks
+SET block_type = 'frozen'  
+WHERE block_type = 'large_frozen_block';
+
+UPDATE ad_blocks
+SET block_type = 'frozen'  
+WHERE block_type = 'frozen_block';
 
 
 -- Always add the following drop data fields at the END OF FILE. 
