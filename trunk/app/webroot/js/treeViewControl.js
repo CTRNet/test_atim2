@@ -29,24 +29,25 @@ function initAjaxTreeView(scope){
 		if(json.url != undefined && json.url.length > 0){
 			$(this).addClass("fetching");
 			var flat_url = json.url.replace(/\//g, "_");
-			if(flat_url.trim().length > 0)
-			$.get(root_url + json.url, function(data){
-				$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
-				if($("#" + flat_url).find("ul").length == 1){
-					var currentLi = getParentElement(expandButton, "LI");
-					$(currentLi).append("<ul style='display: none;'>" + $("#" + flat_url).find("ul").html() + "</ul>");
-					initAjaxClass($(currentLi).find("ul"));
-					$(expandButton).removeClass("not_allowed").data("new", true).click(function(){
-						$(currentLi).find("ul").first().toggle(); 
-						if($(this).data("new")){
-							$(this).data("new", false);
-							initAjaxTreeView($(currentLi).find("ul").first());
-						}
-					});
-				}
-				$(expandButton).removeClass("fetching");
-				$("#" + flat_url).remove();
-			});
+			if(flat_url.length > 0){
+				$.get(root_url + json.url, function(data){
+					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
+					if($("#" + flat_url).find("ul").length == 1){
+						var currentLi = getParentElement(expandButton, "LI");
+						$(currentLi).append("<ul style='display: none;'>" + $("#" + flat_url).find("ul").html() + "</ul>");
+						initAjaxClass($(currentLi).find("ul"));
+						$(expandButton).removeClass("not_allowed").data("new", true).click(function(){
+							$(currentLi).find("ul").first().toggle(); 
+							if($(this).data("new")){
+								$(this).data("new", false);
+								initAjaxTreeView($(currentLi).find("ul").first());
+							}
+						});
+					}
+					$(expandButton).removeClass("fetching");
+					$("#" + flat_url).remove();
+				});
+			}
 		}
 	});
 }
