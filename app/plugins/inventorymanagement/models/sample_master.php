@@ -177,6 +177,22 @@ class SampleMaster extends InventorymanagementAppModel {
 		
 		return $children_list;
 	}
+	
+	/**
+	 * @param array $sample_master_ids The sample master ids whom child existence will be verified
+	 * @return array The sample master ids having a child
+	 */
+	function hasChild(array $sample_master_ids){
+		//fetch the sample ids having samples as child
+		$result = $this->find('list', array('fields' => array("SampleMaster.parent_id"), 'conditions' => array('SampleMaster.parent_id' => $sample_master_ids), 'group' => array('SampleMaster.parent_id')));
+		
+		//fetch the aliquots ids having the remaining samples as parent
+		//we can fetch the realiquots too because they imply the presence of a direct child
+		$sample_master_ids = array_diff($sample_master_ids, $result);
+		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		return array_merge($result, $aliquot_master->find('list', array('fields' => array('AliquotMaster.sample_master_id'), 'conditions' => array('AliquotMaster.sample_master_id' => $sample_master_ids), 'group' => array('AliquotMaster.sample_master_id'))));
+		
+	}
 }
 
 ?>

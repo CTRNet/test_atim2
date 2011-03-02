@@ -335,6 +335,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 	}
 	
+	function hasChild(array $aliquot_master_ids){
+		$realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", TRUE);
+		return $realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id')));
+	}
+	
 }
 
 ?>

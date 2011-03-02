@@ -30,6 +30,14 @@ class ProductMastersController extends ClinicalannotationAppController {
 		
 		// Get participant collection ids
 		$this->data =  $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'order' => 'Collection.collection_datetime ASC', 'recursive' => 0));
+		$ids = array();
+		foreach($this->data as $unit){
+			$ids[] = $unit['Collection']['id'];
+		}
+		$ids = array_flip($this->Collection->hasChild($ids));
+		foreach($this->data as &$unit){
+			$unit['children'] = array_key_exists($unit['Collection']['id'], $ids);
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS	
 			 	
