@@ -33,7 +33,7 @@
 				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
 				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>';
 		}
-		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) ." #".$counter;
+		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
 		$final_options_parent['data'] = $parent;
 		
