@@ -65,8 +65,7 @@
 		var loadingStr = "<?php echo(__("loading", null)); ?>";
 		var ajaxTreeView = true;
 		</script>
-		<?php 
-		echo $javascript->link('treeViewControl')."\n";
+		<?php
 	}
 
 ?>

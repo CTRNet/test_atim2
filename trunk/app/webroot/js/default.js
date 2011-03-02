@@ -583,6 +583,9 @@ function uncheckAll( $div ) {
 		if(window.ajaxTreeView){
 			initAjaxTreeView(document);
 		}
+		if(window.treeView){
+			initTreeView(document);
+		}
 		
 		
 		if(window.realiquotInit){
@@ -602,10 +605,6 @@ function uncheckAll( $div ) {
 			$('form').highlight('td');
 		}else{
 			$('form').highlight('tr');
-		}
-		
-		if(window.activateNodeExpandButton){
-			activateNodeExpandButton(document);
 		}
 		
 		initAutocomplete(document);

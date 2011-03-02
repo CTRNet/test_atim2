@@ -92,6 +92,5 @@
 		var ajaxTreeView = true;
 		</script>
 <?php 
-		echo $javascript->link('treeViewControl')."\n";
 	}
 ?>
