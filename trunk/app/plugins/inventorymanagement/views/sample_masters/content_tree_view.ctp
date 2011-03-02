@@ -12,7 +12,12 @@
 	// LINKS
 	$bottom = array();
 	if(!$is_ajax){
-		$specimen_type_filter_links = '/underdev/';
+		
+		$add_links = array();
+		foreach ($specimen_sample_controls_list as $sample_control) {
+			$add_links[__($sample_control['SampleControl']['sample_type'],true)] = '/inventorymanagement/sample_masters/add/' . $collection_id . '/' . $sample_control['SampleControl']['id'];
+		}
+		ksort($add_links);
 	
 		$search_type_links = array();
 		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
@@ -20,8 +25,7 @@
 		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 		
 		$bottom = array(
-//			'add' => $add_links,
-			'filter' => $specimen_type_filter_links,
+			'add' => $add_links,
 			'new search' => $search_type_links);
 	}
 

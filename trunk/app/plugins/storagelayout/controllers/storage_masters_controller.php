@@ -438,47 +438,6 @@ class StorageMastersController extends StoragelayoutAppController {
 		}				
 	}		
 	
-	/**
-	 * Build/format a nested array for tree view gathering the data linked to 
-	 *  - a root storage 
-	 *  - plus all direct/indirect children storages 
-	 *  - plus all TMAs and aliquots contained into the root and children storages.
-	 * 
-	 * @param $unformatted_storage_tree_view Unformatted storage nested array.
-	 * 
-	 * @return The completed nested array
-	 * 
-	 * @author N. Luc
-	 * @since 2009-09-13
-	 */
-	
-	function formatStorageTreeView($unformatted_storage_tree_view) {
-		$formatted_data = array();
-		
-		foreach ($unformatted_storage_tree_view as $key => $new_storage) {
-			$formatted_data[$key]['StorageMaster'] = $new_storage['StorageTreeView'];
-			// recursive first on existing MODEL CHILDREN
-			if (isset($new_storage['children']) && count($new_storage['children'])) {
-				$formatted_data[$key]['children'] = $this->formatStorageTreeView($new_storage['children']);
-			}
-			
-			// Add OUTSIDE MODEL data and append as CHILDREN
-					
-			// 1-Add storage aliquots
-			foreach ($new_storage['AliquotMaster'] as $aliquot) { 
-				$formatted_data[$key]['children'][]['AliquotMaster'] = $aliquot; 
-			}				
-			
-			// 2-Add storage TMA slides
-			foreach ($new_storage['TmaSlide'] as $slide) {
-				$formattted_slide = array('TmaSlide'=> $slide, 'Generated' => array());
-				$formattted_slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
-				$formatted_data[$key]['children'][] = $formattted_slide; 
-			}
-		}
-		
-		return $formatted_data;
-	}
 	
 	/**
 	 * Display the content of a storage into a layout.
