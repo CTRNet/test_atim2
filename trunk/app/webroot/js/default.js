@@ -1,4 +1,5 @@
 var toolTarget = null;
+var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
 
 function initSummary(){
 	var open = function(){
@@ -288,8 +289,10 @@ function uncheckAll( $div ) {
 					//move the add button to the end
 					$(this).parent().append($(this));
 					
-					//reset the highlighting
-					$('form').highlight('tr');
+					if(useHighlighting){
+						//reset the highlighting
+						$('form').highlight('tr');
+					}
 				});
 			}else{
 				//range values, no add options
@@ -599,14 +602,15 @@ function uncheckAll( $div ) {
 		
 		initDeleteConfirm();
 		
-		//field highlighting
-		if($("#table1row0").length == 1){
-			//gridview
-			$('form').highlight('td');
-		}else{
-			$('form').highlight('tr');
+		if(useHighlighting){
+			//field highlighting
+			if($("#table1row0").length == 1){
+				//gridview
+				$('form').highlight('td');
+			}else{
+				$('form').highlight('tr');
+			}
 		}
-		
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
