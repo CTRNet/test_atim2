@@ -26,3 +26,6 @@
 	);
 	
 ?>
+<script>
+	var treeView = true;
+</script>

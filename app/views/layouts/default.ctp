@@ -85,6 +85,7 @@ ob_start('ob_gzhandler');
 	echo $javascript->link('datamart')."\n";
 	echo $javascript->link('copyControl')."\n";
 	echo $javascript->link('ccl')."\n";
+	echo $javascript->link('treeViewControl')."\n";
 	?>
 	
 	<script type="text/javascript">

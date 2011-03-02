@@ -1059,8 +1059,7 @@ class StructuresHelper extends Helper {
 				
 			// reveal sub ULs if sub ULs exist
 			$links = "";
-			$expand_key = "tree";
-			$expand_value = self::$tree_node_id ++;
+			$expand_key = "";
 			if(count($options['links']['tree'])){
 				echo '<div><span class="divider">|</span> ';	
 				$i = 0;
@@ -1070,7 +1069,6 @@ class StructuresHelper extends Helper {
 						$links = $this->strReplaceLink($options['links']['tree'][$model_name], $data_val);
 						if(isset($model_array['id'])){
 							$expand_key = $model_name;
-							$expand_value = $model_array['id'];
 							break;
 						}
 					}
@@ -1083,7 +1081,7 @@ class StructuresHelper extends Helper {
 				if(empty($children)){
 					echo '<a class="reveal not_allowed href="#" onclick="return false;">+</a> ';
 				}else{
-					echo '<a class="reveal" href="#" onclick="return false;">+</a> ';
+					echo '<a class="reveal activate" href="#" onclick="return false;">+</a> ';
 				}
 			}else if($children){
 				echo '<a class="reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> ';
@@ -1143,18 +1141,18 @@ class StructuresHelper extends Helper {
 			// create sub-UL, calling this NODE function again, if model has any CHILDREN
 			if(is_array($children) && !empty($children)){
 				echo '
-					<ul id="',$expand_key,'_',$expand_value,'" style="display:none;">
+					<ul style="display:none;">
 				';
 				
 				$this->buildTreeNode($atim_structures, $options, $children);
-				echo('
+				echo'
 					</ul>
-				');
+				';
 			}
 			
-			echo('
+			echo'
 				</li>
-			');
+			';
 			
 		}
 	}
