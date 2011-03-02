@@ -20,7 +20,7 @@
 		'settings' 	=> $structure_settings	
 	));
 	// CUSTOM CODE
-	$hook_link = $structures->hook('children_selection');
+	$hook_link = $structures->hook();
 	if($hook_link){
 		require($hook_link); 
 	}

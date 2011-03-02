@@ -14,6 +14,10 @@
 		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
 		"override"	=> $override_data));
 	
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
 	$first = true;
 	$counter = 0;
 	while($data = array_shift($this->data)){
