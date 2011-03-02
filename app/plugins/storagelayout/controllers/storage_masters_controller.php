@@ -385,25 +385,28 @@ class StorageMastersController extends StoragelayoutAppController {
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-			$storage_content = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
-			$storage_content = array_merge($aliquots, $storage_content);
+			$tree_data = array_merge($tree_data, $aliquots);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
-			$storage_content = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		}
 		$ids = array();
-		foreach($storage_content as $storage_unit){
-			$ids[] = $storage_unit['StorageMaster']['id'];
+		foreach($tree_data as $data_unit){
+			if(isset($data_unit['StorageMaster'])){
+				$ids[] = $data_unit['StorageMaster']['id'];
+			}
 		}
 		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
-		foreach($storage_content as &$storage_unit){
-			$storage_unit['children'] = array_key_exists($storage_unit['StorageMaster']['id'], $ids);
+		foreach($tree_data as &$data_unit){
+			//only storages child interrests us here
+			$data_unit['children'] = isset($data_unit['StorageMaster']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
 		}
-		$this->data = $storage_content;
+		$this->data = $tree_data;
 						
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
