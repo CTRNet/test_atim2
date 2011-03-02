@@ -25,9 +25,6 @@
 		'tree_expand' => array(
 			'Collection' => '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%/0/1/'
 		),
-		'bottom' => array(
-			'filter' => '/underdev/'
-		),
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
