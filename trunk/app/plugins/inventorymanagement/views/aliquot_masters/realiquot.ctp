@@ -16,6 +16,12 @@
 		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
 	));
 
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
+	}
+
 	$counter = 0;
 	while($data = array_shift($this->data)){
 		$counter++;

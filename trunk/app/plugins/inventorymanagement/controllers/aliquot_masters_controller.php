@@ -284,8 +284,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-
-	
 	function addInit(){
 		// Get Data
 		$model = null;
@@ -1625,8 +1623,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function defineRealiquotedChildren($collection_id = null, $sample_master_id = null, $aliquot_master_id = null){
 		$initial_display = false;		// Boolean to define if data for intial display should be built
-		$proceed_with_display = true;	// Boolean to define if entry form should be displayed
-		
 		$parent_aliquots = array();		// Parent aliquots list
 		
 		//set the structure early to ensure validation works
@@ -1702,10 +1698,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				// Get aliquot already defined as children
 				$existing_children = array();
+				
 				foreach($parent_aliquot_data['RealiquotingChildren'] as $realiquoting_data) {
 					$existing_children[] = $realiquoting_data['child_aliquot_master_id'];
 				}
 				
+				// Get aliquots being parent of the studied parent
+				$existing_parents_tmp = $this->Realiquoting->find('all', array('conditions' => array('Realiquoting.child_aliquot_master_id' => $parent_aliquot_data['AliquotMaster']['id']), 'recursive' => '-1'));
+				$existing_parents = array();
+				foreach($existing_parents_tmp as $realiquoting_data) {
+					$existing_parents[] = $realiquoting_data['Realiquoting']['parent_aliquot_master_id'];
+				}	
+								
 				//Get aliquot type that could be defined as children of the parent aliquot type
 				$allowed_children_aliquot_control_ids = $this->RealiquotingControl->getAllowedChildrenCtrlId($parent_aliquot_data['SampleMaster']['sample_control_id'], $parent_aliquot_data['AliquotMaster']['aliquot_control_id']);
 				
@@ -1714,8 +1718,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					"AliquotMaster.id != '".$parent_aliquot_data['AliquotMaster']['id']."'", 
 					'AliquotMaster.sample_master_id' => $parent_aliquot_data['AliquotMaster']['sample_master_id'],
 					'AliquotMaster.aliquot_control_id' => $allowed_children_aliquot_control_ids,
-					'NOT' => array('AliquotMaster.id' => $existing_children)
-				);
+					'NOT' => array('AliquotMaster.id' => $existing_children),
+					'NOT' => array('AliquotMaster.id' => $existing_parents));
 				
 				$exclude_aliquot = false;
 				$aliquot_data_for_selection = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.storage_datetime DESC', 'recursive' => '0'));
@@ -1744,13 +1748,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			
 			if(!empty($excluded_parent_aliquot)) {
-				$tmp_msg = '';
-				$comma = '';
+				$tmp_barcode = array();
 				foreach($excluded_parent_aliquot as $new_aliquot) {
-					$tmp_msg .= $comma.$new_aliquot['AliquotMaster']['barcode'];
-					$comma = ',';
+					$tmp_barcode[] = $new_aliquot['AliquotMaster']['barcode'];
 				}
-				$this->AliquotMaster->validationErrors[] = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)',true).': ['.$tmp_msg.']';
+				$this->AliquotMaster->validationErrors[] = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)',true).': ['.implode(",", $tmp_barcode).']';
 			}
 
 			$hook_link = $this->hook('format');
@@ -1766,13 +1768,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$submitted_data = $this->data;
 			
 			//1- Validate parent aliquot data
+			$record_counter = 0;
 			foreach($this->data as $parent_id => &$children){
+				$record_counter++;
+				
 				// Validate parent aliquot data
 				$parent_aliquot_data = $children['AliquotMaster'];
 				$parent_aliquot_data["id"] = $parent_id;
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
-					$errors = array_merge_recursive($errors, $this->AliquotMaster->validationErrors);
+					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
+						$errors[$field][$msg][] = $record_counter;
+					}
 				}
 				unset($children['AliquotMaster']);
 				unset($children['FunctionManagement']);
@@ -1781,8 +1788,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			//2- Validate realiquoting data
 			if(empty($errors)){
 			$relations = array();
-		
+				$record_counter = 0;
 				foreach($this->data as $parent_aliquot_id => $children_aliquots){
+					$record_counter++;
 					$children_has_been_defined = false;
 					foreach($children_aliquots as $children_aliquot){
 						if(!$children_aliquot['FunctionManagement']['use']){
@@ -1791,23 +1799,25 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$children_has_been_defined = true;
 						
 						if(isset($relations[$children_aliquot['AliquotMaster']['id']])){
-							$errors[] = sprintf(__("circular assignation with [%s]", true), $children_aliquot['AliquotMaster']['barcode']);
+							$errors[][sprintf(__("circular assignation with [%s]", true), $children_aliquot['AliquotMaster']['barcode'])][] = $record_counter;
 						}
 						$relations[$parent_aliquot_id] = $children_aliquot['AliquotMaster']['id'];
 						
 						$this->Realiquoting->set(array('Realiquoting' =>  $children_aliquot['Realiquoting']));
 						if(!$this->Realiquoting->validates()){
-							$errors = array_merge($errors, $this->Realiquoting->validationErrors);
+							foreach($this->Realiquoting->validationErrors as $field => $msg) {
+								$errors[$field][$msg][] = $record_counter;
+							}
 						}
 						
 						// Check volume can be completed
 						if((!empty($children_aliquot['Realiquoting']['parent_used_volume'])) && empty($children_aliquot['GeneratedParentAliquot']['aliquot_volume_unit'])) {
-							// No volume has to be recored for this aliquot type				
-							$errors = array_merge($errors, array('parent_used_volume' => 'no volume has to be recorded when the volume unit field is empty'));		
+							// No volume has to be recored for this aliquot type	
+							$errors['parent_used_volume']['no volume has to be recorded when the volume unit field is empty'][] = $record_counter;					
 						} 
 					}
 					
-					if(!$children_has_been_defined) $errors = array_merge($errors, array('barcode' => 'at least one child has not been defined'));
+					if(!$children_has_been_defined) $errors[]['at least one child has not been defined'][] = $record_counter;
 				}				
 			}
 			
@@ -1818,8 +1828,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(!empty($errors)){
 				// Errors have been detected => rebuild form data
-				
-				$this->AliquotMaster->validationErrors = $errors;
+								
+				$this->AliquotMaster->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$msg = __($msg, true);
+						$lines_strg = implode(",", array_unique($lines));
+						if(!empty($lines_strg) && ($collection_id == null)) {
+							$msg .= ' - ' . str_replace('%s', $lines_strg, __('see # %s',true));
+						} 
+						$this->AliquotMaster->validationErrors[$field][] = $msg;					
+					} 
+				}			
 				
 				$this->data = array();
 				foreach($submitted_data as $parent_id => $children) {
@@ -1887,7 +1907,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($collection_id == null){
 					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				}else{
-					$this->flash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
+					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id);
 				}
 			}
 			
