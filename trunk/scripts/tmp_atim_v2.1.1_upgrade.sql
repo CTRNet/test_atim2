@@ -544,7 +544,7 @@ DELETE FROM structure_validations WHERE rule='' or rule LIKE ('maxLength%');
 
 -- aliquots in batch (from samples)
 INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
-((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/batchAddInit/', true);
+((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/addInit/', true);
 
 UPDATE structure_fields SET `default`='yes - available' WHERE field='in_stock' and model='AliquotMaster';
 
@@ -1335,16 +1335,12 @@ VALUES (
 
 ALTER TABLE misc_identifier_controls ADD COLUMN flag_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 1;
 
-INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`) VALUES
-(null, (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), 'create derivative', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
-(null, (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), 'create aliquots', '/inventorymanagement/aliquot_masters/batchAddInit/', 1);
-
 INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, `flag_active`) VALUES
 (null, 'create derivative', 'Inventorymanagement', 'SampleMaster', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
 (null, 'create derivative', 'Inventorymanagement', 'ViewSample', '/inventorymanagement/sample_masters/batchDerivativeInit/', 1),
 
-(null, 'create aliquots', 'Inventorymanagement', 'SampleMaster', '/inventorymanagement/aliquot_masters/batchAddInit/', 1),
-(null, 'create aliquots', 'Inventorymanagement', 'ViewSample', '/inventorymanagement/aliquot_masters/batchAddInit/', 1);
+(null, 'create aliquots', 'Inventorymanagement', 'SampleMaster', '/inventorymanagement/aliquot_masters/addInit/', 1),
+(null, 'create aliquots', 'Inventorymanagement', 'ViewSample', '/inventorymanagement/aliquot_masters/addInit/', 1);
 
 UPDATE structure_fields SET language_label = 'select a derivative type'
 WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative');
@@ -1366,4 +1362,10 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'Vous n''êtes pas authorisé à afficher cette page car vous n''avez pas la permission de saisir des données confidentielles!'),
 ('select a derivative type', 'Derivative Type', 'Type du dérivé '),
 ('derivative creation process', 'Derivative Creation Process', 'Processus de création de dérivés'),
-("you must select a derivative type", 'You must select a derivative type!', 'Vous devez sélectionner un type de dérivé');
+("you must select a derivative type", 'You must select a derivative type!', 'Vous devez sélectionner un type de dérivé'),
+('aliquot creation batch process', 'Aliquot Creation Batch Process', 'Processus de création des aliquots par lots'),
+('you need to select an aliquot type', 'You need to select an aliquot type!','Vous devez sélectionner un type d''aliquot'),
+('at least one aliquot has to be created', 'At least one aliquot has to be created!', 'Au moins un aliquot doit être créé!');
+
+
+
