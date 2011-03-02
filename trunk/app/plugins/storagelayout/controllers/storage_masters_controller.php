@@ -395,7 +395,14 @@ class StorageMastersController extends StoragelayoutAppController {
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		}
-		
+		$ids = array();
+		foreach($storage_content as $storage_unit){
+			$ids[] = $storage_unit['StorageMaster']['id'];
+		}
+		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
+		foreach($storage_content as &$storage_unit){
+			$storage_unit['children'] = array_key_exists($storage_unit['StorageMaster']['id'], $ids);
+		}
 		$this->data = $storage_content;
 						
 		// MANAGE FORM, MENU AND ACTION BUTTONS

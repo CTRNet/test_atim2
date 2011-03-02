@@ -20,7 +20,7 @@
 		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 		
 		$bottom = array(
-			'add' => $add_links,
+//			'add' => $add_links,
 			'filter' => $specimen_type_filter_links,
 			'new search' => $search_type_links);
 	}
@@ -50,6 +50,7 @@
 		),
 		'tree_expand' => array(
 			'SampleMaster' => '/inventorymanagement/sample_masters/contentTreeView/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
+			'AliquotMaster' => '/inventorymanagement/aliquot_masters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/',
 		),
 		'bottom' => $bottom,
 		'ajax' => array(

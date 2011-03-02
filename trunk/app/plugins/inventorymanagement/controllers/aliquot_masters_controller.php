@@ -1996,6 +1996,22 @@ pr('TODO NLUse');
 			$this->Structures->set($control['AliquotControl']['form_alias']);	
 		}
 	}
+	
+	function contentTreeView($collection_id, $aliquot_master_id, $is_ajax = false){
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); 
+		}
+		if($is_ajax){
+			$this->layout = 'ajax';
+			Configure::write('debug', 0);
+		}
+		$atim_structure['AliquotMaster'] = $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
+		$this->set('atim_structure', $atim_structure);
+		$this->set("collection_id", $collection_id);
+		$this->set("is_ajax", $is_ajax);
+		$ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
+		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $ids, 'AliquotMaster.collection_id' => $collection_id)));		
+	}
 }
 
 ?>

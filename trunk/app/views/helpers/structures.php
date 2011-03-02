@@ -1051,9 +1051,9 @@ class StructuresHelper extends Helper {
 				unset($data_val['children']);
 			}
 			
-			echo('
+			echo'
 				<li>
-			');
+			';
 				
 			// collect LINKS and STACK to be added to LI, must do out of order, as need ID field to use as unique CSS ID in UL/A toggle
 				
@@ -1077,10 +1077,19 @@ class StructuresHelper extends Helper {
 				}
 			}else if (count($options['links']['index'])){
 				//apply prebuilt links
-				$links .= '<div><span class="divider">|</span> '.$this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
+				$links = '<div><span class="divider">|</span> '.$this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
 			}
-			
-			echo '<a class="reveal not_allowed notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> ';
+			if(is_array($children)){
+				if(empty($children)){
+					echo '<a class="reveal not_allowed href="#" onclick="return false;">+</a> ';
+				}else{
+					echo '<a class="reveal" href="#" onclick="return false;">+</a> ';
+				}
+			}else if($children){
+				echo '<a class="reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> ';
+			}else{
+				echo '<a class="reveal not_allowed" href="#" onclick="return false;">+</a> ';
+			}
 			echo $links;
 		
 			if(count($options['settings']['tree'])){
@@ -1099,13 +1108,15 @@ class StructuresHelper extends Helper {
 			
 			$options['type'] = 'index';
 			unset($options['stack']);
+			$first = true;
 			foreach($table_index as $table_column_key => $table_column){
 				foreach($table_column as $table_row_key => $table_row){
 					foreach($table_row as $table_row_part){
 						//carefull with the white spaces as removing them the can break the display in IE
 						echo '<span class="nowrap">';
-						if($table_row_part['type'] != 'hidden' && strlen($table_row_part['label'])){
+						if(($table_row_part['type'] != 'hidden' && strlen($table_row_part['label'])) || $first){
 							echo '<span class="divider">|</span> ';
+							$first = false;
 						}
 						if(isset($data_val[$table_row_part['model']])){
 							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
@@ -1130,7 +1141,7 @@ class StructuresHelper extends Helper {
 			echo('</div>');
 			
 			// create sub-UL, calling this NODE function again, if model has any CHILDREN
-			if(count($children)){
+			if(is_array($children) && !empty($children)){
 				echo '
 					<ul id="',$expand_key,'_',$expand_value,'" style="display:none;">
 				';

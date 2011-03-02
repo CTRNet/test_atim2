@@ -22,8 +22,8 @@ function set_at_state_in_tree_root(new_at_li, json) {
  * @param scope - The scope to init on
  */
 function initAjaxTreeView(scope){
-	$(scope).find(".reveal.notFetched").each(function(){
-		$(this).removeClass("notFetched");
+	$(scope).find(".reveal.notFetched").click(function(){
+		$(this).removeClass("notFetched").unbind('click');
 		var json = getJsonFromClass($(this).attr("class"));
 		var expandButton = $(this);
 		if(json.url != undefined && json.url.length > 0){
@@ -34,14 +34,11 @@ function initAjaxTreeView(scope){
 					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
 					if($("#" + flat_url).find("ul").length == 1){
 						var currentLi = getParentElement(expandButton, "LI");
-						$(currentLi).append("<ul style='display: none;'>" + $("#" + flat_url).find("ul").html() + "</ul>");
+						$(currentLi).append("<ul>" + $("#" + flat_url).find("ul").html() + "</ul>");
 						initAjaxClass($(currentLi).find("ul"));
-						$(expandButton).removeClass("not_allowed").data("new", true).click(function(){
-							$(currentLi).find("ul").first().toggle(); 
-							if($(this).data("new")){
-								$(this).data("new", false);
-								initAjaxTreeView($(currentLi).find("ul").first());
-							}
+						initAjaxTreeView(currentLi);
+						$(expandButton).click(function(){
+							$(currentLi).find("ul").first().stop().toggle("blind");
 						});
 					}
 					$(expandButton).removeClass("fetching");
