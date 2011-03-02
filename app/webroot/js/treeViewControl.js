@@ -50,7 +50,7 @@ function initAjaxTreeView(scope){
 
 function initTreeView(scope){
 	$("a.reveal.activate").each(function(){
-		var matchingUl = $(this).parent().find("ul").first();
+		var matchingUl = $(this).parent().children().filter("ul").first();
 		$(this).click(function(){
 			$(matchingUl).stop().toggle("blind");
 		});
