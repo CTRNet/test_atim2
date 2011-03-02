@@ -27,8 +27,8 @@
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'add derivative' => $add_derivatives,
 			'add aliquot' => $add_aliquots,
-			'see parent sample' => $show_parent_link,
-			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
+			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
+			'see parent sample' => ($is_tree_view_detail_form? null : $show_parent_link)
 		);
 	}
 	
@@ -38,10 +38,7 @@
 	if(empty($structure_links['bottom']['see parent sample'])) unset($structure_links['bottom']['see parent sample']);
 			
 	if($is_tree_view_detail_form) {
-		// Detail form displayed in tree view: Add button to access all sample data
-		$structure_links['bottom']['access to all data'] = array(
-			'link'=> '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
-			'icon' => 'access_to_data');
+		// Detail form displayed in tree view
 	} else {
 		// General detail form display
 		$search_type_links = array();
