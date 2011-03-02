@@ -825,6 +825,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function batchDerivative(){
+		//TODO merge with Add() function to do one
 		if(isset($_SESSION['derivative_batch_process']['init']) && (!empty($_SESSION['derivative_batch_process']['init']))) {
 			// Check init redirect
 			$this->data = $_SESSION['derivative_batch_process']['init'];

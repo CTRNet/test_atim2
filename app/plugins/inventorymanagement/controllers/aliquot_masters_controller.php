@@ -453,7 +453,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('override_data', array(
 				'AliquotMaster.aliquot_type' => $aliquot_control['AliquotControl']['aliquot_type'],
 				'AliquotMaster.aliquot_volume_unit' => $aliquot_control['AliquotControl']['volume_unit'],
-				'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),//TODO $this->getDefaultAliquotStorageDate($sample_data),
+				'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->getDefaultAliquotStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
 				'AliquotMaster.in_stock' => 'yes - available'));
 		
 		// Set url to cancel
