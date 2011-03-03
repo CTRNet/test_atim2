@@ -37,7 +37,9 @@
 			$final_options_children['settings']['actions'] = true;
 			$final_options_children['extras'] = 
 				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
-				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>';
+				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+				<input type="hidden" name="data[DerivativeDetail][lab_book_id]" value="'.$lab_book_id.'"/>
+				<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>';
 		}
 		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];

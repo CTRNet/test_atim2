@@ -44,6 +44,7 @@ ob_start('ob_gzhandler');
 			var STR_COPY = "<?php echo(__("copy", null)); ?>";
 			var STR_PASTE = "<?php echo(__("paste")); ?>";
 			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
+			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
 						
 		</script>
 	<!--[if IE 7]>

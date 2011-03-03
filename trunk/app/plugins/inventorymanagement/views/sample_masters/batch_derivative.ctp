@@ -29,7 +29,10 @@
 			$final_options_children['settings']['form_bottom'] = true;
 			$final_options_children['settings']['actions'] = true;
 			$final_options_children['extras'] = 
-				'<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>';
+				'<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
+				<input type="hidden" name="data[DerivativeDetail][lab_book_id]" value="'.$lab_book_id.'"/>
+				<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>';
+				
 		}
 		$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) ." #".$counter;
 		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];

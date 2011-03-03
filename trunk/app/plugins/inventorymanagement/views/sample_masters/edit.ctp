@@ -21,3 +21,6 @@
 	$structures->build( $final_atim_structure, $final_options );	
 	
 ?>
+<script>
+var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+</script>
