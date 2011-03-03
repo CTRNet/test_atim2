@@ -1371,6 +1371,32 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 ALTER TABLE consent_masters DROP COLUMN consent_master_id;
 
+ALTER TABLE derivative_details
+ ADD COLUMN process_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_process TINYINT(1) DEFAULT 0;
+ALTER TABLE derivative_details_revs
+ ADD COLUMN process_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_process TINYINT(1) DEFAULT 0;
+-- TODO FOREIGN KEY
+
+INSERT INTO structures(`alias`) VALUES ('derivative_process');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'process_id', 'autocomplete',  NULL , '0', '', '', '', 'derivative process', ''), 
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'sync_with_process', 'checkbox',  NULL , '0', '', '', '', 'synchronize with process', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='derivative_process'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='process_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative process' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='derivative_process'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_process' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronize with process' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with process' WHERE model='SampleDetail' AND tablename='derivative_details' AND field='sync_with_process' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+
+
+UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivative_process') WHERE sample_category='derivative';
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_init') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='process_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_process' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
 -- -----------------------------------------------------------------------------------
 -- PROCESS
 -- -----------------------------------------------------------------------------------
@@ -1524,5 +1550,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='process_data_control_id' AND `language_label`='process data type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='process_data_type')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
 ((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
-
 
