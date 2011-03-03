@@ -1,16 +1,16 @@
 <?php
 
 	$add_links = array();
-	foreach ($storage_controls_list as $storage_control) {
-		$add_links[__($storage_control['StorageControl']['storage_type'], true)] = '/storagelayout/storage_masters/add/' . $storage_control['StorageControl']['id'];
+	
+	foreach ($lab_book_controls_list as $control) {
+		$add_links[__($control['LabBookControl']['group'], true) . ' - ' . __($control['LabBookControl']['book_type'], true)] = '/labbook/lab_book_masters/add/' . $control['LabBookControl']['id'];
 	}
 	ksort($add_links);
 	
 	$structure_links = array(
-		'index' => array('detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
+		'index' => array('detail' => '/labbook/lab_book_masters/detail/%%LabBookMaster.id%%'),
 		'bottom' => array(
-			'tree view' => '/storagelayout/storage_masters/contentTreeView', 
-			'search' => '/storagelayout/storage_masters/index', 
+			'search' => '/labbook/lab_book_masters/index', 
 			'add' => $add_links)
 	);
 	

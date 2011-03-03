@@ -2,13 +2,13 @@
 
 	$add_links = array();
 	
-	foreach ($process_data_controls_list as $control) {
-		$add_links[__($control['ProcessDataControl']['group'], true) . ' - ' . __($control['ProcessDataControl']['process_type'], true)] = '/processdata/process_data_masters/add/' . $control['ProcessDataControl']['id'];
+	foreach ($lab_book_controls_list as $control) {
+		$add_links[__($control['LabBookControl']['group'], true) . ' - ' . __($control['LabBookControl']['book_type'], true)] = '/labbook/lab_book_masters/add/' . $control['LabBookControl']['id'];
 	}
 	ksort($add_links);
 
 	$structure_links = array(
-		'top' => array('search' =>'/storagelayout/storage_masters/search/'),
+		'top' => array('search' =>'/labbook/lab_book_masters/search/'),
 		'bottom' => array('add' => $add_links)
 	);
 

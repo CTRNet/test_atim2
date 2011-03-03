@@ -1396,33 +1396,32 @@ UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FR
 UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_process' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
-
 -- -----------------------------------------------------------------------------------
--- PROCESS
+-- Lab Book
 -- -----------------------------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `process_data_controls` (
+CREATE TABLE IF NOT EXISTS `lab_book_controls` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `group` varchar(30) NOT NULL DEFAULT '',
-  `process_type` varchar(30) NOT NULL DEFAULT '',
+  `book_type` varchar(30) NOT NULL DEFAULT '',
   `flag_active` tinyint(1) NOT NULL DEFAULT '1',
   `form_alias` varchar(255) NOT NULL,
   `detail_tablename` varchar(255) NOT NULL,
   `databrowser_label` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `sample_type` (`group`, `process_type`)
+  UNIQUE KEY `sample_type` (`group`, `book_type`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-INSERT INTO `process_data_controls` (`id`, `group`, `process_type`, `flag_active`, `detail_tablename`, `form_alias`, `databrowser_label`) 
+INSERT INTO `lab_book_controls` (`id`, `group`, `book_type`, `flag_active`, `detail_tablename`, `form_alias`, `databrowser_label`) 
 VALUES
-(null, 'sample derivative creation', 'dna', 1, 'pdd_dna_extractions', 'pdd_dna_extractions', 'sample derivative creation|dna'),
+(null, 'sample derivative creation', 'dna', 0, 'pdd_dna_extractions', 'pdd_dna_extractions', 'sample derivative creation|dna'),
 (null, 'realiquoting', 'slide creation', 1, 'pdd_slide_creations', 'pdd_slide_creations', 'realiquoting|slide creation');
 
-CREATE TABLE IF NOT EXISTS `process_data_masters` (
+CREATE TABLE IF NOT EXISTS `lab_book_masters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
-  `process_data_control_id` int(11) NOT NULL DEFAULT '0',
-  `label` varchar(60) NOT NULL DEFAULT '',
+  `lab_book_control_id` int(11) NOT NULL DEFAULT '0',
+  `code` varchar(60) NOT NULL DEFAULT '',
   `notes` text,
   
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -1432,14 +1431,14 @@ CREATE TABLE IF NOT EXISTS `process_data_masters` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `barcode` (`label`)
+  KEY `barcode` (`code`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `process_data_masters_revs` (
+CREATE TABLE IF NOT EXISTS `lab_book_masters_revs` (
   `id` int(11) NOT NULL,
   
-  `process_data_control_id` int(11) NOT NULL DEFAULT '0',
-  `label` varchar(60) NOT NULL DEFAULT '',
+  `lab_book_control_id` int(11) NOT NULL DEFAULT '0',
+  `code` varchar(60) NOT NULL DEFAULT '',
   `notes` text,
 
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -1453,12 +1452,12 @@ CREATE TABLE IF NOT EXISTS `process_data_masters_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `process_data_masters`
-  ADD CONSTRAINT `FK_process_data_masters_masters_process_data_masters_controls` FOREIGN KEY (`process_data_control_id`) REFERENCES `process_data_controls` (`id`);
+ALTER TABLE `lab_book_masters`
+  ADD CONSTRAINT `FK_lab_book_masters_masters_lab_book_masters_controls` FOREIGN KEY (`lab_book_control_id`) REFERENCES `lab_book_controls` (`id`);
 
 CREATE TABLE IF NOT EXISTS `pdd_dna_extractions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `process_data_master_id` int(11) DEFAULT NULL,
+  `lab_book_master_id` int(11) DEFAULT NULL,
   
   `creation_site` varchar(30) DEFAULT NULL,
   `creation_by` varchar(50) DEFAULT NULL,
@@ -1476,11 +1475,11 @@ CREATE TABLE IF NOT EXISTS `pdd_dna_extractions` (
 
 ALTER TABLE `pdd_dna_extractions`
   ADD CONSTRAINT `FK_pdd_slide_creations_sops` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`),
-  ADD CONSTRAINT `FK_pdd_dna_extractions_process_data_masters` FOREIGN KEY (`process_data_master_id`) REFERENCES `process_data_masters` (`id`);
+  ADD CONSTRAINT `FK_pdd_dna_extractions_lab_book_masters` FOREIGN KEY (`lab_book_master_id`) REFERENCES `lab_book_masters` (`id`);
 
 CREATE TABLE IF NOT EXISTS `pdd_dna_extractions_revs` (
   `id` int(11) NOT NULL,
-  `process_data_master_id` int(11) DEFAULT NULL,
+  `lab_book_master_id` int(11) DEFAULT NULL,
   
   `creation_site` varchar(30) DEFAULT NULL,
   `creation_by` varchar(50) DEFAULT NULL,
@@ -1500,7 +1499,7 @@ CREATE TABLE IF NOT EXISTS `pdd_dna_extractions_revs` (
 
 CREATE TABLE IF NOT EXISTS `pdd_slide_creations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `process_data_master_id` int(11) DEFAULT NULL,
+  `lab_book_master_id` int(11) DEFAULT NULL,
   
   `realiquoting_datetime` datetime DEFAULT NULL,
   `realiquoted_by` varchar(50) DEFAULT NULL,
@@ -1516,7 +1515,7 @@ CREATE TABLE IF NOT EXISTS `pdd_slide_creations` (
 
 CREATE TABLE IF NOT EXISTS `pdd_slide_creations_revs` (
   `id` int(11) NOT NULL,
-  `process_data_master_id` int(11) DEFAULT NULL,
+  `lab_book_master_id` int(11) DEFAULT NULL,
   
   `realiquoting_datetime` datetime DEFAULT NULL,
   `realiquoted_by` varchar(50) DEFAULT NULL,
@@ -1533,21 +1532,66 @@ CREATE TABLE IF NOT EXISTS `pdd_slide_creations_revs` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=84 ;
 
 ALTER TABLE `pdd_slide_creations`
-  ADD CONSTRAINT `FK_pdd_slide_creations_process_data_masters` FOREIGN KEY (`process_data_master_id`) REFERENCES `process_data_masters` (`id`);
+  ADD CONSTRAINT `FK_pdd_slide_creations_lab_book_masters` FOREIGN KEY (`lab_book_master_id`) REFERENCES `lab_book_masters` (`id`);
 
+DELETE FROM menus WHERE id like 'procd_%';
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('procd_CAN_01', 'core_CAN_33', 1, 9, 'process data', 'process data description', '/processdata/process_data_masters/index/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-('procd_CAN_02', 'procd_CAN_01', 0, 1, 'storage detail', NULL, '/processdata/process_data_masters/detail/%%ProcessData.id%%', '', 'Storagelayout.StorageMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+('procd_CAN_01', 'core_CAN_33', 1, 9, 'lab book', 'lab book description', '/labbook/lab_book_masters/index/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('procd_CAN_02', 'procd_CAN_01', 0, 1, 'detail', NULL, '/labbook/lab_book_masters/detail/%%LabBookMaster.id%%', '', 'Labbook.LabBookMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
-INSERT INTO structures(`alias`) VALUES ('processdatamasters');
+INSERT INTO structures(`alias`) VALUES ('labbookmasters');
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
-(null, 'process_data_type', 'open', '', 'Processdata.ProcessDataControl::getProcessDataTypePermissibleValuesFromId');
+(null, 'lab_book_type', 'open', '', 'Labbook.LabBookControl::getLabBookTypePermissibleValuesFromId');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
-('Processdata', 'ProcessDataMaster', 'process_data_masters', 'label', 'label', '', 'input', 'size=10', '',  NULL , ''), 
-('Processdata', 'ProcessDataMaster', 'process_data_masters', 'process_data_control_id', 'process data type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='process_data_type') , ''), 
-('Processdata', 'ProcessDataMaster', 'process_data_masters', 'created', 'created', '', 'datetime', '', '',  NULL , '');
+('Labbook', 'LabBookMaster', 'lab_book_masters', 'code', 'code', '', 'input', 'size=10', '',  NULL , ''), 
+('Labbook', 'LabBookMaster', 'lab_book_masters', 'lab_book_control_id', 'type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='lab_book_type') , ''), 
+('Labbook', 'LabBookMaster', 'lab_book_masters', 'created', 'created', '', 'datetime', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
-((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='process_data_control_id' AND `language_label`='process data type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='process_data_type')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
-((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+((SELECT id FROM structures WHERE alias='labbookmasters'), (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='code' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='labbookmasters'), (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='lab_book_control_id' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lab_book_type')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='labbookmasters'), (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
 
+ALTER TABLE pdd_slide_creations
+	ADD `blade_temperature` decimal(10,5) DEFAULT NULL AFTER `realiquoted_by`,
+	ADD `duration_mn` int(6) DEFAULT NULL AFTER `blade_temperature`,
+	ADD `sections_nbr` int(6) DEFAULT NULL AFTER `duration_mn`;
+ALTER TABLE pdd_slide_creations_revs
+	ADD `blade_temperature` decimal(10,5) DEFAULT NULL AFTER `realiquoted_by`,
+	ADD `duration_mn` int(6) DEFAULT NULL AFTER `blade_temperature`,
+	ADD `sections_nbr` int(6) DEFAULT NULL AFTER `duration_mn`;
+	
+INSERT INTO structures(`alias`) VALUES ('pdd_slide_creations');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Labbook', 'LabBookMaster', 'lab_book_masters', 'notes', 'notes', '', 'textarea', 'rows=2,cols=60', '',  NULL , ''), 
+('Labbook', 'LabBookDetail', 'pdd_slide_creations', 'realiquoted_by', 'realiquoted by', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , ''), 
+('Labbook', 'LabBookDetail', 'pdd_slide_creations', 'realiquoting_datetime', 'date', '', 'datetime', '', '',  NULL , ''),
+('Labbook', 'LabBookDetail', 'pdd_slide_creations', 'duration_mn', 'duration (mn)', '', 'integer', 'size=3', '',  NULL , ''), 
+('Labbook', 'LabBookDetail', 'pdd_slide_creations', 'sections_nbr', 'sections nbr', '', 'integer', 'size=3', '',  NULL , ''), 
+('Labbook', 'LabBookDetail', 'pdd_slide_creations', 'blade_temperature', 'blade temperature', '', 'float', 'size=3', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='code' AND `language_label`='code' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='pdd_slide_creations' AND `field`='realiquoted_by' AND `language_label`='realiquoted by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='pdd_slide_creations' AND `field`='realiquoting_datetime' AND `language_label`='date' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='pdd_slide_creations' AND `field`='blade_temperature' AND `language_label`='blade temperature' AND `language_tag`='' AND `type`='float' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='pdd_slide_creations' AND `field`='duration_mn' AND `language_label`='duration (mn)' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='pdd_slide_creations' AND `field`='sections_nbr' AND `language_label`='sections nbr' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='pdd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='notes' AND `language_label`='notes' AND `language_tag`='' AND `type`='textarea' AND `setting`='rows=2,cols=60' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE model='LabBookMaster' AND field='code'), 'notEmpty', '', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('err_lab_book_funct_param_missing', 1, 'parameter missing', 'a paramater used by the executed function has not been set', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_lab_book_no_data', 1, 'data not found', 'no data exists for the specified id', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('err_lab_book_system_error', 1, 'system error', 'a system error has been detected', '', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('lab book','Lab Book','Cahier de laboratoire'),
+('blade temperature', 'Blade Temperature', 'Température de la lame'),
+('duration (mn)','Duration (mn)','Durée (mn)'),
+('sections nbr','Sections Nbr', 'Nombre de sections'),
+('slide creation','Slide Creation','Création de lame');
+
+
+slide creation
