@@ -1372,28 +1372,28 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ALTER TABLE consent_masters DROP COLUMN consent_master_id;
 
 ALTER TABLE derivative_details
- ADD COLUMN process_id INT UNSIGNED DEFAULT NULL,
- ADD COLUMN sync_with_process TINYINT(1) DEFAULT 0;
+ ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
 ALTER TABLE derivative_details_revs
- ADD COLUMN process_id INT UNSIGNED DEFAULT NULL,
- ADD COLUMN sync_with_process TINYINT(1) DEFAULT 0;
+ ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
 -- TODO FOREIGN KEY
 
-INSERT INTO structures(`alias`) VALUES ('derivative_process');
+INSERT INTO structures(`alias`) VALUES ('derivative_lab_book');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'process_id', 'autocomplete',  NULL , '0', '', '', '', 'derivative process', ''), 
-('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'sync_with_process', 'checkbox',  NULL , '0', '', '', '', 'synchronize with process', '');
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'lab_book_id', 'autocomplete',  NULL , '0', '', '', '', 'derivative lab book', ''), 
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'sync_with_lab_book', 'checkbox',  NULL , '0', '', '', '', 'synchronize with lab book', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='derivative_process'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='process_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative process' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1'), 
-((SELECT id FROM structures WHERE alias='derivative_process'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_process' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronize with process' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0');
-UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with process' WHERE model='SampleDetail' AND tablename='derivative_details' AND field='sync_with_process' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative lab book' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronize with lab book' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with lab book' WHERE model='SampleDetail' AND tablename='derivative_details' AND field='sync_with_lab_book' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
 
-UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivative_process') WHERE sample_category='derivative';
+UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivative_lab_book') WHERE sample_category='derivative';
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_init') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='process_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_process') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_process' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 -- -----------------------------------------------------------------------------------
@@ -1594,4 +1594,15 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('slide creation','Slide Creation','Création de lame');
 
 
-slide creation
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_type_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ids' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_type_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='realiquot_into' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='realiquot_into') AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with lab book' WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='sync_with_lab_book' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+
+ALTER TABLE realiquotings
+ ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
+ALTER TABLE realiquotings_revs
+ ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
+ 
