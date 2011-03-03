@@ -1369,5 +1369,4 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('you need to select an aliquot type', 'You need to select an aliquot type!','Vous devez sélectionner un type d''aliquot'),
 ('at least one aliquot has to be created', 'At least one aliquot has to be created!', 'Au moins un aliquot doit être créé!');
 
-
-
+ALTER TABLE consent_masters DROP COLUMN consent_master_id;
