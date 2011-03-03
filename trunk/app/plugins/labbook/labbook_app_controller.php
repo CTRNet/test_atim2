@@ -1,6 +1,6 @@
 <?php
 
-class ProcessDataAppController extends AppController {	
+class LabBookAppController extends AppController {	
 
 	function beforeFilter() {
 		parent::beforeFilter();
