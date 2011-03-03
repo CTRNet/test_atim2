@@ -25,7 +25,7 @@ class Collection extends InventorymanagementAppModel {
 	 */
 	function hasChild(array $collection_ids){
 		$sample_master = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
-		return $sample_master->find('list', array('fields' => array("SampleMaster.collection_id"), 'conditions' => array('SampleMaster.collection_id' => $collection_ids, 'SampleMaster.parent_id IS NULL'), 'group' => array('SampleMaster.collection_id')));
+		return array_filter($sample_master->find('list', array('fields' => array("SampleMaster.collection_id"), 'conditions' => array('SampleMaster.collection_id' => $collection_ids, 'SampleMaster.parent_id IS NULL'), 'group' => array('SampleMaster.collection_id'))));
 	}
 	
 }

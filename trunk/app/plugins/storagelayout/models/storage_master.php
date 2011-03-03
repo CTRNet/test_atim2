@@ -402,10 +402,10 @@ class StorageMaster extends StoragelayoutAppModel {
 	 */
 	function hasChild(array $storage_master_ids){
 		//child can be a storage or an aliquot
-		$result = $this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id')));
+		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
 		$storage_master_ids = array_diff($storage_master_ids, $result);
 		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
-		return array_merge($result, $aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id'))));
+		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
 	}
 	
 }
