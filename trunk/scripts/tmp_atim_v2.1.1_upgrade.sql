@@ -1370,3 +1370,159 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('at least one aliquot has to be created', 'At least one aliquot has to be created!', 'Au moins un aliquot doit être créé!');
 
 ALTER TABLE consent_masters DROP COLUMN consent_master_id;
+
+-- -----------------------------------------------------------------------------------
+-- PROCESS
+-- -----------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `process_data_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group` varchar(30) NOT NULL DEFAULT '',
+  `process_type` varchar(30) NOT NULL DEFAULT '',
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `form_alias` varchar(255) NOT NULL,
+  `detail_tablename` varchar(255) NOT NULL,
+  `databrowser_label` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sample_type` (`group`, `process_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `process_data_controls` (`id`, `group`, `process_type`, `flag_active`, `detail_tablename`, `form_alias`, `databrowser_label`) 
+VALUES
+(null, 'sample derivative creation', 'dna', 1, 'pdd_dna_extractions', 'pdd_dna_extractions', 'sample derivative creation|dna'),
+(null, 'realiquoting', 'slide creation', 1, 'pdd_slide_creations', 'pdd_slide_creations', 'realiquoting|slide creation');
+
+CREATE TABLE IF NOT EXISTS `process_data_masters` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `process_data_control_id` int(11) NOT NULL DEFAULT '0',
+  `label` varchar(60) NOT NULL DEFAULT '',
+  `notes` text,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `barcode` (`label`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `process_data_masters_revs` (
+  `id` int(11) NOT NULL,
+  
+  `process_data_control_id` int(11) NOT NULL DEFAULT '0',
+  `label` varchar(60) NOT NULL DEFAULT '',
+  `notes` text,
+
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `process_data_masters`
+  ADD CONSTRAINT `FK_process_data_masters_masters_process_data_masters_controls` FOREIGN KEY (`process_data_control_id`) REFERENCES `process_data_controls` (`id`);
+
+CREATE TABLE IF NOT EXISTS `pdd_dna_extractions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `process_data_master_id` int(11) DEFAULT NULL,
+  
+  `creation_site` varchar(30) DEFAULT NULL,
+  `creation_by` varchar(50) DEFAULT NULL,
+  `creation_datetime` datetime DEFAULT NULL,
+  `sop_master_id` int(11) DEFAULT NULL,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35 ;
+
+ALTER TABLE `pdd_dna_extractions`
+  ADD CONSTRAINT `FK_pdd_slide_creations_sops` FOREIGN KEY (`sop_master_id`) REFERENCES `sop_masters` (`id`),
+  ADD CONSTRAINT `FK_pdd_dna_extractions_process_data_masters` FOREIGN KEY (`process_data_master_id`) REFERENCES `process_data_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `pdd_dna_extractions_revs` (
+  `id` int(11) NOT NULL,
+  `process_data_master_id` int(11) DEFAULT NULL,
+  
+  `creation_site` varchar(30) DEFAULT NULL,
+  `creation_by` varchar(50) DEFAULT NULL,
+  `creation_datetime` datetime DEFAULT NULL,
+  `sop_master_id` int(11) DEFAULT NULL,
+    
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=84 ;
+
+CREATE TABLE IF NOT EXISTS `pdd_slide_creations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `process_data_master_id` int(11) DEFAULT NULL,
+  
+  `realiquoting_datetime` datetime DEFAULT NULL,
+  `realiquoted_by` varchar(50) DEFAULT NULL,
+  
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35 ;
+
+CREATE TABLE IF NOT EXISTS `pdd_slide_creations_revs` (
+  `id` int(11) NOT NULL,
+  `process_data_master_id` int(11) DEFAULT NULL,
+  
+  `realiquoting_datetime` datetime DEFAULT NULL,
+  `realiquoted_by` varchar(50) DEFAULT NULL,
+    
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=84 ;
+
+ALTER TABLE `pdd_slide_creations`
+  ADD CONSTRAINT `FK_pdd_slide_creations_process_data_masters` FOREIGN KEY (`process_data_master_id`) REFERENCES `process_data_masters` (`id`);
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('procd_CAN_01', 'core_CAN_33', 1, 9, 'process data', 'process data description', '/processdata/process_data_masters/index/', '', '', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+('procd_CAN_02', 'procd_CAN_01', 0, 1, 'storage detail', NULL, '/processdata/process_data_masters/detail/%%ProcessData.id%%', '', 'Storagelayout.StorageMaster::summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+INSERT INTO structures(`alias`) VALUES ('processdatamasters');
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'process_data_type', 'open', '', 'Processdata.ProcessDataControl::getProcessDataTypePermissibleValuesFromId');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Processdata', 'ProcessDataMaster', 'process_data_masters', 'label', 'label', '', 'input', 'size=10', '',  NULL , ''), 
+('Processdata', 'ProcessDataMaster', 'process_data_masters', 'process_data_control_id', 'process data type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='process_data_type') , ''), 
+('Processdata', 'ProcessDataMaster', 'process_data_masters', 'created', 'created', '', 'datetime', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='label' AND `language_label`='label' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='process_data_control_id' AND `language_label`='process data type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='process_data_type')  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='processdatamasters'), (SELECT id FROM structure_fields WHERE `model`='ProcessDataMaster' AND `tablename`='process_data_masters' AND `field`='created' AND `language_label`='created' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+
+
