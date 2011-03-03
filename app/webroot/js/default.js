@@ -561,6 +561,32 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initLabBook(scope){
+		var fields = new Array();
+		var checkbox = null;
+		$(scope).find("input, select, textarea").each(function(){
+			for(var i in labBookFields){
+				var currName = $(this).attr("name"); 
+				if(currName.indexOf(labBookFields[i]) > -1){
+					fields.push($(this));
+					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+				}else if(currName == "data[DerivativeDetail][sync_with_lab_book]"){
+					checkbox = $(this);
+				}
+			}
+		});
+		if(checkbox != null){
+			$(checkbox).click(function(){
+				$(fields).toggle();
+				$(scope).find(".labBook").toggle();
+			});
+			if($(checkbox).attr("checked")){
+				$(fields).toggle();
+				$(scope).finds(".labBook").toggle();
+			}
+		}
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -589,7 +615,9 @@ function uncheckAll( $div ) {
 		if(window.treeView){
 			initTreeView(document);
 		}
-		
+		if(window.labBookFields){
+			initLabBook(document);
+		}
 		
 		if(window.realiquotInit){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){

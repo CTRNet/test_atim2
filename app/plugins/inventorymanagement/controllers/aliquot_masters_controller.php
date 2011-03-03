@@ -1323,7 +1323,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set data & structure
 		$this->data[0]['ids'] = implode(",", $ids);
 		AliquotMaster::$aliquot_type_dropdown = $dropdown;
-		$this->Structures->set('aliquot_type_selection');
+		$this->Structures->set('aliquot_type_selection,derivative_lab_book');
 		
 		if(empty($aliquot_id)) {
 			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
@@ -1385,6 +1385,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		$this->Structures->set('in_stock_detail', 'in_stock_detail');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
+		
+		$this->set('lab_book_id', $this->data['DerivativeDetail']['lab_book_id']);
+		$this->set('sync_with_lab_book', $this->data['DerivativeDetail']['sync_with_lab_book']);
 
 		if(!isset($_SESSION['realiquot_batch_process']['url_to_cancel'])) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		$this->set('url_to_cancel', $_SESSION['realiquot_batch_process']['url_to_cancel']);
