@@ -62,7 +62,7 @@ ob_start('ob_gzhandler');
 	$session->flash();
 	$session->flash('auth');
 	//homemade hack because the core seems bugged
-	if(!empty($msg_auth)){
+	if(!empty($msg_auth) && $this->params['action'] != 'login'){
 		echo('<div id="authMessage" class="message">' . $msg_auth['message'] . '</div>');
 	}
 	
