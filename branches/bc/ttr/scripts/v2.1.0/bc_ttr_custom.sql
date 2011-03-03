@@ -1840,6 +1840,33 @@ UPDATE ad_blocks
 SET block_type = 'frozen'  
 WHERE block_type = 'frozen_block';
 
+-- Update Tissue Site with correct ATiM Value
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'breast'  
+WHERE bc_ttr_tissue_site = 1;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'colon'  
+WHERE bc_ttr_tissue_site = 2;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'colo-rectal'  
+WHERE bc_ttr_tissue_site = 3;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'uterus'  
+WHERE bc_ttr_tissue_site = 4;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'neck'  
+WHERE bc_ttr_tissue_site = 5;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_site = 'lung'  
+WHERE bc_ttr_tissue_site = 6;
+
+
 
 -- Always add the following drop data fields at the END OF FILE. 
 ALTER TABLE structure_formats
