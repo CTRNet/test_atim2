@@ -1284,16 +1284,18 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('see # %s', 'See # %s!', 'Voir # %s!'),
 ("due to your restriction on confidential data, your search did not return confidential identifiers", "Due to your restriction on confidential data, your search did not return confidential identifiers", "Étant donné votre restriction sur les données confidentielles, les identifiants confidentiels ne sont pas inclus dans le résultat de votre recherche"),
 ("access denied", "Access denied", "Accès non autorisé"),
-("you are not authorized to reach that page because you cannot input data into confidential fields", "You are not authorized to reach that page because you cannot input data into confidential fields", "Vous n'êtes pas autorisé à atteindre cette page car vous ne pouvez pas entrer d'information dans les champs confidentiels");
+("you are not authorized to reach that page because you cannot input data into confidential fields", "You are not authorized to reach that page because you cannot input data into confidential fields", "Vous n'êtes pas autorisé à atteindre cette page car vous ne pouvez pas entrer d'information dans les champs confidentiels"),
+("show confidential information", "Show confidential information", "Afficher l'information confidentielle"),
+("permissions control panel", "Permissions control panel", "Panneau de contrôle des permissions"); 
 
 
 ALTER TABLE groups ADD COLUMN flag_show_confidential TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER bank_id;
 INSERT INTO structures(`alias`) VALUES ('permissions2');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
-('Administrate', 'Group', 'groups', 'flag_show_confidential', 'show confidential', '', 'checkbox', '', '',  NULL , '');
+('Administrate', 'Group', 'groups', 'flag_show_confidential', 'show confidential information', '', 'checkbox', '', '',  NULL , '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='permissions2'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='flag_show_confidential' AND `language_label`='show confidential' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+((SELECT id FROM structures WHERE alias='permissions2'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='flag_show_confidential' AND `language_label`='show confidential information' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
 -- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='permissions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Permission' AND `tablename`='acos' AND `field`='name' AND `language_label`='name' AND `language_tag`='' AND `type`='hidden' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
