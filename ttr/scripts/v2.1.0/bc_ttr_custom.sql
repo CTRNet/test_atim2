@@ -1867,6 +1867,92 @@ SET bc_ttr_tissue_site = 'lung'
 WHERE bc_ttr_tissue_site = 6;
 
 
+-- Update Tissue SubSite with correct ATiM Value
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'mammary gland'  
+WHERE bc_ttr_tissue_subsite = 1;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'rectum'  
+WHERE bc_ttr_tissue_subsite = 2;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'cecum'  
+WHERE bc_ttr_tissue_subsite = 3;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'sigmoid'  
+WHERE bc_ttr_tissue_subsite = 4;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'endometrium'  
+WHERE bc_ttr_tissue_subsite = 5;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'skin'  
+WHERE bc_ttr_tissue_subsite = 6;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'muscle'  
+WHERE bc_ttr_tissue_subsite = 7;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'myometrium'  
+WHERE bc_ttr_tissue_subsite = 8;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'mesentary'  
+WHERE bc_ttr_tissue_subsite = 9;
+
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'nipple'  
+WHERE bc_ttr_tissue_subsite = 10;
+
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'polyp'  
+WHERE bc_ttr_tissue_subsite = 11;
+
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'myometrium/endometrium'  
+WHERE bc_ttr_tissue_subsite = 12;
+
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'fibroid'  
+WHERE bc_ttr_tissue_subsite = 13;
+
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'supra-glottic'  
+WHERE bc_ttr_tissue_subsite = 14;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'cheek'  
+WHERE bc_ttr_tissue_subsite = 15;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'cyst'  
+WHERE bc_ttr_tissue_subsite = 16;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'retromolar trigone'  
+WHERE bc_ttr_tissue_subsite = 17;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'large bowel'  
+WHERE bc_ttr_tissue_subsite = 18;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'cyst wall'  
+WHERE bc_ttr_tissue_subsite = 19;
+
+UPDATE ad_blocks
+SET bc_ttr_tissue_subsite = 'lymph node'  
+WHERE bc_ttr_tissue_subsite = 20;
 
 -- Always add the following drop data fields at the END OF FILE. 
 ALTER TABLE structure_formats
