@@ -81,6 +81,9 @@ class LabBookMastersController extends LabBookAppController {
 		$control_data = $this->LabBookControl->find('first', array('conditions' => array('LabBookControl.id' => $control_id)));
 		if(empty($control_data)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }
 		
+		$initial_data = array();
+		$initial_data['LabBookMaster']['lab_book_control_id'] = $control_id;
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
@@ -96,10 +99,10 @@ class LabBookMastersController extends LabBookAppController {
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 			
-		if(!empty($this->data)) {			
+		if(empty($this->data)) {
+			$this->data = $initial_data;
 			
-			// Set control ID en type
-			$this->data['LabBookMaster']['lab_book_control_id'] = $control_data['LabBookControl']['id'];		
+		} else {
 			
 			// Validates and set additional data
 			$submitted_data_validates = true;
