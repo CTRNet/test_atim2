@@ -1638,7 +1638,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
 
 -- ------------------------------------------------------------------------------------------------------
--- TODO MICH change to autocomplete
+-- TODO MICH change to autocomplete?
 -- ------------------------------------------------------------------------------------------------------
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
 (null, 'lab_books', 'open', '', 'Labbook.LabBookMaster::getLabBookPermissibleValuesFromId');
@@ -1660,7 +1660,9 @@ SET link.lab_book_control_id = (SELECT id FROM lab_book_controls WHERE book_type
 WHERE samp.id = link.derivative_sample_control_id
 AND samp.sample_type = 'dna';
 
-
-
-
--- 'a lab book should be selected to synchronize'
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('lab book creation', 'Lab Book Creation', 'Création du cahier de laboratoire'),
+('skip lab book creation', 'Skip Creation', 'Passer la création'),
+('synchronize with lab book', 'Synch.', 'Synch.'),
+('derivative lab book', 'Lab Book', 'Cahier de laboratoire'),
+('a lab book should be selected to synchronize', 'A lab book should be selected to synchronize data!', 'Un cahier de laboratoire doit être sélectionné pour synchronizer les données!');

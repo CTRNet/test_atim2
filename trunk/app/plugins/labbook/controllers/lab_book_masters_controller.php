@@ -75,7 +75,7 @@ class LabBookMastersController extends LabBookAppController {
 	
 	function add($control_id) {
 		if(!$control_id) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-		
+				
 		// MANAGE DATA
 		
 		$control_data = $this->LabBookControl->find('first', array('conditions' => array('LabBookControl.id' => $control_id)));
@@ -87,13 +87,21 @@ class LabBookMastersController extends LabBookAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu = $this->Menus->get('/labbook/lab_book_masters/index/');		
+		$atim_menu = $this->Menus->get(isset($_SESSION['batch_process_data']['lab_book_menu'])? $_SESSION['batch_process_data']['lab_book_menu']: '/labbook/lab_book_masters/index/');		
 		$this->set('atim_menu', $atim_menu);
+		
 		$this->set('atim_menu_variables', array('LabBookControl.id' => $control_id));
 		
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($control_data['LabBookControl']['form_alias']);
-	
+		
+		// url to cancel
+		$this->set('url_to_cancel', isset($_SESSION['batch_process_data']['url_to_cancel'])? $_SESSION['batch_process_data']['url_to_cancel']: '/labbook/lab_book_masters/index/'); 
+		if(isset($_SESSION['batch_process_data']['lab_book_next_step'])) $this->set('url_to_skip', $_SESSION['batch_process_data']['lab_book_next_step']);
+		
+		// header
+		if(isset($_SESSION['batch_process_data']['lab_book_header'])) $this->set('lab_book_header', __('derivative creation process', true) . ' - ' . __('lab book creation', true));
+
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
@@ -123,7 +131,12 @@ class LabBookMastersController extends LabBookAppController {
 
 				$this->LabBookMaster->id = null;
 				if($this->LabBookMaster->save($this->data, false)) {
-					$this->atimFlash('your data has been saved', '/labbook/lab_book_masters/detail/' . $this->LabBookMaster->id);				
+					$url_to_redirect = '/labbook/lab_book_masters/detail/' . $this->LabBookMaster->id;
+					if(isset($_SESSION['batch_process_data']['lab_book_next_step'])) {
+						$url_to_redirect = $_SESSION['batch_process_data']['lab_book_next_step'];
+						$_SESSION['batch_process_data']['default_lab_book_master_id'] = $this->LabBookMaster->id;
+					}
+					$this->atimFlash('your data has been saved', $url_to_redirect);				
 				}					
 			}
 		}		
