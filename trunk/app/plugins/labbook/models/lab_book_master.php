@@ -26,6 +26,47 @@ class LabBookMaster extends LabBookAppModel {
 		return $return;
 	}
 	
+	function getLabBookPermissibleValuesFromId($lab_book_control_id = null){
+		$result = array(''=>'');
+			
+		$conditions = array();
+		if(!is_null($lab_book_control_id)) {
+			$conditions['LabBookMaster.lab_book_control_id'] = $lab_book_control_id;
+		}			
+		$available_books = $this->find('all', array('conditions' => $conditions, 'order' => 'LabBookMaster.created DESC'));
+		foreach($available_books as $book) {
+			$result[$book['LabBookMaster']['id']] = $book['LabBookMaster']['code'];
+		}			
+					
+		return $result;
+	}
+	
+	function synchData($submitted_data, $model, $lab_book_fields_to_synch) {
+		$errors = array();
+
+		if(array_key_exists($model,$submitted_data) 
+		&& array_key_exists('sync_with_lab_book',$submitted_data[$model]) 
+		&& $submitted_data[$model]['sync_with_lab_book']) {
+			if(!array_key_exists('lab_book_master_id',$submitted_data[$model])) {
+				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
+			} else if(empty($submitted_data[$model]['lab_book_master_id'])) {
+				$errors[] = 'a lab book should be selected to synchronize';
+			} else {
+				$lab_book = $this->find('first', array('conditions'=> array('LabBookMaster.id' => $submitted_data[$model]['lab_book_master_id'])));
+				if(empty($lab_book)) { AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+				foreach($submitted_data as $sub_data_model => $model_values) {
+					foreach($model_values as $field => $value) {
+						if(in_array($field, $lab_book_fields_to_synch)) {
+							$submitted_data[$sub_data_model][$field] = $lab_book['LabBookDetail'][$field];
+						}
+					}
+				}
+			}
+		}
+		
+		return array('errors'=> $errors, 'synchronized_data'=>$submitted_data);
+	}
+
 }
 
 ?>

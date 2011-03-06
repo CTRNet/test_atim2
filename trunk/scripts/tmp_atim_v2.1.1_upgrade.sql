@@ -1371,51 +1371,54 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 ALTER TABLE consent_masters DROP COLUMN consent_master_id;
 
+-- -----------------------------------------------------------------------------------
+-- Lab Book
+-- -----------------------------------------------------------------------------------
+
 ALTER TABLE derivative_details
- ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
- ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
+ ADD COLUMN lab_book_master_id int(11) NULL AFTER creation_datetime,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0 AFTER lab_book_master_id;
 ALTER TABLE derivative_details_revs
- ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
- ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
--- TODO FOREIGN KEY
+ ADD COLUMN lab_book_master_id int(11) NULL AFTER creation_datetime,
+ ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0 AFTER lab_book_master_id;
+
+-- TODO
+-- ALTER TABLE `derivative_details`
+--  ADD CONSTRAINT `FK_derivative_details_lab_book_masters` FOREIGN KEY (`lab_book_master_id`) REFERENCES `lab_book_masters` (`id`);
 
 INSERT INTO structures(`alias`) VALUES ('derivative_lab_book');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'lab_book_id', 'autocomplete',  NULL , '0', '', '', '', 'derivative lab book', ''), 
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'lab_book_master_id', 'autocomplete',  NULL , '0', '', '', '', 'derivative lab book', ''), 
 ('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'sync_with_lab_book', 'checkbox',  NULL , '0', '', '', '', 'synchronize with lab book', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative lab book' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1'), 
-((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronize with lab book' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='derivative_lab_book'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_master_id' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative lab book' AND `language_tag`=''), '1', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='derivative_lab_book'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='synchronize with lab book' AND `language_tag`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0');
 UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with lab book' WHERE model='SampleDetail' AND tablename='derivative_details' AND field='sync_with_lab_book' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
 
 UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivative_lab_book') WHERE sample_category='derivative';
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_init') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='derivative') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
--- -----------------------------------------------------------------------------------
--- Lab Book
--- -----------------------------------------------------------------------------------
+-- UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_master_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 CREATE TABLE IF NOT EXISTS `lab_book_controls` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `group` varchar(30) NOT NULL DEFAULT '',
   `book_type` varchar(30) NOT NULL DEFAULT '',
   `flag_active` tinyint(1) NOT NULL DEFAULT '1',
   `form_alias` varchar(255) NOT NULL,
   `detail_tablename` varchar(255) NOT NULL,
   `databrowser_label` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `sample_type` (`group`, `book_type`)
+  UNIQUE KEY `sample_type` (`book_type`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-INSERT INTO `lab_book_controls` (`id`, `group`, `book_type`, `flag_active`, `detail_tablename`, `form_alias`, `databrowser_label`) 
+INSERT INTO `lab_book_controls` (`id`, `book_type`, `flag_active`, `detail_tablename`, `form_alias`, `databrowser_label`) 
 VALUES
-(null, 'sample derivative creation', 'dna', 0, 'lbd_dna_extractions', 'lbd_dna_extractions', 'sample derivative creation|dna'),
-(null, 'realiquoting', 'slide creation', 1, 'lbd_slide_creations', 'lbd_slide_creations', 'realiquoting|slide creation');
+(null, 'dna extraction', 0, 'lbd_dna_extractions', 'lbd_dna_extractions', 'dna extraction'),
+(null, 'slide creation', 1, 'lbd_slide_creations', 'lbd_slide_creations', 'slide creation');
 
 CREATE TABLE IF NOT EXISTS `lab_book_masters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1431,7 +1434,7 @@ CREATE TABLE IF NOT EXISTS `lab_book_masters` (
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `deleted_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `barcode` (`code`)
+  UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `lab_book_masters_revs` (
@@ -1453,7 +1456,7 @@ CREATE TABLE IF NOT EXISTS `lab_book_masters_revs` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 ALTER TABLE `lab_book_masters`
-  ADD CONSTRAINT `FK_lab_book_masters_masters_lab_book_masters_controls` FOREIGN KEY (`lab_book_control_id`) REFERENCES `lab_book_controls` (`id`);
+  ADD CONSTRAINT `FK_lab_book_masters_masters_lab_book_controls` FOREIGN KEY (`lab_book_control_id`) REFERENCES `lab_book_controls` (`id`);
 
 CREATE TABLE IF NOT EXISTS `lbd_dna_extractions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1620,9 +1623,44 @@ UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id 
 UPDATE structure_fields SET  `language_label`='',  `language_tag`='synchronize with lab book' WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='sync_with_lab_book' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
 ALTER TABLE realiquotings
- ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN lab_book_master_id INT UNSIGNED DEFAULT NULL,
  ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
 ALTER TABLE realiquotings_revs
- ADD COLUMN lab_book_id INT UNSIGNED DEFAULT NULL,
+ ADD COLUMN lab_book_master_id INT UNSIGNED DEFAULT NULL,
  ADD COLUMN sync_with_lab_book TINYINT(1) DEFAULT 0;
- 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='lbd_dna_extractions'), 
+(SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='lab_book_control_id'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='lbd_slide_creations'), 
+(SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='lab_book_control_id'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+
+-- ------------------------------------------------------------------------------------------------------
+-- TODO MICH change to autocomplete
+-- ------------------------------------------------------------------------------------------------------
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'lab_books', 'open', '', 'Labbook.LabBookMaster::getLabBookPermissibleValuesFromId');
+UPDATE structure_fields 
+SET type = 'select', 
+setting = '', 
+structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='lab_books')
+WHERE model = 'DerivativeDetail' AND `field` = 'lab_book_master_id';
+-- ------------------------------------------------------------------------------------------------------
+
+ALTER TABLE parent_to_derivative_sample_controls
+	ADD `lab_book_control_id` int(11) NULL AFTER flag_active;
+
+ALTER TABLE `parent_to_derivative_sample_controls`
+  ADD CONSTRAINT `FK_parent_to_derivative_sample_controls_lab_book_controls` FOREIGN KEY (`lab_book_control_id`) REFERENCES `lab_book_controls` (`id`);
+
+UPDATE parent_to_derivative_sample_controls link, sample_controls samp
+SET link.lab_book_control_id = (SELECT id FROM lab_book_controls WHERE book_type = 'dna extraction')
+WHERE samp.id = link.derivative_sample_control_id
+AND samp.sample_type = 'dna';
+
+
+
+
+-- 'a lab book should be selected to synchronize'

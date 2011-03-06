@@ -8,7 +8,7 @@ class LabBookControl extends LabBookAppModel {
 		$conditions = array('LabBookControl.flag_active' => 1);
 		$controls = $this->find('all', array('conditions' => $conditions));
 		foreach($controls as $control) {
-			$result[$control['LabBookControl']['id']] = __($control['LabBookControl']['group'], true) . ' - ' . __($control['LabBookControl']['book_type'], true);
+			$result[$control['LabBookControl']['id']] = __($control['LabBookControl']['book_type'], true);
 		}
 		asort($result);
 		

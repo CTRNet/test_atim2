@@ -3,7 +3,7 @@
 	$add_links = array();
 	
 	foreach ($lab_book_controls_list as $control) {
-		$add_links[__($control['LabBookControl']['group'], true) . ' - ' . __($control['LabBookControl']['book_type'], true)] = '/labbook/lab_book_masters/add/' . $control['LabBookControl']['id'];
+		$add_links[__($control['LabBookControl']['book_type'], true)] = '/labbook/lab_book_masters/add/' . $control['LabBookControl']['id'];
 	}
 	ksort($add_links);
 	

@@ -1323,6 +1323,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set data & structure
 		$this->data[0]['ids'] = implode(",", $ids);
 		AliquotMaster::$aliquot_type_dropdown = $dropdown;
+//TODO derivative_lab_book
 		$this->Structures->set('aliquot_type_selection,derivative_lab_book');
 		
 		if(empty($aliquot_id)) {
