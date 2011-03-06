@@ -818,10 +818,19 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function batchDerivativeInit(){
-		// Get Data
-		$model = null;
-		$key = null;
+		$url_to_cancel = isset($_SESSION['batch_process_data']['url_to_cancel'])? $_SESSION['batch_process_data']['url_to_cancel'] : '/pages/err_inv_system_error?line='.__LINE__ ;
+				
 		if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
+			
+			// USER JUST LAUNCHED BATCH PROCESS
+
+			// Get Data
+		
+			$model = null;
+			$key = null;
+		
+			$_SESSION['batch_process_data'] = array();
+			
 			if(isset($this->data['SampleMaster'])) {
 				$model = 'SampleMaster';
 				$key = 'id';
@@ -831,77 +840,111 @@ class SampleMastersController extends InventorymanagementAppController {
 			} else {
 				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 			}
-		} else {
-			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-		}	
-		
-		// Set url to redirect
-		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
-		$this->set('url_to_cancel', $url_to_cancel);
-		$_SESSION['derivative_batch_process']['url_to_cancel'] = $url_to_cancel;
-		
-		// Manage data	
-	
-		$init_data = $this->batchInit(
-			$this->SampleMaster, 
-			$model, 
-			$key, 
-			"sample_control_id", 
-			$this->ParentToDerivativeSampleControl, 
-			"parent_sample_control_id",
-			"you cannot create derivatives for this sample type");
-		if(array_key_exists('error', $init_data)) {
-			$this->flash(__($init_data['error'], true), "javascript:history.back();", 5);
-			return;
+			
+			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+			$_SESSION['batch_process_data']['url_to_cancel'] = $url_to_cancel;
+			
+			$init_data = $this->batchInit(
+				$this->SampleMaster, 
+				$model, 
+				$key, 
+				"sample_control_id", 
+				$this->ParentToDerivativeSampleControl, 
+				"parent_sample_control_id",
+				"you cannot create derivatives for this sample type");
+			if(array_key_exists('error', $init_data)) {
+				$this->flash(__($init_data['error'], true), "javascript:history.back();", 5);
+				return;
+			}			
+			
+			$this->data = array();
+			$this->data['SampleMaster']['ids'] = $init_data['ids'];
+			$this->data['SampleMaster']['parent_sample_control_id'] = $init_data['possibilities'][0]['ParentSampleControl']['id'];
+			$derivatives_dropdown = array(''=>'');
+			if(sizeof($init_data['possibilities']) == 1) {
+				// Set data to redirect user to next batch process step
+				$this->data['SampleMaster']['sample_control_id'] = $init_data['possibilities'][0]['DerivativeControl']['id'];
+			} else {
+				foreach($init_data['possibilities'] as $possibility){
+					$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
+				}				
+			}
+			asort($derivatives_dropdown);
+			$_SESSION['batch_process_data']['derivatives_dropdown'] = $derivatives_dropdown;
 		}
-		if(sizeof($init_data['possibilities']) == 1) {
 
-			// Only one available type move to next step
-			$session_data = array();
-			$session_data['SampleMaster']['ids'] = $init_data['ids'];
-			$session_data['SampleMaster']['parent_sample_control_id'] = $init_data['possibilities'][0]['DerivativeControl']['id'];
-			$session_data['SampleMaster']['sample_control_id'] = $init_data['possibilities'][0]['DerivativeControl']['id'];
+		if(!array_key_exists('parent_sample_control_id', $this->data['SampleMaster']) && !array_key_exists('parent_sample_control_id', $this->data['SampleMaster'])) {
+			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+			
+		} else if(!array_key_exists('sample_control_id', $this->data['SampleMaster']) || empty($this->data['SampleMaster']['sample_control_id'])) {
+			// Initial display requiring children type selection or children type has not been selected
+
+			if(array_key_exists('sample_control_id', $this->data['SampleMaster'])) $this->SampleMaster->validationErrors[] = 'you must select a derivative type';
+			
+			// SET DATA TO DISPLAY CHILDREN SAMPLE TYPE SELECTION FORM
+			
+			$this->set('ids', $this->data['SampleMaster']['ids']);
+			$this->set('parent_sample_control_id', $this->data['SampleMaster']['parent_sample_control_id']);
+			$this->data = array();
+			
+			$this->set('url_to_cancel', $_SESSION['batch_process_data']['url_to_cancel']);
+			
+			$this->set('derivatives_dropdown', $_SESSION['batch_process_data']['derivatives_dropdown']);
+			
+			$this->Structures->set('derivative_init');
+			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+			
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}			
+			
+		} else {
+			
+			// REDIRECT USER TO NEXT BATCH PROCESS STEP
+			
+			unset($_SESSION['batch_process_data']['derivatives_dropdown']);
+			
+			$criteria = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => $this->data['SampleMaster']['parent_sample_control_id'],
+				'ParentToDerivativeSampleControl.flag_active' => '1',
+				'ParentToDerivativeSampleControl.derivative_sample_control_id' => $this->data['SampleMaster']['sample_control_id']);
+			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria, 'recursive' => '-1'));	
+			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
+
+			$_SESSION['batch_process_data']['data'] = $this->data;
+			
+			$url_to_redirect = '/inventorymanagement/sample_masters/batchDerivative/';;
+			if(!empty($parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'])) {
+				// Add step to complete lab book
+				$_SESSION['batch_process_data']['lab_book_header'] = 'derivative creation process';
+				$_SESSION['batch_process_data']['lab_book_menu'] = '/inventorymanagement/';
+				$_SESSION['batch_process_data']['lab_book_next_step'] = '/inventorymanagement/sample_masters/batchDerivative/';
+				
+				$url_to_redirect = '/labbook/lab_book_masters/add/'.$parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'];
+			}
 			
 			$hook_link = $this->hook('redirect');
 			if($hook_link){
 				require($hook_link);
 			}
-							
-			$_SESSION['derivative_batch_process']['init'] = $session_data;
-			$this->redirect('/inventorymanagement/sample_masters/batchDerivative/');
-		}		
-		
-		// Manage structure and menus
-		
-		foreach($init_data['possibilities'] as $possibility){
-			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
-		}
-		
-		$this->set('ids', $init_data['ids']);
-		$this->set('parent_sample_control_id', $init_data['possibilities'][0]['ParentSampleControl']['id']);
 			
-		$this->Structures->set('derivative_init');
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
+			$this->redirect($url_to_redirect);
 		}
 	}
 	
 	function batchDerivative(){
 		//TODO merge with Add() function to do one
-		if(isset($_SESSION['derivative_batch_process']['init']) && (!empty($_SESSION['derivative_batch_process']['init']))) {
-			// Check init redirect
-			$this->data = $_SESSION['derivative_batch_process']['init'];
-			unset($_SESSION['derivative_batch_process']['init']);
+		if(isset($_SESSION['batch_process_data']['data']) && (!empty($_SESSION['batch_process_data']['data']))) {
+			// Initial display: get session data
+			$this->data = $_SESSION['batch_process_data']['data'];
+			unset($_SESSION['batch_process_data']['data']);
 		} else if(empty($this->data)){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
 		}
 		
 		if(!isset($this->data['SampleMaster']['sample_control_id']) || empty($this->data['SampleMaster']['sample_control_id'])){
-			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
-			return;
+			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
 		}
 		
 		// Set structures and menu
@@ -913,10 +956,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
 		$this->Structures->set($children_control_data['SampleControl']['form_alias']);
 
-		if(!isset($_SESSION['derivative_batch_process']['url_to_cancel'])){
+		if(!isset($_SESSION['batch_process_data']['url_to_cancel'])){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		}
-		$this->set('url_to_cancel', $_SESSION['derivative_batch_process']['url_to_cancel']);
+		$this->set('url_to_cancel', $_SESSION['batch_process_data']['url_to_cancel']);
 		
 		$this->set('parent_sample_control_id', $this->data['SampleMaster']['parent_sample_control_id']);
 		$this->set('children_sample_control_id', $this->data['SampleMaster']['sample_control_id']);
@@ -933,12 +976,16 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_books_list = $this->LabBookMaster->getLabBookPermissibleValuesFromId(empty($parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'])? 0 : $parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id']);
 		$this->set('lab_book_fields', $lab_book_fields);
 		$this->set('lab_books_list', $lab_books_list);
-//TODO derivative_lab_book	
+		
 //TODO check why lab_book_fields js does not work
+
 		$this->set('created_sample_override_data', array(
 			'SampleMaster.sample_type'		=> $children_control_data['SampleControl']['sample_type'],
 			'SampleMaster.sample_category'	=> $children_control_data['SampleControl']['sample_category'],
-			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
+			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i'),
+		
+			'DerivativeDetail.sync_with_lab_book' => (isset($_SESSION['batch_process_data']['default_lab_book_master_id'])? '1': '0'),
+			'DerivativeDetail.lab_book_master_id' => (isset($_SESSION['batch_process_data']['default_lab_book_master_id'])? $_SESSION['batch_process_data']['default_lab_book_master_id']: null)));
 		
 		if(isset($this->data['SampleMaster']['ids'])){
 
@@ -1016,7 +1063,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			// 3- SAVE PROCESS
 			
 			if(empty($errors)){
-				unset($_SESSION['derivative_batch_process']);
+				unset($_SESSION['batch_process_data']);
 				
 				//save
 				$_SESSION['tmp_batch_set']['BatchId'] = array();
