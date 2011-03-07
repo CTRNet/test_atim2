@@ -587,6 +587,38 @@ function uncheckAll( $div ) {
 		}
 	}
 	
+	function initLabBookPopup(){
+		$("div.rightCell a:not(.not_allowed)").first().click(function(){
+			$.get($(this).attr("href"), labBookPopupAddForm);
+			return false;
+		});
+	}
+	
+	function labBookPopupAddForm(data){
+		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+		initDatepicker("#default_popup .datepicker");
+		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
+			$(this).hide();
+			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
+				if(data2.length < 100){
+					console.log(data2);
+					//saved
+					$("#default_popup").popup('close');
+					$("input, select").each(function(){
+						if($(this).attr("name") == 'data[DerivativeDetail][lab_book_master_code]'){
+							$(this).val(data2);
+						}
+					});
+				}else{
+					//redisplay
+					labBookPopupAddForm(data2);
+				}
+			});
+			return false;
+		});
+		$("#default_popup input[type=text]").first().focus();
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -617,6 +649,9 @@ function uncheckAll( $div ) {
 		}
 		if(window.labBookFields){
 			initLabBook(document);
+		}
+		if(window.labBookPopup){
+			initLabBookPopup();
 		}
 		
 		if(window.realiquotInit){
