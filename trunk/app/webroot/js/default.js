@@ -585,6 +585,10 @@ function uncheckAll( $div ) {
 				$(scope).finds(".labBook").toggle();
 			}
 		}
+		if(window.labBookHideOnLoad){
+			$(fields).toggle();
+			$(scope).find(".labBook").toggle();
+		}
 	}
 	
 	function initLabBookPopup(){

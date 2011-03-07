@@ -857,17 +857,22 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$lab_book_master_code = null;
 		$sync_with_lab_book = null;
+		$lab_book_fields = null;
 		if(isset($this->data['DerivativeDetail']['lab_book_master_code'])){
 			$lab_book_master_code = $this->data['DerivativeDetail']['lab_book_master_code'];
 			$sync_with_lab_book = $this->data['DerivativeDetail']['sync_with_lab_book'];
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-			if($lab_book->getIdFromCode($lab_book_master_code) === false){
+			$lab_book_id = $lab_book->getIdFromCode($lab_book_master_code);
+			if($lab_book_id === false){
 				//invalid lab book
 				$this->flash(__("invalid lab book code", true), "javascript:history.back();", 5);
 			}
+			$lab_book_data = $lab_book->findById($lab_book_id);
+			$lab_book_fields = $lab_book->getFields($lab_book_data['LabBookControl']['id']);
 		}
 		$this->set('lab_book_master_code', $lab_book_master_code);
 		$this->set('sync_with_lab_book', $sync_with_lab_book);
+		$this->set('lab_book_fields', $lab_book_fields);
 		
 		// Set structures and menu
 		
