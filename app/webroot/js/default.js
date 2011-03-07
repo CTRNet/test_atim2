@@ -620,6 +620,10 @@ function uncheckAll( $div ) {
 			});
 			return false;
 		});
+		$("#default_popup form").submit(event, function(){
+			event.preventDefault();
+			return false;
+		});
 		$("#default_popup input[type=text]").first().focus();
 	}
 	
