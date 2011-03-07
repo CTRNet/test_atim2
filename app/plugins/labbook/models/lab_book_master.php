@@ -66,6 +66,15 @@ class LabBookMaster extends LabBookAppModel {
 		
 		return array('errors'=> $errors, 'synchronized_data'=>$submitted_data);
 	}
+	
+	/**
+	 * @param string $code A lab book code to seek
+	 * @return int the lab book id matching the code if it exists, false otherwise
+	 */
+	public function getIdFromCode($code){
+		$lb = $this->find('list', array('fields' => array('LabBookMaster.id'), 'conditions' => array('LabBookMaster.code' => $code)));
+		return empty($lb) ? false : array_pop($lb);
+	}
 
 }
 

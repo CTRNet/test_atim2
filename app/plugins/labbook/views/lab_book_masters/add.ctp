@@ -1,15 +1,18 @@
 <?php 
 	
 	$bottom_buttons = array();
-	if(isset($url_to_skip)) $bottom_buttons['skip lab book creation'] = $url_to_skip;
-	$bottom_buttons['cancel'] = $url_to_cancel;
+	$settings = array();
 	$structure_links = array(
-		'top' => '/labbook/lab_book_masters/add/' . $atim_menu_variables['LabBookControl.id'],
+		'top' => '/labbook/lab_book_masters/add/' . $atim_menu_variables['LabBookControl.id'].'/'.$is_ajax,
 		'bottom' => $bottom_buttons
 	);
 	
-	$settings = array();
-	if(isset($lab_book_header)) $settings['header'] = $lab_book_header;
+	
+	if($is_ajax){ 
+		$settings['header'] = __('add lab book', true);
+	}else{
+		$bottom_buttons['cancel'] = '/labbook/lab_book_masters/index/';
+	}
 
 	$structure_override = array();
 
@@ -18,7 +21,9 @@
 		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );

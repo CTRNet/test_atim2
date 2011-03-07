@@ -73,13 +73,22 @@ class LabBookMastersController extends LabBookAppController {
 		if( $hook_link ) { require($hook_link); }
 	}	
 	
-	function add($control_id) {
-		if(!$control_id) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+	function add($control_id, $is_ajax = false) {
+		if(!$control_id) { 
+			$this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+		}
+		if($is_ajax){
+			$this->layout = 'ajax';
+			Configure::write('debug', 0);
+		}
+		$this->set('is_ajax', $is_ajax);
 				
 		// MANAGE DATA
 		
 		$control_data = $this->LabBookControl->find('first', array('conditions' => array('LabBookControl.id' => $control_id)));
-		if(empty($control_data)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }
+		if(empty($control_data)) { 
+			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+		}
 		
 		$initial_data = array();
 		$initial_data['LabBookMaster']['lab_book_control_id'] = $control_id;
@@ -95,23 +104,17 @@ class LabBookMastersController extends LabBookAppController {
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($control_data['LabBookControl']['form_alias']);
 		
-		// url to cancel
-		$this->set('url_to_cancel', isset($_SESSION['batch_process_data']['url_to_cancel'])? $_SESSION['batch_process_data']['url_to_cancel']: '/labbook/lab_book_masters/index/'); 
-		if(isset($_SESSION['batch_process_data']['lab_book_next_step'])) $this->set('url_to_skip', $_SESSION['batch_process_data']['lab_book_next_step']);
-		
-		// header
-		if(isset($_SESSION['batch_process_data']['lab_book_header'])) $this->set('lab_book_header', __('derivative creation process', true) . ' - ' . __('lab book creation', true));
-
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) {
+			require($hook_link); 
+		}
 			
-		if(empty($this->data)) {
+		if(empty($this->data)){
 			$this->data = $initial_data;
 			
-		} else {
-			
+		}else{
 			// Validates and set additional data
 			$submitted_data_validates = true;
 			
@@ -123,7 +126,9 @@ class LabBookMastersController extends LabBookAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if($hook_link){ 
+				require($hook_link); 
+			}		
 						
 			if($submitted_data_validates) {
 				// Save lab_book data data
@@ -134,15 +139,19 @@ class LabBookMastersController extends LabBookAppController {
 					$url_to_redirect = '/labbook/lab_book_masters/detail/' . $this->LabBookMaster->id;
 					if(isset($_SESSION['batch_process_data']['lab_book_next_step'])) {
 						$url_to_redirect = $_SESSION['batch_process_data']['lab_book_next_step'];
-						$_SESSION['batch_process_data']['default_lab_book_master_id'] = $this->LabBookMaster->id;
 					}
-					$this->atimFlash('your data has been saved', $url_to_redirect);				
+					if($is_ajax){
+						echo $this->data['LabBookMaster']['code'];
+						exit;
+					}else{
+						$this->atimFlash('your data has been saved', $url_to_redirect);
+					}				
 				}					
 			}
 		}		
 	}
 			
-	function edit($lab_book_master_id) {
+	function edit($lab_book_master_id){
 		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
