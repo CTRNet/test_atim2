@@ -59,4 +59,5 @@ var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
 var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+var labBookHideOnLoad = true;
 </script>
