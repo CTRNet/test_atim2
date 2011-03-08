@@ -9,7 +9,8 @@ class LabBookMastersController extends LabBookAppController {
 		'Labbook.LabBookControl',
 		
 		'Inventorymanagement.SampleMaster',
-		'Inventorymanagement.Realiquoting'
+		'Inventorymanagement.Realiquoting',
+		'Inventorymanagement.DerivativeDetail'
 	);
 	
 	var $paginate = array('LabBookMaster' => array('limit' => pagination_amount, 'order' => 'LabBookMaster.created ASC'));
@@ -102,6 +103,7 @@ class LabBookMastersController extends LabBookAppController {
 			}
 			$this->set('realiquotings_list', $realiquotings_list);
 			$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
+			
 		}
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -226,6 +228,34 @@ class LabBookMastersController extends LabBookAppController {
 			if($submitted_data_validates) {
 				$this->LabBookMaster->id = $lab_book_master_id;		
 				if($this->LabBookMaster->save($this->data)) { 
+					$data_to_synchronize = $this->data['LabBookDetail'];
+										
+					// LAUNCH LINKED DATA UPDATE
+					
+					// 1 - Derivatives
+									
+					$this->SampleMaster->unbindModel(array(
+						'hasMany' => array('AliquotMaster'), 
+						'hasOne' => array('SpecimenDetail'), 
+						'belongsTo' => array('Collection')));
+					$derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id, 'DerivativeDetail.sync_with_lab_book' => '1')));		
+					
+					foreach($derivatives_list as $sample_to_update) {
+						$this->SampleMaster->id = $sample_to_update['SampleMaster']['id'];
+						if(!$this->SampleMaster->save(array('SampleMaster' => $data_to_synchronize, 'SampleDetail' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+						
+						$this->DerivativeDetail->id = $sample_to_update['DerivativeDetail']['id'];	
+						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+					}	
+
+					// 2 - Realiquoting
+
+					$realiquotings_list = $this->Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id, 'Realiquoting.sync_with_lab_book' => '1')));		
+					foreach($realiquotings_list as $realiquoting_to_update) {
+						$this->Realiquoting->id = $realiquoting_to_update['Realiquoting']['id'];
+						if(!$this->Realiquoting->save(array('Realiquoting' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+					}
+
 					$this->atimFlash('your data has been updated', '/labbook/lab_book_masters/detail/' . $lab_book_master_id); 
 				}	
 			}
