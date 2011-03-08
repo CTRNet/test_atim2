@@ -29,7 +29,9 @@ class LabBookMastersController extends LabBookAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 		
 	function search() {
@@ -51,16 +53,22 @@ class LabBookMastersController extends LabBookAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) {
+			require($hook_link); 
+		}
 	}
 	
 	function detail($lab_book_master_id, $full_detail_screen = true) {		
-		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
+		if(!$lab_book_master_id) { 
+			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+		}
 		
 		// MAIN FORM
 			
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
+		if(empty($lab_book)) { 
+			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+		}		
 		$this->data = $lab_book;
 		
 		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/detail/%%LabBookMaster.id%%'));
@@ -84,7 +92,9 @@ class LabBookMastersController extends LabBookAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) {
+			require($hook_link); 
+		}
 	}	
 	
 	function add($control_id, $is_ajax = false) {
@@ -166,13 +176,17 @@ class LabBookMastersController extends LabBookAppController {
 	}
 			
 	function edit($lab_book_master_id){
-		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
+		if(!$lab_book_master_id) { 
+			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 
 		// Get the lab_book data data
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }
+		if(empty($lab_book)) { 
+			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -186,12 +200,14 @@ class LabBookMastersController extends LabBookAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 					
 		if(empty($this->data)) {
 			$this->data = $lab_book;	
 			
-		} else {
+		}else{
 			// Validates and set additional data
 			$submitted_data_validates = true;
 			
@@ -211,13 +227,17 @@ class LabBookMastersController extends LabBookAppController {
 	}
 
 	function editSynchOptions($lab_book_master_id){
-		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
+		if(!$lab_book_master_id) { 
+			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 
 		// Get the lab_book data data
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }
+		if(empty($lab_book)) {
+			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+		}
 		
 		$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
 		$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
@@ -260,7 +280,9 @@ class LabBookMastersController extends LabBookAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) {
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				if(isset($this->data['derivative'])) {				
@@ -285,10 +307,14 @@ class LabBookMastersController extends LabBookAppController {
 	}
 		
 	function delete($lab_book_master_id) {
-		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
+		if(!$lab_book_master_id) { 
+			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+		}
 		
 		$lab_book_data = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id), 'recursive' => '-1'));
-		if(empty($lab_book_data)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
+		if(empty($lab_book_data)) { 
+			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+		}		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->LabBookMaster->allowLabBookDeletion($lab_book_master_id);
@@ -296,7 +322,9 @@ class LabBookMastersController extends LabBookAppController {
 		// CUSTOM CODE
 		
 		$hook_link = $this->hook();
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 				
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->LabBookMaster->atim_delete($lab_book_master_id, true)){
