@@ -19,13 +19,20 @@
 		
 		// DERIVATIVE DETAILS
 		
-		$structure_links['index'] = array('detail'=>'/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%');
+		$structure_links['index'] = array(
+//			'parent sample'=> array(
+//				'link' => '/inventorymanagement/sample_masters/detail/%%GeneratedParentSample.collection_id%%/%%GeneratedParentSample.id%%',
+//				'icon' => 'flask'),
+			'sample'=> array(
+				'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%',
+				'icon' => 'flask')
+			);
 		$structure_override = array();
 		$settings =  array('header' => __('derivative', null), 'actions' => false, 'pagination'=>false);
 		
 		$final_atim_structure = $lab_book_derivatives_summary; 
 		$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $derivatives_list, 'settings' => $settings);
-			
+		
 		$hook_link = $structures->hook('derivatives');
 		if( $hook_link ) { require($hook_link); }
 			
@@ -33,7 +40,15 @@
 		
 		// REALIQUOTING
 		
-		$structure_links['index'] = array('detail'=>'/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%');
+		$structure_links['index'] = array(
+			'sample'=> array(
+				'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%',
+				'icon' => 'flask'),
+			'parent aliquot'=> array(
+				'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+				'icon' => 'aliquot')
+		);
+		
 		$structure_override = array();
 		$settings =  array('header' => __('realiquoting', null), 'pagination'=>false);
 		
@@ -46,7 +61,5 @@
 		$structures->build( $final_atim_structure, $final_options );		
 		
 	}	
-
-	
 	
 ?>
