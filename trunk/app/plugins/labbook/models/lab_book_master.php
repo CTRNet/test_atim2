@@ -79,11 +79,15 @@ class LabBookMaster extends LabBookAppModel {
 	function allowLabBookDeletion($lab_book_master_id) {	
 		$DerivativeDetail = AppModel::atimNew("inventorymanagement", "DerivativeDetail", true);
 		$nbr_derivatives = $DerivativeDetail->find('count', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id)));
-		if($nbr_derivatives > 0) { return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a derivative'); }		
+		if($nbr_derivatives > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a derivative'); 
+		}		
 		
 		$Realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
 		$nbr_realiquotings = $Realiquoting->find('count', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));
-		if($nbr_realiquotings > 0) { return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a realiquoted aliquot'); }		
+		if($nbr_realiquotings > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a realiquoted aliquot'); 
+		}		
 		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
@@ -117,7 +121,9 @@ class LabBookMaster extends LabBookAppModel {
 		$sample_master_from_ids = $SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => explode(',', $sample_master_ids[0]['sample_master_ids']))));		
 		$realiquotings_list = $Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));		
 		foreach($realiquotings_list as $key => $realiquoting_data) {
-			if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])) $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+			if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])){
+				$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+			}
 			$realiquotings_list[$key] = array_merge($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']], $realiquoting_data);
 		}
 		
@@ -134,6 +140,7 @@ class LabBookMaster extends LabBookAppModel {
 			if(empty($lab_book)) { AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
 			$lab_book_detail = $lab_book['LabBookDetail'];
 		}
+		
 		unset($lab_book_detail['id']);
 		unset($lab_book_detail['lab_book_master_id']);
 		unset($lab_book_detail['created']);
@@ -153,18 +160,24 @@ class LabBookMaster extends LabBookAppModel {
 		
 		foreach($derivatives_list as $sample_to_update) {
 			$SampleMaster->id = $sample_to_update['SampleMaster']['id'];
-			if(!$SampleMaster->save(array('SampleMaster' => $lab_book_detail, 'SampleDetail' => $lab_book_detail), false)) { AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+			if(!$SampleMaster->save(array('SampleMaster' => $lab_book_detail, 'SampleDetail' => $lab_book_detail), false)) { 
+				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+			}
 			
 			$DerivativeDetail->id = $sample_to_update['DerivativeDetail']['id'];	
-			if(!$DerivativeDetail->save(array('DerivativeDetail' => $lab_book_detail), false)) { AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-		}	
+			if(!$DerivativeDetail->save(array('DerivativeDetail' => $lab_book_detail), false)) { 
+				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+			}
+		}
 
 		// 2 - Realiquoting
 
 		$realiquotings_list = $Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id, 'Realiquoting.sync_with_lab_book' => '1')));		
 		foreach($realiquotings_list as $realiquoting_to_update) {
 			$Realiquoting->id = $realiquoting_to_update['Realiquoting']['id'];
-			if(!$Realiquoting->save(array('Realiquoting' => $lab_book_detail), false)) { AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
+			if(!$Realiquoting->save(array('Realiquoting' => $lab_book_detail), false)) { 
+				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+			}
 		}
 	}
 }
