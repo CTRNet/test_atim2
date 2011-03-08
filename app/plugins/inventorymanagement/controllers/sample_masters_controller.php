@@ -858,6 +858,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_book_master_code = null;
 		$sync_with_lab_book = null;
 		$lab_book_fields = null;
+		$lab_book_id = null;
 		if(isset($this->data['DerivativeDetail']['lab_book_master_code'])){
 			$lab_book_master_code = $this->data['DerivativeDetail']['lab_book_master_code'];
 			$sync_with_lab_book = $this->data['DerivativeDetail']['sync_with_lab_book'];
@@ -869,6 +870,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
 			$lab_book_fields = $lab_book->getFields($lab_book_data['LabBookControl']['id']);
+			unset($this->data['DerivativeDetail']);
 		}
 		$this->set('lab_book_master_code', $lab_book_master_code);
 		$this->set('sync_with_lab_book', $sync_with_lab_book);
@@ -925,13 +927,15 @@ class SampleMastersController extends InventorymanagementAppController {
 				unset($children['ViewSample']);
 				$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));
 				$new_derivative_created = false;
+				$sample_control_id = $children_control_data['SampleControl']['id'];
 				foreach($children as &$child){
 					$new_derivative_created = true;
-					
-					$child['SampleMaster']['sample_control_id'] = $children_control_data['SampleControl']['id'];
+					$child['SampleMaster']['sample_control_id'] = $sample_control_id;
 					$child['SampleMaster']['collection_id'] = $parent['ViewSample']['collection_id'];
 					$child['SampleMaster']['initial_specimen_sample_id'] = $parent['ViewSample']['initial_specimen_sample_id'];
 					$child['SampleMaster']['initial_specimen_sample_type'] = $parent['ViewSample']['initial_specimen_sample_type'];
+					$child['DerivativeDetail']['sync_with_lab_book'] = $sync_with_lab_book;
+					$child['DerivativeDetail']['lab_book_master_id'] = $lab_book_id;
 					
 					$this->SampleMaster->data = array();
 					$this->SampleMaster->set($child);
