@@ -19,7 +19,15 @@ class LabBookMastersController extends LabBookAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 	 
-	function index() {
+	function index($is_ajax = false) {
+		if($is_ajax){
+			//layout = ajax to avoid printing layout
+			$this->layout = 'ajax';
+			//debug = 0 to avoid printing debug queries that would break the javascript array
+			Configure::write('debug', 0);
+		}
+		$this->set('is_ajax', $is_ajax);
+		
 		// clear SEARCH criteria
 		$_SESSION['ctrapp_core']['search'] = null; 
 		
@@ -337,7 +345,19 @@ class LabBookMastersController extends LabBookAppController {
 		}		
 	}
 	
-	
+	function autocomplete(){
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		$term = str_replace('_', '\_', str_replace('%', '\%', $_GET['term']));
+		$this->set('result', $this->LabBookMaster->find('list', 
+				array(
+					'fields'		=> array('LabBookMaster.code'), 
+					'conditions'	=> array('LabBookMaster.code LIKE ' => $term.'%'),
+					'limit'			=> 10))
+		);
+	}
 		
 }
 ?>
