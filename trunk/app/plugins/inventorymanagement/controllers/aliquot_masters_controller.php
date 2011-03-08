@@ -551,7 +551,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$new_aliquot['AliquotMaster']['collection_id'] = $created_aliquots['parent']['ViewSample']['collection_id'];
 						$new_aliquot['AliquotMaster']['sample_master_id'] = $created_aliquots['parent']['ViewSample']['sample_master_id'];
 						$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control['AliquotControl']['aliquot_type'];
-						if(!$this->AliquotMaster->save($new_aliquot, false)){ pr('error');exit;
+						if(!$this->AliquotMaster->save($new_aliquot, false)){ 
 							$this->redirect('/pages/err_inv_record_err', null, true); 
 						} 
 						$child_id = $this->AliquotMaster->getLastInsertId();
