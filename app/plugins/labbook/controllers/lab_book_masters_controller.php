@@ -6,10 +6,14 @@ class LabBookMastersController extends LabBookAppController {
 	
 	var $uses = array(
 		'Labbook.LabBookMaster',
-		'Labbook.LabBookControl');
+		'Labbook.LabBookControl',
+		
+		'Inventorymanagement.SampleMaster',
+		'Inventorymanagement.Realiquoting'
+	);
 	
 	var $paginate = array('LabBookMaster' => array('limit' => pagination_amount, 'order' => 'LabBookMaster.created ASC'));
-
+	
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
@@ -49,24 +53,57 @@ class LabBookMastersController extends LabBookAppController {
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function detail($lab_book_master_id) {		
+	function detail($lab_book_master_id, $full_detail_screen = true) {		
 		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
 		
-		// MANAGE DATA
+		// MAIN FORM
 			
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
 		if(empty($lab_book)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
 		$this->data = $lab_book;
 		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
-		// Get the current menu object. 
 		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/detail/%%LabBookMaster.id%%'));
 		$this->set('atim_menu_variables', array('LabBookMaster.id' => $lab_book_master_id));
-
-		// Set structure				
+			
 		$this->Structures->set($lab_book['LabBookControl']['form_alias']);
+		
+		$this->set('full_detail_screen', $full_detail_screen);
+		
+		if($full_detail_screen) {
+			
+			// DERIVATIVES
 
+			$this->SampleMaster->unbindModel(array(
+				'hasMany' => array('AliquotMaster'), 
+				'hasOne' => array('SpecimenDetail'), 
+				'belongsTo' => array('SampleControl')));
+			$this->SampleMaster->bindModel(array(
+				'belongsTo' => array('GeneratedParentSample' => array(
+					'className' => 'Inventorymanagement.SampleMaster',
+					'foreignKey' => 'parent_id'))));			
+			$derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id)));		
+			$this->set('derivatives_list', $derivatives_list);
+			$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
+			
+			// REALIQUOTINGS
+
+			$sample_master_ids = $this->Realiquoting->find('first', array(
+				'conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id),
+				'fields' => array('GROUP_CONCAT(AliquotMaster.sample_master_id) AS sample_master_ids')));
+			$this->SampleMaster->unbindModel(array(
+				'hasMany' => array('AliquotMaster'), 
+				'hasOne' => array('SpecimenDetail','DerivativeDetail'), 
+				'belongsTo' => array('SampleControl')));		
+			$sample_master_from_ids = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => explode(',', $sample_master_ids[0]['sample_master_ids']))));		
+			$realiquotings_list = $this->Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));		
+			foreach($realiquotings_list as $key => $realiquoting_data) {
+				if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])) $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+				$realiquotings_list[$key] = array_merge($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']], $realiquoting_data);
+			}
+			$this->set('realiquotings_list', $realiquotings_list);
+			$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
+		}
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
@@ -202,7 +239,7 @@ class LabBookMastersController extends LabBookAppController {
 		if(empty($lab_book_data)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowLabBookDeletion($lab_book_master_id);
+		$arr_allow_deletion = $this->LabBookMaster->allowLabBookDeletion($lab_book_master_id);
 
 		// CUSTOM CODE
 		
@@ -219,17 +256,6 @@ class LabBookMastersController extends LabBookAppController {
 			$this->flash($arr_allow_deletion['msg'], '/labbook/lab_book_masters/detail/' . $lab_book_master_id);
 		}		
 	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */		
-
-	function allowLabBookDeletion($lab_book_master_id) {	
-//		$nbr_children_storages = $this->LabBookMaster->find('count', array('conditions' => array('LabBookMaster.parent_id' => $lab_book_master_id), 'recursive' => '-1'));
-//		if($nbr_children_storages > 0) { return array('allow_deletion' => false, 'msg' => 'children storage exists within the deleted storage'); }
 		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
 }
 ?>
