@@ -5,7 +5,12 @@
 		'delete' => '/labbook/lab_book_masters/delete/' . $atim_menu_variables['LabBookMaster.id'])
 	);	
 	$structure_override = array();
-	$settings = $full_detail_screen? array('actions' => false): array();
+	$settings = array();
+	
+	if($full_detail_screen) {
+		$settings['actions'] = false;
+		$structure_links['bottom'] = array_merge(array('edit synchronization option' => '/labbook/lab_book_masters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id']), $structure_links['bottom']);
+	}
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'settings' => $settings);
@@ -20,9 +25,6 @@
 		// DERIVATIVE DETAILS
 		
 		$structure_links['index'] = array(
-//			'parent sample'=> array(
-//				'link' => '/inventorymanagement/sample_masters/detail/%%GeneratedParentSample.collection_id%%/%%GeneratedParentSample.id%%',
-//				'icon' => 'flask'),
 			'sample'=> array(
 				'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%',
 				'icon' => 'flask')

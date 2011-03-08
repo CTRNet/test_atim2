@@ -73,37 +73,12 @@ class LabBookMastersController extends LabBookAppController {
 		if($full_detail_screen) {
 			
 			// DERIVATIVES
-
-			$this->SampleMaster->unbindModel(array(
-				'hasMany' => array('AliquotMaster'), 
-				'hasOne' => array('SpecimenDetail'), 
-				'belongsTo' => array('SampleControl')));
-			$this->SampleMaster->bindModel(array(
-				'belongsTo' => array('GeneratedParentSample' => array(
-					'className' => 'Inventorymanagement.SampleMaster',
-					'foreignKey' => 'parent_id'))));			
-			$derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id)));		
-			$this->set('derivatives_list', $derivatives_list);
+			$this->set('derivatives_list', $this->LabBookMaster->getLabBookDerivativesList($lab_book_master_id));
 			$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
 			
 			// REALIQUOTINGS
-
-			$sample_master_ids = $this->Realiquoting->find('first', array(
-				'conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id),
-				'fields' => array('GROUP_CONCAT(AliquotMaster.sample_master_id) AS sample_master_ids')));
-			$this->SampleMaster->unbindModel(array(
-				'hasMany' => array('AliquotMaster'), 
-				'hasOne' => array('SpecimenDetail','DerivativeDetail'), 
-				'belongsTo' => array('SampleControl')));		
-			$sample_master_from_ids = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => explode(',', $sample_master_ids[0]['sample_master_ids']))));		
-			$realiquotings_list = $this->Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));		
-			foreach($realiquotings_list as $key => $realiquoting_data) {
-				if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])) $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
-				$realiquotings_list[$key] = array_merge($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']], $realiquoting_data);
-			}
-			$this->set('realiquotings_list', $realiquotings_list);
+			$this->set('realiquotings_list', $this->LabBookMaster->getLabBookRealiquotingsList($lab_book_master_id));
 			$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
-			
 		}
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -228,40 +203,87 @@ class LabBookMastersController extends LabBookAppController {
 			if($submitted_data_validates) {
 				$this->LabBookMaster->id = $lab_book_master_id;		
 				if($this->LabBookMaster->save($this->data)) { 
-					$data_to_synchronize = $this->data['LabBookDetail'];
-										
-					// LAUNCH LINKED DATA UPDATE
-					
-					// 1 - Derivatives
-									
-					$this->SampleMaster->unbindModel(array(
-						'hasMany' => array('AliquotMaster'), 
-						'hasOne' => array('SpecimenDetail'), 
-						'belongsTo' => array('Collection')));
-					$derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id, 'DerivativeDetail.sync_with_lab_book' => '1')));		
-					
-					foreach($derivatives_list as $sample_to_update) {
-						$this->SampleMaster->id = $sample_to_update['SampleMaster']['id'];
-						if(!$this->SampleMaster->save(array('SampleMaster' => $data_to_synchronize, 'SampleDetail' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-						
-						$this->DerivativeDetail->id = $sample_to_update['DerivativeDetail']['id'];	
-						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-					}	
-
-					// 2 - Realiquoting
-
-					$realiquotings_list = $this->Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id, 'Realiquoting.sync_with_lab_book' => '1')));		
-					foreach($realiquotings_list as $realiquoting_to_update) {
-						$this->Realiquoting->id = $realiquoting_to_update['Realiquoting']['id'];
-						if(!$this->Realiquoting->save(array('Realiquoting' => $data_to_synchronize), false)) { $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-					}
-
+					$this->LabBookMaster->synchLabbookRecords($lab_book_master_id, $this->data['LabBookDetail']);
 					$this->atimFlash('your data has been updated', '/labbook/lab_book_masters/detail/' . $lab_book_master_id); 
 				}	
 			}
 		}
 	}
+
+	function editSynchOptions($lab_book_master_id){
+		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
+		
+		// MANAGE DATA
+
+		// Get the lab_book data data
+		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
+		if(empty($lab_book)) { $this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }
+		
+		$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
+		$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
+		
+		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/detail/%%LabBookMaster.id%%'));
+		$this->set('atim_menu_variables', array('LabBookMaster.id' => $lab_book_master_id));
+		
+		// set structure alias based on VALUE from CONTROL table
+		$this->Structures->set($lab_book['LabBookControl']['form_alias']);
 	
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
+					
+		if(empty($this->data)) {
+			$this->data = array(
+				'derivative' => $this->LabBookMaster->getLabBookDerivativesList($lab_book_master_id),
+				'realiquoting' => $this->LabBookMaster->getLabBookRealiquotingsList($lab_book_master_id));	
+			
+		} else {
+			
+			// Validates and set additional data
+			$submitted_data_validates = true;
+
+			if(isset($this->data['derivative'])) {
+				foreach($this->data['derivative'] as $new_record) {
+					$this->DerivativeDetail->set($new_record);
+					if(!$this->DerivativeDetail->validates()) $submitted_data_validates = false;
+				}
+			}
+			
+			if(isset($this->data['realiquoting'])) {
+				foreach($this->data['realiquoting'] as $new_record) {
+					$this->Realiquoting->set($new_record);
+					if(!$this->Realiquoting->validates()) $submitted_data_validates = false;
+				}
+			}
+						
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) { require($hook_link); }		
+			
+			if($submitted_data_validates) {
+				if(isset($this->data['derivative'])) {				
+					foreach($this->data['derivative'] as $new_record) {
+						$this->DerivativeDetail->id = $new_record['DerivativeDetail']['id'];
+						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $new_record['DerivativeDetail']), false))  $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
+					}
+				}
+				
+				if(isset($this->data['realiquoting'])) {
+					foreach($this->data['realiquoting'] as $new_record) {
+						$this->Realiquoting->id = $new_record['Realiquoting']['id'];
+						if(!$this->Realiquoting->save(array('Realiquoting' => $new_record['Realiquoting']), false)) $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
+					}
+				}
+
+				$this->LabBookMaster->synchLabbookRecords($lab_book_master_id, $lab_book['LabBookDetail']);
+				
+				$this->atimFlash('your data has been updated', '/labbook/lab_book_masters/detail/' . $lab_book_master_id); 	
+			}
+		}
+	}
+		
 	function delete($lab_book_master_id) {
 		if(!$lab_book_master_id) { $this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); }
 		
@@ -286,6 +308,8 @@ class LabBookMastersController extends LabBookAppController {
 			$this->flash($arr_allow_deletion['msg'], '/labbook/lab_book_masters/detail/' . $lab_book_master_id);
 		}		
 	}
+	
+	
 		
 }
 ?>
