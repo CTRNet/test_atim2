@@ -1693,3 +1693,101 @@ ALTER TABLE `derivative_details`
 ALTER TABLE `realiquotings`
 	ADD CONSTRAINT `FK_realiquotings_lab_book_masters` FOREIGN KEY (`lab_book_master_id`) REFERENCES `lab_book_masters` (`id`);
 
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) 
+VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='code' ), 'isUnique', '', 'lab book code must be unique');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('lab book code must be unique', 'The lab book code must be unique!', 'Le code du cahier de laboratoire doit être unique!'),
+('deleted lab book is linked to a derivative', 
+'Your data cannot be deleted! <br>Derivative data are linked to the deleted lab book.', 
+'Vos données ne peuvent être supprimées! <br>Des dérivés sont attachés à votre cahier de laboratoire.'),
+('deleted lab book is linked to a realiquoted aliquot', 
+'Your data cannot be deleted! <br>Realiquoted aliquots are linked to the deleted lab book.', 
+'Vos données ne peuvent être supprimées! <br>Des aliquot ''réaliquotés'' sont attachés à votre cahier de laboratoire.');
+
+INSERT INTO structures(`alias`) VALUES ('lab_book_derivatives_summary');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'GeneratedParentSample', '', 'sample_code', 'parent sample code', '', 'input', '', '',  NULL , '');
+ 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='lab_book_derivatives_summary');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_type'), 
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='GeneratedParentSample' AND `tablename`='' AND `field`='sample_code'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+'0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' ), 
+'0', '8', '', '0', '', '0', '', '0', '', '1', 'imput', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='sync_with_lab_book'), 
+'0', '30', '', '1', 'synchronize with lab book', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `field`='creation_datetime'), 
+'0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `field`='creation_by' ), 
+'0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_derivatives_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `field`='creation_site'), 
+'0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('lab_book_realiquotings_summary');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'Realiquoting', 'realiquotings', 'sync_with_lab_book', 'checkbox',  NULL , '0', '', '', '', '', 'synchronize with lab book');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'AliquotMasterChildren', 'aliquot_masters', 'aliquot_type', 'aliquot type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type') , ''), 
+('Inventorymanagement', 'AliquotMasterChildren', 'aliquot_masters', 'barcode', 'barcode', '', 'input', 'size=30', '',  NULL , '');
+ 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label'), 
+'0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_type'), 
+'0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code'), 
+'0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='aliquot_type'), 
+'0', '7', '', '1', 'parent aliquot', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `type`='input' AND `field`='barcode' ), 
+'0', '8', '', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMasterChildren' AND `field`='aliquot_type'), 
+'0', '10', '', '1', 'aliquot', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMasterChildren' AND `type`='input' AND `field`='barcode' ), 
+'0', '11', '', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `field`='realiquoting_datetime'), 
+'0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `field`='realiquoted_by' ), 
+'0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+
+((SELECT id FROM structures WHERE alias='lab_book_realiquotings_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `field`='sync_with_lab_book'), 
+'0', '30', '', '1', 'synchronize with lab book', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+
+

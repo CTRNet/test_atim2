@@ -75,6 +75,18 @@ class LabBookMaster extends LabBookAppModel {
 		$lb = $this->find('list', array('fields' => array('LabBookMaster.id'), 'conditions' => array('LabBookMaster.code' => $code)));
 		return empty($lb) ? false : array_pop($lb);
 	}
+	
+	function allowLabBookDeletion($lab_book_master_id) {	
+		$DerivativeDetail = AppModel::atimNew("inventorymanagement", "DerivativeDetail", true);
+		$nbr_derivatives = $DerivativeDetail->find('count', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id)));
+		if($nbr_derivatives > 0) { return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a derivative'); }		
+		
+		$Realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
+		$nbr_realiquotings = $Realiquoting->find('count', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));
+		if($nbr_realiquotings > 0) { return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a realiquoted aliquot'); }		
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 
 }
 
