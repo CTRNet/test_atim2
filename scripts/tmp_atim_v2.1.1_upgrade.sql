@@ -1849,6 +1849,7 @@ DELETE FROM i18n WHERE id =  'storage content layout';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ( 'storage content layout', 'Content (Layout)', 'Contenu (Plan)');
 
+UPDATE menus SET use_summary = 'Storagelayout.StorageMaster::summary' WHERE id IN ('sto_CAN_05', 'sto_CAN_10');
 
 
 
