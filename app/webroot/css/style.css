@@ -1113,6 +1113,7 @@ a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.reveal.fetching { background: url("../img/wait20.gif") no-repeat left center; }
 a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
+a.sample{ background: url("../img/icons/flask_16x16.png") no-repeat left center; }
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
 a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
