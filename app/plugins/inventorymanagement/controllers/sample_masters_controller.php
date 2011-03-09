@@ -439,13 +439,15 @@ class SampleMastersController extends InventorymanagementAppController {
 		}		
 		// MANAGE DATA
 		
-		$bool_is_specimen = null;
+		$is_specimen = null;
 		$sample_control_data = array();
 		$parent_sample_data = array();
+		$lab_book = null;
+		$parent_to_derivative_sample_control = null;
 		
 		if(empty($parent_sample_master_id)) {
 			// Created sample is a specimen
-			$bool_is_specimen = true;
+			$is_specimen = true;
 			
 			// Get Control Data
 			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
@@ -457,7 +459,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 		} else {
 			// Created sample is a derivative: Get parent sample information
-			$bool_is_specimen = false;
+			$is_specimen = false;
 			
 			// Get parent data
 			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
@@ -468,9 +470,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				'ParentSampleControl.id' => $parent_sample_data['SampleMaster']['sample_control_id'],
 				'ParentToDerivativeSampleControl.flag_active' => '1',
 				'DerivativeControl.id' => $sample_control_id);
-			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));	
+			$parent_to_derivative_sample_control = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => $criteria));
 			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
 			$sample_control_data['SampleControl'] = $parent_to_derivative_sample_control['DerivativeControl'];
+			
+			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
 		}
 		
 		// Set parent data
@@ -484,7 +488,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set menu
 		$atim_menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%';
-		$atim_menu_link .= ($bool_is_specimen? '/-1': '/%%SampleMaster.initial_specimen_sample_id%%');
+		$atim_menu_link .= ($is_specimen? '/-1': '/%%SampleMaster.initial_specimen_sample_id%%');
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
@@ -493,7 +497,14 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);
+		$lab_book_fields = array();
+		$lab_book_ctrl_id = null;
+		if(!$is_specimen){
+			$lab_book_ctrl_id = $parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'];
+			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
+		}
 		
+		$this->set("lab_book_fields", $lab_book_fields);
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -507,7 +518,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
 	
 			//Set default reception date
-			if($bool_is_specimen){
+			if($is_specimen){
 				$default_reception_datetime = null;
 				$default_reception_datetime_accuracy = null;
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
@@ -531,7 +542,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];	
 			
 			// Set either specimen or derivative additional data
-			if($bool_is_specimen){
+			if($is_specimen){
 				// The created sample is a specimen
 				if(isset($this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $this->data['SampleMaster']['sample_type'];
@@ -553,12 +564,28 @@ class SampleMastersController extends InventorymanagementAppController {
 			//for error field highlight in detail
 			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
-			if($bool_is_specimen) { 
+			if($is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
 				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
 			} else { 
 				$this->DerivativeDetail->set($this->data);
-				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false; 
+				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
+
+				//validate lab book
+				if(strlen($this->data['DerivativeDetail']['lab_book_master_code']) > 0){
+					$result = $lab_book->syncData($this->data, array('DerivativeDetail'), $this->data['DerivativeDetail']['lab_book_master_code'], $lab_book_ctrl_id);
+					if(is_numeric($result)){
+						//went well, we have the lab book id as a result
+						$this->data['DerivativeDetail']['lab_book_master_id'] = $result;
+					}else{
+						//error
+						$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $error;
+						$submitted_data_validates = false;
+					}
+				}else if($this->data['DerivativeDetail']['sync_with_lab_book']){
+					$this->DerivativeDetail->validationErrors['lab_book_master_code'] = __('to synchronize with a lab book, you need to define a lab book to use', true);
+					$submitted_data_validates = false;
+				}
 			}
 			
 			$hook_link = $this->hook('presave_process');
@@ -575,13 +602,13 @@ class SampleMastersController extends InventorymanagementAppController {
 					// Record additional sample data
 					$sample_data_to_update = array();
 					$sample_data_to_update['SampleMaster']['sample_code'] = $this->createSampleCode($sample_master_id, $this->data, $sample_control_data);
-					if($bool_is_specimen) { $sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
+					if($is_specimen) { $sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
 					
 					$this->SampleMaster->id = $sample_master_id;					
 					if(!$this->SampleMaster->save($sample_data_to_update, false)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 					
 					// Save either specimen or derivative detail
-					if($bool_is_specimen){
+					if($is_specimen){
 						// SpecimenDetail
 						$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
 						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
@@ -595,8 +622,8 @@ class SampleMastersController extends InventorymanagementAppController {
 				}					
 			}			
 		}
-		$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-		$this->set("lab_book_fields", $lab_book->getFields(1));
+		
+		
 	}
 	
 	function edit($collection_id, $sample_master_id) {
@@ -782,7 +809,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Set url to redirect
 		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 		$this->set('url_to_cancel', $url_to_cancel);
-		$_SESSION['derivative_batch_process']['url_to_cancel'] = $url_to_cancel;
 		
 		// Manage data	
 		
@@ -810,7 +836,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				require($hook_link);
 			}
 							
-			$_SESSION['derivative_batch_process']['init'] = $session_data;
 			$this->redirect('/inventorymanagement/sample_masters/batchDerivative/');
 		}		
 		
@@ -824,6 +849,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$this->Structures->set('derivative_init');
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$this->set('parent_sample_control_id', $init_data['control_id']);-
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -838,18 +864,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
+		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
 		$this->Structures->set('derivative_lab_book');
 	}
 	
 	function batchDerivative(){
 		//TODO merge with Add() function to do one
-		if(isset($_SESSION['derivative_batch_process']['init']) && (!empty($_SESSION['derivative_batch_process']['init']))) {
-			// Check init redirect
-			$this->data = $_SESSION['derivative_batch_process']['init'];
-			unset($_SESSION['derivative_batch_process']['init']);
-		} else if(empty($this->data)){
-			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
-		}
 		
 		if(!isset($this->data['SampleMaster']['sample_control_id']) || $this->data['SampleMaster']['sample_control_id'] == ''){
 			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
@@ -859,14 +879,24 @@ class SampleMastersController extends InventorymanagementAppController {
 		$sync_with_lab_book = null;
 		$lab_book_fields = null;
 		$lab_book_id = null;
+		$parent_sample_control_id = $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'];
+		unset($this->data['ParentToDerivativeSampleControl']);
 		if(isset($this->data['DerivativeDetail']['lab_book_master_code'])){
 			$lab_book_master_code = $this->data['DerivativeDetail']['lab_book_master_code'];
 			$sync_with_lab_book = $this->data['DerivativeDetail']['sync_with_lab_book'];
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-			$lab_book_id = $lab_book->getIdFromCode($lab_book_master_code);
-			if($lab_book_id === false){
-				//invalid lab book
-				$this->flash(__("invalid lab book code", true), "javascript:history.back();", 5);
+			$lab_book_expected_ctrl_id = array_values($this->ParentToDerivativeSampleControl->find('list', array(
+				'fields' => array('ParentToDerivativeSampleControl.lab_book_control_id'), 
+				'conditions' => array(
+					'ParentToDerivativeSampleControl.parent_sample_control_id' => $parent_sample_control_id,
+					'ParentToDerivativeSampleControl.derivative_sample_control_id' => $this->data['SampleMaster']['sample_control_id']
+			))));
+			$foo = array();
+			$result = $lab_book->syncData($foo, array(), $lab_book_master_code, $lab_book_expected_ctrl_id[0]);
+			if(is_numeric($result)){
+				$lab_book_id = $result;
+			}else{
+				$this->flash($result, "javascript:history.back()", 5);
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
 			$lab_book_fields = $lab_book->getFields($lab_book_data['LabBookControl']['id']);
@@ -885,16 +915,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
 		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']));
 
-		if(!isset($_SESSION['derivative_batch_process']['url_to_cancel'])){
-			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-		}
-		$this->set('url_to_cancel', $_SESSION['derivative_batch_process']['url_to_cancel']);
-		
 		$this->set('children_sample_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('created_sample_override_data', array(
 			'SampleMaster.sample_type'		=> $children_control_data['SampleControl']['sample_type'],
 			'SampleMaster.sample_category'	=> $children_control_data['SampleControl']['sample_category'],
 			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
+		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
 		if(isset($this->data['SampleMaster']['ids'])){
 
@@ -952,6 +978,9 @@ class SampleMastersController extends InventorymanagementAppController {
 						}
 					}
 				}
+				if($lab_book_id != null){
+					$lab_book->syncData($children, array("DerivativeDetail"), $lab_book_master_code, null);
+				}
 				$this->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
 				if(!$new_derivative_created) $errors[]['at least one child has to be created'][] = $record_counter;
 			}
@@ -967,7 +996,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				unset($_SESSION['derivative_batch_process']);
 				
 				//save
-				$_SESSION['tmp_batch_set']['BatchId'] = array();
+				$child_ids = array();
 				foreach($prev_data as $parent_id => &$children){
 					unset($children['ViewSample']);
 					foreach($children as &$child){
@@ -992,8 +1021,12 @@ class SampleMastersController extends InventorymanagementAppController {
 							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
 						} 		
 													
-						$_SESSION['tmp_batch_set']['BatchId'][] =$child_id; 
+						$child_ids[] = $child_id;
 					}
+				}
+				if(!empty($child_ids)){
+					//prevent double access bug to empty our BatchId
+					$_SESSION['tmp_batch_set']['BatchId'] = $child_ids;
 				}
 				
 				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);

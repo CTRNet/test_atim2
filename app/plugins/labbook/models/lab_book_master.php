@@ -41,30 +41,53 @@ class LabBookMaster extends LabBookAppModel {
 		return $result;
 	}
 	
-	function synchData($submitted_data, $model, $lab_book_fields_to_synch) {
-		$errors = array();
-
-		if(array_key_exists($model,$submitted_data) 
-		&& array_key_exists('sync_with_lab_book',$submitted_data[$model]) 
-		&& $submitted_data[$model]['sync_with_lab_book']) {
-			if(!array_key_exists('lab_book_master_id',$submitted_data[$model])) {
-				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
-			} else if(empty($submitted_data[$model]['lab_book_master_id'])) {
-				$errors[] = 'a lab book should be selected to synchronize';
-			} else {
-				$lab_book = $this->find('first', array('conditions'=> array('LabBookMaster.id' => $submitted_data[$model]['lab_book_master_id'])));
-				if(empty($lab_book)) { AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); }
-				foreach($submitted_data as $sub_data_model => $model_values) {
-					foreach($model_values as $field => $value) {
-						if(in_array($field, $lab_book_fields_to_synch)) {
-							$submitted_data[$sub_data_model][$field] = $lab_book['LabBookDetail'][$field];
+	/**
+	 * Sync data with a lab book.
+	 * @param array $data The data to synchronize. Direct data and data array both supported
+	 * @param array $models The models to go through
+	 * @param string $lab_book_code The lab book code to synch with
+	 * @param int $expected_ctrl_id If not null, will validate that the lab book code control id match the expected one.
+	 */
+	function syncData(array &$data, array $models, $lab_book_code, $expected_ctrl_id){
+		$result = null;
+		$lab_book = $this->find('first', array('conditions'=> array('LabBookMaster.code' => $lab_book_code)));
+		if(empty($lab_book)){
+			$result = __('invalid lab book code', true);
+		}else if($expected_ctrl_id != null && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id){
+			$result = __('the selected lab book cannot be applied to the current item(s)', true);
+		}else{
+			$result = $lab_book['LabBookMaster']['id']; 
+			if(!empty($data)){
+				$extract = null;
+				if(isset($data[$models[0]])){
+					$data = array($data);
+					$extract = true;
+				}else{
+					$extract = false;
+				}
+				if($extract || (isset($data[0]) && isset($data[0][$models[0]]))){
+					//proceed
+					$fields = $this->getFields($lab_book['LabBookMaster']['lab_book_control_id']);
+					foreach($data as &$unit){
+						foreach($models as $model){
+							foreach($fields as $field){
+								if(isset($unit[$model]) && isset($unit[$model][$field])){
+									$unit[$model][$field] = $lab_book['LabBookDetail'][$field];
+								}
+							}
 						}
 					}
+				}else{
+					//data to sync not found
+					AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
 				}
+				if($extract){
+					$data = $data[0];
+				}
+				
 			}
 		}
-		
-		return array('errors'=> $errors, 'synchronized_data'=>$submitted_data);
+		return $result;
 	}
 	
 	/**
@@ -122,7 +145,7 @@ class LabBookMaster extends LabBookAppModel {
 		$realiquotings_list = $Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));		
 		foreach($realiquotings_list as $key => $realiquoting_data) {
 			if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])){
-				$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+				AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
 			}
 			$realiquotings_list[$key] = array_merge($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']], $realiquoting_data);
 		}

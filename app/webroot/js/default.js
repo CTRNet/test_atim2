@@ -536,6 +536,7 @@ function uncheckAll( $div ) {
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
+				initLabBook(newLines);
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -586,7 +587,6 @@ function uncheckAll( $div ) {
 		}
 		if(codeInputField != null){
 			$(codeInputField).change(function(){
-				console.log("HERE");
 				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 			});
 		}
@@ -629,7 +629,6 @@ function uncheckAll( $div ) {
 			$(this).hide();
 			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
 				if(data2.length < 100){
-					console.log(data2);
 					//saved
 					$("#default_popup").popup('close');
 					$("input, select").each(function(){
