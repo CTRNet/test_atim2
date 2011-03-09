@@ -536,7 +536,6 @@ function uncheckAll( $div ) {
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
-				initLabBook(newLines);
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -565,6 +564,7 @@ function uncheckAll( $div ) {
 	function initLabBook(scope){
 		var fields = new Array();
 		var checkbox = null;
+		var codeInputField = null;
 		$(scope).find("input, select, textarea").each(function(){
 			for(var i in labBookFields){
 				var currName = $(this).attr("name"); 
@@ -573,20 +573,43 @@ function uncheckAll( $div ) {
 					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
 				}else if(currName == "data[DerivativeDetail][sync_with_lab_book]"){
 					checkbox = $(this);
+				}else if(currName == 'data[DerivativeDetail][lab_book_master_code]'){
+					codeInputField = $(this);
 				}
+				
 			}
 		});
 		if(checkbox != null){
 			$(checkbox).click(function(){
-				$(fields).toggle();
-				$(scope).find(".labBook").toggle();
+				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 			});
-			if($(checkbox).attr("checked")){
-				$(fields).toggle();
-				$(scope).finds(".labBook").toggle();
-			}
+		}
+		if(codeInputField != null){
+			$(codeInputField).change(function(){
+				console.log("HERE");
+				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			});
 		}
 		if(window.labBookHideOnLoad){
+			$(fields).toggle();
+			$(scope).find(".labBook").toggle();
+		}
+	}
+	
+	function labBookFieldsToggle(scope, fields, codeInputField, checkbox){
+		var toggle = false;
+		if($(scope).find(".labBook:visible").length == 0){
+			//current input are visible, see if we need to hide
+			if((checkbox != null && $(checkbox).attr("checked")) || (codeInputField != null && $(codeInputField).val().length > 0)){
+				toggle = true;
+			}
+		}else{
+			//current input are hidden, see if we need to display
+			if((checkbox == null || !$(checkbox).attr("checked")) && (codeInputField == null || $(codeInputField).val().length == 0)){
+				toggle = true;
+			}
+		}
+		if(toggle){
 			$(fields).toggle();
 			$(scope).find(".labBook").toggle();
 		}
