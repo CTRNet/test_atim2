@@ -345,7 +345,6 @@ class StructuresHelper extends Helper {
 			$this->buildTree( $atim_structure, $options, $data);
 			
 		}else if($type == 'csv'){
-			$options['type'] = 'index';
 			$this->buildCsv( $atim_structure, $options, $data);
 			$options['settings']['actions'] = false;
 			
@@ -693,9 +692,9 @@ class StructuresHelper extends Helper {
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
 				list($year, $month, $day) = explode("-", $current_value);
-				$display = AppController::getFormatedDateString($year, $month, $day);
+				$display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
 			}else if($table_row_part['type'] == "datetime" && $elligible_as_date){
-				$display = AppController::getFormatedDatetimeString($current_value);
+				$display = AppController::getFormatedDatetimeString($current_value, $options['type'] != 'csv');
 			}else if($table_row_part['type'] == "time" && $elligible_as_date){
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
@@ -923,13 +922,15 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
+		$options['type'] = 'detail';//all detail fields required
 		$table_structure = $this->buildStack($atim_structure, $options);
-
+		$options['type'] = 'csv';//go back to csv
+		
 		if(is_array($table_structure) && count($data)){
 			//header line
 			$line = array();
 			foreach($table_structure as $table_column){
-				foreach ( $table_column as $fm => $table_row){
+				foreach($table_column as $fm => $table_row){
 					foreach($table_row as $table_row_part){
 						$line[] = $table_row_part['label'];
 					}
@@ -943,7 +944,7 @@ class StructuresHelper extends Helper {
 				foreach($table_structure as $table_column){
 					foreach ( $table_column as $fm => $table_row){
 						foreach($table_row as $table_row_part){
-							$line[] = $data_unit[$table_row_part['model']][$table_row_part['field']];
+							$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
 						}
 					}
 				}
