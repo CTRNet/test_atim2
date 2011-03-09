@@ -7,7 +7,9 @@
 		'links' => array(
 			'top' => '/inventorymanagement/sample_masters/batchDerivativeInit2',
 			'bottom' => array('cancel' => $url_to_cancel)),
-		'extras' => '<input type="hidden" name="data[SampleMaster][ids]" value="'.$ids.'"/>'
+		'extras' => '<input type="hidden" name="data[SampleMaster][ids]" value="'.$ids.'"/>
+					<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>'
+		
 	);
 	
 	// CUSTOM CODE

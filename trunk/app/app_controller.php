@@ -517,7 +517,7 @@ class AppController extends Controller {
 			return array('error' => $no_possibilities_msg);
 		}
 		
-		return array('ids' => $ids, 'possibilities' => $possibilities);
+		return array('ids' => $ids, 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
 	}
 	
 	/**
