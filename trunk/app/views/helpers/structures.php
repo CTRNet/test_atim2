@@ -712,8 +712,15 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		return (strlen($table_row_part['tag']) > 0 ? '<span class="tag">'.$table_row_part['tag'].'</span> ' : "")
-			.(strlen($display) > 0 ? $display : "-")." ";
+		$tag = "";
+		if(strlen($table_row_part['tag']) > 0){
+			if($options['type'] == 'csv'){
+				$tag = $table_row_part['tag'].' ';
+			}else{
+				$tag = '<span class="tag">'.$table_row_part['tag'].'</span> ';
+			}
+		}
+		return $tag.(strlen($display) > 0 ? $display : "-")." ";
 	}
 	
 	/**
