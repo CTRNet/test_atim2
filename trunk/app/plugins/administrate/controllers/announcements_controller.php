@@ -7,15 +7,7 @@ class AnnouncementsController extends AdministrateAppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter(); 
-		
-		// change MENU based on passed in IDs
-		if ( isset($this->params['pass'][2]) && $this->params['pass'][2] ) {
-			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%/%%Group.id%%/%%User.id%%') );
-		} else if ( isset($this->params['pass'][1]) && $this->params['pass'][1] ) { 
-			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%/%%Group.id%%') );
-		} else if ( isset($this->params['pass'][0]) && $this->params['pass'][0] ) { 
-			$this->set( 'atim_menu', $this->Menus->get('/administrate/announcements/index/%%Bank.id%%') );
-		}
+		$this->set('atim_menu', $this->Menus->get('/administrate/announcements/index/%%Group.id%%/%%User.id%%/'));
 		
 	}
 	
@@ -34,10 +26,10 @@ class AnnouncementsController extends AdministrateAppController {
 		}
 	}
 	
-	function index( $bank_id=0, $group_id=0, $user_id=0 ) {
-		$this->set( 'atim_menu_variables', array('Bank.id'=>$bank_id, 'Group.id'=>$group_id, 'User.id'=>$user_id) );
+	function index($group_id=0, $user_id=0) {
+		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 		$this->hook();
-		$this->data = $this->paginate($this->Announcement,array('Announcement.bank_id'=>$bank_id, 'Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id));
+		$this->data = $this->paginate($this->Announcement, array('Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id));
 	}
 	
 	function detail( $bank_id=0, $group_id=0, $user_id=0, $announcement_id=null ) {
