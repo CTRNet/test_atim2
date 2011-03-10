@@ -1829,14 +1829,17 @@ UPDATE structure_formats SET `display_order`='0', `flag_add`='1', `flag_edit`='1
 UPDATE structure_formats SET `display_order`='200' WHERE structure_id=(SELECT id FROM structures WHERE alias='labbookmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='lab_book_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lab_book_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='300' WHERE structure_id=(SELECT id FROM structures WHERE alias='labbookmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='LabBookMaster' AND `tablename`='lab_book_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ("lab book notes", "Lab book notes", "Notes du cahier de laboratoire");
+
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', '0', '', 'sync_with_lab_book_now', 'checkbox',  NULL , '0', '', '', '', '', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sync_with_lab_book_now' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
 UPDATE structure_fields SET  `setting`='url=/labbook/lab_book_masters/autocomplete/' WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='lab_book_master_code' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sync_with_lab_book_now' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE menus SET parent_id = 'sto_CAN_01' WHERE parent_id = 'sto_CAN_09';
 DELETE FROM menus WHERE id = 'sto_CAN_09';
@@ -1853,8 +1856,5 @@ UPDATE menus SET use_summary = 'Storagelayout.StorageMaster::summary' WHERE id I
 
 UPDATE datamart_structures SET `index_link` = '/inventorymanagement/specimen_reviews/detail/%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/' WHERE model = 'SpecimenReviewMaster';
 UPDATE datamart_structures SET `index_link` = '/inventorymanagement/quality_ctrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/' WHERE model = 'QualityCtrl';
-
-
-
 
 
