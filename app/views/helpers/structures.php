@@ -171,6 +171,7 @@ class StructuresHelper extends Helper {
 		'pricing'				=>	null,
 		'provider'				=>	null,
 		'underdevelopment'		=>	null,
+		'labbook'				=>  null
 	);
 
 	function __construct(){
