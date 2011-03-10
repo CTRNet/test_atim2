@@ -133,7 +133,7 @@ class OrderItemsController extends OrderAppController {
   		// MANAGE SET OF ALIQUOT IDS TO WORK ON
 		$order_line_id = null;
   		$aliquot_ids_to_add = null;
-		$url_to_redirect = null;
+		$url_to_redirect = '/menus';
 		$launch_save_process = false;
 		
 		if(empty($this->data) || isset($this->data['BatchSet']) || isset($this->data['node'])) {
@@ -187,8 +187,6 @@ class OrderItemsController extends OrderAppController {
 				$this->redirect( '/pages/err_order_funct_param_missing', null, true );
 			}
 			
-			unset($_SESSION['ctrapp_core']['datamart']['process']);
-			
 			// A.2- Validate submitted aliquot ids
 			$submitted_aliquots_validates = true;
 			$error_message = '';
@@ -218,22 +216,25 @@ class OrderItemsController extends OrderAppController {
 			} else {
 				// Set data to session
 				$aliquot_ids_to_add = $studied_aliquot_master_ids;
-				$_SESSION['Order']['AliquotIdsToAddToOrder'] = $studied_aliquot_master_ids;
-				$_SESSION['Order']['url_to_redirect'] = $url_to_redirect;
 			}	
 					
 		} else {
+			
+			// B- User just clicked on submit button
+			
 			$order_line_id = $this->data['OrderLine']['id'];
-			if(!isset($_SESSION['Order']['AliquotIdsToAddToOrder'])) { 
+			if(!isset($this->data['0']['aliquot_ids_to_add']) || !isset($this->data['0']['url_to_cancel'])) { 
 				$this->redirect('/pages/err_order_system_error', null, true); 
 			}
-			$aliquot_ids_to_add = $_SESSION['Order']['AliquotIdsToAddToOrder'];
+			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
+			$url_to_redirect = $this->data['0']['url_to_cancel'];
 			$launch_save_process = true;
-			$url_to_redirect = isset($_SESSION['Order']['url_to_redirect'])? $_SESSION['Order']['url_to_redirect']: '/menus';
 		}
 		
 		// MANAGE DATA
-
+		
+		$this->set('aliquot_ids_to_add', implode(',',$aliquot_ids_to_add));
+		
 		// Get data of aliquots to add
 		$aliquots_data = $this->paginate($this->ViewAliquot, array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add));
 		$this->set('aliquots_data' , $aliquots_data);	
@@ -316,9 +317,6 @@ class OrderItemsController extends OrderAppController {
 				
 				$this->OrderLine->id = $order_line_id;
 				if(!$this->OrderLine->save($new_order_line_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
-				
-				// Unset session data
-				unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 				
 				// Redirect
 				$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
