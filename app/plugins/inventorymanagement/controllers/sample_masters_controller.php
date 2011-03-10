@@ -860,7 +860,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$this->Structures->set('derivative_init');
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
-		$this->set('parent_sample_control_id', $init_data['control_id']);-
+		$this->set('parent_sample_control_id', $init_data['control_id']);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -877,6 +877,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
 		$this->Structures->set('derivative_lab_book');
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
 	}
 	
 	function batchDerivative(){
