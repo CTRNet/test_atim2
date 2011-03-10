@@ -1,5 +1,10 @@
 <?php 
 
+	$search_type_links = array();
+	$search_type_links['order'] = array('link'=> '/order/orders/index/', 'icon' => 'search');
+	$search_type_links['order item'] = array('link'=> '/order/order_items/index/', 'icon' => 'search');
+	$search_type_links['shipment'] = array('link'=> '/order/shipments/index/', 'icon' => 'search');
+	
 	// 1- ORDER DETAIL	
 	
 	$structure_links = array(
@@ -9,7 +14,7 @@
 			'add order line'=>'/order/order_lines/add/' . $atim_menu_variables['Order.id'] . '/',
 			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/',
 			'delete'=>'/order/orders/delete/' . $atim_menu_variables['Order.id'] . '/',
-			'search'=>'/order/orders/index'
+			'new search' => $search_type_links
 		)
 	);
 	

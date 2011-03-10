@@ -1858,3 +1858,19 @@ UPDATE datamart_structures SET `index_link` = '/inventorymanagement/specimen_rev
 UPDATE datamart_structures SET `index_link` = '/inventorymanagement/quality_ctrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/' WHERE model = 'QualityCtrl';
 
 
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='OrderItem' AND tablename='order_items' AND field='date_added' AND type='date' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='OrderItem' AND tablename='order_items' AND field='added_by' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff'));
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='OrderItem' AND tablename='order_items' AND field='status' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='order_item_status'));
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='shipment_code' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='recipient' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='facility' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='shipping_account_nbr' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='datetime_shipped' AND type='datetime' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Shipment' AND tablename='shipments' AND field='shipped_by' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff'));
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('add order' , 'Add Order' , 'Ajouter Commande'),
+('order item' , 'Order Item' , 'Article de Commande');
+
+

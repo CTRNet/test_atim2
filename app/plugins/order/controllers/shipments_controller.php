@@ -14,6 +14,36 @@ class ShipmentsController extends OrderAppController {
 		
 	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
+	function index() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+						
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}
+	
+	function search() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+
+		$shipments_structure = $this->Structures->get('form', 'shipments');
+		$this->set('atim_structure', $shipments_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($shipments_structure);
+		
+		$this->data = $this->paginate($this->Shipment, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Shipment']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/shipments/search';
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}	
+		
 	function listall( $order_id=null ) {
 		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
 

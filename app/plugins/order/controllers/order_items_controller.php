@@ -18,6 +18,36 @@ class OrderItemsController extends OrderAppController {
 		'OrderItem'=>array('limit'=>pagination_amount,'order'=>'AliquotMaster.barcode'),
 		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
+
+	function index() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+						
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}
+	
+	function search() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+
+		$oderitems_structure = $this->Structures->get('form', 'orderitems');
+		$this->set('atim_structure', $oderitems_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($oderitems_structure);
+		
+		$this->data = $this->paginate($this->OrderItem, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['OrderItem']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/order_items/search';
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
+	}	
 	
 	function listall( $order_id, $order_line_id ) {
   		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
