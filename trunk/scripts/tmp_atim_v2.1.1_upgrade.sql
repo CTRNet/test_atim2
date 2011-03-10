@@ -1851,6 +1851,8 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 UPDATE menus SET use_summary = 'Storagelayout.StorageMaster::summary' WHERE id IN ('sto_CAN_05', 'sto_CAN_10');
 
+UPDATE datamart_structures SET `index_link` = '/inventorymanagement/specimen_reviews/detail/%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/' WHERE model = 'SpecimenReviewMaster';
+UPDATE datamart_structures SET `index_link` = '/inventorymanagement/quality_ctrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/' WHERE model = 'QualityCtrl';
 
 
 
