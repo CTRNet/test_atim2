@@ -112,6 +112,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data = array_merge($this->data, $aliquots);
 		}
 
+		// Set menu variables
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
