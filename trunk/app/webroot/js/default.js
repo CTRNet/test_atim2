@@ -567,17 +567,17 @@ function uncheckAll( $div ) {
 		var checkbox = null;
 		var codeInputField = null;
 		$(scope).find("input, select, textarea").each(function(){
+			var currName = $(this).attr("name");
 			for(var i in labBookFields){
-				var currName = $(this).attr("name"); 
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
 					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
-				}else if(currName == "data[DerivativeDetail][sync_with_lab_book]"){
-					checkbox = $(this);
-				}else if(currName == 'data[DerivativeDetail][lab_book_master_code]'){
-					codeInputField = $(this);
 				}
-				
+			}
+			if(currName.indexOf("[sync_with_lab_book]") > 0){
+				checkbox = $(this);
+			}else if(currName.indexOf("[lab_book_master_code]") > 0){
+				codeInputField = $(this);
 			}
 		});
 		if(checkbox != null){
