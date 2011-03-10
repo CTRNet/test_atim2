@@ -96,6 +96,31 @@ class SampleMaster extends InventorymanagementAppModel {
 		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.sample_master_id'), 'conditions' => array('AliquotMaster.sample_master_id' => $sample_master_ids), 'group' => array('AliquotMaster.sample_master_id')))));
 		
 	}
+	
+	/**
+	 * Validates a lab book. Update the lab_book_master_id if it's ok.
+	 * @param array $data The data to work with
+	 * @param LabBookMaster $lab_book Any LabBookMaster object (it's assumed the caller is already using one)
+	 * @param int $lab_book_ctrl_id The lab_book_ctrl_id that is allowed
+	 * @param boolean $sync If true, will synch with the lab book when it's valid
+	 * @return An empty string on success, an error string on failure.
+	 */
+	function validateLabBook(array &$data, $lab_book, $lab_book_ctrl_id, $sync){
+		$msg = "";
+		if(strlen($data['DerivativeDetail']['lab_book_master_code']) > 0){
+			$result = $lab_book->syncData($data, $sync ? array('DerivativeDetail') : array(), $data['DerivativeDetail']['lab_book_master_code'], $lab_book_ctrl_id);
+			if(is_numeric($result)){
+				//went well, we have the lab book id as a result
+				$data['DerivativeDetail']['lab_book_master_id'] = $result;
+			}else{
+				//error
+				$msg = $result;
+			}
+		}else if($this->data['DerivativeDetail']['sync_with_lab_book'] || (isset($data[0]) && isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])){
+				$msg = __('to synchronize with a lab book, you need to define a lab book to use', true);
+		}
+		return $msg;
+	}
 }
 
 ?>
