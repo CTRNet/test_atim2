@@ -278,7 +278,7 @@ class ShellHelper extends Helper {
 									$word = __(trim($menu_item['Menu']['language_title']), true);
 									$untranslated = strpos($word, "<span class='untranslated'>") === 0;
 									if($untranslated){
-										$word = substr($part, 27, -7);			
+										$word = substr($word, 27, -7);			
 									}
 									$max_length = 30;
 									if(strlen($word) > $max_length){
