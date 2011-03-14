@@ -57,7 +57,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			if(!empty($confidential_control_ids)){
 				foreach($results as &$result){
 					if(in_array($result['MiscIdentifier']['misc_identifier_control_id'], $confidential_control_ids)){
-						$result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_CHAR;
+						$result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_MARKER;
 					}
 				}
 			}
