@@ -876,7 +876,21 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
-		$this->Structures->set('derivative_lab_book');
+		
+		$tmp = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => array(
+			'ParentToDerivativeSampleControl.parent_sample_control_id' => $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'],
+			'ParentToDerivativeSampleControl.derivative_sample_control_id' => $this->data['SampleMaster']['sample_control_id']
+			),
+			'fields' => array('ParentToDerivativeSampleControl.lab_book_control_id'),
+			'recursive' => -1)
+		);
+		if(is_numeric($tmp['ParentToDerivativeSampleControl']['lab_book_control_id'])){
+			$this->Structures->set('derivative_lab_book');
+		}else{
+			$this->Structures->set('empty');
+			AppController::addWarningMsg(__('no lab book can be defined for that derivative', true).". ".__('click submit to continue', true).".");
+		}
+		
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
