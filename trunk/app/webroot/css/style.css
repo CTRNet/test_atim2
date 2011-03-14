@@ -1086,10 +1086,13 @@ span.help {
 /* -=site wide*/
 a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
 a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
+a.add_to_order { background: url("../img/icons/into_cart_16x16.png") no-repeat left center; }
+a.add_to_shipment { background: url("../img/icons/truck_add_into_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
 a.copy  { background: url("../img/icons/copy-icon16x16.png") no-repeat left center; }
+a.create_shipment  { background: url("../img/icons/truck_add_16x16.png") no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1119,6 +1122,7 @@ a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px cent
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
+a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left center; }
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }

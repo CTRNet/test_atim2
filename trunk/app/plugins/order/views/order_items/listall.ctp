@@ -9,7 +9,7 @@
 		'bottom'=>array(
 			'edit all' => '/order/order_items/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 			'add item'=> '/order/order_items/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
-			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/',
+			'add shipment'=>array('link'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
 			'new search' => $search_type_links
 		)
 	);

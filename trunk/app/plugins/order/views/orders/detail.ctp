@@ -12,7 +12,7 @@
 		'bottom'=>array(
 			'edit'=>'/order/orders/edit/' . $atim_menu_variables['Order.id'] . '/',
 			'add order line'=>'/order/order_lines/add/' . $atim_menu_variables['Order.id'] . '/',
-			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/',
+			'add shipment'=>array('link'=> '/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
 			'delete'=>'/order/orders/delete/' . $atim_menu_variables['Order.id'] . '/',
 			'new search' => $search_type_links
 		)
@@ -33,9 +33,9 @@
 	
 	// 2- ORDER LINES
 	
-	$structure_links['index'] = array(
-		'add order line item'=>'/order/order_items/add/%%Order.id%%/%%OrderLine.id%%/',		
-		'detail'=>'/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/'
+	$structure_links['index'] = array(	
+		'detail'=>'/order/order_lines/detail/%%Order.id%%/%%OrderLine.id%%/',
+		'add order line item'=>array('link'=>'/order/order_items/add/%%Order.id%%/%%OrderLine.id%%/','icon'=>'add_to_order')
 	);
 	
 	$structure_override = array();
