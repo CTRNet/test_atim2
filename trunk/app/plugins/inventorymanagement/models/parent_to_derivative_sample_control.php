@@ -53,7 +53,7 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel {
 					'ParentToDerivativeSampleControl.parent_sample_control_id' => $parent_sample_ctrl_id,
 					'ParentToDerivativeSampleControl.derivative_sample_control_id' => $children_sample_ctrl_id
 		))));
-		return empty($lab_book_expected_ctrl_id) ? false : $lab_book_ctrl_id[0];	
+		return empty($lab_book_ctrl_id[0]) ? false : $lab_book_ctrl_id[0];	
 	}
 }
 

@@ -1661,7 +1661,7 @@ AND samp.sample_type = 'dna';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('lab book creation', 'Lab Book Creation', 'Création du cahier de laboratoire'),
 ('skip lab book creation', 'Skip Creation', 'Passer la création'),
-('synchronize with lab book', 'Synch.', 'Synch.'),
+('synchronize with lab book', 'Keep Synchronized.', 'Garder Synchronizé'),
 ('derivative lab book', 'Lab Book', 'Cahier de laboratoire'),
 ('a lab book should be selected to synchronize', 'A lab book should be selected to synchronize data!', 'Un cahier de laboratoire doit être sélectionné pour synchronizer les données!');
 
@@ -1799,7 +1799,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('sample', 'Sample', 'Échantillon'),
 ('parent aliquot', 'Parent Aliquot', 'Aliquot Parent'),
 ('parent sample', 'Parent Sample', 'Échantillon Parent'),
-('edit synchronization option', 'Change Synch. Options', 'Modifier les options ''Synch.'''),
+('edit synchronization option', 'Change Synchronization Options', 'Modifier options synchronisation'),
 ('dna extraction', 'DNA Extraction', 'Extraction d''ADN');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
@@ -1876,6 +1876,29 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'Allow to track data linked to a set of inventory entities created during a batch process (realiquoting, derivatives creation, etc) and that can be applied to the all. This tool can be used to synchronize all data of these entities created in batch.',
 'Permet l''enregistrement de données liées à des entités de l''inventaire créés durant le même processus (realiquotiage en lot, dérivés créés en lot, etc) et qui s''appliquent à l''ensemble des entités. Cette outil peut être utilisé pour synchroniser les données de ces entités créés en lot.');
 
+UPDATE structure_fields SET setting = 'rows=3,cols=30' WHERE field LIKE 'notes';
+UPDATE structure_formats SET flag_override_type = '0', type = '' WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field LIKE 'notes' AND model LIKE 'LabBookMaster');
 
+DELETE FROM i18n WHERE id IN (
+'no lab book can be applied to the current item(s)',
+'click submit to continue',
+'if no lab book has to be defined for this process, keep fields empty and click submit to continue',
+'lab book selection',
+'add lab book (pop-up)',
+'derivative type selection',
+'invalid lab book code',
+'the selected lab book cannot be applied to the current item(s)');
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('no lab book can be applied to the current item(s)','No lab book can be applied to the current item(s)!','Aucun cahier de laboratoire ne peut être appliqué à ces données!'),
+('click submit to continue','Click submit to continue.','Cliquer sur ''Envoyer'' pour continuer.'),
+('if no lab book has to be defined for this process, keep fields empty and click submit to continue',
+'If no lab book has to be defined for this process, keep fields empty and click submit to continue.',
+'Si aucun cahier de laboratoire ne doit être défini pour ce processus, gader les champs vide et cliquer sur ''Envoyer''.'),
+('lab book selection','Lab Book Selection','Sélection du cahier de laboratoire'),
+('add lab book (pop-up)','Add Lab Book (pop-up)','Ajouter cahier de labo. (pop-up)'),
+('derivative type selection','Derivative Type Selection','Sélection type de dérivé'),
 
+('invalid lab book code','Invalid lab book code!','Code de cahier de laboratoire invalide!'),
+('the selected lab book cannot be applied to the current item(s)',
+'The selected lab book cannot be applied to the current item(s)!','Le cahier de laboratoire sélectionné ne peut être appliqué à ces données!');
