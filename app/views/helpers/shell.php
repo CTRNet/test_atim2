@@ -123,29 +123,9 @@ class ShellHelper extends Helper {
 		}
 		
 		// display any VALIDATION ERRORS
-		$display_errors_html = null;
-		if(isset($this->validationErrors) && count($this->validationErrors)){
-			$display_errors = array();
-			foreach ( $this->validationErrors as $model ) {
-				foreach ( $model as $field ) {
-					if(is_array($field)){
-						foreach($field as $field_unit){
-							$display_errors[] = '
-								<li>'.__($field_unit, true).'</li>
-							';
-						}
-					}else{
-						$display_errors[] = '
-							<li>'.__($field, true).'</li>
-						';
-					}
-				}
-			}
-			$display_errors_html = 
-					'<ul class="error">
-						'.implode('',array_unique($display_errors)).'
-					</ul>';
-		}
+		$display_errors_html = $this->validationErrors();
+		
+		
 		$confirm_msg_html = "";
 		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
 			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
@@ -177,6 +157,33 @@ class ShellHelper extends Helper {
 		
 		return $return;
 		
+	}
+	
+	function validationErrors(){
+		$result = "";
+		if(isset($this->validationErrors) && count($this->validationErrors)){
+			$display_errors = array();
+			foreach ( $this->validationErrors as $model ) {
+				foreach ( $model as $field ) {
+					if(is_array($field)){
+						foreach($field as $field_unit){
+							$display_errors[] = '
+								<li>'.__($field_unit, true).'</li>
+							';
+						}
+					}else{
+						$display_errors[] = '
+							<li>'.__($field, true).'</li>
+						';
+					}
+				}
+			}
+			$result =
+					'<ul class="error">
+						'.implode('',array_unique($display_errors)).'
+					</ul>';
+		}
+		return $result;
 	}
 	
 	function footer( $options=array() ) {
