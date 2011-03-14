@@ -48,14 +48,14 @@ class LabBookMaster extends LabBookAppModel {
 	 * @param string $lab_book_code The lab book code to synch with
 	 * @param int $expected_ctrl_id If not null, will validate that the lab book code control id match the expected one.
 	 */
-	function syncData(array &$data, array $models, $lab_book_code, $expected_ctrl_id){
+	function syncData(array &$data, array $models, $lab_book_code, $expected_ctrl_id = '-1'){
 		$result = null;
 		$lab_book = $this->find('first', array('conditions'=> array('LabBookMaster.code' => $lab_book_code)));
 		if(empty($lab_book)){
 			$result = __('invalid lab book code', true);
-		}else if($expected_ctrl_id === false || empty($expected_ctrl_id)) {
+		}else if(empty($expected_ctrl_id)) {
 			$result = __('no lab book can be applied to the current item(s)', true);
-		}else if($lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id){
+		}else if($expected_ctrl_id != '-1' && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id){
 			$result = __('the selected lab book cannot be applied to the current item(s)', true);
 		}else{
 			$result = $lab_book['LabBookMaster']['id']; 

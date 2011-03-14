@@ -673,13 +673,20 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_book_fields = array();
 		$lab_book = null;
 		$lab_book_ctrl_id = 0;
+		$previous_labook_code = null;
 		if(!$is_specimen){
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
 			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_data['SampleMaster']['parent_id']), 'recursive' => -1));
 			$lab_book_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_data['SampleMaster']['sample_control_id'], $sample_data['SampleMaster']['sample_control_id']);
 			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
+			if(empty($this->data) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) {
+				$previous_labook = $lab_book->find('first', array('conditions' => array('id'=>$sample_data['DerivativeDetail']['lab_book_master_id']), 'recursive'=>'-1'));
+				if(empty($previous_labook)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+				$previous_labook_code = $previous_labook['LabBookMaster']['code'];
+			}	
 		}
 		$this->set("lab_book_fields", $lab_book_fields);
+		if(!empty($previous_labook_code)) $sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook_code;
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -909,6 +916,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$lab_book_expected_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_control_id,$this->data['SampleMaster']['sample_control_id']); 
 			$foo = array();
 			$result = $lab_book->syncData($foo, array(), $lab_book_master_code, $lab_book_expected_ctrl_id);
+
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
@@ -917,11 +925,11 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
 			$lab_book_fields = $lab_book->getFields($lab_book_data['LabBookControl']['id']);
-			unset($this->data['DerivativeDetail']);
 		}
 		$this->set('lab_book_master_code', $lab_book_master_code);
 		$this->set('sync_with_lab_book', $sync_with_lab_book);
 		$this->set('lab_book_fields', $lab_book_fields);
+		unset($this->data['DerivativeDetail']);
 		
 		// Set structures and menu
 		
@@ -940,6 +948,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
 		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		unset($this->data['url_to_cancel']);
 		
 		if(isset($this->data['SampleMaster']['ids'])){
 
@@ -998,7 +1007,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					}
 				}
 				if($lab_book_id != null){
-					$lab_book->syncData($children, array("DerivativeDetail"), $lab_book_master_code, null);
+					$lab_book->syncData($children, array("DerivativeDetail"), $lab_book_master_code);
 				}
 				$this->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
 				if(!$new_derivative_created) $errors[]['at least one child has to be created'][] = $record_counter;
