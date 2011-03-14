@@ -186,19 +186,29 @@ class BatchSetsController extends DatamartAppController {
 				$batch_set['BatchSet']['lookup_key_name'],
 				$batch_set['BatchSet']['structure_alias'],
 				$dropdown['model'], 
-				$dropdown['key']
+				$dropdown['key'],
+				$batch_set_id
 			);
 			if($batch_set_id != 0){
-				$actions[0]['children'] = array_merge(
-					array(0 => array(
+				$tmp = array(0 => array(
 						'value' => '0',
 						'default' => __('remove from batch set', true),
 						'action' => '/datamart/batch_sets/remove/'.$batch_set_id.'/'
-					)),
+				));
+				if(!is_numeric($batch_set['BatchSet']['datamart_structure_id'])){
+					$tmp[1] = array(
+						'value' => '0',
+						'default' => __('create generic batch set', true),
+						'action' => '/datamart/batch_sets/add/-1'
+					);
+				}	
+				$actions[0]['children'] = array_merge(
+					$tmp,
 					$actions[0]['children']
 				);
 			}	
 		}
+
 		$this->set('actions', $actions);
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		$ctrapp_form_links = array();
@@ -234,6 +244,10 @@ class BatchSetsController extends DatamartAppController {
 	
 	function add( $target_batch_set_id=0 ) {
 		// if not an already existing Batch SET...
+		$is_generic = $target_batch_set_id == -1;
+		if($is_generic){
+			$target_batch_set_id = 0;
+		}
 		if ( !$target_batch_set_id ) {
 			// Create new batch set
 			if(array_key_exists('Adhoc', $this->data)) {
@@ -260,13 +274,21 @@ class BatchSetsController extends DatamartAppController {
 			}else if(array_key_exists('BatchSet', $this->data) && isset($this->data['BatchSet']['datamart_structure_id'])){
 				$this->data['BatchSet']['datamart_structure_id'] = $this->data['BatchSet']['datamart_structure_id'];
 			}else if(array_key_exists('BatchSet', $this->data)) {
-				pr($this->data);
 				$batch_set_tmp = $this->BatchSet->find('first', array('conditions' => array('BatchSet.id' => $this->data['BatchSet']['id']), 'recursive' => -1));
-				$to_copy = array('plugin', 'model', 'lookup_key_name', 'form_alias_for_results', 'form_links_for_results', 'flag_use_query_results', 'sql_query_for_results', 'datamart_structure_id');
-				foreach($to_copy as $key){
-					$this->data['BatchSet'][$key] = $batch_set_tmp['BatchSet'][$key];
-				}
 				unset($this->data['BatchSet']['id']);
+				if($is_generic){
+					$datamart_structure = $this->DatamartStructure->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $batch_set_tmp['BatchSet']['model'], 'DatamartStructure.control_master_model' => $batch_set_tmp['BatchSet']['model']))));
+					if(empty($datamart_structure)){
+						$this->flash(__('this batch set cannot be used to create a generic batch set', true), 'javascript:history.back();', 5);
+						return;
+					}
+					$this->data['BatchSet']['datamart_structure_id'] = $datamart_structure['DatamartStructure']['id'];
+				}else{
+					$to_copy = array('plugin', 'model', 'lookup_key_name', 'form_alias_for_results', 'form_links_for_results', 'flag_use_query_results', 'sql_query_for_results', 'datamart_structure_id');
+					foreach($to_copy as $key){
+						$this->data['BatchSet'][$key] = $batch_set_tmp['BatchSet'][$key];
+					}
+				}
 			} else {
 				$this->redirect('/pages/err_datamart_system_error', null, true);
 			}
@@ -293,8 +315,8 @@ class BatchSetsController extends DatamartAppController {
 	   
 		$batch_set = $this->BatchSet->read();
 		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)){
-				return;
-			}
+			return;
+		}
 		
 	    
 		if($batch_set['BatchSet']['datamart_structure_id']){
@@ -302,8 +324,13 @@ class BatchSetsController extends DatamartAppController {
 			$datamart_structure = $datamart_structure['DatamartStructure'];
 			if($datamart_structure['control_master_model']){
 				$batch_set['BatchSet']['model'] = $datamart_structure['control_master_model'];
-				$tmp = $this->data[$datamart_structure['model']];
-				$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['use_key'];
+				if(isset($this->data[$datamart_structure['model']])){
+					$tmp = $this->data[$datamart_structure['model']];
+					$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['use_key'];
+				}else{
+					$tmp = $this->data[$datamart_structure['control_master_model']];
+					$batch_set['BatchSet']['lookup_key_name'] = 'id';
+				}
 				unset($this->data[$datamart_structure['model']]);
 				$this->data[$datamart_structure['control_master_model']] = $tmp;
 				
