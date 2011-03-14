@@ -1661,7 +1661,7 @@ AND samp.sample_type = 'dna';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('lab book creation', 'Lab Book Creation', 'Création du cahier de laboratoire'),
 ('skip lab book creation', 'Skip Creation', 'Passer la création'),
-('synchronize with lab book', 'Keep Synchronized.', 'Garder Synchronizé'),
+('synchronize with lab book', 'Keep Synchronized', 'Garder Synchronizé'),
 ('derivative lab book', 'Lab Book', 'Cahier de laboratoire'),
 ('a lab book should be selected to synchronize', 'A lab book should be selected to synchronize data!', 'Un cahier de laboratoire doit être sélectionné pour synchronizer les données!');
 
@@ -1902,3 +1902,30 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('invalid lab book code','Invalid lab book code!','Code de cahier de laboratoire invalide!'),
 ('the selected lab book cannot be applied to the current item(s)',
 'The selected lab book cannot be applied to the current item(s)!','Le cahier de laboratoire sélectionné ne peut être appliqué à ces données!');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('search start from', 'Search Start From', 'Recherche a partir de');
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='lab_book_master_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'lab_book_code_from_id', 'open', '', 'Labbook.LabBookMaster::getLabBookPermissibleValuesFromId');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'DerivativeDetail', 'derivative_details', 'lab_book_master_id', 'derivative lab book', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='lab_book_code_from_id') , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='lab_book_master_id' AND `language_label`='derivative lab book' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lab_book_code_from_id')  AND `language_help`=''), '1', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='lab_book_master_code' AND type='autocomplete' AND structure_value_domain  IS NULL );
+
+UPDATE structure_fields SET  `language_tag`='synchronize with lab book now' WHERE model='0' AND tablename='' AND field='sync_with_lab_book_now' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_column`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='0' 
+AND tablename='' AND field='sync_with_lab_book_now' AND type='checkbox' AND structure_value_domain  IS NULL );
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('synchronize with lab book now', 'Synch. Now', 'Synch. Auj.'),
+('to synchronize with a lab book, you need to define a lab book to use', 
+'To synchronize with a lab book, you need to define a lab book to use!', 
+'Pour synchroniser avec un cahier de laboratoire, vous devez en définir un!');
+
+
+
+
