@@ -9,7 +9,7 @@
 	
 	
 	if($is_ajax){ 
-		$settings['header'] = __('add lab book', true);
+		$settings['header'] = array('title' => __('add lab book', true), 'description' => $book_type);
 	}else{
 		$bottom_buttons['cancel'] = '/labbook/lab_book_masters/index/';
 	}

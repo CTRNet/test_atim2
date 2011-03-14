@@ -1323,8 +1323,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set data & structure
 		$this->data[0]['ids'] = implode(",", $ids);
 		AliquotMaster::$aliquot_type_dropdown = $dropdown;
-//TODO derivative_lab_book
-		$this->Structures->set('aliquot_type_selection,derivative_lab_book');
+
+		$this->Structures->set('aliquot_type_selection');
 		
 		if(empty($aliquot_id)) {
 			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
@@ -1344,14 +1344,63 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($hook_link){
 			require($hook_link);
 		}
-	}	
+	}
+
+	function realiquotInit2($aliquot_id = null){
+		$this->set('aliquot_id', $aliquot_id);
+		$this->set('realiquot_from', $this->data['realiquot_from']);
+		$this->set('realiquot_into', $this->data[0]['realiquot_into']);
+		$this->set('ids', $this->data[0]['ids']);
+		$this->set('url_to_cancel', $_SESSION['realiquot_batch_process']['url_to_cancel']);
+		$this->Structures->set('realiquoting_lab_book');
+		
+		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $this->data[0]['ids'])));
+		$sample_ctrl_id = $aliquot_data['SampleMaster']['sample_control_id'];
+		$lab_book_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $this->data['realiquot_from'], $this->data[0]['realiquot_into']);
+		$this->set('lab_book_ctrl_id', $lab_book_ctrl_id);
+		
+		if(is_numeric($lab_book_ctrl_id)){
+			$this->Structures->set('realiquoting_lab_book');
+		}else{
+			$this->Structures->set('empty');
+			AppController::addWarningMsg(__('no lab book can be defined for that realiquoting', true).". ".__('click submit to continue', true).".");
+		}
+	}
 	
 	function realiquot($aliquot_id = null){
 		if(isset($_SESSION['realiquot_batch_process']['init']) && (!empty($_SESSION['realiquot_batch_process']['init']))) {
 			// Check init redirect
 			$this->data = $_SESSION['realiquot_batch_process']['init'];
 			unset($_SESSION['realiquot_batch_process']['init']);
-		} else if(empty($this->data)){ $this->redirect("/pages/err_inv_no_data", null, true); }
+		} else if(empty($this->data)){ 
+			$this->redirect("/pages/err_inv_no_data", null, true); 
+		}
+		
+		$lab_book = null;//lab book object
+		$lab_book_expected_ctrl_id = null;
+		$lab_book_code = null;
+		$sync_with_lab_book = null;
+		$lab_book_fields = array();
+		if(isset($this->data['Realiquoting']) && isset($this->data['Realiquoting']['lab_book_master_code']) && (strlen($this->data['Realiquoting']['lab_book_master_code']) > 0 || $this->data['Realiquoting']['sync_with_lab_book'])){
+			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $this->data[0]['ids'])));
+			$sample_ctrl_id = $aliquot_data['SampleMaster']['sample_control_id'];
+			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $this->data['realiquot_from'], $this->data[0]['realiquot_into']);
+			$sync_response = $lab_book->syncData($this->data, array(), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
+			if(is_numeric($sync_response)){
+				$lab_book_fields = $lab_book->getFields($sync_response);
+				$lab_book_code = $this->data['Realiquoting']['lab_book_master_code'];
+				$sync_with_lab_book = $this->data['Realiquoting']['sync_with_lab_book']; 
+			}else{
+				$this->flash($sync_response, "javascript:history.back()", 5);
+			}
+		}else{
+			pr($this->data);
+			die("no");
+		}
+		$this->set('lab_book_code', $lab_book_code);
+		$this->set('sync_with_lab_book', $sync_with_lab_book);
+		$this->set('lab_book_fields', $lab_book_fields);
 		
 		// Get parent an child control data
 		$parent_aliquot_ctrl_id = isset($this->data['realiquot_from'])? $this->data['realiquot_from']: null;
@@ -1387,9 +1436,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('in_stock_detail', 'in_stock_detail');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
 		
-		$this->set('lab_book_id', $this->data['DerivativeDetail']['lab_book_id']);
-		$this->set('sync_with_lab_book', $this->data['DerivativeDetail']['sync_with_lab_book']);
-
 		if(!isset($_SESSION['realiquot_batch_process']['url_to_cancel'])) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		$this->set('url_to_cancel', $_SESSION['realiquot_batch_process']['url_to_cancel']);
 
@@ -1531,6 +1577,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			
 			$this->data = $validated_data;
+			
+			if($lab_book_expected_ctrl_id != null){
+				//this time we do synchronize with the lab book
+				$lab_book->syncData($this->data, array('AliquotDetail'), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){

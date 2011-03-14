@@ -38,8 +38,8 @@
 			$final_options_children['extras'] = 
 				'<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
 				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
-				<input type="hidden" name="data[DerivativeDetail][lab_book_id]" value="'.$lab_book_id.'"/>
-				<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>';
+				<input type="hidden" name="data[Realiquoting][lab_book_code]" value="'.$lab_book_code.'"/>
+				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>';
 		}
 		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
@@ -60,4 +60,6 @@ var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
+var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+var labBookHideOnLoad = true;
 </script>

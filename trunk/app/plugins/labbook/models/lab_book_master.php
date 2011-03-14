@@ -57,7 +57,7 @@ class LabBookMaster extends LabBookAppModel {
 			$result = __('the selected lab book cannot be applied to the current item(s)', true);
 		}else{
 			$result = $lab_book['LabBookMaster']['id']; 
-			if(!empty($data)){
+			if(!empty($data) && !empty($models)){
 				$extract = null;
 				if(isset($data[$models[0]])){
 					$data = array($data);

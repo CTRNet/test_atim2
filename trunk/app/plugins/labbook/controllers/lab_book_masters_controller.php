@@ -121,7 +121,7 @@ class LabBookMastersController extends LabBookAppController {
 		if(empty($control_data)) { 
 			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
 		}
-		
+		$this->set('book_type', __($control_data['LabBookControl']['book_type'], true));
 		$initial_data = array();
 		$initial_data['LabBookMaster']['lab_book_control_id'] = $control_id;
 		
