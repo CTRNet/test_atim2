@@ -60,6 +60,6 @@ var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
-var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+var labBookFields = new Array("<?php echo is_array($lab_book_fields) ? implode('", "', $lab_book_fields) : ""; ?>");//FMLHHHHHHHH
 var labBookHideOnLoad = true;
 </script>

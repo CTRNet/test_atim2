@@ -569,6 +569,9 @@ function uncheckAll( $div ) {
 		$(scope).find("input, select, textarea").each(function(){
 			var currName = $(this).attr("name");
 			for(var i in labBookFields){
+				if(labBookFields[i].length == 0){
+					continue;
+				}
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
 					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
