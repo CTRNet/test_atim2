@@ -3,7 +3,7 @@
 	$options = array(
 			"links"		=> array(
 				"top" => '/inventorymanagement/sample_masters/batchDerivative/',
-//				'bottom' => array('cancel' => $url_to_cancel)
+				'bottom' => array('cancel' => $url_to_cancel)
 			));
 
 	$options_parent = array_merge($options, array(
@@ -39,8 +39,8 @@
 				'<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
 				<input type="hidden" name="data[DerivativeDetail][lab_book_master_code]" value="'.$lab_book_master_code.'"/>
 				<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
-				<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>';
-				
+				<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
+				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
 		$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) ." #".$counter;
 		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];

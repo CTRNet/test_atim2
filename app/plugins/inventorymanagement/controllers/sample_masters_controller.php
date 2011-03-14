@@ -834,21 +834,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(array_key_exists('error', $init_data)) {
 			$this->flash(__($init_data['error'], true), "javascript:history.back();", 5);
 			return;
-		}
-		if(sizeof($init_data['possibilities']) == 1) {
-
-			// Only one available type move to next step
-			$session_data = array();
-			$session_data['SampleMaster']['ids'] = $init_data['ids'];
-			$session_data['SampleMaster']['sample_control_id'] = $init_data['possibilities'][0]['DerivativeControl']['id'];
-			
-			$hook_link = $this->hook('redirect');
-			if($hook_link){
-				require($hook_link);
-			}
-							
-			$this->redirect('/inventorymanagement/sample_masters/batchDerivative/');
-		}		
+		}	
 		
 		// Manage structure and menus
 		
@@ -869,13 +855,18 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function batchDerivativeInit2(){
+		
 		if(!isset($this->data['SampleMaster']['ids']) || !isset($this->data['SampleMaster']['sample_control_id'])){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+		} else if($this->data['SampleMaster']['sample_control_id'] == ''){
+			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
 		}
+		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
+		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
 		
 		$tmp = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => array(
 			'ParentToDerivativeSampleControl.parent_sample_control_id' => $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'],
@@ -886,11 +877,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		);
 		if(is_numeric($tmp['ParentToDerivativeSampleControl']['lab_book_control_id'])){
 			$this->Structures->set('derivative_lab_book');
+			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true).".");
 		}else{
 			$this->Structures->set('empty');
-			AppController::addWarningMsg(__('no lab book can be defined for that derivative', true).". ".__('click submit to continue', true).".");
+			AppController::addWarningMsg(__('no lab book can be applied to the current item(s)', true).". ".__('click submit to continue', true).".");
 		}
-		
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -911,7 +902,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_book_id = null;
 		$parent_sample_control_id = $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'];
 		unset($this->data['ParentToDerivativeSampleControl']);
-		if(isset($this->data['DerivativeDetail']['lab_book_master_code'])){
+		if(isset($this->data['DerivativeDetail']['lab_book_master_code']) && !empty($this->data['DerivativeDetail']['lab_book_master_code'])){
 			$lab_book_master_code = $this->data['DerivativeDetail']['lab_book_master_code'];
 			$sync_with_lab_book = $this->data['DerivativeDetail']['sync_with_lab_book'];
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
@@ -922,6 +913,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				$lab_book_id = $result;
 			}else{
 				$this->flash($result, "javascript:history.back()", 5);
+				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
 			$lab_book_fields = $lab_book->getFields($lab_book_data['LabBookControl']['id']);
@@ -946,6 +938,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			'SampleMaster.sample_category'	=> $children_control_data['SampleControl']['sample_category'],
 			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
+		
+		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
 		
 		if(isset($this->data['SampleMaster']['ids'])){
 

@@ -53,7 +53,9 @@ class LabBookMaster extends LabBookAppModel {
 		$lab_book = $this->find('first', array('conditions'=> array('LabBookMaster.code' => $lab_book_code)));
 		if(empty($lab_book)){
 			$result = __('invalid lab book code', true);
-		}else if($expected_ctrl_id != null && $lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id){
+		}else if($expected_ctrl_id === false || empty($expected_ctrl_id)) {
+			$result = __('no lab book can be applied to the current item(s)', true);
+		}else if($lab_book['LabBookMaster']['lab_book_control_id'] != $expected_ctrl_id){
 			$result = __('the selected lab book cannot be applied to the current item(s)', true);
 		}else{
 			$result = $lab_book['LabBookMaster']['id']; 
