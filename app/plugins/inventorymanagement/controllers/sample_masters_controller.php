@@ -748,8 +748,6 @@ class SampleMastersController extends InventorymanagementAppController {
 				}				
 			}
 		}
-		$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-		$this->set("lab_book_fields", $lab_book->getFields(1));
 	}
 	
 	function delete($collection_id, $sample_master_id) {
