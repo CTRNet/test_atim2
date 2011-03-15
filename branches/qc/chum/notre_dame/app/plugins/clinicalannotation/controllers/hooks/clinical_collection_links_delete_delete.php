@@ -4,10 +4,11 @@
 	// Update participant collection sample labels
 	// -------------------------------------------------------------------------------- 	
  	if($arr_allow_deletion['allow_deletion']) {
- 		$collection = AppModel::atimNew('Inventorymanagement', 'Collections', true);	
+ 		App::import('Controller', 'Inventorymanagement.Collections');
+ 		$collection_controller =  new CollectionsControllerCustom();	
 			
 		// Update participant collection sample labels
-		$collection->updateCollectionSampleLabels($clinical_collection_data['Collection']['id'], '');
+		$collection_controller->updateCollectionSampleLabels($clinical_collection_data['Collection']['id'], '');
 	}
 
 ?>
