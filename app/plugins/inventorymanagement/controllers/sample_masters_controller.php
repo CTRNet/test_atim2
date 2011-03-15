@@ -508,6 +508,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set("lab_book_fields", $lab_book_fields);
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -673,7 +674,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_book_fields = array();
 		$lab_book = null;
 		$lab_book_ctrl_id = 0;
-		$previous_labook_code = null;
 		if(!$is_specimen){
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
 			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_data['SampleMaster']['parent_id']), 'recursive' => -1));
@@ -682,11 +682,10 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(empty($this->data) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) {
 				$previous_labook = $lab_book->find('first', array('conditions' => array('id'=>$sample_data['DerivativeDetail']['lab_book_master_id']), 'recursive'=>'-1'));
 				if(empty($previous_labook)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
-				$previous_labook_code = $previous_labook['LabBookMaster']['code'];
+				$sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook_code;
 			}	
 		}
 		$this->set("lab_book_fields", $lab_book_fields);
-		if(!empty($previous_labook_code)) $sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook_code;
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){

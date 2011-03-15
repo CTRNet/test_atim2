@@ -233,11 +233,18 @@ class BatchSetsController extends DatamartAppController {
 		$batch_set_process_results = $this->BatchSetProcess->find( 'all', array( 'conditions'=>$conditions, 'recursive'=>3 ) );
 
 		//TODO section added by NL should be validated of modified by mich
+		$batch_actions = array();
 		foreach ( $batch_set_process_results as $value) {
-			$actions[] = array(
+			$batch_actions[] = array(
 				'value' => '0',
 				'default' => __($value['BatchSetProcess']['name'], true),
 				'action' => $value['BatchSetProcess']['url']	);	
+		}
+		if(!empty($batch_actions)) {
+			$actions[] = array(
+				'value' => '0',
+				'default' => __('batch actions', true),
+				'children' => $batch_actions);	
 		}
 		$this->set('actions', $actions);
 	}
