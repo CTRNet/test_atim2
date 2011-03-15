@@ -1886,7 +1886,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('add order' , 'Add Order' , 'Ajouter Commande'),
 ('order item' , 'Order Item' , 'Article de Commande'),
 ('lab book description', 
-'Allow to track data linked to a set of inventory entities created during a batch process (realiquoting, derivatives creation, etc) and that can be applied to the all. This tool can be used to synchronize all data of these entities created in batch.',
+'Allows to track data linked to a set of inventory entities created during a batch process (realiquoting, derivatives creation, etc) and that can be applied to the all. This tool can be used to synchronize all data of these entities created in batch.',
 'Permet l''enregistrement de données liées à des entités de l''inventaire créés durant le même processus (realiquotiage en lot, dérivés créés en lot, etc) et qui s''appliquent à l''ensemble des entités. Cette outil peut être utilisé pour synchroniser les données de ces entités créés en lot.');
 
 UPDATE structure_fields SET setting = 'rows=3,cols=30' WHERE field LIKE 'notes';
