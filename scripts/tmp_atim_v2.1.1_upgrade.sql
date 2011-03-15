@@ -1661,7 +1661,7 @@ AND samp.sample_type = 'dna';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('lab book creation', 'Lab Book Creation', 'Création du cahier de laboratoire'),
 ('skip lab book creation', 'Skip Creation', 'Passer la création'),
-('synchronize with lab book', 'Keep Synchronized', 'Garder Synchronizé'),
+('synchronize with lab book', 'Keep Synchronized', 'Garder Synchronisé'),
 ('derivative lab book', 'Lab Book', 'Cahier de laboratoire'),
 ('a lab book should be selected to synchronize', 'A lab book should be selected to synchronize data!', 'Un cahier de laboratoire doit être sélectionné pour synchronizer les données!');
 
@@ -1799,7 +1799,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('sample', 'Sample', 'Échantillon'),
 ('parent aliquot', 'Parent Aliquot', 'Aliquot Parent'),
 ('parent sample', 'Parent Sample', 'Échantillon Parent'),
-('edit synchronization option', 'Change Synchronization Options', 'Modifier options synchronisation'),
+('edit synchronization option', 'Change Synch. Options', 'Modifier les options ''Synch.'''),
 ('dna extraction', 'DNA Extraction', 'Extraction d''ADN');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
@@ -1839,7 +1839,10 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='derivative_lab_book'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sync_with_lab_book_now' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
 UPDATE structure_fields SET  `setting`='url=/labbook/lab_book_masters/autocomplete/' WHERE model='DerivativeDetail' AND tablename='derivative_details' AND field='lab_book_master_code' AND `type`='autocomplete' AND structure_value_domain  IS NULL ;
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sync_with_lab_book_now' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0', display_column=1 WHERE structure_id=(SELECT id FROM structures WHERE alias='derivative_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sync_with_lab_book_now' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_tag`='synchronize now' WHERE model='0' AND tablename='' AND field='sync_with_lab_book_now' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+
+
 
 UPDATE menus SET parent_id = 'sto_CAN_01' WHERE parent_id = 'sto_CAN_09';
 DELETE FROM menus WHERE id = 'sto_CAN_09';
@@ -1857,6 +1860,16 @@ UPDATE menus SET use_summary = 'Storagelayout.StorageMaster::summary' WHERE id I
 UPDATE datamart_structures SET `index_link` = '/inventorymanagement/specimen_reviews/detail/%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/' WHERE model = 'SpecimenReviewMaster';
 UPDATE datamart_structures SET `index_link` = '/inventorymanagement/quality_ctrls/detail/%%SampleMaster.collection_id%%/%%QualityCtrl.sample_master_id%%/%%QualityCtrl.id%%/' WHERE model = 'QualityCtrl';
 
+
+INSERT INTO structures(`alias`) VALUES ('realiquoting_lab_book');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'Realiquoting', 'realiquotings', 'lab_book_master_code', 'integer',  NULL , '0', '', '', '', 'lab book code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='realiquoting_lab_book'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='lab_book_master_code' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lab book code' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='realiquoting_lab_book'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '2', '', '1', 'sync with lab book', '1', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='', `flag_override_tag`='1', `language_tag`='sync with lab book' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquoting_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `type`='autocomplete',  `setting`='url=/labbook/lab_book_masters/autocomplete/' WHERE model='Realiquoting' AND tablename='realiquotings' AND field='lab_book_master_code' AND `type`='integer' AND structure_value_domain  IS NULL ;
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='autocomplete' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='OrderItem' AND tablename='order_items' AND field='date_added' AND type='date' AND structure_value_domain  IS NULL );
@@ -1925,7 +1938,4 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('to synchronize with a lab book, you need to define a lab book to use', 
 'To synchronize with a lab book, you need to define a lab book to use!', 
 'Pour synchroniser avec un cahier de laboratoire, vous devez en définir un!');
-
-
-
 
