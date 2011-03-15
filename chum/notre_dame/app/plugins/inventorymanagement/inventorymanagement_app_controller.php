@@ -70,7 +70,6 @@ class InventorymanagementAppController extends AppController {
 	 * Get Aliquot data to display into aliquots list view:
 	 *   - Will poulate fields
 	 *         . GeneratedParentSample.*
-	 *         . Generated.aliquot_use_counter 
 	 *         . Generated.realiquoting_data 
 	 *
 	 *	@param $criteria Aliquot Search Criteria
@@ -83,6 +82,7 @@ class InventorymanagementAppController extends AppController {
 	 */
 	 
 	function getAliquotsListData($criteria) {
+//TODO Define if we want to keep this function to display aliquot parent/child	
 		
 		// Search Data
 		$has_many_details = array(
@@ -101,9 +101,6 @@ class InventorymanagementAppController extends AppController {
 		// Manage Data
 		$key_to_sample_parent_id = array();
 		foreach($working_data as $key => $aliquot_data) {
-			// Set aliquot use
-			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
-			
 			// Set realiquoting data
 			$realiquoting_value = 0;
 			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
@@ -132,7 +129,7 @@ class InventorymanagementAppController extends AppController {
 		// Add GeneratedParentSample Data
 		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
 		foreach($key_to_sample_parent_id as $key => $parent_id) {
-			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
 		}
 			
@@ -232,7 +229,13 @@ class InventorymanagementAppController extends AppController {
 		$spent_time_msg = '';
 		if(!empty($spent_time_data)) {	
 			if(!is_null($spent_time_data['message'])) {
-				$spent_time_msg = ($spent_time_data['message'] == '0')? $spent_time_data['message'] : __($spent_time_data['message'], TRUE); 
+				if($spent_time_data['message'] == '0') {
+					$spent_time_msg = $spent_time_data['message'];
+				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
+					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
+				} else {
+					$spent_time_msg = __($spent_time_data['message'], TRUE);
+				}
 			} else {
 				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
 								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 

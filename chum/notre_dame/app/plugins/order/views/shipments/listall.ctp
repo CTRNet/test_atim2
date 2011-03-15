@@ -2,8 +2,8 @@
 	$structure_links = array(
 		'top'=>null,
 		'index'=> array(
-			'add items to shipment' => '/order/shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/',
-			'detail' => '/order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/'),
+			'detail' => '/order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
+			'add items to shipment' => array('link'=> '/order/shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/', 'icon' => 'add_to_shipment')),
 		'bottom'=>array(
 			'add'=>'/order/shipments/add/'.$atim_menu_variables['Order.id'].'/'
 		)

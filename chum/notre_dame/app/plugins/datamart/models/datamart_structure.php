@@ -9,4 +9,17 @@ class DatamartStructure extends DatamartAppModel {
 		}
 		return null;
 	}
+	
+	
+	function getDisplayNameFromId() {
+		$result = array();
+		
+		$data = $this->find('all', array('recursive' => -1));
+		foreach($data as $new_ds) {
+			$result[$new_ds['DatamartStructure']['id']] = __($new_ds['DatamartStructure']['display_name'],true);
+		}
+		asort($result);
+		
+		return $result;		
+	}
 }

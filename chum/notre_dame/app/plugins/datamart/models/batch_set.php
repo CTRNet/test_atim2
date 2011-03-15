@@ -33,15 +33,20 @@ class BatchSet extends DatamartAppModel {
 				default:	
 			}	
 		}
-					
-		if ( isset($variables['BatchSet.id']) && (!empty($variables['BatchSet.id'])) ) {
-			$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
-			if(!empty($batchset_data)) {
-				$return['title'] = array(null, __('batchset information', null));
-				$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
-				$return['structure alias'] = 'querytool_batch_set';
-				$return['data'] = $batchset_data;
+						
+		if ( isset($variables['BatchSet.id'])) {
+			if(isset($variables['BatchSet.temporary_batchset']) && $variables['BatchSet.temporary_batchset']){
+				$return['menu'] = array(null, __('temporary batch set', true));		
+			} else if (!empty($variables['BatchSet.id'])) {
+				$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
+				if(!empty($batchset_data)) {
+					$return['title'] = array(null, __('batchset information', null));
+					$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
+					$return['structure alias'] = 'querytool_batch_set';
+					$return['data'] = $batchset_data;
+				}				
 			}
+
 		}
 		
 		return $return;
@@ -64,9 +69,29 @@ class BatchSet extends DatamartAppModel {
 	 * @param string $plugin
 	 * @param string $model
 	 * @param string $datamart_structure_id
+	 * @param int $ignore_id Id to ignore (usually, we do not want a batch set to be compatible to itself)
 	 * @return array Compatible Batch sets
 	 */
-	public function getCompatibleBatchSets($plugin, $model, $datamart_structure_id){
+	public function getCompatibleBatchSets($plugin, $model, $datamart_structure_id, $ignore_id = null){
+		$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+		if(is_numeric($datamart_structure_id)){
+			$data = $datamart_structure->findById($datamart_structure_id);
+			if($model == $data['DatamartStructure']['control_master_model']){
+				$model = array($model, $data['DatamartStructure']['model']);
+			}else if($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0){
+					$model = array($model, $data['DatamartStructure']['control_master_model']);
+			}
+		}else{
+			$data = $datamart_structure->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $model, 'DatamartStructure.control_master_model' => $model))));
+			if(!empty($data)){
+				$datamart_structure_id = $data['DatamartStructure']['id'];
+				if($model == $data['DatamartStructure']['control_master_model']){
+					$model = array($model, $data['DatamartStructure']['model']);
+				}else if($model == $data['DatamartStructure']['model'] && strlen($data['DatamartStructure']['control_master_model']) > 0){
+					$model = array($model, $data['DatamartStructure']['control_master_model']);
+				}
+			}
+		}
 		$available_batchsets_conditions = array(
 			array('OR' => array('AND' => array('BatchSet.plugin' => $plugin, 'BatchSet.model' => $model), 
 					'BatchSet.datamart_structure_id' => $datamart_structure_id)),
@@ -75,7 +100,9 @@ class BatchSet extends DatamartAppModel {
 				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
 				'BatchSet.sharing_status' => 'all')
 		);
-		
+		if($ignore_id != null){
+			$available_batchsets_conditions["BatchSet.id Not"] = $ignore_id;
+		}
 		return $this->find('all', array('conditions' => $available_batchsets_conditions));
 	}
 	

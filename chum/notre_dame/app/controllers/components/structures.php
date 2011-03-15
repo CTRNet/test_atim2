@@ -171,8 +171,9 @@ class StructuresComponent extends Object {
 		
 		// format structure data into SEARCH CONDITONS format
 		if (isset($atim_structure['Sfs'])){
+			$cant_read_confidential = !$_SESSION['Auth']['User']['flag_show_confidential']; 
 			foreach ($atim_structure['Sfs'] as $value) {
-				if(!$value['flag_search']){
+				if(!$value['flag_search'] || ($value['flag_confidential'] && $cant_read_confidential)){
 					//don't waste cpu cycles on non search parameters
 					continue;
 				}
@@ -261,18 +262,18 @@ class StructuresComponent extends Object {
 							}
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
-							if (is_array($data)){
-								
-								$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
-								$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
-								if(is_array($data)){
-									$data = array_unique($data);
-									$data = array_filter($data, "StructuresComponent::myFilter");
-								}
-								
-								if (!count($data)){
-									$data = '';
-								}
+							if(is_array($data) && $model != "0"){
+									$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
+									$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
+									if(is_array($data)){
+										$data = array_unique($data);
+										$data = array_filter($data, "StructuresComponent::myFilter");
+									}
+									
+									if (!count($data)){
+										$data = '';
+									}
+									
 							}
 							
 							// if supplied form DATA is not blank/null, add to search conditions, otherwise skip

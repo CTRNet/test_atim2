@@ -81,12 +81,12 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 		
 		$collection_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
 		$this->data = $collection_data;
 		
 		// Set participant id
@@ -180,13 +180,13 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function edit($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 		
 		$this->Collection->unbindModel(array('hasMany' => array('SampleMaster')));		
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -235,13 +235,13 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing', null, true); }
+		if(!$collection_id) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 				
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data', null, true); }	
+		if(empty($collection_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);

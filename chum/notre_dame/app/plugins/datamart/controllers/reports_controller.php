@@ -59,6 +59,7 @@ class ReportsController extends DatamartAppController {
 			|| (!array_key_exists('data', $data_returned_by_fct)) 
 			|| (!array_key_exists('columns_names', $data_returned_by_fct)) 
 			|| (!array_key_exists('error_msg', $data_returned_by_fct))) {
+				die("sys error");
 				$this->redirect('/pages/err_datamart_system_error', null, true);
 			}
 			
