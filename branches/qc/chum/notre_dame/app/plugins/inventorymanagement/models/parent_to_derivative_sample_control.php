@@ -39,6 +39,22 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel {
 		}
 		return array_unique($active_ids);
 	}
+	
+	/**
+	 * Gets the lab book control id that can be use by a derivative
+	 * @param int $parent_sample_ctrl_id
+	 * @param int $children_sample_ctrl_id
+	 * return int lab book control id on success, false if it's not found
+	 */
+	public function getLabBookControlId($parent_sample_ctrl_id, $children_sample_ctrl_id){
+		$lab_book_ctrl_id = array_values($this->find('list', array(
+				'fields' => array('ParentToDerivativeSampleControl.lab_book_control_id'), 
+				'conditions' => array(
+					'ParentToDerivativeSampleControl.parent_sample_control_id' => $parent_sample_ctrl_id,
+					'ParentToDerivativeSampleControl.derivative_sample_control_id' => $children_sample_ctrl_id
+		))));
+		return empty($lab_book_ctrl_id[0]) ? false : $lab_book_ctrl_id[0];	
+	}
 }
 
 ?>

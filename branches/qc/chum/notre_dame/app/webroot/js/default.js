@@ -1,4 +1,5 @@
 var toolTarget = null;
+var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
 
 function initSummary(){
 	var open = function(){
@@ -288,8 +289,10 @@ function uncheckAll( $div ) {
 					//move the add button to the end
 					$(this).parent().append($(this));
 					
-					//reset the highlighting
-					$('form').highlight('tr');
+					if(useHighlighting){
+						//reset the highlighting
+						$('form').highlight('tr');
+					}
 				});
 			}else{
 				//range values, no add options
@@ -530,9 +533,10 @@ function uncheckAll( $div ) {
 				initRemoveLine(newLines);
 				initAutocomplete(newLines);
 				initToolPopup(newLines);
-				if(typeof(copyControl) != 'undefined'){
+				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
+				initLabBook(newLines);
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -546,29 +550,145 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAjaxClass(scope){
+		//ajax controls
+		//evals the json within the class of the element and calls the method defined in callback
+		//the callback method needs to take this and json as parameters
+		$(scope).find(".ajax").click(function(){
+			var json = getJsonFromClass($(this).attr("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
+			return false;
+		});
+	}
+	
+	function initLabBook(scope){
+		var fields = new Array();
+		var checkbox = null;
+		var codeInputField = null;
+		$(scope).find("input, select, textarea").each(function(){
+			var currName = $(this).attr("name");
+			for(var i in labBookFields){
+				if(labBookFields[i].length == 0){
+					continue;
+				}
+				if(currName.indexOf(labBookFields[i]) > -1){
+					fields.push($(this));
+					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+				}
+			}
+			if(currName.indexOf("[sync_with_lab_book]") > 0){
+				checkbox = $(this);
+			}else if(currName.indexOf("[lab_book_master_code]") > 0){
+				codeInputField = $(this);
+			}
+		});
+		if(checkbox != null){
+			$(checkbox).click(function(){
+				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			});
+		}
+		if(codeInputField != null){
+			$(codeInputField).change(function(){
+				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			});
+		}
+		if(window.labBookHideOnLoad){
+			$(fields).toggle();
+			$(scope).find(".labBook").toggle();
+		}
+	}
+	
+	function labBookFieldsToggle(scope, fields, codeInputField, checkbox){
+		var toggle = false;
+		if($(scope).find(".labBook:visible").length == 0){
+			//current input are visible, see if we need to hide
+			if((checkbox != null && $(checkbox).attr("checked")) || (codeInputField != null && $(codeInputField).val().length > 0)){
+				toggle = true;
+			}
+		}else{
+			//current input are hidden, see if we need to display
+			if((checkbox == null || !$(checkbox).attr("checked")) && (codeInputField == null || $(codeInputField).val().length == 0)){
+				toggle = true;
+			}
+		}
+		if(toggle){
+			$(fields).toggle();
+			$(scope).find(".labBook").toggle();
+		}
+	}
+	
+	function initLabBookPopup(){
+		$("div.rightCell a:not(.not_allowed)").last().click(function(){
+			$.get($(this).attr("href"), labBookPopupAddForm);
+			return false;
+		});
+	}
+	
+	function labBookPopupAddForm(data){
+		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
+		initDatepicker("#default_popup .datepicker");
+		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
+			$(this).hide();
+			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
+				if(data2.length < 100){
+					//saved
+					$("#default_popup").popup('close');
+					$("input, select").each(function(){
+						if($(this).attr("name") == 'data[DerivativeDetail][lab_book_master_code]'){
+							$(this).val(data2);
+						}
+					});
+				}else{
+					//redisplay
+					labBookPopupAddForm(data2);
+				}
+			});
+			return false;
+		});
+		$("#default_popup form").submit(event, function(){
+			event.preventDefault();
+			return false;
+		});
+		$("#default_popup input[type=text]").first().focus();
+	}
+	
 	function initJsControls(){
-		if(typeof(storageLayout) != 'undefined'){
+		if(window.storageLayout){
 			initStorageLayout();
 		}
-		if(typeof(datamartActions) != 'undefined'){
+		if(window.datamartActions){
 			initDatamartActions();
 		}
-		if(typeof(copyControl) != 'undefined'){
+		if(window.copyControl){
 			initCopyControl();
 		}
-		if(typeof(aliquotVolumeCheck) != 'undefined'){
+		if(window.aliquotVolumeCheck){
 			initAliquotVolumeCheck();
 		}
-		if(typeof(actionControl) != 'undefined'){
-			initActionControl(actionControl);
+		if(window.actionControl){
+			initActionControl(window.actionControl);
 		}
-		if(typeof(ccl) != 'undefined'){
+		if(window.ccl){
 			initCcl();
 		}
-		if(typeof(batchSetControls) != 'undefined'){
+		if(window.batchSetControls){
 			initBatchSetControls();
 		}
-		if(typeof(realiquotInit) != 'undefined'){
+		if(window.ajaxTreeView){
+			initAjaxTreeView(document);
+		}
+		if(window.treeView){
+			initTreeView(document);
+		}
+		if(window.labBookFields){
+			initLabBook(document);
+		}
+		if(window.labBookPopup){
+			initLabBookPopup();
+		}
+		
+		if(window.realiquotInit){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
 				if($("select").val().length > 0){
 					$("form").submit();
@@ -579,45 +699,22 @@ function uncheckAll( $div ) {
 		
 		initDeleteConfirm();
 		
-		//field highlighting
-		if($("#table1row0").length == 1){
-			//gridview
-			$('form').highlight('td');
-		}else{
-			$('form').highlight('tr');
-		}
-		
-		//tree view controls
-		$(".reveal:not(.not_allowed)").each(function(){
-			var cssClass = $(this).attr("class");
-			if(cssClass.indexOf("{") > -1){
-				var json = getJsonFromClass(cssClass);
-				$(this).toggle(function(){
-					$("#tree_" + json.tree).stop(true, true);
-					$("#tree_" + json.tree).show("blind", {}, 350);
-				}, function(){
-					$("#tree_" + json.tree).stop(true, true);
-					$("#tree_" + json.tree).hide("blind", {}, 350);
-				});
+		if(useHighlighting){
+			//field highlighting
+			if($("#table1row0").length == 1){
+				//gridview
+				$('form').highlight('td');
+			}else{
+				$('form').highlight('tr');
 			}
-		});
-		
-		//ajax controls
-		//evals the json within the class of the element and calls the method defined in callback
-		//the callback method needs to take this and json as parameters
-		$(".ajax").click(function(){
-			var json = getJsonFromClass($(this).attr("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
-			return false;
-		});
-		
+		}
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
 		initTooltips();
 		initActions();
 		initSummary();
+		initAjaxClass(document);
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);

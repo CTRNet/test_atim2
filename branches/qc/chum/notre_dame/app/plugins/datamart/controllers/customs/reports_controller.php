@@ -1,11 +1,8 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
-	function procure_consent_stat(){
+	function procureConsentStat(){
 		$load_form = false;
-		if(!App::import('Model', 'Clinicalannotation.ConsentMaster')){
-			$this->redirect( '/pages/err_model_import_failed?p[]=ConsentMaster', NULL, TRUE );
-		}
-		$this->ConsentMaster = new ConsentMaster();
+		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
 		if(!empty($this->data) && $this->ConsentMaster->validates($this->data)){
 			$data = $this->data[0];
 			$this->set("csv", $data['action'] == "true");
@@ -96,6 +93,9 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		$this->Structures->set("qc_nd_procure_consent_stats_report");
+		$test = $this->Structures->get('form', 'qc_nd_procure_consent_stats_report');
+		pr($test);
+		die("FMLH");
 		if($load_form){
 			$this->set("submit", true);
 		}

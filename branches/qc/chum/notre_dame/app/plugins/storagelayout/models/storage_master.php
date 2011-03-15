@@ -359,10 +359,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		// check if you need to override these functions.
 		//  
 		//------------------------------------------------------------------------
-		
+				
 		$formatted_data = '';
 		
-		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
+		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
 			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ']';
 		}
 	
@@ -394,7 +394,19 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 			
 		return $path_to_display;
-	}	
+	}
+	
+	/**
+	 * @param array $storage_master_ids The storage master ids whom child existence will be verified
+	 * @return array Returns the storage master ids having child
+	 */
+	function hasChild(array $storage_master_ids){
+		//child can be a storage or an aliquot
+		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
+		$storage_master_ids = array_diff($storage_master_ids, $result);
+		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
+	}
 	
 }
 

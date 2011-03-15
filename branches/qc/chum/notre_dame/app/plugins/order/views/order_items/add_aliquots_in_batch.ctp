@@ -1,9 +1,12 @@
 <?php
+//	
+//	
 
 	// 1- ALIQUOTS LIST	
 	
 	$structure_override = array();
-			
+		
+	$extras = array();
 	$final_atim_structure = $atim_structure_for_aliquots_list;
 	$final_options = array(
 		'type' => 'index', 
@@ -23,9 +26,14 @@
 	
 	//2- ORDER ITEMS DATA ENTRY
 	
+	$extras = '
+		<input type="hidden" name="data[0][aliquot_ids_to_add]" value="'.$aliquot_ids_to_add.'"/>
+		<input type="hidden" name="data[0][url_to_cancel]" value="'.$url_to_cancel.'"/>';
+	
 	$final_atim_structure = $atim_structure_orderitems_data;
 	$final_options = array(
 		'type' => 'add', 
+		'extras' => $extras,
 		'links' => array('top' => '/order/order_items/addAliquotsInBatch/'), 
 		'settings' => array('actions' => false, 'header' => __('1- add order data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
 	
@@ -37,8 +45,7 @@
 
 	// BUILD FORM
 	$structures->build($final_atim_structure, $final_options);
-	echo("</form>");
-	
+		
 	
 	// 3- ORDER LINES SELECTION
 
@@ -67,7 +74,7 @@
 		'override'=>$structure_override);
 	
 	// CUSTOM CODE
-		$hook_link = $structures->hook();
+	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM

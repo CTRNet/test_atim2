@@ -82,7 +82,7 @@ class ShellHelper extends Helper {
 		}else{
 			$logged_in = false;
 		}
-		$return .= "<fieldset>";//the fieldset is present to manage the display for wide forms such as addgrids		
+		$return .= "<fieldset style='min-width: 100%; display: inline-block;'>";//the fieldset is present to manage the display for wide forms such as addgrids		
 		$return .= '
 			<!-- start #header -->
 			<div id="header"><div>
@@ -123,29 +123,9 @@ class ShellHelper extends Helper {
 		}
 		
 		// display any VALIDATION ERRORS
-		$display_errors_html = null;
-		if(isset($this->validationErrors) && count($this->validationErrors)){
-			$display_errors = array();
-			foreach ( $this->validationErrors as $model ) {
-				foreach ( $model as $field ) {
-					if(is_array($field)){
-						foreach($field as $field_unit){
-							$display_errors[] = '
-								<li>'.__($field_unit, true).'</li>
-							';
-						}
-					}else{
-						$display_errors[] = '
-							<li>'.__($field, true).'</li>
-						';
-					}
-				}
-			}
-			$display_errors_html = 
-					'<ul class="error">
-						'.implode('',array_unique($display_errors)).'
-					</ul>';
-		}
+		$display_errors_html = $this->validationErrors();
+		
+		
 		$confirm_msg_html = "";
 		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
 			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
@@ -177,6 +157,33 @@ class ShellHelper extends Helper {
 		
 		return $return;
 		
+	}
+	
+	function validationErrors(){
+		$result = "";
+		if(isset($this->validationErrors) && count($this->validationErrors)){
+			$display_errors = array();
+			foreach ( $this->validationErrors as $model ) {
+				foreach ( $model as $field ) {
+					if(is_array($field)){
+						foreach($field as $field_unit){
+							$display_errors[] = '
+								<li>'.__($field_unit, true).'</li>
+							';
+						}
+					}else{
+						$display_errors[] = '
+							<li>'.__($field, true).'</li>
+						';
+					}
+				}
+			}
+			$result =
+					'<ul class="error">
+						'.implode('',array_unique($display_errors)).'
+					</ul>';
+		}
+		return $result;
 	}
 	
 	function footer( $options=array() ) {
@@ -271,7 +278,7 @@ class ShellHelper extends Helper {
 									$word = __(trim($menu_item['Menu']['language_title']), true);
 									$untranslated = strpos($word, "<span class='untranslated'>") === 0;
 									if($untranslated){
-										$word = substr($part, 27, -7);			
+										$word = substr($word, 27, -7);			
 									}
 									$max_length = 30;
 									if(strlen($word) > $max_length){

@@ -5,15 +5,15 @@ class FamilyHistory extends ClinicalAnnotationAppModel{
     function summary( $variables=array() ) {
 		$return = false;
 		
-		if ( isset($variables['FamilyHistory.id']) ) {
-			
-			$result = $this->find('first', array('conditions'=>array('FamilyHistory.id'=>$variables['FamilyHistory.id'])));
-			
-			$return = array(
-				'data'			=> $result,
-				'structure alias'=>'familyhistories'
-			);
-		}
+//		if ( isset($variables['FamilyHistory.id']) ) {
+//			
+//			$result = $this->find('first', array('conditions'=>array('FamilyHistory.id'=>$variables['FamilyHistory.id'])));
+//			
+//			$return = array(
+//				'data'			=> $result,
+//				'structure alias'=>'familyhistories'
+//			);
+//		}
 		
 		return $return;
 	}
