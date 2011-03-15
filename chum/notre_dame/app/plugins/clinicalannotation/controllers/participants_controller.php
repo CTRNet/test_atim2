@@ -97,6 +97,10 @@ class ParticipantsController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->data) ) {
+					$hook_link = $this->hook('after_save');
+					if( $hook_link ) {
+						require($hook_link); 
+					}
 					$this->atimFlash('your data has been saved', '/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
 				}
 			}
