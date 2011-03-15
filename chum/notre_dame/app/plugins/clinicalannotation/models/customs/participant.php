@@ -2,8 +2,40 @@
 
 class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
+	var $name = "Participant";
 	
-	function summary( $variables=array() ) {
+	function summary($variables=array()){
+		$return = false;
+		
+		if ( isset($variables['Participant.id']) ) {
+			
+			//custom code to add no labo----
+			$has_many_details = array(
+				'hasMany' => array('MiscIdentifier' => array(
+					'className' => 'Clinicalannotation.MiscIdentifier',
+					'foreignKey' => 'participant_id',
+					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab%'"))));
+			$this->bindModel($has_many_details, false);			
+			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
+
+			$result[0]['identifiers'] = "";
+			foreach($result['MiscIdentifier'] as $mi){
+				$result[0]['identifiers'] .= __($mi['identifier_name'], true)." - ".$mi['identifier_value']."<br/>";
+			}
+			//------------------------------
+			
+			$return = array(
+					'menu'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'title'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'structure alias' 	=> 'participants,qc_nd_part_id_summary',
+					'data'				=> $result
+			);
+		}
+		
+		return $return;
+	}
+	
+	function summaryOld( $variables=array() ) {
 		$return = false;
 	
 		if ( isset($variables['Participant.id']) ) {
@@ -12,7 +44,7 @@ class ParticipantCustom extends Participant {
 				'hasMany' => array('MiscIdentifier' => array(
 					'className' => 'Clinicalannotation.MiscIdentifier',
 					'foreignKey' => 'participant_id',
-					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab%'"))));			
+					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab%'"))));
 			
 			$this->bindModel($has_many_details, false);			
 			$result = $this->find('first', array('conditions'=>array('ParticipantCustom.id'=>$variables['Participant.id'], )));
