@@ -1939,3 +1939,15 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'To synchronize with a lab book, you need to define a lab book to use!', 
 'Pour synchroniser avec un cahier de laboratoire, vous devez en définir un!'),
 ('aliquot type selection','Aliquot Type Selection','Sélection type d''aliquot');
+
+UPDATE structure_fields SET language_label = 'keep synchronized with lab book', language_tag = '' WHERE field = 'sync_with_lab_book' AND model IN ('DerivativeDetail', 'Realiquoting');
+UPDATE structure_fields SET language_label = 'lab book code' WHERE field = 'lab_book_master_code' AND model IN ('DerivativeDetail', 'Realiquoting');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('lab book code', 'Lab Book', 'Cahier de laboratoire'),
+('keep synchronized with lab book', 'Keep Synchronized', 'Garder Synchronisé');
+
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquoting_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `language_tag`='', `language_label`='synchronize with lab book now' WHERE model='0' AND tablename='' AND field='sync_with_lab_book_now' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+

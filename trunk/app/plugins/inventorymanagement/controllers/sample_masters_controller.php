@@ -860,12 +860,14 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function batchDerivativeInit2(){
-		
-		if(!isset($this->data['SampleMaster']['ids']) || !isset($this->data['SampleMaster']['sample_control_id'])){
+	function batchDerivativeInit2(){		
+		if(!isset($this->data['SampleMaster']['ids']) 
+		|| !isset($this->data['SampleMaster']['sample_control_id'])
+		|| !isset($this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		} else if($this->data['SampleMaster']['sample_control_id'] == ''){
 			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
+			return;
 		}
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
@@ -881,7 +883,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			'fields' => array('ParentToDerivativeSampleControl.lab_book_control_id'),
 			'recursive' => -1)
 		);
+		
 		if(is_numeric($tmp['ParentToDerivativeSampleControl']['lab_book_control_id'])){
+			$this->set('lab_book_control_id', $tmp['ParentToDerivativeSampleControl']['lab_book_control_id']);
 			$this->Structures->set('derivative_lab_book');
 			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true).".");
 		}else{
@@ -898,8 +902,12 @@ class SampleMastersController extends InventorymanagementAppController {
 	function batchDerivative(){
 		//TODO merge with Add() function to do one
 		
-		if(!isset($this->data['SampleMaster']['sample_control_id']) || $this->data['SampleMaster']['sample_control_id'] == ''){
+		if(!isset($this->data['SampleMaster']['sample_control_id'])
+		|| !isset($this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])){
+			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+		} else if($this->data['SampleMaster']['sample_control_id'] == ''){
 			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
+			return;
 		}
 		
 		$lab_book_master_code = null;
