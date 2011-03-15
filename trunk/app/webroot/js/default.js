@@ -593,9 +593,12 @@ function uncheckAll( $div ) {
 				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 			});
 		}
+		
 		if(window.labBookHideOnLoad){
 			$(fields).toggle();
 			$(scope).find(".labBook").toggle();
+		}else{
+			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 		}
 	}
 	
