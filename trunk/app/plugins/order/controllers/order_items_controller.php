@@ -148,6 +148,7 @@ class OrderItemsController extends OrderAppController {
 					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 					
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_data['AliquotMaster']['id'];
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }
 					
@@ -337,6 +338,7 @@ class OrderItemsController extends OrderAppController {
 					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
 					
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $added_aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }	
 				}
@@ -468,6 +470,8 @@ class OrderItemsController extends OrderAppController {
 				$new_aliquot_master_data = array();
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = '';
+				
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
 				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_order_record_err', null, true ); }				
 				

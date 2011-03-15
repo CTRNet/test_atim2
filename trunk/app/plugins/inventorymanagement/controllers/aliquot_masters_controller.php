@@ -305,7 +305,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set url to redirect
 		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 		$this->set('url_to_cancel', $url_to_cancel);
-		$_SESSION['aliq_creation_batch_process']['url_to_cancel'] = $url_to_cancel;
 		
 		// Manage data	
 		
@@ -320,20 +319,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(array_key_exists('error', $init_data)) {
 			$this->flash(__($init_data['error'], true), "javascript:history.back();", 5);
 			return;
-		}
-		if(sizeof($init_data['possibilities']) == 1) {
-			// Only one available type move to next step
-			$session_data = array();
-			$session_data[0]['ids'] = $init_data['ids'];
-			$session_data[0]['realiquot_into'] = $init_data['possibilities'][0]['AliquotControl']['id'];
-			
-			$hook_link = $this->hook('redirect');
-			if($hook_link){
-				require($hook_link);
-			}
-							
-			$_SESSION['aliq_creation_batch_process']['init'] = $session_data;
-			$this->redirect('/inventorymanagement/aliquot_masters/add/');
 		}		
 		
 		// Manage structure and menus
@@ -354,18 +339,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function add($sample_master_id=null, $aliquot_control_id=null){
-			
+					
 		// CHECK PARAMETERS
-		
+			
 		if(!empty($sample_master_id) && !empty($aliquot_control_id)) {
 			// User just click on add aliquot button from sample detail form
 			$this->data = array();
 			$this->data[0]['ids'] = $sample_master_id;
 			$this->data[0]['realiquot_into'] = $aliquot_control_id;
-		} else if(isset($_SESSION['aliq_creation_batch_process']['init']) && (!empty($_SESSION['aliq_creation_batch_process']['init']))) {
-			// addInit() function redirect to add() function because only one aliquot type can be created
-			$this->data = $_SESSION['aliq_creation_batch_process']['init'];
-			unset($_SESSION['aliq_creation_batch_process']['init']);
 		} else if(empty($this->data)){ $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 
 		$is_intial_display = isset($this->data[0]['ids'])? true : false;
@@ -383,6 +364,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_control)) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		
 		$this->set('aliquot_control_id',$aliquot_control['AliquotControl']['id']);
+		
+		// GET URL TO CANCEL
+		
+		$url_to_cancel = null;
+		if(isset($this->data['url_to_cancel'])) {
+			$url_to_cancel =  $this->data['url_to_cancel'];
+			unset($this->data['url_to_cancel']);	
+		}
 		
 		// GET SAMPLES DATA		
 		
@@ -457,14 +446,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				'AliquotMaster.in_stock' => 'yes - available'));
 		
 		// Set url to cancel
-
-		$url_to_cancel = '/unknown/';
-		if($is_batch_process) {
-			if(!isset($_SESSION['aliq_creation_batch_process']['url_to_cancel'])) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-			$url_to_cancel = $_SESSION['aliq_creation_batch_process']['url_to_cancel'];
-		} else {
-			$url_to_cancel = '/inventorymanagement/sample_masters/detail/' . $sample_master_data['ViewSample']['collection_id'] . '/' . $sample_master_id;
-		}
+		if(!empty($aliquot_control_id)) {
+			// User just click on add aliquot button from sample detail form
+			$url_to_cancel = '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id;
+		}		
+		if(empty($url_to_cancel)) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		$hook_link = $this->hook('format');
@@ -512,6 +498,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Validate and update position data
 					$aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control['AliquotControl']['id'];
+					
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->set($aliquot);
 					if(!$this->AliquotMaster->validates()){
 						foreach($this->AliquotMaster->validationErrors as $field => $msg) {
@@ -540,13 +528,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 				
-				unset($_SESSION['aliq_creation_batch_process']);
-	
 				//save
 				if($is_batch_process) $_SESSION['tmp_batch_set']['BatchId'] = array();
 				foreach($this->data as $created_aliquots){
 					foreach($created_aliquots['children'] as $new_aliquot) {	
 						$this->AliquotMaster->id = null;
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						$new_aliquot['AliquotMaster']['id'] = null;
 						$new_aliquot['AliquotMaster']['collection_id'] = $created_aliquots['parent']['ViewSample']['collection_id'];
 						$new_aliquot['AliquotMaster']['sample_master_id'] = $created_aliquots['parent']['ViewSample']['sample_master_id'];
@@ -718,6 +705,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			//  --> AliquotMaster
 			$this->data['AliquotMaster']['id'] = $aliquot_master_id;
 			$this->data['AliquotMaster']['aliquot_control_id'] = $aliquot_data['AliquotMaster']['aliquot_control_id'];
+			
+			$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 			$this->AliquotMaster->set($this->data);
 			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
@@ -732,6 +721,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			// Save data
 			if($submitted_data_validates) {
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($this->data, false)) { 
 					$this->redirect('/pages/err_inv_record_err', null, true); 
@@ -755,6 +745,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }		
 		
 		// Delete storage data
+		$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 		$this->AliquotMaster->id = $aliquot_master_id;
 		$aliquot_data_to_save = 
 			array('AliquotMaster' => array(
@@ -1090,6 +1081,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// Launch Aliquot Master validation
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->set($new_studied_aliquot);
 					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
@@ -1150,6 +1142,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Save data:
 					// - AliquotMaster
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
 					
@@ -1486,12 +1479,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//A- Validate parent aliquot data
 				
 				$this->AliquotMaster->id = null;
-				//---------------------------------------------------------
-				// Set data to empty array to guaranty 
-				// no merge will be done with previous AliquotMaster data
-				// when AliquotMaster set() function will be called again.
-				//---------------------------------------------------------
-				$this->AliquotMaster->data = array();
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				
 				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
 				$parent_aliquot_data['id'] = $parent_id;
@@ -1530,12 +1518,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						// Validate and update position data
 						$this->AliquotMaster->id = null;
-						//---------------------------------------------------------
-						// Set data to empty array to guaranty 
-						// no merge will be done with previous AliquotMaster data
-						// when AliquotMaster set() function will be called again.
-						//---------------------------------------------------------
-						$this->AliquotMaster->data = array();
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						
 						$child['AliquotMaster']['id'] = null;
 						$child['AliquotMaster']['aliquot_control_id'] = $child_aliquot_ctrl_id;
@@ -1598,12 +1581,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// A- Save parent aliquot data
 					
-					//---------------------------------------------------------
-					// Set data to empty array to guaranty 
-					// no merge will be done with previous AliquotMaster data
-					// when AliquotMaster set() function will be called again.
-					//---------------------------------------------------------
-					$this->AliquotMaster->data = array();
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $parent_id;
 					
 					$parent_data = $parent_and_children['parent'];
@@ -1629,12 +1607,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						// B- Save children aliquot data	
 						
 						$this->AliquotMaster->id = null;
-						//---------------------------------------------------------
-						// Set data to empty array to guaranty 
-						// no merge will be done with previous AliquotMaster data
-						// when AliquotMaster set() function will be called again.
-						//---------------------------------------------------------
-						$this->AliquotMaster->data = array();
+						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						if(!$this->AliquotMaster->save($children, false)){ 
 							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
 						} 						
@@ -1830,6 +1803,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				// Validate parent aliquot data
 				$parent_aliquot_data = $children['AliquotMaster'];
 				$parent_aliquot_data["id"] = $parent_id;
+				
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
 					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
@@ -1927,6 +1902,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$children['AliquotMaster']['storage_coord_y'] = null;
 					}
 					$children['AliquotMaster']['id'] = $parent_id;
+					
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $parent_id;
 					if(!$this->AliquotMaster->save(array('AliquotMaster' => $children['AliquotMaster']), false)){
 						$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);

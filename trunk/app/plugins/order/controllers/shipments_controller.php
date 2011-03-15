@@ -265,6 +265,7 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
 					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
 		
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_order_record_err', null, true); }										
 					
@@ -339,6 +340,8 @@ class ShipmentsController extends OrderAppController {
 				$new_aliquot_master_data = array();
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
+				
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { $remove_done = false; }
 				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $remove_done = false; }

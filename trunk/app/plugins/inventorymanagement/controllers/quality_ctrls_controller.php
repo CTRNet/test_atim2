@@ -281,6 +281,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					}
 					
 					// Launch Aliquot Master validation
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->set($new_studied_aliquot);
 					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
@@ -345,6 +346,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 									
 					// Save data:
 					// - AliquotMaster
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
 					

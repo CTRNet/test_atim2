@@ -1799,7 +1799,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('sample', 'Sample', 'Échantillon'),
 ('parent aliquot', 'Parent Aliquot', 'Aliquot Parent'),
 ('parent sample', 'Parent Sample', 'Échantillon Parent'),
-('edit synchronization option', 'Change Synch. Options', 'Modifier les options ''Synch.'''),
+('edit synchronization option', 'Change Synchronization Options', 'Modifier paramêtres de synchronisation'),
 ('dna extraction', 'DNA Extraction', 'Extraction d''ADN');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
@@ -1937,5 +1937,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('synchronize with lab book now', 'Synch. Now', 'Synch. Auj.'),
 ('to synchronize with a lab book, you need to define a lab book to use', 
 'To synchronize with a lab book, you need to define a lab book to use!', 
-'Pour synchroniser avec un cahier de laboratoire, vous devez en définir un!');
-
+'Pour synchroniser avec un cahier de laboratoire, vous devez en définir un!'),
+('aliquot type selection','Aliquot Type Selection','Sélection type d''aliquot');
