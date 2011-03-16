@@ -75,7 +75,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 				}else{
 					$warn = true;
 				}
-				if($warn == Configure::read('debug') > 0){
+				if($warn && Configure::read('debug') > 0){
 					AppController::addWarningMsg('unable to parse MiscIdentifier result in '.__FILE__.' at line '.__LINE__);
 				}
 			}
