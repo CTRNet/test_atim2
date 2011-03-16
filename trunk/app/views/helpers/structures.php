@@ -626,7 +626,7 @@ class StructuresHelper extends Helper {
 		$display = null;
 		$field_name = $table_row_part['name'].$field_name_suffix;
 		if($table_row_part['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
-				$display = CONFIDENTIAL_CHAR;
+				$display = CONFIDENTIAL_MARKER;
 				if($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search"){
 					AppController::getInstance()->redirect("/pages/err_confidential");
 				}
