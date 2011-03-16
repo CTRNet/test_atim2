@@ -1254,6 +1254,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Find parent aliquot
 		$ids[] = 0;
+		
+		$this->AliquotMaster->unbindModel(array(
+			'hasMany' => array('RealiquotingChildren', 'RealiquotingParent'),
+			'hasOne' => array('SpecimenDetail'),
+			'belongsTo' => array('Collection','StorageMaster')));
 		$aliquots = $this->AliquotMaster->findAllById($ids);
 		if(empty($aliquots)){
 			$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
@@ -1339,6 +1344,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('ids', $this->data[0]['ids']);
 		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
 		
+		$this->AliquotMaster->unbindModel(array(
+			'hasMany' => array('RealiquotingChildren', 'RealiquotingParent'),
+			'hasOne' => array('SpecimenDetail'),
+			'belongsTo' => array('Collection','StorageMaster')));
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $this->data[0]['ids'])));
 		$sample_ctrl_id = $aliquot_data['SampleMaster']['sample_control_id'];
 		$lab_book_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $this->data['realiquot_from'], $this->data[0]['realiquot_into']);
@@ -1346,10 +1355,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(is_numeric($lab_book_ctrl_id)){
 			$this->set('lab_book_ctrl_id', $lab_book_ctrl_id);
 			$this->Structures->set('realiquoting_lab_book');
-			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true).".");
+			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true));
 		}else{
 			$this->Structures->set('empty');
-			AppController::addWarningMsg(__('no lab book can be defined for that realiquoting', true).". ".__('click submit to continue', true).".");
+			AppController::addWarningMsg(__('no lab book can be defined for that realiquoting', true).' '.__('click submit to continue', true));
 		}
 		
 		if(empty($aliquot_id)) {
@@ -1373,11 +1382,29 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function realiquot($aliquot_id = null){
-		
+		$intial_display = false;
+		$parent_aliquots_ids = array();
 		if(empty($this->data)){ 
 			$this->redirect("/pages/err_inv_no_data", null, true); 
+		} else if(isset($this->data[0]) && isset($this->data[0]['ids'])){ 
+			$intial_display = true;
+			$parent_aliquots_ids = $this->data[0]['ids'];
+		} else if(isset($this->data['ids'])) {
+			$intial_display = false;
+			$parent_aliquots_ids = $this->data['ids'];			
+		} else {
+			$this->redirect("/pages/err_inv_no_data", null, true); 
 		}
+		$this->set('parent_aliquots_ids', $parent_aliquots_ids);
 		
+		// Get parent an child control data
+		$parent_aliquot_ctrl_id = isset($this->data['realiquot_from'])? $this->data['realiquot_from']: null;
+		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
+		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
+		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
+		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
+		
+		// lab book management
 		$lab_book = null;//lab book object
 		$lab_book_expected_ctrl_id = null;
 		$lab_book_code = null;
@@ -1385,12 +1412,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$lab_book_fields = array();
 		if(isset($this->data['Realiquoting']) && isset($this->data['Realiquoting']['lab_book_master_code']) && (strlen($this->data['Realiquoting']['lab_book_master_code']) > 0 || $this->data['Realiquoting']['sync_with_lab_book'])){
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-			$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $this->data[0]['ids'])));
+			$this->AliquotMaster->unbindModel(array(
+				'hasMany' => array('RealiquotingChildren', 'RealiquotingParent'),
+				'hasOne' => array('SpecimenDetail'),
+				'belongsTo' => array('Collection','StorageMaster')));
+			$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $parent_aliquots_ids)));
 			$sample_ctrl_id = $aliquot_data['SampleMaster']['sample_control_id'];
-			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $this->data['realiquot_from'], $this->data[0]['realiquot_into']);
+			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $parent_aliquot_ctrl_id, $child_aliquot_ctrl_id);
 			$sync_response = $lab_book->syncData($this->data, array(), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
 			if(is_numeric($sync_response)){
-				$lab_book_fields = $lab_book->getFields($sync_response);
+				$lab_book_fields = $lab_book->getFields($lab_book_expected_ctrl_id);
 				$lab_book_code = $this->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->data['Realiquoting']['sync_with_lab_book']; 
 			}else{
@@ -1401,13 +1432,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('lab_book_code', $lab_book_code);
 		$this->set('sync_with_lab_book', $sync_with_lab_book);
 		$this->set('lab_book_fields', $lab_book_fields);
-		
-		// Get parent an child control data
-		$parent_aliquot_ctrl_id = isset($this->data['realiquot_from'])? $this->data['realiquot_from']: null;
-		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
-		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
-		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
-		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 		
 		// Structure and menu data
 		$this->set('aliquot_id', $aliquot_id);
@@ -1449,11 +1473,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 			'GeneratedParentAliquot.aliquot_volume_unit' => $parent_aliquot_ctrl['AliquotControl']['volume_unit']));
 		
-		if(isset($this->data[0]) && isset($this->data[0]['ids']) && isset($this->data[0]['realiquot_into'])){
+		if($intial_display){
 			
 			//1- INITIAL DISPLAY
 			
-			$parent_aliquots = $this->AliquotMaster->findAllById(explode(",", $this->data[0]['ids']));
+			$parent_aliquots = $this->AliquotMaster->findAllById(explode(",", $parent_aliquots_ids), null, null, null, null, '-1');
 			if(empty($parent_aliquots)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 			
 			//build data array
@@ -1469,12 +1493,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}	
 			
 		}else{
-			
+		
 			// 2- VALIDATE PROCESS
-
+ 			$lab_book_master_code = $this->data['Realiquoting']['lab_book_master_code'];
 			unset($this->data['realiquot_into']);
 			unset($this->data['realiquot_from']);
-			
+			unset($this->data['ids']);
+			unset($this->data['Realiquoting']);
+			unset($this->data['url_to_cancel']);
+		
 			$errors = array();
 			$validated_data = array();
 			$record_counter = 0;
@@ -1569,7 +1596,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if($lab_book_expected_ctrl_id != null){
 				//this time we do synchronize with the lab book
-				$lab_book->syncData($this->data, array('AliquotDetail'), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
+				foreach($this->data as $key => &$new_data_set) {
+					$lab_book->syncData($new_data_set['children'], array('Realiquoting'), $lab_book_master_code);
+				}	
 			}
 			
 			$hook_link = $this->hook('presave_process');
