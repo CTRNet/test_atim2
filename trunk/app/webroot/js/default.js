@@ -622,7 +622,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function initLabBookPopup(){
-		$("div.rightCell a:not(.not_allowed)").last().click(function(){
+		$("div.rightCell a:not(.not_allowed).add").last().click(function(){
 			$.get($(this).attr("href"), labBookPopupAddForm);
 			return false;
 		});
