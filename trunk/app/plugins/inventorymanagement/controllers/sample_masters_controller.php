@@ -885,10 +885,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(is_numeric($tmp['ParentToDerivativeSampleControl']['lab_book_control_id'])){
 			$this->set('lab_book_control_id', $tmp['ParentToDerivativeSampleControl']['lab_book_control_id']);
 			$this->Structures->set('derivative_lab_book');
-			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true).".");
+			AppController::addWarningMsg(__('if no lab book has to be defined for this process, keep fields empty and click submit to continue', true));
 		}else{
 			$this->Structures->set('empty');
-			AppController::addWarningMsg(__('no lab book can be applied to the current item(s)', true).". ".__('click submit to continue', true).".");
+			AppController::addWarningMsg(__('no lab book can be applied to the current item(s)', true).__('click submit to continue', true));
 		}
 		
 		$hook_link = $this->hook('format');

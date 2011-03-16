@@ -1951,3 +1951,14 @@ UPDATE structure_formats SET `flag_override_label`='0', `language_label`='', `fl
 
 UPDATE structure_fields SET  `language_tag`='', `language_label`='synchronize with lab book now' WHERE model='0' AND tablename='' AND field='sync_with_lab_book_now' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('you must select an aliquot type','You must select an aliquot type!','Vous devez sélectionner un type d''aliquot'),
+('no lab book can be defined for that realiquoting','No lab book can be defined for that realiquoting process!','Aucun cahier de laboratoire ne peut être attaché à ce processus de réaliquotage!');
+
+
+
+
+
+
+
+

@@ -14,7 +14,8 @@
 		),
 		'extras' => '<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
 					<input type="hidden" name="data[0][realiquot_into]" value="'.$realiquot_into.'"/>
-					<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>'
+					<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>
+					<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>'
 	);
 	
 	// CUSTOM CODE
