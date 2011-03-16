@@ -8,11 +8,11 @@ class CollectionCustom extends Collection{
 	function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null) {
 		
 		if(!isset($this->SampleMaster)) {
-			$this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster');
+			$this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
 		}
 		
 		if(!isset($this->ViewCollection)) {
-			$this->ViewCollection = AppModel::atimNew('Inventorymanagement', 'ViewCollection');
+			$this->ViewCollection = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);
 		}
 		
 		// Get bank_participant_identifier
@@ -31,7 +31,7 @@ class CollectionCustom extends Collection{
 		$collection_samples_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => 'SampleMaster.initial_specimen_sample_id ASC, SampleMaster.sample_category DESC'));
 			
 		// Update collection samples label
-		$sample_master = AppModel::atimNew('Inventorymanagement', 'SampleMasters', true);
+		$sample_master = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
 		
 		$specimens_sample_labels_from_id = array();
 		foreach($collection_samples_list as $new_collection_sample) {	
