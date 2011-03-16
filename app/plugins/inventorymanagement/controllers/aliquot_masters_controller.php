@@ -1408,6 +1408,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$lab_book = null;//lab book object
 		$lab_book_expected_ctrl_id = null;
 		$lab_book_code = null;
+		$lab_book_id = null;
 		$sync_with_lab_book = null;
 		$lab_book_fields = array();
 		if(isset($this->data['Realiquoting']) && isset($this->data['Realiquoting']['lab_book_master_code']) && (strlen($this->data['Realiquoting']['lab_book_master_code']) > 0 || $this->data['Realiquoting']['sync_with_lab_book'])){
@@ -1421,6 +1422,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $parent_aliquot_ctrl_id, $child_aliquot_ctrl_id);
 			$sync_response = $lab_book->syncData($this->data, array(), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
 			if(is_numeric($sync_response)){
+				$lab_book_id = $sync_response;
 				$lab_book_fields = $lab_book->getFields($lab_book_expected_ctrl_id);
 				$lab_book_code = $this->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->data['Realiquoting']['sync_with_lab_book']; 
@@ -1652,7 +1654,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 						// C- Save realiquoting data	
 						
 		  				$realiquoting_data['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
-		 				$realiquoting_data['Realiquoting']['child_aliquot_master_id'] = $child_id;	
+		 				$realiquoting_data['Realiquoting']['child_aliquot_master_id'] = $child_id;
+		  				$realiquoting_data['Realiquoting']['lab_book_master_id'] = $lab_book_id;
+		 				$realiquoting_data['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
+		 				
 						$this->Realiquoting->id = NULL;
 		  				if(!$this->Realiquoting->save($realiquoting_data, false)){
 							$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
