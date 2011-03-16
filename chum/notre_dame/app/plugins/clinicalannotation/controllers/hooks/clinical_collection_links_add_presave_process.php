@@ -23,9 +23,8 @@
 		
 		// Launch save process
 		if($this->ClinicalCollectionLink->save($this->data)) {
-			App::import('Controller', 'Inventorymanagement.Collections');
-			$collection_controller = new CollectionsControllerCustom();	
-			$collection_controller->updateCollectionSampleLabels($selected_collection_data['Collection']['id']);
+			$collection = AppModel::import('Inventorymanagement', 'Collection', true);
+			$collection->updateCollectionSampleLabels($selected_collection_data['Collection']['id']);
 			$this->flash( 'your data has been saved','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 		}
 	}

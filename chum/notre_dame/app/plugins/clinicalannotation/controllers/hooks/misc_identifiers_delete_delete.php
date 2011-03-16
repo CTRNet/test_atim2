@@ -21,12 +21,11 @@
 			
 			$participant_bank_collection_list = $clinical_collection_link->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id, 'Collection.bank_id' => $bank_id)));
 			if(!empty($participant_bank_collection_list)) {
-				App::import('Controller', 'Inventorymanagement.Collections');
-				$collection_controller = new CollectionsControllerCustom();
+				$collection = AppModel::import('Inventorymanagement', 'Collection', true);
 				
 				foreach($participant_bank_collection_list as $new_linked_collection) {
 					// Update participant collection sample labels
-					$collection_controller->updateCollectionSampleLabels($new_linked_collection['Collection']['id'], '');
+					$collection->updateCollectionSampleLabels($new_linked_collection['Collection']['id'], '');
 				}
 			}	
 		}

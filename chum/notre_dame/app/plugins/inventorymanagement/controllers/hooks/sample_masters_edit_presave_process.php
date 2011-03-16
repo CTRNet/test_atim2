@@ -8,13 +8,15 @@
 		$working_data['SampleControl'] = $sample_data['SampleControl'];
 		$working_data['SampleMaster']['initial_specimen_sample_id'] = $sample_data['SampleMaster']['initial_specimen_sample_id'];
 		
-		$this->data['SampleMaster']['sample_label'] = $this->createSampleLabel($collection_id, $working_data);
+		$this->data['SampleMaster']['sample_label'] = $this->SampleMaster->createSampleLabel($collection_id, $working_data);
 
 	 	// --------------------------------------------------------------------------------
 		// Check selected type code for all specimen plus set read only fields for tissue
 		// (tissue source, nature, laterality)
 		// -------------------------------------------------------------------------------- 	
-		if(!$this->validateLabTypeCodeAndLaterality()) { $submitted_data_validates = false; }
+		if(!$this->SampleMaster->validateLabTypeCodeAndLaterality()){ 
+			$submitted_data_validates = false; 
+		}
 	}
 	
 	// --------------------------------------------------------------------------------
@@ -34,16 +36,19 @@
 		$this->SampleMaster->id = $sample_master_id;
 		if($this->SampleMaster->save($this->data, false)) {
 			$this->SpecimenDetail->id = $sample_data['SpecimenDetail']['id'];
-			if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)){ 
+				$this->redirect('/pages/err_inv_system_error', null, true); 
+			}
 			
 			// 2- Update derivatives sample label
 			
 			// Get bank_participant_identifier	
-			App::import('Model', 'Inventorymanagement.ViewCollection');		
-			$ViewCollection= new ViewCollection();
+			$view_collection_model = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);		
 			
-			$view_collection = $ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-			if(empty($view_collection)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+			$view_collection = $view_collection_model->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
+			if(empty($view_collection)){ 
+				$this->redirect('/pages/err_inv_system_error', null, true); 
+			}
 			
 			$bank_participant_identifier = empty($view_collection['ViewCollection']['identifier_value'])? '' : $view_collection['ViewCollection']['identifier_value'];			
 			
@@ -54,10 +59,12 @@
 			// Update derivative sample label
 			foreach($specimen_derivatives_list as $new_derivative) {
 				$derivative_data_to_save = array();
-				$derivative_data_to_save['SampleMaster']['sample_label'] = 	$this->createSampleLabel($collection_id, $new_derivative, $bank_participant_identifier, $specimen_sample_label);
+				$derivative_data_to_save['SampleMaster']['sample_label'] = 	$this->SampleMaster->createSampleLabel($collection_id, $new_derivative, $bank_participant_identifier, $specimen_sample_label);
 			
 				$this->SampleMaster->id = $new_derivative['SampleMaster']['id'];
-				if(!$this->SampleMaster->save($derivative_data_to_save)) { $this->redirect('/pages/err_inv_system_error', null, true); }
+				if(!$this->SampleMaster->save($derivative_data_to_save)){ 
+					$this->redirect('/pages/err_inv_system_error', null, true); 
+				}
 			}
 			
 			// Redirect user
