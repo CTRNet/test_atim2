@@ -11,7 +11,8 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 		'Inventorymanagement.DerivativeDetail',
 		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.Realiquoting',
-	
+		'Inventorymanagement.Collection',
+		
 		'Storagelayout.StorageMaster'
 	);
 
@@ -31,6 +32,12 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 		$this->Structures->set('BcTtrBloodCell', 'bc_ttr_be_blood_cells');
 		$this->Structures->set('BcTtrBeWhatman', 'bc_ttr_be_whatman');
 
+		
+		$this->Collection->id = $collection_id;		
+		$collection_data = $this->Collection->read();
+		$acquisition_label = $collection_data['Collection']['acquisition_label'];
+		
+		
 		if(!empty($this->data)){
 			$errors = array();
 			$continue = true;
@@ -118,6 +125,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 					);
 					for($i = (int)$plasma_be_data['batch_count'] - 1; $i >= 0; -- $i){
 						$pos = $this->StorageMaster->incrementPosition($plasma_storage['storage_data'], $plasma_be_data['starting_x'], $plasma_be_data['starting_y'], $i);
+						$aliquot_data['AliquotMaster']['barcode'] = $acquisition_label . "PL". "0" .($i + 1);
 						if(!$pos){
 							$errors["box"] = "invalid storage position for blood plasma tubes";
 							$continue = false;
@@ -191,11 +199,13 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 							"storage_datetime"		=> $blood_cell_be_data['datetime_stored'],
 							"storage_coord_x"		=> "",
 							"storage_coord_y"		=> ""
+							
 						),
 						"FunctionManagement" => array("recorded_storage_selection_label" => $this->data['BcTtrBloodCell']['box'])
 					);
 					for($i = (int)$blood_cell_be_data['batch_count'] - 1; $i >= 0; -- $i){
 						$pos = $this->StorageMaster->incrementPosition($bc_storage['storage_data'], $blood_cell_be_data['starting_x'], $blood_cell_be_data['starting_y'], $i);
+						$aliquot_data['AliquotMaster']['barcode'] = $acquisition_label . "BC". "0" .($i + 1);
 						if(!$pos){
 							$errors["box"] = "invalid storage position for blood cell tubes";
 							$continue = false;
@@ -226,6 +236,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 					//TODO time stored
 				));
 				for($i = (int)$whatman_be_data['batch_count'] - 1; $i >= 0; -- $i){
+					$aliquot_data['AliquotMaster']['barcode'] = $acquisition_label . "BL01FT". "0" .($i + 1);
 					$this->AliquotMaster->set($aliquot_data);
 					$this->AliquotMaster->id = null;
 					if(!$this->AliquotMaster->save()){
@@ -263,6 +274,11 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/'));
 		$this->Structures->set('bc_ttr_be_block', 'bc_ttr_be_block');
 		$this->Structures->set('bc_ttr_be_slides', 'bc_ttr_be_slides');
+		
+		$this->Collection->id = $collection_id;		
+		$collection_data = $this->Collection->read();
+		$acquisition_label = $collection_data['Collection']['acquisition_label'];
+		
 		
 		if(!empty($this->data)){
 			//win, create the whole shebang with transactions
@@ -323,6 +339,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 				if($continue){
 					for($i = $block_be_data['AliquotMaster']['batch_count'] - 1; $i >= 0; -- $i){
 						//create block
+						$block_data['AliquotMaster']['barcode'] = $acquisition_label . "TI". "0" .($i + 1);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->set($block_data);
 						if(!$this->AliquotMaster->save()){
@@ -332,6 +349,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 						$block_id = $this->AliquotMaster->getLastInsertId();
 						
 						//create slide
+						$slide_data['AliquotMaster']['barcode'] = $acquisition_label . "TI". "0" .($i + 1) . "SL". "0" .($i + 1);
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->set($slide_data);
 						if(!$this->AliquotMaster->save()){
@@ -371,7 +389,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 					foreach($data_sources as $model => $data_source){
 						$data_source->commit($this->{$model});
 					}
-					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/contentTreeView/'.$collection_id.'/');
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/contentTreeView/'.$collection_id.'/');					
 				}else{
 					if(count($errors) > 0){
 						$this->AliquotMaster->validationErrors = $errors;
