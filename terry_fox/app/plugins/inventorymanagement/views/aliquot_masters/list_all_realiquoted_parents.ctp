@@ -3,7 +3,7 @@
 	$structure_links = array(
 	'index' => array(
 		   'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
-			'delete' => '/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%/realiquoting/%%AliquotMasterChildren.id%%/'
+			'delete' => '/inventorymanagement/aliquot_masters/deleteRealiquotingData/%%AliquotMaster.id%%/%%AliquotMasterChildren.id%%/child/'
 		));
 	
 	$final_atim_structure = $atim_structure; 

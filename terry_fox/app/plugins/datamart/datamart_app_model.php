@@ -9,13 +9,14 @@ class DatamartAppModel extends AppModel {
 	 * @param string $structure_alias The structure to render the data
 	 * @param string $data_model The model to look for in the data array (for csv linking)
 	 * @param string $data_pkey The pkey to look for in the data array (for csv linking)
+	 * @param int $batch_set_id The id of the current batch set
 	 */	
-	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey){
+	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey, $batch_set_id = null){
 		$batch_set = AppModel::atimNew("datamart", "BatchSet", true);
 		$datamart_structures = AppModel::atimNew("datamart", "DatamartStructure", true);
 		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'DatamartStructure.model' => $data_model)));
 		$datamart_structure_id = count($d_struct) ? $d_struct['DatamartStructure']['id'] : 0;
-		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id);
+		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id, $batch_set_id);
 		$batch_set_menu[] = array(
 			'value' => '0',
 			'default' => __('create batchset', true),

@@ -5,29 +5,31 @@
 		
 	if($is_inventory_plugin_form){
 		$structure_links['bottom']['edit'] = '/inventorymanagement/aliquot_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-		$structure_links['bottom']['plugin storagelayout access to storage'] = array(
-			"link" => empty($aliquot_storage_data)? '/underdevelopment/': '/storagelayout/storage_masters/detail/' . $aliquot_storage_data['StorageMaster']['id'],
-			"icon" => "storage");
-		$structure_links['bottom']['remove from storage'] = empty($aliquot_storage_data)? '/underdevelopment/': '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+		
+		$structure_links['bottom']['storage'] = '/underdevelopment/';
+		if(!empty($aliquot_storage_data)) {
+			$structure_links['bottom']['storage'] = array(
+				'plugin storagelayout access to storage' => array("link" => '/storagelayout/storage_masters/detail/' . $aliquot_storage_data['StorageMaster']['id'], "icon" => "storage"),
+				'remove from storage' => array("link" => '/inventorymanagement/aliquot_masters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "storage"));
+		}
 		
 		if(isset($order_line_id) && isset($order_id)){
-			$structure_links['bottom']['access to order'] = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
+			$structure_links['bottom']['access to order'] = array("link" => '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/', "icon" => "order");
 		}else{
-			$structure_links['bottom']['add to order'] = '/order/order_items/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/';
+			$structure_links['bottom']['add to order'] = array("link" => '/order/order_items/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
 		}		
 		
-		$structure_links['bottom']['add uses'] = array(
-			'add internal use' => '/inventorymanagement/aliquot_masters/addAliquotUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'] . '/internal use',
-			'define realiquoted children' => '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']);
+		$structure_links['bottom']['add uses'] = array("link" => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
+		
+		$structure_links['bottom']['realiquoting'] = array(
+			'realiquot' =>  array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
+			'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 		$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	}
 	
 	if($is_tree_view_detail_form) {
-		// Detail form displayed in tree view: Add button to access all aliquot data
-		$structure_links['bottom']['access to all data'] = array(
-			'link'=> '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'],
-			'icon' => 'access_to_data');
+		// Detail form displayed in tree view
 	} else {
 		// General detail form display
 		$search_type_links = array();
@@ -81,9 +83,7 @@
 		// 2- USES LIST
 		
 		$structure_links['index'] = array(
-		   'edit' => '/inventorymanagement/aliquot_masters/editAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%',
-			'delete' => '/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%'
-		);
+		   'detail' => '/inventorymanagement/aliquot_masters/redirectToAliquotUseDetail/%%ViewAliquotUse.detail_url%%');
 		
 		$final_atim_structure = $aliquots_uses_structure;
 		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'actions' => false));

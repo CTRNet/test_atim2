@@ -9,10 +9,10 @@ $database['charset'] = "utf8";
 $config['printQueries'] = true;
 $config['insertRevs'] = false;
 $config['input type'] = "xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUM-COEUR-clinical data-v0.1.14.xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0-1.14.xls";
-//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TTR-COEUR-clinical data-v0.1.14.xls";
-$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/McGill-COEUR- v0-1.14.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUM-COEUR-clinical data-v0.1.15.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/CHUS-COEUR v0.1-15.xls";
+//$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TTR-COEUR-clinical data-v0.1.15.xls";
+$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/McGill-COEUR- v0-1.15.xls";
 
 $config['xls header rows'] = 2;
 date_default_timezone_set("America/Montreal");

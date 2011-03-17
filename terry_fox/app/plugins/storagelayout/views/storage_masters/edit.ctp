@@ -7,7 +7,7 @@
 
 	$structure_override = array();
 	
-	$structure_override['StorageMaster.parent_id'] = $available_parent_storage_list;
+	if(isset($predefined_parent_storage_selection_label)) $structure_override['FunctionManagement.recorded_storage_selection_label'] = $predefined_parent_storage_selection_label;
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override'=>$structure_override);

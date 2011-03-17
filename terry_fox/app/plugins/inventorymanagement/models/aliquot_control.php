@@ -50,23 +50,6 @@ class AliquotControl extends InventorymanagementAppModel {
 		return $result;
 	}
 	
-	/**
-	 * Get Aliquot data to display into aliquots list view:
-	 *   - Will poulate fields
-	 *         . GeneratedParentSample.*
-	 *         . Generated.aliquot_use_counter 
-	 *         . Generated.realiquoting_data 
-	 *
-	 *	@param $criteria Aliquot Search Criteria
-	 *
-	 * @return aliquot_data
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 * @author FMLH - 2010-08-04 (new flag_active policy) 
-	 */
-	
 	function getPermissibleAliquotsArray($parent_sample_control_id){
 		$conditions = array('SampleToAliquotControl.flag_active' => true,
 			'SampleToAliquotControl.sample_control_id' => $parent_sample_control_id);

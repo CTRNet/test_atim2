@@ -94,7 +94,7 @@ div.outerWrapper{
 	min-height: 300px;
 }
 
-div#header {
+#header {
 	position: relative;
 	
 	margin: 0 0 10px 0;
@@ -106,13 +106,21 @@ div#header {
 	color: #fff;
 }
 
-div#header h1 {
+#header div{
 	width: 725px; 
 	height: 64px;
 	padding: 14px 0 7px 225px;
 	margin: 0;
 	font: normal 26px/1em Arial Black, Arial Bold, Impact, sans-serif;
 	background: url(../img/header_bk_new_01.png) bottom left no-repeat;
+}
+#header h1{
+	white-space: nowrap;
+}
+#header h2{
+	white-space: nowrap;
+	font-size: 85%;
+	margin-top: 10px;	
 }
 	
 
@@ -1068,9 +1076,6 @@ span.help {
 					-khtml-opacity: 0.3;
 					opacity: 0.3;
 				}
-				#tree_root div{
-					padding-left: 20px;
-				}
 				a.form { 
 					padding: 1px 0px 1px 16px;
 				}
@@ -1081,10 +1086,13 @@ span.help {
 /* -=site wide*/
 a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
 a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
+a.add_to_order { background: url("../img/icons/into_cart_16x16.png") no-repeat left center; }
+a.add_to_shipment { background: url("../img/icons/truck_add_into_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
 a.copy  { background: url("../img/icons/copy-icon16x16.png") no-repeat left center; }
+a.create_shipment  { background: url("../img/icons/truck_add_16x16.png") no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1106,15 +1114,19 @@ a.paste { background: url("../img/icons/Paste_16x16.png") no-repeat left center;
 a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
 a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
 a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
+a.reveal.fetching { background: url("../img/wait20.gif") no-repeat left center; }
 a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
+a.sample{ background: url("../img/icons/flask_16x16.png") no-repeat left center; }
 a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
 a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
 a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
+a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left center; }
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
+a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 
 li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
@@ -1141,8 +1153,13 @@ a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat c
 a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
 a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
+a.plugin.labbook {background: url("../img/icons/book_opened_32x32.png") no-repeat center center;}
 a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
 a.plugin.underdev {background: url("../img/icons/under_dev_32x32.png") no-repeat center center;}
+a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") no-repeat center center;}
+a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
+a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
+a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
 td.id a,
 td.id a:hover,
 table.tree ul a,
@@ -1490,19 +1507,20 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 
 .databrowser td div{
-	position: relative;
+/*	position: relative;
 	width: 26px;
 	height: 20px;
 	background-position: center;
-	background-repeat: no-repeat;
+	background-repeat: no-repeat;*/
 }
 
 .databrowser img {
 	margin: 0px;
 }
 
+/* standard painting */
 .databrowser td.node{
-	/*background-image: url(../img/dataBrowser/node.png);*/
+	background-image: url(../img/dataBrowser/node.png);
 }
 
 .databrowser td.h-line {
@@ -1521,8 +1539,9 @@ div.wrapper table.structure td .databrowser td .info td{
 	background-image: url(../img/dataBrowser/corner.png);
 }
 
+/* active painting */
 .databrowser td.node.active{
-	/*background-image: url(../img/dataBrowser/node_active.png);*/
+	background-image: url(../img/dataBrowser/node_active.png);
 }
 
 .databrowser td.h-line.active, .databrowser tr:nth-child(1) td:nth-child(1){
@@ -1544,9 +1563,60 @@ div.wrapper table.structure td .databrowser td .info td{
 	background-image: url(../img/dataBrowser/corner_active.png);
 }
 
+/* standard merged painting */
+.databrowser td.node.merged{
+	background-image: url(../img/dataBrowser/node_merge.png);
+}
+
+.databrowser td.h-line.merged {
+	background-image: url(../img/dataBrowser/h-line_merge.png);
+}
+
+.databrowser td.v-line.merged {
+	background-image: url(../img/dataBrowser/v-line_merge.png);
+}
+
+.databrowser td.arrow.merged {
+	background-image: url(../img/dataBrowser/arrow_corner_merge.png);
+}
+.databrowser td.arrow.merged_straight {
+	background-image: url(../img/dataBrowser/arrow_straight_merge.png);
+}
+
+.databrowser td.corner.merged {
+	background-image: url(../img/dataBrowser/corner_merge.png);
+}
+
+/* active merged painting */
+.databrowser td.node.active.merged{
+	background-image: url(../img/dataBrowser/node_active_merge.png);
+}
+
+.databrowser td.h-line.active.merged{
+	background-image: url(../img/dataBrowser/h-line_active_merge.png);
+}
+
+.databrowser td.v-line.active.merged {
+	background-image: url(../img/dataBrowser/v-line_active_merge.png);
+}
+
+.databrowser td.arrow.active.merged {
+	background-image: url(../img/dataBrowser/arrow_active_corner_merge.png);
+}
+.databrowser td.arrow.active_straight.merged {
+	background-image: url(../img/dataBrowser/arrow_active_straight_merge.png);
+}
+
+.databrowser td.corner.active.merged {
+	background-image: url(../img/dataBrowser/corner_active_merge.png);
+}
+
 .databrowser td div.container{
 	/* default icon */
 	background-image: url(../img/icons/fam_fam_silk_help.png);
+	position: relative;
+	width: 26px;
+	height: 20px;
 }
 
 /* databrowser search table icons */
@@ -1596,6 +1666,20 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 .databrowser td.specimen.review div.container{
 	background: url(../img/icons/path_review_16x16.png) center no-repeat;
+}
+
+.databrowser div.controls, .databrowser div.content{
+	display: inline-block;
+}
+.databrowser div.left div.controls{
+	top: 5px;
+	right: 5px;
+	position: absolute;
+}
+.databrowser div.right div.controls{
+	top: 5px;
+	left: 5px;
+	position: absolute;
 }
 
 /* databrowser action dropdown icons */
@@ -1721,6 +1805,14 @@ ul.actionDropdown li a{
 	font-size: 130%;
 }
 
+.databrowser a.link{
+	background : transparent url(../img/icons/link_16x16.gif);
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	text-decoration: none;
+}
+
 .popup_container .wrapper, div.actions{
 	margin: 0px;
 	min-height: 0px;
@@ -1818,4 +1910,15 @@ span.incompleteMenuTitle{
 
 small{
 	font-size: 65%;
+}
+
+.box20x20{
+	display: inline-block;
+	left: 0px;
+	width: 20px;
+	height: 20px;	
+}
+
+.labBook{
+	display: none;	
 }
