@@ -613,6 +613,9 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 					}						
 					
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { require($hook_link); }
+					
 					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
 			}			
@@ -744,6 +747,9 @@ class SampleMastersController extends InventorymanagementAppController {
 						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
 					}
 
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { require($hook_link); }
+					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
 			}
@@ -793,7 +799,12 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 			
 			if($deletion_done) {
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+					
 				$this->atimFlash('your data has been deleted', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
+			
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/contentTreeView/' . $collection_id);
 			}
@@ -1064,6 +1075,10 @@ class SampleMastersController extends InventorymanagementAppController {
 				
 				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
 				
 			}else{

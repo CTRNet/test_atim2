@@ -1957,3 +1957,8 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 UPDATE datamart_batch_processes SET url = '/inventorymanagement/aliquot_masters/realiquotInit/definition/' WHERE url = '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/';
 UPDATE datamart_structure_functions SET link = '/inventorymanagement/aliquot_masters/realiquotInit/definition/' WHERE link = '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/';
+
+UPDATE structure_formats SET `display_column`='1' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='study_summary_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list'));
+
