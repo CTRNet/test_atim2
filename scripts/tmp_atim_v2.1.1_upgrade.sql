@@ -303,7 +303,7 @@ DROP TABLE `providers_revs`;
 
 -- realiquot in batch
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`)VALUES 
-(NULL , '1', 'realiquot', '/inventorymanagement/aliquot_masters/realiquotInit/', '1');
+(NULL , '1', 'realiquot', '/inventorymanagement/aliquot_masters/realiquotInit/creation/', '1');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('realiquot_into', '', '', 'Inventorymanagement.AliquotMaster::getRealiquotDropdown');
 
@@ -1313,8 +1313,8 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 (null, 'define realiquoted children', 'Inventorymanagement', 'AliquotMaster', '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/', 1),
 (null, 'define realiquoted children', 'Inventorymanagement', 'ViewAliquot', '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/', 1),
 
-(null, 'realiquot', 'Inventorymanagement', 'AliquotMaster', '/inventorymanagement/aliquot_masters/realiquotInit/', 1),
-(null, 'realiquot', 'Inventorymanagement', 'ViewAliquot', '/inventorymanagement/aliquot_masters/realiquotInit/', 1);
+(null, 'realiquot', 'Inventorymanagement', 'AliquotMaster', '/inventorymanagement/aliquot_masters/realiquotInit/creation/', 1),
+(null, 'realiquot', 'Inventorymanagement', 'ViewAliquot', '/inventorymanagement/aliquot_masters/realiquotInit/creation/', 1);
 
 UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/rtbform%';
 INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`, `use_link`, `created`, `created_by`, `modified`, `modified_by`) VALUES
@@ -1955,10 +1955,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('you must select an aliquot type','You must select an aliquot type!','Vous devez sélectionner un type d''aliquot'),
 ('no lab book can be defined for that realiquoting','No lab book can be defined for that realiquoting process!','Aucun cahier de laboratoire ne peut être attaché à ce processus de réaliquotage!');
 
-
-
-
-
-
-
-
+UPDATE datamart_batch_processes SET url = '/inventorymanagement/aliquot_masters/realiquotInit/definition/' WHERE url = '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/';
+UPDATE datamart_structure_functions SET link = '/inventorymanagement/aliquot_masters/realiquotInit/definition/' WHERE link = '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/';
