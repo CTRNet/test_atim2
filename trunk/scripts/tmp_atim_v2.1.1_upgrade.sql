@@ -1943,10 +1943,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 UPDATE structure_fields SET language_label = 'keep synchronized with lab book', language_tag = '' WHERE field = 'sync_with_lab_book' AND model IN ('DerivativeDetail', 'Realiquoting');
 UPDATE structure_fields SET language_label = 'lab book code' WHERE field = 'lab_book_master_code' AND model IN ('DerivativeDetail', 'Realiquoting');
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('lab book code', 'Lab Book', 'Cahier de laboratoire'),
-('keep synchronized with lab book', 'Keep Synchronized', 'Garder Synchronisé');
-
 UPDATE structure_formats SET `flag_override_label`='0', `language_label`='', `flag_override_tag`='0', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquoting_lab_book') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_fields SET  `language_tag`='', `language_label`='synchronize with lab book now' WHERE model='0' AND tablename='' AND field='sync_with_lab_book_now' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
@@ -1961,4 +1957,10 @@ UPDATE datamart_structure_functions SET link = '/inventorymanagement/aliquot_mas
 UPDATE structure_formats SET `display_column`='1' 
 WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='study_summary_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list'));
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('see book code', 'Lab Book', 'Cahier de labo.'),
+('lab book code', 'Lab Book', 'Cahier de laboratoire'),
+('keep synchronized with lab book', 'Keep Synchronized', 'Garder Synchronisé');
+
 
