@@ -118,18 +118,32 @@ class CollectionsController extends InventorymanagementAppController {
 		if($clinical_collection_link_id > 0){
 			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
 		}
-			// MANAGE DATA
+		// MANAGE DATA
+		
+		$initial_data = array();
+		if(empty($this->data)) {
+			$initial_data['Collection']['collection_property'] = 'participant collection';
+			$initial_data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a', true);
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
+		if(!empty($ccl_data)){
+			$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
+			$this->Structures->set('linked_collections');
+		}
+		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
-
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
-		if (!empty($this->data)) {
+		if(empty($this->data)) {
+			$this->data = $initial_data;
+			
+		} else {
 			
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA	
@@ -166,16 +180,6 @@ class CollectionsController extends InventorymanagementAppController {
 					$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 				}				
 			}
-		}
-
-		if(!empty($ccl_data)){
-			$this->Structures->set('linked_collections');
-			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
-			$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
-			$this->data['Generated']['field1'] = $ccl_data['Participant']['participant_identifier'];
-			$this->data['Collection']['collection_property'] = 'participant collection';
-		}else{
-			$this->data['Generated']['field1'] = __('n/a', true);
 		}
 	}
 	
@@ -228,6 +232,10 @@ class CollectionsController extends InventorymanagementAppController {
 			
 				$this->Collection->id = $collection_id;
 				if ($this->Collection->save($this->data)) {
+					
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { require($hook_link); }
+					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}
 			}

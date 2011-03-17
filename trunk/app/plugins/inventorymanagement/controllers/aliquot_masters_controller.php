@@ -546,6 +546,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 				}
 				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+					
 				if($is_batch_process) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
@@ -728,7 +731,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, false)) { 
 					$this->redirect('/pages/err_inv_record_err', null, true); 
-				}			
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }	
+				
 				$this->atimFlash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 				return;
 			}
@@ -774,6 +781,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->AliquotMaster->atim_delete($aliquot_master_id)) {
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				$this->atimFlash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
@@ -1686,6 +1697,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
 				}
 				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
@@ -2000,7 +2014,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-								
+
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				//redirect
 				
 				if($aliquot_master_id == null){
