@@ -844,8 +844,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(((!empty($this->data['AliquotInternalUse']['used_volume'])) || ($this->data['AliquotInternalUse']['used_volume'] == '0'))&& empty($aliquot_data['AliquotMaster']['aliquot_volume_unit'])) {
 				// No volume has to be recored for this aliquot type				
 				$this->AliquotInternalUse->validationErrors['used_volume'][] = 'no volume has to be recorded for this aliquot type';	
-				$submitted_data_validates = false;	
-				pr('la');		
+				$submitted_data_validates = false;		
 			} else if(empty($this->data['AliquotInternalUse']['used_volume'])) {
 				// Change '0' to null
 				$this->data['AliquotInternalUse']['used_volume'] = null;
@@ -1319,7 +1318,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_from', $aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $sample_ctrl_id);
 		
-		if(!in_array($process_type, array('definition', 'creation'))) $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+		switch($process_type) {
+			case 'creation':
+				$this->set('realiquoting_function', 'realiquot');
+				break;
+			case 'definition':
+				$this->set('realiquoting_function', 'defineRealiquotedChildren');
+				break;
+			default:
+				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+		}
 		$this->set('process_type', $process_type);
 		
 		// Set structure and menu
@@ -1338,6 +1346,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				'SampleMaster.initial_specimen_sample_id' => $aliquots[0]['SampleMaster']['initial_specimen_sample_id'], 
 				'AliquotMaster.id' => $aliquot_id));
 		}
+		
+		$this->set('skip_lab_book_selection_step', false);
 		
 		// Hook Call
 		
@@ -1372,7 +1382,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				break;
 			default:
 				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
-			
 		}
 		
 		$this->AliquotMaster->unbindModel(array(

@@ -404,6 +404,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->set('aliquots_data', $this->getAliquotsListData(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
 		}
 		
+		// Set Lab Book Id
+		if(isset($sample_data['DerivativeDetail']['lab_book_master_id']) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) $this->set('lab_book_master_id', $sample_data['DerivativeDetail']['lab_book_master_id']);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
@@ -862,6 +865,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->Structures->set('derivative_init');
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
 		$this->set('parent_sample_control_id', $init_data['control_id']);
+		
+		$this->set('skip_lab_book_selection_step', false);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
