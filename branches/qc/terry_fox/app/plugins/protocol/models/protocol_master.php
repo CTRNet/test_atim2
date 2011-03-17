@@ -26,7 +26,7 @@ class ProtocolMaster extends ProtocolAppModel {
 				'menu'			=>	array( NULL, __($result['ProtocolMaster']['type'], TRUE) . ' - ' . $result['ProtocolMaster']['code']),
 				'title'			=>	array( NULL, $result['ProtocolMaster']['code']),
 				'data'			=> $result,
-				'structure alias'=>'protocomasters'
+				'structure alias'=>'protocolmasters'
 			);
 		}
 		

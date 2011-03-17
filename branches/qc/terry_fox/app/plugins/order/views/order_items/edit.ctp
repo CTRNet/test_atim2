@@ -17,12 +17,10 @@
 ?>
 
 <script type="text/javascript">
-var copyStr = "<?php echo(__('copy', true)); ?>";
-var pasteStr = "<?php echo(__('paste', true)); ?>";
-var copyingStr = "<?php echo(__('copying', true)); ?>";
+var copyStr = "<?php echo(__("copy", null)); ?>";
+var pasteStr = "<?php echo(__("paste")); ?>";
+var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
+var copyControl = true;
 </script>
-<?php 
-echo $javascript->link('copyControl')."\n";
-?>
-<div id="debug"></div>
+

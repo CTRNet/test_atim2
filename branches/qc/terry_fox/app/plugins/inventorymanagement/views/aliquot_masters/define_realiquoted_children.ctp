@@ -1,10 +1,10 @@
 <?php
 	$structure_links = array(
-		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/'
+		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/',
+		'bottom' => array('cancel' => $url_to_cancel)
 	);
 	if(isset($atim_menu_variables['Collection.id'])){
 		$structure_links['top'] .= $atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'; 
-		$structure_links['bottom'] = array('cancel' => '/inventorymanagement/aliquot_masters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'); 
 	}
 	$structure_settings = array('pagination'=>false, 'form_top' => false, 'form_bottom' => false, 'actions' => false);
 
@@ -20,25 +20,29 @@
 		'settings' 	=> $structure_settings	
 	));
 	// CUSTOM CODE
-	$hook_link = $structures->hook('children_selection');
+	$hook_link = $structures->hook();
 	if($hook_link){
 		require($hook_link); 
 	}
 	
 	//BUILD FORM
 	$first = true;
-	while($aliquot = array_pop($this->data)){
+	$counter = 0;
+	$element_nbr = sizeof($this->data);
+	foreach($this->data as $aliquot) {
+		$counter++;
+		
 		$final_parent_options = $parent_options;
 		$final_children_options = $children_options;
 		if($first){
 			$final_parent_options['settings']['form_top'] = true;
 			$first = false;
 		}
-		if(count($this->data) == 0){
+		if($element_nbr == $counter){
 			$final_children_options['settings']['form_bottom'] = true;
 			$final_children_options['settings']['actions'] = true;
 		}
-		$final_parent_options['settings']['header'] = __('realiquoted children selection', true)." [".$aliquot['parent']['AliquotMaster']['barcode']."]";
+		$final_parent_options['settings']['header'] = __('realiquoted children selection', true).(($element_nbr-1)? " #".$counter : '');
 		$final_parent_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
 		$final_parent_options['data'] = $aliquot['parent'];
 		$final_children_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
