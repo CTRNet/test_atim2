@@ -1499,7 +1499,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('in_stock_detail', 'in_stock_detail');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
 		
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
+		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// set data for initial data to allow bank to override data
 		$this->set('created_aliquot_override_data', array(
