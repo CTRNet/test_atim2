@@ -107,7 +107,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array("AliquotMaster.id" => $aliquot_ids), 'recursive' => -1));
 			foreach($aliquots as &$aliquot){
-				$aliquot['children'] = array_key_exists(36, $aliquot_ids_has_child);
+				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 			}
 			$this->data = array_merge($this->data, $aliquots);
 		}
