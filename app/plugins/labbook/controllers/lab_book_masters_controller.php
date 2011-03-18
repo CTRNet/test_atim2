@@ -69,6 +69,9 @@ class LabBookMastersController extends LabBookAppController {
 	function detail($lab_book_master_id, $full_detail_screen = true) {		
 		if(!$lab_book_master_id) { 
 			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+		} else if($lab_book_master_id == '-1') {
+			$this->flash('no lab book is linked to this record', "javascript:history.back()", 5);
+			return;
 		}
 		
 		// MAIN FORM

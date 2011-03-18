@@ -2003,8 +2003,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			  				//save realiquoting
 			  				$children_aliquot['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
 			 				$children_aliquot['Realiquoting']['child_aliquot_master_id'] = $children_aliquot['AliquotMaster']['id'];
-		  					$realiquoting_data['Realiquoting']['lab_book_master_id'] = $lab_book_id;
-		 					$realiquoting_data['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
+		  					$children_aliquot['Realiquoting']['lab_book_master_id'] = $lab_book_id;
+		 					$children_aliquot['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
 			 					
 							$this->Realiquoting->id = NULL;
 			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot['Realiquoting'], false))){
@@ -2059,7 +2059,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Get/Manage Parent Aliquots
 		$this->data = $this->paginate($this->Realiquoting, array('Realiquoting.child_aliquot_master_id '=> $aliquot_master_id));
-						
+		
+		// Manage data to build URL to access la book
+		$this->set('display_lab_book_url', true);
+		foreach($this->data as &$new_record) {
+			$new_record['Realiquoting']['generated_lab_book_master_id'] = '-1';
+			if(array_key_exists('lab_book_master_id',$new_record['Realiquoting']) && !empty($new_record['Realiquoting']['lab_book_master_id'])) {
+				$new_record['Realiquoting']['generated_lab_book_master_id'] = $new_record['Realiquoting']['lab_book_master_id'];
+			}
+		}
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
