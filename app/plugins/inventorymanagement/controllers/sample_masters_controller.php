@@ -448,8 +448,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$is_specimen = null;
 		$sample_control_data = array();
 		$parent_sample_data = array();
-		$lab_book = null;
 		$parent_to_derivative_sample_control = null;
+		
+		$lab_book = null;
+		$lab_book_ctrl_id = 0;
+		$lab_book_fields = array();
 		
 		if(empty($parent_sample_master_id)) {
 			// Created sample is a specimen
@@ -480,8 +483,12 @@ class SampleMastersController extends InventorymanagementAppController {
 			if(empty($parent_to_derivative_sample_control)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
 			$sample_control_data['SampleControl'] = $parent_to_derivative_sample_control['DerivativeControl'];
 			
+			// Get Lab Book Ctrl Id & Fields
 			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book_ctrl_id = $parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'];
+			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
 		}
+		$this->set("lab_book_fields", $lab_book_fields);
 		
 		// Set parent data
 		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
@@ -503,15 +510,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// set structure alias based on VALUE from CONTROL table
 		$this->Structures->set($sample_control_data['SampleControl']['form_alias']);
-		$lab_book_fields = array();
-		$lab_book_ctrl_id = 0;
-		if(!$is_specimen){
-			$lab_book_ctrl_id = $parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'];
-			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
-		}
-		
-		$this->set("lab_book_fields", $lab_book_fields);
-		
+				
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
@@ -665,6 +664,27 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		
+		// Manage Lab Book
+		
+		$lab_book = null;
+		$lab_book_ctrl_id = 0;
+		$lab_book_fields = array();
+		
+		if(!$is_specimen){
+			// Set Lab book data for display
+			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_data['SampleMaster']['sample_control_id'], $sample_data['SampleMaster']['sample_control_id']);
+			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
+			
+			// Set lab book code for initial display
+			if(empty($this->data) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) {
+				$previous_labook = $lab_book->find('first', array('conditions' => array('id'=>$sample_data['DerivativeDetail']['lab_book_master_id']), 'recursive'=>'-1'));
+				if(empty($previous_labook)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+				$sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook['LabBookMaster']['code'];
+			}	
+		}
+		$this->set("lab_book_fields", $lab_book_fields);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on sample category
@@ -674,24 +694,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// Set structure	
-		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
+		$this->Structures->set($sample_data['SampleControl']['form_alias']);
 		
 		// MANAGE DATA RECORD
-		$lab_book_fields = array();
-		$lab_book = null;
-		$lab_book_ctrl_id = 0;
-		if(!$is_specimen){
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
-			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_data['SampleMaster']['parent_id']), 'recursive' => -1));
-			$lab_book_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_data['SampleMaster']['sample_control_id'], $sample_data['SampleMaster']['sample_control_id']);
-			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
-			if(empty($this->data) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) {
-				$previous_labook = $lab_book->find('first', array('conditions' => array('id'=>$sample_data['DerivativeDetail']['lab_book_master_id']), 'recursive'=>'-1'));
-				if(empty($previous_labook)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
-				$sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook_code;
-			}	
-		}
-		$this->set("lab_book_fields", $lab_book_fields);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
