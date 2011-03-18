@@ -753,15 +753,15 @@ class StructuresHelper extends Helper {
 			$structure_count++;
 			if (is_array($table_index)){
 				// start table...
-				echo ('
-					<td class="this_column_'.$structure_count.' total_columns_'.count($structure_index).'">
+				echo '
+					<td class="this_column_',$structure_count,' total_columns_',count($structure_index),'">
 						<table class="columns index" cellspacing="0">
-				');
+				';
 				$remove_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['del_fields'];
 				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
 				$options['remove_line_ctrl'] = $remove_line_ctrl;
 				$header_data = $this->buildDisplayHeader($table_index, $options);
-				echo("<thead>".$header_data['header']."</thead>");
+				echo "<thead>",$header_data['header'],"</thead>";
 				
 				if($options['type'] == "addgrid" && count($data) == 0){
 					//display at least one line
@@ -770,7 +770,7 @@ class StructuresHelper extends Helper {
 				
 				if(count($data)){
 					$data = array_merge(array(), $data);//make sure keys are starting from 0 and that none is being skipped
-					echo("<tbody>");
+					echo "<tbody>";
 					
 					if($add_line_ctrl){
 						//blank hidden line
@@ -782,30 +782,30 @@ class StructuresHelper extends Helper {
 					unset($default_settings_wo_class['class']);
 					foreach($data as $key => $data_unit){
 						if($add_line_ctrl && $row_num == count($data)){
-							echo("<tr class='hidden'>");
+							echo "<tr class='hidden'>";
 						}else{
-							echo("<tr>");
+							echo "<tr>";
 						}
 						
 						//checklist
 						if (count($options['links']['checklist'])){
-							echo('
+							echo'
 								<td class="checkbox">
-							');
+							';
 							foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
 								$checkbox_value = $this->strReplaceLink($checkbox_value, $data_unit);
-								echo($this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value))));
+								echo $this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value)));
 							}
-							echo('
+							echo '
 								</td>
-							');
+							';
 						}
 					
 						//radiolist
 						if(count($options['links']['radiolist'])){
-							echo('
+							echo '
 								<td class="radiobutton">
-							');
+							';
 							foreach($options['links']['radiolist'] as $radiobutton_name => $radiobutton_value){
 								list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
 								$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data_unit);
@@ -813,19 +813,19 @@ class StructuresHelper extends Helper {
 								if(isset($data_unit[$tmp_model][$tmp_field]) && $data_unit[$tmp_model][$tmp_field] == $radiobutton_value){
 									$tmp_attributes['checked'] = 'checked';
 								}
-								echo($this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array_merge($default_settings_wo_class, $tmp_attributes)));
+								echo $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array_merge($default_settings_wo_class, $tmp_attributes));
 							}
 							
-							echo('
+							echo '
 								</td>
-							');
+							';
 						}
 		
 						//index
 						if(count($options['links']['index'])){
-							echo('
-								<td class="id">'.$this->strReplaceLink($link_location, $data_unit).'</td>
-							');
+							echo '
+								<td class="id">',$this->strReplaceLink($link_location, $data_unit),'</td>
+							';
 						}
 						
 						$structure_count = 0;
@@ -841,86 +841,87 @@ class StructuresHelper extends Helper {
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 									$current_value = self::getCurrentValue($data_unit, $table_row_part, "", $options);
-									if(strlen($table_row_part['label'])){
+									if(strlen($table_row_part['label']) || $first_cell){
 										if($first_cell){
-											echo("<td>");
+											echo "<td>";
+											$first_cell = false;
 										}else{
-											echo("</td><td>");
+											echo "</td><td>";
 										}
 									}
-									echo($this->getPrintableField($table_row_part, $options, $current_value, $key, null));
+									echo $this->getPrintableField($table_row_part, $options, $current_value, $key, null);
 									
 								}
 							}
 						}
-						echo("</td>\n");
+						echo "</td>\n";
 						
 						//remove line ctrl
 						if($remove_line_ctrl){
-							echo('
+							echo '
 									<td class="right">
-										<a href="#" class="removeLineLink" title="'.__( 'click to remove these elements', true ).'">(-)</a>
+										<a href="#" class="removeLineLink" title="',__( 'click to remove these elements', true ),'">(-)</a>
 									</td>
-							');
+							';
 						}
 						
 						
-						echo("</td></tr>");
+						echo "</td></tr>";
 						$row_num ++;
 					}
-					echo("</tbody><tfoot>");
+					echo "</tbody><tfoot>";
 					if($options['settings']['pagination']){
-						echo('
+						echo '
 								<tr class="pagination">
-									<th colspan="'.$header_data['count'].'">
+									<th colspan="',$header_data['count'],'">
 										
 										<span class="results">
-											'.$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ).'
+											',$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ),'
 										</span>
 										
 										<span class="links">
-											'.$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ).'
-											'.$this->Paginator->numbers().'
-											'.$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ).'
+											',$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ),'
+											',$this->Paginator->numbers(),'
+											',$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ),'
 										</span>
 										
-										'.$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)).' |
-										'.$this->Paginator->link( '10', array('page' => 1, 'limit' => 10)).' |
-										'.$this->Paginator->link( '20', array('page' => 1, 'limit' => 20)).' |
-										'.$this->Paginator->link( '50', array('page' => 1, 'limit' => 50)).'
+										',$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)),' |
+										',$this->Paginator->link( '10', array('page' => 1, 'limit' => 10)),' |
+										',$this->Paginator->link( '20', array('page' => 1, 'limit' => 20)),' |
+										',$this->Paginator->link( '50', array('page' => 1, 'limit' => 50)),'
 										
 									</th>
 								</tr>
-						');
+						';
 					}
 					
 					if(count($options['links']['checklist'])){
-						echo("<tr><td colspan='3'><a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a></td></tr>");
+						echo "<tr><td colspan='3'><a href='#' class='checkAll'>",__('check all', true),"</a> | <a href='#' class='uncheckAll'>",__('uncheck all', true),"</a></td></tr>";
 					}
 					
 					if($add_line_ctrl){
-						echo('<tr>
-								<td class="right" colspan="'.$header_data['count'].'">
-									<a class="addLineLink" href="#" title="'.__( 'click to add a line', true ).'">(+)</a>
+						echo '<tr>
+								<td class="right" colspan="',$header_data['count'],'">
+									<a class="addLineLink" href="#" title="',__( 'click to add a line', true ),'">(+)</a>
 									<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
 								</td>
 							</tr>
-						');
+						';
 					}
-					echo("</tfoot>");
+					echo "</tfoot>";
 				}else{
-					echo('<tfoot>
+					echo '<tfoot>
 							<tr>
-									<td class="no_data_available" colspan="'.$header_data['count'].'">'.__( 'core_no_data_available', true ).'</td>
+									<td class="no_data_available" colspan="',$header_data['count'],'">',__( 'core_no_data_available', true ),'</td>
 							</tr></tfoot>
-					');
+					';
 				}
-				echo("</table></td>");
+				echo "</table></td>";
 			}else{
 				$this->printExtras($structure_count, count($structure_index), $table_index);
 			}
 		}
-		echo("</tr></tbody></table>");
+		echo "</tr></tbody></table>";
 	}
 
 
@@ -1220,10 +1221,12 @@ class StructuresHelper extends Helper {
 			$column_count += $content_columns_count;
 			$content_columns_count /= 2;
 			$current_col_number = 0;
+			$first_cell = true;
 			foreach ($table_structure as $table_column){
 				foreach ($table_column as $table_row){
 					foreach($table_row as $table_row_part){
-						if ($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0){
+						if (($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0) || $first_cell){
+							$first_cell = false;
 
 							// label and help/info marker, if available...
 							$return_string .= '
