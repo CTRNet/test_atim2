@@ -348,7 +348,6 @@ class StructuresHelper extends Helper {
 		}else if($type == 'csv'){
 			$this->buildCsv( $atim_structure, $options, $data);
 			$options['settings']['actions'] = false;
-			
 		}else{
 			if(Configure::read('debug') > 0){
 				AppController::addWarningMsg(sprintf(__("warning: unknown build type [%s]", true), $type)); 
@@ -933,9 +932,8 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
-		$options['type'] = 'detail';//all detail fields required
+		$options['settings']['all_fields'] = true;
 		$table_structure = $this->buildStack($atim_structure, $options);
-		$options['type'] = 'csv';//go back to csv
 		
 		if(is_array($table_structure) && count($data)){
 			//header line
@@ -944,9 +942,11 @@ class StructuresHelper extends Helper {
 				foreach($table_column as $fm => $table_row){
 					foreach($table_row as $table_row_part){
 						$line[] = $table_row_part['label'];
+						echo $table_row_part['label']," - ";
 					}
 				}
 			}
+			
 			$this->Csv->addRow($line);
 
 			//content
