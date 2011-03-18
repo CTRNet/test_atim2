@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/clinicalannotation/consent_masters/edit/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/',
+		'top'=>'/clinicalannotation/consent_masters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ConsentMaster.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/consent_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%ConsentMaster.id%%/'
+			'cancel'=>'/clinicalannotation/consent_masters/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ConsentMaster.id'].'/'
 		)
 	);
 	
