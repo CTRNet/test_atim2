@@ -672,6 +672,8 @@ class StructuresHelper extends Helper {
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
+			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
+				$current_value = str_replace('.', ',', $current_value);
 			}
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
