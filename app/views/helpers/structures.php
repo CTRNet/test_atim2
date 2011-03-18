@@ -708,6 +708,8 @@ class StructuresHelper extends Helper {
 						AppController::addWarningMsg(sprintf(__("missing reference key [%s] for field [%s]", true), $current_value, $table_row_part['field']));
 					}
 				}
+			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
+				$display = str_replace('.', ',', $current_value);
 			}else{
 				$display = $current_value;
 			}
@@ -1170,7 +1172,7 @@ class StructuresHelper extends Helper {
 
 	/**
 	 * Builds the display header
-	 * @param array $table_index The structural inforamtion
+	 * @param array $table_index The structural information
 	 * @param array $options The options
 	 */
 	private function buildDisplayHeader(array $table_structure, array $options){
