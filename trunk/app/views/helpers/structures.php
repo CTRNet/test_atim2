@@ -932,8 +932,9 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
-		$options['settings']['all_fields'] = true;
+		$options['type'] = 'index';
 		$table_structure = $this->buildStack($atim_structure, $options);
+		$options['type'] = 'csv';//go back to csv
 		
 		if(is_array($table_structure) && count($data)){
 			//header line
