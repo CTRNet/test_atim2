@@ -2016,8 +2016,15 @@ WHERE id='export as CSV file (comma-separated values)';
 
 ALTER TABLE derivative_details
 ADD creation_datetime_accuracy VARCHAR(5) DEFAULT '';
+ALTER TABLE derivative_details_revs
+ADD creation_datetime_accuracy VARCHAR(5) DEFAULT '';
 
 UPDATE datamart_structures SET 
 use_key='id',
 index_link='/inventorymanagement/aliquot_masters/detail/%%ViewAliquotUse.collection_id%%/%%ViewAliquotUse.sample_master_id%%/%%ViewAliquotUse.aliquot_master_id%%'
 WHERE model='ViewAliquotUse';
+
+ALTER TABLE ed_breast_lab_pathologies
+ADD breast_tumour_size VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE ed_breast_lab_pathologies_revs
+ADD breast_tumour_size VARCHAR(50) NOT NULL DEFAULT '';
