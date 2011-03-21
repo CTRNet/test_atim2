@@ -49,6 +49,7 @@ function copyLine(line){
 			copyBuffer[name] = $(this).val();
 		}
 	});
+	console.log(copyBuffer);
 }
 
 /**
@@ -62,10 +63,10 @@ function pasteLine(line){
 			var nameArray = $(this).attr("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 			if($(this).attr("type") == "checkbox"){
-				if(copyBuffer[name]){
+				if(copyBuffer[name] != undefined){
 					$(this).attr("checked", "checked");
 				}
-			}else if(copyBuffer[name]){
+			}else if(copyBuffer[name] != undefined){
 				$(this).val(copyBuffer[name]);
 			}
 		}
@@ -87,10 +88,10 @@ function enableCopyCtrl(){
 }
 
 function bindCopyCtrl(scope){
-	$(scope).find(".copy").click(function(){
+	$(scope).find(".button.copy").click(function(){
 		copyLine(getParentRow(this));
 	});
-	$(scope).find(".paste").click(function(){
+	$(scope).find(".button.paste").click(function(event){
 		pasteLine(getParentRow(this));
 	});
 }
