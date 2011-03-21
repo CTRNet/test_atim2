@@ -1052,7 +1052,9 @@ ALTER TABLE aliquot_internal_uses_revs DROP COLUMN use_recorded_into_table;
 DROP VIEW IF EXISTS view_aliquot_uses;
 CREATE VIEW view_aliquot_uses AS 
 
-SELECT aliq.id AS aliquot_master_id,
+SELECT 
+CONCAT(source.id, 1) AS id,
+aliq.id AS aliquot_master_id,
 'sample derivative creation' AS use_definition, 
 samp.sample_code AS use_code,
 '' AS use_details,
@@ -1073,7 +1075,9 @@ WHERE source.deleted != 1
 
 UNION ALL
 
-SELECT parent.id AS aliquot_master_id,
+SELECT 
+CONCAT(realiq.id, 2) AS id,
+parent.id AS aliquot_master_id,
 'realiquoted to' AS use_definition, 
 child.barcode AS use_code,
 '' AS use_details,
@@ -1093,7 +1097,9 @@ WHERE realiq.deleted != 1
 
 UNION ALL
 
-SELECT aliq.id AS aliquot_master_id,
+SELECT 
+CONCAT(tested.id, 3) AS id,
+aliq.id AS aliquot_master_id,
 'quality control' AS use_definition, 
 qc.qc_code AS use_code,
 '' AS use_details,
@@ -1113,7 +1119,9 @@ WHERE tested.deleted != 1
 
 UNION ALL
 
-SELECT aliq.id AS aliquot_master_id,
+SELECT 
+CONCAT(item.id, 4) AS id,
+aliq.id AS aliquot_master_id,
 'aliquot shipment' AS use_definition, 
 sh.shipment_code AS use_code,
 '' AS use_details,
@@ -1133,7 +1141,9 @@ WHERE item.deleted != 1
 
 UNION ALL
 
-SELECT aliq.id AS aliquot_master_id,
+SELECT 
+CONCAT(alr.id, 5) AS id,
+aliq.id AS aliquot_master_id,
 'specimen review' AS use_definition, 
 spr.review_code AS use_code,
 '' AS use_details,
@@ -1153,7 +1163,9 @@ WHERE alr.deleted != 1
 
 UNION ALL
 
-SELECT aliq.id AS aliquot_master_id,
+SELECT 
+CONCAT(aluse.id, 6) AS id,
+aliq.id AS aliquot_master_id,
 'internal use' AS use_definition, 
 aluse.use_code,
 aluse.use_details,
@@ -2005,5 +2017,7 @@ WHERE id='export as CSV file (comma-separated values)';
 ALTER TABLE derivative_details
 ADD creation_datetime_accuracy VARCHAR(5) DEFAULT '';
 
-UPDATE datamart_structures SET index_link='/inventorymanagement/aliquot_masters/detail/%%ViewAliquotUse.collection_id%%/%%ViewAliquotUse.sample_master_id%%/%%ViewAliquotUse.aliquot_master_id%%'
+UPDATE datamart_structures SET 
+use_key='id',
+index_link='/inventorymanagement/aliquot_masters/detail/%%ViewAliquotUse.collection_id%%/%%ViewAliquotUse.sample_master_id%%/%%ViewAliquotUse.aliquot_master_id%%'
 WHERE model='ViewAliquotUse';
