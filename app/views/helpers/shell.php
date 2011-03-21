@@ -266,7 +266,7 @@ class ShellHelper extends Helper {
 							if($menu_item['Menu']['at'] && $menu_item['Menu']['use_summary']){
 								$fetched_summary = $this->fetchSummary($menu_item['Menu']['use_summary'], $options);
 								$summaries[] = $fetched_summary['long'];
-								$menu_item['Menu']['use_summary'] = $fetched_summary['page_title'];
+								$menu_item['Menu']['use_summary'] = isset($fetched_summary['page_title']) ? $fetched_summary['page_title'] : "";
 							}
 							
 							if($menu_item['Menu']['at']){
