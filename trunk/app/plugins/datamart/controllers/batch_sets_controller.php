@@ -345,6 +345,13 @@ class BatchSetsController extends DatamartAppController {
 				$batch_set['BatchSet']['model'] = $datamart_structure['model'];
 			}
 			$batch_set['BatchSet']['plugin'] = $batch_set['BatchSet']['plugin'];
+		}else{
+			$datamart_structure = $this->DatamartStructure->find('first', array('conditions' => array('control_master_model' => $batch_set['BatchSet']['model']), 'fields' => array('model', 'use_key'), 'recursive' => -1));
+			if(!empty($datamart_structure) && isset($this->data[$datamart_structure['DatamartStructure']['model']])){
+				//convert to current model (eg.: ViewSample -> SampleMaster)
+				$batch_set['BatchSet']['model'] = $datamart_structure['DatamartStructure']['model'];
+				$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['DatamartStructure']['use_key'];
+			}
 		}
 		$batch_set_ids = array();;
 		// find compatible MODEL in DATA
@@ -383,6 +390,8 @@ class BatchSetsController extends DatamartAppController {
 				
 			}
 	    	
+	    }else{
+	    	AppController::addWarningMsg(__("failed to add data to the batch set", true));
 	    }
 	   
 	   // clear SESSION after done...
