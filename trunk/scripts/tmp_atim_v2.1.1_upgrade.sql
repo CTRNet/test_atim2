@@ -1061,11 +1061,14 @@ aliq.aliquot_volume_unit,
 der.creation_datetime AS use_datetime,
 der.creation_by AS used_by,
 source.created,
-CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url
+CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
+samp2.id AS sample_master_id,
+samp2.collection_id AS collection_id
 FROM source_aliquots AS source
 INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
 INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
 INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE source.deleted != 1
 
 UNION ALL
@@ -1079,10 +1082,13 @@ parent.aliquot_volume_unit,
 realiq.realiquoting_datetime AS use_datetime,
 realiq.realiquoted_by AS used_by,
 realiq.created,
-CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url
+CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
 FROM realiquotings AS realiq
 INNER JOIN aliquot_masters AS parent ON parent.id = realiq.parent_aliquot_master_id AND parent.deleted != 1
 INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = parent.sample_master_id  AND samp.deleted != 1
 WHERE realiq.deleted != 1
 
 UNION ALL
@@ -1096,10 +1102,13 @@ aliq.aliquot_volume_unit,
 qc.date AS use_datetime,
 qc.run_by AS used_by,
 tested.created,
-CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url
+CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
 FROM quality_ctrl_tested_aliquots AS tested
 INNER JOIN aliquot_masters AS aliq ON aliq.id = tested.aliquot_master_id AND aliq.deleted != 1
 INNER JOIN quality_ctrls AS qc ON qc.id = tested.quality_ctrl_id AND qc.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE tested.deleted != 1
 
 UNION ALL
@@ -1113,10 +1122,13 @@ sh.shipment_code AS use_code,
 sh.datetime_shipped AS use_datetime,
 sh.shipped_by AS used_by,
 sh.created,
-CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url
+CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
 FROM order_items AS item
 INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
 INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE item.deleted != 1
 
 UNION ALL
@@ -1130,10 +1142,13 @@ spr.review_code AS use_code,
 spr.review_date AS use_datetime,
 '' AS used_by,
 alr.created,
-CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url
+CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
 FROM aliquot_review_masters AS alr
 INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
 INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE alr.deleted != 1
 
 UNION ALL
@@ -1147,9 +1162,12 @@ aliq.aliquot_volume_unit,
 aluse.use_datetime,
 aluse.used_by,
 aluse.created,
-CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url
+CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
 FROM aliquot_internal_uses AS aluse
 INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE aluse.deleted != 1;
 
 INSERT INTO structures(`alias`) VALUES ('viewaliquotuses');
@@ -1986,3 +2004,6 @@ WHERE id='export as CSV file (comma-separated values)';
 
 ALTER TABLE derivative_details
 ADD creation_datetime_accuracy VARCHAR(5) DEFAULT '';
+
+UPDATE datamart_structures SET index_link='/inventorymanagement/aliquot_masters/detail/%%ViewAliquotUse.collection_id%%/%%ViewAliquotUse.sample_master_id%%/%%ViewAliquotUse.aliquot_master_id%%'
+WHERE model='ViewAliquotUse';
