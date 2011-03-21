@@ -1983,3 +1983,6 @@ UPDATE i18n SET
 en="Export displayed data as CSV file (Comma-separated values)",
 fr="Exporter les données affichées comme fichier CSV (Comma-separated values)"
 WHERE id='export as CSV file (comma-separated values)';
+
+ALTER TABLE derivative_details
+ADD creation_datetime_accuracy VARCHAR(5) DEFAULT '';
