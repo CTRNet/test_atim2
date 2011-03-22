@@ -8,7 +8,7 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'checklist', 'data'=>$user_batchsets, 'settings'=>array('pagination'=>false, 'form_inputs'=>false), 'links' => $structure_links, 'override' => $structure_override);
+	$final_options = array('type'=>'index', 'data'=>$user_batchsets, 'settings'=>array('pagination'=>false, 'form_inputs'=>false), 'links' => $structure_links, 'override' => $structure_override);
 
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
