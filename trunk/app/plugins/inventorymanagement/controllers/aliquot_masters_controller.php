@@ -303,7 +303,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}	
 		
 		// Set url to redirect
-		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
@@ -1281,7 +1281,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(!empty($aliquot_id)){		
 			$url_to_cancel = '/inventorymanagement/aliquot_masters/detail/' . $aliquots[0]['AliquotMaster']['collection_id'] . '/' . $aliquots[0]['AliquotMaster']['sample_master_id'] . '/' . $aliquots[0]['AliquotMaster']['id'] . '/';				
 		}else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
-			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		
