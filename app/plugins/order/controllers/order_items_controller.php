@@ -189,7 +189,7 @@ class OrderItemsController extends OrderAppController {
 				// Add aliquots from batchset
 						
 				// Build redirect url
-				$url_to_redirect = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/all/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+				$url_to_redirect = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
 			
 				$studied_aliquot_master_ids = array();
 				if(isset($this->data['AliquotMaster'])) {

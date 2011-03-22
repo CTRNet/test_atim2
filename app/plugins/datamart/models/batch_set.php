@@ -147,6 +147,17 @@ class BatchSet extends DatamartAppModel {
 		
 		return true;
 	}
+
+	/**
+	 * Fetches the compatible datamart structure based on a model name
+	 * @param string $model_name
+	 * @return The compatible datamart structure id on success, false otherwise
+	 */
+	function getCompatibleDatamartStructureId($model_name){
+		$datamart_structure_model = AppModel::atimNew("datamart", "DatamartStructure", true);
+		$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $model_name, 'DatamartStructure.control_master_model' => $model_name))));
+		return empty($datamart_structure) ? false : $datamart_structure['DatamartStructure']['id'];  
+	}
 }
 
 ?>
