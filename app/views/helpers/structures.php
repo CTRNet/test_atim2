@@ -945,7 +945,6 @@ class StructuresHelper extends Helper {
 				foreach($table_column as $fm => $table_row){
 					foreach($table_row as $table_row_part){
 						$line[] = $table_row_part['label'];
-						echo $table_row_part['label']," - ";
 					}
 				}
 			}
