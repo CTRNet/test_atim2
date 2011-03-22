@@ -38,7 +38,7 @@
 	$structure_override = array();
 
 	$final_atim_structure = $atim_structure_for_shipped_items; 
-	$final_options = array('type'=>'index', 'data' => $shipped_items, 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('order_shipment items', null), 'separator' => true));
+	$final_options = array('type'=>'index', 'data' => $shipped_items, 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('order_shipment items', null)));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('items');

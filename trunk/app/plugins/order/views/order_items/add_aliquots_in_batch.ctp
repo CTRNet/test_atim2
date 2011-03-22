@@ -35,7 +35,7 @@
 		'type' => 'add', 
 		'extras' => $extras,
 		'links' => array('top' => '/order/order_items/addAliquotsInBatch/'), 
-		'settings' => array('actions' => false, 'header' => __('1- add order data', null), 'separator' => true, 'form_top' => true, 'form_bottom' => false));
+		'settings' => array('actions' => false, 'header' => __('1- add order data', null), 'form_top' => true, 'form_bottom' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('order_item');
@@ -51,7 +51,6 @@
 
 	$structure_settings = array(
 		'header' => __('2- select order line', null), 
-		'separator' => true, 
 		'pagination'=>false, 
 		'form_top'=>false, 
 		'form_inputs'=>false, 
