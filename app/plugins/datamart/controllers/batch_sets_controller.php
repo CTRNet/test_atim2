@@ -136,8 +136,8 @@ class BatchSetsController extends DatamartAppController {
 		// make list of SEARCH RESULTS
 		$dropdown['model'] = $batch_set['BatchSet']['model'];
 		$dropdown['key'] = $batch_set['BatchSet']['lookup_key_name'];
-		if ( $batch_set['BatchSet']['flag_use_query_results'] ) {
-    	
+		if($batch_set['BatchSet']['flag_use_query_results']){
+    		$batch_set['0']['query_type'] = __('custom', true);
     		// update DATATABLE names to MODEL names for CTRAPP FORM framework
 			$query_to_use = str_replace( '|', '"', $batch_set['BatchSet']['sql_query_for_results'] ); // due to QUOTES and HTML not playing well, PIPES saved to datatable rows instead
 			
@@ -149,7 +149,8 @@ class BatchSetsController extends DatamartAppController {
     			$msg = __("the batch set contains %d entries but only %d are returned by the query", true);
     			AppController::addWarningMsg(sprintf($msg, count($batch_set['BatchId']), count($results)));
     		}
-    	} else {
+    	}else{
+    		$batch_set['0']['query_type'] = __('generic', true);
     		if($datamart_structure != null && $datamart_structure['control_master_model']){
 				$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3, 'group' => $datamart_structure['control_field']) );
 				if(count($results) == 1){
