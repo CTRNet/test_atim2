@@ -2174,3 +2174,55 @@ REPLACE INTO i18n (id, fr, en) VALUES
 ("mitotic activity" , "Activité mitotique" , "Mitotic Activity"),
 ("procedure" , "Procédure" , "Procedure"),
 ("tumor site" , "Site tumoral" , "Tumor Site");
+
+DELETE FROM i18n WHERE id LIKE 'error_fk_consent_%';
+DELETE FROM i18n WHERE id LIKE 'error_fk_diagnosis_%';
+DELETE FROM i18n WHERE id LIKE 'error_fk_participant_%';
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('error_fk_consent_linked_collection',
+'Your data cannot be deleted! This consent is linked to a collection.', 
+'Vos données ne peuvent être supprimées! Ce consentement est attaché à une collection.'),
+('error_fk_diagnosis_linked_collection',
+'Your data cannot be deleted! This diagnosis is linked to a collection.', 
+'Vos données ne peuvent être supprimées! Ce diagnostic est attaché à une collection.'),
+('error_fk_diagnosis_linked_treatment',
+'Your data cannot be deleted! This diagnosis is linked to a treatment.', 
+'Vos données ne peuvent être supprimées! Ce diagnostic est attaché à un traitement.'),
+('error_fk_diagnosis_linked_events',
+'Your data cannot be deleted! This diagnosis is linked to a annotation event.', 
+'Vos données ne peuvent être supprimées! Ce diagnostic est attaché à une annotation.'),
+
+('error_fk_participant_linked_collection',
+'Your data cannot be deleted! Linked collection record exists for this participant.', 
+'Vos données ne peuvent être supprimées! Des données de collection existent pour votre participant.'),
+('error_fk_participant_linked_consent',
+'Your data cannot be deleted! The participant you are trying to delete is linked to an existing consent.', 
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un consentement!'),
+('error_fk_participant_linked_contacts',
+'Your data cannot be deleted! Linked contact record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un contact!'),
+('error_fk_participant_linked_diagnosis',
+'Your data cannot be deleted! Linked diagnosis record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un diagnostic!'),
+('error_fk_participant_linked_events',
+'Your data cannot be deleted! Linked annotation event record exists for this participant.', 
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à une annotation!'),
+('error_fk_participant_linked_familyhistory',
+'Your data cannot be deleted! Linked family history exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à une historique familiale!'),
+('error_fk_participant_linked_identifiers',
+'Your data cannot be deleted! Linked identifier record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un identifiant!'),
+('error_fk_participant_linked_messages',
+'Your data cannot be deleted! Linked message record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un message!'),
+('error_fk_participant_linked_reproductive',
+'Your data cannot be deleted! Linked reproductive history record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à une donnée de gynécologie!'),
+('error_fk_participant_linked_treatment',
+'Your data cannot be deleted! Linked treatment record exists for this participant.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un traitement!');
+
+
+
