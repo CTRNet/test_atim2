@@ -152,6 +152,16 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		// Set diagnoses list
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
+		//because diagnosis has a one to many relation with participant, we need to format it
+		foreach($diagnosis_data as &$diagnosis){
+			foreach($diagnosis['ClinicalCollectionLink'] as $unit){
+				if($unit['id'] == $clinical_collection_link_id){
+					//we found the one that interests us
+					$diagnosis['ClinicalCollectionLink'] = $unit;
+					break;
+				}
+			}
+		}
 		$this->set( 'diagnosis_data', $diagnosis_data );
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
