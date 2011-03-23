@@ -29,8 +29,8 @@
 	);
 	if($data_for_detail['BatchSet']['flag_use_query_results']){
 		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
-				"cast to a new generic batch set" 	=> '/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/',
-				"cast into a generic batch set"		=> '/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/',
+				"cast to a new generic batch set" 	=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
+				"cast into a generic batch set"		=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
 			)), $structure_links['bottom']);
 	}
 	
