@@ -2175,6 +2175,8 @@ REPLACE INTO i18n (id, fr, en) VALUES
 ("procedure" , "Procédure" , "Procedure"),
 ("tumor site" , "Site tumoral" , "Tumor Site");
 
+UPDATE structure_fields SET type='checkbox', structure_value_domain=NULL WHERE field='is_problematic' AND plugin='Inventorymanagement' AND model='SampleMaster';
+
 DELETE FROM i18n WHERE id LIKE 'error_fk_consent_%';
 DELETE FROM i18n WHERE id LIKE 'error_fk_diagnosis_%';
 DELETE FROM i18n WHERE id LIKE 'error_fk_participant_%';
@@ -2223,6 +2225,3 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('error_fk_participant_linked_treatment',
 'Your data cannot be deleted! Linked treatment record exists for this participant.',
 'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un traitement!');
-
-
-
