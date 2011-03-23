@@ -179,9 +179,9 @@ ALTER TABLE `sd_spe_tissues_revs`
 #------------------------
 
 
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
 
  
 #------------------------
@@ -189,17 +189,17 @@ ALTER TABLE  atim.`sd_der_blood_cells` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR
 #------------------------
 
 
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`;
 
-ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_plasmas` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_plasmas` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_plasmas` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_plasmas` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_plasmas` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`;
 
 
 

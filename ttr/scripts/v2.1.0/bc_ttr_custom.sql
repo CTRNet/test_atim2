@@ -10,19 +10,19 @@ ALTER TABLE structure_formats
 #--------------------------
 
 
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_68' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_75' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_79' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_1_3_5' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_2_2' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_24' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_10' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_1_13' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_26' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_5' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_25' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_57' LIMIT 1 ;
-UPDATE `atim`.`menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_4' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_68' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_75' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_79' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_1_3_5' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'core_CAN_41_2_2' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_24' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_10' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_1_13' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_26' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_5' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_25' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_57' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'clin_CAN_4' LIMIT 1 ;
 
 
 
@@ -806,9 +806,9 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Thoracentesis',
 INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('bc_ttr_surgery',  '',  'Surgery',  '');
 
 -- This is to fix the structure format error in Consent form
-UPDATE `atim`.`structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1892 LIMIT 1 ;
-UPDATE `atim`.`structure_formats` SET `flag_override_setting` = '0' WHERE `structure_formats`.`id` =1181 LIMIT 1 ;
-UPDATE `atim`.`structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1893 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1892 LIMIT 1 ;
+UPDATE `structure_formats` SET `flag_override_setting` = '0' WHERE `structure_formats`.`id` =1181 LIMIT 1 ;
+UPDATE `structure_fields` SET `setting` = '' WHERE `structure_fields`.`id` =1893 LIMIT 1 ;
 
 
 -- Remove Unneeded fields in Participant form
@@ -990,7 +990,7 @@ UPDATE structure_formats SET flag_datagrid_readonly='1' WHERE flag_addgrid_reado
 #--------------------------------------------
 #-- Create Correspondences Menu
 #--------------------------------------------
-INSERT INTO `atim`.`menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_200', 'clin_CAN_1', '0', '3', 'correspondence', 'correspondence', '/clinicalannotation/correspondences/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES ('clin_CAN_200', 'clin_CAN_1', '0', '3', 'correspondence', 'correspondence', '/clinicalannotation/correspondences/listall/%%Participant.id%%', '', 'Clinicalannotation.Participant::summary', '1', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 INSERT INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('correspondence',  '',  'Correspondence',  'Correspondence');
 
 
@@ -1223,7 +1223,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SpecimenDetail' AND tablename='' AND field='supplier_dept' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept'));
  
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleDetail' AND tablename='' AND field='blood_type' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type'));
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleDetail' AND tablename='' AND field='blood_type' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type'));
  
  
 
@@ -1815,12 +1815,14 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Lymph node',  '
 
 
 -- Add is_large field in ad_blocks table and update all forms
-ALTER TABLE  atim.`ad_blocks` ADD  `bc_ttr_is_large` TINYINT( 1 ) NOT NULL  DEFAULT '0' AFTER  `deleted_date`;
+ALTER TABLE `ad_blocks` ADD  `bc_ttr_is_large` TINYINT( 1 ) NOT NULL  DEFAULT '0' AFTER  `deleted_date`;
 
 UPDATE structure_fields SET  `tablename`='ad_blocks' WHERE model='AliquotDetail' AND tablename='ad_blocs' AND field='bc_ttr_is_large' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_is_large' AND `language_label`='large' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+INSERT INTO structure_fields (model, tablename, plugin, field, language_label, language_tag, type, setting, `default`, structure_value_domain, language_help) VALUES
+('AliquotDetail', 'ad_blocks', 'Inventorymanagement', 'bc_ttr_is_large', 'large', '', 'checkbox', '', '', NULL, ''); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='bc_ttr_is_large' AND `language_label`='large' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1');
 
 -- Update Block type to ATiM format
 
