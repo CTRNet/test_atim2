@@ -2257,3 +2257,18 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('the batch set contains %d entries but only %d are returned by the query', '', 'The batch set contains %d entries but only %d are returned by the query.', 'Le lot de données contient %d entrées mais seulement %d sont retournées par la requête.'),
 ('you are about to remove element(s) from the batch set', '', 'You are about to remove element(s) from the batch set.', 'Vous êtes sur le point de retirer des éléments du lot de données.'),
 ('your are not allowed to work on this batchset', '', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur ce lot de données!');
+
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('models', '', '', NULL);
+
+INSERT IGNORE INTO structure_permissible_values(value, language_alias) 
+(SELECT model, display_name FROM(SELECT model, display_name FROM datamart_structures
+UNION
+SELECT control_master_model, display_name FROM datamart_structures WHERE control_master_model != '') AS der);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active, language_alias)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name='models'), spv.id, 1, 1, NULL FROM structure_permissible_values AS spv
+LEFT JOIN datamart_structures AS ds1 ON spv.value=ds1.model AND spv.language_alias=ds1.display_name
+LEFT JOIN datamart_structures AS ds2 ON spv.value=ds2.control_master_model AND spv.language_alias=ds2.display_name
+WHERE ds1.id IS NOT NULL OR ds2.id IS NOT NULL);
+
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models') ,  `setting`='' WHERE model='BatchSet' AND tablename='datamart_batch_sets' AND field='model' AND `type`='input' AND structure_value_domain  IS NULL ;
