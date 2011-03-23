@@ -20,6 +20,7 @@ class BatchSetsController extends DatamartAppController {
 	
 	function index($type_of_list='user'){
 		$batch_set_filter = array();
+		$this->set( 'atim_menu_variables',  array("Param.Type_Of_List" => $type_of_list));
 		
 		switch($type_of_list){
 			case 'user':
