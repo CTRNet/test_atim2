@@ -2488,6 +2488,9 @@ UPDATE aliquot_masters SET use_counter = 5 WHERE barcode = 't6u9937';
 UPDATE aliquot_masters SET use_counter = 5 WHERE barcode = 'bl6703.2';
 UPDATE aliquot_masters SET use_counter = 3 WHERE barcode = 'bl9457687';
 
+UPDATE sample_masters SET is_problematic = '0' WHERE is_problematic = 'no';
+UPDATE sample_masters SET is_problematic = '1' WHERE is_problematic = 'yes';
+
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
 -- -------------------------------------------------------------------------------------------------------------------------
