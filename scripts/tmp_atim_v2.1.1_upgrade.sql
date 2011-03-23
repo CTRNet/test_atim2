@@ -2295,3 +2295,6 @@ LEFT JOIN datamart_structures AS ds2 ON spv.value=ds2.control_master_model AND s
 WHERE ds1.id IS NOT NULL OR ds2.id IS NOT NULL);
 
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models') ,  `setting`='' WHERE model='BatchSet' AND tablename='datamart_batch_sets' AND field='model' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE `structure_fields` SET `default` = '0' WHERE model = 'SampleMaster' AND field = 'is_problematic';
+
