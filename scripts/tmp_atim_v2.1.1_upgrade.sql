@@ -2279,9 +2279,6 @@ VALUES
 'The system uses a custom query developped for your needs to look for displayed data. This feature could have an impact on the number of listed elements. If some records are not displayed, please convert your batch set to a generic batch set.',
 'Le système utilise une requête personnalisée développée pour vos besoins afin de rechercher les données affichées. Cela pourrait avoir un impact sur ​​le nombre d''éléments affichés. Si certaines données ne sont pas affichées, veuillez convertir votre lot est un lot générique de données.');
 
-
-
-
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('models', '', '', NULL);
 
 INSERT IGNORE INTO structure_permissible_values(value, language_alias) 
@@ -2297,4 +2294,17 @@ WHERE ds1.id IS NOT NULL OR ds2.id IS NOT NULL);
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models') ,  `setting`='' WHERE model='BatchSet' AND tablename='datamart_batch_sets' AND field='model' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 UPDATE `structure_fields` SET `default` = '0' WHERE model = 'SampleMaster' AND field = 'is_problematic';
+
+UPDATE structure_formats
+SET structure_field_id = (SELECT id FROM structure_fields WHERE field = 'blood_type')
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = '0' AND field = 'detail_type')
+AND structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_collection_tree_view');
+
+UPDATE structure_formats
+SET structure_field_id = (SELECT id FROM structure_fields WHERE field = 'block_type')
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = '0' AND field = 'detail_type')
+AND structure_id = (SELECT id FROM structures WHERE alias = 'aliquot_masters_for_collection_tree_view');
+
+DELETE FROM structure_fields WHERE model = '0' AND field = 'detail_type';
+
 

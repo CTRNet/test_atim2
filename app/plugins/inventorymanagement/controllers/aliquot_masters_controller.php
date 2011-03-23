@@ -2279,6 +2279,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('atim_structure', $atim_structure);
 		$this->set("collection_id", $collection_id);
 		$this->set("is_ajax", $is_ajax);
+		
+		// Unbind models
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
+		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('RealiquotingParent','RealiquotingChildren')),false);
+		
 		$ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
 		$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($ids));
 		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $ids, 'AliquotMaster.collection_id' => $collection_id)));
