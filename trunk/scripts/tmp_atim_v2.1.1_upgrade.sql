@@ -2225,3 +2225,35 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('error_fk_participant_linked_treatment',
 'Your data cannot be deleted! Linked treatment record exists for this participant.',
 'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un traitement!');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('create generic batch set','Create Generic Batch Set','créer lot générique');
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('add to compatible batchset', '', 'Add to compatible batchset', 'Ajouter à un lot de données compatible'),
+('all batch sets', '', 'All Batchsets', 'Tous les lots de données'),
+
+('batch number', '', 'Batch Number', 'Numéro de lot'),
+('batch sets', '', 'Batch Sets', 'Lots de données'),
+('batchset', '', 'Batchset', 'Lot de données'),
+('batchset information', '', 'Batchset Data', 'Lot de données - Information'),
+('batchset sharing status', '', 'Status', 'Statut'),
+('cast into a generic batch set', '', 'Cast into a generic batch set', 'Convertir en lot générique de données'),
+('cast to a new generic batch set', '', 'Cast to a new generic batch set', 'Convertir en un nouveau lot générique de données'),
+('check at least one element from the batch set', '', 'Check at least one element from the batch set', 'Cochez au moins un élément du lot de données'),
+('compatible datamart batches', '', 'Compatible Datamart Batche Set', 'Lots de données compatibles'),
+('create batchset', '', 'Create batchset', 'Créer un lot de données'),
+('delete in batch', '', 'Delete', 'Supprimer'),
+('generic batch set', '', 'Generic Batch Set', 'Lot générique de données'),
+('group batch sets', '', 'Group Batch Sets', 'Groupe de lots de données'),
+('my batch sets', '', 'My Batch Sets', 'Mes lots de données'),
+('new batchset', '', 'New batchset', 'Nouveau lot de données'),
+('new batchset title', '', 'New Batchset Title', 'Titre du nouveau lot de données'),
+('process batch set', '', 'Process Batch Set', 'Travailler le lot de données'),
+('query tool batch sets description', '', 'Dataset defined subsequently in order to process/analyze this data together: Data export, performing the same process on all, data sharing, etc..', 'Lot de données défini ulterieurement dans le but de traiter/analyser ces données ensemble: Export de données, exécution d''un même processus sur l''ensemble des données, partage de données, etc.'),
+('remove from batch set', '', 'Remove from batch set', 'Retirer du lot de données'),
+('select an option for the field process batch set', '', 'Select an option for the field ''Process Batch Set''.', 'Sélectionnez une option pour le champ ''Travailler le lot de données''.'),
+('temporary batch set', '', 'Temporary Batchset', 'Lot de données temporaire'),
+('the batch set contains %d entries but only %d are returned by the query', '', 'The batch set contains %d entries but only %d are returned by the query.', 'Le lot de données contient %d entrées mais seulement %d sont retournées par la requête.'),
+('you are about to remove element(s) from the batch set', '', 'You are about to remove element(s) from the batch set.', 'Vous êtes sur le point de retirer des éléments du lot de données.'),
+('your are not allowed to work on this batchset', '', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur ce lot de données!');
