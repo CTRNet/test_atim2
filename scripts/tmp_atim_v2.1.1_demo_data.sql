@@ -2590,6 +2590,7 @@ Participant.sex,
 AliquotMaster.barcode,
 SampleMaster.sample_type,
 AliquotMaster.aliquot_type,
+AliquotDetail.block_type,
 AliquotMaster.in_stock
 FROM participants AS Participant
 INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
@@ -2597,6 +2598,7 @@ INNER JOIN collections AS Collection ON Collection.id = link.collection_id
 INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id 
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+LEFT JOIN ad_blocks AS AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id 
 WHERE TRUE
 AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
 AND Participant.sex = "@@Participant.sex@@" 
