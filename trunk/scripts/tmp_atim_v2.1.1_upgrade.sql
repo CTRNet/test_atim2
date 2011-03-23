@@ -1400,6 +1400,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('at least one aliquot has to be created', 'At least one aliquot has to be created!', 'Au moins un aliquot doit être créé!');
 
 ALTER TABLE consent_masters DROP COLUMN consent_master_id;
+ALTER TABLE consent_masters_revs DROP COLUMN consent_master_id;
 
 -- -----------------------------------------------------------------------------------
 -- Lab Book
