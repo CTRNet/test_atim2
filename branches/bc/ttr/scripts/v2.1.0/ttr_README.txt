@@ -1,4 +1,5 @@
 NOTE:
+ - All of the followin is useless if you simply run the create_db.sh script
  - run command line into scripts folder...
  - the current ttr data should be into the ""ttrdb" 
 
@@ -9,36 +10,25 @@ mysql -u root -p ttrdb --default-character-set=utf8 < .\v2.1.0\ttr_v2_db.sql
 
 ---------------------------------------------------------------------------------
 
-1-Create a database named "atim"
+1-Create a destination database
 
-drop database atim;
-create database atim;
-
-2-Run the following scripts
+2-Run the following scripts on your newly created database
 --tmp_atim_v2.1.0A_script_FULL.sql
 --v2.1.0/bc_ttr_alter_tables.sql
 --v2.1.0/bc_ttr_custom.sql
-
-mysql -u root -p atim --default-character-set=utf8 < tmp_atim_v2.1.0A_script_FULL.sql
-mysql -u root -p atim --default-character-set=utf8 < .\v2.1.0\bc_ttr_alter_tables.sql
-mysql -u root -p atim --default-character-set=utf8 < .\v2.1.0\bc_ttr_custom.sql
-
-3-Migrate the data with "v2.1.0/bc_ttr_migration.sql". Your command should
-target the OLD database. You new database is expected to have the name "atim".
-An example of command would be
---mysql -u [] -p ttrdb <  v2.1.0/bc_ttr_migration.sql
-
-mysql -u root -p ttrdb <  .\v2.1.0\bc_ttr_migration.sql
-
-4-Run the following scripts (to upgrade atim to version 2.1.1 and run the
-final custom script.
+--v2.1.0/bc_ttr_migration.sql
 --tmp_atim_v2.1.1_upgrade.sql
 --bc_ttr_custom.sql
 
-mysql -u root -p atim --default-character-set=utf8 < tmp_atim_v2.1.1_upgrade.sql
-mysql -u root -p atim --default-character-set=utf8 < bc_ttr_custom.sql
+mysql -u root -p [destination database] --default-character-set=utf8 < tmp_atim_v2.1.0A_script_FULL.sql
+mysql -u root -p [destination database] --default-character-set=utf8 < ./v2.1.0/bc_ttr_alter_tables.sql
+mysql -u root -p [destination database] --default-character-set=utf8 < ./v2.1.0/bc_ttr_custom.sql
+mysql -u root -p [destination database] --default-character-set=utf8 < ./v2.1.0/bc_ttr_migration.sql
+mysql -u root -p [destination database] --default-character-set=utf8 < ./tmp_atim_v2.1.1_upgrade.sql 
+mysql -u root -p [destination database] --default-character-set=utf8 < ./bc_ttr_custom.sql 
 
-5- Build left rght data for storage + selection label + revs table
+
+3- Build left rght data for storage + selection label + revs table
 
 php rebuildLeftRight.php atim root 
 php populateRevs.php atim root 

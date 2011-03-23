@@ -61,18 +61,18 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='StorageMaster' AND tablename='storage_masters' AND field='temp_unit' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code'));
 
 -- update parent id of blood cell
-update atim.sample_masters spec , atim.sample_masters der
-set der.parent_id = spec.id
-where der.collection_id = spec.collection_id
-and spec.sample_type = 'blood'
-and der.sample_type = 'blood cell';
+UPDATE sample_masters spec , sample_masters der
+SET der.parent_id = spec.id
+WHERE der.collection_id = spec.collection_id
+AND spec.sample_type = 'blood'
+AND der.sample_type = 'blood cell';
 
 -- update parent id of plasma
-update atim.sample_masters spec , atim.sample_masters der
-set der.parent_id = spec.id
-where der.collection_id = spec.collection_id
-and spec.sample_type = 'blood'
-and der.sample_type = 'plasma';
+UPDATE sample_masters spec , sample_masters der
+SET der.parent_id = spec.id
+WHERE der.collection_id = spec.collection_id
+AND spec.sample_type = 'blood'
+AND der.sample_type = 'plasma';
 
 UPDATE sample_masters 
 SET initial_specimen_sample_id = id, initial_specimen_sample_type = sample_type
@@ -102,38 +102,42 @@ FROM  sample_masters WHERE sample_category = 'derivative';
 
 -- clean up revs tables...
 
-ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_lot_no` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`ad_whatman_papers_revs` ADD  `bc_ttr_dna_card_spot` TINYINT( 4 ) NULL AFTER  `deleted_date`;
+ALTER TABLE `ad_whatman_papers_revs` 
+ADD  `bc_ttr_dna_card_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_dna_card_lot_no` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_dna_card_spot` TINYINT( 4 ) NULL AFTER  `deleted_date`;
 
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_sample_master_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_parent_sample_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_old_collection_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_sample_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_release_barcode` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`aliquot_masters_revs` ADD  `bc_ttr_previous_box_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `aliquot_masters_revs` 
+ADD  `bc_ttr_old_sample_master_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_old_parent_sample_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_old_collection_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_sample_type` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_release_barcode` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ADD  `bc_ttr_previous_box_id` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`;
-ALTER TABLE  atim.`sample_masters_revs` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
+ALTER TABLE  `sample_masters_revs` 
+ ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_ttrdb_acquisition_label` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `deleted_date`,
+ ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `deleted_date`;
 
-ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`;
-ALTER TABLE  atim.`sd_der_plasmas_revs` ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE `sd_der_plasmas_revs` 
+ADD  `bc_ttr_plasma_transporter_time` time NULL AFTER  `sample_master_id`,
+ADD  `bc_ttr_plasma_temperature` VARCHAR( 20 ) NULL AFTER  `sample_master_id`,
+ADD  `bc_ttr_plasma_Gval` VARCHAR( 20 ) NULL AFTER  `sample_master_id`,
+ADD  `bc_ttr_plasma_duration` INT(4) NULL AFTER  `sample_master_id`,
+ADD  `bc_ttr_plasma_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
 
-ALTER TABLE  atim.`sd_der_blood_cells_revs` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
+ALTER TABLE  `sd_der_blood_cells_revs` ADD  `bc_ttr_buffy_coat_lab_tech` VARCHAR( 20 ) NULL AFTER  `sample_master_id`;
 
-ALTER TABLE atim.aliquot_masters_revs
+ALTER TABLE aliquot_masters_revs
  ADD COLUMN tmp_id int DEFAULT NULL,
  ADD COLUMN tmp_slide_id int DEFAULT NULL;
 
-ALTER TABLE atim.aliquot_masters_revs
+ALTER TABLE aliquot_masters_revs
  ADD COLUMN bc_ttr_prev_storage_id int DEFAULT NULL;
 
 ALTER TABLE aliquot_review_masters_revs CHANGE   `aliquot_masters_id` `aliquot_master_id` int(11) DEFAULT NULL;
