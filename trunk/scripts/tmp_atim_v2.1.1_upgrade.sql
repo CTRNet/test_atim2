@@ -2238,8 +2238,8 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('batchset', '', 'Batchset', 'Lot de données'),
 ('batchset information', '', 'Batchset Data', 'Lot de données - Information'),
 ('batchset sharing status', '', 'Status', 'Statut'),
-('cast into a generic batch set', '', 'Cast into a generic batch set', 'Convertir en lot générique de données'),
-('cast to a new generic batch set', '', 'Cast to a new generic batch set', 'Convertir en un nouveau lot générique de données'),
+('cast into a generic batch set', '', 'Convert into a generic batch set', 'Convertir en lot générique de données'),
+('cast to a new generic batch set', '', 'Convert to a new generic batch set', 'Convertir en un nouveau lot générique de données'),
 ('check at least one element from the batch set', '', 'Check at least one element from the batch set', 'Cochez au moins un élément du lot de données'),
 ('compatible datamart batches', '', 'Compatible Datamart Batche Set', 'Lots de données compatibles'),
 ('create batchset', '', 'Create batchset', 'Créer un lot de données'),
@@ -2257,6 +2257,29 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('the batch set contains %d entries but only %d are returned by the query', '', 'The batch set contains %d entries but only %d are returned by the query.', 'Le lot de données contient %d entrées mais seulement %d sont retournées par la requête.'),
 ('you are about to remove element(s) from the batch set', '', 'You are about to remove element(s) from the batch set.', 'Vous êtes sur le point de retirer des éléments du lot de données.'),
 ('your are not allowed to work on this batchset', '', 'Your are not allowed to work on this batchset!', 'Vous n''êtes pas authorisé à travailler sur ce lot de données!');
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('to see all elements, convert your batchset using the generic batch set options',
+'To see all elements, convert your batchset using the generic batch set options.',
+'Pour visualiser tous les éléments, convertissez votre lot de données en utilisant les options de ''Lot générique de données''.');
+
+UPDATE structure_fields
+SET language_label = 'result based on a specific query',
+language_help = 'help_flag_use_query_results'
+WHERE plugin = 'Datamart'
+AND tablename = 'datamart_batch_sets'
+AND field = 'flag_use_query_results'
+AND language_label = 'custom query';
+
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+('select batchsets to delete', 'Select Batchsets to Delete', 'Sélectionner les lots de données à supprimer'),
+('result based on a specific query', 'Custom Query Used', 'Utilisation requête spécifique'),
+('help_flag_use_query_results', 
+'The system uses a custom query developped for your needs to look for displayed data. This feature could have an impact on the number of listed elements. If some records are not displayed, please convert your batch set to a generic batch set.',
+'Le système utilise une requête personnalisée développée pour vos besoins afin de rechercher les données affichées. Cela pourrait avoir un impact sur ​​le nombre d''éléments affichés. Si certaines données ne sont pas affichées, veuillez convertir votre lot est un lot générique de données.');
+
+
 
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('models', '', '', NULL);

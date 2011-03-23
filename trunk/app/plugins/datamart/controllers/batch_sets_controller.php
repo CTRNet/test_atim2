@@ -148,7 +148,7 @@ class BatchSetsController extends DatamartAppController {
 			
 			$results = $this->ModelToSearch->query( $query_to_use ); 
     		if(count($results) != count($batch_set['BatchId'])){
-    			$msg = __("the batch set contains %d entries but only %d are returned by the query", true).". ".__("to see all elements, use the generic batch set options", true).".";
+    			$msg = __("the batch set contains %d entries but only %d are returned by the query", true)." ".__("to see all elements, convert your batchset using the generic batch set options", true);
     			AppController::addWarningMsg(sprintf($msg, count($batch_set['BatchId']), count($results)));
     		}
     	}else{
