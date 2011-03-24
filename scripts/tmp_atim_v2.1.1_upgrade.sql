@@ -2339,3 +2339,4 @@ UPDATE pages SET id = 'err_plugin_record_err' WHERE id = 'err_inv_record_err';
 DELETE FROM pages WHERE id LIKE 'err_%_system_error' AND id NOT LIKE 'err_inv_system_error';
 UPDATE pages SET id = 'err_plugin_system_error' WHERE id = 'err_inv_system_error';
 
+DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='is_problematic' AND model='SampleMaster');
