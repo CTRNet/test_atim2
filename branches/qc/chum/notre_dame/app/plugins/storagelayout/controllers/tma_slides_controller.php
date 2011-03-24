@@ -17,16 +17,16 @@ class TmaSlidesController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 		
 	function listAll($tma_block_storage_master_id) {
-		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)), null, 1);
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// Get TMA slide liste
 		$this->data = $this->paginate($this->TmaSlide, array('TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id));
@@ -52,16 +52,16 @@ class TmaSlidesController extends StoragelayoutAppController {
 	}
 	
 	 function add($tma_block_storage_master_id) {
-		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if (!$tma_block_storage_master_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -112,20 +112,20 @@ class TmaSlidesController extends StoragelayoutAppController {
 	}
 	
 	function detail($tma_block_storage_master_id, $tma_slide_id, $is_tree_view_detail_form = 0) {
-		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
-		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+		if(empty($tma_slide_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		$this->data = $tma_slide_data; 
 		
 		// Define if this detail form is displayed into the children storage tree view
@@ -156,20 +156,20 @@ class TmaSlidesController extends StoragelayoutAppController {
 	}
 	
 	function edit($tma_block_storage_master_id, $tma_slide_id) {
-		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
-		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+		if(empty($tma_slide_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -229,20 +229,20 @@ class TmaSlidesController extends StoragelayoutAppController {
 	}
 	
 	function delete($tma_block_storage_master_id, $tma_slide_id) {
-		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $tma_block_storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
-		if(empty($tma_slide_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+		if(empty($tma_slide_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowTMASlideDeletion($tma_slide_id);

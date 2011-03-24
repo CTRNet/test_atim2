@@ -15,6 +15,10 @@
 	
 	$structure_override = array();
 	
+		
+	// ************** 1- COLLECTION **************
+	
+	
 	$final_atim_structure = $atim_structure_collection_detail; 
 	$final_options = array('type'=>'index', 'data'=>$collection_data, 'settings'=>$structure_settings, 'links'=>$structure_links, 'override' => $structure_override);
 
@@ -24,6 +28,11 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options ); 
+	
+	
+	// ************** 2- CONSENT **************
+	
+	
 	$structure_links = array(
 		'radiolist' => array(
 				'ClinicalCollectionLink.consent_master_id'=>'%%ConsentMaster.id%%'
@@ -40,6 +49,7 @@
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
+	
 	$checkNA = true;
 	foreach($consent_data as $c_data){
 		if($c_data['ConsentMaster']['id'] == $this->data['ClinicalCollectionLink']['consent_master_id']){
@@ -54,31 +64,30 @@
 	</tbody></table>
 	<?php
 
-	//diag
+	
+	// ************** 3- DIAGNOSIS **************
+
+	
 	$structure_links = array(
-		'top'=> '/clinicalannotation/clinical_collection_links/details/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLinks.id'],
 		'radiolist' => array(
-				'ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%'
+				'ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id%%'
 			),
-		//'bottom'=>array('cancel'=>'/clinicalannotation/clinical_collection_links/listall/'.$atim_menu_variables['Participant.id'].'/')
-		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/clinical_collection_links/listall/'.$atim_menu_variables['Participant.id'].'/'
-		)
 	);
-	 
-	//consent
+	$structure_settings['header'] = __('diagnosis', true);
+	$structure_settings['form_top'] = false;
 	$final_atim_structure = $atim_structure_diagnosis_detail; 
-	$final_options = array('type'=>'index', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>false, 'form_top'=>false, 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'header' => __('diagnosis', true)), 'links'=>$structure_links);
+	$final_options = array('type'=>'index', 'data'=>$diagnosis_data, 'settings'=>$structure_settings, 'links'=>$structure_links);
+	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('diagnosis_detail');
-	if( $hook_link ) { require($hook_link); }
-		
+	if( $hook_link ) { require($hook_link); }	
+	
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
 	
 	$checkNA = true;
 	foreach($diagnosis_data as $dx_data){
-		if($dx_data['DiagnosisMaster']['id'] == $dx_data['ClinicalCollectionLink']['diagnosis_master_id']){
+		if($dx_data['DiagnosisMaster']['id'] == $this->data['ClinicalCollectionLink']['diagnosis_master_id']){
 			$checkNA = false;		
 			break;
 		}
@@ -89,6 +98,11 @@
 			<tr><td style='text-align: left; padding-left: 10px;'><input type='radio' name='data[ClinicalCollectionLink][diagnosis_master_id]' <?php echo($checkNA ? 'checked="checked"' : ''); ?> value=''/>N/A</td></tr>
 	</tbody></table>
 	<?php
+	
+	
+	// ************** MAIN **************
+	
+	
 	$structure_links = array(
 		'top'=> '/clinicalannotation/clinical_collection_links/details/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLinks.id'],
 		'bottom'=>array(

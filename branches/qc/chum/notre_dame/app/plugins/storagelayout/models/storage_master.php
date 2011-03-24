@@ -32,7 +32,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		pr('WARNING!!: storage data can be updated into StorageMaster->validates() function: be sure to reset data into controller using $this->StorageMaster->data!');
 
 		if(!(array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
-			AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}		
 		
 		// Check parent storage definition
@@ -88,7 +88,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	
 	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
 		pr('deprecated');
-		$this->redirect('/pages/err_sto_system_error', null, true);
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	}
 	
 	static function getStoragesDropdown(){
@@ -170,12 +170,12 @@ class StorageMaster extends StoragelayoutAppModel {
 	
 	function validateStorageIdVersusSelectionLabel() {
 		pr('deprecated');
-		$this->redirect('/pages/err_sto_system_error', null, true);
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	}
 	
 	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
 		pr('deprecated');
-		$this->redirect('/pages/err_sto_system_error', null, true);
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	}
 
 	/**
@@ -260,7 +260,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	 
  	function buildAllowedStoragePosition($storage_data, $coord) {
 		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) {
-			AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 				
 		// Build array
@@ -272,7 +272,7 @@ class StorageMaster extends StoragelayoutAppModel {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
 				$size = $storage_data['StorageControl']['coord_' . $coord . '_size'];
 				if(!is_numeric($size)) {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 									
 				if(strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'alphabetical') == 0){
@@ -282,7 +282,7 @@ class StorageMaster extends StoragelayoutAppModel {
 					// Integer drop down list	
 					$array_to_order = range('1', $size);
 				} else {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 		
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 		
 				}		
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
@@ -297,7 +297,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						}		
 					}
 				} else {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 				
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 				
 				}
 			}
 		}

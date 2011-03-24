@@ -41,7 +41,7 @@
 	$structure_override = array();
 
 	$final_atim_structure = $orderlines_listall_structure; 
-	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $order_lines_data, 'settings' => array('header' => __('order_order lines', null), 'separator' => true));
+	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $order_lines_data, 'settings' => array('header' => __('order_order lines', null)));
 		
 	// CUSTOM CODE
 	$hook_link = $structures->hook('order_lines');

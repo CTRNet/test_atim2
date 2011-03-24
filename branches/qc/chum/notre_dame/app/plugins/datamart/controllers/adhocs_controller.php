@@ -35,12 +35,12 @@ class AdhocsController extends DatamartAppController {
 	function favourite( $type_of_list='all', $adhoc_id=null ) {
 		$adhoc_data = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id)));
 		if(empty($adhoc_data)) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$adhoc_favourite_data = $this->AdhocFavourite->find('first', array('conditions'=>array('AdhocFavourite.adhoc_id'=>$adhoc_id, 'AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id'])));
 		if(!empty($adhoc_favourite_data)) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}		
 		
 		$data_to_save = array('AdhocFavourite' =>
@@ -48,7 +48,7 @@ class AdhocsController extends DatamartAppController {
 				'user_id' => $_SESSION['Auth']['User']['id']));
 		$this->AdhocFavourite->id = null;
 		if(!$this->AdhocFavourite->save($data_to_save)) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$this->atimFlash( 'Query has been marked as one of your favourites.', '/datamart/adhocs/search/favourites/'.$adhoc_id );
@@ -58,10 +58,10 @@ class AdhocsController extends DatamartAppController {
 	function unfavourite( $type_of_list='all', $adhoc_id=null ) {
 		$adhoc_favourite_data = $this->AdhocFavourite->find('first', array('conditions'=>array('AdhocFavourite.adhoc_id'=>$adhoc_id, 'AdhocFavourite.user_id'=>$_SESSION['Auth']['User']['id'])));
 		if(empty($adhoc_favourite_data)) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}			
 		if(!$this->AdhocFavourite->atim_delete( $adhoc_favourite_data['AdhocFavourite']['id'] )) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->atimFlash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}

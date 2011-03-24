@@ -729,9 +729,10 @@ class Browser extends DatamartAppModel {
 		
 		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
-			$conditions = $this->checklist_model_name_to_search.".".$this->checklist_use_key." IN (".$browsing['BrowsingResult']['id_csv'].")";
+			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
 			//fetch the count since deletions might make the set smaller than the count of ids
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
+			
 			if($count > $display_limit){
 				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids")));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));

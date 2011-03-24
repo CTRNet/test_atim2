@@ -60,13 +60,13 @@ class StorageMastersController extends StoragelayoutAppController {
 		//       Just added to parameters list to be consistent with use_link set into menu table
 		//       for TMA.
 		
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if(!$storage_master_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		$this->data = $storage_data;
 		
 		$this->data['StorageMaster']['layout_description'] = $this->StorageControl->getStorageLayoutDescription(array('StorageControl' => $storage_data['StorageControl']));
@@ -74,7 +74,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get parent storage information
 		$parent_storage_id = $storage_data['StorageMaster']['parent_id'];
 		$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $parent_storage_id)));
-		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(!empty($parent_storage_id) && empty($parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$this->set('parent_storage_id', $parent_storage_id);		
 		$this->data['Generated']['path'] =  $this->StorageMaster->getStoragePath($parent_storage_id);
@@ -124,12 +124,12 @@ class StorageMastersController extends StoragelayoutAppController {
 	}	
 	
 	function add($storage_control_id, $predefined_parent_storage_id = null) {
-		if(!$storage_control_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if(!$storage_control_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 		
 		$storage_control_data = $this->StorageControl->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
-		if(empty($storage_control_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }	
+		if(empty($storage_control_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$this->set('storage_control_id', $storage_control_data['StorageControl']['id']);
 		$this->set('layout_description', $this->StorageControl->getStorageLayoutDescription($storage_control_data));
@@ -137,7 +137,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Set predefined parent storage
 		if(!is_null($predefined_parent_storage_id)) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
-			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 			$this->set('predefined_parent_storage_selection_label', $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data));	
 		}
 		
@@ -217,19 +217,19 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 			
 	function edit($storage_master_id) {
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if(!$storage_master_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
 
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 		$storage_data['StorageMaster']['layout_description'] = $this->StorageControl->getStorageLayoutDescription(array('StorageControl' => $storage_data['StorageControl']));
 
 		// Set predefined parent storage
 		if(!empty($storage_data['StorageMaster']['parent_id'])) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id'], 'StorageControl.is_tma_block' => 'FALSE')));
-			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 			$this->set('predefined_parent_storage_selection_label', $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data));	
 		}		
 		
@@ -316,11 +316,11 @@ class StorageMastersController extends StoragelayoutAppController {
 	}
 	
 	function delete($storage_master_id) {
-		if(!$storage_master_id) { $this->redirect('/pages/err_sto_funct_param_missing', null, true); }
+		if(!$storage_master_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id), 'recursive' => '-1'));
-		if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }		
+		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowStorageDeletion($storage_master_id);
@@ -334,7 +334,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			// First remove storage from tree
 			$this->StorageMaster->id = $storage_master_id;	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => ''));
-			if(!$this->StorageMaster->save($cleaned_storage_data, false)) { $this->redirect('/pages/err_sto_system_error', null, true); }
+			if(!$this->StorageMaster->save($cleaned_storage_data, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))), false);	
@@ -384,7 +384,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$atim_menu = array();
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+			if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 			$tree_data = array_merge($tree_data, $aliquots);
@@ -455,7 +455,7 @@ class StorageMastersController extends StoragelayoutAppController {
 	 
 	function storageLayout($storage_master_id) {
 		if(!$storage_master_id) { 
-			$this->redirect('/pages/err_sto_funct_param_missing', null, true); 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		// MANAGE STORAGE DATA
@@ -463,7 +463,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get the storage data
 		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 		if(empty($storage_data)) { 
-			$this->redirect('/pages/err_sto_no_data', null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		$coordinate_list = array();
@@ -476,7 +476,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Storage layout not allowed for this type of storage
 		if(empty($storage_data['StorageControl']['coord_x_type'])) { 
-			$this->redirect('/pages/err_sto_system_error', null, true); 
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
@@ -609,7 +609,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		if((strcmp($storage_data['StorageMaster']['set_temperature'], 'FALSE') == 0)) {
 			if(!empty($storage_data['StorageMaster']['parent_id'])) {
 				$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id']), 'recursive' => '-1'));
-				if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+				if(empty($parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
 				// Define storage surrounding temperature based on selected parent temperature
 				$storage_data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
@@ -641,7 +641,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set selection label according to the parent selection label		
 		$parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id']), 'recursive' => '-1'));
-		if(empty($parent_storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
+		if(empty($parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		return ($this->createSelectionLabel($storage_data, $parent_storage_data));
 	}		
@@ -677,7 +677,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$storage_data_to_update['StorageMaster']['selection_label'] = $this->createSelectionLabel($new_children_to_update, $parent_storage_data);
 	
 				$this->StorageMaster->id = $studied_children_id;					
-				if(!$this->StorageMaster->save($storage_data_to_update, false)) { $this->redirect('/pages/err_sto_system_error', null, true); }		
+				if(!$this->StorageMaster->save($storage_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }		
 	
 				// Re-populate the list of parent storages to study
 				$new_children_to_update['StorageMaster']['selection_label'] = $storage_data_to_update['StorageMaster']['selection_label'];
@@ -703,8 +703,8 @@ class StorageMastersController extends StoragelayoutAppController {
 	 */
 	 
 	function createSelectionLabel($storage_data, $parent_storage_data) {
-		if(!array_key_exists('selection_label', $parent_storage_data['StorageMaster'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
-		if(!array_key_exists('short_label', $storage_data['StorageMaster'])) { $this->redirect('/pages/err_sto_system_error', null, true); }
+		if(!array_key_exists('selection_label', $parent_storage_data['StorageMaster'])) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!array_key_exists('short_label', $storage_data['StorageMaster'])) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		return ($parent_storage_data['StorageMaster']['selection_label'] . '-' . $storage_data['StorageMaster']['short_label']);
 	}
 	
@@ -781,7 +781,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$storage_data_to_update['StorageMaster']['temp_unit'] = $parent_temp_unit;
 	
 				$this->StorageMaster->id = $studied_children_id;					
-				if(!$this->StorageMaster->save($storage_data_to_update, false)) { $this->redirect('/pages/err_sto_system_error', null, true); }		
+				if(!$this->StorageMaster->save($storage_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }		
 	
 				// Re-populate the list of parent storages to study
 				$studied_parent_storage_ids[$studied_children_id] = $studied_children_id;

@@ -35,7 +35,9 @@
 		if(count($this->data) == 0){
 			$final_options_children['settings']['form_bottom'] = true;
 			$final_options_children['settings']['actions'] = true;
-			$final_options_children['extras'] = '<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>';
+			$final_options_children['extras'] = 
+				'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
+				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
 		if($is_batch_process) $final_options_parent['settings']['header'] = __('aliquot creation batch process', true) . ' - ' . __('creation', true) ." #".$counter;
 		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];

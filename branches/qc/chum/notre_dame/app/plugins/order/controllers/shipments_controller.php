@@ -45,13 +45,13 @@ class ShipmentsController extends OrderAppController {
 	}	
 		
 	function listall( $order_id=null ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
 		// Get shipments
 		$shipments_data = $this->paginate($this->Shipment, array('Shipment.order_id'=>$order_id));
@@ -69,13 +69,13 @@ class ShipmentsController extends OrderAppController {
 	}
 
 	function add( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -108,13 +108,13 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function edit( $order_id=null, $shipment_id=null ) {
- 		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+ 		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
 		// Get shipment data
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id, 'Shipment.order_id'=>$order_id)));
-		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }				
+		if(empty($shipment_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -144,13 +144,13 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function detail( $order_id=null, $shipment_id=null ) {
-		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
 		// Shipment data
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }				
+		if(empty($shipment_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
 		$this->data = $shipment_data;
 		
 		// Shipped items
@@ -170,11 +170,11 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function delete( $order_id=null, $shipment_id=null ) {
-		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }				
+		if(empty($shipment_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowShipmentDeletion($shipment_id);
@@ -198,13 +198,13 @@ class ShipmentsController extends OrderAppController {
 	/* ----------------------------- SHIPPED ITEMS ---------------------------- */
 	
 	function addToShipment($order_id, $shipment_id){
-		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
 		// Check shipment
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }	
+		if(empty($shipment_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
@@ -265,8 +265,9 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
 					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
 		
+					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_order_record_err', null, true); }										
+					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }										
 					
 					// 2- Record Order Item Update
 					$order_item_data = array();
@@ -274,10 +275,10 @@ class ShipmentsController extends OrderAppController {
 					$order_item_data['OrderItem']['status'] = 'shipped';
 
 					$this->OrderItem->id = $order_item_id;
-					if(!$this->OrderItem->save($order_item_data, false)) { $this->redirect('/pages/err_order_record_err', null, true); }		
+					if(!$this->OrderItem->save($order_item_data, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }		
 					
 					// 3- Update Aliquot Use Counter					
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 					
 					// 4- Set order line to update
 					$order_line_to_update[$order_line_id] = $order_line_id;
@@ -290,7 +291,7 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->id = $order_line_id;
-						if(!$this->OrderLine->save($order_line, false)) { $this->redirect('/pages/err_order_record_err', null, true); }		
+						if(!$this->OrderLine->save($order_line, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }		
 					}
 				}
 				
@@ -301,13 +302,13 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
-		if (( !$order_id ) || ( !$order_item_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$order_item_id ) || ( !$shipment_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
 		// Check item
 		$order_item_data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id, 'OrderItem.shipment_id'=>$shipment_id), 'recursive' => '-1'));
-		if(empty($order_item_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }	
+		if(empty($order_item_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		// Set ids
 		$order_line_id = $order_item_data['OrderItem']['order_line_id'];
@@ -339,6 +340,8 @@ class ShipmentsController extends OrderAppController {
 				$new_aliquot_master_data = array();
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
+				
+				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { $remove_done = false; }
 				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $remove_done = false; }

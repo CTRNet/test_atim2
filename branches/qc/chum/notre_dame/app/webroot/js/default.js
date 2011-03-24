@@ -593,9 +593,12 @@ function uncheckAll( $div ) {
 				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 			});
 		}
+		
 		if(window.labBookHideOnLoad){
 			$(fields).toggle();
 			$(scope).find(".labBook").toggle();
+		}else{
+			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
 		}
 	}
 	
@@ -619,7 +622,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function initLabBookPopup(){
-		$("div.rightCell a:not(.not_allowed)").last().click(function(){
+		$("div.rightCell a:not(.not_allowed).add").last().click(function(){
 			$.get($(this).attr("href"), labBookPopupAddForm);
 			return false;
 		});
