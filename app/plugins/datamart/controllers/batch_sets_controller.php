@@ -38,7 +38,7 @@ class BatchSetsController extends DatamartAppController {
 					array('BatchSet.sharing_status' => 'all')));
 				break;
 			default:
-				$this->redirect('/pages/err_datamart_system_error', null, true);
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$this->Structures->set('querytool_batch_set');
@@ -89,7 +89,7 @@ class BatchSetsController extends DatamartAppController {
 			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
 			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
 		}else{
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->set( 'atim_menu_variables',  $atim_menu_variables);
 		
@@ -277,7 +277,7 @@ class BatchSetsController extends DatamartAppController {
 				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->data['node']['id'])));
 				$structure = $this->Structures->getFormById($browsing_result['DatamartStructure']['structure_id']);
 				if(empty($browsing_result) || empty($structure)) {
-					$this->redirect('/pages/err_datamart_system_error', null, true);
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 				
 				$this->data['BatchSet']['datamart_structure_id'] = $browsing_result['DatamartStructure']['id'];
@@ -300,7 +300,7 @@ class BatchSetsController extends DatamartAppController {
 					}
 				}
 			} else {
-				$this->redirect('/pages/err_datamart_system_error', null, true);
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			
 			// generate TEMP description for this SET
@@ -456,7 +456,7 @@ class BatchSetsController extends DatamartAppController {
 			foreach($this->data['BatchSet']['ids'] as $batch_set_id) {
 				if(!empty($batch_set_id)) {
 					if(!$this->BatchSet->delete( $batch_set_id )) {
-						$this->redirect('/pages/err_datamart_system_error', null, true);
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 					$deletion_done = true;
 				}

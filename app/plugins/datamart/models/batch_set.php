@@ -117,7 +117,7 @@ class BatchSet extends DatamartAppModel {
 		|| (!(array_key_exists('user_id', $batchset['BatchSet'])
 		&& array_key_exists('group_id', $batchset['BatchSet'])
 		&& array_key_exists('sharing_status', $batchset['BatchSet'])))) {
-			AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$allowed = null;
@@ -132,7 +132,7 @@ class BatchSet extends DatamartAppModel {
 				$allowed = true;
 				break;
 			default:
-				AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		if(!$allowed){

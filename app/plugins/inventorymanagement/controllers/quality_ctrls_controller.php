@@ -21,12 +21,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	/* ------------------------------ QUALITY CTRL ------------------------------ */
 	
 	function listAll($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$this->data = $this->paginate($this->QualityCtrl, array('QualityCtrl.sample_master_id'=>$sample_master_id));
 		
@@ -49,12 +49,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function add($collection_id, $sample_master_id){
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -93,7 +93,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$qc_data_to_update['QualityCtrl']['qc_code'] = $this->createQcCode($qc_id, $this->data, $sample_data);
 				
 				$this->QualityCtrl->id = $qc_id;					
-				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
+				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
 				$this->atimFlash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
 			}
@@ -101,13 +101,13 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// MANAGE DATA
 		
 		// Get Quality Control Data
 		$quality_ctrl_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($quality_ctrl_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
+		if(empty($quality_ctrl_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// Set aliquot data
 		$this->set('quality_ctrl_data', $quality_ctrl_data);
@@ -136,12 +136,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function edit($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// MANAGE DATA
 		
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -184,10 +184,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function delete($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowQcDeletion($quality_ctrl_id);
@@ -212,12 +212,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	/* ------------------------------ TESTED ALIQUOTS ------------------------------ */
 	
 	function addTestedAliquots($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// MANAGE DATA
 		
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }
+		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
 		$already_tested_aliquot_ids = array();
 		if(!empty($qc_data['QualityCtrlTestedAliquot'])) {
@@ -348,16 +348,16 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					// - AliquotMaster
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 					
 					// - QualityCtrlTestedAliquot
 					$this->QualityCtrlTestedAliquot->id = null;
 					$new_used_aliquot['QualityCtrlTestedAliquot']['aliquot_master_id'] = $aliquot_master_id;	
 					$new_used_aliquot['QualityCtrlTestedAliquot']['quality_ctrl_id'] = $quality_ctrl_id;	
-					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
+					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 					// - Update aliquot current volume
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_inv_record_err?line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
@@ -366,14 +366,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function deleteTestedAliquot($quality_ctrl_id, $aliquot_master_id, $source) {
-		if((!$quality_ctrl_id) || (!$aliquot_master_id) || (!$source)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }	
+		if((!$quality_ctrl_id) || (!$aliquot_master_id) || (!$source)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
  		// MANAGE DATA
 		
 		// Get the realiquoting data
 		
 		$tested_aliquot_data = $this->QualityCtrlTestedAliquot->find('first', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id, 'QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id)));
-		if(empty($tested_aliquot_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }				
+		if(empty($tested_aliquot_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }				
 	
 		$flash_url = '';
 		switch($source) {
@@ -384,7 +384,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $tested_aliquot_data['AliquotMaster']['collection_id'] . '/' . $tested_aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $tested_aliquot_data['QualityCtrl']['id'];
 				break;
 			default:
-				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}		
 		
 		$hook_link = $this->hook('delete');

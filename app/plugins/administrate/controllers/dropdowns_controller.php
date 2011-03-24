@@ -14,7 +14,7 @@ class DropdownsController extends AdministrateAppController {
 	
 	function view($control_id){
 		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
-		if(empty($control_data)) { $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); } 
+		if(empty($control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); } 
 		$this->set("control_data", $control_data);
 		
 		$this->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id)));
@@ -24,7 +24,7 @@ class DropdownsController extends AdministrateAppController {
 	function add($control_id){
 		$control_data = $this->StructurePermissibleValuesCustomControl->findById($control_id);
 		if(empty($control_data)){
-			$this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 		} 
 		$this->set("control_data", $control_data);
 		
@@ -130,7 +130,7 @@ class DropdownsController extends AdministrateAppController {
 					$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
 					$this->StructurePermissibleValuesCustom->set($data_unit);
 					if(!$this->StructurePermissibleValuesCustom->save($data_unit)) {
-						 $this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); 
+						 $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 					}
 				}
 				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
@@ -149,7 +149,7 @@ class DropdownsController extends AdministrateAppController {
 	function edit($control_id, $value_id){
 		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
 		if(empty($control_data)){
-			 $this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); 
+			 $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 		} 
 		$this->set("control_data", $control_data);
 		
@@ -157,7 +157,7 @@ class DropdownsController extends AdministrateAppController {
 		
 		$value_data = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id, 'StructurePermissibleValuesCustom.id' => $value_id)));
 		if(empty($value_data)){
-			$this->redirect( '/pages/err_admin_no_data', NULL, TRUE ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 		} 
 		
 		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
@@ -202,7 +202,7 @@ class DropdownsController extends AdministrateAppController {
 			
 			if(!$skip_save){
 				if(!$this->StructurePermissibleValuesCustom->save($this->data)){
-					$this->redirect( '/pages/err_admin_record_err', NULL, TRUE ); 
+					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
 				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 			}

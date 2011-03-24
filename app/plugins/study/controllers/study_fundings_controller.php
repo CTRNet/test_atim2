@@ -7,15 +7,15 @@ class StudyFundingsController extends StudyAppController {
 	
 	function listall( $study_summary_id ) {
 pr('Has to be reviewed before to be used in prod.');
-$this->redirect( '/pages/err_clin_no_data', null, true );
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 exit;
 		// Missing or empty function variable, send to ERROR page
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 
     	// MANAGE DATA
     	$study_funding_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_funding_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$this->data = $this->paginate($this->StudyFunding, array('StudyFunding.study_summary_id'=>$study_summary_id));
 
@@ -33,14 +33,14 @@ exit;
 
 	function detail( $study_summary_id, $study_funding_id ) {
 pr('Has to be reviewed before to be used in prod.');
-$this->redirect( '/pages/err_clin_no_data', null, true );
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 exit;
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_funding_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
     	// MANAGE DATA
     	$study_funding_data= $this->StudyFunding->find('first',array('conditions'=>array('StudyFunding.id'=>$study_funding_id, 'StudyFunding.study_summary_id'=>$study_summary_id)));
-    	if(empty($study_funding_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+    	if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
     	$this->data = $study_funding_data;
 
     	// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -55,14 +55,14 @@ exit;
 
 	function add( $study_summary_id ) {
 pr('Has to be reviewed before to be used in prod.');
-$this->redirect( '/pages/err_clin_no_data', null, true );
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 exit;
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
 
         // MANAGE DATA
         $study_funding_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_funding_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
         // MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -106,14 +106,14 @@ exit;
   
 	function edit( $study_summary_id, $study_funding_id ) {
 pr('Has to be reviewed before to be used in prod.');
-$this->redirect( '/pages/err_clin_no_data', null, true );
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 exit;
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_funding_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_funding_data= $this->StudyFunding->find('first',array('conditions'=>array('StudyFunding.id'=>$study_funding_id, 'StudyFunding.study_summary_id'=>$study_summary_id)));
-		if(empty($study_funding_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -158,14 +158,14 @@ exit;
   
 	function delete( $study_summary_id, $study_funding_id ) {
 pr('Has to be reviewed before to be used in prod.');
-$this->redirect( '/pages/err_clin_no_data', null, true );
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 exit;
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_funding_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_funding_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_funding_data= $this->StudyFunding->find('first',array('conditions'=>array('StudyFunding.id'=>$study_funding_id, 'StudyFunding.study_summary_id'=>$study_summary_id)));
-		if(empty($study_funding_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$arr_allow_deletion = $this->allowStudyFundingDeletion($study_funding_id);
 
