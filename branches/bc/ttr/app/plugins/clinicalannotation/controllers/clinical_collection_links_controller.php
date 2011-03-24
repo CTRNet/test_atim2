@@ -108,7 +108,12 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { require($hook_link); }
+			
 			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+			
 				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
 				}else{
@@ -147,6 +152,16 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		// Set diagnoses list
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
+		//because diagnosis has a one to many relation with participant, we need to format it
+		foreach($diagnosis_data as &$diagnosis){
+			foreach($diagnosis['ClinicalCollectionLink'] as $unit){
+				if($unit['id'] == $clinical_collection_link_id){
+					//we found the one that interests us
+					$diagnosis['ClinicalCollectionLink'] = $unit;
+					break;
+				}
+			}
+		}
 		$this->set( 'diagnosis_data', $diagnosis_data );
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -174,6 +189,10 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
 			}
@@ -206,6 +225,10 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 				
 			$this->ClinicalCollectionLink->id = $clinical_collection_link_id;
 			if ($this->ClinicalCollectionLink->save($this->data)){
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { require($hook_link); }
+				
 				$this->atimFlash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
 				$this->flash( 'error deleting data - contact administrator','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');

@@ -112,10 +112,10 @@ class Structure extends AppModel {
 							continue;
 						}
 						
-						
+						$not_empty = $rule == 'notEmpty';
 						$rule_array = array(
 							'rule' => $rule,
-							'allowEmpty' => $rule != 'notEmpty'
+							'allowEmpty' => !$not_empty
 						);
 						
 						if($validation['on_action']){
@@ -135,7 +135,12 @@ class Structure extends AppModel {
 							$rules[$sf['model']][$sf['field']] = array();
 						}
 						
-						$rules[$sf['model']][$sf['field']][] = $rule_array;
+						if($not_empty){
+							//the not empty rule must be the first one or cakes will ignore it
+							array_unshift($rules[$sf['model']][$sf['field']], $rule_array);
+						}else{
+							$rules[$sf['model']][$sf['field']][] = $rule_array;
+						}
 					}
 					
 					if(isset($auto_validation[$sf['field']])){

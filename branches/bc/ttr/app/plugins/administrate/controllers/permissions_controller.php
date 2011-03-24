@@ -2,7 +2,7 @@
 
 class PermissionsController extends AdministrateAppController {
 	
-	var $uses = array('Aco','Aro', 'ExternalLink'); 
+	var $uses = array('Aco','Aro', 'ExternalLink', 'Group'); 
 	
 	function index(){
 		
@@ -67,7 +67,6 @@ class PermissionsController extends AdministrateAppController {
 		}
 		$this->Aro->query($sql);
 		
-		// echo '<p>'.$state.': '.$sql.'</p>';
 	}
 	
 	function tree($group_id=0, $user_id=0 ) {
@@ -85,15 +84,17 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
 		if($this->data){
+			$this->data['Group']['id'] = $group_id;
+			$this->Group->save($this->data);
+			unset($this->data['Group']);
 			foreach($this->data as $i => $aco){
 				$this->updatePermission( 
 				$aro['Aro']['id'], 
 				$aco['Aco']['id'], 
 				intval($aco['Aco']['state']) );
 			}
-
-			MenusComponent::clearCache();
 			
+			MenusComponent::clearCache();
 			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
@@ -144,6 +145,9 @@ class PermissionsController extends AdministrateAppController {
 		}
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'permissions_help')));
 		$this->set("help_url", $help_url['ExternalLink']['link']);
+		$this->Structures->set("permissions", "permissions");
+		$this->Structures->set("permissions2", "permissions2");
+		$this->set("group_data", $this->Group->find('first', array('conditions' => array('id' => $group_id), 'recursive' => 0)));
 	}
 	
 	function addPermissionStateToThreadedData( $threaded_data=array() ) {
