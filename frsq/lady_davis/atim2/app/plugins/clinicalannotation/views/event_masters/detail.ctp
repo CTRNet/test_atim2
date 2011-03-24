@@ -35,7 +35,6 @@
 		'pagination'=>false,
 			
 		'header' => '2- ' . __('related diagnosis', null), 
-		'separator' => true, 
 		'form_top' => false
 	);
 		

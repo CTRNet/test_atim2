@@ -1,6 +1,13 @@
 <?php
 class Browser extends DatamartAppModel {
 	var $useTable = false;
+	
+	public $checklist_data = array();
+	public $checklist_header = array();
+	public $checklist_model_name_to_search = null;
+	public $checklist_use_key = null;
+	public $checklist_result_structure = null;
+	public $checklist_sub_models_id_filter = null;
 
 	/**
 	 * The action dropdown under browse will be hierarchical or not
@@ -25,18 +32,18 @@ class Browser extends DatamartAppModel {
 	 * @param int $node_id The current node id. 
 	 * @param string $plugin_name The name of the plugin to use in export to csv link
 	 * @param string $model_name The name of the model to use in export to csv link
+	 * @param string $data_model
+	 * @param string $model_pkey
+	 * @param string $data_pkey
 	 * @param string $structure_name The name of the structure to use in export to csv link
 	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name = null, $model_name = null, $model_pkey = null, $structure_name = null, array $sub_models_id_filter = null){
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, $structure_name, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
-		if(!App::import('Model', 'Datamart.DatamartStructure')){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
-		}
-		$DatamartStructure = new DatamartStructure();
+		$DatamartStructure = AppModel::atimNew("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
-			if($plugin_name == null || $model_name == null || $model_pkey == null || $structure_name == null){
+			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
 			}
 			//the query contains a useless CONCAT to counter a cakephp behavior
@@ -82,17 +89,11 @@ class Browser extends DatamartAppModel {
 				'default' => __('browse', true),
 				'children' => $sorted_rez
 			);
-			$result[] = array(
-				'value' => '0',
-				'default' => __('create batchset', true),
-				'action' => '/datamart/batch_sets/add/'
-			);
-			$result[] = array(
-				'value' => '0',
-				'default' => __('export as CSV file (comma-separated values)', true),
-				'action' => 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/'
-			);
+			
+			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey));
+			
 		}else{
+			
 			$active_structures_ids = $this->getActiveStructuresIds();
 			$data = $DatamartStructure->find('all', array('conditions' => array('DatamartStructure.id IN (0, '.implode(", ", $active_structures_ids).')')));
 			$this->getActiveStructuresIds();
@@ -153,7 +154,7 @@ class Browser extends DatamartAppModel {
 									'default' => __('no filter', true))
 								);
 				if(strlen($browsing_structures[$current_id]['control_model']) > 0){
-					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null; 
+					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null;
 					$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
 				}
 			}
@@ -191,17 +192,11 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getSubModels(array $main_model_info, $prepend_value, array $ids_filter = null){
 		//we need to fetch the controls
-		if(!App::import('Model', $main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'])){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]='.$main_model_info['DatamartStructure']['plugin'].".".$main_model_info['DatamartStructure']['control_model'], NULL, TRUE );
-		}
-		$control_model = new $main_model_info['DatamartStructure']['control_model']();
+		$control_model = AppModel::atimNew($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['control_model'], true);
 		$conditions = array();
 		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
 			//hardcoded SampleControl filtering
-			if(!App::import('Model', 'Inventorymanagement.ParentToDerivativeSampleControl')){
-				$app_controller->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.ParentToDerivativeSampleControl', NULL, TRUE );
-			}
-			$parentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+			$parentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
 			if($ids_filter == null){
 				$ids_filter = $tmp_ids;
@@ -209,6 +204,7 @@ class Browser extends DatamartAppModel {
 				array_intersect($ids_filter, $tmp_ids);
 			}
 		}
+		$ids_filter[] = 0;
 		if($ids_filter != null){
 			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
 		}
@@ -231,9 +227,12 @@ class Browser extends DatamartAppModel {
 	 * Recursively builds a tree node by node.
 	 * @param Int $node_id The node id to fetch
 	 * @param Int $active_node The node to hihglight in the graph
+	 * @param Array $merged_ids The merged nodes ids
+	 * @param Array $linked_types_down Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
+	 * @param Array $linked_types_up Should be left blank when calling the function. Internally used to know when to stop to display the "merge" button
 	 * @return An array representing the search tree
 	 */
-	static function getTree($node_id, $active_node){
+	static function getTree($node_id, $active_node, $merged_ids, array &$linked_types_down = array(), array &$linked_types_up = array()){
 		$BrowsingResult = new BrowsingResult();
 		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id')));
 		$tree_node = NULL;
@@ -244,11 +243,45 @@ class Browser extends DatamartAppModel {
 			while($node = array_shift($result)){
 				$children[] = $node['BrowsingResult']['id'];
 			}
+			
+			//going down the tree
+			$drilldown_allow_merge = !$tree_node['BrowsingResult']['raw'] && in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down); 
+			if($drilldown_allow_merge){
+				//drilldown, remove the last entry to allow the current one to be flag as mergeable 
+				array_pop($linked_types_down);
+			}
+			$merge = (count($linked_types_down) > 0 || $tree_node['active'] || $drilldown_allow_merge) && !in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down);
+			if($merge){
+				array_push($linked_types_down, $tree_node['BrowsingResult']['browsing_structures_id']);
+				if($node_id != $active_node){
+					$tree_node['merge'] = true;
+				}
+			}
 			foreach($children as $child){
-				$child_node = Browser::getTree($child, $active_node);
+				if($merge){
+					$child_node = Browser::getTree($child, $active_node, $merged_ids, $linked_types_down, $linked_types_up);
+				}else{
+					$child_node = Browser::getTree($child, $active_node, $merged_ids, $foo = array(), $linked_types_up);
+				}
 				$tree_node['children'][] = $child_node;
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
+				if(!isset($tree_node['merge']) && (($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node)){
+					array_push($linked_types_up, $child_node['BrowsingResult']['browsing_structures_id']);
+					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || !$child_node['BrowsingResult']['raw']){
+						$tree_node['merge'] = true;
+					}
+				}
 			}
+			if($merge && !$tree_node['active'] && !$drilldown_allow_merge){
+				//moving back up to active node, we pop
+				array_pop($linked_types_down);
+			}
+		}
+		if(!isset($tree_node['merge'])){
+			$tree_node['merge'] = false;
+		}
+		if(!empty($merged_ids) && (in_array($node_id, $merged_ids) || $node_id == $active_node)){
+			$tree_node['paint_merged'] = true;
 		}
 		return $tree_node;
 	}
@@ -261,60 +294,129 @@ class Browser extends DatamartAppModel {
 	 * @param Int $y The current y location
 	 */
 	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
+		if($tree_node['active'] && $tree != null){
+			self::drawActiveLine(&$tree, $x, $y);
+		}
+		
 		$tree[$y][$x] = $tree_node;
 		if(count($tree_node['children'])){
 			$looped = false;
 			$last_arrow_x = NULL;
 			$last_arrow_y = NULL;
 			foreach($tree_node['children'] as $pos => $child){
-				$active = $child['active'] ? " active " : ""; 
-				$tree[$y][$x + 1] = "h-line".$active;
+				$merge = isset($tree_node['paint_merged']) && isset($child['paint_merged']) ? " merged" : "";
+				$tree[$y][$x + 1] = "h-line".$merge;
 				if($looped){
-					$tree[$y][$x] = "arrow".$active;
-					if(strlen($active) > 0 && isset($tree[$y - 1][$x])){
-						$i = 1;
-						while(true){
-							if($tree[$y - $i][$x] == "arrow"){
-								$tree[$y - $i][$x] = "arrow active_straight";
-							}else if($tree[$y - $i][$x] == "v-line"){
-								$tree[$y - $i][$x] = "v-line active"; 
-							}else{
-								break;
-							}
-							$i ++;
-						}
-					}
+					$tree[$y][$x] = "arrow".$merge;
 					$last_arrow_x = $x;
 					$last_arrow_y = $y;
 					$curr_y = $y - 1;
 					while(!isset($tree[$curr_y][$x])){
-						$tree[$curr_y][$x] = "v-line".$active;
+						$tree[$curr_y][$x] = "v-line".$merge;
 						$curr_y --;
 					}
 				}
+				$active_x = null;
+				$active_y = null;
 				if(!$child['BrowsingResult']['raw'] || !$tree_node['BrowsingResult']['raw']){
 					Browser::buildTree($child, $tree, $x + 2, $y);
 				}else{
-					$tree[$y][$x + 2] = "h-line".$active;
-					$tree[$y][$x + 3] = "h-line".$active;
+					$tree[$y][$x + 2] = "h-line".$merge;
+					$tree[$y][$x + 3] = "h-line".$merge;
 					Browser::buildTree($child, $tree, $x + 4, $y);
 				}
+				
 				$y ++;
 				$looped = true;
 			}
+			
 			$y --;
 			if($last_arrow_x !== NULL){
-				$tree[$last_arrow_y][$last_arrow_x] = $tree[$last_arrow_y][$last_arrow_x] == "arrow" ? "corner" : "corner active";
+				$check_up_merge = false;
+				$apply_merge = false;
+				if($tree[$last_arrow_y][$last_arrow_x] == "arrow"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner";
+					$check_up_merge = true;
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner merged";
+					$check_up_merge = true;
+					$apply_merge = true;
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow active"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner active";
+				}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged active"){
+					$tree[$last_arrow_y][$last_arrow_x] = "corner merged active";
+					$check_up_merge = true;
+					$apply_merge = true;
+				}
+				
+				if($check_up_merge){
+					-- $last_arrow_y;
+					while(is_string($tree[$last_arrow_y][$last_arrow_x])){
+						if($apply_merge){
+							if($tree[$last_arrow_y][$last_arrow_x] == "arrow"){
+								$tree[$last_arrow_y][$last_arrow_x] .= " merged_straight";
+							}else if($tree[$last_arrow_y][$last_arrow_x] == "v-line" || $tree[$last_arrow_y][$last_arrow_x] == "v-line active"){
+								$tree[$last_arrow_y][$last_arrow_x] .= " merged";
+							}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow active_straight"){
+								$tree[$last_arrow_y][$last_arrow_x] = "arrow active_straight merged";
+							}
+						}else if($tree[$last_arrow_y][$last_arrow_x] == "arrow merged" || $tree[$last_arrow_y][$last_arrow_x] == "arrow merged active"){
+							$apply_merge = true;
+						}
+						-- $last_arrow_y;
+					}
+				}
 			}
 		}
 	}
 	
 	/**
+	 * Update the line to print it in blue between the given position and the parent node
+	 * @param array $tree
+	 * @param int $active_x The current active node x position
+	 * @param int $active_y The current active node y position
+	 */
+	private static function drawActiveLine(array $tree, $active_x, $active_y){
+		//draw the active line
+		$left_arr = array("h-line", "arrow", "corner", "h-line merged", "arrow merged", "corner merged");
+		$counter = 0;
+		while($active_x >= 0 && $active_y >= 0){
+			//try left
+			if(isset($tree[$active_y][$active_x - 1])){
+				if(in_array($tree[$active_y][$active_x - 1], $left_arr)){
+					$tree[$active_y][$active_x - 1] .= " active";
+					-- $active_x;
+				}else{
+					//else it's a node
+					break;
+				}
+			}else if(isset($tree[$active_y - 1][$active_x])){
+				if($tree[$active_y - 1][$active_x] == "v-line" || $tree[$active_y - 1][$active_x] == "v-line merged"){
+					$tree[$active_y - 1][$active_x] .= " active";
+				}else if($tree[$active_y - 1][$active_x] == "arrow"){
+					$tree[$active_y - 1][$active_x] .= " active_straight";
+				}else if($tree[$active_y - 1][$active_x] == "arrow merged_straight"){
+					$tree[$active_y - 1][$active_x] = "arrow active_straight merged";
+				}else{
+					//it's a node
+					break;
+				}
+				-- $active_y;
+			}else{
+				break;
+			}
+			++ $counter;
+			assert($counter < 100) or die("invalid loop");
+		}
+	}
+	
+	/**
 	 * @param Int $current_node The id of the current node. Its path will be highlighted
+	 * @param array $merged_ids The id of the merged node
 	 * @param String $webroot_url The webroot of ATiM
 	 * @return the html of the table search tree
 	 */
-	static function getPrintableTree($current_node, $webroot_url){
+	static function getPrintableTree($current_node, array $merged_ids, $webroot_url){
 		$result = "";
 		$BrowsingResult = new BrowsingResult();
 		$tmp_node = $current_node;
@@ -326,20 +428,14 @@ class Browser extends DatamartAppModel {
 				$tmp_node = $br['BrowsingResult']['parent_node_id'];
 			}
 		}while($tmp_node);
-		$fm = Browser::getTree($prev_node, $current_node);
+		$fm = Browser::getTree($prev_node, $current_node, $merged_ids);
 		Browser::buildTree($fm, $tree);
-		$result .= "<table class='structure'><tr><td align='center'>".__("browsing", true)
+		$result .= "<table class='structure'><tr><td style='padding-left: 10px;'>".__("browsing", true)
 			."<table class='databrowser'>\n";
 		ksort($tree);
 		
-		//find longest line
-		$max = 0;
 		foreach($tree as $y => $line){
-			$max = max($max, count($line));
-		}
-		$half_width = $max / 2;
-		foreach($tree as $y => $line){
-			$result .= '<tr>';
+			$result .= '<tr><td></td>';//print a first empty column, css will print an highlighted h-line in the top left cell
 			$last_x = -1;
 			ksort($line);
 			foreach($line as $x => $cell){
@@ -354,42 +450,58 @@ class Browser extends DatamartAppModel {
 					if($cell['active']){
 						$class .= " active ";
 					}
+					if(isset($cell['paint_merged'])){
+						$class .= " merged";
+					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name'], true);
 					$info = "";
+					$search_datetime = AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
 					if($cell['BrowsingResult']['raw']){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search['search_conditions'])){
-							$structure_id_to_load = null;
+							$structure = null;
 							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
 								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
 								$alternate_alias = $alternate_alias['form_alias'];
-								$alternate_structure = StructuresComponent::$singleton->get('form', $alternate_alias);
-							 	$structure_id_to_load = $alternate_structure['Structure']['id'];
+								$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	//unset the serialization on the sub model since it's already in the title
 							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
-							 	if(!App::import("model", $cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'])){
-							 		AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$cell['DatamartStructure']['plugin'].".".$cell['DatamartStructure']['control_master_model'], NULL, TRUE );
-							 	}
-							 	$tmp_model = new $cell['DatamartStructure']['control_model']();
+							 	$tmp_model = AppModel::atimNew($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
 							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id'])));
 							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
-								$structure_id_to_load = $cell['DatamartStructure']['structure_id'];
+								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 							}
 							if(count($search['search_conditions'])){//count might be zero if the only condition was the sub type
-								$info .= __("search", true)."<br/><br/>".Browser::formatSearchToPrint($search, $structure_id_to_load);
+								$info .= __("search", true)." - ".$search_datetime."<br/><br/>".Browser::formatSearchToPrint($search, $structure);
 							}else{
-								$info .= __("direct access", true);
+								$info .= __("direct access", true)." - ".$search_datetime;
 							}
 						}else{
-							$info .= __("direct access", true);
+							$info .= __("direct access", true)." - ".$search_datetime;
 						}
 					}else{
-						$info .= __("drilldown", true);
+						$info .= __("drilldown", true)." - ".$search_datetime;
 					}
-					$result .= "<td class='node ".$class."'><a href='".$webroot_url."/datamart/browser/browse/".$cell['BrowsingResult']['id']."/'><div class='container'><div class='info ".($x < $half_width ? "right" : "left")."'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div></div></a></td>";
+					$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
+					$controls = "<div class='controls'>%s</div>";
+					$link = $webroot_url."datamart/browser/browse/";
+					if(isset($cell['merge']) && $cell['merge']){
+						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view", true)."'/>&nbsp;</a>");
+					}else{
+						$controls = sprintf($controls, "");
+					}
+					$box = "<div class='info %s'>%s%s</div>";
+					if($x < 16){
+						//right
+						$box = sprintf($box, "right", $controls, $content);
+					}else{
+						//left
+						$box = sprintf($box, "left", $content, $controls);
+					}
+					$result .= "<td class='node ".$class."'><div class='container'><a class='box20x20' href='".$link.$cell['BrowsingResult']['id']."/'></a>".$box."</div></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
@@ -408,7 +520,7 @@ class Browser extends DatamartAppModel {
 	 * @param Int $structure_id The structure id to base the search params on
 	 * @return An html string of a table containing the search formated params
 	 */
-	static function formatSearchToPrint(array $search_params, $structure_id){
+	static function formatSearchToPrint(array $search_params, array $structure){
 		$params = $search_params['search_conditions'];
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
@@ -429,8 +541,6 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$structures_component = StructuresComponent::$singleton;
-		$sf = $structures_component->getSimplifiedFormById($structure_id);
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can ben a string or an array
 		foreach($params as $key => $value_element){
@@ -454,13 +564,18 @@ class Browser extends DatamartAppModel {
 				//it's a range
 				//key = field with possibly a comparison (field >=, field <=), if no comparison, it's = 
 				//value = value_str
-				$values[] = strpos($value_element, "-") ? AppController::getFormatedDatetimeString($value_element) : $value_element;
+				if(strpos($value_element, "-")){
+					list($year, $month, $day) = explode("-", $value_element);
+					$values[] = AppController::getFormatedDateString($year, $month, $day);
+				}else{
+					$values[] = $value_element;
+				}
 				if(strpos($key, " ") !== false){
 					list($key, $name_suffix) = explode(" ", $key);
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($sf['SimplifiedField'] as $sf_unit){
+			foreach($structure['Sfs'] as $sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
@@ -491,17 +606,27 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * @param string $plugin The name of the plugin to search on
-	 * @param string $model The name of the model to search on
+	 * @param string $control_model The name of the control model to search on
 	 * @param int $id The id of the alternate structure to retrieve
 	 * @return string The info of the alternate structure
 	 */
-	static function getAlternateStructureInfo($plugin, $model, $id){
-		if(!App::import('Model', $plugin.".".$model)){
-			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$plugin.".".$model, NULL, TRUE );
-		}
-		$model_to_use = new $model();
-		$data = $model_to_use->find('first', array('conditions' => array($model.".id" => $id)));
-		return $data[$model];
+	static function getAlternateStructureInfo($plugin, $control_model, $id){
+		$model_to_use = AppModel::atimNew($plugin, $control_model, true);
+		$data = $model_to_use->find('first', array('conditions' => array($control_model.".id" => $id)));
+		return $data[$control_model];
+	}
+	
+	/**
+	 * Updates an index link
+	 * @param string $link
+	 * @param string $prev_model
+	 * @param string $new_model
+	 * @param string $prev_pkey
+	 * @param string $new_pkey
+	 */
+	static function updateIndexLink($link, $prev_model, $new_model, $prev_pkey, $new_pkey){
+		return str_replace("%%".$prev_model.".",  "%%".$new_model.".",
+			str_replace("%%".$prev_model.".".$prev_pkey."%%", "%%".$new_model.".".$new_pkey."%%", $link));
 	}
 	
 	/**
@@ -515,10 +640,7 @@ class Browser extends DatamartAppModel {
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
-			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
-				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
-			}
-			$stac = new SampleToAliquotControl();
+			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
 			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
@@ -528,10 +650,7 @@ class Browser extends DatamartAppModel {
 		}else if($browsing['DatamartStructure']['id'] == 1){
 			//aliquot->sample hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
-			if(!App::import("model", "Inventorymanagement.SampleToAliquotControl")){
-				AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]=Inventorymanagement.SampleToAliquotControl', NULL, TRUE );
-			}
-			$stac = new SampleToAliquotControl();
+			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
 			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
@@ -557,10 +676,7 @@ class Browser extends DatamartAppModel {
 	}
 	
 	private function getActiveStructuresIds(){
-		if(!App::import('Model', 'Datamart.BrowsingControl')){
-			$app_controller->redirect( '/pages/err_model_import_failed?p[]=Datamart.DatamartStructure', NULL, TRUE );
-		}
-		$BrowsingControl = new BrowsingControl();
+		$BrowsingControl = AppModel::atimNew("Datamart", "BrowsingControl", true);
 		$data =  $BrowsingControl->find('all');
 		$result = array();
 		foreach($data as $unit){
@@ -574,4 +690,58 @@ class Browser extends DatamartAppModel {
 		
 		return array_keys($result);
 	}
+	
+	/**
+	 * Fetches all checklist related data and stores it in the object
+	 * @param array $browsing
+	 * @param int $display_limit
+	 */
+	public function fetchCheckList(array $browsing, $display_limit){
+		$model_to_import = null;
+		$this->checklist_model_name_to_search = null;
+		$this->checklist_use_key = null;
+		$this->checklist_result_structure = null;
+		//check for detailed structure
+		$this->checklist_sub_models_id_filter = array();
+		App::import("Model", "StructuresComponent", true);
+		$structures = new StructuresComponent();
+		if(strlen($browsing['DatamartStructure']['control_model']) > 0 && $browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
+			$alternate_info = Browser::getAlternateStructureInfo(
+				$browsing['DatamartStructure']['plugin'], 
+				$browsing['DatamartStructure']['control_model'], 
+				$browsing['BrowsingResult']['browsing_structures_sub_id']);
+			$alternate_alias = $alternate_info['form_alias'];
+			$this->checklist_result_structure = $structures->get('form', $alternate_alias);
+			$model_to_import = $browsing['DatamartStructure']['control_master_model'];
+			$this->checklist_model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
+			$this->checklist_use_key = "id";
+			$this->checklist_header = array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label']));
+			$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
+			$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
+		}else{
+			$this->checklist_result_structure = $structures->getFormById($browsing['DatamartStructure']['structure_id']);
+			$model_to_import = $browsing['DatamartStructure']['model'];
+			$this->checklist_model_name_to_search = $browsing['DatamartStructure']['model'];
+			$this->checklist_use_key = $browsing['DatamartStructure']['use_key'];
+			$this->checklist_header = array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true));
+			$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+		}
+		
+		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
+			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
+			//fetch the count since deletions might make the set smaller than the count of ids
+			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
+			
+			if($count > $display_limit){
+				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids")));
+				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
+			}else{
+				$this->checklist_data = $this->ModelToSearch->find('all', array('conditions' => $conditions));
+			}
+		}else{
+			$this->data = array();
+		}
+	}
+	
 }

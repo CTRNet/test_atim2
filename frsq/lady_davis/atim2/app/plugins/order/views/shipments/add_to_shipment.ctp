@@ -10,7 +10,7 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'datagrid', 'links'=>$structure_links, 'settings' => $structure_settings, 'override'=>$structure_override);
+	$final_options = array('type'=>'editgrid', 'links'=>$structure_links, 'settings' => $structure_settings, 'override'=>$structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

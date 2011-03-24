@@ -1,27 +1,55 @@
-<?php 
+<?php
 	
-	$structure_links = array(
-		'top' => '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control_data['AliquotControl']['id'],
-		'bottom' => array('cancel' => '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
-		)
-	);
+	$options = array(
+			"links"		=> array(
+				"top" => '/inventorymanagement/aliquot_masters/add/'.$sample_master_id,
+				'bottom' => array('cancel' => $url_to_cancel)));
+
+	$options_parent = array_merge($options, array(
+		"type" => "edit",
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)));
 	
-	$structure_override = array();
-	$structure_override['AliquotMaster.storage_master_id'] = $arr_preselected_storages_for_display;	
-	
-	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'type' => 'datagrid', 'settings'=> array('pagination' => false, 'add_fields' => true, 'del_fields' => true));
+	$options_children = array_merge($options, array(
+		"type" => "addgrid",
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+		"override"	=> $override_data));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if( $hook_link ) { require($hook_link); }
 		
-	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
-	
+	$first = true;
+	$counter = 0;
+	while($data = array_shift($this->data)){
+		$counter++;
+		$parent = $data['parent'];
+		$final_options_parent = $options_parent;
+		$final_options_children = $options_children;
+		if($first){
+			$final_options_parent['settings']['form_top'] = true;
+			if(!$is_batch_process) {
+				$final_options_children['settings']['form_top'] = true;
+			}
+			$first = false;
+		}
+		if(count($this->data) == 0){
+			$final_options_children['settings']['form_bottom'] = true;
+			$final_options_children['settings']['actions'] = true;
+			$final_options_children['extras'] = 
+				'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
+				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+		}
+		if($is_batch_process) $final_options_parent['settings']['header'] = __('aliquot creation batch process', true) . ' - ' . __('creation', true) ." #".$counter;
+		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+		$final_options_parent['data'] = $parent;
+		
+		$final_options_children['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+		$final_options_children['data'] = $data['children'];
+				
+		if($is_batch_process) $structures->build($sample_info, $final_options_parent);
+		$structures->build($atim_structure, $final_options_children);
+	}
 ?>
-
-<div id="debug"></div>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";
 var pasteStr = "<?php echo(__("paste")); ?>";

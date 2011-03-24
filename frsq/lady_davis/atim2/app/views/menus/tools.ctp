@@ -12,7 +12,7 @@
 			foreach ( $menu_data as $menu ) {
 				
 				$html_attributes = array();
-				$html_attributes['class'] = 'menu '.$structures->generate_link_class( 'plugin '.$menu['Menu']['use_link'] );
+				$html_attributes['class'] = 'menu '.$structures->generateLinkClass( 'plugin '.$menu['Menu']['use_link'] );
 				$html_attributes['title'] = __($menu['Menu']['language_title'], true);
 				
 				if ( !$menu['Menu']['language_description'] ) $menu['Menu']['language_description'] = $menu['Menu']['language_title'];
@@ -54,6 +54,6 @@
 		
 	}
 	
-	echo $structures->generate_content_wrapper( $atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/menus'))) );
+	echo $structures->generateContentWrapper( $atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/menus'))) );
 	
 ?>
