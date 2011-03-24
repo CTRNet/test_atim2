@@ -2324,4 +2324,6 @@ UPDATE structure_fields
 SET model = 'SampleMaster', field = 'parent_sample_type'
 WHERE model = 'GeneratedParentSample' AND field = 'sample_type';
 
+update menus set flag_active = '0' WHERE use_link like '/study/%';
+update menus set flag_active = '1' WHERE use_link like '/study/study_summaries%';
 

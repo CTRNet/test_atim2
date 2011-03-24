@@ -6,6 +6,9 @@ class StudyInvestigatorsController extends StudyAppController {
 	var $paginate = array('StudyInvestigator'=>array('limit' => pagination_amount,'order'=>'StudyInvestigator.last_name'));
 	
 	function listall( $study_summary_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		// Missing or empty function variable, send to ERROR page
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 
@@ -27,6 +30,9 @@ class StudyInvestigatorsController extends StudyAppController {
 	}
 
 	function detail( $study_summary_id, $study_investigator_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
@@ -46,6 +52,9 @@ class StudyInvestigatorsController extends StudyAppController {
 
 
 	function add( $study_summary_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 	
         // MANAGE DATA
@@ -94,7 +103,10 @@ class StudyInvestigatorsController extends StudyAppController {
 
 
 	function edit( $study_summary_id, $study_investigator_id ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
@@ -141,6 +153,9 @@ class StudyInvestigatorsController extends StudyAppController {
 
   
 	function delete( $study_summary_id, $study_investigator_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_investigator_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
