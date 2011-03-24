@@ -9,7 +9,6 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.AliquotMaster',
 		'Inventorymanagement.DerivativeDetail',
-		'Inventorymanagement.AliquotUse',
 		'Inventorymanagement.Realiquoting',
 		'Inventorymanagement.Collection',
 		
@@ -283,7 +282,7 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 		if(!empty($this->data)){
 			//win, create the whole shebang with transactions
 			$data_sources = array();
-			$models = array("AliquotUse", "AliquotMaster", "Realiquoting");
+			$models = array("AliquotMaster", "Realiquoting");
 			foreach($models as $model){
 				//init transactions
 				$tmp_data_source = $this->{$model}->getDataSource();
@@ -357,26 +356,12 @@ class BcTtrBatchEntryController extends InventorymanagementAppController{
 								break;
 						}
 						
-						//create use
-						$this->AliquotUse->id = null;
-						$this->AliquotUse->set(array(
-							"AliquotUse"	=> array(
-								"aliquot_master_id"			=> $block_id,
-								"use_definition"			=> "realiquoted to",
-								"use_recorded_into_table"	=> "realiquotings"
-						)));
-						if(!$this->AliquotUse->save()){
-							$continue = false;
-							break;
-						}
-						
 						//create realiquoting
 						$this->Realiquoting->id = null;
 						$this->Realiquoting->set(array(
 							"Realiquoting"	=> array(
 								"parent_aliquot_master_id"	=> $block_id,
 								"child_aliquot_master_id"	=> $this->AliquotMaster->getLastInsertId(),
-								"aliquot_use_id"			=> $this->AliquotUse->getLastInsertId()
 						)));
 						if(!$this->Realiquoting->save()){
 							$continue = false;
