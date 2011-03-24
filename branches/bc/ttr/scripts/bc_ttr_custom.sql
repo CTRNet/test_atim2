@@ -188,6 +188,9 @@ ALTER TABLE storage_masters
 INSERT INTO i18n (id, en, fr) VALUES
 ('core_installname', 'B.C. Tumor Tissue Repository', 'B.C. Tumor Tissue Repository');
 
+-- will be useless after next merge
+DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='is_problematic' AND model='SampleMaster');
+
 UPDATE participants SET sex=LOWER(sex);
 -- TODO
 -- Check data integrity: ex: 
@@ -197,3 +200,21 @@ UPDATE participants SET sex=LOWER(sex);
 --         no aliquot is linked to a storage when in_stock = 'no'
 --         move /plugins/inventorymanagement/controllers/bc_ttr_batch_entry_controller.php to custom folder
 
+-- correct values to match structure_value_domains for
+--  ConsentMaster.process_status
+--  ConsentMaster.bc_ttr_cancer_type
+--  Collection.collection_site
+--  ViewCollection.collection_site
+--  AliquotMaster.in_stock
+--  SpecimenDetail.reception_by (the structure_value_domain simply seems empty)
+--  AliquotDetail.bc_ttr_lab_technician (the structure_value_domain simply seems empty)
+
+
+-- correct following structures
+--  correspondences contains an invalid field type (text)
+--  correspondences should be named bc_ttr_correspondences
+
+-- In participants, the "collections" menu option is missing. Don't you link collections to participants? Also, the table clinical_collection_links is empty
+-- Define collections.collection_property - This value should always be defined to either 'independent collection' or 'participant collection'. See http://www.ctrnet.ca/mediawiki/index.php/Collections for more info.
+-- Why are some tissues types doubled with a question mark? Eg.: "Normal", "Normal?", "Tumour", "Tumour?"
+ 
