@@ -14,9 +14,6 @@ class SampleToAliquotControl extends InventoryManagementAppModel {
 	 * Get permissible values array gathering all existing sample aliquot types 
 	 * (realtions existing between sample type and aliquot type).
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'SampleControl.id|AliquotControl.id', 'default' => (translated string describing sample aliquot type))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -25,8 +22,7 @@ class SampleToAliquotControl extends InventoryManagementAppModel {
 		// Get list of active sample type
 		$conditions = array('ParentToDerivativeSampleControl.flag_active' => true);
 
-		App::import("Model", "Inventorymanagement.ParentToDerivativeSampleControl");
-		$this->ParentToDerivativeSampleControl = new ParentToDerivativeSampleControl();
+		$this->ParentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 	
 		$specimen_sample_control_ids_list = array();
@@ -62,11 +58,7 @@ class SampleToAliquotControl extends InventoryManagementAppModel {
 		}
 		asort($working_array);
 		
-		// Build final array
-		$final_array = array();
-		foreach($working_array as $value => $default) { $final_array[] = array('value' => $value, 'default' => $default); }
-		
-		return $final_array;
+		return $working_array;
 	}
 			
 }

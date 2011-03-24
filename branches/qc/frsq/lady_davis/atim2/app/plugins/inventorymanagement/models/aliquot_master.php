@@ -15,17 +15,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 		'StorageMaster' => array(           
 			'className'    => 'Storagelayout.StorageMaster',            
 			'foreignKey'    => 'storage_master_id'));
-                                 
-	var $hasMany = array(
-		'AliquotUse' => array(
-			'className'   => 'Inventorymanagement.AliquotUse',
-			'foreignKey'  => 'aliquot_master_id'),
-		'RealiquotingParent' => array(
-			'className' => 'Inventorymanagement.Realiquoting',
-			'foreignKey' => 'child_aliquot_master_id'),
-		'RealiquotingChildren' => array(
-			'className' => 'Inventorymanagement.Realiquoting',
-			'foreignKey' => 'parent_aliquot_master_id'));
 	
 	var $hasOne = array(
 		'SpecimenDetail' => array(
@@ -34,25 +23,25 @@ class AliquotMaster extends InventoryManagementAppModel {
 			 	'dependent' => true)
 	);
 	
+	public static $aliquot_type_dropdown = array();
+	public static $storage = null;
+	
+	private $barcodes = array();//barcode validation, key = barcode, value = id	
+		
 	function summary($variables=array()) {
 		$return = false;
 		
 		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
 			
 			$result = $this->find('first', array('conditions'=>array('AliquotMaster.collection_id'=>$variables['Collection.id'], 'AliquotMaster.sample_master_id'=>$variables['SampleMaster.id'], 'AliquotMaster.id'=>$variables['AliquotMaster.id'])));
-					
+			if(!isset($result['AliquotMaster']['storage_coord_y'])){
+				$result['AliquotMaster']['storage_coord_y'] = "";
+			}
 			$return = array(
-				'Summary'	 => array(
 					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
-
-					'description'		=> array(
-						__('barcode', true)=> $result['AliquotMaster']['barcode'],
-						__('product code', true)=> $result['AliquotMaster']['product_code'],
-						__('type', true)	    => __($result['AliquotMaster']['aliquot_type'], true).($result['AliquotMaster']['aliquot_type'] == "block" ? " (".__($result['AliquotDetail']['block_type'], true).")": ""),
-						__('aliquot in stock', true)		=> __($result['AliquotMaster']['in_stock'], true)
-					)
-				)
+					'data'				=> $result,
+					'structure alias'	=> 'aliquotmasters'
 			);
 		}
 		
@@ -105,6 +94,242 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		return $storage_data;
+	}
+	
+	/**
+	 * Update the current volume of an aliquot.
+	 * 
+	 * Note:
+	 *  - When the intial volume is null, the current volume will be set to null.
+	 *  - Status and status reason won't be updated.
+	 *
+	 * @param $aliquot_master_id Master Id of the aliquot.
+	 * @remove_from_stock_if_empty boolean Will set in stock to false and remove the aliquot from storage
+	 * 
+	 * @return FALSE when error has been detected
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
+		if(empty($aliquot_master_id)){
+			AppController::getInstance()->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
+
+		// Get aliquot data
+		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
+		if(empty($aliquot_data)){
+			AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
+
+		// Set variables
+		$aliquot_data_to_save = array();
+		$aliquot_uses = null;
+		
+		if($update_current_volume) {
+			
+			// MANAGE CURRENT VOLUME
+			
+			$initial_volume = $aliquot_data['AliquotMaster']['initial_volume'];
+					
+			// Manage new current volume
+			if(empty($initial_volume)){	
+				// Initial_volume is null or equal to 0
+				// To be sure value and type of both variables are identical
+				$current_volume = $initial_volume;
+						
+			}else {
+				// A value has been set for the intial volume		
+				if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+						
+				$total_used_volume = 0;
+				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+				foreach($aliquot_uses as $id => $aliquot_use){
+					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
+					if(!empty($used_volume)){
+						// Take used volume in consideration only when this one is not empty
+						if((!is_numeric($used_volume)) || ($used_volume < 0)){
+							AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
+						$total_used_volume += $used_volume;
+					}
+				}
+				
+				$current_volume = round(($initial_volume - $total_used_volume), 5);
+				if($current_volume < 0){
+					$current_volume = 0;
+					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
+				}
+			}
+			
+			$aliquot_data_to_save["current_volume"] = $current_volume;
+			if($current_volume <= 0 && $remove_from_stock_if_empty_volume){
+				$aliquot_data_to_save['storage_master_id'] = NULL;
+				$aliquot_data_to_save['storage_coord_x'] = NULL;
+				$aliquot_data_to_save['storage_coord_y'] = NULL;
+				$aliquot_data_to_save['in_stock'] = 'no';
+				$aliquot_data_to_save['in_stock_detail'] = 'empty';
+			}
+		}
+		
+		if($update_uses_counter) {
+			
+			// UPDATE ALIQUOT USE COUNTER	
+		
+			if(is_null($aliquot_uses)) {
+				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+			}
+			
+			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
+		}
+		
+		
+		// SAVE DATA
+		
+		$aliquot_data_to_save['id'] = $aliquot_master_id;
+		
+		//---------------------------------------------------------
+		// Set data to empty array to guaranty 
+		// no merge will be done with previous AliquotMaster data
+		// when AliquotMaster set() function will be called again.
+		//---------------------------------------------------------
+		$this->data = array();	//
+		$this->id = $aliquot_master_id;
+		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save))){
+			return false;
+		}
+		return true;
+	}
+	
+	public function getRealiquotDropdown(){
+		return self::$aliquot_type_dropdown;	
+	}
+	
+	/**
+	 * @desc Additional validation rule to validate stock status and storage.
+	 * @see Model::validates()
+	 */
+	function validates($options = array()){
+		pr('WARNING!!: aliquot storage data can be updated into AliquotMaster->validates() function: be sure to reset data into controller using $this->AliquotMaster->data!');
+		
+		if(isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' 
+		&& (!empty($this->data['AliquotMaster']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
+			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
+		}
+		
+		$this->data = $this->validateAndUpdateAliquotStorageData($this->data);
+		
+		if(isset($this->data['AliquotMaster']['barcode'])){
+			$this->checkDuplicatedAliquotBarcode($this->data);
+		}		
+		parent::validates($options);
+		
+		return empty($this->validationErrors);
+	}
+	
+	/**
+	 * Check both aliquot storage definition and aliquot positions and set error if required.
+	 */
+	 
+	function validateAndUpdateAliquotStorageData($aliquot_data) {
+		
+		// check data structure
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		// Load model
+		if(self::$storage == null){
+			self::$storage = AppModel::atimNew("storagelayout", "StorageMaster", true);
+		}
+				
+		// Launch validation		
+		if(array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('recorded_storage_selection_label', $aliquot_data['FunctionManagement'])) {
+			$is_sample_core = isset($aliquot_data['AliquotMaster']['aliquot_type']) && ($aliquot_data['AliquotMaster']['aliquot_type'] == 'core');
+			
+			// Check the aliquot storage definition
+			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
+			
+			// Update aliquot data
+			$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
+			if($arr_storage_selection_results['change_position_x_to_uppercase']) $aliquot_data['AliquotMaster']['storage_coord_x'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_x']);
+			if($arr_storage_selection_results['change_position_y_to_uppercase']) $aliquot_data['AliquotMaster']['storage_coord_y'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_y']);
+			
+			// Set error
+			if(!empty($arr_storage_selection_results['storage_definition_error'])) $this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
+			if(!empty($arr_storage_selection_results['position_x_error'])) $this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
+			if(!empty($arr_storage_selection_results['position_y_error'])) $this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
+
+		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		return $aliquot_data;
+	}
+	
+	/**
+	 * Check created barcodes are not duplicated and set error if they are.
+	 * 
+	 * Note: 
+	 *  - This function supports form data structure built by either 'add' form or 'datagrid' form.
+	 *  - Has been created to allow customisation.
+	 * 
+	 * @param $aliquots_data Aliquots data stored into an array having structure like either:
+	 * 	- $aliquots_data = array('AliquotMaster' => array(...))
+	 * 	or
+	 * 	- $aliquots_data = array(array('AliquotMaster' => array(...)))
+	 *
+	 * @return  Following results array:
+	 * 	array(
+	 * 		'is_duplicated_barcode' => TRUE when barcodes are duplicaed,
+	 * 		'messages' => array($message_1, $message_2, ...)
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @date 2007-08-15
+	 */
+	 
+	function checkDuplicatedAliquotBarcode($aliquot_data) {
+			
+		// check data structure
+		$tmp_arr_to_check = array_values($aliquot_data);
+		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+				
+		$barcode = $aliquot_data['AliquotMaster']['barcode'];
+		
+		// Check duplicated barcode into submited record
+		if(empty($barcode)) {
+			// Not studied
+		} else if(isset($this->barcodes[$barcode])) {
+			$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice', true));
+		} else {
+			$this->barcodes[$barcode] = '';
+		}
+		
+		// Check duplicated barcode into db
+		$criteria = array('AliquotMaster.barcode' => $barcode);
+		$aliquots_having_duplicated_barcode = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => $barcode), 'recursive' => -1));;
+		if(!empty($aliquots_having_duplicated_barcode)) {
+			foreach($aliquots_having_duplicated_barcode as $duplicate) {
+				if((!array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
+					$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded', true));
+				}
+			}			
+		}
+	}
+	
+	function hasChild(array $aliquot_master_ids){
+		$realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", TRUE);
+		return array_filter($realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id'))));
 	}
 	
 }

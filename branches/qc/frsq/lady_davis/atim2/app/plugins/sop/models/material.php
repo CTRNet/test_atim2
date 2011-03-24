@@ -10,11 +10,10 @@ class Material extends AppModel
 			$result = $this->find('first', array('conditions'=>array('Materials.id'=>$variables['Materials.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'item_name' => $result['Materials']['item_name'],
-					'item_type'	=>	$result['Materials']['item_type'],
-					'description'	=>	$result['Materials']['description']
-				)
+				'item_name' => $result['Materials']['item_name'],
+				'item_type'	=>	$result['Materials']['item_type'],
+				'data'			=> $result,
+				'structure alias'=>'materials'
 			);
 		}
 		

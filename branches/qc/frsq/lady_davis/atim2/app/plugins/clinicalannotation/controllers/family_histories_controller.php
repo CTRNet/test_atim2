@@ -31,13 +31,13 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		 
 	function listall( $participant_id ) {
 /* ==> Note: Always validate all required values are set */
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }			
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }			
 
 		// MANAGE DATA
 
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 /* ==> Note: Always validate data linked to the created record exists */
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 				
 		$this->data = $this->paginate($this->FamilyHistory, array('FamilyHistory.participant_id'=>$participant_id));
 		
@@ -54,13 +54,13 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function detail( $participant_id, $family_history_id ) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
 /* ==> Note: Always validate data exists */
-		if(empty($family_history_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($family_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $family_history_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -75,12 +75,12 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function add( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -128,12 +128,12 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id, $family_history_id) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
-		if(empty($family_history_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($family_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -178,12 +178,12 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function delete( $participant_id, $family_history_id ) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
-		if(empty($family_history_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($family_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		$arr_allow_deletion = $this->allowFamilyHistoryDeletion($family_history_id);
 		

@@ -7,19 +7,18 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		'Clinicalannotation.ConsentDetail',
 		'Clinicalannotation.ConsentControl',
 		'Clinicalannotation.Participant',
-		'Clinicalannotation.ClinicalCollectionLink',
-		'Provider.Provider'
+		'Clinicalannotation.ClinicalCollectionLink'
 	);
 	
 	var $paginate = array('ConsentMaster'=>array('limit' => pagination_amount,'order'=>'ConsentMaster.date_first_contact ASC')); 
 
 	function listall( $participant_id ) {
 		// Missing or empty function variable, send to ERROR page
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		$this->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
 		
@@ -34,11 +33,11 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	}	
 
 	function detail( $participant_id, $consent_master_id) {
-		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
-		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $consent_master_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -54,11 +53,11 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function add( $participant_id=null, $consent_control_id=null ) {
-		if (( !$participant_id ) && ( !$consent_control_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$consent_control_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );
@@ -92,11 +91,11 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id, $consent_master_id ) {
-		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
-		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentMaster.id'=>$consent_master_id) );
@@ -129,11 +128,11 @@ class ConsentMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id, $consent_master_id ) {
-		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$consent_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
-		if(empty($consent_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($consent_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$arr_allow_deletion = $this->allowConsentDeletion($consent_master_id);
 		

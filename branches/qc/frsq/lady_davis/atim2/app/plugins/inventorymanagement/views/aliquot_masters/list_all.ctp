@@ -17,7 +17,7 @@
 	// Create array of aliquot type that could be created for the studied sample for the ADD button 
 	$add_aliquots = array();	
 	foreach($allowed_aliquot_type as $aliquot_control) {
-		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
 	}	
 	ksort($add_aliquots);	
 	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;

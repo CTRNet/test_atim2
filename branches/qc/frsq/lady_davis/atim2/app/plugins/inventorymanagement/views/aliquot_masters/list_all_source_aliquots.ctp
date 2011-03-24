@@ -3,7 +3,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
-			'delete' => '/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%/sourcealiquot/%%SampleMaster.id%%'
+			'delete' => '/inventorymanagement/aliquot_masters/deleteSourceAliquot/%%SampleMaster.id%%/%%AliquotMaster.id%%/sample_derivative/'
 		),
 		'bottom'=>array('add'=>'/inventorymanagement/aliquot_masters/addSourceAliquots/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/')
 	);

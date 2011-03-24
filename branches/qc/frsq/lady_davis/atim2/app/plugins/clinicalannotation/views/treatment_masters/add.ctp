@@ -20,7 +20,7 @@
 		'header' => '1- ' . __('data', null) . ' : ' . $tx_header,
 		'form_bottom'=>false);
 	
-	if(isset($available_protocols)) { $structure_override['TreatmentMaster.protocol_master_id'] = $available_protocols; }
+//	if(isset($available_protocols)) { $structure_override['TreatmentMaster.protocol_master_id'] = $available_protocols; }
 			 	
 	$final_options = array('links'=>$structure_links,'settings'=>$structure_settings, 'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
@@ -36,7 +36,6 @@
 		'actions'=>false, 
 
 		'header' => '2- ' . __('related diagnosis', null),
-		'separator' => true, 
 		'form_top' => false,
 		'form_bottom'=>false
 	);	
@@ -52,7 +51,7 @@
 		'form_top' => false
 	);
 	
-	$final_options = array( 'type'=>'radiolist', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
+	$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
 	$final_atim_structure = $diagnosis_structure;
 	
 	$hook_link = $structures->hook('dx_list');

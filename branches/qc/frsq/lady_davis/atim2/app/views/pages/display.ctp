@@ -10,5 +10,5 @@
 		$atim_content['page'] .= "<br/>".$data['err_trace'];
 	}
 	
-	echo $structures->generate_content_wrapper( $atim_content );
+	echo $structures->generateContentWrapper($atim_content);
 ?>

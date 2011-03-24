@@ -23,18 +23,14 @@ class StructurePermissibleValuesCustom extends AppModel {
 		$tmp_l10n = new L10n();
 		$lang = isset($tmp_l10n->__l10nMap[$_SESSION['Config']['language']])? $tmp_l10n->__l10nMap[$_SESSION['Config']['language']]: '';
 
-		$tmp_result = array();
+		$result = array();
 		foreach($data as $data_unit){
 			$value = $data_unit['StructurePermissibleValuesCustom']['value'];
 			$translated_value = (isset($data_unit['StructurePermissibleValuesCustom'][$lang]) && (!empty($data_unit['StructurePermissibleValuesCustom'][$lang])))? $data_unit['StructurePermissibleValuesCustom'][$lang]: $value;
-			$tmp_result[$value] = $translated_value;
+			$result[$value] = $translated_value;
 		}
-		asort($tmp_result);
+		asort($result);
 
-		$result = array();
-		foreach($tmp_result as $value => $default){
-			$result[] = array("value" => $value, "default" => $default);
-		}
 		return $result;
 	}
 }
