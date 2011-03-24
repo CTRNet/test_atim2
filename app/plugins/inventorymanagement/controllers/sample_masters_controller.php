@@ -89,7 +89,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Unbind models
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('RealiquotingParent','RealiquotingChildren')),false);
+		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 		
 		if($sample_master_id == 0){
 			//fetch all
@@ -407,7 +407,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					
 		// Set sample aliquot list
 		if(!$is_tree_view_detail_form) { 		
-			$this->set('aliquots_data', $this->getAliquotsListData(array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
+			$this->set('aliquots_data', $this->paginate($this->AliquotMaster, array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
 		}
 		
 		// Set Lab Book Id
@@ -557,11 +557,14 @@ class SampleMastersController extends InventorymanagementAppController {
 			if($is_specimen){
 				// The created sample is a specimen
 				if(isset($this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
+				
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $this->data['SampleMaster']['sample_type'];
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = null; 	// ID will be known after sample creation
 			} else {
 				// The created sample is a derivative
+				$this->data['SampleMaster']['parent_sample_type'] = $parent_sample_data['SampleMaster']['sample_type'];
 				$this->data['SampleMaster']['parent_id'] = $parent_sample_data['SampleMaster']['id'];
+				
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_type'];
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
 			}
@@ -1018,8 +1021,12 @@ class SampleMastersController extends InventorymanagementAppController {
 					$new_derivative_created = true;
 					$child['SampleMaster']['sample_control_id'] = $sample_control_id;
 					$child['SampleMaster']['collection_id'] = $parent['ViewSample']['collection_id'];
+					
 					$child['SampleMaster']['initial_specimen_sample_id'] = $parent['ViewSample']['initial_specimen_sample_id'];
 					$child['SampleMaster']['initial_specimen_sample_type'] = $parent['ViewSample']['initial_specimen_sample_type'];
+					
+					$child['SampleMaster']['parent_sample_type'] = $parent['ViewSample']['sample_type'];
+					
 					$child['DerivativeDetail']['sync_with_lab_book'] = $sync_with_lab_book;
 					$child['DerivativeDetail']['lab_book_master_id'] = $lab_book_id;
 					

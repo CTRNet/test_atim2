@@ -2308,4 +2308,20 @@ AND structure_id = (SELECT id FROM structures WHERE alias = 'aliquot_masters_for
 
 DELETE FROM structure_fields WHERE model = '0' AND field = 'detail_type';
 
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'Generated' AND field = 'realiquoting_data');
+DELETE FROM structure_fields WHERE model = 'Generated' AND field = 'realiquoting_data';
+
+ALTER TABLE sample_masters
+	ADD `parent_sample_type` varchar(30) DEFAULT NULL AFTER `parent_id`;
+ALTER TABLE sample_masters_revs
+	ADD `parent_sample_type` varchar(30) DEFAULT NULL AFTER `parent_id`;	
+	
+UPDATE sample_masters AS parent, sample_masters AS child
+SET child.parent_sample_type = parent.sample_type
+WHERE parent.id = child.parent_id;
+
+UPDATE structure_fields
+SET model = 'SampleMaster', field = 'parent_sample_type'
+WHERE model = 'GeneratedParentSample' AND field = 'sample_type';
+
 

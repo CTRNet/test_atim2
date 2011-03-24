@@ -218,7 +218,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				break;
 				
 			case 'AliquotMaster':
-				$aliquots_data = $this->getAliquotsListData(array_merge(array('AliquotMaster.collection_id' => $collection_id), $aliquot_search_criteria));
+				$aliquots_data = $this->paginate($this->AliquotMaster, array_merge(array('AliquotMaster.collection_id' => $collection_id), $aliquot_search_criteria));
 				break;
 				
 			default:
@@ -1266,7 +1266,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Find parent(s) aliquot
 		$this->AliquotMaster->unbindModel(array(
-			'hasMany' => array('RealiquotingChildren', 'RealiquotingParent'),
 			'hasOne' => array('SpecimenDetail'),
 			'belongsTo' => array('Collection','StorageMaster')));
 		$aliquots = $this->AliquotMaster->findAllById($ids);
@@ -1385,7 +1384,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		$this->AliquotMaster->unbindModel(array(
-			'hasMany' => array('RealiquotingChildren', 'RealiquotingParent'),
 			'hasOne' => array('SpecimenDetail'),
 			'belongsTo' => array('Collection','StorageMaster')));
 		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $this->data[0]['ids'])));
@@ -1820,7 +1818,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// Get parent aliquot data
 			$this->AliquotMaster->unbindModel(array(
 				'hasOne' => array('SpecimenDetail', 'DerivativeDetail'),
-				'belongsTo' => array('Collection','StorageMaster')));	
+				'belongsTo' => array('Collection','StorageMaster')));
+			$has_many_details = array(
+				'hasMany' => array( 
+					'RealiquotingParent' => array(
+						'className' => 'Inventorymanagement.Realiquoting',
+						'foreignKey' => 'child_aliquot_master_id'),
+					'RealiquotingChildren' => array(
+						'className' => 'Inventorymanagement.Realiquoting',
+						'foreignKey' => 'parent_aliquot_master_id')));
+			$this->AliquotMaster->bindModel($has_many_details);	
 			$parent_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => explode(",", $parent_aliquots_ids))));
 			if(empty($parent_aliquots)){
 				$this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
@@ -2282,7 +2289,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Unbind models
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('RealiquotingParent','RealiquotingChildren')),false);
+		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 		
 		$ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
 		$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($ids));

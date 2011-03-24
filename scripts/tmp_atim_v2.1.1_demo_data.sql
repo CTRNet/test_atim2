@@ -659,10 +659,14 @@ INSERT INTO `consent_masters` (`id`, `date_of_referral`, `route_of_referral`, `d
 -- Dumping data for table `consent_masters_revs`
 --
 
-INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral`, `date_first_contact`, `consent_signed_date`, `form_version`, `reason_denied`, `consent_status`, `process_status`, `status_date`, `surgeon`, `operation_date`, `facility`, `notes`, `consent_method`, `translator_indicator`, `translator_signature`, `consent_person`, `facility_other`, `consent_master_id`, `acquisition_id`, `participant_id`, `consent_control_id`, `type`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, NULL, 'doctor', '2003-05-06', '2003-08-06', '2.90', '', 'obtained', '', '2003-08-06', '', NULL, '', '', 'in person', 'no', '', '', '', NULL, NULL, 1, 1, '', '2010-05-28 14:07:24', 1, '2010-05-28 14:07:24', 1, 0, NULL, 1, '2010-05-28 14:07:25'),
-(2, NULL, '', NULL, NULL, '', '', 'obtained', '', '2010-09-01', '', NULL, '', '', '', '', '', '', '', NULL, NULL, 2, 1, '', '2010-09-24 19:32:53', 1, '2010-09-24 19:32:53', 1, 0, NULL, 2, '2010-09-24 19:32:54'),
-(3, NULL, '', NULL, NULL, '', '', 'withdrawn', '', NULL, '', NULL, '', '', 'fax', '', '', '', '', NULL, NULL, 3, 1, '', '2010-09-24 19:41:54', 1, '2010-09-24 19:41:54', 1, 0, NULL, 3, '2010-09-24 19:41:55');
+INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral`, `date_first_contact`, `consent_signed_date`, `form_version`, `reason_denied`, `consent_status`, `process_status`, `status_date`, `surgeon`, `operation_date`, `facility`, `notes`, `consent_method`, `translator_indicator`, `translator_signature`, `consent_person`, `facility_other`, 
+`acquisition_id`, `participant_id`, `consent_control_id`, `type`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+(1, NULL, 'doctor', '2003-05-06', '2003-08-06', '2.90', '', 'obtained', '', '2003-08-06', '', NULL, '', '', 'in person', 'no', '', '', 
+'', NULL, 1, 1, '', '2010-05-28 14:07:24', 1, '2010-05-28 14:07:24', 1, 0, NULL, 1, '2010-05-28 14:07:25'),
+(2, NULL, '', NULL, NULL, '', '', 'obtained', '', '2010-09-01', '', NULL, '', '', '', '', '', '', 
+'', NULL, 2, 1, '', '2010-09-24 19:32:53', 1, '2010-09-24 19:32:53', 1, 0, NULL, 2, '2010-09-24 19:32:54'),
+(3, NULL, '', NULL, NULL, '', '', 'withdrawn', '', NULL, '', NULL, '', '', 'fax', '', '', '', 
+'', NULL, 3, 1, '', '2010-09-24 19:41:54', 1, '2010-09-24 19:41:54', 1, 0, NULL, 3, '2010-09-24 19:41:55');
 
 --
 -- Dumping data for table `derivative_details`
@@ -2490,6 +2494,10 @@ UPDATE aliquot_masters SET use_counter = 3 WHERE barcode = 'bl9457687';
 
 UPDATE sample_masters SET is_problematic = '0' WHERE is_problematic = 'no';
 UPDATE sample_masters SET is_problematic = '1' WHERE is_problematic = 'yes';
+
+UPDATE sample_masters AS parent, sample_masters AS child
+SET child.parent_sample_type = parent.sample_type
+WHERE parent.id = child.parent_id;
 
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
