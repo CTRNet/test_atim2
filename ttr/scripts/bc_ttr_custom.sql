@@ -188,7 +188,7 @@ ALTER TABLE storage_masters
 INSERT INTO i18n (id, en, fr) VALUES
 ('core_installname', 'B.C. Tumor Tissue Repository', 'B.C. Tumor Tissue Repository');
 
-
+UPDATE participants SET sex=LOWER(sex);
 -- TODO
 -- Check data integrity: ex: 
 --         aliquot.storage_master_id linked to an existing storage FK.
