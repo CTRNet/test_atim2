@@ -6,6 +6,9 @@ class StudyRelatedController extends StudyAppController {
 	var $paginate = array('StudyRelated'=>array('limit' => pagination_amount,'order'=>'StudyRelated.title'));
 	
 	function listall( $study_summary_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 
     	// MANAGE DATA
@@ -26,6 +29,9 @@ class StudyRelatedController extends StudyAppController {
 	}
 
 	function detail( $study_summary_id, $study_related_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
@@ -46,6 +52,9 @@ class StudyRelatedController extends StudyAppController {
 
 
 	function add( $study_summary_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 
         // MANAGE DATA
@@ -96,7 +105,10 @@ class StudyRelatedController extends StudyAppController {
 
 
 	function edit( $study_summary_id, $study_related_id ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
 		// MANAGE DATA
@@ -144,6 +156,9 @@ class StudyRelatedController extends StudyAppController {
 
   
 	function delete( $study_summary_id, $study_related_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_clin_no_data', null, true );
+exit;
 		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
 		
