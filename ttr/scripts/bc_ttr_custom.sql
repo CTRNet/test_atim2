@@ -140,8 +140,6 @@ ALTER TABLE aliquot_masters_revs
 ALTER TABLE aliquot_masters_revs
  ADD COLUMN bc_ttr_prev_storage_id int DEFAULT NULL;
 
-ALTER TABLE aliquot_review_masters_revs CHANGE   `aliquot_masters_id` `aliquot_master_id` int(11) DEFAULT NULL;
-
 DROP TABLE tmp_slides;
 DROP TABLE a_tmp_tubes;
 DROP TABLE a_tmp_tubes_plasma;
@@ -187,7 +185,8 @@ ALTER TABLE aliquot_masters_revs
 ALTER TABLE storage_masters
  DROP column v1_box_id;
 
-
+INSERT INTO i18n (id, en, fr) VALUES
+('core_installname', 'B.C. Tumor Tissue Repository', 'B.C. Tumor Tissue Repository');
 
 
 -- TODO
