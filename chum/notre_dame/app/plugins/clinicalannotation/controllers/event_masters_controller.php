@@ -19,7 +19,7 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function listall( $event_group, $participant_id, $event_control_id=null ) {
-		if ( (!$participant_id) && (!$event_group)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( (!$participant_id) && (!$event_group)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 			
 		// set FILTER, used as this->data CONDITIONS
 		if ( !isset($_SESSION['MasterDetail_filter']) || !$event_control_id ) {
@@ -33,13 +33,13 @@ class EventMastersController extends ClinicalannotationAppController {
 			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 			
 			$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+			if(empty($filter_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 			$this->Structures->set($filter_data['EventControl']['form_alias']);
 		}
 			
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		
@@ -56,11 +56,11 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function detail( $event_group, $participant_id, $event_master_id ) {
-		if ( (!$participant_id) && (!$event_group) && (!$event_master_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( (!$participant_id) && (!$event_group) && (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if(empty($this->data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($this->data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		$this->set('dx_data', (empty($this->data['EventMaster']['diagnosis_master_id'])? array() : $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])))));		
 
@@ -78,15 +78,15 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function add( $event_group, $participant_id, $event_control_id) {
-		if ((!$participant_id) || (!$event_group) || (!$event_control_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ((!$participant_id) || (!$event_group) || (!$event_control_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-		if(empty($event_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($event_control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// set DIAGANOSES for diagnosis selection (radio button)
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
@@ -135,11 +135,11 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $event_group, $participant_id, $event_master_id ) {
-		if ((!$participant_id) || (!$event_group) || (!$event_master_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }		
+		if ((!$participant_id) || (!$event_group) || (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }		
 		
 		// MANAGE DATA
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if (empty($event_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if (empty($event_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// set DIAGANOSES for diagnosis selection (radio button)
 		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
@@ -181,10 +181,10 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete($event_group, $participant_id, $event_master_id) {
-		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if (empty($event_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if (empty($event_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$arr_allow_deletion = $this->allowEventDeletion($event_master_id);
 		

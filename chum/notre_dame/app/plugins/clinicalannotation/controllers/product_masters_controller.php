@@ -15,7 +15,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 	
 	function productsTreeView($participant_id, $filter_option = null) {
 		if(!$participant_id){
-			$this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 		}
 
 		$display_aliquots = true;
@@ -25,7 +25,7 @@ class ProductMastersController extends ClinicalannotationAppController {
 				
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) {
-			 $this->redirect( '/pages/err_clin_no_data', null, true ); 
+			 $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 		
 		// Get participant collection ids

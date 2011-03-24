@@ -51,14 +51,32 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function afterFind($results){
 		$results = parent::afterFind($results);
+		$warn = false;
 		if(!$_SESSION['Auth']['User']['flag_show_confidential'] && isset($results[0]) && isset($results[0]['MiscIdentifier'])){
 			$misc_control_model = AppModel::atimNew("clinicalannotation", "MiscIdentifierControl", true);
 			$confidential_control_ids = $misc_control_model->getConfidentialIds();
 			if(!empty($confidential_control_ids)){
-				foreach($results as &$result){
-					if(in_array($result['MiscIdentifier']['misc_identifier_control_id'], $confidential_control_ids)){
-						$result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_MARKER;
-					}
+				if(isset($results[0]) && isset($results[0]['MiscIdentifier'])){
+					if(isset($results[0]['MiscIdentifier']['misc_identifier_control_id'])){
+						foreach($results as &$result){
+							if(in_array($result['MiscIdentifier']['misc_identifier_control_id'], $confidential_control_ids)){
+								$result['MiscIdentifier']['identifier_value'] = CONFIDENTIAL_MARKER;
+							}
+						}
+					}else if(isset($results[0]['MiscIdentifier'][0]) && isset($results[0]['MiscIdentifier'][0]['misc_identifier_control_id'])){
+						foreach($results[0]['MiscIdentifier'] as &$result){
+							if(in_array($result['misc_identifier_control_id'], $confidential_control_ids)){
+								$result['identifier_value'] = CONFIDENTIAL_MARKER;
+							}
+						}
+					}else{
+						$warn = true;
+					} 
+				}else{
+					$warn = true;
+				}
+				if($warn && Configure::read('debug') > 0){
+					AppController::addWarningMsg('unable to parse MiscIdentifier result in '.__FILE__.' at line '.__LINE__);
 				}
 			}
 		}

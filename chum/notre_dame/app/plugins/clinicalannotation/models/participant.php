@@ -21,14 +21,14 @@ class Participant extends ClinicalannotationAppModel {
 	
 	/**
 	 * Replaces icd10 empty string to null values to respect foreign keys constraints
-	 * @param $participantArray
+	 * @param array $participantArray
 	 */
-	function patchIcd10NullValues(&$participantArray){
-		if(strlen(trim($participantArray['Participant']['cod_icd10_code'])) == 0){
-			$participantArray['Participant']['cod_icd10_code'] = null;
+	function patchIcd10NullValues(array &$participant){
+		if(isset($participant['Participant']['cod_icd10_code']) && strlen(trim($participant['Participant']['cod_icd10_code'])) == 0){
+			$participant['Participant']['cod_icd10_code'] = null;
 		}
-		if(strlen(trim($participantArray['Participant']['secondary_cod_icd10_code'])) == 0){
-			$participantArray['Participant']['secondary_cod_icd10_code'] = null;
+		if(isset($participant['Participant']['secondary_cod_icd10_code']) && strlen(trim($participant['Participant']['secondary_cod_icd10_code'])) == 0){
+			$participant['Participant']['secondary_cod_icd10_code'] = null;
 		}
 	}
 }

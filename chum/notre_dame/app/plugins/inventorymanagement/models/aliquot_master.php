@@ -15,14 +15,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 		'StorageMaster' => array(           
 			'className'    => 'Storagelayout.StorageMaster',            
 			'foreignKey'    => 'storage_master_id'));
-                                 
-	var $hasMany = array(
-		'RealiquotingParent' => array(
-			'className' => 'Inventorymanagement.Realiquoting',
-			'foreignKey' => 'child_aliquot_master_id'),
-		'RealiquotingChildren' => array(
-			'className' => 'Inventorymanagement.Realiquoting',
-			'foreignKey' => 'parent_aliquot_master_id'));
 	
 	var $hasOne = array(
 		'SpecimenDetail' => array(
@@ -122,13 +114,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 
 	function updateAliquotUseAndVolume($aliquot_master_id, $update_current_volume = true, $update_uses_counter = true, $remove_from_stock_if_empty_volume = false){
 		if(empty($aliquot_master_id)){
-			AppController::getInstance()->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 
 		// Get aliquot data
 		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
 		if(empty($aliquot_data)){
-			AppController::getInstance()->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 
 		// Set variables
@@ -150,7 +142,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}else {
 				// A value has been set for the intial volume		
 				if((!is_numeric($initial_volume)) || ($initial_volume < 0)){
-					AppController::getInstance()->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 						
 				$total_used_volume = 0;
@@ -161,7 +153,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 					if(!empty($used_volume)){
 						// Take used volume in consideration only when this one is not empty
 						if((!is_numeric($used_volume)) || ($used_volume < 0)){
-							AppController::getInstance()->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); 
+							AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 						$total_used_volume += $used_volume;
 					}
@@ -250,7 +242,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		// check data structure
 		$tmp_arr_to_check = array_values($aliquot_data);
 		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
-			AppController::getInstance()->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		// Load model
@@ -276,7 +268,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			if(!empty($arr_storage_selection_results['position_y_error'])) $this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
 
 		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
-			AppController::getInstance()->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		return $aliquot_data;
@@ -309,7 +301,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		// check data structure
 		$tmp_arr_to_check = array_values($aliquot_data);
 		if((!is_array($aliquot_data)) || (is_array($tmp_arr_to_check) && isset($tmp_arr_to_check[0]['AliquotMaster']))) {
-			AppController::getInstance()->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 				
 		$barcode = $aliquot_data['AliquotMaster']['barcode'];

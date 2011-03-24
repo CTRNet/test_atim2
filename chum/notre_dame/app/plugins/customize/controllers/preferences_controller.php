@@ -78,7 +78,7 @@ class PreferencesController extends CustomizeAppController {
 				if($this->User->save($this->data, false) && $this->Config->save($this->data, false)){
 					$this->atimFlash('your data has been updated','/customize/preferences/index');
 				} else {
-					$this->redirect( '/pages/err_cust_system_error', NULL, TRUE ); 
+					$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
 			}
 			

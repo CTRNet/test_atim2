@@ -33,10 +33,10 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function add($protocol_control_id) {
-		if ( !$protocol_control_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_control_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		$protocol_control_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
-		if (empty($protocol_control_data) ) { $this->redirect( '/pages/err_pro_system_error', NULL, TRUE ); }
+		if (empty($protocol_control_data) ) { $this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('ProtocolControl.id'=>$protocol_control_id)); 
 		$this->set('atim_menu', $this->Menus->get('/protocol/protocol_masters/index/'));
@@ -67,10 +67,10 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function detail($protocol_master_id) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }		
+		if(empty($protocol_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $protocol_data;
 			
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
@@ -81,10 +81,10 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 
 	function edit( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }			
+		if(empty($protocol_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
 		
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
 		$this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
@@ -113,10 +113,10 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function delete( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
+		if(empty($protocol_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 			
 		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 				

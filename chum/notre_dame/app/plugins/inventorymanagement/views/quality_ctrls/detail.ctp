@@ -32,7 +32,7 @@
 	// 2- TESTED ALIQUOTS DATA
 		
 	$final_atim_structure = $structure_for_tested_aliquots; 
-	$final_options = array('type' => 'index', 'data' => $tested_aliquots_data, 'links' => $structure_links, 'settings' => array('header' => __('tested aliquots', null), 'separator' => true));
+	$final_options = array('type' => 'index', 'data' => $tested_aliquots_data, 'links' => $structure_links, 'settings' => array('header' => __('tested aliquots', null)));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('tested_aliquots');

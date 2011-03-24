@@ -266,7 +266,7 @@ class ShellHelper extends Helper {
 							if($menu_item['Menu']['at'] && $menu_item['Menu']['use_summary']){
 								$fetched_summary = $this->fetchSummary($menu_item['Menu']['use_summary'], $options);
 								$summaries[] = $fetched_summary['long'];
-								$menu_item['Menu']['use_summary'] = $fetched_summary['short'];
+								$menu_item['Menu']['use_summary'] = isset($fetched_summary['page_title']) ? $fetched_summary['page_title'] : "";
 							}
 							
 							if($menu_item['Menu']['at']){
@@ -477,11 +477,15 @@ class ShellHelper extends Helper {
 							}
 							$result_str .= $untranslated ? '<span class="untranslated">'.$part.'</span>' : $part;
 							if($total_length > $max_length){
+								$result['page_title'] = $result_str;
 								$result_str = '<span class="incompleteMenuTitle" title="'.htmlentities(implode("", $parts), ENT_QUOTES).'">'.$result_str.'</span>';
 								break;
 							}
 						}
 						$result['short'] = $result_str;
+						if(!isset($result['page_title'])){
+							$result['page_title'] = $result_str;
+						}
 					}else{
 						$result['short'] = false;
 					}
