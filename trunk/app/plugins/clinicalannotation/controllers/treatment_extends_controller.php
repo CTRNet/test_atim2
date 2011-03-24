@@ -14,14 +14,14 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	
 	function listall($participant_id, $tx_master_id) {
 		if (( !$participant_id ) && ( !$tx_master_id )) { 
-			$this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 		}
 				
 		// Get treatment Master data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		
 		if(empty($tx_master_data)) {
-			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 			return;
@@ -47,12 +47,12 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function detail($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
-			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 			return;
@@ -63,7 +63,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		// Get extend data
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $tx_extend_data;
 		
 		// Set form alias and alias
@@ -76,12 +76,12 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function add($participant_id, $tx_master_id) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
-			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 			return;
@@ -112,12 +112,12 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function edit($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
-			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 			return;
@@ -128,7 +128,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		// Get extend data
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
 		
 		// Set form alias and menu data
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
@@ -153,12 +153,12 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function delete($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
-			$this->redirect( '/pages/err_clin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of treatment', '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 			return;
@@ -169,7 +169,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		// Get extend data
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }			
+		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
 		
 		$arr_allow_deletion = $this->allowTrtExtDeletion($tx_extend_id, $tx_master_data['TreatmentControl']['extend_tablename']);
 			

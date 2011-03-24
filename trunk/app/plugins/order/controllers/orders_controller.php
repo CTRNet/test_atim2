@@ -71,12 +71,12 @@ class OrdersController extends OrderAppController {
 	}
   
 	function detail( $order_id ) {
-  		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+  		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 	
 		// MANAGE DATA
 		
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 				
 		// Setorder data
 		$this->set('order_data', $order_data);
@@ -99,12 +99,12 @@ class OrdersController extends OrderAppController {
 	}
 
 	function edit( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -138,12 +138,12 @@ class OrdersController extends OrderAppController {
 	}
   
 	function delete($order_id) {
-    	if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+    	if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
     	
 		// MANAGE DATA
 		
  		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->allowOrderDeletion($order_id);

@@ -52,12 +52,12 @@ class ParticipantsController extends ClinicalannotationAppController {
 	}
 
 	function profile( $participant_id ) {
-		if (!$participant_id) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (!$participant_id) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		
 		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $participant_data;
 		
 		// Set data for identifier list
@@ -108,11 +108,11 @@ class ParticipantsController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $participant_id ) {
-		if (!$participant_id) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (!$participant_id) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
@@ -140,11 +140,11 @@ class ParticipantsController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $participant_data;
 
 		$arr_allow_deletion = $this->allowParticipantDeletion($participant_id);
@@ -307,7 +307,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function batchEdit(){
 		if(empty($this->data)){
-			$this->redirect('/pages/err_clin_no_data', null, true);
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		if(isset($this->data['Participant']['id']) && is_array($this->data['Participant']['id'])){
 			//display
@@ -332,7 +332,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 			}
 			
 		}else{
-			$this->redirect('/pages/err_clin_no_data', null, true);
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
 }

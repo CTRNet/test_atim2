@@ -81,7 +81,7 @@ class LabBookMaster extends LabBookAppModel {
 					}
 				}else{
 					//data to sync not found
-					AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+					AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 				if($extract){
 					$data = $data[0];
@@ -147,7 +147,7 @@ class LabBookMaster extends LabBookAppModel {
 		$realiquotings_list = $Realiquoting->find('all', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));		
 		foreach($realiquotings_list as $key => $realiquoting_data) {
 			if(!isset($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']])){
-				AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true);
+				AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			$realiquotings_list[$key] = array_merge($sample_master_from_ids[$realiquoting_data['AliquotMaster']['sample_master_id']], $realiquoting_data);
 		}
@@ -162,7 +162,7 @@ class LabBookMaster extends LabBookAppModel {
 		
 		if(empty($lab_book_detail)) {
 			$lab_book = $this->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-			if(empty($lab_book)) { AppController::getInstance()->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); }		
+			if(empty($lab_book)) { AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 			$lab_book_detail = $lab_book['LabBookDetail'];
 		}
 		
@@ -186,12 +186,12 @@ class LabBookMaster extends LabBookAppModel {
 		foreach($derivatives_list as $sample_to_update) {
 			$SampleMaster->id = $sample_to_update['SampleMaster']['id'];
 			if(!$SampleMaster->save(array('SampleMaster' => $lab_book_detail, 'SampleDetail' => $lab_book_detail), false)) { 
-				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			
 			$DerivativeDetail->id = $sample_to_update['DerivativeDetail']['id'];	
 			if(!$DerivativeDetail->save(array('DerivativeDetail' => $lab_book_detail), false)) { 
-				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 		}
 
@@ -201,7 +201,7 @@ class LabBookMaster extends LabBookAppModel {
 		foreach($realiquotings_list as $realiquoting_to_update) {
 			$Realiquoting->id = $realiquoting_to_update['Realiquoting']['id'];
 			if(!$Realiquoting->save(array('Realiquoting' => $lab_book_detail), false)) { 
-				AppController::getInstance()->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 		}
 	}

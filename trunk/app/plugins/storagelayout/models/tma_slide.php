@@ -50,7 +50,7 @@ class TmaSlide extends StoragelayoutAppModel {
 			if(!empty($arr_storage_selection_results['position_y_error'])) $this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
 
 		} else if ((array_key_exists('storage_coord_x', $tma_slide_data['TmaSlide'])) || (array_key_exists('storage_coord_y', $tma_slide_data['TmaSlide']))) {
-			AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		return $tma_slide_data;
