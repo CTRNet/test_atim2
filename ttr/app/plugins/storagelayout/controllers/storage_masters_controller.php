@@ -364,32 +364,51 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * plus both aliquots and TMA slides stored into those storages starting from a specific parent storage.
 	 * 
 	 * @param $storage_master_id Storage master id of the studied storage that will be used as tree root.
+	 * @param int $is_ajax
 	 * 
 	 * @author N. Luc
 	 * @since 2007-05-22
 	 * @updated A. Suggitt
 	 */
 	 
-	function contentTreeView($storage_master_id = NULL) {
-		// MANAGE STORAGE DATA
+	function contentTreeView($storage_master_id = 0, $is_ajax = false){
+		if($is_ajax){
+			$this->layout = 'ajax';
+			Configure::write('debug', 0);
+		}
+		$this->set("is_ajax", $is_ajax);
 		
+		// MANAGE STORAGE DATA
 		// Get the storage data
 		$storage_data = null;
 		$atim_menu = array();
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_sto_no_data', null, true); }
-			$storage_content = $this->StorageTreeView->find('threaded', array('conditions' => array('StorageTreeView.lft >=' => $storage_data['StorageMaster']['lft'], 'StorageTreeView.rght <=' => $storage_data['StorageMaster']['rght']), 'contain' => array('AliquotMaster', 'TmaSlide' => array('Block')), 'recursive' => '2'));
-			$storage_content = $this->formatStorageTreeView($storage_content);
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
+			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+			$tree_data = array_merge($tree_data, $aliquots);
+			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
-			$storage_content = $this->StorageMaster->find('threaded', array('order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '-1'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		}
-		
-		$this->data = $storage_content;
+		$ids = array();
+		foreach($tree_data as $data_unit){
+			if(isset($data_unit['StorageMaster'])){
+				$ids[] = $data_unit['StorageMaster']['id'];
+			}
+		}
+		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
+		foreach($tree_data as &$data_unit){
+			//only storages child interrests us here
+			$data_unit['children'] = isset($data_unit['StorageMaster']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
+		}
+		$this->data = $tree_data;
 						
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -419,50 +438,11 @@ class StorageMastersController extends StoragelayoutAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }				
+		if($hook_link){ 
+			require($hook_link);
+		}				
 	}		
 	
-	/**
-	 * Build/format a nested array for tree view gathering the data linked to 
-	 *  - a root storage 
-	 *  - plus all direct/indirect children storages 
-	 *  - plus all TMAs and aliquots contained into the root and children storages.
-	 * 
-	 * @param $unformatted_storage_tree_view Unformatted storage nested array.
-	 * 
-	 * @return The completed nested array
-	 * 
-	 * @author N. Luc
-	 * @since 2009-09-13
-	 */
-	
-	function formatStorageTreeView($unformatted_storage_tree_view) {
-		$formatted_data = array();
-		
-		foreach ($unformatted_storage_tree_view as $key => $new_storage) {
-			$formatted_data[$key]['StorageMaster'] = $new_storage['StorageTreeView'];
-			// recursive first on existing MODEL CHILDREN
-			if (isset($new_storage['children']) && count($new_storage['children'])) {
-				$formatted_data[$key]['children'] = $this->formatStorageTreeView($new_storage['children']);
-			}
-			
-			// Add OUTSIDE MODEL data and append as CHILDREN
-					
-			// 1-Add storage aliquots
-			foreach ($new_storage['AliquotMaster'] as $aliquot) { 
-				$formatted_data[$key]['children'][]['AliquotMaster'] = $aliquot; 
-			}				
-			
-			// 2-Add storage TMA slides
-			foreach ($new_storage['TmaSlide'] as $slide) {
-				$formattted_slide = array('TmaSlide'=> $slide, 'Generated' => array());
-				$formattted_slide['Generated']['tma_block_identification'] = $slide['Block']['barcode'];
-				$formatted_data[$key]['children'][] = $formattted_slide; 
-			}
-		}
-		
-		return $formatted_data;
-	}
 	
 	/**
 	 * Display the content of a storage into a layout.
