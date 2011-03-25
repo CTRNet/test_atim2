@@ -7,10 +7,6 @@
 			'StorageMaster' => 'StorageMaster',
 			'AliquotMaster' => 'AliquotMaster',
 			'TmaSlide' => 'TmaSlide'
-		),
-		'columns' => array(
-			1	=> array('width' => '30%'),
-			10	=> array('width' => '70%')
 		)
 	);
 	
@@ -34,7 +30,7 @@
 					'link' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/1',
 					'icon' => 'storage'),
 				'access to all data' => array(
-					'link'=> '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/',
+					'link' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%/',
 					'icon' => 'access_to_data'
 				)
 			),
@@ -56,6 +52,9 @@
 					'icon' => 'access_to_data'
 				)
 			)
+		),
+		'tree_expand' => array(
+			'StorageMaster' => '/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%/1/'
 		),
 		'bottom' => $bottom,		
 		'ajax' => array(
@@ -85,11 +84,13 @@
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
 	
+	if(!$is_ajax){
 ?>
-								
-<script>
-var loadingStr = "<?php echo(__("loading", null)); ?>";
-</script>
+										
+		<script>
+		var loadingStr = "<?php echo(__("loading", null)); ?>";
+		var ajaxTreeView = true;
+		</script>
 <?php 
-echo $javascript->link('treeViewControl')."\n";
+	}
 ?>

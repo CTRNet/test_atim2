@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'qc_chum_hb',
+		'database' => 'ctrnet_trunk',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

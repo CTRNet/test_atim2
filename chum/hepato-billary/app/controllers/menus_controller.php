@@ -15,53 +15,61 @@ class MenusController extends AppController {
 		}
 	}
 	
-	function index( $set_of_menus=NULL ) {
-		
-		// TOOLS menu, for header
-		$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
-		
+	function index($set_of_menus=NULL){
 		// get ANNOUNCEMENTS for main menu
 		if ( !$set_of_menus ) {
-			$findAll_conditions[] = 'date_start<=NOW()';
-			$findAll_conditions[] = 'date_end>=NOW()';
-			$findAll_conditions[] = '(group_id="0" OR group_id="'.$_SESSION['Auth']['User']['group_id'].'")';
+			$this->set( 'announcements_data', $this->Announcement->find( 'all', array('conditions'=> array(
+					'date_start <=' => now(),
+					'date_end >=' => now(),
+					'group_id' => array(0, $_SESSION['Auth']['User']['group_id'])
+				),
+				'order'=>'date DESC'))
+			);
 		
-			$this->set( 'announcements_data', $this->Announcement->find( 'all', array( 'conditions'=>$findAll_conditions, 'order'=>'date DESC') ) );
-		
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="MAIN_MENU_1" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
+			$menu_data = $this->Menu->find('all',array('conditions'=> array(
+					"Menu.parent_id" => "MAIN_MENU_1",
+					"Menu.flag_active" => 1
+				), 
+				'order'=>'Menu.display_order ASC')
+			);
 			
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
-		}
-		
-		else {
-			$menu_data = $this->Menu->find('all',array('conditions'=>'Menu.parent_id="core_CAN_33" AND Menu.flag_active="1"', 'order'=>'Menu.display_order ASC'));
-			
+		}else if($set_of_menus == "tools"){
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
+						$menu_data = $this->Menu->find('all',array('conditions'=> array(
+					"Menu.parent_id" => "core_CAN_33",
+					"Menu.flag_active" => 1
+				), 
+				'order'=>'Menu.display_order ASC')
+			);
+		}else if($set_of_menus == "datamart"){
+			$menu_data = $this->Menu->find('all',array('conditions'=> array(
+					"Menu.parent_id" => "qry-CAN-1",
+					"Menu.flag_active" => 1
+				), 
+				'order'=>'Menu.display_order ASC')
+			);
+			$this->set( 'atim_menu', $this->Menus->get('/menus/datamart/'));
 		}
 		
-		foreach ( $menu_data as &$current_item ) {
+		foreach($menu_data as &$current_item){
 			$current_item['Menu']['at'] = false;
 			
-			/*
-			if ( Configure::read("debug") ) {
-				$current_item['Menu']['allowed'] = true;
-			} else {
-			*/
-				$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
-				
-				$parts = Router::parse($current_item['Menu']['use_link']);
-				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
-				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-				
-				$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
-			// }
+			$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
 			
+			$parts = Router::parse($current_item['Menu']['use_link']);
+			$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
+			$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+			$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+			
+			$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
 		}
 		
 		$this->set( 'menu_data', $menu_data );
 		
-		if ( $set_of_menus ) $this->render($set_of_menus);
+		if ($set_of_menus ){
+			$this->render($set_of_menus);
+		}
 	}
 	
 	function update() {

@@ -37,5 +37,5 @@
 		</table>
 	';
 	
-	$structures->build( $atim_structure, array( 'type'=>'edit', 'links'=>$structure_links, 'extras'=>array($extras) ) );
+	$structures->build($atim_structure, array( 'type'=>'edit', 'links'=>$structure_links, 'extras' => $extras));
 ?>

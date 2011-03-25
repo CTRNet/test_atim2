@@ -8,7 +8,7 @@
 	$structure_override = array();
 	if(isset($is_ccl_ajax)){
 		$structure_links = array('radiolist' => array("ClinicalCollectionLink.collection_id" => "%%ViewCollection.collection_id%%"));
-		$final_options = array('type' => 'radiolist', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('pagination' => false, 'actions' => false));
+		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('pagination' => false, 'actions' => false));
 		if(isset($overflow)){
 			?>
 			<ul class="error">

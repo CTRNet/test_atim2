@@ -20,17 +20,10 @@ class SopMaster extends SopAppModel
 			$result = $this->find('first', array('conditions'=>array('SopMaster.id'=>$variables['SopMaster.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
-					'title'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
-					
-					'description'	=>	array(
-						__('version', TRUE) 	=> __($result['SopMaster']['version'], TRUE),
-						__('status', TRUE)  	=> __($result['SopMaster']['status'], TRUE),
-						__('expiry date', TRUE)	=> __($result['SopMaster']['expiry_date'], TRUE),
-						__('notes', TRUE)	    => __($result['SopMaster']['notes'], TRUE)
-					)
-				)
+				'menu'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
+				'title'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
+				'data'			=> $result,
+				'structure alias'=>'sopmasters'
 			);
 		}
 		
@@ -41,9 +34,6 @@ class SopMaster extends SopAppModel
 	 * Get permissible values array gathering all existing sops developped for collections.
 	 * To Develop
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => '', 'default' => '')
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -56,9 +46,6 @@ class SopMaster extends SopAppModel
 	 * Get permissible values array gathering all existing sops developped for samples.
 	 * To Develop
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => '', 'default' => '')
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -71,9 +58,6 @@ class SopMaster extends SopAppModel
 	 * Get permissible values array gathering all existing sops developped for aliquots.
 	 * To Develop
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => '', 'default' => '')
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -86,9 +70,6 @@ class SopMaster extends SopAppModel
 	 * Get permissible values array gathering all existing sops developped for TMA Block.
 	 * To Develop
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => '', 'default' => '')
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -101,9 +82,6 @@ class SopMaster extends SopAppModel
 	 * Get permissible values array gathering all existing sops developped for TMA Block Slide.
 	 * To Develop
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => '', 'default' => '')
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -117,7 +95,7 @@ class SopMaster extends SopAppModel
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('order' => 'SopMaster.title')) as $sop) {
-			$result[] = array('value' => $sop['SopMaster']['id'], 'default' => $sop['SopMaster']['title']);
+			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['title'];
 		}
 		
 		return $result;

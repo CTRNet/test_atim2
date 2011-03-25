@@ -28,7 +28,6 @@
 		'actions'=>false, 
 		
 		'header' => '2- ' . __('related diagnoses group', null),
-		'separator' => true, 
 		'form_top' => false,
 		'form_bottom'=>false
 	);	
@@ -61,7 +60,7 @@
 <?php
 	
 	$final_atim_structure = $atim_structure;
-	$final_options = array('data' => $existing_dx[''], 'type' => 'list', 'settings' => $structure_settings);
+	$final_options = array('data' => $existing_dx[''], 'type' => 'index', 'settings' => $structure_settings);
 
 	$hook_link = $structures->hook('dx_list');
 	if( $hook_link ) { require($hook_link); }  
@@ -87,7 +86,7 @@
 
 <?php
 
-		$final_options = array('data' => $existing_dx[$key], 'type' => 'list', 'settings' => $structure_settings);
+		$final_options = array('data' => $existing_dx[$key], 'type' => 'index', 'settings' => $structure_settings);
 		
 		$hook_link = $structures->hook('dx_list');
 		if( $hook_link ) { require($hook_link); }
