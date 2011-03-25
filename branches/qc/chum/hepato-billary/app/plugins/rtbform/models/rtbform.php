@@ -13,17 +13,10 @@ class Rtbform extends RtbformAppModel
 			$result = $this->find('first', array('conditions'=>array('Rtbform.id'=>$variables['Rtbform.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array( NULL, $result['Rtbform']['frmTitle']),
-					'title'			=>	array( NULL, $result['Rtbform']['frmTitle']),
-					
-					'description'	=>	array(
-						'version' => $result['Rtbform']['frmVersion'],
-						'status'   => $result['Rtbform']['frmStatus'],
-						'category' => $result['Rtbform']['frmCategory'],
-						'created'   =>  $result['Rtbform']['frmCreated']
-					)
-				)
+				'menu'			=>	array( NULL, $result['Rtbform']['frmTitle']),
+				'title'			=>	array( NULL, $result['Rtbform']['frmTitle']),
+				'data'			=> $result,
+				'structure alias'=>'rtbforms'
 			);
 		}
 		

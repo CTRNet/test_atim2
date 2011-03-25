@@ -1,11 +1,9 @@
 <?php
 class MiscIdentifierControl extends ClinicalannotationAppModel {
+	private $confidential_ids = null;
 	
  	/**
 	 * Get permissible values array gathering all existing misc identifier names.
-	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'MiscIdentifierControl.misc_identifier_name', 'default' => (translated string describing misc identifier name))
 	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
@@ -13,16 +11,12 @@ class MiscIdentifierControl extends ClinicalannotationAppModel {
 	 */  	
 	function getMiscIdentifierNamePermissibleValues() {
 		$result = array();
-		$tmp_result = array();
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
-			$tmp_result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
+			$result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
 		}
-		asort($tmp_result);
-		
-		// Build final array
-		foreach($tmp_result as $value => $default) { $result[] = array('value' => $value, 'default' => $default); }
+		asort($result);
 		
 		return $result;
 	}
@@ -30,25 +24,18 @@ class MiscIdentifierControl extends ClinicalannotationAppModel {
  	/**
 	 * Get permissible values array gathering all existing misc identifier names.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'MiscIdentifierControl.id', 'default' => (translated string describing misc identifier name))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
 	 */  	
 	function getMiscIdentifierNamePermissibleValuesFromId() {
 		$result = array();
-		$tmp_result = array();
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
-			$tmp_result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
+			$result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name'], true);
 		}
-		asort($tmp_result);
-			
-		// Build final array
-		foreach($tmp_result as $value => $default) { $result[] = array('value' => $value, 'default' => $default); }
+		asort($result);
 		
 		return $result;
 	}
@@ -56,28 +43,32 @@ class MiscIdentifierControl extends ClinicalannotationAppModel {
  	/**
 	 * Get permissible values array gathering all existing misc identifier abreviation.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'MiscIdentifierControl.misc_identifier_name_abbrev', 'default' => (translated string describing misc identifier name abreviation))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
 	 */  	
 	function getMiscIdentifierNameAbrevPermissibleValues() {
 		$result = array();
-		$tmp_result = array();
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
-			$tmp_result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev'], true);
+			$result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev'], true);
 		}
-		asort($tmp_result);
-		
-		// Build final array
-		foreach($tmp_result as $value => $default) { $result[] = array('value' => $value, 'default' => $default); }
-		
+		asort($result);
+
 		return $result;
-	}	
+	}
+
+	function getConfidentialIds(){
+		if($this->confidential_ids == null){
+			$misc_controls = $this->find('all', array('fields' => array('MiscIdentifierControl.id'), 'conditions' => array('flag_confidential' => 1)));
+			$this->confidential_ids = array();
+			foreach($misc_controls as $misc_control){
+				$this->confidential_ids[] = $misc_control['MiscIdentifierControl']['id'];
+			}
+		}
+		return $this->confidential_ids;
+	}
 	
 }
 

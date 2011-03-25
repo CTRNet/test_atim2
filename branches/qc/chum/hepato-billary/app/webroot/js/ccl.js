@@ -8,12 +8,14 @@ function initCcl(){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
 		});
-		$("#popup").popup('close');
+		if(popupLoaded){
+			$("#popup").popup('close');
+		}
 		$("#collection_loading").show();
 		$("#collection_frame").html("");
 		return false;
 	};
-	
+
 	$("#collection_new").attr("checked", true);
 	$("#collection_search").click(function(){
 		$("#collection_search").attr("checked", false);
@@ -23,9 +25,7 @@ function initCcl(){
 		}else{
 			$.get(root_url + "/inventorymanagement/collections/index/true", null, function(data){
 				$("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
-				$("#popup .datepicker").each(function(){
-					initDatepicker(this);
-				});
+				initDatepicker("#popup .datepicker");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
 				$("#popup form").append("" +

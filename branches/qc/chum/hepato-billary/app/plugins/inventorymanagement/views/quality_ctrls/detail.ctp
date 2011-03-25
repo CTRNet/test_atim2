@@ -5,7 +5,7 @@
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
-			'delete'=>'/inventorymanagement/aliquot_masters/deleteAliquotUse/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/%%AliquotUse.id%%/qualitycontrol/%%QualityCtrl.id%%/'
+			'delete'=>'/inventorymanagement/quality_ctrls/deleteTestedAliquot/'.$atim_menu_variables['QualityCtrl.id'].'/%%AliquotMaster.id%%/quality_controls_details/'
 		),
 		'bottom'=>array(
 			'edit' => '/inventorymanagement/quality_ctrls/edit/'
@@ -32,7 +32,7 @@
 	// 2- TESTED ALIQUOTS DATA
 		
 	$final_atim_structure = $structure_for_tested_aliquots; 
-	$final_options = array('type' => 'index', 'data' => $tested_aliquots_data, 'links' => $structure_links, 'settings' => array('header' => __('tested aliquots', null), 'separator' => true));
+	$final_options = array('type' => 'index', 'data' => $tested_aliquots_data, 'links' => $structure_links, 'settings' => array('header' => __('tested aliquots', null)));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook('tested_aliquots');

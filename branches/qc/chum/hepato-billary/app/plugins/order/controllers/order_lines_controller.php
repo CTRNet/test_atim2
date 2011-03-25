@@ -11,12 +11,12 @@ class OrderLinesController extends OrderAppController {
 	var $paginate = array('OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 
 	function listall( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 	
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// Set data
 		$this->setDataForOrderLinesList($order_id);
@@ -35,13 +35,13 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function add( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }		
+		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -59,7 +59,7 @@ class OrderLinesController extends OrderAppController {
 		if ( !empty($this->data) ) {
 			// Set sample and aliquot control id
 			$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
-			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_order_system_error', null, true); }
+			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 			$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
 			$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
 				
@@ -83,12 +83,12 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function edit( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// Set value for 'FunctionManagement.sample_aliquot_control_id' field
 		$order_line_data['FunctionManagement']['sample_aliquot_control_id'] = $order_line_data['OrderLine']['sample_control_id'] . '|' . (empty($order_line_data['OrderLine']['aliquot_control_id'])? '': $order_line_data['OrderLine']['aliquot_control_id']);
@@ -110,7 +110,7 @@ class OrderLinesController extends OrderAppController {
 		} else {
 			// Set sample and aliquot control id
 			$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
-			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_order_system_error', null, true); }
+			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 			$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
 			$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
 				
@@ -131,12 +131,12 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function detail( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/pages/err_order_no_data', null, true ); }
+		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// Add completion information
 		$shipped_counter = 0;
@@ -164,13 +164,13 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function delete( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_order_funct_param_missing', null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
 		if(empty($order_line_data)){
-			$this->redirect( '/pages/err_order_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 
 		// Check deletion is allowed

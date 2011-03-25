@@ -19,7 +19,7 @@ class AdhocSavedController extends DatamartAppController {
 	
 	function index( $type_of_list = 'all' ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
 		$this->redirect( '/datamart/adhocs/index/saved' );
 		exit();
@@ -27,7 +27,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 	
 	function add( $type_of_list='all', $adhoc_id=0  ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
 		$new_AdhocSaved_data = array(
 			'AdhocSaved'	=> array(
@@ -45,7 +45,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 	
 	function search( $adhoc_id=0, $saved_id=0 ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
@@ -77,7 +77,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 	
 	function results( $adhoc_id=0, $saved_id=0 ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
@@ -120,11 +120,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 		// do search for RESULTS, using THIS->DATA if any
 		
 			// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
-			
-			$model_to_import = ( $adhoc['Adhoc']['plugin']? $adhoc['Adhoc']['plugin'].'.' : '' ).$adhoc['Adhoc']['model'];
-			App::import('Model',$model_to_import);
-			
-			$this->ModelToSearch = new $adhoc['Adhoc']['model'];
+			$this->ModelToSearch = AppModel::atimNew($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 				
 			// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
 			$criteria = array();
@@ -246,7 +242,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 	
 	function edit( $adhoc_id=0, $saved_id=0 ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
 		$this->set( 'atim_menu', $this->Menus->get('/datamart/adhocs/index') );
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'saved', 'Adhoc.id'=>$adhoc_id, 'AdhocSaved.id'=>$saved_id ) );
@@ -274,7 +270,7 @@ $this->redirect('/pages/err_datamart_system_error', null, true);
 	// remove IDs from Lookup
 	function delete( $adhoc_id=0, $saved_id=0 ) {
 //TODO: to validate
-$this->redirect('/pages/err_datamart_system_error', null, true);
+$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 
 		$result = $this->AdhocSaved->query('DELETE FROM datamart_adhoc_saved WHERE id="'.$saved_id.'" AND adhoc_id="'.$adhoc_id.'" AND user_id="'.$_SESSION['Auth']['User']['id'].'"');
 		$this->atimFlash( 'Query is no longer one of your saved searches.', '/adhoc_saved/index/saved' );

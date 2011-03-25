@@ -1,14 +1,13 @@
 <?php 
 	
 	// display adhoc DETAIL
-		
 	$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
-	
+
 	// display adhoc RESULTS form
 	$structure_links = array(
-		'top'=>'/datamart/batch_sets/process/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
+		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'%%'
+			$data_for_detail['BatchSet']['checklist_model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	
@@ -17,27 +16,32 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$structures->build( $atim_structure_for_results, array('type'=>'checklist', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false), 'links'=>$structure_links) );
+	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false), 'links'=>$structure_links) );
 	
 	// display adhoc-to-batchset ADD form
 	$structure_links = array(
 		'top'=>'#',
 		'bottom'=>array(
-			'edit'=>'/datamart/batch_sets/edit/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
-			'delete'=>'/datamart/batch_sets/delete/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
-			'list'=>'/datamart/batch_sets/index/'.$atim_menu_variables['Param.Type_Of_List']
+			'edit'		=> '/datamart/batch_sets/edit/'.$atim_menu_variables['BatchSet.id'],
+			'delete'	=> '/datamart/batch_sets/delete/'.$atim_menu_variables['BatchSet.id'],
+			'list'		=> '/datamart/batch_sets/index/'
 		)
 	);
-	
-	$structure_override = array(
-		'BatchSet.process' => $batch_set_processes
-	);
+	if($data_for_detail['BatchSet']['flag_use_query_results']){
+		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
+				"cast to a new generic batch set" 	=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
+				"cast into a generic batch set"		=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
+			)), $structure_links['bottom']);
+	}
 	
 	?>
 		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>
 	<?php 
-	
-	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'override'=>$structure_override, 'data'=>array()) );
+	$extras = array();
+	if(isset($datamart_structure_id)){
+		$extras = "<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>";
+	}
+	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => $extras));
 		
 ?>
 <div id="popup" class="std_popup question">
@@ -56,9 +60,16 @@
 </div>
 
 <script type="text/javascript">
-var batchSetControls = true;
-var batchSetFormActionMsgSelectAnOption = "<?php __("select an option for the field process batch set") ?>";
-var batchSetFormActionMsgSelectAtLeast = "<?php __("check at least one element from the batch set") ?>";
+var datamartActions = true;
+var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
+var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";
 </script>
-<?php 
-echo $javascript->link('batchset')."\n";
+<a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php __("action"); ?></span></a>
+<div class="hidden ui-widget">
+<input id="search_for" type="hidden" name="data[Browser][search_for]"/>
+<ul class='actionDropdown'>
+	<?php 
+	DatamartAppController::printList($actions, "", $this->webroot);
+	?>
+</ul>
+</div>

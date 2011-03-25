@@ -5,7 +5,11 @@
 	
 	// If a parent sample is defined then set the 'Show Parent' button
 	$show_parent_link = null;
-	if(!empty($parent_sample_master_id)) { $show_parent_link = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $parent_sample_master_id; }
+	if(!empty($parent_sample_master_id)) { 
+		$show_parent_link = array(
+			'link'=>'/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $parent_sample_master_id,
+			'icon'=>'sample'); 
+	}
 	
 	// Create array of derivative type that could be created from studied sample for the ADD button
 	$add_derivatives = array();
@@ -17,7 +21,7 @@
 	// Create array of aliquot type that could be created for the studied sample for the ADD button 
 	$add_aliquots = array();	
 	foreach($allowed_aliquot_type as $aliquot_control) {
-		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
+		$add_aliquots[__($aliquot_control['AliquotControl']['aliquot_type'],true)] = '/inventorymanagement/aliquot_masters/add/' . $atim_menu_variables['SampleMaster.id'] . '/' . $aliquot_control['AliquotControl']['id'];
 	}
 	ksort($add_aliquots);
 	
@@ -27,9 +31,17 @@
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'add derivative' => $add_derivatives,
 			'add aliquot' => $add_aliquots,
-			'see parent sample' => $show_parent_link,
+			'see parent sample' => ($is_tree_view_detail_form? null : $show_parent_link),
+			'see lab book' => null,
 			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
 		);
+		if(isset($lab_book_master_id)) {
+			$structure_links['bottom']['see lab book'] = array(
+				'link'=>'/labbook/lab_book_masters/detail/'.$lab_book_master_id,
+				'icon'=>'lab_book');
+		} else {
+			unset($structure_links['bottom']['see lab book']);
+		}
 	}
 	
 	// Clean up structure link
@@ -38,10 +50,7 @@
 	if(empty($structure_links['bottom']['see parent sample'])) unset($structure_links['bottom']['see parent sample']);
 			
 	if($is_tree_view_detail_form) {
-		// Detail form displayed in tree view: Add button to access all sample data
-		$structure_links['bottom']['access to all data'] = array(
-			'link'=> '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
-			'icon' => 'access_to_data');
+		// Detail form displayed in tree view
 	} else {
 		// General detail form display
 		$search_type_links = array();
@@ -54,7 +63,7 @@
 
 	// Set override
 	$structure_override = array();
-	$structure_override['SampleMaster.parent_id'] = $parent_sample_data_for_display;
+	$dropdown_options = array('SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''));
 	
 	// BUILD FORM
 
@@ -65,7 +74,7 @@
 		// 1- SAMPLE DETAIL	
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'links' => $structure_links, 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'links' => $structure_links, 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -81,7 +90,7 @@
 		// 1- SAMPLE DETAIL	
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'settings' => array('actions' => false), 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -97,7 +106,7 @@
 		$structure_override = array();
 		
 		$final_atim_structure = $aliquots_listall_structure; 
-		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null), 'separator' => true));
+		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null)));
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquots');

@@ -65,79 +65,6 @@ class InventorymanagementAppController extends AppController {
 		}
 		return $this->AliquotControl->getPermissibleAliquotsArray($sample_control_id);
 	}
-
-	/**
-	 * Get Aliquot data to display into aliquots list view:
-	 *   - Will poulate fields
-	 *         . GeneratedParentSample.*
-	 *         . Generated.aliquot_use_counter 
-	 *         . Generated.realiquoting_data 
-	 *
-	 *	@param $criteria Aliquot Search Criteria
-	 *
-	 * @return aliquot_data
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function getAliquotsListData($criteria) {
-		
-		// Search Data
-		$has_many_details = array(
-			'hasMany' => array(
-				'RealiquotedParent' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'child_aliquot_master_id'),
-				'ChildrenAliquot' => array(
-					'className' => 'Inventorymanagement.Realiquoting',
-					'foreignKey' => 'parent_aliquot_master_id')));
-		
-		$this->AliquotMaster->bindModel($has_many_details, false);	
-		$working_data = $this->paginate($this->AliquotMaster, $criteria);
-		$this->AliquotMaster->unbindModel(array('hasMany' => array('RealiquotedParent', 'ChildrenAliquot')), false);
-				
-		// Manage Data
-		$key_to_sample_parent_id = array();
-		foreach($working_data as $key => $aliquot_data) {
-			// Set aliquot use
-			$working_data[$key]['Generated']['aliquot_use_counter'] = sizeof($aliquot_data['AliquotUse']);
-			
-			// Set realiquoting data
-			$realiquoting_value = 0;
-			$realiquoting_value += (sizeof($aliquot_data['ChildrenAliquot']))? 1: 0;
-			$realiquoting_value += (sizeof($aliquot_data['RealiquotedParent']))? 2: 0;
-			
-			switch($realiquoting_value) {
-				case '0':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'n/a';
-					break;
-				case '1':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent';
-					break;
-				case '2':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'child';
-					break;
-				case '3':
-					$working_data[$key]['Generated']['realiquoting_data'] = 'parent/child';
-					break;	
-			}
-			
-			// Build GeneratedParentSample
-			$working_data[$key]['GeneratedParentSample'] = array();
-			if(!empty($aliquot_data['SampleMaster']['parent_id'])) { $key_to_sample_parent_id[$key] = $aliquot_data['SampleMaster']['parent_id']; }
-		}
-				
-		// Add GeneratedParentSample Data
-		$parent_sample_data = $this->SampleMaster->atim_list(array('conditions' => array('SampleMaster.id' => $key_to_sample_parent_id), 'recursive' => '-1'));
-		foreach($key_to_sample_parent_id as $key => $parent_id) {
-			if(!isset($parent_sample_data[$parent_id])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-			$working_data[$key]['GeneratedParentSample'] = $parent_sample_data[$parent_id]['SampleMaster'];
-		}
-			
-		return $working_data;
-	}
 	
 	/**
 	 * Return the spent time between 2 dates. 
@@ -232,7 +159,13 @@ class InventorymanagementAppController extends AppController {
 		$spent_time_msg = '';
 		if(!empty($spent_time_data)) {	
 			if(!is_null($spent_time_data['message'])) {
-				$spent_time_msg = ($spent_time_data['message'] == '0')? $spent_time_data['message'] : __($spent_time_data['message'], TRUE); 
+				if($spent_time_data['message'] == '0') {
+					$spent_time_msg = $spent_time_data['message'];
+				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
+					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
+				} else {
+					$spent_time_msg = __($spent_time_data['message'], TRUE);
+				}
 			} else {
 				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
 								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 
