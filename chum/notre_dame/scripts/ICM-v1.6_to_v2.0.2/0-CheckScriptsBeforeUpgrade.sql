@@ -110,6 +110,7 @@ FROM reproductive_histories;
 
 -- check #16 : Only 4 slides are linked to a block
 SELECT DISTINCT `ad_block_id` FROM `ad_tissue_slides`;
+
 SELECT 
 CONCAT(bl_mst.aliquot_type, ' ', bl_mst.barcode, ' - ', bl_mst.aliquot_label) AS block, 
 '=>',
@@ -148,6 +149,7 @@ WHERE aliq.aliquot_label LIKE 'LB-PBMC%';
 -- -> All NULL.
 
 
-
-
+-- check #20
+SELECT count(*) FROM `global_lookups` WHERE `alias` LIKE 'qc_consent_form_version_date';
+-- -> 48
 

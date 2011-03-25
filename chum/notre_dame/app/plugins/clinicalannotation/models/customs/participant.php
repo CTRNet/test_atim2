@@ -14,13 +14,18 @@ class ParticipantCustom extends Participant {
 				'hasMany' => array('MiscIdentifier' => array(
 					'className' => 'Clinicalannotation.MiscIdentifier',
 					'foreignKey' => 'participant_id',
-					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab%'"))));
+					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab'"))));
 			$this->bindModel($has_many_details, false);			
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
 
 			$result[0]['identifiers'] = "";
+			$temp_array = array();
 			foreach($result['MiscIdentifier'] as $mi){
-				$result[0]['identifiers'] .= __($mi['identifier_name'], true)." - ".$mi['identifier_value']."<br/>";
+				$temp_array[__($mi['identifier_name'], true)] = $mi['identifier_value'];	
+			}
+			asort($temp_array);
+			foreach($temp_array as $key => $value){
+				$result[0]['identifiers'] .= $key." - ".$value."<br/>";
 			}
 			//------------------------------
 			
