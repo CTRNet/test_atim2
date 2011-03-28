@@ -627,7 +627,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('the barcode [%s] has already been recorded', 'The barcode [%s] has already been recorded!', 'Le barcode [%s] a déjà été enregistré!'),
 ('no aliquot has been defined as source aliquot', 'No aliquot has been defined as source aliquot!', 'Aucun aliquot n''a été défini comme aliquot source!'),
 	('you can not record barcode [%s] twice', 'You can not record barcode [%s] twice!', 'Vous ne pouvez enregistrer le barcode [%s] deux fois!'),
-	('see line %s', 'See ligne(s) %s!', 'Voir ligne(s) %s!');	 	
+	('see line %s', 'See line(s) %s', 'Voir ligne(s) %s');	 	
 
 DELETE FROM `structure_validations`
 WHERE `rule` LIKE 'custom,/^(?!err!).*$/';
@@ -1077,12 +1077,12 @@ UNION ALL
 
 SELECT 
 CONCAT(realiq.id, 2) AS id,
-parent.id AS aliquot_master_id,
+aliq.id AS aliquot_master_id,
 'realiquoted to' AS use_definition, 
 child.barcode AS use_code,
 '' AS use_details,
 realiq.parent_used_volume AS used_volume,
-parent.aliquot_volume_unit,
+aliq.aliquot_volume_unit,
 realiq.realiquoting_datetime AS use_datetime,
 realiq.realiquoted_by AS used_by,
 realiq.created,
@@ -1090,9 +1090,9 @@ CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.c
 samp.id AS sample_master_id,
 samp.collection_id AS collection_id
 FROM realiquotings AS realiq
-INNER JOIN aliquot_masters AS parent ON parent.id = realiq.parent_aliquot_master_id AND parent.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
 INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = parent.sample_master_id  AND samp.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE realiq.deleted != 1
 
 UNION ALL
@@ -2272,7 +2272,7 @@ AND tablename = 'datamart_batch_sets'
 AND field = 'flag_use_query_results'
 AND language_label = 'custom query';
 
-INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) 
 VALUES
 ('select batchsets to delete', 'Select Batchsets to Delete', 'Sélectionner les lots de données à supprimer'),
 ('result based on a specific query', 'Custom Query Used', 'Utilisation requête spécifique'),
@@ -2324,19 +2324,28 @@ UPDATE structure_fields
 SET model = 'SampleMaster', field = 'parent_sample_type'
 WHERE model = 'GeneratedParentSample' AND field = 'sample_type';
 
-update menus set flag_active = '0' WHERE use_link like '/study/%';
-update menus set flag_active = '1' WHERE use_link like '/study/study_summaries%';
-
-DELETE FROM pages WHERE id LIKE 'err_%_funct_param_missing' AND id NOT LIKE 'err_inv_funct_param_missing';
-UPDATE pages SET id = 'err_plugin_funct_param_missing' WHERE id = 'err_inv_funct_param_missing';
-
-DELETE FROM pages WHERE id LIKE 'err_%_no_data' AND id NOT LIKE 'err_inv_no_data';
-UPDATE pages SET id = 'err_plugin_no_data' WHERE id = 'err_inv_no_data';
-
-DELETE FROM pages WHERE id LIKE 'err_%_record_err' AND id NOT LIKE 'err_inv_record_err';
-UPDATE pages SET id = 'err_plugin_record_err' WHERE id = 'err_inv_record_err';
-
-DELETE FROM pages WHERE id LIKE 'err_%_system_error' AND id NOT LIKE 'err_inv_system_error';
-UPDATE pages SET id = 'err_plugin_system_error' WHERE id = 'err_inv_system_error';
-
 DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='is_problematic' AND model='SampleMaster');
+
+REPLACE INTO i18n (id, en, fr) VALUES
+("blood cell review", "Blood cell review", "Revue des cellules sanguines"),
+("blood_cell_count", "Blood cell count", "Compte des cellules sanguines"),
+("brachytherapy", "Brachytherapy", "Curiethérapie"),
+("deny", "Deny" ,"Refuser"),
+("endometrioid", "Endometrioid", "Endométrioïde"),
+("hispanic", "Hispanic", "Hispanique"),
+("inherit", "Inherit", "Hériter"),
+("serous", "Serous", "Séreux"),
+("slides", "Slides", "Lames"),
+("recurrent", "Recurrent", "Récurrent"),
+("realiquoted parent selection is required", "Realiquoted parent selection is required", "La sélection du parent du réaliquot est requise"),
+("the parent sample is required", "The parent sample is required", "L'échantillon parent est requis"),
+("available aliquot number", "Available aliquot number", "Nombre d'aliquot disponibles"),
+("blood lymph", "Blood lymph", "Lymphocyte du sang"),
+("collection id", "Collection id", "Id de collection"),
+("mould", "Mould", "Moule"),
+("surgical procedure", "Surgical procedure", "Procédure chirurgicale"),
+("tested aliquot", "Tested aliquot", "Aliquot testé"),
+("time", "Time", "Temps"),
+("allow", "Allow", "Permettre"),
+("date_effective", "Date effective", "Date d'entrée en vigueur"),
+("use datetime", "Use datetime", "Horodatage de l'utilisation");
