@@ -1,4 +1,4 @@
-﻿DROP VIEW IF EXISTS view_collections;
+﻿DROP VIEW view_collections;
 CREATE VIEW view_collections AS 
 SELECT 
 col.id AS collection_id,
