@@ -146,8 +146,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				}
 						
 				$total_used_volume = 0;
-				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
-				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+				$view_aliquot_use = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
 				foreach($aliquot_uses as $id => $aliquot_use){
 					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
 					if(!empty($used_volume)){
@@ -182,8 +182,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 			// UPDATE ALIQUOT USE COUNTER	
 		
 			if(is_null($aliquot_uses)) {
-				$AliquotUse = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
-				$aliquot_uses = $AliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+				$view_aliquot_use = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
 			}
 			
 			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);

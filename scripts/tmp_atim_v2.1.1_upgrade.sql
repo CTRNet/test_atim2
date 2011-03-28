@@ -1077,12 +1077,12 @@ UNION ALL
 
 SELECT 
 CONCAT(realiq.id, 2) AS id,
-parent.id AS aliquot_master_id,
+aliq.id AS aliquot_master_id,
 'realiquoted to' AS use_definition, 
 child.barcode AS use_code,
 '' AS use_details,
 realiq.parent_used_volume AS used_volume,
-parent.aliquot_volume_unit,
+aliq.aliquot_volume_unit,
 realiq.realiquoting_datetime AS use_datetime,
 realiq.realiquoted_by AS used_by,
 realiq.created,
@@ -1090,9 +1090,9 @@ CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.c
 samp.id AS sample_master_id,
 samp.collection_id AS collection_id
 FROM realiquotings AS realiq
-INNER JOIN aliquot_masters AS parent ON parent.id = realiq.parent_aliquot_master_id AND parent.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
 INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = parent.sample_master_id  AND samp.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE realiq.deleted != 1
 
 UNION ALL
