@@ -1815,6 +1815,7 @@ INSERT IGNORE INTO  `i18n` (`id` ,`page_id` ,`en` ,`fr`)VALUES ('Lymph node',  '
 
 -- Add is_large field in ad_blocks table and update all forms
 ALTER TABLE `ad_blocks` ADD  `bc_ttr_is_large` TINYINT( 1 ) NOT NULL  DEFAULT '0' AFTER  `deleted_date`;
+ALTER TABLE `ad_blocks_revs` ADD  `bc_ttr_is_large` TINYINT( 1 ) NOT NULL  DEFAULT '0' AFTER  `deleted_date`;
 
 UPDATE structure_fields SET  `tablename`='ad_blocks' WHERE model='AliquotDetail' AND tablename='ad_blocs' AND field='bc_ttr_is_large' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 
