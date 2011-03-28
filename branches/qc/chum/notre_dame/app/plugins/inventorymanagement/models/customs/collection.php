@@ -26,22 +26,18 @@ class CollectionCustom extends Collection{
 		
 		// Get collection samples list
 		$this->SampleMaster->unbindModel(array('hasMany' => array('AliquotMaster'), 'belongsTo' => array('Collection')));
-// Following line does not work when called from clinical_collection_links...
-// $this->SampleMaster->contain('SampleMaster', 'SampleControl', 'SpecimenDetail', 'DerivativeDetail', 'SampleDetail');
 		$collection_samples_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => 'SampleMaster.initial_specimen_sample_id ASC, SampleMaster.sample_category DESC'));
 			
 		// Update collection samples label
-		$sample_master = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
-		
 		$specimens_sample_labels_from_id = array();
 		foreach($collection_samples_list as $new_collection_sample) {	
 			$new_sample_label = null;	
 			if($new_collection_sample['SampleMaster']['sample_category'] == 'specimen') {
-				$new_sample_label = $sample_master->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
+				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
 				$specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['id']] = $new_sample_label;
 			} else {
 				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
-				$new_sample_label = $sample_master->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
+				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
 			}
 						
 			// Save new label

@@ -57,10 +57,9 @@ class SampleMasterCustom extends SampleMaster {
 	
 		if(is_null($bank_participant_identifier) && (strcmp($sample_category, 'specimen') == 0)) {
 			//Sample is a specimen and $bank_participant_identifier is unknown: Get $bank_participant_identifier	
-			App::import('Model', 'Inventorymanagement.ViewCollection');		
-			$ViewCollection = new ViewCollection();
+			$view_collection = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);	
 					
-			$view_collection = $ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
+			$view_collection = $view_collection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 			if(empty($view_collection)) { 
 				$this->redirect('/pages/err_inv_system_error', null, true); 
 			}
@@ -143,6 +142,7 @@ class SampleMasterCustom extends SampleMaster {
 	}	 
 	 
 	function formatParentSampleDataForDisplay($parent_sample_data) {
+pr('obsolete?');exit;
 		$formatted_data = array();
 		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
 			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_label'] . ' / ' . $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
@@ -171,8 +171,7 @@ class SampleMasterCustom extends SampleMaster {
 		
 		if($this->data['SampleMaster']['sample_category'] === 'specimen') {
 			// Load model to control data
-			$lab_type_laterality_match = AppModel::atimNee('Inventorymanagement', 'LabTypeLateralityMatch', true);		
-			$lab_type_laterality_match = new LabTypeLateralityMatch();			
+			$lab_type_laterality_match = AppModel::atimNew('Inventorymanagement', 'LabTypeLateralityMatch', true);		
 			
 			// Get Data
 			if(!array_key_exists('sample_type', $this->data['SampleMaster'])
