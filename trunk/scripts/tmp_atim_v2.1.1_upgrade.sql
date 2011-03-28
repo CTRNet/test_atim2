@@ -2326,3 +2326,26 @@ WHERE model = 'GeneratedParentSample' AND field = 'sample_type';
 
 DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='is_problematic' AND model='SampleMaster');
 
+REPLACE INTO i18n (id, en, fr) VALUES
+("blood cell review", "Blood cell review", "Revue des cellules sanguines"),
+("blood_cell_count", "Blood cell count", "Compte des cellules sanguines"),
+("brachytherapy", "Brachytherapy", "Curiethérapie"),
+("deny", "Deny" ,"Refuser"),
+("endometrioid", "Endometrioid", "Endométrioïde"),
+("hispanic", "Hispanic", "Hispanique"),
+("inherit", "Inherit", "Hériter"),
+("serous", "Serous", "Séreux"),
+("slides", "Slides", "Lames"),
+("recurrent", "Recurrent", "Récurrent"),
+("realiquoted parent selection is required", "Realiquoted parent selection is required", "La sélection du parent du réaliquot est requise"),
+("the parent sample is required", "The parent sample is required", "L'échantillon parent est requis"),
+("available aliquot number", "Available aliquot number", "Nombre d'aliquot disponibles"),
+("blood lymph", "Blood lymph", "Lymphocyte du sang"),
+("collection id", "Collection id", "Id de collection"),
+("mould", "Mould", "Moule"),
+("surgical procedure", "Surgical procedure", "Procédure chirurgicale"),
+("tested aliquot", "Tested aliquot", "Aliquot testé"),
+("time", "Time", "Temps"),
+("allow", "Allow", "Permettre"),
+("date_effective", "Date effective", "Date d'entrée en vigueur"),
+("use datetime", "Use datetime", "Horodatage de l'utilisation");
