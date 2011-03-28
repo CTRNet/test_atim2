@@ -2324,6 +2324,21 @@ UPDATE structure_fields
 SET model = 'SampleMaster', field = 'parent_sample_type'
 WHERE model = 'GeneratedParentSample' AND field = 'sample_type';
 
+update menus set flag_active = '0' WHERE use_link like '/study/%';
+update menus set flag_active = '1' WHERE use_link like '/study/study_summaries%';
+
+DELETE FROM pages WHERE id LIKE 'err_%_funct_param_missing' AND id NOT LIKE 'err_inv_funct_param_missing';
+UPDATE pages SET id = 'err_plugin_funct_param_missing' WHERE id = 'err_inv_funct_param_missing';
+
+DELETE FROM pages WHERE id LIKE 'err_%_no_data' AND id NOT LIKE 'err_inv_no_data';
+UPDATE pages SET id = 'err_plugin_no_data' WHERE id = 'err_inv_no_data';
+
+DELETE FROM pages WHERE id LIKE 'err_%_record_err' AND id NOT LIKE 'err_inv_record_err';
+UPDATE pages SET id = 'err_plugin_record_err' WHERE id = 'err_inv_record_err';
+
+DELETE FROM pages WHERE id LIKE 'err_%_system_error' AND id NOT LIKE 'err_inv_system_error';
+UPDATE pages SET id = 'err_plugin_system_error' WHERE id = 'err_inv_system_error';
+
 DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='is_problematic' AND model='SampleMaster');
 
 REPLACE INTO i18n (id, en, fr) VALUES
