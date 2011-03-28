@@ -13,7 +13,7 @@ if [ "$1" == "ATiM" ]; then
 fi
 		
 echo "*********************************************************"
-echo "****            ICM 1.6 to 2.1 MIGRATION             ****"
+echo "****            ICM 1.6 to 2.2 MIGRATION             ****"
 echo "*********************************************************"
 echo "WARNING: It's assumed you have already run script 0-Check..."
 
@@ -46,6 +46,8 @@ if true; then
 		6-LoadCustomApplicationData_v2.0.2A.sql
 		7-atim_v2.1.0_upgrade.sql
  		8-LoadCustomApplicationData_v2.1.0.sql
+ 		../tmp_atim_v2.1.1_upgrade.sql
+ 		../qc_nd_custom.sql
 		 )
 	
 	for file in ${files[@]} 
@@ -85,6 +87,4 @@ echo "";
 echo "";
 echo "";
 echo "";
-#echo running tmp_full_2.0.2A_script.sql
-#mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_full_2.0.2A_script.sql
 
