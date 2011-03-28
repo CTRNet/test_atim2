@@ -1087,11 +1087,3 @@ INSERT INTO structure_formats ( structure_id , structure_field_id , display_colu
 ((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='other_contacts_if_die' AND language_label='other contacts if deceased' AND type='integer'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1'),
 ((SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report'), (SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='denied' AND language_label='denied' AND type='integer'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
  
-
-
-
-control qualiteé: Le choix appareil ne marche pas
-Aliquot ADN se met a non disponible si on fait un control de qualite
-Pour les aliquots de culture cellulaire: On aimerait un flag pour dire mycoplasme free.
- bug de chantale https://10.52.47.134/ATiM/?from=/clinicalannotation/sample_masters/listall/7313
-
