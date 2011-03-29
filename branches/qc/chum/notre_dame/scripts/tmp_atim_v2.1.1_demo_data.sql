@@ -1151,7 +1151,7 @@ INSERT INTO `order_lines_revs` (`id`, `quantity_ordered`, `min_quantity_ordered`
 --
 
 INSERT INTO `participants` (`id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `dob_date_accuracy`, `marital_status`, `language_preferred`, `sex`, `race`, `vital_status`, `notes`, `date_of_death`, `dod_date_accuracy`, `cod_icd10_code`, `secondary_cod_icd10_code`, `cod_confirmation_source`, `participant_identifier`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL),
+(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'deceased', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL),
 (2, 'Ms.', 'Ryana', 'Blue', '', '1926-06-10', '', '', '', 'f', '', 'alive', '', NULL, '', NULL, NULL, '', 'RRd784', NULL, '2010-09-24 19:30:37', 1, '2010-09-24 19:30:37', 1, 0, NULL),
 (3, 'Ms.', 'Lady', '', 'Green', '1920-12-15', '', '', '', 'f', '', 'deceased', '', NULL, '', NULL, NULL, '', 'qq4213', NULL, '2010-09-24 19:40:11', 1, '2010-09-24 19:40:11', 1, 0, NULL);
 
@@ -1160,8 +1160,8 @@ INSERT INTO `participants` (`id`, `title`, `first_name`, `middle_name`, `last_na
 --
 
 INSERT INTO `participants_revs` (`id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `dob_date_accuracy`, `marital_status`, `language_preferred`, `sex`, `race`, `vital_status`, `notes`, `date_of_death`, `dod_date_accuracy`, `cod_icd10_code`, `secondary_cod_icd10_code`, `cod_confirmation_source`, `participant_identifier`, `last_chart_checked_date`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, 'Ms.', 'Wonder', 'Woman', '', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 13:59:42', 1, 0, NULL, 1, '2010-05-28 13:59:42'),
-(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'dead', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL, 2, '2010-05-28 14:31:51'),
+(1, 'Ms.', 'Wonder', 'Woman', '', '1947-11-03', 'm', '', '', 'f', '', 'deceased', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 13:59:42', 1, 0, NULL, 1, '2010-05-28 13:59:42'),
+(1, 'Ms.', 'Wonder', '', 'Woman', '1947-11-03', 'm', '', '', 'f', '', 'deceased', '', '2008-03-06', 'd', 'C002', NULL, '', 'wwi80', '2010-05-05', '2010-05-28 13:59:42', 1, '2010-05-28 14:31:50', 1, 0, NULL, 2, '2010-05-28 14:31:51'),
 (2, 'Ms.', 'Ryana', 'Blue', '', '1926-06-10', '', '', '', 'f', '', 'alive', '', NULL, '', NULL, NULL, '', 'RRd784', NULL, '2010-09-24 19:30:37', 1, '2010-09-24 19:30:37', 1, 0, NULL, 3, '2010-09-24 19:30:37'),
 (3, 'Ms.', 'Lady', '', 'Green', '1920-12-15', '', '', '', 'f', '', 'deceased', '', NULL, '', NULL, NULL, '', 'qq4213', NULL, '2010-09-24 19:40:11', 1, '2010-09-24 19:40:11', 1, 0, NULL, 4, '2010-09-24 19:40:11');
 
