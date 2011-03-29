@@ -7,7 +7,7 @@
 	// Get Bank linked to this created identifier
 	$bank_model = AppModel::atimNew('Administrate', 'Bank', true);	
 	$bank = $bank_model->find('first', array('conditions' => array('Bank.misc_identifier_control_id' => $misc_identifier_control_id)));
-pr('la');	
+	
 	if(!empty($bank)) {
 		$bank_id = $bank['Bank']['id'];
 		

@@ -159,3 +159,40 @@ UPDATE `structure_permissible_values_custom_controls` SET values_max_length = '2
 
 UPDATE event_controls SET detail_tablename = 'qc_nd_ed_all_procure_lifestyles', form_alias = 'qc_nd_ed_all_procure_lifestyle' 
 WHERE event_type = 'procure';
+
+ALTER TABLE participant_messages
+	MODIFY `due_date` datetime DEFAULT NULL AFTER  `description`;
+ALTER TABLE participant_messages_revs
+	MODIFY `due_date` datetime DEFAULT NULL AFTER  `description`;
+	
+UPDATE structure_formats
+SET `flag_add` = '0',
+`flag_add_readonly` = '0', 
+`flag_edit` = '0', 
+`flag_edit_readonly` = '0', 
+`flag_search` = '0', 
+`flag_search_readonly` = '0', 
+`flag_addgrid` = '0', 
+`flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', 
+`flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', 
+`flag_batchedit_readonly` = '0', 
+`flag_index` = '0', 
+`flag_detail` = '0', 
+`flag_summary` = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE plugin = 'Inventorymanagement' AND field LIKE '%lab_book%');	
+	
+UPDATE menus SET flag_active = '0' WHERE use_link like '/labbook/%';
+
+UPDATE structure_formats SET `flag_detail`='0',`flag_edit`='0',`flag_edit_readonly`='0'  WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection');
+
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='sample_type' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type'));
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='sample_code' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='identifier_value' AND type='input' AND structure_value_domain  IS NULL );
+
+
+
+
+

@@ -6,7 +6,6 @@ class CollectionCustom extends Collection{
 	var $useTable = "collections";
 	
 	function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null) {
-		
 		if(!isset($this->SampleMaster)) {
 			$this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
 		}
@@ -19,7 +18,7 @@ class CollectionCustom extends Collection{
 		if(is_null($bank_participant_identifier)){
 			$collection_view_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 			if(empty($collection_view_data)){ 
-				$this->redirect('/pages/err_inv_no_data', null, true); 
+				AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			$bank_participant_identifier = empty($collection_view_data['ViewCollection']['identifier_value'])? '' : $collection_view_data['ViewCollection']['identifier_value'];			
 		}
@@ -36,14 +35,14 @@ class CollectionCustom extends Collection{
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
 				$specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['id']] = $new_sample_label;
 			} else {
-				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { $this->redirect('/pages/err_inv_system_error', null, true); }
+				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
 			}
 						
 			// Save new label
 			$this->SampleMaster->id = $new_collection_sample['SampleMaster']['id'];
 			if(!$this->SampleMaster->save(array('SampleMaster' => array('sample_label' => $new_sample_label)))) {
-				$this->redirect('/pages/err_inv_system_error', null, true);
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
 	}

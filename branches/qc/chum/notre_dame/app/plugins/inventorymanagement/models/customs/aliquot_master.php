@@ -19,7 +19,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				
 		// Parameters check: Verify parameters have been set
 		if(empty($sample_data) || empty($aliquot_control_data)) { 
-			$this->redirect('/pages/err_inv_system_error', null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 	
 		// Get collection data
@@ -27,7 +27,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				
 		$view_collection = $view_collection_model->find('first', array('conditions' => array('ViewCollection.collection_id' => $sample_data['SampleMaster']['collection_id'])));
 		if(empty($view_collection)) { 
-			$this->redirect('/pages/err_inv_system_error', null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 
 		// Check collection is a prostate bank collection
@@ -37,7 +37,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			$bank_model = AppModel::atimNew('Administrate', 'Bank', true);		
 			$collection_bank_data = $bank_model->find('first', array('conditions' => array('Bank.id' => $view_collection['ViewCollection']['bank_id'])));
 			if(empty($collection_bank_data)) { 
-				$this->redirect('/pages/err_inv_system_error', null, true); 
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			
 			
@@ -122,7 +122,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				}
 				$specimen_detail = $this->SpecimenDetail->find('first', array('conditions' => array('sample_master_id' => $sample_data['SampleMaster']['id'])));
 				if(empty($specimen_detail)) { 
-					$this->redirect('/pages/err_inv_system_error', null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				$aliquot_creation_date = $specimen_detail['SpecimenDetail']['reception_datetime'];
 
@@ -130,7 +130,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				// Derviative Aliquot
 				$derivative_detail = $this->DerivativeDetail->find('first', array('conditions' => array('sample_master_id' => $sample_data['SampleMaster']['id'])));
 				if(empty($derivative_detail)) { 
-					$this->redirect('/pages/err_inv_system_error', null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				$aliquot_creation_date = $derivative_detail['DerivativeDetail']['creation_datetime'];
 			} 
@@ -182,7 +182,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			}
 			
 			// Launch page error
-			$this->redirect('/pages/qc_err_inv_barcode_generation_error', null, true);
+			AppController::getInstance()->redirect('/pages/qc_err_inv_barcode_generation_error', null, true);
 		}	
 	}
 	
