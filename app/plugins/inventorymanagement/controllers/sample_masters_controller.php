@@ -111,7 +111,10 @@ class SampleMastersController extends InventorymanagementAppController {
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
 			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
+			
+			$aliquot_ids[] = 0;//counters Eventum 1353
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array("AliquotMaster.id" => $aliquot_ids), 'recursive' => 0));
+			
 			foreach($aliquots as &$aliquot){
 				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 			}
