@@ -38,3 +38,19 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='progression_status' AND `language_label`='progression status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_progression_status')  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
+-- db corrections reported by db validation
+ALTER TABLE ad_blocks_revs
+ ADD qc_tf_flash_frozen_volume VARCHAR(50) NOT NULL DEFAULT '',
+ ADD qc_tf_flash_frozen_volume_unit enum('','gr','mm3') NOT NULL DEFAULT '';
+ 
+ALTER TABLE aliquot_review_masters_revs
+ CHANGE aliquot_masters_id aliquot_master_id INT DEFAULT NULL;
+ 
+ALTER TABLE qc_tf_dxd_eocs_revs
+ ADD date_of_ca125_progression DATE DEFAULT NULL,
+ ADD date_of_ca125_progression_accu VARCHAR(1) DEFAULT '',
+ ADD ca125_progression_time_in_months FLOAT UNSIGNED DEFAULT NULL;
+ 
+ALTER TABLE qc_tf_ed_other_primary_cancers_revs
+ ADD end_date DATE DEFAULT NULL,
+ ADD end_date_accuracy VARCHAR(50) NOT NULL DEFAULT '';
