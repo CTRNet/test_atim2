@@ -10,7 +10,7 @@
 		// Check selected type code for all specimen plus set read only fields for tissue
 		// (tissue source, nature, laterality)
 		// -------------------------------------------------------------------------------- 	
-		if(!$this->SampleMaster->validateLabTypeCodeAndLaterality()){ 
+		if(!$this->SampleMaster->validateLabTypeCodeAndLaterality($this->data)){ 
 			$submitted_data_validates = false; 
 		}	
  	}
