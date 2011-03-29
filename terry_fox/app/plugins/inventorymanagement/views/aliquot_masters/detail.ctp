@@ -22,8 +22,8 @@
 		$structure_links['bottom']['add uses'] = array("link" => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
 		
 		$structure_links['bottom']['realiquoting'] = array(
-			'realiquot' =>  array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
-			'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
+			'realiquot' =>  array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
+			'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 		$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	}
@@ -86,7 +86,7 @@
 		   'detail' => '/inventorymanagement/aliquot_masters/redirectToAliquotUseDetail/%%ViewAliquotUse.detail_url%%');
 		
 		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'actions' => false));
+		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'actions' => false, 'pagination' => false));
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');

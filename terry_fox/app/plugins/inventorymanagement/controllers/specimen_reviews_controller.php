@@ -27,12 +27,12 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	 * -------------------------------------------------------------------------- */
 
 	function listAll($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$this->data = $this->paginate($this->SpecimenReviewMaster, array('SpecimenReviewMaster.sample_master_id'=>$sample_master_id));
 		
@@ -61,12 +61,12 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	}
 	
 	function add($collection_id, $sample_master_id, $specimen_review_control_id) {
-		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_control_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_control_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$criteria = array(
 			'SpecimenReviewControl.id' => $specimen_review_control_id, 
@@ -74,7 +74,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewControl.flag_active' => '1');
 		$review_control_data = $this->SpecimenReviewControl->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
 					
-		if(empty($review_control_data)) { $this->redirect( '/pages/err_inv_no_data?line='.__LINE__, null, true ); }
+		if(empty($review_control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$this->set( 'review_control_data', $review_control_data );
 		
@@ -167,7 +167,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						
 				// Set additional specimen review data and save
 				$specimen_review_data['SpecimenReviewMaster']['id'] = null;
-				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$specimen_review_master_id = $this->SpecimenReviewMaster->id;
 				
 				$studied_aliquot_master_ids = array();
@@ -177,7 +177,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						$this->AliquotReviewMaster->id = null;
 						$new_aliquot_review['AliquotReviewMaster']['id'] = null;
 						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
-						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 						
 						//Track aliquot to update
 						if(!empty($new_aliquot_review['AliquotReviewMaster']['aliquot_master_id'])) { $studied_aliquot_master_ids[] = $new_aliquot_review['AliquotReviewMaster']['aliquot_master_id']; }						
@@ -186,7 +186,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 				//Update aliquot use counter
 				foreach($studied_aliquot_master_ids as $new_id ) {
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_id, false, true)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($new_id, false, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 				}	
 										
 				$this->atimFlash(__('your data has been saved', true), '/inventorymanagement/specimen_reviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_master_id);	
@@ -195,13 +195,13 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	}
 	
 	function detail($collection_id, $sample_master_id, $specimen_review_id) {
-		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		$this->data = NULL;
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Get specimen review data
 		$criteria = array(
@@ -209,7 +209,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewMaster.collection_id' => $collection_id, 
 			'SpecimenReviewMaster.sample_master_id' => $sample_master_id);
 		$specimen_review_data = $this->SpecimenReviewMaster->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
-		if(empty($specimen_review_data)) { $this->redirect( '/pages/err_inv_no_data?line='.__LINE__, null, true ); }	
+		if(empty($specimen_review_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		$this->set('specimen_review_data', $specimen_review_data);
 			
 		$is_aliquot_review_defined = false;
@@ -250,12 +250,12 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	}
 	
 	function edit($collection_id, $sample_master_id, $specimen_review_id, $undo = false) {
-		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		// MANAGE DATA
 		
 		// Get sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Get specimen review data
 		$criteria = array(
@@ -263,7 +263,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewMaster.collection_id' => $collection_id, 
 			'SpecimenReviewMaster.sample_master_id' => $sample_master_id);
 		$initial_specimen_review_data = $this->SpecimenReviewMaster->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
-		if(empty($initial_specimen_review_data)) { $this->redirect( '/pages/err_inv_no_data?line='.__LINE__, null, true ); }	
+		if(empty($initial_specimen_review_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		$is_aliquot_review_defined = false;
 		if(array_key_exists('flag_active', $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']) && $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) { $is_aliquot_review_defined = true; }
@@ -358,7 +358,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			if($submitted_data_validates) {
 				// Set additional specimen review data and save
 				$this->SpecimenReviewMaster->id = $specimen_review_id;
-				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 			
 				if($is_aliquot_review_defined) {
 					// Build aliquot review array with id = key
@@ -390,7 +390,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							unset($initial_aliquot_review_data_from_id[$aliquot_review_id]);
 														
 							$this->AliquotReviewMaster->id = $aliquot_review_id;
-							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 						}else{
 							
@@ -402,7 +402,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							$submitted_aliquot_review['AliquotReviewMaster']['id'] = null;
 							$submitted_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];
 							$submitted_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_id;					
-							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 						}
 					}
 					
@@ -412,14 +412,14 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					
 					foreach($initial_aliquot_review_data_from_id as $initial_aliquot_review_to_delete) {				
 						$aliquot_review_id_to_delete = $initial_aliquot_review_to_delete['AliquotReviewMaster']['id'];
-						if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
+						if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 					}
 
 					//---------------------------------------------------------------------------
 					// 4- Update aliquot master data
 					//---------------------------------------------------------------------------
 					foreach($aliquot_ids_to_update as $aliq_id) {
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 					}
 				}				
 				
@@ -429,13 +429,13 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	}
 	
 	function delete($collection_id, $sample_master_id, $specimen_review_id) {
-		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_inv_funct_param_missing?line='.__LINE__, null, true); }		
+		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
 		// Get sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_inv_no_data?line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Get specimen review data
 		$criteria = array(
@@ -443,7 +443,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewMaster.collection_id' => $collection_id, 
 			'SpecimenReviewMaster.sample_master_id' => $sample_master_id);
 		$specimen_review_data = $this->SpecimenReviewMaster->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
-		if(empty($specimen_review_data)) { $this->redirect( '/pages/err_inv_no_data?line='.__LINE__, null, true ); }	
+		if(empty($specimen_review_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// Get Aliquot Review Data
 		$criteria = array(
@@ -469,16 +469,16 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if(!empty($studied_aliquot_master_id)) $aliquot_ids_to_update[$studied_aliquot_master_id] = $studied_aliquot_master_id;
 						
 				$aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
-				if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }	
+				if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }	
 			}
 			
 			// 2- Update aliquot master
 			foreach($aliquot_ids_to_update as $aliq_id) {
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/pages/err_inv_record_err', null, true); }
+				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliq_id, false, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
 			}
 					
 			// 3- Delete sample review
-			if(!$this->SpecimenReviewMaster->atim_delete($specimen_review_id)) { $this->redirect('/pages/err_inv_system_error?line='.__LINE__, null, true); }
+			if(!$this->SpecimenReviewMaster->atim_delete($specimen_review_id)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
 			$this->atimFlash('your data has been deleted', '/inventorymanagement/specimen_reviews/listAll/' . $collection_id . '/' . $sample_master_id);
 		} else {

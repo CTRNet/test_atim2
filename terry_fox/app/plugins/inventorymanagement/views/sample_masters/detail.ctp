@@ -5,7 +5,11 @@
 	
 	// If a parent sample is defined then set the 'Show Parent' button
 	$show_parent_link = null;
-	if(!empty($parent_sample_master_id)) { $show_parent_link = '/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $parent_sample_master_id; }
+	if(!empty($parent_sample_master_id)) { 
+		$show_parent_link = array(
+			'link'=>'/inventorymanagement/sample_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $parent_sample_master_id,
+			'icon'=>'sample'); 
+	}
 	
 	// Create array of derivative type that could be created from studied sample for the ADD button
 	$add_derivatives = array();
@@ -27,9 +31,17 @@
 			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 			'add derivative' => $add_derivatives,
 			'add aliquot' => $add_aliquots,
-			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
-			'see parent sample' => ($is_tree_view_detail_form? null : $show_parent_link)
+			'see parent sample' => ($is_tree_view_detail_form? null : $show_parent_link),
+			'see lab book' => null,
+			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
 		);
+		if(isset($lab_book_master_id)) {
+			$structure_links['bottom']['see lab book'] = array(
+				'link'=>'/labbook/lab_book_masters/detail/'.$lab_book_master_id,
+				'icon'=>'lab_book');
+		} else {
+			unset($structure_links['bottom']['see lab book']);
+		}
 	}
 	
 	// Clean up structure link

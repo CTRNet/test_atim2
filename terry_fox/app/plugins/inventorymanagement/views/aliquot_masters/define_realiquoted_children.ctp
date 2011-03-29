@@ -1,11 +1,9 @@
 <?php
 	$structure_links = array(
-		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/',
+		'top'=> '/inventorymanagement/aliquot_masters/defineRealiquotedChildren/'.$aliquot_id,
 		'bottom' => array('cancel' => $url_to_cancel)
 	);
-	if(isset($atim_menu_variables['Collection.id'])){
-		$structure_links['top'] .= $atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$atim_menu_variables['AliquotMaster.id'].'/'; 
-	}
+	
 	$structure_settings = array('pagination'=>false, 'form_top' => false, 'form_bottom' => false, 'actions' => false);
 
 	$final_atim_structure = $atim_structure_for_children_aliquots_selection; 
@@ -19,6 +17,7 @@
 		'links' 	=> $structure_links, 
 		'settings' 	=> $structure_settings	
 	));
+	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if($hook_link){
@@ -41,8 +40,16 @@
 		if($element_nbr == $counter){
 			$final_children_options['settings']['form_bottom'] = true;
 			$final_children_options['settings']['actions'] = true;
+			$final_children_options['extras'] = 
+				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
+				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
+				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+				<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
+				<input type="hidden" name="data[Realiquoting][lab_book_master_code]" value="'.$lab_book_code.'"/>
+				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
+				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
-		$final_parent_options['settings']['header'] = __('realiquoted children selection', true).(($element_nbr-1)? " #".$counter : '');
+		$final_parent_options['settings']['header'] = __('realiquoting process', true) . ' - ' . __('realiquoted children selection', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_parent_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
 		$final_parent_options['data'] = $aliquot['parent'];
 		$final_children_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
@@ -60,4 +67,6 @@ var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
+var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+var labBookHideOnLoad = true;
 </script>

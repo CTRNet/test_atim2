@@ -6,13 +6,16 @@ class StudyEthicsBoardsController extends StudyAppController {
 	var $paginate = array('StudyEthicsBoard'=>array('limit' => pagination_amount,'order'=>'StudyEthicsBoard.ethics_board'));
 	
 	function listall( $study_summary_id ) {
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
 		// Missing or empty function variable, send to ERROR page
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 
     	// MANAGE DATA
     	$study_ethics_board_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$this->data = $this->paginate($this->StudyEthicsBoard, array('StudyEthicsBoard.study_summary_id'=>$study_summary_id));
 
@@ -27,13 +30,16 @@ class StudyEthicsBoardsController extends StudyAppController {
 	}
 
 	function detail( $study_summary_id, $study_ethics_board_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 
     	// MANAGE DATA
     	$study_ethics_board_data= $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id, 'StudyEthicsBoard.study_summary_id'=>$study_summary_id)));
-    	if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+    	if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
     	$this->data = $study_ethics_board_data;
 
 
@@ -48,11 +54,14 @@ class StudyEthicsBoardsController extends StudyAppController {
 
 
 	function add( $study_summary_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
         // MANAGE DATA
         $study_ethics_board_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
         // MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -96,12 +105,15 @@ class StudyEthicsBoardsController extends StudyAppController {
 
   
 	function edit( $study_summary_id, $study_ethics_board_id ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_ethics_board_data= $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id, 'StudyEthicsBoard.study_summary_id'=>$study_summary_id)));
-		if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -145,12 +157,15 @@ class StudyEthicsBoardsController extends StudyAppController {
 
   
 	function delete( $study_summary_id, $study_ethics_board_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_ethics_board_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_ethics_board_data= $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id, 'StudyEthicsBoard.study_summary_id'=>$study_summary_id)));
-		if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$arr_allow_deletion = $this->allowStudyEthicsBoardDeletion($study_ethics_board_id);
 

@@ -54,10 +54,10 @@ class DrugsController extends DrugAppController {
   	}
   
 	function edit( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/pages/err_drug_no_data', NULL, TRUE ); }
+		if(empty($drug_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -82,10 +82,10 @@ class DrugsController extends DrugAppController {
   	}
 	
 	function detail( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/pages/err_drug_no_data', NULL, TRUE ); }
+		if(empty($drug_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		$this->data = $drug_data;
 			
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
@@ -95,10 +95,10 @@ class DrugsController extends DrugAppController {
 	}
   
 	function delete( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/pages/err_drug_funct_param_missing', NULL, TRUE ); }
+		if ( !$drug_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/pages/err_drug_no_data', NULL, TRUE ); }
+		if(empty($drug_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 				
 		$arr_allow_deletion = $this->allowDrugDeletion($drug_id);
 			
