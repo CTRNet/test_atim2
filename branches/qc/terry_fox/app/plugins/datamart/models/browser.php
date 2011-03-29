@@ -295,7 +295,7 @@ class Browser extends DatamartAppModel {
 	 */
 	static function buildTree(array $tree_node, &$tree = array(), $x = 0, &$y = 0){
 		if($tree_node['active'] && $tree != null){
-			self::drawActiveLine(&$tree, $x, $y);
+			self::drawActiveLine($tree, $x, $y);
 		}
 		
 		$tree[$y][$x] = $tree_node;
@@ -376,7 +376,7 @@ class Browser extends DatamartAppModel {
 	 * @param int $active_x The current active node x position
 	 * @param int $active_y The current active node y position
 	 */
-	private static function drawActiveLine(array $tree, $active_x, $active_y){
+	private static function drawActiveLine(array &$tree, $active_x, $active_y){
 		//draw the active line
 		$left_arr = array("h-line", "arrow", "corner", "h-line merged", "arrow merged", "corner merged");
 		$counter = 0;
@@ -729,9 +729,10 @@ class Browser extends DatamartAppModel {
 		
 		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
-			$conditions = $this->checklist_model_name_to_search.".".$this->checklist_use_key." IN (".$browsing['BrowsingResult']['id_csv'].")";
+			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
 			//fetch the count since deletions might make the set smaller than the count of ids
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
+			
 			if($count > $display_limit){
 				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids")));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));

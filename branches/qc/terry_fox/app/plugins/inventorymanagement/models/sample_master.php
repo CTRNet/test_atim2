@@ -107,6 +107,9 @@ class SampleMaster extends InventorymanagementAppModel {
 	 */
 	function validateLabBook(array &$data, $lab_book, $lab_book_ctrl_id, $sync){
 		$msg = "";
+		// set lab_book_master_id to null by default to erase previous labbook in edit mode if required
+		$data['DerivativeDetail']['lab_book_master_id'] = '';
+		
 		if(strlen($data['DerivativeDetail']['lab_book_master_code']) > 0){
 			$result = $lab_book->syncData($data, $sync ? array('DerivativeDetail') : array(), $data['DerivativeDetail']['lab_book_master_code'], $lab_book_ctrl_id);
 			if(is_numeric($result)){
@@ -119,6 +122,7 @@ class SampleMaster extends InventorymanagementAppModel {
 		}else if($this->data['DerivativeDetail']['sync_with_lab_book'] || (isset($data[0]) && isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])){
 				$msg = __('to synchronize with a lab book, you need to define a lab book to use', true);
 		}
+		
 		return $msg;
 	}
 }

@@ -9,10 +9,11 @@
 		'type' => 'add', 
 		'settings' => array('header' => __('realiquoting process', true) . ' - ' . __('lab book selection', true)),
 		'links' => array(
-			'top' => '/inventorymanagement/aliquot_masters/realiquot/'.$aliquot_id,
+			'top' => '/inventorymanagement/aliquot_masters/'.$realiquoting_function.'/'.$aliquot_id,
 			'bottom' => $bottom
 		),
-		'extras' => '<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+		'extras' => '<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
+					<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
 					<input type="hidden" name="data[0][realiquot_into]" value="'.$realiquot_into.'"/>
 					<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>
 					<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>'

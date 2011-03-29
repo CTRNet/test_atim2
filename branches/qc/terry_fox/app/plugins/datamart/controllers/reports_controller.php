@@ -28,7 +28,7 @@ class ReportsController extends DatamartAppController {
 		|| empty($report['Report']['function'])
 		|| empty($report['Report']['form_alias_for_results'])
 		|| empty($report['Report']['form_type_for_results'])) {
-			$this->redirect('/pages/err_datamart_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 
 		// Set menu variables
@@ -59,7 +59,7 @@ class ReportsController extends DatamartAppController {
 			|| (!array_key_exists('data', $data_returned_by_fct)) 
 			|| (!array_key_exists('columns_names', $data_returned_by_fct)) 
 			|| (!array_key_exists('error_msg', $data_returned_by_fct))) {
-				$this->redirect('/pages/err_datamart_system_error', null, true);
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			
 			if(!empty($data_returned_by_fct['error_msg'])) {

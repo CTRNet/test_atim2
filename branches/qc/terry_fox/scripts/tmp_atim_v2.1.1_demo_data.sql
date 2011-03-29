@@ -19,11 +19,31 @@ SET FOREIGN_KEY_CHECKS=0;
 -- Dumping data for table `ad_blocks`
 --
 
+INSERT INTO `ad_blocks` (`id`, `aliquot_master_id`, `block_type`, `patho_dpt_block_code`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 40, 'OCT', '', '2011-03-18 15:34:33', 1, '2011-03-18 15:34:33', 1, 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:54:01', 1, 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 17:53:10', 1, 0, NULL);
 
 --
 -- Dumping data for table `ad_blocks_revs`
 --
 
+INSERT INTO `ad_blocks_revs` (`id`, `aliquot_master_id`, `block_type`, `patho_dpt_block_code`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 40, 'OCT', '', '2011-03-18 15:34:33', 1, '2011-03-18 15:34:33', 1, 1, '2011-03-18 15:34:33', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 2, '2011-03-18 15:34:34', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 15:39:54', 1, 3, '2011-03-18 15:39:54', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 15:39:55', 1, 4, '2011-03-18 15:39:55', 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 15:45:48', 1, 5, '2011-03-18 15:45:48', 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 15:49:53', 1, 6, '2011-03-18 15:49:54', 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 15:49:55', 1, 7, '2011-03-18 15:49:55', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:11:14', 1, 8, '2011-03-18 17:11:14', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:11:15', 1, 9, '2011-03-18 17:11:15', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:21:20', 1, 10, '2011-03-18 17:21:20', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:22:35', 1, 11, '2011-03-18 17:22:35', 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 17:53:09', 1, 12, '2011-03-18 17:53:09', 0, NULL),
+(3, 44, 'OCT', '', '2011-03-18 15:45:48', 1, '2011-03-18 17:53:10', 1, 13, '2011-03-18 17:53:10', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:53:59', 1, 14, '2011-03-18 17:54:00', 0, NULL),
+(2, 41, 'OCT', '', '2011-03-18 15:34:34', 1, '2011-03-18 17:54:01', 1, 15, '2011-03-18 17:54:01', 0, NULL);
 
 --
 -- Dumping data for table `ad_cell_cores`
@@ -59,11 +79,17 @@ SET FOREIGN_KEY_CHECKS=0;
 -- Dumping data for table `ad_tissue_cores`
 --
 
+INSERT INTO `ad_tissue_cores` (`id`, `aliquot_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 52, '2011-03-18 17:53:09', 1, '2011-03-18 17:53:09', 1, 0, NULL),
+(2, 53, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 0, NULL);
 
 --
 -- Dumping data for table `ad_tissue_cores_revs`
 --
 
+INSERT INTO `ad_tissue_cores_revs` (`id`, `aliquot_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 52, '2011-03-18 17:53:09', 1, '2011-03-18 17:53:09', 1, 1, '2011-03-18 17:53:09', 0, NULL),
+(2, 53, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 2, '2011-03-18 17:54:00', 0, NULL);
 
 --
 -- Dumping data for table `ad_tissue_slides`
@@ -72,7 +98,11 @@ SET FOREIGN_KEY_CHECKS=0;
 INSERT INTO `ad_tissue_slides` (`id`, `aliquot_master_id`, `immunochemistry`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 37, 'AC9031', '2011-02-10 21:28:24', 1, '2011-02-10 21:31:56', 1, 0, NULL),
 (2, 38, 'AC9e13', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 0, NULL),
-(3, 39, 'AC457', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 0, NULL);
+(3, 39, 'AC457', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 0, NULL),
+(4, 42, 'ac 9830', '2011-03-18 15:39:54', 1, '2011-03-18 15:39:54', 1, 0, NULL),
+(5, 43, 'ac 739', '2011-03-18 15:39:55', 1, '2011-03-18 17:49:30', 1, 0, NULL),
+(6, 45, 'ac 739', '2011-03-18 15:49:54', 1, '2011-03-18 15:49:54', 1, 0, NULL),
+(7, 46, 'ac 9830', '2011-03-18 15:49:55', 1, '2011-03-18 15:49:55', 1, 0, NULL);
 
 --
 -- Dumping data for table `ad_tissue_slides_revs`
@@ -84,7 +114,12 @@ INSERT INTO `ad_tissue_slides_revs` (`id`, `aliquot_master_id`, `immunochemistry
 (3, 39, 'AC457', '2011-02-10 21:28:25', 1, '2011-02-10 21:28:25', 1, 3, '2011-02-10 21:28:25', 0, NULL),
 (1, 37, 'AC9031', '2011-02-10 21:28:24', 1, '2011-02-10 21:31:56', 1, 4, '2011-02-10 21:31:56', 0, NULL),
 (3, 39, 'AC457', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 5, '2011-02-10 21:32:48', 0, NULL),
-(2, 38, 'AC9e13', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 6, '2011-02-10 21:33:26', 0, NULL);
+(2, 38, 'AC9e13', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 6, '2011-02-10 21:33:26', 0, NULL),
+(4, 42, 'ac 9830', '2011-03-18 15:39:54', 1, '2011-03-18 15:39:54', 1, 7, '2011-03-18 15:39:54', 0, NULL),
+(5, 43, 'ac 739', '2011-03-18 15:39:55', 1, '2011-03-18 15:39:55', 1, 8, '2011-03-18 15:39:55', 0, NULL),
+(6, 45, 'ac 739', '2011-03-18 15:49:54', 1, '2011-03-18 15:49:54', 1, 9, '2011-03-18 15:49:54', 0, NULL),
+(7, 46, 'ac 9830', '2011-03-18 15:49:55', 1, '2011-03-18 15:49:55', 1, 10, '2011-03-18 15:49:55', 0, NULL),
+(5, 43, 'ac 739', '2011-03-18 15:39:55', 1, '2011-03-18 17:49:30', 1, 11, '2011-03-18 17:49:30', 0, NULL);
 
 --
 -- Dumping data for table `ad_tubes`
@@ -117,14 +152,19 @@ INSERT INTO `ad_tubes` (`id`, `aliquot_master_id`, `lot_number`, `concentration`
 (24, 26, '', '3.00', 'ng/ul', NULL, NULL, '2010-09-24 19:23:53', 1, '2010-09-24 20:09:50', 1, 0, NULL),
 (25, 27, '', '12.00', '', NULL, NULL, '2010-09-24 19:24:56', 1, '2010-09-24 20:11:24', 1, 0, NULL),
 (26, 28, '', '12.00', '', NULL, NULL, '2010-09-24 19:24:56', 1, '2010-09-24 19:28:55', 1, 0, NULL),
-(27, 29, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 20:12:24', 1, 0, NULL),
-(28, 30, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 20:12:23', 1, 0, NULL),
+(27, 29, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2011-03-18 17:28:19', 1, 0, NULL),
+(28, 30, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2011-03-18 17:28:18', 1, 0, NULL),
 (29, 31, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 20:09:50', 1, 0, NULL),
 (30, 32, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:10', 1, '2010-09-24 20:09:49', 1, 0, NULL),
 (31, 33, '', NULL, '', NULL, NULL, '2010-09-24 19:45:19', 1, '2010-09-24 20:10:39', 1, 0, NULL),
-(32, 34, '', NULL, '', NULL, NULL, '2010-09-24 19:45:20', 1, '2010-09-24 20:12:23', 1, 0, NULL),
+(32, 34, '', NULL, '', NULL, NULL, '2010-09-24 19:45:20', 1, '2011-03-18 17:28:18', 1, 0, NULL),
 (33, 35, '', NULL, '', NULL, NULL, '2010-09-24 19:45:20', 1, '2010-09-24 19:45:20', 1, 0, NULL),
-(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:29:09', 1, 0, NULL);
+(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:34', 1, 0, NULL),
+(35, 47, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:28:17', 1, 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:58', 1, 0, NULL),
+(37, 49, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:03', 1, '2011-03-18 17:28:16', 1, 0, NULL),
+(38, 50, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:26', 1, 0, NULL),
+(39, 51, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:52', 1, '2011-03-18 17:33:52', 1, 0, NULL);
 
 --
 -- Dumping data for table `ad_tubes_revs`
@@ -213,7 +253,31 @@ INSERT INTO `ad_tubes_revs` (`id`, `aliquot_master_id`, `lot_number`, `concentra
 (28, 30, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 20:12:23', 1, 80, '2010-09-24 20:12:24', 0, NULL),
 (27, 29, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 20:12:24', 1, 81, '2010-09-24 20:12:24', 0, NULL),
 (34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:27:31', 1, 82, '2011-02-10 21:27:31', 0, NULL),
-(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:29:09', 1, 83, '2011-02-10 21:29:09', 0, NULL);
+(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:29:09', 1, 83, '2011-02-10 21:29:09', 0, NULL),
+(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:33', 1, 84, '2011-03-18 15:34:33', 0, NULL),
+(34, 36, '', NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:34', 1, 85, '2011-03-18 15:34:34', 0, NULL),
+(35, 47, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 86, '2011-03-18 17:27:02', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 87, '2011-03-18 17:27:02', 0, NULL),
+(37, 49, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:03', 1, '2011-03-18 17:27:03', 1, 88, '2011-03-18 17:27:03', 0, NULL),
+(37, 49, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:03', 1, '2011-03-18 17:28:16', 1, 89, '2011-03-18 17:28:17', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:28:17', 1, 90, '2011-03-18 17:28:17', 0, NULL),
+(35, 47, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:28:17', 1, 91, '2011-03-18 17:28:18', 0, NULL),
+(32, 34, '', NULL, '', NULL, NULL, '2010-09-24 19:45:20', 1, '2011-03-18 17:28:18', 1, 92, '2011-03-18 17:28:18', 0, NULL),
+(28, 30, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2011-03-18 17:28:18', 1, 93, '2011-03-18 17:28:18', 0, NULL),
+(27, 29, '', '3.00', '', NULL, NULL, '2010-09-24 19:38:09', 1, '2011-03-18 17:28:19', 1, 94, '2011-03-18 17:28:19', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:30:02', 1, 95, '2011-03-18 17:30:02', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:33:50', 1, 96, '2011-03-18 17:33:51', 0, NULL),
+(38, 50, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 97, '2011-03-18 17:33:51', 0, NULL),
+(39, 51, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:52', 1, '2011-03-18 17:33:52', 1, 98, '2011-03-18 17:33:52', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:33:52', 1, 99, '2011-03-18 17:33:52', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:35:18', 1, 100, '2011-03-18 17:35:18', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:37:37', 1, 101, '2011-03-18 17:37:38', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:37:38', 1, 102, '2011-03-18 17:37:38', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:57', 1, 103, '2011-03-18 17:40:58', 0, NULL),
+(36, 48, '', '142.00', 'ug/ul', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:58', 1, 104, '2011-03-18 17:40:58', 0, NULL),
+(38, 50, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:44:22', 1, 105, '2011-03-18 17:44:22', 0, NULL),
+(38, 50, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:25', 1, 106, '2011-03-18 17:45:26', 0, NULL),
+(38, 50, '', '31.00', 'ug/ul', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:26', 1, 107, '2011-03-18 17:45:26', 0, NULL);
 
 --
 -- Dumping data for table `ad_whatman_papers`
@@ -236,7 +300,9 @@ INSERT INTO `ad_whatman_papers_revs` (`id`, `aliquot_master_id`, `used_blood_vol
 --
 
 INSERT INTO `aliquot_internal_uses` (`id`, `aliquot_master_id`, `use_code`, `use_details`, `used_volume`, `use_datetime`, `used_by`, `study_summary_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(11, 38, 'projject 111', '', NULL, '2011-02-02 00:00:00', 'laboratory staff 1', 1, '2011-02-10 21:34:35', 1, '2011-02-10 21:34:35', 1, 0, NULL);
+(11, 38, 'projject 111', '', NULL, '2011-02-02 00:00:00', 'laboratory staff 1', 1, '2011-02-10 21:34:35', 1, '2011-02-10 21:34:35', 1, 0, NULL),
+(12, 41, 'Dr Loop Study', 'Used by lab of Dr Loop.', NULL, '2011-03-19 00:00:00', 'laboratory staff etc', NULL, '2011-03-18 17:21:20', 1, '2011-03-18 17:22:34', 1, 0, NULL),
+(13, 48, 'Dr Loop Study', 'Loan for Dr Loop Study', '1.43000', '2011-04-09 00:00:00', '', NULL, '2011-03-18 17:30:02', 1, '2011-03-18 17:35:18', 1, 0, NULL);
 
 --
 -- Dumping data for table `aliquot_internal_uses_revs`
@@ -256,7 +322,11 @@ INSERT INTO `aliquot_internal_uses_revs` (`id`, `aliquot_master_id`, `use_code`,
 (10, 36, 's56893', NULL, NULL, '2011-02-10 21:28:00', '', NULL, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 11, '2011-02-10 21:29:09', 0, NULL),
 (11, 38, 'projject 111', '', NULL, '2011-02-02 00:00:00', 'laboratory staff 1', 1, '2011-02-10 21:34:35', 1, '2011-02-10 21:34:35', 1, 12, '2011-02-10 21:34:35', 0, NULL),
 (12, 39, 'rv378', NULL, NULL, '1995-04-17 00:00:00', NULL, NULL, '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 13, '2011-02-10 21:35:47', 0, NULL),
-(13, 37, 'rv378', NULL, NULL, '1995-04-17 00:00:00', NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 14, '2011-02-10 21:35:48', 0, NULL);
+(13, 37, 'rv378', NULL, NULL, '1995-04-17 00:00:00', NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 14, '2011-02-10 21:35:48', 0, NULL),
+(12, 41, 'Dr Loop Study', 'Used by lab of Dr Loop', NULL, '2011-03-19 00:00:00', 'laboratory staff etc', NULL, '2011-03-18 17:21:20', 1, '2011-03-18 17:21:20', 1, 15, '2011-03-18 17:21:20', 0, NULL),
+(12, 41, 'Dr Loop Study', 'Used by lab of Dr Loop.', NULL, '2011-03-19 00:00:00', 'laboratory staff etc', NULL, '2011-03-18 17:21:20', 1, '2011-03-18 17:22:34', 1, 16, '2011-03-18 17:22:34', 0, NULL),
+(13, 48, 'Dr Loop Study', 'Loan for Dr Loop Study', '1.40000', '2011-04-09 00:00:00', '', NULL, '2011-03-18 17:30:02', 1, '2011-03-18 17:30:02', 1, 17, '2011-03-18 17:30:02', 0, NULL),
+(13, 48, 'Dr Loop Study', 'Loan for Dr Loop Study', '1.43000', '2011-04-09 00:00:00', '', NULL, '2011-03-18 17:30:02', 1, '2011-03-18 17:35:18', 1, 18, '2011-03-18 17:35:18', 0, NULL);
 
 --
 -- Dumping data for table `aliquot_masters`
@@ -291,17 +361,31 @@ INSERT INTO `aliquot_masters` (`id`, `barcode`, `aliquot_type`, `aliquot_control
 (26, '624242345', 'tube', 11, 2, 5, NULL, '12.00000', '12.00000', 'ul', 'yes - available', '', NULL, NULL, '2008-02-12 00:00:00', 10, '2', 'C', NULL, NULL, '2010-09-24 19:23:53', 1, '2010-09-24 19:23:53', 1, 0, NULL),
 (27, '442332', 'tube', 11, 2, 5, NULL, '33.00000', '33.00000', 'ul', 'yes - available', '', NULL, NULL, '2009-08-04 00:00:00', 7, '4', NULL, NULL, '', '2010-09-24 19:24:56', 1, '2010-09-24 19:26:49', 1, 0, NULL),
 (28, '442332e', 'tube', 11, 2, 5, NULL, '33.00000', '22.00000', 'ul', 'no', '', 1, NULL, '2009-08-04 00:00:00', NULL, NULL, NULL, NULL, '', '2010-09-24 19:24:56', 1, '2010-09-24 19:28:54', 1, 0, NULL),
-(29, 'r2323r2', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - available', '', NULL, NULL, '2010-09-01 00:00:00', 4, '3', 'A', NULL, NULL, '2010-09-24 19:38:08', 1, '2010-09-24 19:38:08', 1, 0, NULL),
+(29, 'r2323r2', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - available', '', NULL, NULL, '2010-09-01 00:00:00', 4, '1', 'C', NULL, NULL, '2010-09-24 19:38:08', 1, '2010-09-24 19:38:08', 1, 0, NULL),
 (30, 'r2323r23', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - available', '', NULL, NULL, '2010-09-01 00:00:00', 4, '1', 'A', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 19:38:09', 1, 0, NULL),
 (31, 'r2323r24', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - not available', 'reserved for study', NULL, 1, '2010-09-01 00:00:00', 10, '3', 'B', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 19:38:09', 1, 0, NULL),
 (32, 'r2323r25', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - available', '', NULL, NULL, '2010-09-01 00:00:00', 10, '1', 'C', NULL, NULL, '2010-09-24 19:38:09', 1, '2010-09-24 19:38:09', 1, 0, NULL),
 (33, '6436435345345r', 'tube', 11, 4, 10, NULL, '4.00000', '4.00000', 'ul', 'yes - available', '', NULL, NULL, '1992-09-29 00:00:00', 5, '1', NULL, NULL, NULL, '2010-09-24 19:45:19', 1, '2010-09-24 19:45:19', 1, 0, NULL),
 (34, '6436435345345rd', 'tube', 11, 4, 10, NULL, '4.00000', '4.00000', 'ul', 'yes - available', '', NULL, NULL, '1992-09-29 00:00:00', 4, '2', 'A', NULL, NULL, '2010-09-24 19:45:20', 1, '2010-09-24 19:45:20', 1, 0, NULL),
 (35, 'ggererre', 'tube', 11, 4, 10, NULL, NULL, NULL, 'ul', 'no', '', NULL, NULL, NULL, NULL, '', '', NULL, NULL, '2010-09-24 19:45:20', 1, '2010-09-24 19:45:20', 1, 0, NULL),
-(36, 't6u9937', 'tube', 1, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', 3, NULL, '1995-04-13 00:00:00', NULL, '', '', NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:29:09', 1, 0, NULL),
+(36, 't6u9937', 'tube', 1, 3, 6, NULL, NULL, NULL, NULL, 'no', 'empty', 3, NULL, '1995-04-13 00:00:00', NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:34', 1, 0, NULL),
 (37, 's56892', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:24', 1, '2011-02-10 21:31:56', 1, 0, NULL),
 (38, 's56894', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', 1, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 0, NULL),
-(39, 's56893', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 0, NULL);
+(39, 's56893', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 0, NULL),
+(40, 'bl6703.1', 'block', 4, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 13:00:00', 2, '', '', NULL, NULL, '2011-03-18 15:34:33', 1, '2011-03-18 15:34:33', 1, 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 4, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:54:01', 1, 0, NULL),
+(42, 's89430.1', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, 1, '2011-03-18 17:00:00', NULL, '', '', NULL, NULL, '2011-03-18 15:39:54', 1, '2011-03-18 15:39:54', 1, 0, NULL),
+(43, 's89430.2', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', 1, 1, '2011-03-18 17:00:00', NULL, '', '', NULL, NULL, '2011-03-18 15:39:55', 1, '2011-03-18 17:49:30', 1, 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 17:53:10', 1, 0, NULL),
+(45, 's89430.3', 'slide', 5, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 17:35:00', NULL, '', '', NULL, NULL, '2011-03-18 15:49:54', 1, '2011-03-18 15:49:54', 1, 0, NULL),
+(46, 's89430.4', 'slide', 5, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 17:47:00', NULL, '', '', NULL, NULL, '2011-03-18 15:49:55', 1, '2011-03-18 15:49:55', 1, 0, NULL),
+(47, 'rS561', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '1', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '0.80000', 'ul', 'no', '', 5, 1, '2011-04-01 11:08:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:58', 1, 0, NULL),
+(49, 'rS563', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '2', 'C', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 0, NULL),
+(50, 'rS562.1', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'no', 'shipped', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:26', 1, 0, NULL),
+(51, 'rS562.2', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'yes - available', '', NULL, NULL, NULL, NULL, '', '', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 0, NULL),
+(52, 'c1', 'core', 12, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-06-18 17:52:00', 11, '1', '1', NULL, NULL, '2011-03-18 17:53:09', 1, '2011-03-18 17:53:09', 1, 0, NULL),
+(53, 'c2', 'core', 12, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-05-18 17:53:00', 11, '1', '2', NULL, NULL, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 0, NULL);
 
 --
 -- Dumping data for table `aliquot_masters_revs`
@@ -392,7 +476,51 @@ INSERT INTO `aliquot_masters_revs` (`id`, `barcode`, `aliquot_type`, `aliquot_co
 (36, 't6u9937', 'tube', 1, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-13 00:00:00', NULL, '', '', NULL, NULL, '2011-02-10 21:27:31', 1, '2011-02-10 21:29:09', 1, 82, '2011-02-10 21:29:09', 0, NULL),
 (37, 's56892', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:24', 1, '2011-02-10 21:31:56', 1, 83, '2011-02-10 21:31:56', 0, NULL),
 (39, 's56893', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:25', 1, '2011-02-10 21:32:48', 1, 84, '2011-02-10 21:32:48', 0, NULL),
-(38, 's56894', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 85, '2011-02-10 21:33:26', 0, NULL);
+(38, 's56894', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1995-04-17 08:02:00', NULL, '', '', NULL, '', '2011-02-10 21:28:24', 1, '2011-02-10 21:33:26', 1, 85, '2011-02-10 21:33:26', 0, NULL),
+(36, 't6u9937', 'tube', 1, 3, 6, NULL, NULL, NULL, NULL, 'no', 'empty', 3, NULL, '1995-04-13 00:00:00', NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:33', 1, 86, '2011-03-18 15:34:33', 0, NULL),
+(40, 'bl6703.1', 'block', 4, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 13:00:00', 2, '', '', NULL, NULL, '2011-03-18 15:34:33', 1, '2011-03-18 15:34:33', 1, 87, '2011-03-18 15:34:33', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 13:00:00', 2, '', '', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 88, '2011-03-18 15:34:34', 0, NULL),
+(36, 't6u9937', 'tube', 1, 3, 6, NULL, NULL, NULL, NULL, 'no', 'empty', 3, NULL, '1995-04-13 00:00:00', NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:27:31', 1, '2011-03-18 15:34:34', 1, 89, '2011-03-18 15:34:34', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 13:00:00', 2, '', '', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:39:54', 1, 90, '2011-03-18 15:39:54', 0, NULL),
+(42, 's89430.1', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, 1, '2011-03-18 17:00:00', NULL, '', '', NULL, NULL, '2011-03-18 15:39:54', 1, '2011-03-18 15:39:54', 1, 91, '2011-03-18 15:39:54', 0, NULL),
+(43, 's89430.2', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, 1, '2011-03-18 17:00:00', NULL, '', '', NULL, NULL, '2011-03-18 15:39:55', 1, '2011-03-18 15:39:55', 1, 92, '2011-03-18 15:39:55', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 13:00:00', 2, '', '', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:39:55', 1, 93, '2011-03-18 15:39:56', 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 15:45:47', 1, 94, '2011-03-18 15:45:48', 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 15:49:53', 1, 95, '2011-03-18 15:49:54', 0, NULL),
+(45, 's89430.3', 'slide', 5, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 17:35:00', NULL, '', '', NULL, NULL, '2011-03-18 15:49:54', 1, '2011-03-18 15:49:54', 1, 96, '2011-03-18 15:49:54', 0, NULL),
+(46, 's89430.4', 'slide', 5, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-03-18 17:47:00', NULL, '', '', NULL, NULL, '2011-03-18 15:49:55', 1, '2011-03-18 15:49:55', 1, 97, '2011-03-18 15:49:55', 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 15:49:55', 1, 98, '2011-03-18 15:49:56', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', NULL, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:11:13', 1, 99, '2011-03-18 17:11:14', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 3, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:11:15', 1, 100, '2011-03-18 17:11:15', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 4, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:21:20', 1, 101, '2011-03-18 17:21:21', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 4, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:22:34', 1, 102, '2011-03-18 17:22:35', 0, NULL),
+(47, 'rS561', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '5', 'A', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 103, '2011-03-18 17:27:02', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '5', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 104, '2011-03-18 17:27:02', 0, NULL),
+(49, 'rS563', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '5', 'C', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 105, '2011-03-18 17:27:03', 0, NULL),
+(49, 'rS563', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '2', 'C', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 106, '2011-03-18 17:28:17', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '2', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 107, '2011-03-18 17:28:17', 0, NULL),
+(47, 'rS561', 'tube', 11, 3, 13, NULL, '13.23000', '13.23000', 'ul', 'yes - available', '', NULL, 1, '2011-04-01 11:08:00', 4, '1', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:27:02', 1, 108, '2011-03-18 17:28:18', 0, NULL),
+(29, 'r2323r2', 'tube', 11, 3, 7, NULL, '23.00000', '23.00000', 'ul', 'yes - available', '', NULL, NULL, '2010-09-01 00:00:00', 4, '1', 'C', NULL, NULL, '2010-09-24 19:38:08', 1, '2010-09-24 19:38:08', 1, 109, '2011-03-18 17:28:19', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '11.83000', 'ul', 'yes - available', '', 1, 1, '2011-04-01 11:08:00', 4, '2', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:30:02', 1, 110, '2011-03-18 17:30:02', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '11.83000', 'ul', 'yes - available', '', 1, 1, '2011-04-01 11:08:00', 4, '2', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:33:50', 1, 111, '2011-03-18 17:33:51', 0, NULL),
+(50, 'rS562.1', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'yes - available', '', NULL, NULL, NULL, NULL, '', '', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 112, '2011-03-18 17:33:51', 0, NULL),
+(51, 'rS562.2', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'yes - available', '', NULL, NULL, NULL, NULL, '', '', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 113, '2011-03-18 17:33:52', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '4.83000', 'ul', 'yes - available', '', 3, 1, '2011-04-01 11:08:00', 4, '2', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:33:52', 1, 114, '2011-03-18 17:33:52', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '4.80000', 'ul', 'yes - available', '', 3, 1, '2011-04-01 11:08:00', 4, '2', 'B', NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:35:18', 1, 115, '2011-03-18 17:35:18', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '4.80000', 'ul', 'no', '', 3, 1, '2011-04-01 11:08:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:37:37', 1, 116, '2011-03-18 17:37:38', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '2.10000', 'ul', 'no', '', 4, 1, '2011-04-01 11:08:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:37:38', 1, 117, '2011-03-18 17:37:39', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '2.10000', 'ul', 'no', '', 4, 1, '2011-04-01 11:08:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:57', 1, 118, '2011-03-18 17:40:58', 0, NULL),
+(48, 'rS562', 'tube', 11, 3, 13, NULL, '13.23000', '0.80000', 'ul', 'no', '', 5, 1, '2011-04-01 11:08:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:27:02', 1, '2011-03-18 17:40:58', 1, 119, '2011-03-18 17:40:58', 0, NULL),
+(50, 'rS562.1', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'yes - not available', 'reserved for order', NULL, NULL, NULL, NULL, '', '', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:44:22', 1, 120, '2011-03-18 17:44:22', 0, NULL),
+(50, 'rS562.1', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'no', 'shipped', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:25', 1, 121, '2011-03-18 17:45:26', 0, NULL),
+(50, 'rS562.1', 'tube', 11, 3, 13, NULL, '11.00000', '11.00000', 'ul', 'no', 'shipped', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:45:26', 1, 122, '2011-03-18 17:45:26', 0, NULL),
+(43, 's89430.2', 'slide', 5, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', 1, 1, '2011-03-18 17:00:00', NULL, '', '', NULL, NULL, '2011-03-18 15:39:55', 1, '2011-03-18 17:49:30', 1, 123, '2011-03-18 17:49:30', 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 17:53:08', 1, 124, '2011-03-18 17:53:09', 0, NULL),
+(52, 'c1', 'core', 12, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-06-18 17:52:00', 11, '1', '1', NULL, NULL, '2011-03-18 17:53:09', 1, '2011-03-18 17:53:09', 1, 125, '2011-03-18 17:53:09', 0, NULL),
+(44, 'bl9457687', 'block', 4, 2, 11, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '1999-09-03 16:32:00', NULL, '', '', NULL, NULL, '2011-03-18 15:45:47', 1, '2011-03-18 17:53:10', 1, 126, '2011-03-18 17:53:10', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 4, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:53:59', 1, 127, '2011-03-18 17:54:00', 0, NULL),
+(53, 'c2', 'core', 12, 3, 6, NULL, NULL, NULL, NULL, 'yes - available', '', NULL, NULL, '2011-05-18 17:53:00', 11, '1', '2', NULL, NULL, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 128, '2011-03-18 17:54:00', 0, NULL),
+(41, 'bl6703.2', 'block', 4, 3, 6, NULL, NULL, NULL, '', 'no', '', 4, NULL, '2011-03-18 13:00:00', NULL, NULL, NULL, NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 17:54:01', 1, 129, '2011-03-18 17:54:01', 0, NULL);
 
 --
 -- Dumping data for table `aliquot_review_masters`
@@ -400,7 +528,8 @@ INSERT INTO `aliquot_masters_revs` (`id`, `barcode`, `aliquot_type`, `aliquot_co
 
 INSERT INTO `aliquot_review_masters` (`id`, `aliquot_review_control_id`, `specimen_review_master_id`, `aliquot_master_id`, `review_code`, `basis_of_specimen_review`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 1, 1, NULL, 'rv378', 1, '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 0, NULL),
-(2, 1, 1, NULL, 'rv378', 0, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 0, NULL);
+(2, 1, 1, NULL, 'rv378', 0, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 0, NULL),
+(3, 1, 2, 43, 'TR-95.1', 0, '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 0, NULL);
 
 --
 -- Dumping data for table `aliquot_review_masters_revs`
@@ -408,7 +537,8 @@ INSERT INTO `aliquot_review_masters` (`id`, `aliquot_review_control_id`, `specim
 
 INSERT INTO `aliquot_review_masters_revs` (`id`, `aliquot_review_control_id`, `specimen_review_master_id`, `aliquot_master_id`, `review_code`, `basis_of_specimen_review`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 1, 1, 39, 'rv378', 1, '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:48', 0, NULL),
-(2, 1, 1, 37, 'rv378', 0, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 2, '2011-02-10 21:35:48', 0, NULL);
+(2, 1, 1, 37, 'rv378', 0, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 2, '2011-02-10 21:35:48', 0, NULL),
+(3, 1, 2, 43, 'TR-95.1', 0, '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 3, '2011-03-18 17:49:30', 0, NULL);
 
 --
 -- Dumping data for table `ar_breast_tissue_slides`
@@ -416,7 +546,8 @@ INSERT INTO `aliquot_review_masters_revs` (`id`, `aliquot_review_control_id`, `s
 
 INSERT INTO `ar_breast_tissue_slides` (`id`, `aliquot_review_master_id`, `type`, `length`, `width`, `invasive_percentage`, `in_situ_percentage`, `normal_percentage`, `stroma_percentage`, `necrosis_inv_percentage`, `necrosis_is_percentage`, `inflammation`, `quality_score`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 1, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 0, NULL),
-(2, 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 0, NULL);
+(2, 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 0, NULL),
+(3, 3, 'tumor', NULL, NULL, '54.0', NULL, '34.0', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 0, NULL);
 
 --
 -- Dumping data for table `ar_breast_tissue_slides_revs`
@@ -424,12 +555,8 @@ INSERT INTO `ar_breast_tissue_slides` (`id`, `aliquot_review_master_id`, `type`,
 
 INSERT INTO `ar_breast_tissue_slides_revs` (`id`, `aliquot_review_master_id`, `type`, `length`, `width`, `invasive_percentage`, `in_situ_percentage`, `normal_percentage`, `stroma_percentage`, `necrosis_inv_percentage`, `necrosis_is_percentage`, `inflammation`, `quality_score`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
 (1, 1, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 1, '2011-02-10 21:35:48', 0, NULL),
-(2, 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 2, '2011-02-10 21:35:48', 0, NULL);
-
---
--- Dumping data for table `atim_information`
---
-
+(2, 2, '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2011-02-10 21:35:48', 1, '2011-02-10 21:35:48', 1, 2, '2011-02-10 21:35:48', 0, NULL),
+(3, 3, 'tumor', NULL, NULL, '54.0', NULL, '34.0', NULL, NULL, NULL, NULL, NULL, '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 3, '2011-03-18 17:49:30', 0, NULL);
 
 --
 -- Dumping data for table `banks`
@@ -446,11 +573,6 @@ INSERT INTO `banks` (`id`, `name`, `description`, `created_by`, `created`, `modi
 INSERT INTO `banks_revs` (`id`, `name`, `description`, `created_by`, `created`, `modified_by`, `modified`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
 (2, 'Ovary Bk', '', 1, '2010-05-28 10:47:46', 1, '2010-05-28 10:47:46', 0, NULL, 1, '2010-05-28 10:47:47'),
 (3, 'Prostate Bk', '', 1, '2010-05-28 10:49:46', 1, '2010-05-28 10:49:46', 0, NULL, 2, '2010-05-28 10:49:46');
-
---
--- Dumping data for table `cake_sessions`
---
-
 
 --
 -- Dumping data for table `cd_nationals`
@@ -537,84 +659,47 @@ INSERT INTO `consent_masters` (`id`, `date_of_referral`, `route_of_referral`, `d
 -- Dumping data for table `consent_masters_revs`
 --
 
-INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral`, `date_first_contact`, `consent_signed_date`, `form_version`, `reason_denied`, `consent_status`, `process_status`, `status_date`, `surgeon`, `operation_date`, `facility`, `notes`, `consent_method`, `translator_indicator`, `translator_signature`, `consent_person`, `facility_other`, `consent_master_id`, `acquisition_id`, `participant_id`, `consent_control_id`, `type`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
-(1, NULL, 'doctor', '2003-05-06', '2003-08-06', '2.90', '', 'obtained', '', '2003-08-06', '', NULL, '', '', 'in person', 'no', '', '', '', NULL, NULL, 1, 1, '', '2010-05-28 14:07:24', 1, '2010-05-28 14:07:24', 1, 0, NULL, 1, '2010-05-28 14:07:25'),
-(2, NULL, '', NULL, NULL, '', '', 'obtained', '', '2010-09-01', '', NULL, '', '', '', '', '', '', '', NULL, NULL, 2, 1, '', '2010-09-24 19:32:53', 1, '2010-09-24 19:32:53', 1, 0, NULL, 2, '2010-09-24 19:32:54'),
-(3, NULL, '', NULL, NULL, '', '', 'withdrawn', '', NULL, '', NULL, '', '', 'fax', '', '', '', '', NULL, NULL, 3, 1, '', '2010-09-24 19:41:54', 1, '2010-09-24 19:41:54', 1, 0, NULL, 3, '2010-09-24 19:41:55');
-
---
--- Dumping data for table `datamart_adhoc`
---
-
---
--- Dumping data for table `datamart_adhoc_favourites`
---
-
-
---
--- Dumping data for table `datamart_adhoc_saved`
---
-
-
---
--- Dumping data for table `datamart_batch_ids`
---
-
-
---
--- Dumping data for table `datamart_batch_processes`
---
-
-
---
--- Dumping data for table `datamart_batch_sets`
---
-
-
---
--- Dumping data for table `datamart_browsing_indexes`
---
-
-
---
--- Dumping data for table `datamart_browsing_indexes_revs`
---
-
-
---
--- Dumping data for table `datamart_browsing_results`
---
-
-
---
--- Dumping data for table `datamart_browsing_results_revs`
---
-
+INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral`, `date_first_contact`, `consent_signed_date`, `form_version`, `reason_denied`, `consent_status`, `process_status`, `status_date`, `surgeon`, `operation_date`, `facility`, `notes`, `consent_method`, `translator_indicator`, `translator_signature`, `consent_person`, `facility_other`, 
+`acquisition_id`, `participant_id`, `consent_control_id`, `type`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`, `version_id`, `version_created`) VALUES
+(1, NULL, 'doctor', '2003-05-06', '2003-08-06', '2.90', '', 'obtained', '', '2003-08-06', '', NULL, '', '', 'in person', 'no', '', '', 
+'', NULL, 1, 1, '', '2010-05-28 14:07:24', 1, '2010-05-28 14:07:24', 1, 0, NULL, 1, '2010-05-28 14:07:25'),
+(2, NULL, '', NULL, NULL, '', '', 'obtained', '', '2010-09-01', '', NULL, '', '', '', '', '', '', 
+'', NULL, 2, 1, '', '2010-09-24 19:32:53', 1, '2010-09-24 19:32:53', 1, 0, NULL, 2, '2010-09-24 19:32:54'),
+(3, NULL, '', NULL, NULL, '', '', 'withdrawn', '', NULL, '', NULL, '', '', 'fax', '', '', '', 
+'', NULL, 3, 1, '', '2010-09-24 19:41:54', 1, '2010-09-24 19:41:54', 1, 0, NULL, 3, '2010-09-24 19:41:55');
 
 --
 -- Dumping data for table `derivative_details`
 --
 
-INSERT INTO `derivative_details` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 2, '', '', '2003-04-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 0, NULL),
-(2, 3, '', '', '2010-05-04 02:03:00', '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 0, NULL),
-(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 0, NULL),
-(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
-(5, 9, '', '', NULL, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 0, NULL),
-(6, 10, '', '', NULL, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 0, NULL);
+INSERT INTO `derivative_details` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `lab_book_master_id`, `sync_with_lab_book`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, '', '', '2003-04-23 17:18:00', NULL, 0, '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 0, NULL),
+(2, 3, '', '', '2010-05-04 02:03:00', NULL, 0, '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 0, NULL),
+(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', NULL, 0, '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 0, NULL),
+(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', NULL, 0, '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
+(5, 9, '', '', NULL, NULL, 0, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 0, NULL),
+(6, 10, '', '', NULL, NULL, 0, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 0, NULL),
+(7, 12, 'laboratory site 2', 'laboratory staff 2', '2011-03-19 07:11:00', 2, 1, '2011-03-18 17:07:59', 1, '2011-03-18 17:09:53', 1, 0, NULL),
+(8, 13, '', 'laboratory staff etc', '2011-04-01 00:00:00', NULL, 0, '2011-03-18 17:24:37', 1, '2011-03-18 17:24:37', 1, 0, NULL),
+(9, 14, 'laboratory site 2', 'laboratory staff etc', '2011-06-01 00:00:00', NULL, 0, '2011-03-18 17:40:02', 1, '2011-03-18 17:40:02', 1, 0, NULL);
 
 --
 -- Dumping data for table `derivative_details_revs`
 --
 
-INSERT INTO `derivative_details_revs` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 2, '', '', '2003-05-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:14', 1, 1, '2010-05-28 16:18:14', 0, NULL),
-(1, 2, '', '', '2003-04-23 17:18:00', '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 2, '2010-05-28 16:18:56', 0, NULL),
-(2, 3, '', '', '2010-05-04 02:03:00', '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 3, '2010-05-28 16:24:54', 0, NULL),
-(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 4, '2010-09-24 19:22:50', 0, NULL),
-(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 5, '2010-09-24 19:35:16', 0, NULL),
-(5, 9, '', '', NULL, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 6, '2010-09-24 19:43:34', 0, NULL),
-(6, 10, '', '', NULL, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 7, '2010-09-24 19:43:47', 0, NULL);
+INSERT INTO `derivative_details_revs` (`id`, `sample_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `lab_book_master_id`, `sync_with_lab_book`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 2, '', '', '2003-05-23 17:18:00', NULL, 0, '2010-05-28 16:18:14', 1, '2010-05-28 16:18:14', 1, 1, '2010-05-28 16:18:14', 0, NULL),
+(1, 2, '', '', '2003-04-23 17:18:00', NULL, 0, '2010-05-28 16:18:14', 1, '2010-05-28 16:18:56', 1, 2, '2010-05-28 16:18:56', 0, NULL),
+(2, 3, '', '', '2010-05-04 02:03:00', NULL, 0, '2010-05-28 16:24:54', 1, '2010-05-28 16:24:54', 1, 3, '2010-05-28 16:24:54', 0, NULL),
+(3, 5, 'laboratory site 2', 'laboratory staff 2', '2008-02-12 00:00:00', NULL, 0, '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 4, '2010-09-24 19:22:50', 0, NULL),
+(4, 7, 'laboratory site 1', 'laboratory staff 2', '2010-09-01 00:00:00', NULL, 0, '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 5, '2010-09-24 19:35:16', 0, NULL),
+(5, 9, '', '', NULL, NULL, 0, '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 6, '2010-09-24 19:43:34', 0, NULL),
+(6, 10, '', '', NULL, NULL, 0, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 7, '2010-09-24 19:43:47', 0, NULL),
+(7, 12, 'laboratory site 2', 'laboratory staff 2', '2011-02-02 07:11:00', 2, 1, '2011-03-18 17:07:59', 1, '2011-03-18 17:07:59', 1, 8, '2011-03-18 17:08:00', 0, NULL),
+(7, 12, 'laboratory site 2', 'laboratory staff 2', '2011-03-19 07:11:00', 2, 1, '2011-03-18 17:07:59', 1, '2011-03-18 17:08:37', 1, 9, '2011-03-18 17:08:37', 0, NULL),
+(7, 12, 'laboratory site 2', 'laboratory staff 2', '2011-03-19 07:11:00', 2, 1, '2011-03-18 17:07:59', 1, '2011-03-18 17:09:53', 1, 10, '2011-03-18 17:09:53', 0, NULL),
+(8, 13, '', 'laboratory staff etc', '2011-04-01 00:00:00', NULL, 0, '2011-03-18 17:24:37', 1, '2011-03-18 17:24:37', 1, 11, '2011-03-18 17:24:37', 0, NULL),
+(9, 14, 'laboratory site 2', 'laboratory staff etc', '2011-06-01 00:00:00', NULL, 0, '2011-03-18 17:40:02', 1, '2011-03-18 17:40:02', 1, 12, '2011-03-18 17:40:02', 0, NULL);
 
 --
 -- Dumping data for table `diagnosis_masters`
@@ -665,6 +750,116 @@ INSERT INTO `drugs_revs` (`id`, `generic_name`, `trade_name`, `type`, `descripti
 
 --
 -- Dumping data for table `dxd_bloods_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_ampullas`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_ampullas_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_colon_biopsies`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_colon_biopsies_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_colon_rectum_resections`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_colon_rectum_resections_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_distalexbileducts`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_distalexbileducts_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_gallbladders`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_gallbladders_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_hepatocellular_carcinomas`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_hepatocellular_carcinomas_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_intrahepbileducts`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_intrahepbileducts_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_pancreasendos`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_pancreasendos_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_pancreasexos`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_pancreasexos_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_perihilarbileducts`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_perihilarbileducts_revs`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_smintestines`
+--
+
+
+--
+-- Dumping data for table `dxd_cap_report_smintestines_revs`
 --
 
 
@@ -811,6 +1006,56 @@ INSERT INTO `family_histories_revs` (`id`, `relation`, `family_domain`, `primary
 (1, 'mother', 'maternal', 'C504', '', '', NULL, '', 1, '2010-05-28 14:28:12', 1, '2010-05-28 14:28:12', 1, 0, NULL, 1, '2010-05-28 14:28:13');
 
 --
+-- Dumping data for table `lab_book_masters`
+--
+
+INSERT INTO `lab_book_masters` (`id`, `lab_book_control_id`, `code`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'S-1345', '', '2011-03-18 15:31:37', 1, '2011-03-18 15:50:57', 1, 0, NULL),
+(2, 1, 'd79', '', '2011-03-18 17:05:53', 1, '2011-03-18 17:08:35', 1, 0, NULL);
+
+--
+-- Dumping data for table `lab_book_masters_revs`
+--
+
+INSERT INTO `lab_book_masters_revs` (`id`, `lab_book_control_id`, `code`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 2, 'S-1345', '', '2011-03-18 15:31:37', 1, '2011-03-18 15:31:37', 1, 1, '2011-03-18 15:31:37', 0, NULL),
+(1, 2, 'S-1345', '', '2011-03-18 15:31:37', 1, '2011-03-18 15:37:37', 1, 2, '2011-03-18 15:37:37', 0, NULL),
+(1, 2, 'S-1345', '', '2011-03-18 15:31:37', 1, '2011-03-18 15:50:57', 1, 3, '2011-03-18 15:50:57', 0, NULL),
+(2, 1, 'd79', '', '2011-03-18 17:05:53', 1, '2011-03-18 17:05:53', 1, 4, '2011-03-18 17:05:53', 0, NULL),
+(2, 1, 'd79', '', '2011-03-18 17:05:53', 1, '2011-03-18 17:08:35', 1, 5, '2011-03-18 17:08:36', 0, NULL);
+
+--
+-- Dumping data for table `lbd_dna_extractions`
+--
+
+INSERT INTO `lbd_dna_extractions` (`id`, `lab_book_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `sop_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(35, 2, 'laboratory site 2', 'laboratory staff 2', '2011-03-19 07:11:00', NULL, '2011-03-18 17:05:53', 1, '2011-03-18 17:08:36', 1, 0, NULL);
+
+--
+-- Dumping data for table `lbd_dna_extractions_revs`
+--
+
+INSERT INTO `lbd_dna_extractions_revs` (`id`, `lab_book_master_id`, `creation_site`, `creation_by`, `creation_datetime`, `sop_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(35, 2, 'laboratory site 2', 'laboratory staff 2', '2011-02-02 07:11:00', NULL, '2011-03-18 17:05:53', 1, '2011-03-18 17:05:53', 1, 84, '2011-03-18 17:05:53', 0, NULL),
+(35, 2, 'laboratory site 2', 'laboratory staff 2', '2011-03-19 07:11:00', NULL, '2011-03-18 17:05:53', 1, '2011-03-18 17:08:36', 1, 85, '2011-03-18 17:08:36', 0, NULL);
+
+--
+-- Dumping data for table `lbd_slide_creations`
+--
+
+INSERT INTO `lbd_slide_creations` (`id`, `lab_book_master_id`, `realiquoting_datetime`, `realiquoted_by`, `blade_temperature`, `duration_mn`, `sections_nbr`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(35, 1, '2011-03-18 16:16:00', 'laboratory staff 1', '-17.00000', 30, 4, '2011-03-18 15:31:37', 1, '2011-03-18 15:50:57', 1, 0, NULL);
+
+--
+-- Dumping data for table `lbd_slide_creations_revs`
+--
+
+INSERT INTO `lbd_slide_creations_revs` (`id`, `lab_book_master_id`, `realiquoting_datetime`, `realiquoted_by`, `blade_temperature`, `duration_mn`, `sections_nbr`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(35, 1, '2011-03-18 10:09:00', 'laboratory staff 1', '-17.00000', 30, 4, '2011-03-18 15:31:37', 1, '2011-03-18 15:31:37', 1, 84, '2011-03-18 15:31:37', 0, NULL),
+(35, 1, '2011-03-18 16:09:00', 'laboratory staff 1', '-17.00000', 30, 4, '2011-03-18 15:31:37', 1, '2011-03-18 15:37:37', 1, 85, '2011-03-18 15:37:37', 0, NULL),
+(35, 1, '2011-03-18 16:16:00', 'laboratory staff 1', '-17.00000', 30, 4, '2011-03-18 15:31:37', 1, '2011-03-18 15:50:57', 1, 86, '2011-03-18 15:50:57', 0, NULL);
+
+--
 -- Dumping data for table `materials`
 --
 
@@ -819,10 +1064,6 @@ INSERT INTO `family_histories_revs` (`id`, `relation`, `family_domain`, `primary
 -- Dumping data for table `materials_revs`
 --
 
-
---
--- Dumping data for table `menus`
---
 
 --
 -- Dumping data for table `misc_identifiers`
@@ -845,22 +1086,21 @@ INSERT INTO `misc_identifiers_revs` (`id`, `identifier_value`, `misc_identifier_
 (8, 'No-Labo-1346', 3, 'ovary bank no lab', '#Labo', NULL, NULL, NULL, 1, '2010-12-02 18:18:52', 1, '2010-12-02 18:18:52', 1, 0, NULL, 9, '2010-12-02 18:18:52');
 
 --
--- Dumping data for table `missing_translations`
---
-
---
 -- Dumping data for table `orders`
 --
 
 INSERT INTO `orders` (`id`, `order_number`, `short_title`, `description`, `date_order_placed`, `date_order_completed`, `processing_status`, `comments`, `created`, `created_by`, `modified`, `modified_by`, `study_summary_id`, `deleted`, `deleted_date`) VALUES
-(1, 'CD09848', '', '', '2010-06-01', NULL, 'pending', '', '2010-05-28 16:29:37', 1, '2010-05-28 16:29:37', 1, 1, 0, NULL);
+(1, 'CD09848', '', '', '2010-06-01', NULL, 'pending', '', '2010-05-28 16:29:37', 1, '2010-05-28 16:29:37', 1, 1, 0, NULL),
+(2, '67 LP 008', '', '', NULL, NULL, 'pending', '', '2011-03-18 17:42:52', 1, '2011-03-18 17:44:09', 1, NULL, 0, NULL);
 
 --
 -- Dumping data for table `orders_revs`
 --
 
 INSERT INTO `orders_revs` (`id`, `order_number`, `short_title`, `description`, `date_order_placed`, `date_order_completed`, `processing_status`, `comments`, `created`, `created_by`, `modified`, `modified_by`, `study_summary_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 'CD09848', '', '', '2010-06-01', NULL, 'pending', '', '2010-05-28 16:29:37', 1, '2010-05-28 16:29:37', 1, 1, 1, '2010-05-28 16:29:38', 0, NULL);
+(1, 'CD09848', '', '', '2010-06-01', NULL, 'pending', '', '2010-05-28 16:29:37', 1, '2010-05-28 16:29:37', 1, 1, 1, '2010-05-28 16:29:38', 0, NULL),
+(2, '67 LP 008', '', '', NULL, NULL, 'completed', '', '2011-03-18 17:42:52', 1, '2011-03-18 17:42:52', 1, NULL, 2, '2011-03-18 17:42:52', 0, NULL),
+(2, '67 LP 008', '', '', NULL, NULL, 'pending', '', '2011-03-18 17:42:52', 1, '2011-03-18 17:44:09', 1, NULL, 3, '2011-03-18 17:44:09', 0, NULL);
 
 --
 -- Dumping data for table `order_items`
@@ -868,7 +1108,8 @@ INSERT INTO `orders_revs` (`id`, `order_number`, `short_title`, `description`, `
 
 INSERT INTO `order_items` (`id`, `date_added`, `added_by`, `status`, `created`, `created_by`, `modified`, `modified_by`, `order_line_id`, `shipment_id`, `aliquot_master_id`, `deleted`, `deleted_date`) VALUES
 (1, '2010-05-29', 'laboratory staff 2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 0, NULL),
-(2, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, 0, NULL);
+(2, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, 0, NULL),
+(3, '2011-05-04', 'laboratory staff 1', 'shipped', '2011-03-18 17:44:21', 1, '2011-03-18 17:45:26', 1, 3, 2, 50, 0, NULL);
 
 --
 -- Dumping data for table `order_items_revs`
@@ -879,7 +1120,9 @@ INSERT INTO `order_items_revs` (`id`, `date_added`, `added_by`, `status`, `creat
 (2, NULL, '', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:06', 1, 1, NULL, 11, 2, '2010-05-28 16:32:06', 0, NULL),
 (1, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:31:11', 1, '2010-05-28 16:32:28', 1, 1, NULL, 10, 3, '2010-05-28 16:32:28', 0, NULL),
 (2, '2010-05-29', 'laboratory staff 2', 'pending', '2010-05-28 16:32:06', 1, '2010-05-28 16:32:28', 1, 1, NULL, 11, 4, '2010-05-28 16:32:28', 0, NULL),
-(1, '2010-05-29', 'laboratory staff 2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 5, '2010-05-28 16:33:47', 0, NULL);
+(1, '2010-05-29', 'laboratory staff 2', 'shipped', '2010-05-28 16:31:11', 1, '2010-05-28 16:33:47', 1, 1, 1, 10, 5, '2010-05-28 16:33:47', 0, NULL),
+(3, '2011-05-04', 'laboratory staff 1', 'pending', '2011-03-18 17:44:21', 1, '2011-03-18 17:44:21', 1, 3, NULL, 50, 6, '2011-03-18 17:44:21', 0, NULL),
+(3, '2011-05-04', 'laboratory staff 1', 'shipped', '2011-03-18 17:44:21', 1, '2011-03-18 17:45:26', 1, 3, 2, 50, 7, '2011-03-18 17:45:26', 0, NULL);
 
 --
 -- Dumping data for table `order_lines`
@@ -887,7 +1130,8 @@ INSERT INTO `order_items_revs` (`id`, `date_added`, `added_by`, `status`, `creat
 
 INSERT INTO `order_lines` (`id`, `quantity_ordered`, `min_quantity_ordered`, `quantity_unit`, `date_required`, `status`, `created`, `created_by`, `modified`, `modified_by`, `product_code`, `sample_control_id`, `aliquot_control_id`, `sample_aliquot_precision`, `order_id`, `deleted`, `deleted_date`) VALUES
 (1, '23', '', 'ml', NULL, 'pending', '2010-05-28 16:30:23', 1, '2010-05-28 16:32:06', 1, '', 12, 11, 'PBMC', 1, 0, NULL),
-(2, '3', '', 'ml', NULL, 'pending', '2010-05-28 16:30:42', 1, '2010-05-28 16:30:42', 1, '', 119, 8, '', 1, 0, NULL);
+(2, '3', '', 'ml', NULL, 'pending', '2010-05-28 16:30:42', 1, '2010-05-28 16:30:42', 1, '', 119, 8, '', 1, 0, NULL),
+(3, '', '', '', NULL, 'shipped', '2011-03-18 17:43:14', 1, '2011-03-18 17:45:26', 1, '', 13, NULL, '', 2, 0, NULL);
 
 --
 -- Dumping data for table `order_lines_revs`
@@ -897,7 +1141,10 @@ INSERT INTO `order_lines_revs` (`id`, `quantity_ordered`, `min_quantity_ordered`
 (1, '23', '', 'ml', NULL, 'pending', '2010-05-28 16:30:23', 1, '2010-05-28 16:30:23', 1, '', 12, 11, 'PBMC', 1, 1, '2010-05-28 16:30:23', 0, NULL),
 (2, '3', '', 'ml', NULL, 'pending', '2010-05-28 16:30:42', 1, '2010-05-28 16:30:42', 1, '', 119, 8, '', 1, 2, '2010-05-28 16:30:42', 0, NULL),
 (1, '23', '', 'ml', NULL, 'pending', '2010-05-28 16:30:23', 1, '2010-05-28 16:31:13', 1, '', 12, 11, 'PBMC', 1, 3, '2010-05-28 16:31:13', 0, NULL),
-(1, '23', '', 'ml', NULL, 'pending', '2010-05-28 16:30:23', 1, '2010-05-28 16:32:06', 1, '', 12, 11, 'PBMC', 1, 4, '2010-05-28 16:32:07', 0, NULL);
+(1, '23', '', 'ml', NULL, 'pending', '2010-05-28 16:30:23', 1, '2010-05-28 16:32:06', 1, '', 12, 11, 'PBMC', 1, 4, '2010-05-28 16:32:07', 0, NULL),
+(3, '', '', '', NULL, 'pending', '2011-03-18 17:43:14', 1, '2011-03-18 17:43:14', 1, '', 13, NULL, '', 2, 5, '2011-03-18 17:43:14', 0, NULL),
+(3, '', '', '', NULL, 'pending', '2011-03-18 17:43:14', 1, '2011-03-18 17:44:22', 1, '', 13, NULL, '', 2, 6, '2011-03-18 17:44:22', 0, NULL),
+(3, '', '', '', NULL, 'shipped', '2011-03-18 17:43:14', 1, '2011-03-18 17:45:26', 1, '', 13, NULL, '', 2, 7, '2011-03-18 17:45:27', 0, NULL);
 
 --
 -- Dumping data for table `participants`
@@ -994,23 +1241,14 @@ INSERT INTO `protocol_masters_revs` (`id`, `protocol_control_id`, `name`, `notes
 (1, 1, 'Watson th', '', 'Prot-4577', '1', 'all', 'chemotherapy', NULL, NULL, NULL, '2010-05-28 11:25:19', 1, '2010-05-28 11:25:19', 1, NULL, 1, '2010-05-28 11:25:19', 0, NULL);
 
 --
--- Dumping data for table `providers`
---
-
-
---
--- Dumping data for table `providers_revs`
---
-
-
---
 -- Dumping data for table `quality_ctrls`
 --
 
 INSERT INTO `quality_ctrls` (`id`, `qc_code`, `sample_master_id`, `type`, `qc_type_precision`, `tool`, `run_id`, `run_by`, `date`, `score`, `unit`, `conclusion`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
 (1, 'QC - 1', 5, 'bioanalyzer', NULL, '', '#1245', 'laboratory staff etc', '2009-11-04', '13', 'RIN', 'acceptable', '', '2010-09-24 19:28:34', 1, '2010-09-24 19:28:34', 1, 0, NULL),
 (2, 'QC - 2', 6, 'bioanalyzer', NULL, '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 0, NULL),
-(3, 'QC - 3', 10, 'spectrophotometer', NULL, '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 0, NULL);
+(3, 'QC - 3', 10, 'spectrophotometer', NULL, '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 0, NULL),
+(4, 'QC - 4', 13, 'bioanalyzer', '', '', 'qc52', 'laboratory staff 1', '2011-05-04', '32', 'RIN', 'good', '', '2011-03-18 17:36:59', 1, '2011-03-18 17:36:59', 1, 0, NULL);
 
 --
 -- Dumping data for table `quality_ctrls_revs`
@@ -1022,47 +1260,75 @@ INSERT INTO `quality_ctrls_revs` (`id`, `qc_code`, `sample_master_id`, `type`, `
 (2, NULL, 6, 'bioanalyzer', NULL, '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 3, '2010-09-24 19:38:53', 0, NULL),
 (2, 'QC - 2', 6, 'bioanalyzer', NULL, '', '6885', 'laboratory staff 2', '2006-09-14', '', '', 'very good', '', '2010-09-24 19:38:53', 1, '2010-09-24 19:38:53', 1, 4, '2010-09-24 19:38:53', 0, NULL),
 (3, NULL, 10, 'spectrophotometer', NULL, '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 5, '2010-09-24 19:45:49', 0, NULL),
-(3, 'QC - 3', 10, 'spectrophotometer', NULL, '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 6, '2010-09-24 19:45:49', 0, NULL);
+(3, 'QC - 3', 10, 'spectrophotometer', NULL, '', '332e', 'laboratory staff 2', NULL, '', '', 'very good', '', '2010-09-24 19:45:49', 1, '2010-09-24 19:45:49', 1, 6, '2010-09-24 19:45:49', 0, NULL),
+(4, NULL, 13, 'bioanalyzer', '', '', 'qc52', 'laboratory staff 1', '2011-05-04', '32', 'RIN', 'good', '', '2011-03-18 17:36:59', 1, '2011-03-18 17:36:59', 1, 7, '2011-03-18 17:36:59', 0, NULL),
+(4, 'QC - 4', 13, 'bioanalyzer', '', '', 'qc52', 'laboratory staff 1', '2011-05-04', '32', 'RIN', 'good', '', '2011-03-18 17:36:59', 1, '2011-03-18 17:36:59', 1, 8, '2011-03-18 17:37:00', 0, NULL);
 
 --
 -- Dumping data for table `quality_ctrl_tested_aliquots`
 --
 
 INSERT INTO `quality_ctrl_tested_aliquots` (`id`, `quality_ctrl_id`, `aliquot_master_id`, `used_volume`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, 28, '11.00000', '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 0, NULL);
+(1, 1, 28, '11.00000', '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 0, NULL),
+(2, 4, 48, '2.70000', '2011-03-18 17:37:38', 1, '2011-03-18 17:37:38', 1, 0, NULL);
 
 --
 -- Dumping data for table `quality_ctrl_tested_aliquots_revs`
 --
 
 INSERT INTO `quality_ctrl_tested_aliquots_revs` (`id`, `quality_ctrl_id`, `aliquot_master_id`, `used_volume`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 1, 28, NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 1, '2010-09-24 19:28:54', 0, NULL);
+(1, 1, 28, NULL, '2010-09-24 19:28:54', 1, '2010-09-24 19:28:54', 1, 1, '2010-09-24 19:28:54', 0, NULL),
+(2, 4, 48, '2.70000', '2011-03-18 17:37:38', 1, '2011-03-18 17:37:38', 1, 2, '2011-03-18 17:37:38', 0, NULL);
 
 --
 -- Dumping data for table `realiquotings`
 --
 
-INSERT INTO `realiquotings` (`id`, `parent_aliquot_master_id`, `child_aliquot_master_id`, `parent_used_volume`, `realiquoting_datetime`, `realiquoted_by`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 3, 2, '1.00000', '2003-04-23 13:35:00', 'laboratory staff 1', '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 0, NULL),
-(2, 3, 4, '3.40000', '2003-04-23 13:35:00', '', '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 0, NULL),
-(3, 25, 27, '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
-(4, 25, 28, '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
-(5, 36, 37, NULL, '2011-02-10 21:28:00', '', '2011-02-10 21:29:08', 1, '2011-02-10 21:29:08', 1, 0, NULL),
-(6, 36, 38, NULL, '2011-02-10 21:28:00', '', '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 0, NULL),
-(7, 36, 39, NULL, '2011-02-10 21:28:00', '', '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 0, NULL);
+INSERT INTO `realiquotings` (`id`, `parent_aliquot_master_id`, `child_aliquot_master_id`, `parent_used_volume`, `realiquoting_datetime`, `realiquoted_by`, `lab_book_master_id`, `sync_with_lab_book`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 3, 2, '1.00000', '2003-04-23 13:35:00', 'laboratory staff 1', NULL, 0, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 0, NULL),
+(2, 3, 4, '3.40000', '2003-04-23 13:35:00', '', NULL, 0, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 0, NULL),
+(3, 25, 27, '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, 0, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
+(4, 25, 28, '1.00000', '2009-08-04 00:00:00', 'laboratory staff 2', NULL, 0, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 0, NULL),
+(5, 36, 37, NULL, '2011-02-10 21:28:00', '', NULL, 0, '2011-02-10 21:29:08', 1, '2011-02-10 21:29:08', 1, 0, NULL),
+(6, 36, 38, NULL, '2011-02-10 21:28:00', '', NULL, 0, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 0, NULL),
+(7, 36, 39, NULL, '2011-02-10 21:28:00', '', NULL, 0, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 0, NULL),
+(8, 36, 40, NULL, '2011-03-18 13:00:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 0, NULL),
+(9, 36, 41, NULL, '2011-03-18 13:00:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 0, NULL),
+(10, 41, 42, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:50:57', 1, 0, NULL),
+(11, 41, 43, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:50:58', 1, 0, NULL),
+(12, 44, 45, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:54', 1, '2011-03-18 15:50:58', 1, 0, NULL),
+(13, 44, 46, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:55', 1, '2011-03-18 15:50:58', 1, 0, NULL),
+(14, 48, 50, '3.40000', '2011-05-03 17:31:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 0, NULL),
+(15, 48, 51, '3.60000', '2011-05-03 17:31:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 17:33:52', 1, '2011-03-18 17:33:52', 1, 0, NULL),
+(16, 44, 52, NULL, '2011-06-18 17:52:00', '', NULL, NULL, '2011-03-18 17:53:10', 1, '2011-03-18 17:53:10', 1, 0, NULL),
+(17, 41, 53, NULL, '2011-05-18 17:53:00', '', NULL, NULL, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 0, NULL);
 
 --
 -- Dumping data for table `realiquotings_revs`
 --
 
-INSERT INTO `realiquotings_revs` (`id`, `parent_aliquot_master_id`, `child_aliquot_master_id`, `parent_used_volume`, `realiquoting_datetime`, `realiquoted_by`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 3, 2, NULL, NULL, NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 1, '2010-05-28 16:04:30', 0, NULL),
-(2, 3, 4, NULL, NULL, NULL, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 2, '2010-05-28 16:04:31', 0, NULL),
-(3, 25, 27, NULL, NULL, NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 3, '2010-09-24 19:27:45', 0, NULL),
-(4, 25, 28, NULL, NULL, NULL, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 4, '2010-09-24 19:27:45', 0, NULL),
-(5, 36, 37, NULL, NULL, NULL, '2011-02-10 21:29:08', 1, '2011-02-10 21:29:08', 1, 5, '2011-02-10 21:29:08', 0, NULL),
-(6, 36, 38, NULL, NULL, NULL, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 6, '2011-02-10 21:29:09', 0, NULL),
-(7, 36, 39, NULL, NULL, NULL, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 7, '2011-02-10 21:29:09', 0, NULL);
+INSERT INTO `realiquotings_revs` (`id`, `parent_aliquot_master_id`, `child_aliquot_master_id`, `parent_used_volume`, `realiquoting_datetime`, `realiquoted_by`, `lab_book_master_id`, `sync_with_lab_book`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 3, 2, NULL, NULL, NULL, NULL, 0, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 1, '2010-05-28 16:04:30', 0, NULL),
+(2, 3, 4, NULL, NULL, NULL, NULL, 0, '2010-05-28 16:04:30', 1, '2010-05-28 16:04:30', 1, 2, '2010-05-28 16:04:31', 0, NULL),
+(3, 25, 27, NULL, NULL, NULL, NULL, 0, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 3, '2010-09-24 19:27:45', 0, NULL),
+(4, 25, 28, NULL, NULL, NULL, NULL, 0, '2010-09-24 19:27:45', 1, '2010-09-24 19:27:45', 1, 4, '2010-09-24 19:27:45', 0, NULL),
+(5, 36, 37, NULL, NULL, NULL, NULL, 0, '2011-02-10 21:29:08', 1, '2011-02-10 21:29:08', 1, 5, '2011-02-10 21:29:08', 0, NULL),
+(6, 36, 38, NULL, NULL, NULL, NULL, 0, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 6, '2011-02-10 21:29:09', 0, NULL),
+(7, 36, 39, NULL, NULL, NULL, NULL, 0, '2011-02-10 21:29:09', 1, '2011-02-10 21:29:09', 1, 7, '2011-02-10 21:29:09', 0, NULL),
+(8, 36, 40, NULL, '2011-03-18 13:00:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 8, '2011-03-18 15:34:34', 0, NULL),
+(9, 36, 41, NULL, '2011-03-18 13:00:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 15:34:34', 1, '2011-03-18 15:34:34', 1, 9, '2011-03-18 15:34:34', 0, NULL),
+(10, 41, 42, NULL, '2011-03-18 16:09:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:39:55', 1, 10, '2011-03-18 15:39:55', 0, NULL),
+(11, 41, 43, NULL, '2011-03-18 16:09:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:39:55', 1, 11, '2011-03-18 15:39:55', 0, NULL),
+(12, 44, 45, NULL, '2011-03-18 16:09:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:54', 1, '2011-03-18 15:49:54', 1, 12, '2011-03-18 15:49:54', 0, NULL),
+(13, 44, 46, NULL, '2011-03-18 16:09:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:55', 1, '2011-03-18 15:49:55', 1, 13, '2011-03-18 15:49:55', 0, NULL),
+(10, 41, 42, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:50:57', 1, 14, '2011-03-18 15:50:58', 0, NULL),
+(11, 41, 43, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:39:55', 1, '2011-03-18 15:50:58', 1, 15, '2011-03-18 15:50:58', 0, NULL),
+(12, 44, 45, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:54', 1, '2011-03-18 15:50:58', 1, 16, '2011-03-18 15:50:58', 0, NULL),
+(13, 44, 46, NULL, '2011-03-18 16:16:00', 'laboratory staff 1', 1, 1, '2011-03-18 15:49:55', 1, '2011-03-18 15:50:58', 1, 17, '2011-03-18 15:50:58', 0, NULL),
+(14, 48, 50, '3.40000', '2011-05-03 17:31:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 17:33:51', 1, '2011-03-18 17:33:51', 1, 18, '2011-03-18 17:33:51', 0, NULL),
+(15, 48, 51, '3.60000', '2011-05-03 17:31:00', 'laboratory staff 1', NULL, NULL, '2011-03-18 17:33:52', 1, '2011-03-18 17:33:52', 1, 19, '2011-03-18 17:33:52', 0, NULL),
+(16, 44, 52, NULL, '2011-06-18 17:52:00', '', NULL, NULL, '2011-03-18 17:53:10', 1, '2011-03-18 17:53:10', 1, 20, '2011-03-18 17:53:10', 0, NULL),
+(17, 41, 53, NULL, '2011-05-18 17:53:00', '', NULL, NULL, '2011-03-18 17:54:00', 1, '2011-03-18 17:54:00', 1, 21, '2011-03-18 17:54:00', 0, NULL);
 
 --
 -- Dumping data for table `reproductive_histories`
@@ -1098,7 +1364,11 @@ INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_category`, `sample_co
 (7, 'DNA - 7', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, 1, NULL, 'no', '', '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
 (8, 'B - 8', 'specimen', 2, 'blood', 8, 'blood', 4, NULL, NULL, NULL, 'no', '', '2010-09-24 19:42:55', 1, '2010-09-24 19:43:11', 1, 0, NULL),
 (9, 'PBMC - 9', 'derivative', 8, 'pbmc', 8, 'blood', 4, 8, NULL, NULL, 'no', '', '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 0, NULL),
-(10, 'DNA - 10', 'derivative', 12, 'dna', 8, 'blood', 4, 9, NULL, NULL, 'no', '', '2010-09-24 19:43:46', 1, '2010-09-24 19:43:47', 1, 0, NULL);
+(10, 'DNA - 10', 'derivative', 12, 'dna', 8, 'blood', 4, 9, NULL, NULL, 'no', '', '2010-09-24 19:43:46', 1, '2010-09-24 19:43:47', 1, 0, NULL),
+(11, 'T - 11', 'specimen', 3, 'tissue', 11, 'tissue', 2, NULL, NULL, NULL, 'yes', '', '2011-03-18 15:45:06', 1, '2011-03-18 15:45:06', 1, 0, NULL),
+(12, 'DNA - 12', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:07:58', 1, '2011-03-18 17:09:53', 1, 0, NULL),
+(13, 'RNA - 13', 'derivative', 13, 'rna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:24:36', 1, '2011-03-18 17:24:37', 1, 0, NULL),
+(14, 'cDNA - 14', 'derivative', 19, 'cdna', 6, 'tissue', 3, 13, NULL, NULL, 'yes', '', '2011-03-18 17:40:01', 1, '2011-03-18 17:40:02', 1, 0, NULL);
 
 --
 -- Dumping data for table `sample_masters_revs`
@@ -1127,7 +1397,17 @@ INSERT INTO `sample_masters_revs` (`id`, `sample_code`, `sample_category`, `samp
 (9, '', 'derivative', 8, 'pbmc', 8, 'blood', 4, 8, NULL, NULL, 'no', '', '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 20, '2010-09-24 19:43:34', 0, NULL),
 (9, 'PBMC - 9', 'derivative', 8, 'pbmc', 8, 'blood', 4, 8, NULL, NULL, 'no', '', '2010-09-24 19:43:34', 1, '2010-09-24 19:43:34', 1, 21, '2010-09-24 19:43:34', 0, NULL),
 (10, '', 'derivative', 12, 'dna', 8, 'blood', 4, 9, NULL, NULL, 'no', '', '2010-09-24 19:43:46', 1, '2010-09-24 19:43:46', 1, 22, '2010-09-24 19:43:47', 0, NULL),
-(10, 'DNA - 10', 'derivative', 12, 'dna', 8, 'blood', 4, 9, NULL, NULL, 'no', '', '2010-09-24 19:43:46', 1, '2010-09-24 19:43:47', 1, 23, '2010-09-24 19:43:47', 0, NULL);
+(10, 'DNA - 10', 'derivative', 12, 'dna', 8, 'blood', 4, 9, NULL, NULL, 'no', '', '2010-09-24 19:43:46', 1, '2010-09-24 19:43:47', 1, 23, '2010-09-24 19:43:47', 0, NULL),
+(11, '', 'specimen', 3, 'tissue', NULL, 'tissue', 2, NULL, NULL, NULL, 'yes', '', '2011-03-18 15:45:06', 1, '2011-03-18 15:45:06', 1, 24, '2011-03-18 15:45:06', 0, NULL),
+(11, 'T - 11', 'specimen', 3, 'tissue', 11, 'tissue', 2, NULL, NULL, NULL, 'yes', '', '2011-03-18 15:45:06', 1, '2011-03-18 15:45:06', 1, 25, '2011-03-18 15:45:06', 0, NULL),
+(12, '', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:07:58', 1, '2011-03-18 17:07:58', 1, 26, '2011-03-18 17:07:59', 0, NULL),
+(12, 'DNA - 12', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:07:58', 1, '2011-03-18 17:07:59', 1, 27, '2011-03-18 17:07:59', 0, NULL),
+(12, 'DNA - 12', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:07:58', 1, '2011-03-18 17:08:36', 1, 28, '2011-03-18 17:08:37', 0, NULL),
+(12, 'DNA - 12', 'derivative', 12, 'dna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:07:58', 1, '2011-03-18 17:09:53', 1, 29, '2011-03-18 17:09:53', 0, NULL),
+(13, '', 'derivative', 13, 'rna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:24:36', 1, '2011-03-18 17:24:36', 1, 30, '2011-03-18 17:24:37', 0, NULL),
+(13, 'RNA - 13', 'derivative', 13, 'rna', 6, 'tissue', 3, 6, NULL, NULL, 'yes', '', '2011-03-18 17:24:36', 1, '2011-03-18 17:24:37', 1, 31, '2011-03-18 17:24:37', 0, NULL),
+(14, '', 'derivative', 19, 'cdna', 6, 'tissue', 3, 13, NULL, NULL, 'yes', '', '2011-03-18 17:40:01', 1, '2011-03-18 17:40:01', 1, 32, '2011-03-18 17:40:02', 0, NULL),
+(14, 'cDNA - 14', 'derivative', 19, 'cdna', 6, 'tissue', 3, 13, NULL, NULL, 'yes', '', '2011-03-18 17:40:01', 1, '2011-03-18 17:40:02', 1, 33, '2011-03-18 17:40:02', 0, NULL);
 
 --
 -- Dumping data for table `sd_der_amp_rnas`
@@ -1183,11 +1463,15 @@ INSERT INTO `sample_masters_revs` (`id`, `sample_code`, `sample_category`, `samp
 -- Dumping data for table `sd_der_cdnas`
 --
 
+INSERT INTO `sd_der_cdnas` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 14, '2011-03-18 17:40:02', 1, '2011-03-18 17:40:02', 1, 0, NULL);
 
 --
 -- Dumping data for table `sd_der_cdnas_revs`
 --
 
+INSERT INTO `sd_der_cdnas_revs` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 14, '2011-03-18 17:40:02', 1, '2011-03-18 17:40:02', 1, 1, '2011-03-18 17:40:02', 0, NULL);
 
 --
 -- Dumping data for table `sd_der_cell_cultures`
@@ -1237,7 +1521,8 @@ INSERT INTO `sd_der_dnas` (`id`, `sample_master_id`, `created`, `created_by`, `m
 (1, 3, '2010-05-28 16:24:52', 1, '2010-05-28 16:24:54', 1, 0, NULL),
 (2, 5, '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 0, NULL),
 (3, 7, '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 0, NULL),
-(4, 10, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 0, NULL);
+(4, 10, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 0, NULL),
+(5, 12, '2011-03-18 17:07:58', 1, '2011-03-18 17:09:53', 1, 0, NULL);
 
 --
 -- Dumping data for table `sd_der_dnas_revs`
@@ -1248,7 +1533,11 @@ INSERT INTO `sd_der_dnas_revs` (`id`, `sample_master_id`, `created`, `created_by
 (1, 3, '2010-05-28 16:24:52', 1, '2010-05-28 16:24:54', 1, 2, '2010-05-28 16:24:54', 0, NULL),
 (2, 5, '2010-09-24 19:22:49', 1, '2010-09-24 19:22:49', 1, 3, '2010-09-24 19:22:49', 0, NULL),
 (3, 7, '2010-09-24 19:35:15', 1, '2010-09-24 19:35:15', 1, 4, '2010-09-24 19:35:15', 0, NULL),
-(4, 10, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 5, '2010-09-24 19:43:47', 0, NULL);
+(4, 10, '2010-09-24 19:43:47', 1, '2010-09-24 19:43:47', 1, 5, '2010-09-24 19:43:47', 0, NULL),
+(5, 12, '2011-03-18 17:07:58', 1, '2011-03-18 17:07:58', 1, 6, '2011-03-18 17:07:59', 0, NULL),
+(5, 12, '2011-03-18 17:07:58', 1, '2011-03-18 17:07:59', 1, 7, '2011-03-18 17:07:59', 0, NULL),
+(5, 12, '2011-03-18 17:07:58', 1, '2011-03-18 17:08:36', 1, 8, '2011-03-18 17:08:36', 0, NULL),
+(5, 12, '2011-03-18 17:07:58', 1, '2011-03-18 17:09:53', 1, 9, '2011-03-18 17:09:53', 0, NULL);
 
 --
 -- Dumping data for table `sd_der_pbmcs`
@@ -1352,11 +1641,15 @@ INSERT INTO `sd_der_pbmcs_revs` (`id`, `sample_master_id`, `created`, `created_b
 -- Dumping data for table `sd_der_rnas`
 --
 
+INSERT INTO `sd_der_rnas` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
+(1, 13, '2011-03-18 17:24:37', 1, '2011-03-18 17:24:37', 1, 0, NULL);
 
 --
 -- Dumping data for table `sd_der_rnas_revs`
 --
 
+INSERT INTO `sd_der_rnas_revs` (`id`, `sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
+(1, 13, '2011-03-18 17:24:37', 1, '2011-03-18 17:24:37', 1, 1, '2011-03-18 17:24:37', 0, NULL);
 
 --
 -- Dumping data for table `sd_der_serums`
@@ -1486,14 +1779,16 @@ INSERT INTO `sd_spe_bloods_revs` (`id`, `sample_master_id`, `blood_type`, `colle
 --
 
 INSERT INTO `sd_spe_tissues` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 6, '', NULL, 'right', NULL, '', '', '', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 0, NULL);
+(1, 6, '', NULL, 'right', NULL, '', '', '', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 0, NULL),
+(2, 11, '', NULL, 'right', NULL, '1.5x1x1', 'cm', '', '', '2011-03-18 15:45:06', 1, '2011-03-18 15:45:06', 1, 0, NULL);
 
 --
 -- Dumping data for table `sd_spe_tissues_revs`
 --
 
 INSERT INTO `sd_spe_tissues_revs` (`id`, `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 6, '', NULL, 'right', NULL, '', '', '', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 1, '2010-09-24 19:33:56', 0, NULL);
+(1, 6, '', NULL, 'right', NULL, '', '', '', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 1, '2010-09-24 19:33:56', 0, NULL),
+(2, 11, '', NULL, 'right', NULL, '1.5x1x1', 'cm', '', '', '2011-03-18 15:45:06', 1, '2011-03-18 15:45:06', 1, 2, '2011-03-18 15:45:06', 0, NULL);
 
 --
 -- Dumping data for table `sd_spe_urines`
@@ -1520,14 +1815,16 @@ INSERT INTO `sd_spe_tissues_revs` (`id`, `sample_master_id`, `tissue_source`, `t
 --
 
 INSERT INTO `shipments` (`id`, `shipment_code`, `recipient`, `facility`, `delivery_street_address`, `delivery_city`, `delivery_province`, `delivery_postal_code`, `delivery_country`, `shipping_company`, `shipping_account_nbr`, `datetime_shipped`, `datetime_received`, `shipped_by`, `created`, `created_by`, `modified`, `modified_by`, `order_id`, `deleted`, `deleted_date`) VALUES
-(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 0, NULL);
+(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 0, NULL),
+(2, 'rr1', '', '', '', '', '', '', '', '', '', '2011-05-06 00:00:00', NULL, 'laboratory staff 1', '2011-03-18 17:45:08', 1, '2011-03-18 17:45:08', 1, 2, 0, NULL);
 
 --
 -- Dumping data for table `shipments_revs`
 --
 
 INSERT INTO `shipments_revs` (`id`, `shipment_code`, `recipient`, `facility`, `delivery_street_address`, `delivery_city`, `delivery_province`, `delivery_postal_code`, `delivery_country`, `shipping_company`, `shipping_account_nbr`, `datetime_shipped`, `datetime_received`, `shipped_by`, `created`, `created_by`, `modified`, `modified_by`, `order_id`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 1, '2010-05-28 16:33:18', 0, NULL);
+(1, 'UPS98409', 'qwerty', '', '', '', '', '', '', '', '', '2010-05-31 13:04:00', NULL, 'laboratory staff 2', '2010-05-28 16:33:18', 1, '2010-05-28 16:33:18', 1, 1, 1, '2010-05-28 16:33:18', 0, NULL),
+(2, 'rr1', '', '', '', '', '', '', '', '', '', '2011-05-06 00:00:00', NULL, 'laboratory staff 1', '2011-03-18 17:45:08', 1, '2011-03-18 17:45:08', 1, 2, 2, '2011-03-18 17:45:08', 0, NULL);
 
 --
 -- Dumping data for table `sidebars`
@@ -1597,14 +1894,18 @@ INSERT INTO `sop_masters_revs` (`id`, `sop_control_id`, `title`, `notes`, `code`
 --
 
 INSERT INTO `source_aliquots` (`id`, `sample_master_id`, `aliquot_master_id`, `used_volume`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 2, 1, '5.00000', '2010-05-28 16:19:42', 1, '2010-05-28 16:19:42', 1, 0, NULL);
+(1, 2, 1, '5.00000', '2010-05-28 16:19:42', 1, '2010-05-28 16:19:42', 1, 0, NULL),
+(2, 12, 41, NULL, '2011-03-18 17:11:14', 1, '2011-03-18 17:11:14', 1, 0, NULL),
+(3, 14, 48, '1.30000', '2011-03-18 17:40:58', 1, '2011-03-18 17:40:58', 1, 0, NULL);
 
 --
 -- Dumping data for table `source_aliquots_revs`
 --
 
 INSERT INTO `source_aliquots_revs` (`id`, `sample_master_id`, `aliquot_master_id`, `used_volume`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 2, 1, NULL, '2010-05-28 16:19:42', 1, '2010-05-28 16:19:42', 1, 1, '2010-05-28 16:19:42', 0, NULL);
+(1, 2, 1, NULL, '2010-05-28 16:19:42', 1, '2010-05-28 16:19:42', 1, 1, '2010-05-28 16:19:42', 0, NULL),
+(2, 12, 41, NULL, '2011-03-18 17:11:14', 1, '2011-03-18 17:11:14', 1, 2, '2011-03-18 17:11:14', 0, NULL),
+(3, 14, 48, '1.30000', '2011-03-18 17:40:58', 1, '2011-03-18 17:40:58', 1, 3, '2011-03-18 17:40:58', 0, NULL);
 
 --
 -- Dumping data for table `specimen_details`
@@ -1614,7 +1915,8 @@ INSERT INTO `specimen_details` (`id`, `sample_master_id`, `supplier_dept`, `rece
 (1, 1, 'supplier dept 1', 'laboratory staff 2', '2003-04-23 13:02:00', '', '2010-05-28 15:58:57', 1, '2010-05-28 15:59:44', 1, 0, NULL),
 (2, 4, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 0, NULL),
 (3, 6, 'supplier dept 2', 'laboratory staff 1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 0, NULL),
-(4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 0, NULL);
+(4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 0, NULL),
+(5, 11, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2011-03-18 15:45:07', 1, '2011-03-18 15:45:07', 1, 0, NULL);
 
 --
 -- Dumping data for table `specimen_details_revs`
@@ -1626,35 +1928,40 @@ INSERT INTO `specimen_details_revs` (`id`, `sample_master_id`, `supplier_dept`, 
 (2, 4, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2010-09-24 19:19:33', 1, '2010-09-24 19:19:33', 1, 3, '2010-09-24 19:19:33', 0, NULL),
 (3, 6, 'supplier dept 2', 'laboratory staff 1', '1995-04-13 00:00:00', '', '2010-09-24 19:33:56', 1, '2010-09-24 19:33:56', 1, 4, '2010-09-24 19:33:56', 0, NULL),
 (4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:42:56', 1, 5, '2010-09-24 19:42:56', 0, NULL),
-(4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 6, '2010-09-24 19:43:12', 0, NULL);
+(4, 8, '', '', NULL, '', '2010-09-24 19:42:56', 1, '2010-09-24 19:43:12', 1, 6, '2010-09-24 19:43:12', 0, NULL),
+(5, 11, 'supplier dept 2', 'laboratory staff 1', '1999-09-03 15:13:00', '', '2011-03-18 15:45:07', 1, '2011-03-18 15:45:07', 1, 7, '2011-03-18 15:45:07', 0, NULL);
 
 --
 -- Dumping data for table `specimen_review_masters`
 --
 
 INSERT INTO `specimen_review_masters` (`id`, `specimen_review_control_id`, `specimen_sample_type`, `review_type`, `collection_id`, `sample_master_id`, `review_code`, `review_date`, `review_status`, `pathologist`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'tissue', 'breast review', 3, 6, 'rv378', '1995-04-17', 'done', 'Dr Gold', '', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 0, NULL);
+(1, 1, 'tissue', 'breast review', 3, 6, 'rv378', '1995-04-17', 'done', 'Dr Gold', '', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 0, NULL),
+(2, 1, 'tissue', 'breast review', 3, 6, 'TR-95', '2011-03-19', 'done', 'DR Qwerty', '', '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 0, NULL);
 
 --
 -- Dumping data for table `specimen_review_masters_revs`
 --
 
 INSERT INTO `specimen_review_masters_revs` (`id`, `specimen_review_control_id`, `specimen_sample_type`, `review_type`, `collection_id`, `sample_master_id`, `review_code`, `review_date`, `review_status`, `pathologist`, `notes`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'tissue', 'breast review', 3, 6, 'rv378', '1995-04-17', 'done', 'Dr Gold', '', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:47', 0, NULL);
+(1, 1, 'tissue', 'breast review', 3, 6, 'rv378', '1995-04-17', 'done', 'Dr Gold', '', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:47', 0, NULL),
+(2, 1, 'tissue', 'breast review', 3, 6, 'TR-95', '2011-03-19', 'done', 'DR Qwerty', '', '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 2, '2011-03-18 17:49:29', 0, NULL);
 
 --
 -- Dumping data for table `spr_breast_cancer_types`
 --
 
 INSERT INTO `spr_breast_cancer_types` (`id`, `specimen_review_master_id`, `type`, `other_type`, `tumour_grade_score_tubules`, `tumour_grade_score_nuclear`, `tumour_grade_score_mitosis`, `tumour_grade_score_total`, `tumour_grade_category`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'ductal', NULL, '1.0', '3.0', '4.0', NULL, 'well diff', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 0, NULL);
+(1, 1, 'ductal', NULL, '1.0', '3.0', '4.0', NULL, 'well diff', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 0, NULL),
+(2, 2, 'mucinous', NULL, NULL, NULL, NULL, NULL, 'well diff', '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 0, NULL);
 
 --
 -- Dumping data for table `spr_breast_cancer_types_revs`
 --
 
 INSERT INTO `spr_breast_cancer_types_revs` (`id`, `specimen_review_master_id`, `type`, `other_type`, `tumour_grade_score_tubules`, `tumour_grade_score_nuclear`, `tumour_grade_score_mitosis`, `tumour_grade_score_total`, `tumour_grade_category`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 1, 'ductal', NULL, '1.0', '3.0', '4.0', NULL, 'well diff', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:47', 0, NULL);
+(1, 1, 'ductal', NULL, '1.0', '3.0', '4.0', NULL, 'well diff', '2011-02-10 21:35:47', 1, '2011-02-10 21:35:47', 1, 1, '2011-02-10 21:35:47', 0, NULL),
+(2, 2, 'mucinous', NULL, NULL, NULL, NULL, NULL, 'well diff', '2011-03-18 17:49:29', 1, '2011-03-18 17:49:29', 1, 2, '2011-03-18 17:49:29', 0, NULL);
 
 --
 -- Dumping data for table `std_boxs`
@@ -1827,14 +2134,15 @@ INSERT INTO `std_shelfs_revs` (`id`, `storage_master_id`, `created`, `created_by
 --
 
 INSERT INTO `std_tma_blocks` (`id`, `storage_master_id`, `sop_master_id`, `product_code`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`) VALUES
-(1, 11, NULL, NULL, NULL, '2010-05-28 13:52:22', 1, '2010-05-28 13:52:22', 1, 0, NULL);
+(1, 11, NULL, NULL, '2011-05-18 00:00:00', '2010-05-28 13:52:22', 1, '2011-03-18 17:54:37', 1, 0, NULL);
 
 --
 -- Dumping data for table `std_tma_blocks_revs`
 --
 
 INSERT INTO `std_tma_blocks_revs` (`id`, `storage_master_id`, `sop_master_id`, `product_code`, `creation_datetime`, `created`, `created_by`, `modified`, `modified_by`, `version_id`, `version_created`, `deleted`, `deleted_date`) VALUES
-(1, 11, NULL, NULL, NULL, '2010-05-28 13:52:22', 1, '2010-05-28 13:52:22', 1, 1, '2010-05-28 13:52:22', 0, NULL);
+(1, 11, NULL, NULL, NULL, '2010-05-28 13:52:22', 1, '2010-05-28 13:52:22', 1, 1, '2010-05-28 13:52:22', 0, NULL),
+(1, 11, NULL, NULL, '2011-05-18 00:00:00', '2010-05-28 13:52:22', 1, '2011-03-18 17:54:37', 1, 2, '2011-03-18 17:54:37', 0, NULL);
 
 --
 -- Dumping data for table `storage_coordinates`
@@ -1870,7 +2178,7 @@ INSERT INTO `storage_masters` (`id`, `code`, `storage_type`, `storage_control_id
 (8, 'INC - 8', 'incubator', 4, NULL, 15, 20, 'bc9032098', 'ic1', 'ic1', '', NULL, NULL, 'TRUE', '36.00', 'celsius', '', '2010-05-28 13:40:08', 1, '2010-05-28 13:49:10', 1, 0, NULL),
 (9, 'R2D16 - 9', 'rack16', 11, 8, 16, 19, 'bc987237', 'r1', 'ic1-r1', '', 's2', NULL, 'FALSE', '36.00', 'celsius', '', '2010-05-28 13:43:19', 1, '2010-05-28 13:49:10', 1, 0, NULL),
 (10, 'B2D100 - 10', 'box100 1A-20E', 18, 9, 17, 18, 'bc987040', '004', 'ic1-r1-004', '', 'B', '1', 'FALSE', '36.00', 'celsius', '', '2010-05-28 13:44:03', 1, '2010-05-28 13:49:11', 1, 0, NULL),
-(11, 'TMA345 - 11', 'TMA-blc 23X15', 19, NULL, 21, 22, 'bc79879832', 'tm1', 'tm1', '', NULL, NULL, 'FALSE', NULL, NULL, '', '2010-05-28 13:52:21', 1, '2010-05-28 13:52:22', 1, 0, NULL);
+(11, 'TMA345 - 11', 'TMA-blc 23X15', 19, NULL, 21, 22, 'bc79879832', 'tm1', 'tm1', '', '', '', 'FALSE', NULL, NULL, '', '2010-05-28 13:52:21', 1, '2011-03-18 17:54:37', 1, 0, NULL);
 
 --
 -- Dumping data for table `storage_masters_revs`
@@ -1935,7 +2243,8 @@ INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_type`, `storage_contr
 (6, 'R10 - 6', 'rack10', 12, 2, 9, 12, 'bc988900', 'r2', 'fr1New-1-r2', '', NULL, NULL, 'FALSE', '4.70', 'celsius', '', '2010-05-28 13:29:19', 1, '2010-09-24 20:13:29', 1, 56, '2010-09-24 20:13:29', 0, NULL),
 (4, 'B2D81 - 4', 'box81 1A-9I', 9, 3, 4, 5, 'bc9973900', '001', 'fr1New-1-r1-001', '', '1', NULL, 'FALSE', '4.70', 'celsius', '', '2010-05-28 13:24:30', 1, '2010-09-24 20:13:29', 1, 57, '2010-09-24 20:13:29', 0, NULL),
 (5, 'B25 - 5', 'box25', 17, 3, 6, 7, 'bc8978732', '002', 'fr1New-1-r1-002', '', '2', NULL, 'FALSE', '4.70', 'celsius', '', '2010-05-28 13:25:46', 1, '2010-09-24 20:13:30', 1, 58, '2010-09-24 20:13:30', 0, NULL),
-(7, 'B25 - 7', 'box25', 17, 6, 10, 11, 'bc87987876', '003', 'fr1New-1-r2-003', '', '3', NULL, 'FALSE', '4.70', 'celsius', '', '2010-05-28 13:38:47', 1, '2010-09-24 20:13:30', 1, 59, '2010-09-24 20:13:30', 0, NULL);
+(7, 'B25 - 7', 'box25', 17, 6, 10, 11, 'bc87987876', '003', 'fr1New-1-r2-003', '', '3', NULL, 'FALSE', '4.70', 'celsius', '', '2010-05-28 13:38:47', 1, '2010-09-24 20:13:30', 1, 59, '2010-09-24 20:13:30', 0, NULL),
+(11, 'TMA345 - 11', 'TMA-blc 23X15', 19, NULL, 21, 22, 'bc79879832', 'tm1', 'tm1', '', '', '', 'FALSE', NULL, NULL, '', '2010-05-28 13:52:21', 1, '2011-03-18 17:54:37', 1, 60, '2011-03-18 17:54:37', 0, NULL);
 
 --
 -- Dumping data for table `study_contacts`
@@ -2128,14 +2437,6 @@ INSERT INTO `tx_masters_revs` (`id`, `tx_control_id`, `tx_method`, `disease_site
 (2, 1, 'chemotherapy', 'all', 'curative', '', '2003-05-01', '', NULL, '', '', 'Building A', '', '2010-05-28 14:26:16', 1, '2010-05-28 14:26:16', 1, NULL, 1, 2, 0, NULL, 2, '2010-05-28 14:26:17'),
 (3, 3, 'surgery', 'all', '', '', '2003-04-23', '', NULL, '', '', '', '', '2010-05-28 14:27:24', 1, '2010-05-28 14:27:24', 1, NULL, 1, 2, 0, NULL, 3, '2010-05-28 14:27:25');
 
---
--- Dumping data for table `user_login_attempts`
---
-
-
---
--- Dumping data for table `user_logs`
---
 
 --
 -- Other
@@ -2178,14 +2479,25 @@ INSERT INTO `structure_permissible_values_customs_revs` (`id`, `control_id`, `va
 SET FOREIGN_KEY_CHECKS=1;
 
 INSERT INTO `misc_identifier_controls` 
-(`misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) 
+(id, `misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`) 
 VALUES
-('health insurance card', '#HIC', 1, 0, '', '', 1),
-('hospital nbr', '#HN', 1, 1, '', '', 0),
-('ovary bank no lab', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
+(1, 'health insurance card', '#HIC', 1, 0, '', '', 1),
+(2, 'hospital nbr', '#HN', 1, 1, '', '', 0),
+(3, 'ovary bank no lab', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1);
 
 INSERT INTO `key_increments` (`key_name`, `key_value`) VALUES
 ('NoLaboCounter', 1347);
+
+UPDATE aliquot_masters SET use_counter = 5 WHERE barcode = 't6u9937';
+UPDATE aliquot_masters SET use_counter = 5 WHERE barcode = 'bl6703.2';
+UPDATE aliquot_masters SET use_counter = 3 WHERE barcode = 'bl9457687';
+
+UPDATE sample_masters SET is_problematic = '0' WHERE is_problematic = 'no';
+UPDATE sample_masters SET is_problematic = '1' WHERE is_problematic = 'yes';
+
+UPDATE sample_masters AS parent, sample_masters AS child
+SET child.parent_sample_type = parent.sample_type
+WHERE parent.id = child.parent_id;
 
 -- -------------------------------------------------------------------------------------------------------------------------
 -- DATA FOR DATAMART ADHOC QUERY
@@ -2286,6 +2598,7 @@ Participant.sex,
 AliquotMaster.barcode,
 SampleMaster.sample_type,
 AliquotMaster.aliquot_type,
+AliquotDetail.block_type,
 AliquotMaster.in_stock
 FROM participants AS Participant
 INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
@@ -2293,6 +2606,7 @@ INNER JOIN collections AS Collection ON Collection.id = link.collection_id
 INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id 
 INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
 LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+LEFT JOIN ad_blocks AS AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id 
 WHERE TRUE
 AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
 AND Participant.sex = "@@Participant.sex@@" 
@@ -2481,6 +2795,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingResult' AND `tablename`='' AND `field`='browsing_structures_id' AND `language_label`='search start from' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='display_name_from_datamasrtstructure')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
 UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='datamart_browsing_indexes') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='BrowsingIndex' AND tablename='datamart_browsing_indexes' AND field='notes' AND type='textarea' AND structure_value_domain  IS NULL );
+
 
 
 

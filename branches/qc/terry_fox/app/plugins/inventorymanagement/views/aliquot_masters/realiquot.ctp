@@ -37,8 +37,9 @@
 			$final_options_children['settings']['actions'] = true;
 			$final_options_children['extras'] = 
 				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
-				<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
+				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
 				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+				<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
 				<input type="hidden" name="data[Realiquoting][lab_book_master_code]" value="'.$lab_book_code.'"/>
 				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';

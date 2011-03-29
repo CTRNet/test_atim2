@@ -40,15 +40,14 @@ function copyLine(line){
 	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-		debug($(this).attr("name") + " - " + name + "- " + $(this).attr("type") + " - " + $(this).val());
+		console.log($(this).attr("name") + " - " + name + "- " + $(this).attr("type") + " - " + $(this).val());
 		if($(this).attr("type") == "checkbox"){
-			if($(this).attr("checked")){
-				copyBuffer[name] = true;
-			}
+			copyBuffer[name] = $(this).attr("checked");
 		}else{
 			copyBuffer[name] = $(this).val();
 		}
 	});
+	console.log(copyBuffer);
 }
 
 /**
@@ -62,10 +61,10 @@ function pasteLine(line){
 			var nameArray = $(this).attr("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 			if($(this).attr("type") == "checkbox"){
-				if(copyBuffer[name]){
-					$(this).attr("checked", "checked");
+				if(copyBuffer[name] != undefined){
+					$(this).attr("checked", copyBuffer[name]);
 				}
-			}else if(copyBuffer[name]){
+			}else if(copyBuffer[name] != undefined){
 				$(this).val(copyBuffer[name]);
 			}
 		}
@@ -87,10 +86,10 @@ function enableCopyCtrl(){
 }
 
 function bindCopyCtrl(scope){
-	$(scope).find(".copy").click(function(){
+	$(scope).find(".button.copy").click(function(){
 		copyLine(getParentRow(this));
 	});
-	$(scope).find(".paste").click(function(){
+	$(scope).find(".button.paste").click(function(event){
 		pasteLine(getParentRow(this));
 	});
 }

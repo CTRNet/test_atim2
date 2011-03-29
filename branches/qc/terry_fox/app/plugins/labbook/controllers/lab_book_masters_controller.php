@@ -68,14 +68,17 @@ class LabBookMastersController extends LabBookAppController {
 	
 	function detail($lab_book_master_id, $full_detail_screen = true) {		
 		if(!$lab_book_master_id) { 
-			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		} else if($lab_book_master_id == '-1') {
+			$this->flash('no lab book is linked to this record', "javascript:history.back()", 5);
+			return;
 		}
 		
 		// MAIN FORM
 			
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
 		if(empty($lab_book)) { 
-			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
 		$this->data = $lab_book;
 		
@@ -107,7 +110,7 @@ class LabBookMastersController extends LabBookAppController {
 	
 	function add($control_id, $is_ajax = false) {
 		if(!$control_id) { 
-			$this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		if($is_ajax){
 			$this->layout = 'ajax';
@@ -119,7 +122,7 @@ class LabBookMastersController extends LabBookAppController {
 		
 		$control_data = $this->LabBookControl->find('first', array('conditions' => array('LabBookControl.id' => $control_id)));
 		if(empty($control_data)) { 
-			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		$this->set('book_type', __($control_data['LabBookControl']['book_type'], true));
 		$initial_data = array();
@@ -185,7 +188,7 @@ class LabBookMastersController extends LabBookAppController {
 			
 	function edit($lab_book_master_id){
 		if(!$lab_book_master_id) { 
-			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		// MANAGE DATA
@@ -193,7 +196,7 @@ class LabBookMastersController extends LabBookAppController {
 		// Get the lab_book data data
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
 		if(empty($lab_book)) { 
-			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -236,7 +239,7 @@ class LabBookMastersController extends LabBookAppController {
 
 	function editSynchOptions($lab_book_master_id){
 		if(!$lab_book_master_id) { 
-			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		// MANAGE DATA
@@ -244,7 +247,7 @@ class LabBookMastersController extends LabBookAppController {
 		// Get the lab_book data data
 		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
 		if(empty($lab_book)) {
-			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
@@ -296,14 +299,14 @@ class LabBookMastersController extends LabBookAppController {
 				if(isset($this->data['derivative'])) {				
 					foreach($this->data['derivative'] as $new_record) {
 						$this->DerivativeDetail->id = $new_record['DerivativeDetail']['id'];
-						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $new_record['DerivativeDetail']), false))  $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
+						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $new_record['DerivativeDetail']), false))  $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 				}
 				
 				if(isset($this->data['realiquoting'])) {
 					foreach($this->data['realiquoting'] as $new_record) {
 						$this->Realiquoting->id = $new_record['Realiquoting']['id'];
-						if(!$this->Realiquoting->save(array('Realiquoting' => $new_record['Realiquoting']), false)) $this->redirect('/pages/err_lab_book_system_error?line='.__LINE__, null, true);
+						if(!$this->Realiquoting->save(array('Realiquoting' => $new_record['Realiquoting']), false)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 				}
 
@@ -316,12 +319,12 @@ class LabBookMastersController extends LabBookAppController {
 		
 	function delete($lab_book_master_id) {
 		if(!$lab_book_master_id) { 
-			$this->redirect('/pages/err_lab_book_funct_param_missing?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
 		$lab_book_data = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id), 'recursive' => '-1'));
 		if(empty($lab_book_data)) { 
-			$this->redirect('/pages/err_lab_book_no_data?line='.__LINE__, null, true); 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
 
 		// Check deletion is allowed

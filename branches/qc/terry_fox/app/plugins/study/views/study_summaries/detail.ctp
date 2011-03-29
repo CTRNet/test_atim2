@@ -3,7 +3,9 @@
 		'bottom'=>array(
 			'list'=>'/study/study_summaries/listall/',
 			'edit'=>'/study/study_summaries/edit/%%StudySummary.id%%/',
-			'delete'=>'/study/study_summaries/delete/%%StudySummary.id%%/',
+			'delete'=>'/study/study_summaries/delete/%%StudySummary.id%%/'
+	/*	
+	-- Remove add button from detail form. Study Module to be review in later version --
 			'add' => array(
 				__('tool_contact', null) => '/study/study_contacts/add/%%StudySummary.id%%/',
 				__('tool_ethics', null) => '/study/study_ethics_boards/add/%%StudySummary.id%%/',
@@ -12,6 +14,7 @@
 				__('tool_related studies', null) => '/study/study_related/add/%%StudySummary.id%%/',
 				__('tool_result', null) => '/study/study_results/add/%%StudySummary.id%%/'
 				)
+	*/
 		)
 	);
 	

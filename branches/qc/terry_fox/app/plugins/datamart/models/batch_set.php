@@ -117,7 +117,7 @@ class BatchSet extends DatamartAppModel {
 		|| (!(array_key_exists('user_id', $batchset['BatchSet'])
 		&& array_key_exists('group_id', $batchset['BatchSet'])
 		&& array_key_exists('sharing_status', $batchset['BatchSet'])))) {
-			AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		$allowed = null;
@@ -132,7 +132,7 @@ class BatchSet extends DatamartAppModel {
 				$allowed = true;
 				break;
 			default:
-				AppController::getInstance()->redirect('/pages/err_datamart_system_error', null, true);
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		if(!$allowed){
@@ -146,6 +146,17 @@ class BatchSet extends DatamartAppModel {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Fetches the compatible datamart structure based on a model name
+	 * @param string $model_name
+	 * @return The compatible datamart structure id on success, false otherwise
+	 */
+	function getCompatibleDatamartStructureId($model_name){
+		$datamart_structure_model = AppModel::atimNew("datamart", "DatamartStructure", true);
+		$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $model_name, 'DatamartStructure.control_master_model' => $model_name))));
+		return empty($datamart_structure) ? false : $datamart_structure['DatamartStructure']['id'];  
 	}
 }
 

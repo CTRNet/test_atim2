@@ -42,10 +42,10 @@ class StorageControl extends StoragelayoutAppModel {
 		// Check for storage control data, if none get the control data
 		if(empty($storage_control_data)) {
 			$storage_control_data = $this->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
-			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_sto_no_data', null, true); }
+			if(empty($storage_control_data)) { $this->controller->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 		}
 					
-		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/pages/err_sto_system_error', null, true); }
+		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Check the control data and set boolean for return.
 		if(!((strcmp($storage_control_data['StorageControl']['coord_x_type'], 'list') == 0) 

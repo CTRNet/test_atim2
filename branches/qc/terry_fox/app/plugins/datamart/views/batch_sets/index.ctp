@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'index'=>array(
-			'detail'=>'/datamart/batch_sets/listall/'.$atim_menu_variables['Param.Type_Of_List'].'/%%BatchSet.id%%'
+			'detail'=>'/datamart/batch_sets/listall/%%BatchSet.id%%'
 		),
 		'bottom'=>array(
 			'delete in batch' => '/datamart/batch_sets/deleteInBatch',

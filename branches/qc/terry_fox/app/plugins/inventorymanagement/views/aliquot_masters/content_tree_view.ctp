@@ -25,7 +25,7 @@
 			)
 		),
 		'tree_expand' => array(
-			'AliquotMaster' => '/inventorymanagement/sample_masters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/',
+			'AliquotMaster' => '/inventorymanagement/aliquot_masters/contentTreeView/%%AliquotMaster.collection_id%%/%%AliquotMaster.id%%/1/',
 		),
 		'bottom' => $bottom,
 		'ajax' => array(
