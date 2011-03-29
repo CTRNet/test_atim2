@@ -1,3 +1,6 @@
+-- This script will load a base set of test data for ATiM v2.2.0. Note this script is only
+-- valid for a v2.2.0 installation.
+
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET FOREIGN_KEY_CHECKS=0;
 
