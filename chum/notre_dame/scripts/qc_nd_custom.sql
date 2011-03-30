@@ -109,43 +109,43 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`,
 (@domain_id, 'chantale auger','Chantale Auger','Chantale Auger'),
 (@domain_id, 'christine abaji','Christine Abaji','Christine Abaji'),
 (@domain_id, 'emilio, johanne et phil','Émilio, Johanne et Phil','Émilio, Johanne et Phil'),
-(@domain_id, 'hafida lounis ','Hafida Lounis','Hafida Lounis'),
-(@domain_id, 'isabelle letourneau ','Isabelle Létourneau','Isabelle Létourneau'),
+(@domain_id, 'hafida lounis','Hafida Lounis','Hafida Lounis'),
+(@domain_id, 'isabelle letourneau','Isabelle Létourneau','Isabelle Létourneau'),
 (@domain_id, 'jason madore','Jason Madore','Jason Madore'),
 (@domain_id, 'jennifer kendall dupont','Jennifer Kendall Dupont','Jennifer Kendall Dupont'),
 (@domain_id, 'jessica godin ethier','Jessica Godin Ethier','Jessica Godin Ethier'),
-(@domain_id, 'josh levin ','Josh Levin','Josh Levin'),
+(@domain_id, 'josh levin','Josh Levin','Josh Levin'),
 (@domain_id, 'julie desgagnes','Julie Desgagnés','Julie Desgagnés'),
-(@domain_id, 'karine normandin ','Karine Normandin','Karine Normandin'),
+(@domain_id, 'karine normandin','Karine Normandin','Karine Normandin'),
 (@domain_id, 'kevin gu','Kevin Gu','Kevin Gu'),
 (@domain_id, 'labo externe','Labo externe','Labo externe'),
 (@domain_id, 'liliane meunier','Liliane Meunier','Liliane Meunier'),
 (@domain_id, 'lise portelance','Lise Portelance','Lise Portelance'),
 (@domain_id, 'louise champoux','Louise Champoux','Louise Champoux'),
-(@domain_id, 'magdalena zietarska ','Magdalena Zietarska','Magdalena Zietarska'),
+(@domain_id, 'magdalena zietarska','Magdalena Zietarska','Magdalena Zietarska'),
 (@domain_id, 'manon de ladurantaye','Manon de Ladurantaye','Manon de Ladurantaye'),
-(@domain_id, 'marie-andree forget ','Marie-Andrée Forget','Marie-Andrée Forget'),
+(@domain_id, 'marie-andree forget','Marie-Andrée Forget','Marie-Andrée Forget'),
 (@domain_id, 'marie-josee milot','Marie-Josée Milot','Marie-Josée Milot'),
 (@domain_id, 'marie-line puiffe','Marie-Line Puiffe','Marie-Line Puiffe'),
-(@domain_id, 'marise roy ','Marise Roy','Marise Roy'),
+(@domain_id, 'marise roy','Marise Roy','Marise Roy'),
 (@domain_id, 'matthew starek','Matthew Starek','Matthew Starek'),
 (@domain_id, 'mona alam','Mona Alam','Mona Alam'),
-(@domain_id, 'nathalie delvoye ','Nathalie Delvoye','Nathalie Delvoye'),
-(@domain_id, 'pathologie ','Pathologie','Pathologie'),
+(@domain_id, 'nathalie delvoye','Nathalie Delvoye','Nathalie Delvoye'),
+(@domain_id, 'pathologie','Pathologie','Pathologie'),
 (@domain_id, 'patrick kibangou bondza','Patrick Kibangou Bondza','Patrick Kibangou Bondza'),
-(@domain_id, 'stephanie lepage ','Stéphanie Lepage','Stéphanie Lepage'),
-(@domain_id, 'urszula krzemien ','Urszula Krzemien','Urszula Krzemien'),
+(@domain_id, 'stephanie lepage','Stéphanie Lepage','Stéphanie Lepage'),
+(@domain_id, 'urszula krzemien','Urszula Krzemien','Urszula Krzemien'),
 (@domain_id, 'valerie forest','Valérie Forest','Valérie Forest'),
-(@domain_id, 'veronique barres ','Véronique Barr&eagrave;s','Véronique Barr&eagrave;s'),
+(@domain_id, 'veronique barres','Véronique Barr&eagrave;s','Véronique Barr&eagrave;s'),
 (@domain_id, 'veronique ouellet','Véronique Ouellet','Véronique Ouellet'),
-(@domain_id, 'yuan chang ','Yuan Chang','Yuan Chang'),
+(@domain_id, 'yuan chang','Yuan Chang','Yuan Chang'),
 (@domain_id, 'autre','Autre','Autre'),
 (@domain_id, 'inconnue','Inconnue','Inconnue'),
-(@domain_id, 'guillaume cardin ','Guillaume Cardin','Guillaume Cardin'),
+(@domain_id, 'guillaume cardin','Guillaume Cardin','Guillaume Cardin'),
 (@domain_id, 'teodora yaneva','Teodora Yaneva','Teodora Yaneva'),
-(@domain_id, 'katia caceres ','Katia Caceres','Katia Caceres'),
+(@domain_id, 'katia caceres','Katia Caceres','Katia Caceres'),
 (@domain_id, 'carl-frederic duchatellier','Carl-Frédéric Duchatellier','Carl-Frédéric Duchatellier'),
-(@domain_id, 'michael quinn ','Michael Quinn','Michael Quinn'),
+(@domain_id, 'michael quinn','Michael Quinn','Michael Quinn'),
 (@domain_id, 'louis cyr','Louis Cyr','Louis Cyr'),
 (@domain_id, 'rayane el masri','Rayane El Masri','Rayane El Masri');
 
@@ -201,5 +201,22 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`,
 '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 UPDATE structure_fields SET language_label = 'cell passage number' WHERE language_label like 'cell passage number ';
+
+UPDATE sample_masters SET is_problematic = '1' WHERE is_problematic = 'yes';
+UPDATE sample_masters SET is_problematic = '0' WHERE is_problematic != '1';
+
+UPDATE sd_spe_bloods SET blood_type = 'heparin' WHERE blood_type = 'heparine';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'display_name_from_datamasrtstructure', 'open', '', 'Datamart.DatamartStructure::getDisplayNameFromId');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Datamart', 'BrowsingResult', '', 'browsing_structures_id', 'search start from', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='display_name_from_datamasrtstructure') , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingResult' AND `tablename`='' AND `field`='browsing_structures_id' AND `language_label`='search start from' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='display_name_from_datamasrtstructure')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='datamart_browsing_indexes') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='BrowsingIndex' AND tablename='datamart_browsing_indexes' AND field='notes' AND type='textarea' AND structure_value_domain  IS NULL );
+
+
+
 
 
