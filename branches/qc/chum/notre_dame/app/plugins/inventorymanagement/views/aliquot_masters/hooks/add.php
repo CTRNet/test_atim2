@@ -1,10 +1,10 @@
 <?php 
 
 	// --------------------------------------------------------------------------------
-	// Generate default aliquot label
+	// Set custom initial data including default aliquot label(s)
 	// -------------------------------------------------------------------------------- 
-	if(isset($default_aliquot_label)) {
-		$final_options['override']['AliquotMaster.aliquot_label'] = $default_aliquot_label;		
+	if(isset($custom_initial_data)) {
+		$this->data = $custom_initial_data;		
 	}
 	
 ?>

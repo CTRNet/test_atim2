@@ -192,7 +192,14 @@ UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_de
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='identifier_value' AND type='input' AND structure_value_domain  IS NULL );
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, 
+`display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES
+((SELECT id FROM structures WHERE alias='in_stock_detail'), 
+(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='aliquot_label'), 
+'1', '1', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=50', '0', '', 
+'0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
-
+UPDATE structure_fields SET language_label = 'cell passage number' WHERE language_label like 'cell passage number ';
 
 
