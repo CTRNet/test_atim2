@@ -1,10 +1,8 @@
 <?php
 	
 	// --------------------------------------------------------------------------------
-	// Generate default barcode
+	// Regenerate default barcodes
 	// -------------------------------------------------------------------------------- 	
- 	if($submitted_data_validates) { 
- 		$this->AliquotMaster->generateDefaultAliquotBarcode($sample_data); 
- 	}
-	
+	$this->AliquotMaster->regenerateAliquotBarcode();
+
 ?>

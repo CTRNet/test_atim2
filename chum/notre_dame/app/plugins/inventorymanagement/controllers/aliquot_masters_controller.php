@@ -1426,6 +1426,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)){ 
 			$this->redirect("/pages/err_inv_no_data", null, true); 
 		} else if(isset($this->data[0]) && isset($this->data[0]['ids'])){ 
+			if($this->data[0]['realiquot_into'] == ''){
+				$this->flash(__("you must select an aliquot type", true), "javascript:history.back();", 5);
+				return;
+			}
 			$initial_display = true;
 			$parent_aliquots_ids = $this->data[0]['ids'];
 		} else if(isset($this->data['ids'])) {
@@ -1734,6 +1738,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)){ 
 			$this->redirect("/pages/err_inv_no_data", null, true); 
 		} else if(isset($this->data[0]) && isset($this->data[0]['ids'])){ 
+			if($this->data[0]['realiquot_into'] == ''){
+				$this->flash(__("you must select an aliquot type", true), "javascript:history.back();", 5);
+				return;
+			}
 			$initial_display = true;
 			$parent_aliquots_ids = $this->data[0]['ids'];
 		} else if(isset($this->data['ids'])) {
