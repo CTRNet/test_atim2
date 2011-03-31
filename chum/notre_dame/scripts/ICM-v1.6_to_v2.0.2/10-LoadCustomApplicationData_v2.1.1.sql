@@ -136,11 +136,14 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`,
 (@domain_id, 'stephanie lepage','Stéphanie Lepage','Stéphanie Lepage'),
 (@domain_id, 'urszula krzemien','Urszula Krzemien','Urszula Krzemien'),
 (@domain_id, 'valerie forest','Valérie Forest','Valérie Forest'),
-(@domain_id, 'veronique barres','Véronique Barr&eagrave;s','Véronique Barr&eagrave;s'),
+(@domain_id, 'veronique barres','Véronique Barr&egrave;s','Véronique Barr&egrave;s'),
 (@domain_id, 'veronique ouellet','Véronique Ouellet','Véronique Ouellet'),
 (@domain_id, 'yuan chang','Yuan Chang','Yuan Chang'),
 (@domain_id, 'autre','Autre','Autre'),
+(@domain_id, 'alexis poisson','Alexis Poisson','Alexis Poisson'),
+(@domain_id, 'hubert fleury','Hubert Fleury','Hubert Fleury'),
 (@domain_id, 'inconnue','Inconnue','Inconnue'),
+(@domain_id, 'cecile lepage','Cecile Lepage','Cecile Lepage'),
 (@domain_id, 'guillaume cardin','Guillaume Cardin','Guillaume Cardin'),
 (@domain_id, 'teodora yaneva','Teodora Yaneva','Teodora Yaneva'),
 (@domain_id, 'katia caceres','Katia Caceres','Katia Caceres'),
@@ -216,14 +219,311 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='datamart_browsing_indexes'), (SELECT id FROM structure_fields WHERE `model`='BrowsingResult' AND `tablename`='' AND `field`='browsing_structures_id' AND `language_label`='search start from' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='display_name_from_datamasrtstructure')  AND `language_help`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
 UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='datamart_browsing_indexes') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='BrowsingIndex' AND tablename='datamart_browsing_indexes' AND field='notes' AND type='textarea' AND structure_value_domain  IS NULL );
 
+UPDATE realiquotings SET realiquoted_by = 'jennifer kendall dupont' WHERE realiquoted_by LIKE 'jennifer kendall%';
 
-control qualiteé: Le choix appareil ne marche pas
-Aliquot ADN se met a non disponible si on fait un control de qualite
-Pour les aliquots de culture cellulaire: On aimerait un flag pour dire mycoplasme free.
- bug de chantale https://10.52.47.134/ATiM/?from=/clinicalannotation/sample_masters/listall/7313
+UPDATE aliquot_internal_uses SET used_by = 'marie-line puiffe' WHERE use_details LIKE '% by Marie-Line%';
+UPDATE aliquot_internal_uses SET used_by = 'lise portelance' WHERE use_details LIKE '% by Lise%';
+UPDATE aliquot_internal_uses SET used_by = 'stephanie lepage' WHERE use_details LIKE '% by Stéphanie%';
+UPDATE aliquot_internal_uses SET used_by = 'manon de ladurantaye' WHERE use_details LIKE '% by Manon%';
+UPDATE aliquot_internal_uses SET used_by = 'marise roy' WHERE use_details LIKE '% by Marise%';
+UPDATE aliquot_internal_uses SET used_by = 'matthew starek' WHERE use_details LIKE '% by Matthew%';
+UPDATE aliquot_internal_uses SET used_by = 'karine normandin' WHERE use_details LIKE '% by Karine%';
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '% by Jennifer%';
+UPDATE aliquot_internal_uses SET used_by = 'veronique barres' WHERE use_details LIKE '% by Véronique Barres%';
+UPDATE aliquot_internal_uses SET used_by = 'veronique ouellet' WHERE use_details LIKE '% by Véronique Ouellet%';
+UPDATE aliquot_internal_uses SET used_by = 'chantale auger' WHERE use_details LIKE '% by Chantale%';
+UPDATE aliquot_internal_uses SET used_by = 'jessica godin ethier' WHERE use_details LIKE '% by Jessica%';
+UPDATE aliquot_internal_uses SET used_by = 'pathologie' WHERE use_details LIKE '% by Pathologie%';
+UPDATE aliquot_internal_uses SET used_by = 'liliane meunier' WHERE use_details LIKE '% by Liliane%';
+UPDATE aliquot_internal_uses SET used_by = 'patrick kibangou bondza' WHERE use_details LIKE '% by Patrick%';
+UPDATE aliquot_internal_uses SET used_by = 'marie-andree forget' WHERE use_details LIKE '% by Marie-Andrée%';
+UPDATE aliquot_internal_uses SET used_by = 'julie desgagnes' WHERE use_details LIKE '% by Julie Desgagnés%';
+UPDATE aliquot_internal_uses SET used_by = 'autre' WHERE use_details LIKE '% by Autre%';
+UPDATE aliquot_internal_uses SET used_by = 'inconnue' WHERE use_details LIKE '% by Inconnue%';
 
+UPDATE aliquot_internal_uses SET used_by = 'aurore pierrard' WHERE use_details LIKE '% by Aurore%';
+UPDATE aliquot_internal_uses SET used_by = 'yuan chang' WHERE use_details LIKE '% by Yuan%';
+UPDATE aliquot_internal_uses SET used_by = 'magdalena zietarska' WHERE use_details LIKE '% by Magdalena%';
 
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '%Jennifer%';
+UPDATE aliquot_internal_uses SET used_by = 'cecile lepage' WHERE use_details LIKE '%par Cecile%';
 
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '%Jenifer%';
+UPDATE aliquot_internal_uses SET used_by = 'patrick kibangou bondza' WHERE use_details LIKE '%Patrick%';
+UPDATE aliquot_internal_uses SET used_by = 'manon de ladurantaye' WHERE use_details LIKE '%Manon%';
+UPDATE aliquot_internal_uses SET used_by = 'liliane meunier' WHERE use_details LIKE '%Liliane%';
+UPDATE aliquot_internal_uses SET used_by = 'karine normandin' WHERE use_details LIKE '%Karine%';
+UPDATE aliquot_internal_uses SET used_by = 'michael quinn' WHERE use_details LIKE '%Michael Quinn%';
+UPDATE aliquot_internal_uses SET used_by = 'rayane el masri' WHERE use_details LIKE '%Rayane%';
+UPDATE aliquot_internal_uses SET used_by = 'alexis poisson' WHERE use_details LIKE '%Alexis Poisson%';
+UPDATE aliquot_internal_uses SET used_by = 'hubert fleury' WHERE use_details LIKE '%Hubert%';
+UPDATE aliquot_internal_uses SET used_by = 'magdalena zietarska' WHERE use_details LIKE '%Magadalena Zietarska%';
 
+SET @domain_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'quality control tools');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @domain_id;
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `fr`) VALUES
+(@domain_id, 'beckman','Beckman','Beckman'),
+(@domain_id, 'bioanalyzer 1','BioAnalyzer 1','BioAnalyzer 1'),
+(@domain_id, 'nanodrop','Nanodrop','Nanodrop'),
+(@domain_id, 'pharmacia','Pharmacia','Pharmacia');
 
+DROP VIEW IF EXISTS view_aliquot_uses;
+CREATE VIEW view_aliquot_uses AS 
+
+SELECT 
+CONCAT(source.id, 1) AS id,
+aliq.id AS aliquot_master_id,
+'sample derivative creation' AS use_definition, 
+CONCAT(samp.sample_label, ' [',samp.sample_code, ']') AS use_code,
+'' AS use_details,
+source.used_volume,
+aliq.aliquot_volume_unit,
+der.creation_datetime AS use_datetime,
+der.creation_by AS used_by,
+source.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
+samp2.id AS sample_master_id,
+samp2.collection_id AS collection_id
+FROM source_aliquots AS source
+INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
+INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE source.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(realiq.id, 2) AS id,
+aliq.id AS aliquot_master_id,
+'realiquoted to' AS use_definition, 
+CONCAT(child.aliquot_label, ' [',child.barcode, ']') AS use_code,
+'' AS use_details,
+realiq.parent_used_volume AS used_volume,
+aliq.aliquot_volume_unit,
+realiq.realiquoting_datetime AS use_datetime,
+realiq.realiquoted_by AS used_by,
+realiq.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM realiquotings AS realiq
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE realiq.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(tested.id, 3) AS id,
+aliq.id AS aliquot_master_id,
+'quality control' AS use_definition, 
+qc.qc_code AS use_code,
+'' AS use_details,
+tested.used_volume,
+aliq.aliquot_volume_unit,
+qc.date AS use_datetime,
+qc.run_by AS used_by,
+tested.created,
+CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM quality_ctrl_tested_aliquots AS tested
+INNER JOIN aliquot_masters AS aliq ON aliq.id = tested.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN quality_ctrls AS qc ON qc.id = tested.quality_ctrl_id AND qc.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE tested.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(item.id, 4) AS id,
+aliq.id AS aliquot_master_id,
+'aliquot shipment' AS use_definition, 
+sh.shipment_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+sh.datetime_shipped AS use_datetime,
+sh.shipped_by AS used_by,
+sh.created,
+CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM order_items AS item
+INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE item.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(alr.id, 5) AS id,
+aliq.id AS aliquot_master_id,
+'specimen review' AS use_definition, 
+spr.review_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+spr.review_date AS use_datetime,
+'' AS used_by,
+alr.created,
+CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_review_masters AS alr
+INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE alr.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(aluse.id, 6) AS id,
+aliq.id AS aliquot_master_id,
+'internal use' AS use_definition, 
+aluse.use_code,
+aluse.use_details,
+aluse.used_volume,
+aliq.aliquot_volume_unit,
+aluse.use_datetime,
+aluse.used_by,
+aluse.created,
+CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_internal_uses AS aluse
+INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE aluse.deleted != 1;
+
+UPDATE structure_formats
+SET display_order = 29
+WHERE 
+
+UPDATE structure_formats SET `display_order`='0'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND field='sample_code');
+UPDATE structure_formats SET `display_order`='1'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND field='sample_label');
+
+UPDATE structure_formats SET `display_order`='999'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'aliquot_masters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='stored_by');
+UPDATE structure_formats SET `display_order` = '0'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'aliquot_masters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='barcode' AND type = 'input');
+UPDATE structure_formats SET `display_order` = '2000'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='created');
+
+UPDATE derivative_details SET creation_by = 'marie-line puiffe' WHERE creation_by LIKE '% by Marie-Line%';
+UPDATE aliquot_internal_uses SET used_by = 'lise portelance' WHERE use_details LIKE '% by Lise%';
+UPDATE aliquot_internal_uses SET used_by = 'stephanie lepage' WHERE use_details LIKE '% by Stéphanie%';
+UPDATE aliquot_internal_uses SET used_by = 'manon de ladurantaye' WHERE use_details LIKE '% by Manon%';
+UPDATE aliquot_internal_uses SET used_by = 'marise roy' WHERE use_details LIKE '% by Marise%';
+UPDATE aliquot_internal_uses SET used_by = 'matthew starek' WHERE use_details LIKE '% by Matthew%';
+UPDATE aliquot_internal_uses SET used_by = 'karine normandin' WHERE use_details LIKE '% by Karine%';
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '% by Jennifer%';
+UPDATE aliquot_internal_uses SET used_by = 'veronique barres' WHERE use_details LIKE '% by Véronique Barres%';
+UPDATE aliquot_internal_uses SET used_by = 'veronique ouellet' WHERE use_details LIKE '% by Véronique Ouellet%';
+UPDATE aliquot_internal_uses SET used_by = 'chantale auger' WHERE use_details LIKE '% by Chantale%';
+UPDATE aliquot_internal_uses SET used_by = 'jessica godin ethier' WHERE use_details LIKE '% by Jessica%';
+UPDATE aliquot_internal_uses SET used_by = 'pathologie' WHERE use_details LIKE '% by Pathologie%';
+UPDATE aliquot_internal_uses SET used_by = 'liliane meunier' WHERE use_details LIKE '% by Liliane%';
+UPDATE aliquot_internal_uses SET used_by = 'patrick kibangou bondza' WHERE use_details LIKE '% by Patrick%';
+UPDATE aliquot_internal_uses SET used_by = 'marie-andree forget' WHERE use_details LIKE '% by Marie-Andrée%';
+UPDATE aliquot_internal_uses SET used_by = 'julie desgagnes' WHERE use_details LIKE '% by Julie Desgagnés%';
+UPDATE aliquot_internal_uses SET used_by = 'autre' WHERE use_details LIKE '% by Autre%';
+UPDATE aliquot_internal_uses SET used_by = 'inconnue' WHERE use_details LIKE '% by Inconnue%';
+
+UPDATE aliquot_internal_uses SET used_by = 'aurore pierrard' WHERE use_details LIKE '% by Aurore%';
+UPDATE aliquot_internal_uses SET used_by = 'yuan chang' WHERE use_details LIKE '% by Yuan%';
+UPDATE aliquot_internal_uses SET used_by = 'magdalena zietarska' WHERE use_details LIKE '% by Magdalena%';
+
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '%Jennifer%';
+UPDATE aliquot_internal_uses SET used_by = 'cecile lepage' WHERE use_details LIKE '%par Cecile%';
+
+UPDATE aliquot_internal_uses SET used_by = 'jennifer kendall dupont' WHERE use_details LIKE '%Jenifer%';
+UPDATE aliquot_internal_uses SET used_by = 'patrick kibangou bondza' WHERE use_details LIKE '%Patrick%';
+UPDATE aliquot_internal_uses SET used_by = 'manon de ladurantaye' WHERE use_details LIKE '%Manon%';
+UPDATE aliquot_internal_uses SET used_by = 'liliane meunier' WHERE use_details LIKE '%Liliane%';
+UPDATE aliquot_internal_uses SET used_by = 'karine normandin' WHERE use_details LIKE '%Karine%';
+UPDATE aliquot_internal_uses SET used_by = 'michael quinn' WHERE use_details LIKE '%Michael Quinn%';
+UPDATE aliquot_internal_uses SET used_by = 'rayane el masri' WHERE use_details LIKE '%Rayane%';
+UPDATE aliquot_internal_uses SET used_by = 'alexis poisson' WHERE use_details LIKE '%Alexis Poisson%';
+UPDATE aliquot_internal_uses SET used_by = 'hubert fleury' WHERE use_details LIKE '%Hubert%';
+UPDATE aliquot_internal_uses SET used_by = 'magdalena zietarska' WHERE use_details LIKE '%Magadalena Zietarska%';
+
+UPDATE derivative_details SET creation_by = 'marie-line puiffe' WHERE creation_by LIKE 'Marie-Line';
+UPDATE derivative_details SET creation_by = 'inconnue' WHERE creation_by LIKE 'unknown';
+UPDATE derivative_details SET creation_by = 'lise portelance' WHERE creation_by LIKE 'Lise';
+UPDATE derivative_details SET creation_by = 'marise roy' WHERE creation_by LIKE 'Marise';
+UPDATE derivative_details SET creation_by = 'manon de ladurantaye' WHERE creation_by LIKE 'Manon';
+UPDATE derivative_details SET creation_by = 'stephanie lepage' WHERE creation_by LIKE 'Stéphanie';
+UPDATE derivative_details SET creation_by = 'louise champoux' WHERE creation_by LIKE 'Louise';
+UPDATE derivative_details SET creation_by = 'autre' WHERE creation_by LIKE 'other';
+UPDATE derivative_details SET creation_by = 'magdalena zietarska' WHERE creation_by LIKE 'Magdalena';
+UPDATE derivative_details SET creation_by = 'emilio, johanne et phil' WHERE creation_by LIKE 'emilio, johanne et p%';
+UPDATE derivative_details SET creation_by = 'karine normandin' WHERE creation_by LIKE 'Karine';
+UPDATE derivative_details SET creation_by = 'patrick kibangou bondza' WHERE creation_by LIKE 'patrick kibangou bon%';
+
+UPDATE shipments SET shipped_by = 'autre' WHERE shipped_by LIKE 'other';
+
+UPDATE aliquot_internal_uses SET used_by = 'cecile lepage' WHERE used_by LIKE '%Cecile%';
+
+UPDATE aliquot_masters SET stored_by = 'autre' WHERE stored_by LIKE 'other';
+UPDATE aliquot_masters SET stored_by = 'inconnue' WHERE stored_by LIKE 'unknown';
+
+ALTER TABLE ad_tubes
+	ADD COLUMN mycoplasma_free TINYINT(1) DEFAULT 0 AFTER cell_passage_number,
+	ADD COLUMN mycoplasma_test VARCHAR(50) NULL DEFAULT NULL AFTER mycoplasma_free;
+	
+ALTER TABLE ad_tubes_revs
+	ADD COLUMN mycoplasma_free TINYINT(1) DEFAULT 0 AFTER cell_passage_number,
+	ADD COLUMN mycoplasma_test VARCHAR(50) NULL DEFAULT NULL AFTER mycoplasma_free;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'mycoplasma_free', 'mycoplasma free', '', 'checkbox', '', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_cell_culture_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='mycoplasma_free' AND `language_label`='mycoplasma free' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+UPDATE ad_tubes ad, aliquot_masters am, aliquot_controls ac
+SET ad.mycoplasma_free = 1
+WHERE am.id = ad.aliquot_master_id
+AND ac.id = am.aliquot_control_id
+AND am.notes LIKE '%test%mycopla%'
+AND ac.form_alias LIKE '%ad_cell_culture_tubes%';
+
+INSERT INTO i18n (id, en, fr) VALUES
+("mycoplasma free", "Mycoplasma Free", "Mycoplasme Négatif"),
+("mycoplasma test", "Mycoplasma Test", "Mycoplasme Teste"),
+('qc culture population','Population #','Population #');
+
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`, `values_max_length`) VALUES
+(null, 'qc mycoplasma tests', 1, 50);
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qc_mycoplasma_tests', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''qc mycoplasma tests'')');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'mycoplasma_test', 'mycoplasma test', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_mycoplasma_tests') , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_cell_culture_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='mycoplasma_test' AND `language_label`='mycoplasma test' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_mycoplasma_tests')  AND `language_help`=''), '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+ALTER TABLE sd_der_cell_cultures
+	ADD COLUMN qc_culture_population INT(5) DEFAULT NULL AFTER tmp_percentage_of_serum;	
+ALTER TABLE sd_der_cell_cultures_revs
+	ADD COLUMN qc_culture_population INT(5) DEFAULT NULL AFTER tmp_percentage_of_serum;
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'qc_culture_population', 'qc culture population', '', 'integer', 'size=3', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='qc_culture_population' AND `language_label`='qc culture population' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+	
+	
 
