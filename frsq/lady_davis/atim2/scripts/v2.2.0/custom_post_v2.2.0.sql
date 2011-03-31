@@ -34,6 +34,6 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('participant B-M-T', 'Participant B-M-T', 'Participant B-M-T'),
 ('qc_lady_participant_bmt_query_desc', "Searches for participants having B, M and T identifiers", "Cherche les participant ayant les identifiants B, M et T"),
 ('core_appname', 'ATiM - Advanced Tissue Management', "ATiM - Application de gestion avancée des tissus"),
-('core_installname', "Lady Davis", "Lady Davis");
+('core_installname', "Lady Davis - Breast", "Lady Davis - Sein");
 
 UPDATE menus SET flag_active=0 WHERE id='procd_CAN_01';
