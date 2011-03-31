@@ -1,4 +1,4 @@
--- install 2.1.1
+-- Install 2.2.0
 -- run this custom script
 
 -- Under Consent, remove Date of Referral, Process Status, and Facility.
@@ -62,35 +62,38 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qc_gastro_mold_id' AND `language_label`='mold id' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '65', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotDetail' AND tablename='' AND field='patho_dpt_block_code' AND type='input' AND structure_value_domain  IS NULL );
 
--- For each aliquot, under Add Uses > Add Internal Uses, add the text field “Number of Slices”
-ALTER TABLE aliquot_uses
- ADD qc_gastro_nb_slices SMALLINT DEFAULT NULL AFTER study_summary_id;
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
-('Inventorymanagement', 'AliquotUse', 'aliquot_uses', 'qc_gastro_nb_slices', 'number of slices', '', 'integer', '', '',  NULL , '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquotuses'), (SELECT id FROM structure_fields WHERE `model`='AliquotUse' AND `tablename`='aliquot_uses' AND `field`='qc_gastro_nb_slices' AND `language_label`='number of slices' AND `language_tag`='' AND `type`='integer' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
-
-
 INSERT INTO misc_identifier_controls(misc_identifier_name, misc_identifier_name_abbrev, flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant) VALUES
 ("régime d'assurance maladie du québec", 'RAMQ', 1, 4, '', '', 1);
 
 DROP VIEW view_collections;
-CREATE VIEW `view_collections` AS SELECT `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,
- `link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,
- `identifier`.`identifier_value` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,
- `col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
- `col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,
- `banks`.`name` AS `bank_name`,`col`.`created` AS `created` 
-FROM `collections` `col` LEFT JOIN `clinical_collection_links` `link` ON `col`.`id` = `link`.`collection_id` AND `link`.`deleted` <> 1 
- LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id=4 
- LEFT JOIN `banks` ON `col`.`bank_id` = `banks`.`id` AND `banks`.`deleted` <> 1 WHERE `col`.`deleted` <> 1;
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` 
+AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` 
+AS `consent_master_id`,`identifier`.`identifier_value` AS `participant_identifier`,`col`.`acquisition_label` 
+AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` 
+AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` 
+AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`atim_new`.`banks`.`name` 
+AS `bank_name`,`col`.`created` AS `created` 
+FROM (((`atim_new`.`collections` `col` 
+LEFT JOIN `atim_new`.`clinical_collection_links` `link` ON(((`col`.`id` = `link`.`collection_id`) AND (`link`.`deleted` <> 1)))) 
+LEFT JOIN `atim_new`.`participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
+LEFT JOIN `atim_new`.`banks` ON(((`col`.`bank_id` = `atim_new`.`banks`.`id`) AND (`atim_new`.`banks`.`deleted` <> 1)))) 
+LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id=4
+WHERE (`col`.`deleted` <> 1); 
+
+
 
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
-('qc_gastro_tissue_source_list', 1, 20);
-UPDATE structure_value_domains SET source="StructurePermissibleValuesCustom::getCustomDropdown('qc_gastro tissue source list')" WHERE domain_name='tissue_source_list'; 
+('qc_gastro_tissue_source_list', 1, 20),
+('qc_gastro_consent_version', 1, 50);
+UPDATE structure_value_domains SET source="StructurePermissibleValuesCustom::getCustomDropdown('qc_gastro_tissue_source_list')" WHERE domain_name='tissue_source_list';
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('qc_gastro_consent_version', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('qc_gastro_consent_version')");
+UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_consent_version'), type='select', setting='' WHERE id='775';
+
 
 REPLACE INTO i18n (id, en, fr) VALUES
 ('biobank id', 'Biobank ID', 'Biobank ID'),
 ('ramq#', 'RAMQ #', '# RAMQ'),
 ('mold id', 'Mold ID', 'Mold ID'),
-("régime d'assurance maladie du québec", "Régime d'Assurance Maladie du Québec", "Régime d'Assurance Maladie du Québec"); 
+("régime d'assurance maladie du québec", "Régime d'Assurance Maladie du Québec", "Régime d'Assurance Maladie du Québec"), 
+('core_installname', 'Lady Davis - Colorectal', 'Lady Davis - Colorectal');
