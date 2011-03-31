@@ -15,7 +15,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 	 * @updated N. Luc
 	 */  	
 	function getAliquotListForReview($sample_master_id = null, $specific_aliquot_type = null) {
-		$result = array();
+		$result = array(''=>'');
 		
 		if(!empty($sample_master_id)) {
 			if(!isset($this->AliquotMaster)) {

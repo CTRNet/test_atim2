@@ -17,12 +17,12 @@ class StorageTreeView extends StoragelayoutAppModel {
 		'AliquotMaster' => array(           
 			'className'    => 'Inventorymanagement.AliquotMaster',            
 			'foreignKey'	=> 'storage_master_id',
-			'order'	=>    'AliquotMaster.coord_x_order ASC, AliquotMaster.coord_y_order ASC'    
+			'order'	=>    'CAST(AliquotMaster.storage_coord_x AS signed), CAST(AliquotMaster.storage_coord_y AS signed)'    
 		),
 		'TmaSlide' => array(           
 			'className'    => 'Storagelayout.TmaSlide',            
 			'foreignKey'    => 'storage_master_id',
-			'order'	=>    'TmaSlide.coord_x_order ASC, TmaSlide.coord_y_order ASC'        
+			'order'	=>     'CAST(TmaSlide.storage_coord_x AS signed), CAST(TmaSlide.storage_coord_y AS signed)'        
 		)   
 	);
 	

@@ -14,7 +14,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
 
 	function listall($participant_id, $trt_control_id = null) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// set FILTER, used as this->data CONDITIONS
 		if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
@@ -26,13 +26,13 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			$_SESSION['TrtMaster_filter']['TreatmentMaster.tx_control_id'] = $trt_control_id;
 			
 			$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
-			if(empty($filter_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+			if(empty($filter_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 			$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
 		}
 				
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		$this->data = $this->paginate($this->TreatmentMaster, $_SESSION['TrtMaster_filter']);
 		
@@ -48,11 +48,11 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function detail($participant_id, $tx_master_id) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $treatment_master_data;
 
 		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
@@ -70,11 +70,11 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $participant_id, $tx_master_id ) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 
 		if(!empty($treatment_master_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();
@@ -131,14 +131,14 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 	
 	function add($participant_id=null, $tx_control_id=null) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$tx_control_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$tx_control_id)));
-		if(empty($tx_control_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($tx_control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();
@@ -201,11 +201,11 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id, $tx_master_id ) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
 		$arr_allow_deletion = $this->allowTrtDeletion($tx_master_id, $treatment_master_data['TreatmentControl']['extend_tablename']);
 						

@@ -1,7 +1,6 @@
 <?php 
 	
 	// display adhoc DETAIL
-		
 	$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
 
 	// display adhoc RESULTS form
@@ -23,11 +22,17 @@
 	$structure_links = array(
 		'top'=>'#',
 		'bottom'=>array(
-			'edit'=>'/datamart/batch_sets/edit/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
-			'delete'=>'/datamart/batch_sets/delete/'.$atim_menu_variables['Param.Type_Of_List'].'/'.$atim_menu_variables['BatchSet.id'],
-			'list'=>'/datamart/batch_sets/index/'.$atim_menu_variables['Param.Type_Of_List']
+			'edit'		=> '/datamart/batch_sets/edit/'.$atim_menu_variables['BatchSet.id'],
+			'delete'	=> '/datamart/batch_sets/delete/'.$atim_menu_variables['BatchSet.id'],
+			'list'		=> '/datamart/batch_sets/index/'
 		)
 	);
+	if($data_for_detail['BatchSet']['flag_use_query_results']){
+		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
+				"cast to a new generic batch set" 	=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
+				"cast into a generic batch set"		=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
+			)), $structure_links['bottom']);
+	}
 	
 	?>
 		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>

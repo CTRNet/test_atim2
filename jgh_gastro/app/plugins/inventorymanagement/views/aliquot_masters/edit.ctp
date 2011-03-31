@@ -7,7 +7,7 @@
 	);
 	
 	$structure_override = array();
-	$dropdown_options = array('AliquotMaster.storage_master_id' => (isset($arr_preselected_storages_for_display) && (!empty($arr_preselected_storages_for_display)))? $arr_preselected_storages_for_display: array('' => ''));
+	$dropdown_options = array();
 						
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
