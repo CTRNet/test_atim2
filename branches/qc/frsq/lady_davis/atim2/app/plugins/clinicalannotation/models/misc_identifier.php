@@ -82,6 +82,18 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 		}
 		return $results;
 	}
+	
+	/**
+	 * Checks if a record can be deleted.
+	 * @param array $misc_identifier_data The misc identifier to validate deletion
+	 * @return Returns results as an array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 */	
+	 
+	function allowMiscIdentifierDeletion(array $misc_identifier_data) {
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>

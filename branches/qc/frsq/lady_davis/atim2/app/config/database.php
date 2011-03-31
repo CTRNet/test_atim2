@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'ctrnet_trunk',
+		'password' => 'root',
+		'database' => 'atim_lady',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
