@@ -18,11 +18,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	var $paginate = array('DiagnosisMaster'=>array('limit' => pagination_amount,'order'=>'DiagnosisMaster.dx_date'));
 
 	function listall( $participant_id ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		$this->data = $this->paginate($this->DiagnosisMaster, array('DiagnosisMaster.participant_id'=>$participant_id));
 		
@@ -36,11 +36,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function detail( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
 		// MANAGE DATA
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($dx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }		
+		if(empty($dx_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $dx_master_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -54,11 +54,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function add( $participant_id=null, $dx_control_id=null ) {
-		if (( !$participant_id ) && ( !$dx_control_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$dx_control_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$this->buildAndSetExistingDx($participant_id);
 		
@@ -99,11 +99,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 
 		// MANAGE DATA
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($dx_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($dx_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$this->buildAndSetExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']);
 
@@ -140,11 +140,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function delete( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
 		// MANAGE DATA
 		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if (empty($diagnosis_master_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if (empty($diagnosis_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$arr_allow_deletion = $this->allowDiagnosisDeletion($diagnosis_master_id);
 		

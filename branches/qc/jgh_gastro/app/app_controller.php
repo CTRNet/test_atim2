@@ -80,12 +80,12 @@ class AppController extends Controller {
 //		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
 		
 		if(sizeof(AppController::$missing_translations) > 0){
-			$query = "INSERT IGNORE INTO missing_translations VALUES ";
+			App::import("Model", "MissingTranslation");
+			$mt = new MissingTranslation();
 			foreach(AppController::$missing_translations as $missing_translation){
-				$query .= '("'.str_replace('"', '\\"', str_replace("\\", "\\\\", $missing_translation)).'"), ';
+				$mt->set(array("MissingTranslation" => array("id" => $missing_translation)));
+				$mt->save();//ignore errors, kind of insert ingnore
 			}
-			$query = substr($query, 0, strlen($query) -2);
-			$this->{$this->params["models"][0]}->query($query);
 		}
 	}
 	
@@ -142,6 +142,8 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
+		define('CONFIDENTIAL_MARKER', 'Confidential Data');
+		
 		// ATiM2 configuration variables from Datatable
 		
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
@@ -191,15 +193,27 @@ class AppController extends Controller {
 		
 		// get CONFIG for logged in user
 		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND user_id="'.$logged_in_user.'"'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				"user_id" => $logged_in_user
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
 		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$logged_in_group.'" AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				"Config.group_id" => $logged_in_group,
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
 		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		
 		// parse result, set configs/defines
@@ -322,8 +336,8 @@ class AppController extends Controller {
 		list($date, $time) = explode(" ", $datetime_string);
 		list($year, $month, $day) = explode("-", $date);
 		list($hour, $minutes, ) = explode(":", $time);
-		$formated_date = self::getFormatedDateString($year, $month, $day);
-		return $formated_date.($nbsp_spaces ? "&nbsp;" : "").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+		$formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
+		return $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
@@ -483,26 +497,47 @@ class AppController extends Controller {
 	 */
 	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
 		if(empty($this->data)){
-			$this->redirect('/pages/err_inv_system_error', null, true);
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		//extract valid ids
 		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
 		$ids = $ids[0][0]['ids'];
 		if(empty($ids)){
-			$this->flash(__("no data!", true), "javascript:history.back();", 5);
+			return array('error' => "batch init no data");
 		}
 		
 		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
 		if(count($controls) != 1){
-			$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+			return array('error' => "you must select elements with a common type");
 		}
 		
-		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name])));
+		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name], 'flag_active' => '1')));
+		
 		if(empty($possibilities)){
-			$this->flash($no_possibilities_msg, "javascript:history.back();", 5);
+			return array('error' => $no_possibilities_msg);
 		}
 		
-		return array('ids' => $ids, 'possibilities' => $possibilities);
+		return array('ids' => $ids, 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
+	}
+	
+	/**
+	 * Replaces the array key (generally of a find) with an inner value
+	 * @param array $in_array
+	 * @param string $model The model ($in_array[$model])
+	 * @param string $field The field (new key = $in_array[$model][$field])
+	 * @return array
+	 */
+	static function defineArrayKey($in_array, $model, $field){
+		$out_array = array();
+		foreach($in_array as $val){
+			if(isset($val[$model])){
+				$out_array[$val[$model][$field]][] = $val;
+			}else{
+				//the key cannot be foud
+				$out_array[-1][] = $val;
+			}
+		}
+		return $out_array;
 	}
 }
 
@@ -539,5 +574,13 @@ class AppController extends Controller {
 				$controller->redirect('/pages/err_query?err_msg='.urlencode($errstr.$traceMsg));
 			}
 		}
+	}
+	
+	/**
+	 * Returns the date in a classic format (usefull for SQL)
+	 * @throws Exception
+	 */
+	function now(){
+		return date("Y-m-d H:i:s");	
 	}
 ?>

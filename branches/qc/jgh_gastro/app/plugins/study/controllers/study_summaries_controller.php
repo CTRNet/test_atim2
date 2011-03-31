@@ -15,11 +15,11 @@ class StudySummariesController extends StudyAppController {
 	}
 
 	function detail( $study_summary_id ) {
-		if (!$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if (!$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		 
 		// MANAGE DATA
 		$study_summary_data = $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id)));
-		if(empty($study_summary_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }		
+		if(empty($study_summary_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $study_summary_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -56,11 +56,11 @@ class StudySummariesController extends StudyAppController {
   	}
   
 	function edit( $study_summary_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_summary_data = $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id)));
-		if(empty($study_summary_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($study_summary_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
@@ -90,11 +90,11 @@ class StudySummariesController extends StudyAppController {
   	}
 	
 	function delete( $study_summary_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$study_summary_data = $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id)));
-		if(empty($study_summary_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($study_summary_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		$arr_allow_deletion = $this->allowStudySummaryDeletion($study_summary_id);
 		

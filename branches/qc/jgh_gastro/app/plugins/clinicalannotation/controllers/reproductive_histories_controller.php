@@ -13,7 +13,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 	
 		$this->data = $this->paginate($this->ReproductiveHistory, array('ReproductiveHistory.participant_id'=>$participant_id));
 		
@@ -26,11 +26,11 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function detail( $participant_id, $reproductive_history_id ) {
-		if ( !$participant_id && !$reproductive_history_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id && !$reproductive_history_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$reproductive_data = $this->ReproductiveHistory->find('first', array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id, 'ReproductiveHistory.participant_id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($reproductive_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($reproductive_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		$this->data = $reproductive_data;
 		
 		$this->data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id)));
@@ -43,11 +43,11 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function add( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }
+		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -75,11 +75,11 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id, $reproductive_history_id) {
-		if (( !$participant_id ) && ( !$reproductive_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$reproductive_history_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$reproductive_history_data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id, 'ReproductiveHistory.participant_id'=>$participant_id)));
-		if(empty($reproductive_history_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($reproductive_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ReproductiveHistory.id'=>$reproductive_history_id) );
@@ -108,11 +108,11 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	}
 
 	function delete( $participant_id, $reproductive_history_id ) {
-		if (( !$participant_id ) && ( !$reproductive_history_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$reproductive_history_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		$reproductive_history_data = $this->ReproductiveHistory->find('first',array('conditions'=>array('ReproductiveHistory.id'=>$reproductive_history_id, 'ReproductiveHistory.participant_id'=>$participant_id)));
-		if(empty($reproductive_history_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($reproductive_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
 		$arr_allow_deletion = $this->allowReproductiveHistoryDeletion($reproductive_history_id);
 		

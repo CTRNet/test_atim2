@@ -9,7 +9,7 @@ class VersionsController extends AdministrateAppController {
 		// MANAGE DATA
 		$version_data = $this->Version->find('all', array('order' => array('date_installed DESC')));
 		if(empty($version_data)) {
-			$this->redirect( '/pages/err_admin_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 		$this->data = $version_data;		
 	}

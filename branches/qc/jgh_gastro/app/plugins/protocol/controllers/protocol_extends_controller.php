@@ -10,11 +10,11 @@ class ProtocolExtendsController extends ProtocolAppController {
 	var $paginate = array('ProtocolExtend'=>array('limit' => pagination_amount,'order'=>'ProtocolExtend.id DESC'));
 
 	function listall($protocol_master_id){
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { 
-			$this->redirect( '/pages/err_pro_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		} else if(empty($protocol_master_data['ProtocolControl']['extend_tablename']) || empty($protocol_master_data['ProtocolControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of protocol', '/protocol/protocol_masters/detail/'.$protocol_master_id);
 			return;
@@ -37,12 +37,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 	}
 
 	function detail($protocol_master_id, $protocol_extend_id) {
-		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }		
+		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }		
 
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { 
-			$this->redirect( '/pages/err_pro_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		} else if(empty($protocol_master_data['ProtocolControl']['extend_tablename']) || empty($protocol_master_data['ProtocolControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of protocol', '/protocol/protocol_masters/detail/'.$protocol_master_id);
 			return;
@@ -53,7 +53,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		// Get extend data
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
-		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
+		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		$this->data = $prot_extend_data;
 	  	
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
@@ -64,12 +64,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 	}
 
 	function add($protocol_master_id) {
-		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }
+		if ( !$protocol_master_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { 
-			$this->redirect( '/pages/err_pro_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		} else if(empty($protocol_master_data['ProtocolControl']['extend_tablename']) || empty($protocol_master_data['ProtocolControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of protocol', '/protocol/protocol_masters/detail/'.$protocol_master_id);
 			return;
@@ -99,12 +99,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 	}
 
 	function edit($protocol_master_id, $protocol_extend_id) {
-		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }		
+		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }		
 
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { 
-			$this->redirect( '/pages/err_pro_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		} else if(empty($protocol_master_data['ProtocolControl']['extend_tablename']) || empty($protocol_master_data['ProtocolControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of protocol', '/protocol/protocol_masters/detail/'.$protocol_master_id);
 			return;
@@ -115,7 +115,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		// Get extend data
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
-		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
+		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias']);
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id,'ProtocolExtend.id'=>$protocol_extend_id));
@@ -139,12 +139,12 @@ class ProtocolExtendsController extends ProtocolAppController {
 	}
 
 	function delete($protocol_master_id, $protocol_extend_id) {
-		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_pro_funct_param_missing', NULL, TRUE ); }		
+		if ((!$protocol_master_id) || (!$protocol_extend_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }		
 
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
 		if(empty($protocol_master_data)) { 
-			$this->redirect( '/pages/err_pro_no_data', null, true ); 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		} else if(empty($protocol_master_data['ProtocolControl']['extend_tablename']) || empty($protocol_master_data['ProtocolControl']['extend_form_alias'])){
 			$this->flash( 'no additional data has to be defined for this type of protocol', '/protocol/protocol_masters/detail/'.$protocol_master_id);
 			return;
@@ -153,7 +153,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		// Set extend data
 		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
-		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_pro_no_data', null, true ); }	
+		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		$arr_allow_deletion = $this->allowProtocolExtendDeletion($protocol_extend_id);
 		

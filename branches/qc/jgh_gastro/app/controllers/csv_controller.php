@@ -34,7 +34,20 @@ class CsvController extends AppController {
 				$ids[] = $id;
 			}
 		}
-		$this->data = $this->ModelToSearch->find('all', array('conditions' => $model_name.".".$model_pkey." IN (".implode(",", $ids).")"));
+		
+		$use_find = true;
+		if(isset($this->data['Adhoc']) && isset($this->data['Adhoc']['sql_query_for_results'])){
+			if(strpos($this->data['Adhoc']['sql_query_for_results'], "WHERE TRUE") === false){
+				AppController::addWarningMsg(__('unable to use the batch set specified query', true));
+			}else{
+				$this->data = $this->ModelToSearch->query(str_replace("WHERE TRUE", "WHERE ".$model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')", $this->data['Adhoc']['sql_query_for_results']));
+				$use_find = false;
+			}
+		}
+		
+		if($use_find){
+			$this->data = $this->ModelToSearch->find('all', array('conditions' => $model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')"));
+		}
 		$this->Structures->set($structure_alias);
 		Configure::write('debug', 0);
 		$this->layout = false;

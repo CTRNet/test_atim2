@@ -61,16 +61,16 @@ class MasterDetailBehavior extends ModelBehavior {
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
 				$detail_model_cache = array();
-				foreach ($results as $key => $result){
+				foreach ($results as $key => &$result){
 					if(!isset($results[$key][$detail_class])){//the detail model is already defined if it was a find on a specific control_id
 						$associated = array();
-						if(!isset($detail_model_cache[$detail_class])){
+						$detail_model_cache_key = $detail_class.".".$result[$control_class][$detail_field];
+						if(!isset($detail_model_cache[$detail_model_cache_key])){
 							//caching model (its rougly as fast as grouping queries by detail, see eventum 1120)
-							$detail_model_cache[$detail_class] = new AppModel(array('table'=>$result[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class));
+							$detail_model_cache[$detail_model_cache_key] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class));
 						}
-						
-						$associated = $detail_model_cache[$detail_class]->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
-						$results[$key][$detail_class] = $associated[$detail_class];
+						$associated = $detail_model_cache[$detail_model_cache_key]->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
+						$result[$detail_class] = $associated[$detail_class];
 					}
 				}
 			}else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])){

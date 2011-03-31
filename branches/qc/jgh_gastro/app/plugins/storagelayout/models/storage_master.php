@@ -28,262 +28,154 @@ class StorageMaster extends StoragelayoutAppModel {
 		return $return;
 	}
 	
-	/**
-	 * Get permissible values array gathering storages, except those having TMA type. 
-	 * 
-	 * When a storage master id is passed in arguments, this storage 
-	 * plus all its children storages will be removed from the array.
-	 * 
-	 * @param $excluded_storage_master_id ID of the storage to remove.
-	 * 
-	 * @return Storage list into array having following structure: 
-	 * 	array($storage_master_id => $storage_title_built_by_function)
-	 * 
-	 * @author N. Luc
-	 * @since 2007-05-22
-	 * @updated A. Suggitt on 2009-07-22
-	*/
-	
-	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
+	function validates($options = array()){
+		pr('WARNING!!: storage data can be updated into StorageMaster->validates() function: be sure to reset data into controller using $this->StorageMaster->data!');
+
+		if(!(array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}		
 		
-		// Get all storage records according to following exclusion criteria
-		$criteria = array();
+		// Check parent storage definition
+		$parent_storage_selection_results = $this->validateAndGetStorageData($this->data['FunctionManagement']['recorded_storage_selection_label'], $this->data['StorageMaster']['parent_storage_coord_x'], $this->data['StorageMaster']['parent_storage_coord_y']);
+		$parent_storage_data = $parent_storage_selection_results['storage_data'];
+					
+		// Update storage data
+		$this->data['StorageMaster']['parent_id'] = isset($parent_storage_data['StorageMaster']['id'])? $parent_storage_data['StorageMaster']['id'] : null;
 		
-		//1-Find control ID for all storages of type TMA: TMA will be removed from the returned array
-		$storage_ctrl = AppModel::atimNew("Storagelayout", "StorageControl", true);
-		$arr_tma_control_ids = $storage_ctrl->find('list', array('conditions' => array('StorageControl.is_tma_block' => 'TRUE')));
+		if(array_key_exists('id', $this->data['StorageMaster']) && (!empty($parent_storage_data))
+		&& ($this->find('count', array('conditions' => array('StorageMaster.id' => $this->data['StorageMaster']['id'], 'StorageMaster.lft <= '.$parent_storage_data['StorageMaster']['lft'], 'StorageMaster.rght >= '.$parent_storage_data['StorageMaster']['rght']), 'recursive' => -1)))) {
+			$this->validationErrors['recorded_storage_selection_label'] = 'you can not store your storage inside itself';
+
+		} else if(!empty($parent_storage_data) && (strcmp($parent_storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+			$this->validationErrors['recorded_storage_selection_label'] = 'you can not define a tma block as a parent storage';
+					
+		} else {
+			if($parent_storage_selection_results['change_position_x_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
+			if($parent_storage_selection_results['change_position_y_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
 			
-		$criteria['NOT'] = 	array('StorageMaster.storage_control_id' => $arr_tma_control_ids);
+			// Set error
+			if(!empty($parent_storage_selection_results['storage_definition_error'])) $this->validationErrors['recorded_storage_selection_label'] = $parent_storage_selection_results['storage_definition_error'];
+			if(!empty($parent_storage_selection_results['position_x_error'])) $this->validationErrors['parent_storage_coord_x'] = $parent_storage_selection_results['position_x_error'];
+			if(!empty($parent_storage_selection_results['position_y_error'])) $this->validationErrors['parent_storage_coord_y'] = $parent_storage_selection_results['position_y_error'];
+		}		
+			
+		$this->IsDuplicatedStorageBarCode($this->data);		
+				
+		parent::validates($options);
 		
-		//2-The storage defined as 'exclued' plus all its childrens will be removed from the array 
-		if(!is_null($excluded_storage_master_id)){
-			$excluded_storage = $this->find('first', array('conditions' => array('StorageMaster.id' => $excluded_storage_master_id), 'recursive' => '-1'));
-			$criteria[] =  "StorageMaster.lft NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
-			$criteria[] =  "StorageMaster.rght NOT BETWEEN ".$excluded_storage['StorageMaster']['lft']." AND ".$excluded_storage['StorageMaster']['rght'];
-		}
-		
-		$arr_storages_list = $this->atim_list(array('conditions' => $criteria, 'order' => array('StorageMaster.selection_label'), 'recursive' => '-1'));			
-		if(empty($arr_storages_list)) {
-			// No Storage exists in the system
-			return array(array('value' => '0', 'default' => __('n/a', true)));	
-		}					
-		
-		$formatted_data[0] = __('n/a', true);
-		if(!empty($arr_storages_list)) {
-			foreach ($arr_storages_list as $storage_id => $storage_data) {
-				$formatted_data[$storage_id] = $this->createStorageTitleForDisplay($storage_data);
-			}
-		}
-		
-		return $formatted_data;
+		return empty($this->validationErrors);
 	}
 	
-	/**
-	 * Build storage title joining many storage information.
-	 * 
-	 * @param $storage_data Storages data
-	 * 
-	 * @return Storage title (string).
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 */		
-
-	function createStorageTitleForDisplay($storage_data) {
-		$formatted_data = '';
-		
-		if((!empty($storage_data)) && isset($storage_data['StorageMaster'])) {
-			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ' ('.__($storage_data['StorageMaster']['storage_type'], TRUE) .')'. ']';
+	function IsDuplicatedStorageBarCode($storage_data) {
+		if(empty($storage_data['StorageMaster']['barcode'])) {
+			return false;
 		}
+		
+		// Check duplicated barcode into db
+		$barcode = $storage_data['StorageMaster']['barcode'];
+		$criteria = array('StorageMaster.barcode' => $barcode);
+		$storage_having_duplicated_barcode = $this->find('all', array('conditions' => $criteria, 'recursive' => -1));
+		if(!empty($storage_having_duplicated_barcode)) {
+			foreach($storage_having_duplicated_barcode as $duplicate) {
+				if((!array_key_exists('id', $storage_data['StorageMaster'])) || ($duplicate['StorageMaster']['id'] != $storage_data['StorageMaster']['id'])) {
+					$this->validationErrors['barcode'] = 'barcode must be unique';
+				}
+				
+			}			
+		}
+				
+	}	
 	
-		return $formatted_data;
+	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
+		pr('deprecated');
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	}
 	
 	static function getStoragesDropdown(){
 		return array();
 	}
 	
-	/**
-	 * Check both a storage selection label matches a storage master id and the defined storage is not a TMA. 
-	 * 
-	 * This function should be used to validate data entry when user is trying to set position of 
-	 * either an aliquot or a children storage within a storage selecting a storage from a list
-	 * and/or enterring a selection label.
-	 * 
-	 * @param $recorded_selection_label Recorded selection label.
-	 * @param $selected_storage_master_id Selected storage master id.
-	 * 
-	 * @return Array containing results
-	 * 	['selected_storage_master_id'] => Supposed master id of the searched storage
-	 * 	['matching_storage_list'] => Data of storages matching selection label and/or storage master id (a same label could be defined for many storages)
-	 * 	['storage_definition_error'] => storage defintion error (empty when no error)
-	 */
-	
-	function validateStorageIdVersusSelectionLabel($recorded_selection_label, $selected_storage_master_id, $is_sample_core = false) {
-		$matching_storage_list = array();
-		$storage_definition_error = '';
-		$check_tma = false;
-
+	function validateAndGetStorageData($recorded_selection_label, $position_x, $position_y, $is_sample_core = false) {
+		$storage_data = array();
+		$storage_definition_error = null;
+		
+		$position_x_error = null;
+		$change_position_x_to_uppercase = false;
+		
+		$position_y_error = null;
+		$change_position_y_to_uppercase = false;
+		
 		if(!empty($recorded_selection_label)) {
-			// CASE_1: A storage selection label has been defined
+			$storage_data = $this->getStorageDataFromStorageLabelAndCode($recorded_selection_label);
 			
-			// Look for storage matching the storage selection label 
-			$matching_storage_list = $this->atim_list(array('conditions' => array('StorageMaster.selection_label' => $recorded_selection_label)));			
-			$matching_storage_list = empty($matching_storage_list)? array(): $matching_storage_list;			
-
-			if(empty($selected_storage_master_id)) {	
-				// CASE_1.a: No storage id has been defined: Define storage id using selection label
+			if(isset($storage_data['StorageMaster']) && isset($storage_data['StorageControl'])) {
+				// One storage has been found
 				
-				if(empty($matching_storage_list)) {
-					// No storage matches	
-					$matching_storage_list = array();
-					$storage_definition_error = 'no storage matches (at least one of) the selection label(s)';
-				} else if(sizeof($matching_storage_list) > 1) {
-					// More than one storage matche this storage selection label
-					$storage_definition_error = 'more than one storages matches (at least one of) the selection label(s)';
-				} else {
-					// The selection label match only one storage: Get the storage_master_id
-					$selected_storage_master_id = key($matching_storage_list);
-					$check_tma = true;
-				}
-			
-			} else {
-				// CASE_1.b: A storage master id has been defined
-				
-				// Check the storage master id matches one of the storages matching the defined selection label
-				if(!array_key_exists($selected_storage_master_id, $matching_storage_list)) {
-					// Selected id not found: Set error
-					$storage_definition_error = '(at least one of) the selected id does not match a selection label';						
+				if((!$is_sample_core) && (strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+					// 1- Check defined storage is not a TMA Block when studied element is a sample core
+					$storage_definition_error = 'only sample core can be stored into tma block';
 					
-					// Add the storage to the matching storage list
-					$matching_storage_list[$selected_storage_master_id] = $this->find('first', array('conditions' => array('StorageMaster.id' => $selected_storage_master_id)));			
+				} else {
+					// 2- Check position
+					
+					$position_x_validation = $this->validatePositionValue($storage_data, $position_x, 'x');
+					$position_y_validation = $this->validatePositionValue($storage_data, $position_y, 'y');
+						
+					// Manage position x
+					if(!$position_x_validation['validated']) {
+						$position_x_error = 'an x coordinate does not match format';
+					}else if($position_y_validation['validated'] && $storage_data['StorageControl']['coord_x_size'] > 0 && strlen($position_x) == 0 && strlen($position_y) > 0){
+						$position_x_error = 'an x coordinate needs to be defined';
+					}else if($position_x_validation['change_position_to_uppercase']) {
+						$change_position_x_to_uppercase = true;
+					}
+					
+					// Manage position y
+					if(!$position_y_validation['validated']) {
+						$position_y_error = 'an y coordinate does not match format';
+					}else if($position_x_validation['validated'] && $storage_data['StorageControl']['coord_y_size'] > 0 && strlen($position_y) == 0 && strlen($position_x) > 0){
+						$position_y_error = 'a y coordinate needs to be defined';
+					}else if($position_y_validation['change_position_to_uppercase']) {
+						$change_position_y_to_uppercase = true;
+					}
 				}
 				
-				$check_tma = true;
+			} else {
+				// An error has been detected
+				$storage_definition_error = $storage_data['error'];
+				$storage_data = array();		
 			}
 		
-		} else if(!empty($selected_storage_master_id)) {
-			// CASE_2: Only storage_master_id has been defined (and should be right because selected from s system list)
-						
-			// Only storage id has been selected: Add this one in $arr_storage_list if an error is displayed
-			$matching_storage_list[$selected_storage_master_id] = $this->find('first', array('conditions' => array('StorageMaster.id' => $selected_storage_master_id)));			 
-
-			$check_tma = true;
-				
-		} 	// else if { $selected_storage_master_id and $recorded_selection_label empty: Nothing to do }
-		
-		// Check defined storage is not a TMA
-		if($check_tma && (!$is_sample_core) && (strcmp($matching_storage_list[$selected_storage_master_id]['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
-			$storage_definition_error = 'only sample core can be stored into tma block';
-		}
-		
-		return array(
-			'selected_storage_master_id' => $selected_storage_master_id,
-			'matching_storage_list' => $matching_storage_list,
-			'storage_definition_error' => $storage_definition_error);
-	}
-	
-/**
-	 * Validate values set to define position (coordinate 'x', coordinate 'y') of either a children storage 
-	 * or an aliquot within a storage. Return validated or corrected value (value changed to correct case when required)
-	 * plus its display order.
-	 * 
-	 * @param $storage_master_id Master ID of the storage that will contain the studied entity.
-	 * @param $position_x Position 'x' of the enity within the storage.
-	 * @param $position_y Position 'y' of the enity within the storage.
-	 * @param $storage_data Storage data including storage master, storage control, etc. (not required)
-	 * 
-	 * @return Array containing results
-	 * 	['validated_position_x'] => Validated/Corrected storage coordinate X
-	 * 		(changed to correct case if required, or including error sign '_err!')
-	 * 	['position_x_order'] => Position order of the validated position (used for display)
-	 * 	['error_on_x'] => True when error is on coordinate x
-	 * 	['validated_position_y'] => Validated/Corrected storage coordinate Y
-	 * 		(changed to correct case if required, or including error sign '_err!')
-	 * 	['position_y_order'] => Position order of the validated position (used for display)
-	 * 	['error_on_y'] => True when error is on coordinate y
-	 * 	['position_definition_error'] => Message defining the position error (empty when no error)
-	 */	
-	
-	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
-		$validated_position_x = $position_x;
-		$position_x_order = null;
-		$error_on_x = false;
-		
-		$validated_position_y = $position_y;
-		$position_y_order = null;
-		$error_on_y = false;
-		
-		$position_definition_error = '';
-		
-		$error_sign = ' #err!#';
-		
-		if(empty($storage_master_id)){
+		} else {
 			// No storage selected: no position should be set
 			if(!empty($position_x)){
-				$validated_position_x .= $error_sign;
-				$error_on_x = true;
-				$position_definition_error = 'no postion has to be recorded when no storage is selected';
+				$position_x_error = 'no x coordinate has to be recorded when no storage is selected';
 			}
 			if(!empty($position_y)){
-				$validated_position_y .= $error_sign;
-				$error_on_y = true;
-				$position_definition_error = 'no postion has to be recorded when no storage is selected';
-			}
-			
-		} else {
-			// Check for storage data, if none get the storage data
-			if(empty($storage_data)) {
-				$storage_data = $this->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-				if(empty($storage_data)) { 
-					AppController::getInstance()->redirect('/pages/err_sto_no_data', null, true); 
-				}
+				$position_y_error = 'no y coordinate has to be recorded when no storage is selected';
 			}			
-			
-			// Check position values
-			$position_x_validation = $this->validatePositionValue($storage_data, $position_x, 'x');
-			$position_y_validation = $this->validatePositionValue($storage_data, $position_y, 'y');
-			
-				
-			// Manage position x
-			if(!$position_x_validation['validated']) {
-				$validated_position_x .= $error_sign;
-				$error_on_x = true;
-				$position_definition_error = 'at least one position value does not match format';
-			}else if($position_y_validation['validated'] && $storage_data['StorageControl']['coord_x_size'] > 0 && strlen($position_x) == 0 && strlen($position_y) > 0){
-				$validated_position_x .= $error_sign;
-				$error_on_x = true;
-				$position_definition_error = 'an x coordinate needs to be defined';
-			}else{
-				$validated_position_x = $position_x_validation['validated_position'];
-				$position_x_order = $position_x_validation['position_order'];
-			}
-			
-			// Manage position y
-			if(!$position_y_validation['validated']) {
-				$validated_position_y .= $error_sign;
-				$error_on_y = true;
-				$position_definition_error = 'at least one position value does not match format';
-			}else if($position_x_validation['validated'] && $storage_data['StorageControl']['coord_y_size'] > 0 && strlen($position_y) == 0 && strlen($position_x) > 0){
-				$validated_position_y .= $error_sign;
-				$error_on_y = true;
-				$position_definition_error = 'a y coordinate needs to be defined';
-			}else{
-				$validated_position_y = $position_y_validation['validated_position'];
-				$position_y_order = $position_y_validation['position_order'];
-			}
 		}
 		
 		return array(
-			'validated_position_x' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_x),
-			'error_on_x' => $error_on_x,
-			'position_x_order' => $position_x_order,
+			'storage_data' => $storage_data,
 			
-			'validated_position_y' => str_replace($error_sign.$error_sign, $error_sign, $validated_position_y),
-			'error_on_y' => $error_on_y,
-			'position_y_order' => $position_y_order,
+			'storage_definition_error' => $storage_definition_error,
+			'position_x_error' => $position_x_error,
+			'position_y_error' => $position_y_error,
 			
-			'position_definition_error' => $position_definition_error);
+			'change_position_x_to_uppercase' => $change_position_x_to_uppercase,
+			'change_position_y_to_uppercase' => $change_position_y_to_uppercase);
+				
+	}
+	
+	function validateStorageIdVersusSelectionLabel() {
+		pr('deprecated');
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	}
+	
+	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
+		pr('deprecated');
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	}
 
 	/**
@@ -295,8 +187,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * 
 	 * @return Array containing results
 	 * 	['validated'] => TRUE if validated
-	 * 	['validated_position'] => Validated position (value changed to correct case when required)
-	 * 	['position_order'] => Position order to display
+	 * 	['change_position_to_uppercase'] => TRUE if position value should be changed to uppercase to be validated
 	 * 
 	 * @author N. Luc
 	 * @since 2009-08-16
@@ -305,8 +196,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	function validatePositionValue($storage_data, $position, $coord) {
 		$validation_results = array(
 			'validated' => true,
-			'validated_position' => $position,
-			'position_order' => null);
+			'change_position_to_uppercase' => false);
 		
 		// Launch validation
 		if(empty($position)) {
@@ -315,22 +205,20 @@ class StorageMaster extends StoragelayoutAppModel {
 		
 		// Get allowed position for this storage coordinate
 		$arr_allowed_position = $this->buildAllowedStoragePosition($storage_data, $coord);
-		
+				
 		// Check position
 		if(array_key_exists($position, $arr_allowed_position['array_to_display'])) {
-			$validation_results['position_order'] = $arr_allowed_position['array_to_order'][$position];
 			return $validation_results;
 		} else {
 			$upper_case_position = strtoupper($position);
 			if(array_key_exists($upper_case_position, $arr_allowed_position['array_to_display'])) {
-				$validation_results['validated_position'] = $upper_case_position;
-				$validation_results['position_order'] = $arr_allowed_position['array_to_order'][$upper_case_position];
+				$validation_results['change_position_to_uppercase'] = true;
 				return $validation_results;
 			}
 		}
 		
 		// Position value has not been validated
-		$validation_results['validated'] = 0;
+		$validation_results['validated'] = false;
 				
 		return $validation_results;
 	}
@@ -372,7 +260,7 @@ class StorageMaster extends StoragelayoutAppModel {
 	 
  	function buildAllowedStoragePosition($storage_data, $coord) {
 		if(!array_key_exists('coord_' . $coord . '_type', $storage_data['StorageControl'])) {
-			AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 				
 		// Build array
@@ -384,7 +272,7 @@ class StorageMaster extends StoragelayoutAppModel {
 				// TYPE and SIZE are both defined for the studied coordinate: The system can build a list.
 				$size = $storage_data['StorageControl']['coord_' . $coord . '_size'];
 				if(!is_numeric($size)) {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 									
 				if(strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'alphabetical') == 0){
@@ -394,12 +282,13 @@ class StorageMaster extends StoragelayoutAppModel {
 					// Integer drop down list	
 					$array_to_order = range('1', $size);
 				} else {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 		
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 		
 				}		
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
-					$coordinates = $this->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
+					$storage_coordinate = AppModel::atimNew("Storagelayout", "StorageCoordinate", true);
+					$coordinates = $storage_coordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
 					if(!empty($coordinates)) {
 						foreach($coordinates as $new_coordinate) {
 							$coordinate_value = $new_coordinate['StorageCoordinate']['coordinate_value'];
@@ -408,7 +297,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						}		
 					}
 				} else {
-					AppController::getInstance()->redirect('/pages/err_sto_system_error', null, true); 				
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 				
 				}
 			}
 		}
@@ -421,18 +310,104 @@ class StorageMaster extends StoragelayoutAppModel {
 	/**
 	 * @desc Finds the storage id 
 	 * @param String $storage_label_and_code a single string with the format "label [code]"
-	 * @return id when found, false otherwise
+	 * @return storage data (array('StorageMaster' => array(), 'StorageControl' => array()) when found, array('error' => message) otherwise
 	 */
-	function getStorageId($storage_label_and_code){
+	
+	function getStorageDataFromStorageLabelAndCode($storage_label_and_code){
+		
+		//-- NOTE ----------------------------------------------------------------
+		//
+		// This function is linked to a function of the StorageMaster controller 
+		// called autocompleteLabel() 
+		// and to functions of the StorageMaster model
+		// getStorageLabelAndCodeForDisplay().
+		//
+		// When you override the getStorageDataFromStorageLabelAndCode() function, 
+		// check if you need to override these functions.
+		//  
+		//------------------------------------------------------------------------
+		
 		$matches = array();
+		$selected_storages = array();
 		if(preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storage_label_and_code, $matches, PREG_SET_ORDER) > 0){
-			$storage = $this->find('first', array('conditions' => array('selection_label' => $matches[0][1], 'code' => $matches[0][2]), 'recursive' => -1));
-			if(!empty($storage)){
-				return $storage['StorageMaster']['id'];
+			// Auto complete tool has been used
+			$selected_storages = $this->find('all', array('conditions' => array('selection_label' => $matches[0][1], 'code' => $matches[0][2])));
+		} else {
+			// consider $storage_label_and_code contains just seleciton label
+			$selected_storages = $this->find('all', array('conditions' => array('selection_label' => $storage_label_and_code)));
+		}
+		
+		if(sizeof($selected_storages) == 1) {
+			return array('StorageMaster' => $selected_storages[0]['StorageMaster'], 'StorageControl' => $selected_storages[0]['StorageControl']);
+		} else if(sizeof($selected_storages) > 1) {
+			return array('error' => str_replace('%s', $storage_label_and_code, __('more than one storages matche the selection label [%s]', true)));
+		}
+		
+		return  array('error' => str_replace('%s', $storage_label_and_code, __('no storage matches the selection label [%s]', true)));
+	}
+	
+	function getStorageLabelAndCodeForDisplay($storage_data) {
+		
+		//-- NOTE ----------------------------------------------------------------
+		//
+		// This function is linked to a function of the StorageMaster controller 
+		// called autocompleteLabel() 
+		// and to functions of the StorageMaster model
+		// getStorageDataFromStorageLabelAndCode().
+		//
+		// When you override the getStorageDataFromStorageLabelAndCode() function, 
+		// check if you need to override these functions.
+		//  
+		//------------------------------------------------------------------------
+				
+		$formatted_data = '';
+		
+		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ']';
+		}
+	
+		return $formatted_data;
+	}
+	
+	/**
+	 * Using the id of a storage, the function will return formatted storages path 
+	 * starting from the root to the studied storage.
+	 * 
+	 * @param $studied_storage_master_id ID of the studied storage.
+	 * 
+	 * @return Storage path (string).
+	 * 
+	 * @author N. Luc
+	 * @since 2009-08-12
+	 */ 
+	 
+	function getStoragePath($studied_storage_master_id) {
+		$storage_path_data = $this->getpath($studied_storage_master_id);
+
+		$path_to_display = '';
+		$separator = '';
+		if(!empty($storage_path_data)){
+			foreach($storage_path_data as $new_parent_storage_data) { 
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code']; 
+				$separator = ' >> ';
 			}
 		}
-		return false;
+			
+		return $path_to_display;
 	}
+	
+	/**
+	 * @param array $storage_master_ids The storage master ids whom child existence will be verified
+	 * @return array Returns the storage master ids having child
+	 */
+	function hasChild(array $storage_master_ids){
+		//child can be a storage or an aliquot
+		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
+		$storage_master_ids = array_diff($storage_master_ids, $result);
+		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
+	}
+	
 }
 
 ?>
