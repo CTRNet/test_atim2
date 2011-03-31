@@ -1143,7 +1143,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
 					
 					// Set aliquot master data					
-					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] = 'no')) {
+					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
 						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
 						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;

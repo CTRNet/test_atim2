@@ -164,8 +164,12 @@ class SampleMasterCustom extends SampleMaster {
     			break;
     			
     		case 'cell culture':
+    			pr($sample_data);
+    			pr($sample_type_code. ' ' . $initial_specimen_label);
+    			exit;
     			if(!array_key_exists('cell_passage_number', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label.
+					include population into label
 					((empty($sample_data['SampleDetail']['cell_passage_number']) && (strcmp($sample_data['SampleDetail']['cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['cell_passage_number']);
     			break;	
     					
