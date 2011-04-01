@@ -98,14 +98,11 @@ class SampleMasterCustom extends SampleMaster {
 			$initial_specimen_label = $tmp_initial_specimen_sample_data['SampleMaster']['sample_label'];		
 		}
 	
-		if(is_null($bank_participant_identifier) && (strcmp($sample_category, 'specimen') == 0)) {
+		if(is_null($bank_participant_identifier) && ((strcmp($sample_category, 'specimen') == 0) || (strcmp($sample_type, 'cell culture') == 0))) {
 			//Sample is a specimen and $bank_participant_identifier is unknown: Get $bank_participant_identifier	
 			$view_collection = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);	
-					
 			$view_collection = $view_collection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-			if(empty($view_collection)) { 
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}
+			if(empty($view_collection)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			
 			$bank_participant_identifier = $view_collection['ViewCollection']['identifier_value'];			
 		}
@@ -164,12 +161,12 @@ class SampleMasterCustom extends SampleMaster {
     			break;
     			
     		case 'cell culture':
-    			pr($sample_data);
-    			pr($sample_type_code. ' ' . $initial_specimen_label);
-    			exit;
+    			if(!array_key_exists('qc_culture_population', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!empty($sample_data['SampleDetail']['qc_culture_population'])) {	
+					$initial_specimen_label = str_replace((' - ' . $bank_participant_identifier),(' - ' . $bank_participant_identifier.'.'.$sample_data['SampleDetail']['qc_culture_population']),$initial_specimen_label);
+				}
     			if(!array_key_exists('cell_passage_number', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label.
-					include population into label
 					((empty($sample_data['SampleDetail']['cell_passage_number']) && (strcmp($sample_data['SampleDetail']['cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['cell_passage_number']);
     			break;	
     					

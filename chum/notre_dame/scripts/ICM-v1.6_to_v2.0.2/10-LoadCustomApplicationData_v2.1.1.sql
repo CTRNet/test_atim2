@@ -400,10 +400,6 @@ INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq
 INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE aluse.deleted != 1;
 
-UPDATE structure_formats
-SET display_order = 29
-WHERE 
-
 UPDATE structure_formats SET `display_order`='0'
 WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND field='sample_code');
@@ -502,7 +498,8 @@ AND ac.form_alias LIKE '%ad_cell_culture_tubes%';
 INSERT INTO i18n (id, en, fr) VALUES
 ("mycoplasma free", "Mycoplasma Free", "Mycoplasme Négatif"),
 ("mycoplasma test", "Mycoplasma Test", "Mycoplasme Teste"),
-('qc culture population','Population #','Population #');
+('histogel use','HistoGel Use','Utilsiation HistoGel'),
+('qc culture population','Population','Population');
 
 INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`, `values_max_length`) VALUES
 (null, 'qc mycoplasma tests', 1, 50);
@@ -524,6 +521,154 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='qc_culture_population' AND `language_label`='qc culture population' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
 
+INSERT INTO `aliquot_controls` (`id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, 'block', 'ascite cell', 'aliquot_masters,ad_der_ascite_cell_block', 'ad_blocks', NULL, 'Ascite cell block', 0, 'block');
+INSERT INTO `sample_to_aliquot_controls` (`id`, `sample_control_id`, `aliquot_control_id`, `flag_active`)
+VALUES 
+(null, (SELECT id FROM sample_controls WHERE sample_type LIKE 'ascite cell'), 
+(SELECT id FROM aliquot_controls WHERE aliquot_type LIKE 'block' AND form_alias LIKE '%ad_der_ascite_cell_block%'), '1');
+
+ALTER TABLE ad_blocks
+	ADD COLUMN histogel_use TINYINT(1) DEFAULT 0 AFTER path_report_code;
+ALTER TABLE ad_blocks_revs
+	ADD COLUMN histogel_use TINYINT(1) DEFAULT 0 AFTER path_report_code;
+	
+INSERT INTO structures(`alias`) VALUES ('ad_der_ascite_cell_block');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_blocks', 'histogel_use', 'histogel use', '', 'checkbox', '', '', NULL, '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `language_label`='creation to storage spent time' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `language_label`='study' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `language_help`=''), '1', '1201', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type')  AND `language_help`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='' AND `field`='parent_sample_type' AND `language_label`='parent sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type')  AND `language_help`='generated_parent_sample_sample_type_help'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `language_label`='created (into the system)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='help_created'), '1', '2000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_block'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='histogel_use' AND `language_label`='histogel use' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `language_help`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_ascite_cell_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `language_label`='created (into the system)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='help_created'), '1', '2000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_cell_culture_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `language_label`='created (into the system)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='help_created'), '1', '2000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '0', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '60'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='' OR alias = '' OR alias LIKE 'ad_der_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='creat_to_stor_spent_time_msg');
+
+UPDATE structure_formats 
+SET `flag_add` = '1', `flag_add_readonly` = '0', 
+`flag_edit` = '1', `flag_edit_readonly` = '0', 
+`flag_search` = '1', `flag_search_readonly` = '0', 
+`flag_addgrid` = '1', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '1', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '1201'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='' OR alias = '' OR alias LIKE 'ad_der_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='study_summary_id');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '0', `flag_summary` = '1',
+`display_column` = '0', `display_order` = '3'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='' OR alias = '' OR alias LIKE 'ad_der_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='initial_specimen_sample_type');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '0', `flag_summary` = '1',
+`display_column` = '0', `display_order` = '4'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='' OR alias = '' OR alias LIKE 'ad_der_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='parent_sample_type');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '1', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '1', `flag_summary` = '1',
+`display_column` = '1', `display_order` = '2000'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias='' OR alias = '' OR alias LIKE 'ad_der_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='created');
+	
+UPDATE structure_formats 
+SET `flag_index` = '1', `flag_detail` = '1', `flag_summary` = '1'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_der_cell_tubes_incl_ml_vol')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='current_volume');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='rec_to_stor_spent_time_msg' AND `language_label`='reception to storage spent time' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_stor_spent_time_msg' AND `language_label`='collection to storage spent time' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `language_label`='created (into the system)' AND `language_tag`='' AND `type`='datetime' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`='help_created'), '1', '2000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '0', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '61'
+WHERE structure_id IN (SELECT id FROM structures WHERE'ad_spec_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='rec_to_stor_spent_time_msg');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '0', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '0', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '60'
+WHERE structure_id IN (SELECT id FROM structures WHERE'ad_spec_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='coll_to_stor_spent_time_msg');
+	
+UPDATE structure_formats 
+SET `flag_add` = '1', `flag_add_readonly` = '0', 
+`flag_edit` = '1', `flag_edit_readonly` = '0', 
+`flag_search` = '1', `flag_search_readonly` = '0', 
+`flag_addgrid` = '1', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '1', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '1201'
+WHERE structure_id IN (SELECT id FROM structures WHERE'ad_spec_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='study_summary_id');
+
+UPDATE structure_formats 
+SET `flag_add` = '0', `flag_add_readonly` = '0', 
+`flag_edit` = '0', `flag_edit_readonly` = '0', 
+`flag_search` = '1', `flag_search_readonly` = '0', 
+`flag_addgrid` = '0', `flag_addgrid_readonly` = '0', 
+`flag_editgrid` = '0', `flag_editgrid_readonly` = '0', 
+`flag_batchedit` = '0', `flag_batchedit_readonly` = '0', 
+`flag_index` = '1', `flag_detail` = '1', `flag_summary` = '0',
+`display_column` = '1', `display_order` = '2000'
+WHERE structure_id IN (SELECT id FROM structures WHERE'ad_spec_%')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='created');
 	
 	
+
+
 
