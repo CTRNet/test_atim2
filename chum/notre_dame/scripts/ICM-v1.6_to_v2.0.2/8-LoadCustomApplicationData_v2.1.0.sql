@@ -355,7 +355,7 @@ DROP TABLE dxd_sardos, dxd_sardos_revs;
 UPDATE clinical_collection_links SET diagnosis_master_id = NULL;
 UPDATE event_masters SET diagnosis_master_id = NULL;
 UPDATE tx_masters SET diagnosis_master_id = NULL;
-TRUNCATE diagnosis_masters;
+DELETE FROM diagnosis_masters;
 UPDATE diagnosis_controls SET flag_active = '0';
 DELETE FROM diagnosis_controls WHERE controls_type = 'sardo diagnosis';
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dxd_sardos');
