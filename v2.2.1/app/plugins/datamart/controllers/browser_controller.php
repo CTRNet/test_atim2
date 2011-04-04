@@ -180,7 +180,7 @@ class BrowserController extends DatamartAppController {
 					if(!empty($control_data)){
 						//retreive the ids in the parent first
 						$this->ParentModel = AppModel::atimNew($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
-						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")")));
+						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")"), 'recursive' => 0));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
 							$search_conditions[$select_key][] = $data_unit[$use_model][$use_field];
@@ -193,7 +193,8 @@ class BrowserController extends DatamartAppController {
 							$this->MainModel = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 							$tmp_data = $this->MainModel->find('all', 
 								array("conditions" => array($control_data['BrowsingControl']['use_field']." IN (".$parent['BrowsingResult']['id_csv'].")"),
-									"fields" => array($browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'])));
+									"fields" => array($browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']),
+									"recursive" => 0));
 							$tmp_ids = array();
 							foreach($tmp_data as $unit){
 								$tmp_ids[] = $unit[$browsing['DatamartStructure']['model']][$browsing['DatamartStructure']['use_key']];
@@ -206,7 +207,7 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$select_key.") AS ids")));
+				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$select_key.") AS ids"), "recursive" => 0));
 				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],

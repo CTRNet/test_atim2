@@ -211,7 +211,7 @@ class Browser extends DatamartAppModel {
 		if(isset($control_model->_schema['flag_active'])){
 			$conditions[$main_model_info['DatamartStructure']['control_model'].'.flag_active'] = 1;
 		}
-		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions));
+		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions, 'recursive' => 0));
 		$children_arr = array();
 		foreach($children_data as $child_data){
 			$label = self::getTranslatedDatabrowserLabel($child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
@@ -234,7 +234,7 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getTree($node_id, $active_node, $merged_ids, array &$linked_types_down = array(), array &$linked_types_up = array()){
 		$BrowsingResult = new BrowsingResult();
-		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id')));
+		$result = $BrowsingResult->find('all', array('conditions' => 'BrowsingResult.id='.$node_id.' OR BrowsingResult.parent_node_id='.$node_id, 'order' => array('BrowsingResult.id'), 'recursive' => 1));
 		$tree_node = NULL;
 		if($tree_node = array_shift($result)){
 			$tree_node['active'] = $node_id == $active_node;
@@ -734,10 +734,10 @@ class Browser extends DatamartAppModel {
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
 			
 			if($count > $display_limit){
-				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids")));
+				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => 0));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
 			}else{
-				$this->checklist_data = $this->ModelToSearch->find('all', array('conditions' => $conditions));
+				$this->checklist_data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'recursive' => 0));
 			}
 		}else{
 			$this->data = array();
