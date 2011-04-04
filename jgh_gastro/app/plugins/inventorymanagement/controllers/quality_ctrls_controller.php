@@ -95,6 +95,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->QualityCtrl->id = $qc_id;					
 				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
+				$hook_link = $this->hook('postsave_process');
+				if($hook_link){
+					require($hook_link);
+				}
+				
 				$this->atimFlash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
 			}
 		}
@@ -178,6 +183,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			// Save data
 			$this->QualityCtrl->id = $quality_ctrl_id;	
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
 				$this->atimFlash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
