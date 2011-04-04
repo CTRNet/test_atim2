@@ -64,7 +64,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 
 INSERT INTO misc_identifier_controls(misc_identifier_name, misc_identifier_name_abbrev, flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant) VALUES
 ("régime d'assurance maladie du québec", 'RAMQ', 1, 4, '', '', 1),
-("hospital number", "hospital #", 1, 4, '', '', 1, 1);
+("hospital number", "hospital #", 1, 4, '', '', 1);
 
 DROP VIEW view_collections;
 CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` 
@@ -72,12 +72,12 @@ AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis
 AS `consent_master_id`,`identifier`.`identifier_value` AS `participant_identifier`,`col`.`acquisition_label` 
 AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` 
 AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` 
-AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`atim_new`.`banks`.`name` 
+AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`, `banks`.`name` 
 AS `bank_name`,`col`.`created` AS `created` 
-FROM (((`atim_new`.`collections` `col` 
-LEFT JOIN `atim_new`.`clinical_collection_links` `link` ON(((`col`.`id` = `link`.`collection_id`) AND (`link`.`deleted` <> 1)))) 
-LEFT JOIN `atim_new`.`participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
-LEFT JOIN `atim_new`.`banks` ON(((`col`.`bank_id` = `atim_new`.`banks`.`id`) AND (`atim_new`.`banks`.`deleted` <> 1)))) 
+FROM (((`collections` `col` 
+LEFT JOIN `clinical_collection_links` `link` ON(((`col`.`id` = `link`.`collection_id`) AND (`link`.`deleted` <> 1)))) 
+LEFT JOIN `participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
+LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1)))) 
 LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id=4
 WHERE (`col`.`deleted` <> 1); 
 
@@ -107,7 +107,73 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Vous devez soit sélectionner une race et laisser le champ autre vide, ou sélectionner autre et remplir le champ autre"),
 ("you must either select a cancer type and leave the other field blank or select other and fill the other field",
  "You must either select a cancer type and leave the other field blank or select other and fill the other field",
- "Vous devez soit sélectionner une type de cancer et laisser le champ autre vide, ou sélectionner autre et remplir le champ autre");
+ "Vous devez soit sélectionner une type de cancer et laisser le champ autre vide, ou sélectionner autre et remplir le champ autre"),
+("colorectal", "Colorectal", "Colorectal"),
+("cm or", "cm or", "cm ou"),
+("kg", "Kg", "Kg"),
+("pounds", "Pounds", "Livres"),
+("do you smoke", "Do you smoke?", "Fumez-vous?"),
+("what did (do) you smoke", "What did (do) you smoke?", "Qu'avez-vous/que fumez-vous?"),
+("how much did (do) you smoke a day", "How much did (do) you smoke a day", "Combien fumiez-vous/fumez-vous par jour?"),
+("how long have you been smoking", "How long have you been smoking?", "Pour combien de temps avez-vous fumé?"),
+("if youve quit, when", "If you've quit, when?", "Si vous avez cessé, il y a combien de temps?"),
+("did one or both of you parents smoke when you were a child", "Did one or both of you parents smoke when you were a child?", "Est-ce qu'au moins un de vos parents fumait lorsque vous étiez enfant?"),
+("did your mother smoke when she was pregnant with you", "did your mother smoke when she was pregnant with you?", "Est-ce que votre mère fumait lorsqu'elle était enceinte de vous?"),
+("drinking", "Drinking", "Consommation d'alcool"),
+("qc_gastro_lifestyle_how_many_drinks_at_one_time",
+ "How many drinks do you usually drink at one time? (1 drink = 1 beer or 5oz. of wine or 1½oz. of liquor)",
+ "Combien de consommations buvez-vous normalement en une fois? (1 consommation = 1 bière ou 5oz. ou 1½oz. de liqueur)"),
+("how many alcholic beverages do you drink in a typical week",
+ "How many alcholic beverages do you drink in a typical week?",
+ "Combien de consommations alcoolisées buvez-vous dans une semaine typique?"),
+("sport", "Sport", "Sport"),
+("qc_gastro_lifestyle_sport_nb_days_per_week", "How many days per week do you participate in some form of sport or recreational activity for 30 minutes or more (such as walk, golf, dancing, volleyball, bowling, etc.)?",
+ "Combien de jours par semaine participez-vous à une forme de sport ou d'activité récréationelle pour 30 minutes ou plus (tel que la marche, la dance, le volleyball, les quilles, etc.)?"),
+("eating", "Eating", "Nourriture"),
+("qc_gastro_food_fat_nb_days_per_week",
+ "How many days per week do you eat foods that are high in fat and cholesterol, such as fatty meat, cheese, fried foods, eggs?",
+ "Combien de jours par semaine mangez-vous de la nourriture à forte teneur en gras et en cholestérol tel que la viande grasse, le fromage, la nourriture frite, des oeufs?"),
+("qc_gastro_food_fiber_nb_days_per_week",
+ "How many days per week do you eat foods that are high in fiber, including grain products, fresh fruits and vegetables?",
+ "Combien de jours par semaine mangez-vous de la nourriture à forte teneur en fibres, incluant les produits du grain, les fruits frais et les légumes?"),
+("qc_gastro_food_smoked_salted_nb_days_per_week",
+ "How many days per week do you eat foods that have been smoked and/or salt-pickled? Examples are: ham, bacon, smoked fish, hot dogs, many 'cold cuts'.",
+ "Combien de jours par semaine mangez-vous de la nourriture qui a été fumée et/ou marinée au sel? Des exemples sont: Jambon, bacon, poisson fumé, hot dogs, plusieurs 'viandes froides'."),
+("qc_gastro_food_charbroiled_nb_days_per_week",
+ "How many days per week do you eat foods that are charbroiled (cooked on an open flame)?",
+ "Combien de jours par semaine mangez-vous de la nourriture qui a été cuite directement sur la flâme?"),
+("qc_gastro_can_digest_milk",
+ "Are you able to diget milk and milk products without any problem?",
+ "Êtes-vous capable de digérer le lait et les produitsdu lait sans aucun problème?"),
+("qc_gastro_taking_calcium_supplement",
+ "Are you currently takin a calcium supplement? (Do not include calcium from multi-vitamins.) Calcium supplements usually contain at least 500mg of calcium. (For example: Viactiv, Caltrate, Oscal.)",
+ "Présentement, prennez-vous des suppléments de calcium? (N'incluez pas le calcium en provenance des multi-vitamines.) Le suppléments de calcium contienent généralement au moins 500mg de calcium. (Par exemple: Viactiv, Celtrate, Oscal.)"),
+("qc_gastro_taking_vitamin_d_supplement",
+ "Are you currently taking a vitamin D supplement (as part of a calcium supplement or separately)?",
+ "Présentement, prennez-vous un supplément de vitamine D (faisant partie d'un supplément de calcium ou séparémment)?"),
+("qc_gastro_lifestyle_sibling_has_cancer",
+ "Has a parent, sibling or child related to you by blood ever been diagnosed with cancer?",
+ "Est-ce qu'un parent, frère, soeur ou enfant lié à vous par le sang a déjà été diagnostiqué d'un cancer?"),
+ 
+ 
+("parent/sibling/child having cancer", "Parent/sibling/child having cancer", "Parent/frère/soeur/enfant ayant le cancer"),
+("smoking qty/day", "Smoking qty/day", "Qty fumée par jour"),
+("smoking for how long", "Smoking for how long", "Fumeur pour quelle durée"),
+("quitted when", "Quitted when", "Quitté quand"),
+("when child, smoking parents", "When child, smoking parents", "Lorsqu'enfant, parent fumeur"),
+("smoking mother while pregnant with you", "Smoking mother while pregnant with you", "Mère fumeuse lorsqu'enceint de vous"),
+("drinks/time", "Drinks/time", "Consommations/fois"),
+("qty/week", "Qty/week", "Qte/semaine"),
+("sport days/week", "Sport days/week", "Sport jours/semaine"),
+("fat food days/week", "Fat food days/week", "Nourriture grasse jours/semaine"),
+("fiber food days/week", "Fiber food days/week", "Nourriture fibreuse jours/semaine"),
+("smoked/salted food days/week", "Smoked/salted food days/week", "Nourriture fumée/sallée jours/semaine"),
+("charboiled food days/week", "Charboiled food days/week", "Nourriture cuite sur la flâme jours/semaine"),
+("can digest milk", "Can digest milk", "Peut digérer le lait"),
+("multi-vitamins", "Multi-vitamins", "Multi-vitamines"),
+("calcium supplement", "Calcium supplements", "Suppléments de calcium"),
+("vitamin d supplement", "Vitamin D supplement", "Suppléments de vitamine D"); 
+ 
 
 UPDATE diagnosis_controls SET flag_active=0 WHERE id IN (1, 2);
 
@@ -159,6 +225,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ALTER TABLE dxd_tissues 
  ADD COLUMN qc_gastro_tissue_source VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN qc_gastro_precision  VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE dxd_tissues_revs 
+ ADD COLUMN qc_gastro_tissue_source VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN qc_gastro_precision  VARCHAR(50) NOT NULL DEFAULT '';
 
 INSERT INTO diagnosis_controls(controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) 
 (SELECT 'other', 1, 'dx_other', detail_tablename, display_order, 'other' FROM diagnosis_controls WHERE id=2);
@@ -182,6 +251,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participant' AND `field`='id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='participant system code' AND `language_tag`=''), '1', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '1', '1', '0', '0', '1', '1', '1');
 UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='clin_demographics' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participant' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 
 -- inventory configureation
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 25, 3, 142, 143, 141, 144, 140);
@@ -225,4 +296,233 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='previous_primary_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='previous_primary_code_system' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- lifestyle
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('colorectal', 'lifestyle', 'lifestyle', 1, 'qc_gastro_lifestyle', 'qc_gastro_ed_lifestyle', 0, 'lifestyle|colorectal');
+
+CREATE TABLE qc_gastro_ed_lifestyle(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_master_id INT NOT NULL,
+ height_cm FLOAT UNSIGNED DEFAULT NULL,
+ height_feet TINYINT UNSIGNED DEFAULT NULL,
+ height_inches FLOAT UNSIGNED DEFAULT NULL,
+ weight FLOAT UNSIGNED DEFAULT NULL,
+ weight_unit VARCHAR(6) DEFAULT '',
+ sibling_has_cancer BOOLEAN DEFAULT NULL,
+ do_you_smoke VARCHAR(10) DEFAULT '',
+ smoke_what VARCHAR(20) DEFAULT '',
+ smoke_per_day VARCHAR(40) DEFAULT '',
+ smoke_how_long VARCHAR(40) DEFAULT '',
+ smoke_quit_when VARCHAR(40) DEFAULT '',
+ smoke_parent BOOLEAN DEFAULT NULL,
+ smoke_mother_pregnant BOOLEAN DEFAULT NULL,
+ drink_per_time VARCHAR(40) DEFAULT '',
+ drink_per_week VARCHAR(40) DEFAULT '',
+ sport_nb_days_per_week TINYINT DEFAULT NULL,
+ food_fat_nb_days_per_week TINYINT DEFAULT NULL,
+ food_fiber_nb_days_per_week TINYINT DEFAULT NULL,
+ food_smoked_salted_nb_days_per_week TINYINT DEFAULT NULL,
+ food_charbroiled_nb_days_per_week TINYINT DEFAULT NULL,
+ food_milk_nb_days_per_week TINYINT DEFAULT NULL,
+ can_digest_milk BOOLEAN DEFAULT NULL,
+ taking_multi_vitamins BOOLEAN DEFAULT NULL,
+ taking_calcium_supplement BOOLEAN DEFAULT NULL,
+ taking_vitamin_d_supplement BOOLEAN DEFAULT NULL
+)Engine=InnoDb;
+CREATE TABLE qc_gastro_ed_lifestyle_revs(
+ id INT UNSIGNED NOT NULL,
+ event_master_id INT NOT NULL,
+ height_cm FLOAT UNSIGNED DEFAULT NULL,
+ height_feet TINYINT UNSIGNED DEFAULT NULL,
+ height_inches FLOAT UNSIGNED DEFAULT NULL,
+ weight FLOAT UNSIGNED DEFAULT NULL,
+ weight_unit VARCHAR(6) DEFAULT '',
+ sibling_has_cancer BOOLEAN DEFAULT NULL,
+ do_you_smoke VARCHAR(10) DEFAULT '',
+ smoke_what VARCHAR(20) DEFAULT '',
+ smoke_per_day VARCHAR(40) DEFAULT '',
+ smoke_how_long VARCHAR(40) DEFAULT '',
+ smoke_quit_when VARCHAR(40) DEFAULT '',
+ smoke_parent BOOLEAN DEFAULT NULL,
+ smoke_mother_pregnant BOOLEAN DEFAULT NULL,
+ drink_per_time VARCHAR(40) DEFAULT '',
+ drink_per_week VARCHAR(40) DEFAULT '',
+ sport_nb_days_per_week TINYINT DEFAULT NULL,
+ food_fat_nb_days_per_week TINYINT DEFAULT NULL,
+ food_fiber_nb_days_per_week TINYINT DEFAULT NULL,
+ food_smoked_salted_nb_days_per_week TINYINT DEFAULT NULL,
+ food_charbroiled_nb_days_per_week TINYINT DEFAULT NULL,
+ food_milk_nb_days_per_week TINYINT DEFAULT NULL,
+ can_digest_milk BOOLEAN DEFAULT NULL,
+ taking_multi_vitamins BOOLEAN DEFAULT NULL,
+ taking_calcium_supplement BOOLEAN DEFAULT NULL,
+ taking_vitamin_d_supplement BOOLEAN DEFAULT NULL,
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ `version_created` datetime NOT NULL
+)Engine=InnoDb;
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_weight_unit', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("kg", "kg");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_weight_unit"),  (SELECT id FROM structure_permissible_values WHERE value="kg" AND language_alias="kg"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pounds", "pounds");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_weight_unit"),  (SELECT id FROM structure_permissible_values WHERE value="pounds" AND language_alias="pounds"), "1", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_do_you_smoke', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("yes", "yes");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_do_you_smoke"),  (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("quit", "quit");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_do_you_smoke"),  (SELECT id FROM structure_permissible_values WHERE value="quit" AND language_alias="quit"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("never", "never");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_do_you_smoke"),  (SELECT id FROM structure_permissible_values WHERE value="never" AND language_alias="never"), "3", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_smoking_type', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("cigarettes", "cigarettes");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoking_type"),  (SELECT id FROM structure_permissible_values WHERE value="cigarettes" AND language_alias="cigarettes"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("cigars", "cigars");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoking_type"),  (SELECT id FROM structure_permissible_values WHERE value="cigars" AND language_alias="cigars"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pipe", "pipe");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoking_type"),  (SELECT id FROM structure_permissible_values WHERE value="pipe" AND language_alias="pipe"), "1", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_smoke_per_day', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("1-5", "once to five times");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_per_day"),  (SELECT id FROM structure_permissible_values WHERE value="1-5" AND language_alias="once to five times"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("6-20", "six to twenty times");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_per_day"),  (SELECT id FROM structure_permissible_values WHERE value="6-20" AND language_alias="six to twenty times"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("> 20", "more than twenty times");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_per_day"),  (SELECT id FROM structure_permissible_values WHERE value="> 20" AND language_alias="more than twenty times"), "3", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_smoke_how_long', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("< 1", "less than a year");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_how_long"),  (SELECT id FROM structure_permissible_values WHERE value="< 1" AND language_alias="less than a year"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("1-5", "one to five year(s)");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_how_long"),  (SELECT id FROM structure_permissible_values WHERE value="1-5" AND language_alias="one to five year(s)"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("> 5", "more than five years");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_smoke_how_long"),  (SELECT id FROM structure_permissible_values WHERE value="> 5" AND language_alias="more than five years"), "3", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_drinking_qty', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("0", "zero");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_drinking_qty"),  (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="zero"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("1-2", "one to two");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_drinking_qty"),  (SELECT id FROM structure_permissible_values WHERE value="1-2" AND language_alias="one to two"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("3-4", "three to four");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_drinking_qty"),  (SELECT id FROM structure_permissible_values WHERE value="3-4" AND language_alias="three to four"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("> 4", "five or more");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_drinking_qty"),  (SELECT id FROM structure_permissible_values WHERE value="> 4" AND language_alias="five or more"), "4", "1");
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_lifestyle');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'height_feet', 'integer_positive',  NULL , '0', '', '', '', '', 'cm or '), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'height_inches', 'float_positive',  NULL , '0', '', '', '', '', 'feet '), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'weight', 'float_positive',  NULL , '0', '', '', '', 'weight', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'weight_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_weight_unit') , '0', '', '', '', '', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'do_you_smoke', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_do_you_smoke') , '0', '', '', '', 'do you smoke', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'sibling_has_cancer', 'checkbox',  NULL , '0', '', '', '', 'qc_gastro_lifestyle_sibling_has_cancer', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_what', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoking_type') , '0', '', '', '', 'what did (do) you smoke', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_per_day', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_per_day') , '0', '', '', '', 'how much did (do) you smoke a day', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_how_long', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long') , '0', '', '', '', 'how long have you been smoking', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_quit_when', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long') , '0', '', '', '', 'if youve quit, when', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_parent', 'checkbox',  NULL , '0', '', '', '', 'did one or both of you parents smoke when you were a child', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'smoke_mother_pregnant', 'checkbox',  NULL , '0', '', '', '', 'did your mother smoke when she was pregnant with you', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'drink_per_week', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty') , '0', '', '', '', 'how many alcholic beverages do you drink in a typical week', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'food_fiber_nb_days_per_week', 'integer',  NULL , '0', '', '', '', 'qc_gastro_food_fiber_nb_days_per_week', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'food_smoked_salted_nb_days_per_week', 'integer',  NULL , '0', '', '', '', 'qc_gastro_food_smoked_salted_nb_days_per_week', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'food_charbroiled_nb_days_per_week', 'integer',  NULL , '0', '', '', '', 'qc_gastro_food_charbroiled_nb_days_per_week', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'can_digest_milk', 'checkbox',  NULL , '0', '', '', '', 'qc_gastro_can_digest_milk', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'taking_multi_vitamins', 'checkbox',  NULL , '0', '', '', '', 'qc_gastro_taking_multi_vitamins', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'taking_calcium_supplement', 'checkbox',  NULL , '0', '', '', '', 'qc_gastro_taking_calcium_supplement', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'taking_vitamin_d_supplement', 'checkbox',  NULL , '0', '', '', '', 'qc_gastro_taking_vitamin_d_supplement', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'height_cm', 'float_positive',  NULL , '0', '', '', '', 'height', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'sport_nb_days_per_week', 'integer',  NULL , '0', '', '', '', 'qc_gastro_lifestyle_sport_nb_days_per_week', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'drink_per_time', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty') , '0', '', '', '', 'qc_gastro_lifestyle_how_many_drinks_at_one_time', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_gastro_ed_lifestyle', 'food_fat_nb_days_per_week', 'integer',  NULL , '0', '', '', '', 'qc_gastro_food_fat_nb_days_per_week', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='height_feet' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='cm or '), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='height_inches' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='feet '), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='weight' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='weight' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='weight_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_weight_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='do_you_smoke' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_do_you_smoke')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='do you smoke' AND `language_tag`=''), '1', '7', 'smoking ', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='sibling_has_cancer' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_lifestyle_sibling_has_cancer' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_what' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoking_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='what did (do) you smoke' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_per_day' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_per_day')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='how much did (do) you smoke a day' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_how_long' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='how long have you been smoking' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_quit_when' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='if youve quit, when' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_parent' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='did one or both of you parents smoke when you were a child' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='smoke_mother_pregnant' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='did your mother smoke when she was pregnant with you' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='drink_per_week' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='how many alcholic beverages do you drink in a typical week' AND `language_tag`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='food_fiber_nb_days_per_week' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_food_fiber_nb_days_per_week' AND `language_tag`=''), '2', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='food_smoked_salted_nb_days_per_week' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_food_smoked_salted_nb_days_per_week' AND `language_tag`=''), '2', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='food_charbroiled_nb_days_per_week' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_food_charbroiled_nb_days_per_week' AND `language_tag`=''), '2', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='can_digest_milk' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_can_digest_milk' AND `language_tag`=''), '2', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='taking_multi_vitamins' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_taking_multi_vitamins' AND `language_tag`=''), '2', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='taking_calcium_supplement' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_taking_calcium_supplement' AND `language_tag`=''), '2', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='taking_vitamin_d_supplement' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_taking_vitamin_d_supplement' AND `language_tag`=''), '2', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='height_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='height' AND `language_tag`=''), '1', '1', 'general', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='sport_nb_days_per_week' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_lifestyle_sport_nb_days_per_week' AND `language_tag`=''), '2', '3', 'sport', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='drink_per_time' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_lifestyle_how_many_drinks_at_one_time' AND `language_tag`=''), '2', '1', 'drinking', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_gastro_ed_lifestyle' AND `field`='food_fat_nb_days_per_week' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc_gastro_food_fat_nb_days_per_week' AND `language_tag`=''), '2', '4', 'eating', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_fields SET  `language_label`='smoking' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='do_you_smoke' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_do_you_smoke');
+UPDATE structure_fields SET  `language_help`='qc_gastro_lifestyle_sibling_has_cancer',  `language_label`='parent/sibling/child having cancer' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='sibling_has_cancer' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='how much did (do) you smoke a day',  `language_label`='smoking qty/day' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='smoke_per_day' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_per_day');
+UPDATE structure_fields SET  `language_label`='smoking for how long' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='smoke_how_long' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long');
+UPDATE structure_fields SET  `language_label`='quitted when' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='smoke_quit_when' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_smoke_how_long');
+UPDATE structure_fields SET  `language_help`='did one or both of you parents smoke when you were a child',  `language_label`='when child, smoking parents' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='smoke_parent' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='did you mother smoke when she was pregnant with you',  `language_label`='smoking mother while pregnant with you' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='smoke_mother_pregnant' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='how many alcholic beverages do you drink in a typical week',  `language_label`='qty/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='drink_per_week' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty');
+UPDATE structure_fields SET  `language_help`='qc_gastro_food_charbroiled_nb_days_per_week',  `language_label`='charboiled food days/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='food_charbroiled_nb_days_per_week' AND `type`='integer' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_can_digest_milk',  `language_label`='can digest milk' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='can_digest_milk' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_taking_multi_vitamins',  `language_label`='multi-vitamins' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='taking_multi_vitamins' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_taking_calcium_supplement',  `language_label`='calcium supplement' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='taking_calcium_supplement' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_taking_vitamin_d_supplement',  `language_label`='vitamin d supplement' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='taking_vitamin_d_supplement' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_lifestyle_sport_nb_days_per_week',  `language_label`='sport days/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='sport_nb_days_per_week' AND `type`='integer' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_lifestyle_how_many_drinks_at_one_time',  `language_label`='drinks/time' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='drink_per_time' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_drinking_qty');
+UPDATE structure_fields SET  `language_help`='qc_gastro_food_fiber_nb_days_per_week',  `language_label`='fiber food days/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='food_fiber_nb_days_per_week' AND `type`='integer' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_food_smoked_salted_nb_days_per_week',  `language_label`='smoked/salted food days/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='food_smoked_salted_nb_days_per_week' AND `type`='integer' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_help`='qc_gastro_food_fat_nb_days_per_week',  `language_label`='fat food days/week' WHERE model='EventDetail' AND tablename='qc_gastro_ed_lifestyle' AND field='food_fat_nb_days_per_week' AND `type`='integer' AND structure_value_domain  IS NULL ;
+
+
+
+
+-- quality control score moved to grid
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='score' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_unit') AND `flag_confidential`='0');
+
+CREATE TABLE qc_gastro_qc_scores(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ quality_ctrl_id INT NOT NULL,
+ score VARCHAR(30) NOT NULL DEFAULT '',
+ unit VARCHAR(30) NOT NULL DEFAULT '',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL 
+)Engine=InnoDb;
+CREATE TABLE qc_gastro_qc_scores_revs(
+ id INT UNSIGNED NOT NULL,
+ quality_ctrl_id INT NOT NULL,
+ score VARCHAR(30) NOT NULL DEFAULT '',
+ unit VARCHAR(30) NOT NULL DEFAULT '',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ version_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL 
+)Engine=InnoDb;
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_qc_scores');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'QcGastroQcScore', 'qc_gastro_qc_scores', 'score', 'input',  NULL , '0', '', '', '', 'score', ''), 
+('Inventorymanagement', 'QcGastroQcScore', 'qc_gastro_qc_scores', 'unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='quality_control_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_qc_scores'), (SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='score' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='score' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_qc_scores'), (SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'QcGastroQcScore', 'qc_gastro_qc_scores', 'id', 'hidden',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_qc_scores'), (SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='id' AND `type`='hidden' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_qc_scores') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
