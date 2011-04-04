@@ -772,6 +772,7 @@ div.menu ul#summary ul span.list_header {
 *===========================================================*/
 span.tag {
 	font-size: 100%;
+	font-weight: bold;
 }
 span.help {
 	position: relative;
