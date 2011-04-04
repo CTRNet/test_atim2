@@ -7,6 +7,7 @@
  * @author FM L'Heureux for Nicolas Luc
  */
 
+global $database_schema;
 $database_schema = $argv[1];
 $user = $argv[2];
 $password = $argv[3];
@@ -33,15 +34,16 @@ echo "***********END************\n";
 
 function copyDataToRevs(){
 	global $db;
+	global $database_schema;
 	$revs_tables = array();
 	$tables = array();
-	$result = $db->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$schema."' AND TABLE_NAME LIKE '%_revs' ORDER BY TABLE_NAME") or die($db->error);
+	$result = $db->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$database_schema."' AND TABLE_NAME LIKE '%_revs' ORDER BY TABLE_NAME") or die($db->error);
 	while ($row = $result->fetch_assoc()) {
 		$revs_tables[$row['TABLE_NAME']] = null;
 	}
 	$result->free();
 	
-	$result = $db->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$schema."' AND TABLE_NAME NOT LIKE '%_revs' ORDER BY TABLE_NAME") or die($db->error);
+	$result = $db->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA='".$database_schema."' AND TABLE_NAME NOT LIKE '%_revs' ORDER BY TABLE_NAME") or die($db->error);
 	$tables = array();
 	while ($row = $result->fetch_assoc()) {
 		$tables[] = $row['TABLE_NAME'];
@@ -73,7 +75,11 @@ function getFields($table_name){
 
 function updateAliquotsStorage(){
 	global $db;
-	//prepare details config
+	
+	//prepare master table data
+	$aliquot_master_common_columns = array_intersect(getFields("aliquot_masters"), getFields("aliquot_masters_revs"));
+	
+	//prepare details tables data
 	$controls_mapping = array();
 	$results = $db->query("SELECT id, detail_tablename FROM aliquot_controls") or die("aliquots0 failed");
 	while($row = $results->fetch_assoc()){
@@ -85,22 +91,35 @@ function updateAliquotsStorage(){
 		$content['common_columns'] = array_intersect(getFields($content['detail_tablename']), getFields($content['detail_tablename']."_revs"));
 	}
 	
-	
+	//get aliquot_master_id to update
 	$result = $db->query("SELECT id, aliquot_control_id FROM aliquot_masters WHERE in_stock='no' AND storage_master_id IS NOT NULL") or die("aliquots1 failed");
-	$ids = array();
-	$common_columns = array_intersect(getFields("aliquot_masters"), getFields("aliquot_masters_revs"));
+	$studied_aliquot_master_ids = array();
 	while($row = $result->fetch_assoc()){
-		$ids[$row['id']] = $row['aliquot_control_id'];
+		$studied_aliquot_master_ids[$row['id']] = $row['aliquot_control_id'];
 	}
 	$result->free();
-	if(count($ids) > 0){
+	
+	// modified modified_by
+	$result = $db->query(" select id from users where first_name = 'Migration'") or die("aliquots133 failed");
+	$modified_by = null;
+	while($row = $result->fetch_assoc()){
+		$modified_by = $row['id'];
+	}
+	$modified = date('Y-m-d G:i');
+	
+	
+	if(count($studied_aliquot_master_ids) > 0){
 		echo "Updating aliquot: ";
-		foreach($ids as $id => $control_id){
+		foreach($studied_aliquot_master_ids as $id => $control_id){
 			echo $id," ";
+			if(!isset($controls_mapping[$control_id])) die("aliquots8893 failed");
 			$current_control = $controls_mapping[$control_id];
-			$db->query("UPDATE aliquot_masters SET storage_master_id=NULL, storage_coord_x=NULL, coord_x_order=NULL, storage_coord_y=NULL, coord_y_order=NULL WHERE id=".$id) or die("aliquots died on id ".$id);
-			$db->query("INSERT INTO aliquot_masters_revs (`".implode("`, `", $common_columns)."`, `version_created`) (SELECT `".implode("`, `", $common_columns)."`, NOW() FROM aliquot_masters WHERE id=".$id.")") or die("aliquots died2 on id ".$id);
-			$db->query("INSERT INTO ".$current_control['detail_tablename']."_revs (`".implode("`, `", $current_control['common_columns'])."`, `version_created`) (SELECT `".implode("`, `", $current_control['common_columns'])."`, NOW() FROM ".$current_control['detail_tablename']." WHERE aliquot_master_id=".$id.")") or die("aliquots died3 on aliquot_mater_id ".$id);
+
+			$db->query("UPDATE aliquot_masters SET storage_master_id=NULL, storage_coord_x=NULL, storage_coord_y=NULL, modified = '".$modified."', modified_by = '".$modified_by."' WHERE id=".$id) or die("aliquots died on id ".$id);
+			$db->query("UPDATE ".$current_control['detail_tablename']." SET modified = '".$modified."', modified_by = '".$modified_by."' WHERE aliquot_master_id=".$id) or die("aliquots died on id ".$id);
+
+			$db->query("INSERT INTO aliquot_masters_revs (`".implode("`, `", $aliquot_master_common_columns)."`, `version_created`) (SELECT `".implode("`, `", $aliquot_master_common_columns)."`, '".$modified."' FROM aliquot_masters WHERE id=".$id.")") or die("aliquots died on id ".$id);
+			$db->query("INSERT INTO ".$current_control['detail_tablename']."_revs (`".implode("`, `", $current_control['common_columns'])."`, `version_created`) (SELECT `".implode("`, `", $current_control['common_columns'])."`, '".$modified."' FROM ".$current_control['detail_tablename']." WHERE aliquot_master_id=".$id.")") or die("aliquots died on id ".$id);
 		}
 		echo "\n";
 	}
