@@ -629,7 +629,7 @@ class StructuresHelper extends Helper {
 				if($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search"){
 					AppController::getInstance()->redirect("/pages/err_confidential");
 				}
-		}else if($options['links']['top'] && $options['settings']['form_inputs']){
+		}else if($options['links']['top'] && $options['settings']['form_inputs'] && !$table_row_part['readonly']){
 			if($table_row_part['type'] == "date"){
 				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "datetime"){
@@ -677,19 +677,8 @@ class StructuresHelper extends Helper {
 			}
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
+			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
 			
-			$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
-			
-			if(strlen($key)){
-				$display = str_replace("[%d]", "[".$key."]", $display);
-			}
-			if(!is_array($current_value)){
-				$display = str_replace("%s", $current_value, $display);
-			}
-			
-			if(isset($table_row_part['tool'])){
-				$display .= $table_row_part['tool'];
-			}
 		}else if(strlen($current_value) > 0){
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
@@ -714,6 +703,12 @@ class StructuresHelper extends Helper {
 			}else{
 				$display = $current_value;
 			}
+			
+			if($table_row_part['readonly']){
+				$tmp = $table_row_part['format'];
+				$this->fieldDisplayFormat($tmp, $table_row_part, $key, $current_value);
+				$display .= $tmp;
+			}
 		}
 		
 		$tag = "";
@@ -725,6 +720,28 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $tag.(strlen($display) > 0 ? $display : "-")." ";
+	}
+	
+	/**
+	 * Update the field display to insert in it its values and classes
+	 * @param string &$display Pointer to the display string, which will be updated
+	 * @param array $table_row_part The current field data/settings
+	 * @param string $key The key, if any to use in the name
+	 * @param string $current_value The current field value
+	 */
+	private function fieldDisplayFormat(&$display, array $table_row_part, $key, $current_value){
+		$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
+			
+		if(strlen($key)){
+			$display = str_replace("[%d]", "[".$key."]", $display);
+		}
+		if(!is_array($current_value)){
+			$display = str_replace("%s", $current_value, $display);
+		}
+			
+		if(isset($table_row_part['tool'])){
+			$display .= $table_row_part['tool'];
+		}
 	}
 	
 	/**
@@ -1346,18 +1363,14 @@ class StructuresHelper extends Helper {
 						"help" 				=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
 						"setting" 			=> $sfs['setting'],//required for icd10 magic
 						"default"			=> $sfs['default'],
-						"flag_confidential"	=> $sfs['flag_confidential']
+						"flag_confidential"	=> $sfs['flag_confidential'],
+						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]
 					);
-					$append_field_tool = "";
 					$settings = $my_default_settings_arr;
 					
 					$date_format_arr = str_split(date_format);
-					if($options['links']['top'] && $options['settings']['form_inputs']){						
+					if($options['links']['top'] && $options['settings']['form_inputs']){
 						$settings['tabindex'] = self::$last_tabindex ++;
-						
-						if(isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]){
-							$settings['disabled'] = "disabled";
-						}
 						
 						//building all text fields (dropdowns, radios and checkboxes cannot be built here)
 						$field_name = "";
@@ -1370,7 +1383,7 @@ class StructuresHelper extends Helper {
 						$field_name .= $sfs['model'].".".$sfs['field'];
 						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
 						$current['name'] = $field_name;
-						if(strlen($sfs['setting']) > 0){
+						if(strlen($sfs['setting']) > 0 && !$current['readonly']){
 							// parse through FORM_FIELDS setting value, and add to helper array
 							$tmp_setting = explode(',', $sfs['setting']);
 							foreach($tmp_setting as $setting){
@@ -1404,7 +1417,12 @@ class StructuresHelper extends Helper {
 							}
 						}
 						
-						if($sfs['type'] == "input"){
+						
+						if($current['readonly']){
+							unset($settings['disabled']);
+							$current["format"] = $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
+							$settings['disabled'] = "disabled";
+						}else if($sfs['type'] == "input"){
 							if($options['type'] != "search"){
 								$settings['class'] = str_replace("range", "", $settings['class']);
 							}
@@ -1456,11 +1474,11 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 						}
 						
-						if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled")){
-							unset($settings['disabled']);
-							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
-							$settings['disabled'] = "disabled";
-						}
+//						if(isset($settings['disabled']) && ($settings['disabled'] === true || $settings['disabled'] == "disabled")){
+//							unset($settings['disabled']);
+//							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
+//							$settings['disabled'] = "disabled";
+//						}
 						
 						$current['default'] = $sfs['default'];
 						$current['settings'] = $settings;
