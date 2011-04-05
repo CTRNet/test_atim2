@@ -337,7 +337,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_used_aliquot['AliquotMaster']['id'];
 
 					// set aliquot master data					
-					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] = 'no')) {
+					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
 						$new_used_aliquot['AliquotMaster']['storage_master_id'] = null;
 						$new_used_aliquot['AliquotMaster']['storage_coord_x'] = null;
