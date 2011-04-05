@@ -667,8 +667,13 @@ SET `flag_add` = '0', `flag_add_readonly` = '0',
 `display_column` = '1', `display_order` = '2000'
 WHERE structure_id IN (SELECT id FROM structures WHERE'ad_spec_%')
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='created');
-	
-	
 
+UPDATE structure_fields SET flag_confidential = '1' WHERE model = 'Participant' AND field IN ('date_of_death');
+UPDATE structure_fields SET flag_confidential = '1' WHERE model = 'ParticipantContact';
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("stock status unknown", "stock status unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail"),  (SELECT id FROM structure_permissible_values WHERE value="stock status unknown" AND language_alias="stock status unknown"), "8", "1");
+
+INSERT INTO i18n (id, en, fr) VALUES ('stock status unknown','Stock Status Unknown','État du stock inconnu');
 
 
