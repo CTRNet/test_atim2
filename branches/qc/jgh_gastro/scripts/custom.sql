@@ -172,7 +172,14 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("can digest milk", "Can digest milk", "Peut digérer le lait"),
 ("multi-vitamins", "Multi-vitamins", "Multi-vitamines"),
 ("calcium supplement", "Calcium supplements", "Suppléments de calcium"),
-("vitamin d supplement", "Vitamin D supplement", "Suppléments de vitamine D"); 
+("vitamin d supplement", "Vitamin D supplement", "Suppléments de vitamine D"),
+
+("form language", "Form language", "Langue du formulaire"),
+("acceptance", "Acceptance", "Acceptation"),
+("access to medical file", "Access to medical file", "Accès au dossier médical"),
+("biological material storage and use", "Biological material storage and use", "Entreposage et utilisation de matériel biologique"),
+("blood collection", "Blood collection", "Collection de sang"),
+("saliva collection", "Saliva collection", "Collection de salive"); 
  
 
 UPDATE diagnosis_controls SET flag_active=0 WHERE id IN (1, 2);
@@ -526,3 +533,51 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_qc_scores'), (SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='id' AND `type`='hidden' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE structure_formats SET `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_qc_scores') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QcGastroQcScore' AND `tablename`='qc_gastro_qc_scores' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- consent
+ALTER TABLE consent_masters
+ ADD COLUMN qc_gastro_language VARCHAR (20) NOT NULL DEFAULT '' AFTER type,
+ ADD COLUMN qc_gastro_access_med_file BOOLEAN DEFAULT NULL AFTER qc_gastro_language,
+ ADD COLUMN qc_gastro_bio_material BOOLEAN DEFAULT NULL AFTER qc_gastro_access_med_file,
+ ADD COLUMN qc_gastro_blood_col BOOLEAN DEFAULT NULL AFTER qc_gastro_bio_material,
+ ADD COLUMN qc_gastro_saliva_col BOOLEAN DEFAULT NULL AFTER qc_gastro_blood_col;
+ALTER TABLE consent_masters_revs
+ ADD COLUMN qc_gastro_language VARCHAR (20) NOT NULL DEFAULT '' AFTER type,
+ ADD COLUMN qc_gastro_access_med_file BOOLEAN DEFAULT NULL AFTER qc_gastro_language,
+ ADD COLUMN qc_gastro_bio_material BOOLEAN DEFAULT NULL AFTER qc_gastro_access_med_file,
+ ADD COLUMN qc_gastro_blood_col BOOLEAN DEFAULT NULL AFTER qc_gastro_bio_material,
+ ADD COLUMN qc_gastro_saliva_col BOOLEAN DEFAULT NULL AFTER qc_gastro_blood_col;
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'qc_gastro_language', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='lang') , '0', '', '', '', 'form language', ''), 
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'qc_gastro_access_med_file', 'checkbox',  NULL , '0', '', '', '', 'access to medical file', ''), 
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'qc_gastro_access_med_file', 'checkbox',  NULL , '0', '', '', '', 'biological material storage and use', ''), 
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'qc_gastro_blood_col', 'checkbox',  NULL , '0', '', '', '', 'blood collection', ''), 
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'qc_gastro_saliva_col', 'checkbox',  NULL , '0', '', '', '', 'saliva collection', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_gastro_language' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lang')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='form language' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_gastro_access_med_file' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='access to medical file' AND `language_tag`=''), '2', '1', 'acceptance', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_gastro_access_med_file' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biological material storage and use' AND `language_tag`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_gastro_blood_col' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blood collection' AND `language_tag`=''), '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_nationals'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='qc_gastro_saliva_col' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='saliva collection' AND `language_tag`=''), '2', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='surgeon' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='operation_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='date_first_contact' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_person' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='access_medical_information') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- rna micro-rna checkbox
+ALTER TABLE sd_der_rnas
+ ADD COLUMN qc_gastro_micro_rna BOOLEAN DEFAULT NULL AFTER sample_master_id;
+ALTER TABLE sd_der_rnas_revs
+ ADD COLUMN qc_gastro_micro_rna BOOLEAN DEFAULT NULL AFTER sample_master_id;
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_sd_rna');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'qc_gastro_micro_rna', 'checkbox',  NULL , '0', '', '', '', 'micro-rna', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_sd_rna'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qc_gastro_micro_rna' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='micro-rna' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE sample_controls SET form_alias='sample_masters,sd_undetailed_derivatives,derivative_lab_book,qc_gastro_sd_rna' WHERE id=13;
