@@ -17,7 +17,8 @@ class ParticipantCustom extends Participant {
 					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab'"))));
 			$this->bindModel($has_many_details, false);			
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
-
+			
+			
 			$result[0]['identifiers'] = "";
 			$temp_array = array();
 			foreach($result['MiscIdentifier'] as $mi){
@@ -27,11 +28,13 @@ class ParticipantCustom extends Participant {
 			foreach($temp_array as $key => $value){
 				$result[0]['identifiers'] .= $key." - ".$value."<br/>";
 			}
+			$title = empty($temp_array)? 'n/a' : implode(" ", $temp_array);
+			
 			//------------------------------
 			
 			$return = array(
-					'menu'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
-					'title'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'menu'				=>	array( NULL, $title ),
+					'title'				=>	array( NULL, $title ),
 					'structure alias' 	=> 'participants,qc_nd_part_id_summary',
 					'data'				=> $result
 			);
