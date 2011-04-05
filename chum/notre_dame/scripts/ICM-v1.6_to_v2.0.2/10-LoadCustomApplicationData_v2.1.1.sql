@@ -676,4 +676,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT INTO i18n (id, en, fr) VALUES ('stock status unknown','Stock Status Unknown','État du stock inconnu');
 
+UPDATE aliquot_masters 
+SET in_stock = 'yes - not available', in_stock_detail = 'stock status unknown'
+WHERE in_stock = 'unknown';
 
