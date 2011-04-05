@@ -392,7 +392,7 @@ class StructuresHelper extends Helper {
 		}
 				
 		if($options['settings']['actions']){
-			echo($this->generateLinksList($this->data, $options['links'], 'bottom'));
+			echo $this->generateLinksList($this->data, $options['links'], 'bottom');
 		}
 		
 		$result = null;
@@ -1651,9 +1651,12 @@ class StructuresHelper extends Helper {
 		$return_links = array();
 		
 		$links = isset($option_links[$state]) ? $option_links[$state] : array();
-		$links = !is_array($links) ? array('detail' => $links) : $links;
-		// parse through $LINKS array passed to function, make link for each 
+		$links = is_array($links) ? $links : array('detail' => $links);
+		// parse through $LINKS array passed to function, make link for each
 		foreach($links as $link_name => $link_array){
+			if(empty($link_array)){
+				continue;
+			}
 			if(!is_array($link_array)){
 				$link_array = array( $link_name => $link_array );
 			}
