@@ -703,12 +703,12 @@ class StructuresHelper extends Helper {
 			}else{
 				$display = $current_value;
 			}
-			
-			if($table_row_part['readonly']){
-				$tmp = $table_row_part['format'];
-				$this->fieldDisplayFormat($tmp, $table_row_part, $key, $current_value);
-				$display .= $tmp;
-			}
+		}
+		
+		if($table_row_part['readonly']){
+			$tmp = $table_row_part['format'];
+			$this->fieldDisplayFormat($tmp, $table_row_part, $key, $current_value);
+			$display .= $tmp;
 		}
 		
 		$tag = "";
