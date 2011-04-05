@@ -4,7 +4,9 @@
 function initCcl(){
 	var popupLoaded = false;
 	var popupSearch = function(){
-		$.post(root_url + "/inventorymanagement/collections/search/true", $("#popup form").serialize(), function(data){
+		//postData = participant collection + serialized form
+		var postData = "data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection&" + $("#popup form").serialize(); 
+		$.post(root_url + "/inventorymanagement/collections/search/true", postData, function(data){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
 		});
@@ -28,9 +30,6 @@ function initCcl(){
 				initDatepicker("#popup .datepicker");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
-				$("#popup form").append("" +
-						"<input type='hidden' name='data[ViewCollection][collection_property]' value='participant collection'/>" +
-						"<input type='hidden' name='data[ViewCollection][participant_id]' value='2'/>");
 				$("#popup .form.search").unbind('click').attr("onclick", null).click(popupSearch);
 				$("#popup").popup();
 				popupLoaded = true;
