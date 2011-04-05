@@ -179,7 +179,9 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("access to medical file", "Access to medical file", "Accès au dossier médical"),
 ("biological material storage and use", "Biological material storage and use", "Entreposage et utilisation de matériel biologique"),
 ("blood collection", "Blood collection", "Collection de sang"),
-("saliva collection", "Saliva collection", "Collection de salive"); 
+("saliva collection", "Saliva collection", "Collection de salive"),
+("micro-rna", "Micro-RNA", "Micro-ARN"),
+("ficol use", "Ficol use", "Utilisation de ficol"); 
  
 
 UPDATE diagnosis_controls SET flag_active=0 WHERE id IN (1, 2);
@@ -581,3 +583,17 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_sd_rna'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qc_gastro_micro_rna' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='micro-rna' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE sample_controls SET form_alias='sample_masters,sd_undetailed_derivatives,derivative_lab_book,qc_gastro_sd_rna' WHERE id=13;
+
+-- pbmc ficol use
+ALTER TABLE sd_der_pbmcs
+ ADD COLUMN qc_gastro_ficol BOOLEAN DEFAULT NULL AFTER sample_master_id;
+ALTER TABLE sd_der_rnas_revs
+ ADD COLUMN qc_gastro_ficol BOOLEAN DEFAULT NULL AFTER sample_master_id;
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_sd_pbmc');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_pbmcs', 'qc_gastro_ficol', 'checkbox',  NULL , '0', '', '', '', 'ficol use', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_sd_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_gastro_ficol' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ficol use' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE sample_controls SET form_alias='sample_masters,sd_undetailed_derivatives,derivative_lab_book,qc_gastro_sd_pbmc' WHERE id=8;
