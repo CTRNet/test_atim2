@@ -859,9 +859,6 @@ span.help {
 			color: #000;
 			white-space: nowrap;
 		}
-		div.wrapper table.structure td.content {
-			color: #666;
-		}
 		div.wrapper table.structure td.help {
 			text-align: right;
 			padding: 3px 10px 0 0;
@@ -961,7 +958,6 @@ span.help {
 			div.wrapper table.structure table.columns td {
 				vertical-align: top;
 				line-height: 14px;
-				color: #666;
 			}
 			ul.big_announcements {
 				list-style: none;
