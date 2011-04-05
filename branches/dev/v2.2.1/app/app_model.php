@@ -398,7 +398,36 @@ class AppModel extends Model {
 			}
 			self::$auto_validation[$use_name] = $auto_validation;
 		}
-	} 
+	}
+
+	/**
+	 * Searches recursively for field in CakePHP SQL conditions
+	 * @param string $field The field to look for
+	 * @param array $conditions CakePHP SQL conditionnal array
+	 * @return true if the field was found
+	 */
+	static function isFieldUsedAsCondition($field, array $conditions){
+		foreach($conditions as $key => $value){
+			$is_array = is_array($value);
+			$pos1 = strpos($key, $field);
+			$pos2 = strpos($key, " ");
+			if($pos1 !== false && ($pos2 === false || $pos1 < $pos2)){
+				return true;
+			}
+			if($is_array){
+				if(self::isFieldUsedAsCondition($field, $value)){
+					return true;
+				}
+			}else{
+				$pos1 = strpos($value, $field);
+				$pos2 = strpos($value, " ");
+				if($pos1 !== false && ($pos2 === false || $pos1 < $pos2)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
 
 ?>
