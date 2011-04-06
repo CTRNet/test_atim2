@@ -39,3 +39,49 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 (SELECT `structure_id`, @added_field_id_2, `display_column`, (`display_order` -1), `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`
 FROM structure_formats WHERE structure_field_id = @existing_field_id);
 
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`) VALUES
+(null, 'aliquots spent times summary', 'calculation of different aliquots spent times', 'report_aliquot_spent_times_defintion', 'aliquot_spent_times_report', 'index', 'aliquotSpentTimesCalulations');
+
+INSERT INTO structures(`alias`) VALUES ('report_aliquot_spent_times_defintion');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='report_aliquot_spent_times_defintion'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND setting LIKE 'size=%' AND `structure_value_domain`  IS NULL  ), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('aliquot_spent_times_report');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_spent_times_report'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND setting LIKE 'size=%' AND `structure_value_domain`  IS NULL  ), 
+'0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', 
+'0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='aliquot_spent_times_report'), 
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND field = 'coll_to_stor_spent_time_msg'), 
+'0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', 
+'0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='aliquot_spent_times_report'), 
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND field = 'rec_to_stor_spent_time_msg'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', 
+'0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='aliquot_spent_times_report'), 
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND field = 'creat_to_stor_spent_time_msg'), 
+'0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', 
+'0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`)VALUES 
+(NULL , (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'generate aliquots spent times summary', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), '1');
+
+INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, `flag_active`) VALUES
+(null, 'generate aliquots spent times summary', 'Inventorymanagement', 'AliquotMaster', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1),
+(null, 'generate aliquots spent times summary', 'Inventorymanagement', 'ViewAliquot', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1);
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('aliquots spent times summary', 'Aliquot Spent Times Summary', 'Résumé des temps écoulés liés aux aliquots'),
+('generate aliquots spent times summary','Generate Aliquot Spent Times Summary','Générer le résumé des temps écoulés liés aux aliquots'),
+('calculation of different aliquots spent times',
+'Summary gathering aliquot spent times like ''Collection to Storage Spent Time'', ''Creation to Storage Spent Time'', etc.',
+'Résumé contenant des temps écoulés tel que ''Le temps entre la collection et l''entreposage'', etc.');
+
+
+
+
+
+
+

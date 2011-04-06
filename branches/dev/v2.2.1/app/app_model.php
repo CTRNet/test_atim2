@@ -428,6 +428,123 @@ class AppModel extends Model {
 		}
 		return false;
 	}
+	
+	/**
+	 * Return the spent time between 2 dates. 
+	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
+	 * 
+	 * @param $start_date Start date
+	 * @param $end_date End date
+	 * 
+	 * @return Return an array that contains the spent time
+	 * or an error message when the spent time can not be calculated.
+	 * The sturcture of the array is defined below:
+	 *	Array (
+	 * 		'message' => '',
+	 * 		'days' => '0',
+	 * 		'hours' => '0',
+	 * 		'minutes' => '0'
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	static function getSpentTime($start_date, $end_date){
+		$arr_spent_time 
+			= array(
+				'message' => null,
+				'days' => '0',
+				'hours' => '0',
+				'minutes' => '0');
+		
+		$empty_date = '0000-00-00 00:00:00';
+		
+		// Verfiy date is not empty
+		if(empty($start_date)||empty($end_date)
+		|| (strcmp($start_date, $empty_date) == 0)
+		|| (strcmp($end_date, $empty_date) == 0)){
+			// At least one date is missing to continue
+			$arr_spent_time['message'] = 'missing date';	
+		} else {
+			$start = AppModel::getTimeStamp($start_date);
+			$end = AppModel::getTimeStamp($end_date);
+			$spent_time = $end - $start;
+			
+			if(($start === false)||($end === false)){
+				// Error in the date
+				$arr_spent_time['message'] = 'error: unable to define date';
+			} else if($spent_time < 0){
+				// Error in the date
+				$arr_spent_time['message'] = 'error in the date definitions';
+			} else if($spent_time == 0){
+				// Nothing to change to $arr_spent_time
+				$arr_spent_time['message'] = '0';
+			} else {
+				// Return spend time
+				$arr_spent_time['days'] = floor($spent_time / 86400);
+				$diff_spent_time = $spent_time % 86400;
+				$arr_spent_time['hours'] = floor($diff_spent_time / 3600);
+				$diff_spent_time = $diff_spent_time % 3600;
+				$arr_spent_time['minutes'] = floor($diff_spent_time / 60);
+				if($arr_spent_time['minutes']<10) {
+					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
+				}
+			}
+			
+		}
+		
+		return $arr_spent_time;
+	}
+
+	/**
+	 * Return time stamp of a date. 
+	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
+	 * 
+	 * @param $date_string Date
+	 * @param $end_date End date
+	 * 
+	 * @return Return time stamp of the date.
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	static function getTimeStamp($date_string){
+		list($date, $time) = explode(' ', $date_string);
+		list($year, $month, $day) = explode('-', $date);
+		list($hour, $minute, $second) = explode(':',$time);
+
+		return mktime($hour, $minute, $second, $month, $day, $year);
+	}	
+	
+	static function manageSpentTimeDataDisplay($spent_time_data) {
+		$spent_time_msg = '';
+		if(!empty($spent_time_data)) {	
+			if(!is_null($spent_time_data['message'])) {
+				if($spent_time_data['message'] == '0') {
+					$spent_time_msg = $spent_time_data['message'];
+				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
+					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
+				} else {
+					$spent_time_msg = __($spent_time_data['message'], TRUE);
+				}
+			} else {
+				$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'days') 
+								.AppModel::translateDateValueAndUnit($spent_time_data, 'hours') 
+								.AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
+			} 	
+		}
+		
+		return $spent_time_msg;
+	}
+	
+	static function translateDateValueAndUnit($spent_time_data, $time_unit) {
+		if(array_key_exists($time_unit, $spent_time_data)) {
+			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
+		} 
+		return  '#err#';
+	}
 }
 
 ?>

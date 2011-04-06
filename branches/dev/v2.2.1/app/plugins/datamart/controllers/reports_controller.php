@@ -359,4 +359,53 @@ class ReportsController extends DatamartAppController {
 		return $array_to_return;
 	}	
 	
+	function aliquotSpentTimesCalulations($parameters) {
+		$array_to_return = array(
+			'header' => null, 
+			'data' => null, 
+			'columns_names' => null,
+			'error_msg' => null);
+
+		// Get aliquot id
+		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+			
+		$aliquot_master_ids = array();
+		if(isset($parameters['aliquot_master_id'])) {
+			$aliquot_master_ids = array_filter($parameters['aliquot_master_id']);
+		} else if(array_key_exists('barcode', $parameters)) {
+			$aliquot_master_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.barcode" => $parameters['barcode']), 'recursive' => -1));
+		} else {
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		if(empty($aliquot_master_ids)) {
+			$array_to_return['error_msg'] = 'no aliquot has been found';
+		} else {
+			$aliquot_master_ids[] = 0;
+			$aliquots = $this->Report->query(
+				"SELECT al.barcode, col.collection_datetime, spec_det.reception_datetime, der_det.creation_datetime, al.storage_datetime
+				FROM aliquot_masters AS al 
+				INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+				INNER JOIN collections AS col ON col.id = al.collection_id AND col.deleted != 1
+				INNER JOIN sample_masters AS spec ON spec.id = samp.initial_specimen_sample_id AND spec.deleted != 1			
+				INNER JOIN specimen_details AS spec_det ON spec.id = spec_det.sample_master_id AND spec_det.deleted != 1
+				LEFT JOIN derivative_details AS der_det ON der_det.sample_master_id = samp.id AND der_det.deleted != 1
+				WHERE al.deleted != 1 AND al.id IN (".implode(',', $aliquot_master_ids).")"); 
+
+			$data = array();
+			foreach($aliquots as $new_record) {
+				$new_data = array();
+				$new_data['AliquotMaster']['barcode'] = $new_record['al']['barcode'];
+				$new_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($new_record['col']['collection_datetime'], $new_record['al']['storage_datetime']));
+				$new_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($new_record['spec_det']['reception_datetime'], $new_record['al']['storage_datetime']));
+				$new_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($new_record['der_det']['creation_datetime'], $new_record['al']['storage_datetime']));
+				$data[] = $new_data;
+			}
+			
+			$array_to_return['data'] = $data;
+		}
+		
+		return $array_to_return;
+	}
+	
 }
