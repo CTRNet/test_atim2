@@ -683,6 +683,7 @@ class StructuresHelper extends Helper {
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
 				list($year, $month, $day) = explode("-", $current_value);
+				list($day) = explode(" ", $day);//in case the current date is a datetime
 				$display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
 			}else if($table_row_part['type'] == "datetime" && $elligible_as_date){
 				$display = AppController::getFormatedDatetimeString($current_value, $options['type'] != 'csv');
