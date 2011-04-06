@@ -469,7 +469,7 @@ class Browser extends DatamartAppModel {
 							 	//unset the serialization on the sub model since it's already in the title
 							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
 							 	$tmp_model = AppModel::atimNew($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
-							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id'])));
+							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
 							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
 								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
@@ -730,13 +730,17 @@ class Browser extends DatamartAppModel {
 		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
 			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
+			
 			//fetch the count since deletions might make the set smaller than the count of ids
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
-			
 			if($count > $display_limit){
-				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => 0));
+				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => -1));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
 			}else{
+				if(is_numeric($browsing['BrowsingResult']['browsing_structures_sub_id'])){
+					//add the control_id to the search conditions to benefit from direct inner join on detail
+					$conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $browsing['BrowsingResult']['browsing_structures_sub_id'];
+				}
 				$this->checklist_data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'recursive' => 0));
 			}
 		}else{
