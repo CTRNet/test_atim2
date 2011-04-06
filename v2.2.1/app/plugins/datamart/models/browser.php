@@ -737,7 +737,7 @@ class Browser extends DatamartAppModel {
 				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => -1));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
 			}else{
-				if(is_numeric($browsing['BrowsingResult']['browsing_structures_sub_id'])){
+				if($browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
 					//add the control_id to the search conditions to benefit from direct inner join on detail
 					$conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $browsing['BrowsingResult']['browsing_structures_sub_id'];
 				}
