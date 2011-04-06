@@ -66,7 +66,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`)VALUES 
-(NULL , (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'generate aliquots spent times summary', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), '1');
+(NULL , (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'generate aliquots spent times summary', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'aliquots spent times summary')), '1');
 
 INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, `flag_active`) VALUES
 (null, 'generate aliquots spent times summary', 'Inventorymanagement', 'AliquotMaster', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1),
