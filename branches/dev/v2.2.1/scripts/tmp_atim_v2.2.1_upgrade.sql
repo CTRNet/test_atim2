@@ -83,3 +83,5 @@ UPDATE i18n SET en = 'Cell Lysate' WHERE id = 'cell lysate';
 INSERT INTO i18n (id, en, fr) VALUES 
 ("batch init - number of submitted records too big", "The number of records submitted are too big to me managed in batch!",
 "Le nombre de données soumises pour être traitées en lot est trop important!");
+
+UPDATE structure_formats SET `flag_addgrid_readonly`='1', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
