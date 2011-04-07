@@ -647,8 +647,8 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "select" 
 			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
-				&& (count($table_row_part['settings']['options']) > 1 || !isset($table_row_part['settings']['disabled']) || $table_row_part['settings']['disabled'] != 'disabled')){
-					//add the unmatched value if there is more than a value or if the dropdown is not disabled (otherwise we want the single value to be default)
+				&& count($table_row_part['settings']['options']) > 1){
+					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
 						$table_row_part['settings']['options'] = array_merge(array("" => ""), $table_row_part['settings']['options']); 
@@ -658,10 +658,6 @@ class StructuresHelper extends Helper {
 								__( 'supported value', true ) => $table_row_part['settings']['options']
 						);
 					}
-				}else if(isset($table_row_part['settings']['disabled']) && $table_row_part['settings']['disabled'] == 'disabled' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
-					//the current value must be the first option (to have it printed in the hidden field)
-					$tmp = array_keys($table_row_part['settings']['options']);
-					$current_value = $tmp[0];
 				}
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
@@ -708,6 +704,13 @@ class StructuresHelper extends Helper {
 		
 		if($table_row_part['readonly']){
 			$tmp = $table_row_part['format'];
+			
+			if($table_row_part['type'] =='select' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
+				//disabled dropdown with unmatched value, pick the first one
+				$arr_keys = array_keys($table_row_part['settings']['options']);
+				$current_value = $arr_keys[0];
+				$display = $table_row_part['settings']['options'][$current_value];
+			}
 			$this->fieldDisplayFormat($tmp, $table_row_part, $key, $current_value);
 			$display .= $tmp;
 		}
