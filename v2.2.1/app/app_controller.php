@@ -313,7 +313,7 @@ class AppController extends Controller {
 	
 	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
 		if(time_format == 12){
-			$meridiem = $hour > 12 ? "PM" : "AM";
+			$meridiem = $hour >= 12 ? "PM" : "AM";
 			$hour %= 12;
 			if($hour == 0){
 				$hour = 12;
