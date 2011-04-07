@@ -542,7 +542,7 @@ class Browser extends DatamartAppModel {
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
 		$result = "<table align='center' width='100%' class='browserBubble'>";
-		//value_element can ben a string or an array
+		//value_element can be a string or an array
 		foreach($params as $key => $value_element){
 			$values = array();
 			$name = "";
@@ -575,22 +575,40 @@ class Browser extends DatamartAppModel {
 				}
 				list($model, $field) = explode(".", $key);
 			}
-			foreach($structure['Sfs'] as $sf_unit){
+			$structure_value_domain_model = null;
+			foreach($structure['Sfs'] as &$sf_unit){
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
-					if(isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
-						//field with permissible values, take the values from there
-						foreach($values as &$value){//foreach values
-							foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_value){//find the match
-								if($p_value['value'] == $value){//match found
-									if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
-										//value comes from a source, it's already translated
-										$value = $p_value['default'];
-									}else{
-										$value = __($p_value['language_alias'], true);
-									}
-									break; 
+					
+					if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
+						if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
+							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sf_unit['StructureValueDomain']['source']);
+						}else{
+							if($structure_value_domain_model == null){
+								App::import('model', "StructureValueDomain");
+								$structure_value_domain_model = new StructureValueDomain();
+							}
+							$tmp_dropdown_result = $structure_value_domain_model->find('first', array(
+										'recursive' => 2,
+										'conditions' => 
+											array('StructureValueDomain.id' => $sf_unit['StructureValueDomain']['id'])));
+							$dropdown_values = array();
+							foreach($tmp_dropdown_result['StructurePermissibleValue'] as $value_array){
+								$dropdown_values[$value_array['value']] = $value_array['language_alias'];
+							}
+							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = $dropdown_values; 
+						}
+					}
+					foreach($values as &$value){//foreach values
+						foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_key => $p_value){//find the match
+							if($p_key == $value){//match found
+								if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
+									//value comes from a source, it's already translated
+									$value = $p_value;
+								}else{
+									$value = __($p_value, true);
 								}
+								break; 
 							}
 						}
 					}
