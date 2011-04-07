@@ -368,10 +368,14 @@ class ReportsController extends DatamartAppController {
 
 		// Get aliquot id
 		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
-			
+		
 		$aliquot_master_ids = array();
 		if(isset($parameters['aliquot_master_id'])) {
-			$aliquot_master_ids = array_filter($parameters['aliquot_master_id']);
+			if(is_array($parameters['aliquot_master_id'])) {
+				$aliquot_master_ids = array_filter($parameters['aliquot_master_id']);
+			} else {
+				$aliquot_master_ids = explode(',', $parameters['aliquot_master_id']);
+			}	
 		} else if(array_key_exists('barcode', $parameters)) {
 			$aliquot_master_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.barcode" => $parameters['barcode']), 'recursive' => -1));
 		} else {
