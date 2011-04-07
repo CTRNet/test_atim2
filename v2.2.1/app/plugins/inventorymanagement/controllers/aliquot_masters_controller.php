@@ -1259,6 +1259,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
+			if(!is_array($ids) && strpos($ids, ',')){
+				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+				$this->flash(__("batch init - number of submitted records too big", true), "javascript:history.back();", 5);
+				return;
+			}
 			$ids = array_filter($ids);	
 		} else {
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

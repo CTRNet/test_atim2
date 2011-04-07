@@ -198,6 +198,11 @@ class OrderItemsController extends OrderAppController {
 				} else {
 					$this->redirect('/pages/err_order_system_errors', null, true); 
 				}
+				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
+					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+					$this->flash(__("batch init - number of submitted records too big", true), "javascript:history.back();", 5);
+					return;
+				}
 				$studied_aliquot_master_ids = array_filter($studied_aliquot_master_ids);
 				$this->data = null;
 				
