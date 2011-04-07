@@ -80,4 +80,6 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 UPDATE structure_fields SET `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models'), type='select' WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='model' AND `type`='input' AND `structure_value_domain` IS NULL;
 
 UPDATE i18n SET en = 'Cell Lysate' WHERE id = 'cell lysate';
-
+INSERT INTO i18n (id, en, fr) VALUES 
+("batch init - number of submitted records too big", "The number of records submitted are too big to me managed in batch!",
+"Le nombre de données soumises pour être traitées en lot est trop important!");
