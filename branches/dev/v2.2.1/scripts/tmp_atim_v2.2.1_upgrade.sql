@@ -77,6 +77,7 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 (null, 'generate aliquots spent times summary', 'Inventorymanagement', 'AliquotMaster', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1),
 (null, 'generate aliquots spent times summary', 'Inventorymanagement', 'ViewAliquot', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1);
 
-
 UPDATE structure_fields SET `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models'), type='select' WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='model' AND `type`='input' AND `structure_value_domain` IS NULL;
+
+UPDATE i18n SET en = 'Cell Lysate' WHERE id = 'cell lysate';
 
