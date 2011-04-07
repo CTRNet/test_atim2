@@ -58,8 +58,7 @@ class OrderItemsController extends OrderAppController {
 		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 
 		// Set data
-		$this->setDataForOrderItemsList($order_line_id);
-		$this->data = array();
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 		
 		// Get order shipment list
 		$order_shipment_list = array();
