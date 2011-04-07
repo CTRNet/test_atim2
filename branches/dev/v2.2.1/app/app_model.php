@@ -206,11 +206,14 @@ class AppModel extends Model {
 				if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
 					$data['meridian'] = 'pm';
 				}
-				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
-					$data['hour'] = $data['hour'] + 12;
-				}
-				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
-					$data['hour'] = '00';
+				if(is_numeric($data['hour'])){
+					//do not alter an invalid hour
+					if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
+						$data['hour'] = $data['hour'] + 12;
+					}
+					if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
+						$data['hour'] = '00';
+					}
 				}
 				
 				
