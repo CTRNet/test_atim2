@@ -56,4 +56,4 @@ ALTER TABLE qc_tf_ed_other_primary_cancers_revs
  ADD end_date_accuracy VARCHAR(50) NOT NULL DEFAULT '';
  
 INSERT INTO i18n (id, en, fr) VALUES
-('core_installname', 'The Terry Fox Research Institute - Heart', "L'Institut de recherche Terry Fox - Coeur");
+('core_installname', 'The Terry Fox Research Institute - C.O.E.U.R.', "L'Institut de recherche Terry Fox - C.O.E.U.R.");
