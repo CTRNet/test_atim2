@@ -1,11 +1,11 @@
 /**
- * Initialises the search options for clinical annotation add view
+ * Initializes the search options for clinical annotation add view
  */
 function initCcl(){
 	var popupLoaded = false;
 	var popupSearch = function(){
 		//postData = participant collection + serialized form
-		var postData = "data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection&" + $("#popup form").serialize(); 
+		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection"; 
 		$.post(root_url + "/inventorymanagement/collections/search/true", postData, function(data){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
