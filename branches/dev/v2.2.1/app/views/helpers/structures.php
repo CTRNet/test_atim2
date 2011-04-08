@@ -691,7 +691,7 @@ class StructuresHelper extends Helper {
 					$display = $table_row_part['settings']['options'][$current_value];
 				}else{
 					$display = $current_value;
-					if(Configure::read('debug') > 0){
+					if(Configure::read('debug') > 0 && ($current_value != "-" || $options['settings']['data_miss_warn'])){
 						AppController::addWarningMsg(sprintf(__("missing reference key [%s] for field [%s]", true), $current_value, $table_row_part['field']));
 					}
 				}
