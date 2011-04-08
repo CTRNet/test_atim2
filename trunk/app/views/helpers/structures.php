@@ -392,7 +392,7 @@ class StructuresHelper extends Helper {
 		}
 				
 		if($options['settings']['actions']){
-			echo($this->generateLinksList($this->data, $options['links'], 'bottom'));
+			echo $this->generateLinksList($this->data, $options['links'], 'bottom');
 		}
 		
 		$result = null;
@@ -629,7 +629,7 @@ class StructuresHelper extends Helper {
 				if($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search"){
 					AppController::getInstance()->redirect("/pages/err_confidential");
 				}
-		}else if($options['links']['top'] && $options['settings']['form_inputs']){
+		}else if($options['links']['top'] && $options['settings']['form_inputs'] && !$table_row_part['readonly']){
 			if($table_row_part['type'] == "date"){
 				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "datetime"){
@@ -647,8 +647,8 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "select" 
 			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
-				&& (count($table_row_part['settings']['options']) > 1 || !isset($table_row_part['settings']['disabled']) || $table_row_part['settings']['disabled'] != 'disabled')){
-					//add the unmatched value if there is more than a value or if the dropdown is not disabled (otherwise we want the single value to be default)
+				&& count($table_row_part['settings']['options']) > 1){
+					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
 						$table_row_part['settings']['options'] = array_merge(array("" => ""), $table_row_part['settings']['options']); 
@@ -658,10 +658,6 @@ class StructuresHelper extends Helper {
 								__( 'supported value', true ) => $table_row_part['settings']['options']
 						);
 					}
-				}else if(isset($table_row_part['settings']['disabled']) && $table_row_part['settings']['disabled'] == 'disabled' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
-					//the current value must be the first option (to have it printed in the hidden field)
-					$tmp = array_keys($table_row_part['settings']['options']);
-					$current_value = $tmp[0];
 				}
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
@@ -677,23 +673,13 @@ class StructuresHelper extends Helper {
 			}
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
+			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
 			
-			$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
-			
-			if(strlen($key)){
-				$display = str_replace("[%d]", "[".$key."]", $display);
-			}
-			if(!is_array($current_value)){
-				$display = str_replace("%s", $current_value, $display);
-			}
-			
-			if(isset($table_row_part['tool'])){
-				$display .= $table_row_part['tool'];
-			}
 		}else if(strlen($current_value) > 0){
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
 				list($year, $month, $day) = explode("-", $current_value);
+				list($day) = explode(" ", $day);//in case the current date is a datetime
 				$display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
 			}else if($table_row_part['type'] == "datetime" && $elligible_as_date){
 				$display = AppController::getFormatedDatetimeString($current_value, $options['type'] != 'csv');
@@ -705,7 +691,7 @@ class StructuresHelper extends Helper {
 					$display = $table_row_part['settings']['options'][$current_value];
 				}else{
 					$display = $current_value;
-					if(Configure::read('debug') > 0){
+					if(Configure::read('debug') > 0 && ($current_value != "-" || $options['settings']['data_miss_warn'])){
 						AppController::addWarningMsg(sprintf(__("missing reference key [%s] for field [%s]", true), $current_value, $table_row_part['field']));
 					}
 				}
@@ -714,6 +700,19 @@ class StructuresHelper extends Helper {
 			}else{
 				$display = $current_value;
 			}
+		}
+		
+		if($table_row_part['readonly']){
+			$tmp = $table_row_part['format'];
+			
+			if($table_row_part['type'] =='select' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
+				//disabled dropdown with unmatched value, pick the first one
+				$arr_keys = array_keys($table_row_part['settings']['options']);
+				$current_value = $arr_keys[0];
+				$display = $table_row_part['settings']['options'][$current_value];
+			}
+			$this->fieldDisplayFormat($tmp, $table_row_part, $key, $current_value);
+			$display .= $tmp;
 		}
 		
 		$tag = "";
@@ -725,6 +724,28 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $tag.(strlen($display) > 0 ? $display : "-")." ";
+	}
+	
+	/**
+	 * Update the field display to insert in it its values and classes
+	 * @param string &$display Pointer to the display string, which will be updated
+	 * @param array $table_row_part The current field data/settings
+	 * @param string $key The key, if any to use in the name
+	 * @param string $current_value The current field value
+	 */
+	private function fieldDisplayFormat(&$display, array $table_row_part, $key, $current_value){
+		$display = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $display);
+			
+		if(strlen($key)){
+			$display = str_replace("[%d]", "[".$key."]", $display);
+		}
+		if(!is_array($current_value)){
+			$display = str_replace("%s", $current_value, $display);
+		}
+			
+		if(isset($table_row_part['tool'])){
+			$display .= $table_row_part['tool'];
+		}
 	}
 	
 	/**
@@ -1346,18 +1367,14 @@ class StructuresHelper extends Helper {
 						"help" 				=> strlen($sfs['language_help']) > 0 ? sprintf($help_bullet, __($sfs['language_help'], true)) : $empty_help_bullet,
 						"setting" 			=> $sfs['setting'],//required for icd10 magic
 						"default"			=> $sfs['default'],
-						"flag_confidential"	=> $sfs['flag_confidential']
+						"flag_confidential"	=> $sfs['flag_confidential'],
+						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]
 					);
-					$append_field_tool = "";
 					$settings = $my_default_settings_arr;
 					
 					$date_format_arr = str_split(date_format);
-					if($options['links']['top'] && $options['settings']['form_inputs']){						
+					if($options['links']['top'] && $options['settings']['form_inputs']){
 						$settings['tabindex'] = self::$last_tabindex ++;
-						
-						if(isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]){
-							$settings['disabled'] = "disabled";
-						}
 						
 						//building all text fields (dropdowns, radios and checkboxes cannot be built here)
 						$field_name = "";
@@ -1370,7 +1387,7 @@ class StructuresHelper extends Helper {
 						$field_name .= $sfs['model'].".".$sfs['field'];
 						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
 						$current['name'] = $field_name;
-						if(strlen($sfs['setting']) > 0){
+						if(strlen($sfs['setting']) > 0 && !$current['readonly']){
 							// parse through FORM_FIELDS setting value, and add to helper array
 							$tmp_setting = explode(',', $sfs['setting']);
 							foreach($tmp_setting as $setting){
@@ -1404,7 +1421,12 @@ class StructuresHelper extends Helper {
 							}
 						}
 						
-						if($sfs['type'] == "input"){
+						
+						if($current['readonly']){
+							unset($settings['disabled']);
+							$current["format"] = $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
+							$settings['disabled'] = "disabled";
+						}else if($sfs['type'] == "input"){
 							if($options['type'] != "search"){
 								$settings['class'] = str_replace("range", "", $settings['class']);
 							}
@@ -1456,11 +1478,11 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 						}
 						
-						if(isset($settings['disabled']) && ($settings['disabled'] || $settings['disabled'] == "disabled")){
-							unset($settings['disabled']);
-							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
-							$settings['disabled'] = "disabled";
-						}
+//						if(isset($settings['disabled']) && ($settings['disabled'] === true || $settings['disabled'] == "disabled")){
+//							unset($settings['disabled']);
+//							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
+//							$settings['disabled'] = "disabled";
+//						}
 						
 						$current['default'] = $sfs['default'];
 						$current['settings'] = $settings;
@@ -1633,9 +1655,12 @@ class StructuresHelper extends Helper {
 		$return_links = array();
 		
 		$links = isset($option_links[$state]) ? $option_links[$state] : array();
-		$links = !is_array($links) ? array('detail' => $links) : $links;
-		// parse through $LINKS array passed to function, make link for each 
+		$links = is_array($links) ? $links : array('detail' => $links);
+		// parse through $LINKS array passed to function, make link for each
 		foreach($links as $link_name => $link_array){
+			if(empty($link_array)){
+				continue;
+			}
 			if(!is_array($link_array)){
 				$link_array = array( $link_name => $link_array );
 			}
