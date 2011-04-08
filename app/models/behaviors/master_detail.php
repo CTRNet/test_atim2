@@ -60,18 +60,27 @@ class MasterDetailBehavior extends ModelBehavior {
 		if($is_master_model){
 			// set DETAIL if more than ONE result
 			if ($primary && isset($results[0][$control_class][$detail_field]) && $model->recursive > 0) {
-				$detail_model_cache = array();
+				$grouping = array();//group by ctrl ids
 				foreach ($results as $key => &$result){
 					if(!isset($results[$key][$detail_class])){//the detail model is already defined if it was a find on a specific control_id
-						$associated = array();
 						$detail_model_cache_key = $detail_class.".".$result[$control_class][$detail_field];
-						if(!isset($detail_model_cache[$detail_model_cache_key])){
+						if(!isset($grouping[$detail_model_cache_key])){
 							//caching model (its rougly as fast as grouping queries by detail, see eventum 1120)
-							$detail_model_cache[$detail_model_cache_key] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class));
+							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class));
+							$grouping[$detail_model_cache_key]['id_to_index'] = array();
 						}
-						$associated = $detail_model_cache[$detail_model_cache_key]->find(array($master_foreign => $result[$model->alias]['id']), null, null, -1);
-						$result[$detail_class] = $associated[$detail_class];
+						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias]['id']] = $key;
 					}
+				}
+				
+				//data fetch and assoc
+				foreach($grouping as $group){
+					$id_to_index = $group['id_to_index'];
+					$detail_data = $group['model']->find('all', array('conditions' => array($master_foreign => array_keys($id_to_index)), 'recursive' => -1));
+					foreach($detail_data as $detail_unit){
+						$results[$id_to_index[$detail_unit[$detail_class][$master_foreign]]][$detail_class] = $detail_unit[$detail_class];
+					}
+					
 				}
 			}else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])){
 				// set DETAIL if ONLY one result

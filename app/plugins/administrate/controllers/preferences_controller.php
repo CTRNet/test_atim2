@@ -6,7 +6,7 @@ class PreferencesController extends AdministrateAppController {
 	var $uses = array('User', 'Config');
 	
 	function index($group_id, $user_id ) {
-		$this->Structures->set('preferences');
+		$this->Structures->set('preferences_lock,preferences');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		// get USER data
@@ -34,7 +34,7 @@ class PreferencesController extends AdministrateAppController {
 	}
 	
 	function edit($group_id, $user_id ) {
-		$this->Structures->set('preferences');
+		$this->Structures->set($_SESSION['Auth']['User']['id'] == $user_id ? 'preferences' : 'preferences_lock,preferences');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		$config_id = NULL;

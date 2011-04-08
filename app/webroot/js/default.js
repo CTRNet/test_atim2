@@ -536,7 +536,9 @@ function uncheckAll( $div ) {
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
-				initLabBook(newLines);
+				if(window.labBookFields){
+					initLabBook(newLines);
+				}
 				$(newLines).removeClass("newLine");
 				return false;
 			});
