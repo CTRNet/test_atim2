@@ -10,11 +10,10 @@ fi
 echo running tmp_atim_v2.1.0A_script_FULL.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.2.0/atim_v2.2.0_full_installation.sql
 
-echo running tmp_atim_v2.1.1_upgrade.sql
+echo running atim_v2.2.0_demo_data.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.2.0/atim_v2.2.0_demo_data.sql
 
-echo running tmp_atim_v2.1.1_demo_data.sql
-mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.3.0_upgrade.sql
-
+echo running atim_v2.2.1_upgrade.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.2.0/atim_v2.2.1_upgrade.sql
 
 echo done

@@ -1,6 +1,6 @@
 <?php
-	if(isset($parent_node) && $parent_node != 0){
-		echo(Browser::getPrintableTree($parent_node, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+	if(isset($node_id) && $node_id != 0){
+		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
@@ -22,7 +22,7 @@
 			?>
 			<ul class="error">
 				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
-				.__("if you browse further ahead, all matches of the current set will be used", true)); ?>.</li>
+				.sprintf(__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", true), __('browse', true), __('batchset', true))); ?>.</li>
 			</ul>
 			<?php
 			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
@@ -32,7 +32,7 @@
 		$is_datagrid = true;
 		$type = "add";
 		?>
-		<input type="hidden" name="data[node][id]" value="<?php echo($parent_node); ?>"/>
+		<input type="hidden" name="data[node][id]" value="<?php echo($node_id); ?>"/>
 		<?php 
 	}else{
 		$is_datagrid = false;

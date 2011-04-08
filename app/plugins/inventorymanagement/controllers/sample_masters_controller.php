@@ -398,10 +398,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Calulate spent time between:
 		if($is_specimen){
 			// -> specimen collection and specimen reception
-			$sample_data['Generated']['coll_to_rec_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['SpecimenDetail']['reception_datetime']));
+			$sample_data['Generated']['coll_to_rec_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['SpecimenDetail']['reception_datetime']));
 		} else {
 			// -> specimen collection and derivative creation
-			$sample_data['Generated']['coll_to_creation_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']));
+			$sample_data['Generated']['coll_to_creation_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']));
 		}
 		
 		// Set sample data
