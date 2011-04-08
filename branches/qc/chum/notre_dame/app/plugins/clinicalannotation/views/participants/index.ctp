@@ -6,7 +6,7 @@
 	$structure_links = array(
 		'top'=>'/clinicalannotation/participants/search',
 		'bottom'=>array(
-			'add'=>'/clinicalannotation/participants/add',
+			'add participant'=>'/clinicalannotation/participants/add',
 			'new search' => $search_type_links
 		)
 	);

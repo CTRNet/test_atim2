@@ -40,6 +40,28 @@ class OrderLine extends OrderAppModel {
 		return $return;
 	}
 	
+	
+	
+	function afterFind($results){
+		$results = parent::afterFind($results);
+		
+		if(isset($results['0']['OrderItem'])) {
+			foreach($results as &$new_order_line) {
+				$shipped_counter = 0;
+				$items_counter = 0;
+				foreach($new_order_line['OrderItem'] as $new_item) {
+					++ $items_counter;	
+					if($new_item['status'] == 'shipped'){
+						++ $shipped_counter; 
+					}
+				}
+				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;
+			}
+		}		
+
+		return $results;
+	}
+	
 }
 
 ?>
