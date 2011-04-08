@@ -313,7 +313,7 @@ class AppController extends Controller {
 	
 	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
 		if(time_format == 12){
-			$meridiem = $hour > 12 ? "PM" : "AM";
+			$meridiem = $hour >= 12 ? "PM" : "AM";
 			$hour %= 12;
 			if($hour == 0){
 				$hour = 12;
@@ -498,6 +498,9 @@ class AppController extends Controller {
 	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
 		if(empty($this->data)){
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else if(!is_array($this->data[$data_model_name][$data_key]) && strpos($this->data[$data_model_name][$data_key], ',')){
+			//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+			return array('error' => "batch init - number of submitted records too big");
 		}
 		//extract valid ids
 		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));

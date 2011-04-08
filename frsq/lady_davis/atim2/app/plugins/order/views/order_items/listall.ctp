@@ -24,7 +24,7 @@
 	$structure_override['OrderItem.shipment_id'] = $order_shipment_list;
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links, 'data' => $order_items_data, 'override'=>$structure_override);
+	$final_options = array('type'=>'index','links'=>$structure_links, 'override'=>$structure_override);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
