@@ -680,3 +680,17 @@ UPDATE aliquot_masters
 SET in_stock = 'yes - not available', in_stock_detail = 'stock status unknown'
 WHERE in_stock = 'unknown';
 
+UPDATE structure_validations
+SET rule = 'custom,/(^[0-9]*$)|(^[ABCabc]$)|(^[0-9]*\-[0-9]*$)/'
+WHERE structure_field_id = (select id from structure_fields where field = 'sequence_number')
+AND rule LIKE 'custom%';
+
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_search_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_search_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='sample_category' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_category'));
+
+UPDATE structure_formats 
+SET display_column = '1' , display_order = '100', language_heading = 'system data'
+WHERE structure_field_id
+IN ( SELECT id FROM structure_fields WHERE field = 'sample_code');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('system data', 'system data', 'Données Système');

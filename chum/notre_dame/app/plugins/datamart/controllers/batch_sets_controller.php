@@ -107,6 +107,7 @@ class BatchSetsController extends DatamartAppController {
 		$this->ModelToSearch = null;
 		$datamart_structure = null;
 		$atim_structure_for_results = null;
+		$criteria = "";
 		if($batch_set['BatchSet']['datamart_structure_id']){
 			$datamart_structure = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
 			$datamart_structure = $datamart_structure['DatamartStructure'];
@@ -124,7 +125,7 @@ class BatchSetsController extends DatamartAppController {
 		$batch_set['BatchSet']['checklist_data_key'] = $batch_set['BatchSet']['lookup_key_name'];
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
-		$criteria = "";
+		
 		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
 		$this->set("lookup_key_name", $lookup_key_name);
 		
@@ -154,12 +155,16 @@ class BatchSetsController extends DatamartAppController {
     	}else{
     		$batch_set['0']['query_type'] = __('generic', true);
     		if($datamart_structure != null && $datamart_structure['control_master_model']){
-				$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3, 'group' => $datamart_structure['control_field']) );
+				$results = $this->ModelToSearch->find( 'all', array('fields' => array($datamart_structure['control_field']), 'conditions'=>$criteria, 'recursive' => 0, 'group' => $datamart_structure['control_field']) );
 				if(count($results) == 1){
 					//unique control, load detailed version
 					AppModel::atimNew("datamart", "Browser", true);
 					$alternate_info = Browser::getAlternateStructureInfo($datamart_structure['plugin'], $datamart_structure['control_model'], $results[0][$datamart_structure['model']][$datamart_structure['control_field']]);
-					$criteria = $datamart_structure['control_master_model'].".id IN ('".implode("', '", $lookup_ids)."')";
+
+					$criteria = array($datamart_structure['control_master_model'].".id IN ('".implode("', '", $lookup_ids)."')");
+					//add the control_id to the search conditions to benefit from direct inner join on detail
+					$criteria[$datamart_structure['control_master_model'].".".$datamart_structure['control_field']] = $results[0][$datamart_structure['model']][$datamart_structure['control_field']];
+					
 					$batch_set['BatchSet']['model'] = $datamart_structure['control_master_model'];
 					$this->ModelToSearch = AppModel::atimNew($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
 					$atim_structure_for_results = $this->Structures->get('form', $alternate_info['form_alias']);
@@ -167,7 +172,7 @@ class BatchSetsController extends DatamartAppController {
 					$batch_set['BatchSet']['lookup_key_name'] = 'id';
 				}
     		}
-			$results = $this->ModelToSearch->find( 'all', array( 'conditions'=>$criteria, 'recursive'=>3 ) );
+			$results = $this->ModelToSearch->find( 'all', array( 'conditions' => $criteria, 'recursive' => 0 ) );
 		}
 		$this->set( 'results', $results ); // set for display purposes...
 		$this->set( 'data_for_detail', $batch_set );
@@ -234,22 +239,6 @@ class BatchSetsController extends DatamartAppController {
 		$conditions['BatchSetProcess.model'] = $batch_set['BatchSet']['model'];
 		$conditions['BatchSetProcess.flag_active'] = '1';
 		$batch_set_process_results = $this->BatchSetProcess->find( 'all', array( 'conditions'=>$conditions, 'recursive'=>3 ) );
-
-		//TODO section added by NL should be validated of modified by mich
-		$batch_actions = array();
-		foreach ( $batch_set_process_results as $value) {
-			$batch_actions[] = array(
-				'value' => '0',
-				'default' => __($value['BatchSetProcess']['name'], true),
-				'action' => $value['BatchSetProcess']['url']	);	
-		}
-		if(!empty($batch_actions)) {
-			$actions[] = array(
-				'value' => '0',
-				'default' => __('batch actions', true),
-				'children' => $batch_actions);	
-		}
-		$this->set('actions', $actions);
 	}
 	
 	function add( $target_batch_set_id=0 ) {

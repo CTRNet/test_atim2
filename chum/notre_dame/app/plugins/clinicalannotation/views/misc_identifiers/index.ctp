@@ -6,7 +6,7 @@
 		
 	$structure_links = array(
 		'top' => '/clinicalannotation/misc_identifiers/search',
-		'bottom' => array('new search' => $search_type_links)
+		'bottom' => array('add participant'=>'/clinicalannotation/participants/add/','new search' => $search_type_links)
 	);
 
 	$structure_override = array();

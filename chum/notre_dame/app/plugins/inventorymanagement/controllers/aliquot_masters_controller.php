@@ -592,14 +592,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
-				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $aliquot_data['SampleMaster']['id'])));
-				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 			case 'derivative':
+				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
 				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
-				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
 			default:
@@ -1257,6 +1258,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$ids = $this->data['ViewAliquot']['aliquot_master_id'];
 			} else {
 				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			if(!is_array($ids) && strpos($ids, ',')){
+				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+				$this->flash(__("batch init - number of submitted records too big", true), "javascript:history.back();", 5);
+				return;
 			}
 			$ids = array_filter($ids);	
 		} else {
