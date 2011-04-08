@@ -712,7 +712,7 @@ class Browser extends DatamartAppModel {
 	/**
 	 * Fetches all checklist related data and stores it in the object
 	 * @param array $browsing
-	 * @param int $display_limit
+	 * @param int $display_limit If the limit is -1 then there is no limit
 	 */
 	public function fetchCheckList(array $browsing, $display_limit){
 		$model_to_import = null;
@@ -751,7 +751,7 @@ class Browser extends DatamartAppModel {
 			
 			//fetch the count since deletions might make the set smaller than the count of ids
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
-			if($count > $display_limit){
+			if($display_limit != -1 && $count > $display_limit){
 				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => -1));
 				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
 			}else{
