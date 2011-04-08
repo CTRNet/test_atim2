@@ -22,7 +22,7 @@
 			?>
 			<ul class="error">
 				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
-				.__("if you browse further ahead, all matches of the current set will be used", true)); ?>.</li>
+				.sprintf(__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", true), __('browse', true), __('batchset', true))); ?>.</li>
 			</ul>
 			<?php
 			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 

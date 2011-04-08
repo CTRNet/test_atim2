@@ -6,6 +6,9 @@ ALTER TABLE users
  
 UPDATE structure_formats SET `language_heading`='diagnosis' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+DELETE FROM i18n WHERE id="if you browse further ahead, all matches of the current set will be used";
+UPDATE i18n SET en = 'Cell Lysate' WHERE id = 'cell lysate';
+
 REPLACE INTO i18n (id, en, fr) VALUES
 ("help_flag_active", 
  "Determines whether the account can be used to log into ATiM or not. Locked means that the account cannot be used.",
@@ -15,7 +18,12 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('calculation of different aliquots spent times',
 'Summary gathering aliquot spent times like ''Collection to Storage Spent Time'', ''Creation to Storage Spent Time'', etc.',
 'Résumé contenant des temps écoulés tel que ''Le temps entre la collection et l''entreposage'', etc.'),
-('add participant','Add Participant','Créer participant');
+('add participant','Add Participant','Créer participant'),
+("batch init - number of submitted records too big", "The number of records submitted are too big to me managed in batch!",
+"Le nombre de données soumises pour être traitées en lot est trop important!"),
+("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used",
+ "For any action you take (%s, %s, CSV, etc.), all matches of the current set will be used",
+ "Peu importe l'action que vous sélectionnez (%s, %s, CSV, etc.), tous les résultats de l'ensemble présent seront utilisés");
 
 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='User' AND `tablename`='users' AND `field`='flag_active' AND `language_label`='account status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='user_active') AND `language_help`='help_flag_active' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
@@ -78,11 +86,6 @@ INSERT INTO `datamart_batch_processes` (`id`, `name`, `plugin`, `model`, `url`, 
 (null, 'generate aliquots spent times summary', 'Inventorymanagement', 'ViewAliquot', CONCAT('datamart/reports/manageReport/',(SELECT id FROM datamart_reports WHERE name = 'spent times summary applied to aliquots')), 1);
 
 UPDATE structure_fields SET `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='models'), type='select' WHERE `model`='Adhoc' AND `tablename`='datamart_adhoc' AND `field`='model' AND `type`='input' AND `structure_value_domain` IS NULL;
-
-UPDATE i18n SET en = 'Cell Lysate' WHERE id = 'cell lysate';
-INSERT INTO i18n (id, en, fr) VALUES 
-("batch init - number of submitted records too big", "The number of records submitted are too big to me managed in batch!",
-"Le nombre de données soumises pour être traitées en lot est trop important!");
 
 UPDATE structure_formats SET flag_addgrid_readonly=flag_addgrid, flag_editgrid_readonly=flag_editgrid
 WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='CopyCtrl');
