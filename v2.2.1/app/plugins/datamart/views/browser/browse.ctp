@@ -1,6 +1,6 @@
 <?php
-	if(isset($parent_node) && $parent_node != 0){
-		echo(Browser::getPrintableTree($parent_node, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+	if(isset($node_id) && $node_id != 0){
+		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
@@ -32,7 +32,7 @@
 		$is_datagrid = true;
 		$type = "add";
 		?>
-		<input type="hidden" name="data[node][id]" value="<?php echo($parent_node); ?>"/>
+		<input type="hidden" name="data[node][id]" value="<?php echo($node_id); ?>"/>
 		<?php 
 	}else{
 		$is_datagrid = false;
