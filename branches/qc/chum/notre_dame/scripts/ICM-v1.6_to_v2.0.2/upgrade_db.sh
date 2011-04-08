@@ -1,6 +1,6 @@
 #!/bin/bash
 # author: FM L'Heureux
-# desc: Script to migrate ICM ATiM 1.6 to ATiM 2.1.0.
+# desc: Script to migrate ICM ATiM 1.6 to ATiM 2.2.1.
 
 if [ "$1" == "" -o "$2" == "" ]; then
  echo "Missing parameters. You need to specify database schema, username[, password]";
@@ -48,6 +48,7 @@ if true; then
  		8-LoadCustomApplicationData_v2.1.0.sql
  		9-atim_v2.2.0_upgrade.sql
  		10-LoadCustomApplicationData_v2.1.1.sql
+ 		11-atim_v2.2.1_upgrade.sql
 		 )
 	
 	for file in ${files[@]} 
