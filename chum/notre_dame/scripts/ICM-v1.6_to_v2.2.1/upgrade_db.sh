@@ -47,8 +47,9 @@ if true; then
 		7-atim_v2.1.0_upgrade.sql
  		8-LoadCustomApplicationData_v2.1.0.sql
  		9-atim_v2.2.0_upgrade.sql
- 		10-LoadCustomApplicationData_v2.1.1.sql
+ 		10-LoadCustomApplicationData_v2.2.0.sql
  		11-atim_v2.2.1_upgrade.sql
+		12-LoadCustomApplicationData_v2.2.1.sql
 		 )
 	
 	for file in ${files[@]} 
