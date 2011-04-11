@@ -1,5 +1,6 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
+	
 	function procureConsentStat($data){
 		$load_form = false;
 		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
@@ -114,6 +115,87 @@ class ReportsControllerCustom extends ReportsController {
 			"data"			=> $data,
 			"columns_names"	=> array(),
 			"error_msg"		=> $error
-		);
+		);	
+	}	
+	
+	function aliquotSpentTimesCalulations($parameters, $default_unit = 'mn') {
+		$array_to_return = array(
+			'header' => null, 
+			'data' => null, 
+			'columns_names' => null,
+			'error_msg' => null);
+			
+		// Get aliquot id
+		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		
+		$aliquot_master_ids = array();
+		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
+			if(is_array($parameters['ViewAliquot']['aliquot_master_id'])) {
+				$aliquot_master_ids = array_filter($parameters['ViewAliquot']['aliquot_master_id']);
+			} else {
+				$aliquot_master_ids = explode(',', $parameters['ViewAliquot']['aliquot_master_id']);
+			}	
+		} else if(isset($parameters['AliquotMaster']) && array_key_exists('barcode', $parameters['AliquotMaster'])) {
+			
+			$conditions = array(
+				"OR" => array("AliquotMaster.barcode" => $parameters['AliquotMaster']['barcode'],
+				"AliquotMaster.aliquot_label" => $parameters['AliquotMaster']['aliquot_label']));
+			$aliquot_master_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => $conditions, 'recursive' => -1));
+		} else {
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		if(empty($aliquot_master_ids)) {
+			$array_to_return['error_msg'] = 'no aliquot has been found';
+		} else {
+			
+			if(isset($parameters['0']['report_spent_time_display_mode'][0]) && (!empty($parameters['0']['report_spent_time_display_mode'][0]))) {
+				$default_unit = $parameters['0']['report_spent_time_display_mode'][0];
+			}
+			
+			$aliquot_master_ids[] = 0;
+			$aliquots = $this->Report->query(
+				"SELECT al.barcode, al.aliquot_label, samp.sample_type, al.aliquot_type,
+				col.collection_datetime, spec_det.reception_datetime, der_det.creation_datetime, al.storage_datetime
+				FROM aliquot_masters AS al 
+				INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+				INNER JOIN collections AS col ON col.id = al.collection_id AND col.deleted != 1
+				INNER JOIN sample_masters AS spec ON spec.id = samp.initial_specimen_sample_id AND spec.deleted != 1			
+				INNER JOIN specimen_details AS spec_det ON spec.id = spec_det.sample_master_id AND spec_det.deleted != 1
+				LEFT JOIN derivative_details AS der_det ON der_det.sample_master_id = samp.id AND der_det.deleted != 1
+				WHERE al.deleted != 1 AND al.id IN (".implode(',', $aliquot_master_ids).")"); 
+			
+			$data = array();
+			foreach($aliquots as $new_record) {
+				$new_data = array();
+				$new_data['SampleMaster']['sample_type'] = $new_record['samp']['sample_type'];
+				$new_data['AliquotMaster']['aliquot_type'] = $new_record['al']['aliquot_type'];
+				$new_data['AliquotMaster']['aliquot_label'] = $new_record['al']['aliquot_label'];
+				$new_data['AliquotMaster']['barcode'] = $new_record['al']['barcode'];
+				
+				$coll_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['col']['collection_datetime'], $new_record['al']['storage_datetime']);
+				$rec_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['spec_det']['reception_datetime'], $new_record['al']['storage_datetime']);
+				$creat_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['der_det']['creation_datetime'], $new_record['al']['storage_datetime']);
+						
+				if($default_unit == 'mn') {
+					$new_data['Generated']['coll_to_stor_spent_time_msg'] = empty($coll_to_stor_spent_time_msg['message'])? (((($coll_to_stor_spent_time_msg['days']*24) + $coll_to_stor_spent_time_msg['hours'])*60) + $coll_to_stor_spent_time_msg['minutes']): '';
+					$new_data['Generated']['rec_to_stor_spent_time_msg'] = empty($rec_to_stor_spent_time_msg['message'])? (((($rec_to_stor_spent_time_msg['days']*24) + $rec_to_stor_spent_time_msg['hours'])*60) + $rec_to_stor_spent_time_msg['minutes']): '';
+					$new_data['Generated']['creat_to_stor_spent_time_msg'] = empty($creat_to_stor_spent_time_msg['message'])? (((($creat_to_stor_spent_time_msg['days']*24) + $creat_to_stor_spent_time_msg['hours'])*60) + $creat_to_stor_spent_time_msg['minutes']): '';
+										
+				} else {
+					$new_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg);
+					$new_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg);
+					$new_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg);
+				}
+				
+				$data[] = $new_data;
+			}
+			
+			$array_to_return['data'] = $data;
+		}
+		
+		$array_to_return['header'] = __('unit' , true) . ': ' .  __($default_unit, true);
+
+		return $array_to_return;
 	}
 }

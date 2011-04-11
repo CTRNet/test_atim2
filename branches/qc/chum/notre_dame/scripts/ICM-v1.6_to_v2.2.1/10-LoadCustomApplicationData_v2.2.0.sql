@@ -717,3 +717,4 @@ UPDATE structure_formats SET display_order = '24', language_heading = 'system da
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode')
 AND structure_id IN (SELECT id FROM structures WHERE alias = 'view_aliquot_joined_to_sample_and_collection');
 
+UPDATE users SET flag_active = '0' WHERE username IN ('NicoFr', 'AuroreP', 'Karine', 'cfduchat');
