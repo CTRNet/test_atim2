@@ -693,4 +693,27 @@ SET display_column = '1' , display_order = '100', language_heading = 'system dat
 WHERE structure_field_id
 IN ( SELECT id FROM structure_fields WHERE field = 'sample_code');
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('system data', 'system data', 'Données Système');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('system data', 'System Data', 'Données système');
+
+-- Collection identifier clean up
+
+UPDATE structure_formats SET flag_add = '0', flag_add_readonly = '0'
+WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'field1')
+AND structure_id = (SELECT id FROM structures WHERE alias = 'collections');
+
+UPDATE structure_formats SET display_order = '21'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'created')
+AND structure_id IN (SELECT id FROM structures WHERE alias = 'view_collection');
+
+UPDATE structure_formats SET display_order = '20', language_heading = 'system data'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'participant_identifier')
+AND structure_id IN (SELECT id FROM structures WHERE alias = 'view_collection');
+
+UPDATE structure_formats SET display_column = '1', display_order = '1999', language_heading = 'system data'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode')
+AND structure_id IN (SELECT id FROM structures WHERE alias = 'aliquot_masters');
+
+UPDATE structure_formats SET display_order = '24', language_heading = 'system data'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode')
+AND structure_id IN (SELECT id FROM structures WHERE alias = 'view_aliquot_joined_to_sample_and_collection');
+
