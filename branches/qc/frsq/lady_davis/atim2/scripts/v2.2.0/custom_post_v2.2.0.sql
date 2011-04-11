@@ -10,7 +10,7 @@ UPDATE structure_fields SET `type`='float_positive' WHERE `model`='Collection' A
 
 >>>>>>>>>>>>>>>>>>>DIE: VALIDATE OLD ENTRIES BEFORE PROCEEDING<<<<<<<<<<<<<<<<<<<<<<<
 INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, identifier_name, participant_id, created, created_by, modified, modified_by)
-(SELECT SUBSTRING(identifier_value, 2), 9, 'collection', participant_id, created, created_by, NOW(), 1 FROM misc_identifiers WHERE misc_identifier_control_id IN(1,2,3,4) AND SUBSTRING(identifier_value, 2) > 999 GROUP BY participant_id)
+(SELECT SUBSTRING(identifier_value, 2), 9, 'collection', participant_id, created, created_by, NOW(), 1 FROM misc_identifiers WHERE misc_identifier_control_id IN(1,2,3,4) AND SUBSTRING(identifier_value, 2) > 999 GROUP BY participant_id);
 
 DELETE FROM misc_identifiers WHERE misc_identifier_control_id IN(1,2,3,4);
 
