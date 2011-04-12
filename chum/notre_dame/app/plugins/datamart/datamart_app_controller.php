@@ -7,7 +7,7 @@ class DatamartAppController extends AppController {
 	 * oversized resut set
 	 * @var int 
 	 */
-	static public $display_limit = 400;
+	static public $display_limit = 1000;
 
 	function beforeFilter() {
 		parent::beforeFilter();
