@@ -113,8 +113,8 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
-tubes.tmp_storage_solution AS storage_solution,
-tubes.tmp_storage_method AS storage_method,
+tubes.tmp_storage_solution AS tmp_tube_storage_solution,
+tubes.tmp_storage_method AS tmp_tube_storage_method,
 
 al.created,
 al.deleted
