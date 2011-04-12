@@ -85,7 +85,29 @@ DELETE FROM structure_formats
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'tmp_solution' AND tablename IN ('sd_der_pbmcs','sd_der_blood_cells'));
 DELETE FROM structure_fields WHERE field = 'tmp_solution' AND tablename IN ('sd_der_pbmcs','sd_der_blood_cells');
 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_all_tubes_storage_solution', '', '', NULL);
+SET @domain_id = LAST_INSERT_ID();
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, flag_active)
+(SELECT DISTINCT @domain_id, val.id, '1' 
+FROM structure_value_domains AS dom
+INNER JOIN structure_value_domains_permissible_values AS link ON link.structure_value_domain_id = dom.id AND link.flag_active = '1'
+INNER JOIN structure_permissible_values AS val ON val.id = link.structure_permissible_value_id 
+WHERE dom.domain_name IN ('qc_tissue_storage_solution', 'qc_dna_rna_storage_solution', 'qc_cell_storage_solution', 'qc_blood_cell_storage_solution', 'qc_ascit_cell_storage_solution'));
 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_all_tubes_storage_method', '', '', NULL);
+SET @domain_id = LAST_INSERT_ID();
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, flag_active)
+(SELECT DISTINCT @domain_id, val.id, '1' 
+FROM structure_value_domains AS dom
+INNER JOIN structure_value_domains_permissible_values AS link ON link.structure_value_domain_id = dom.id AND link.flag_active = '1'
+INNER JOIN structure_permissible_values AS val ON val.id = link.structure_permissible_value_id 
+WHERE dom.domain_name IN ('qc_tissue_storage_method', 'qc_ascit_cell_storage_method'));
 
+UPDATE structure_fields SET structure_value_domain = (SELECT ID FROM structure_value_domains WHERE domain_name = 'qc_all_tubes_storage_solution'), field = 'tmp_tube_storage_solution'
+WHERE field = 'storage_solution' AND model = 'ViewAliquot';
+UPDATE structure_fields SET structure_value_domain = (SELECT ID FROM structure_value_domains WHERE domain_name = 'qc_all_tubes_storage_method'), field = 'tmp_tube_storage_method'
+WHERE field = 'storage_method' AND model = 'ViewAliquot';
+
+UPDATE structure_fields SET type = 'select' WHERE field IN ('tmp_tube_storage_method', 'tmp_tube_storage_solution');
 
 
