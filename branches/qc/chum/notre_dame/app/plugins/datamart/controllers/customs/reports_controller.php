@@ -1,23 +1,22 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 	
-	function procureConsentStat($data){
+	function procureConsentStat($data){pr($data);
 		$load_form = false;
 		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
 		$error = null;
 		if(!empty($data)){
-			$this->set("csv", isset($data['action']) && $data['action'] == "true");
-			$date_from = $data[0]['report_date_range_start']['year']."-".$data[0]['report_date_range_start']['month']."-".$data[0]['report_date_range_start']['day']." 00:00:00";
-			$date_to = $data[0]['report_date_range_end']['year']."-".$data[0]['report_date_range_end']['month']."-".$data[0]['report_date_range_end']['day']." 23:59:59";
-			$this->set("date_from", $date_from);
-			$this->set("date_to", $date_to);
-			if(!preg_match(VALID_DATETIME_YMD, $date_from) || !preg_match(VALID_DATETIME_YMD, $date_to)){
-				$error = "error in the date definitions";
-				$load_form = true;
-			}else{
+			$date_from = AppController::getFormatedDatetimeSQL($data[0]['report_date_range_start'], 'start');
+			$date_to = AppController::getFormatedDatetimeSQL($data[0]['report_date_range_end'], 'end');
+pr('clean up to finsih');exit;			
+pr($date_from);	
+pr($date_to);		
+
 				//step 1 - fetch procure consents for specified interval
 				$conditions = array(
 					'ConsentMaster.consent_control_id' => 5, 
+					"cs.consent_status = 'obtained",
+					"ConsentMaster.consent_signed_date IS NOT NULL",
 					"ConsentMaster.consent_signed_date BETWEEN '".$date_from."' AND '".$date_to."'");
 				$fields = array(
 					'YEAR(ConsentMaster.consent_signed_date) AS signed_year',
@@ -25,10 +24,10 @@ class ReportsControllerCustom extends ReportsController {
 					'ConsentMaster.*');
 				
 				//build time ranges
-				$year_start = (int)$data['report_date_range_start']['year'];
-				$month_start = (int)$data['report_date_range_start']['month'];
-				$year_end = $tmp = (int)$data['report_date_range_end']['year'];
-				$month_end = $tmp = (int)$data['report_date_range_end']['month'];
+				$year_start = (int)$data[0]['report_date_range_start']['year'];
+				$month_start = (int)$data[0]['report_date_range_start']['month'];
+				$year_end = $tmp = (int)$data[0]['report_date_range_end']['year'];
+				$month_end = $tmp = (int)$data[0]['report_date_range_end']['month'];
 				$date_range = array();
 				$data = array();
 				
@@ -38,7 +37,7 @@ class ReportsControllerCustom extends ReportsController {
 						"blood" => 0,
 						"urine" => 0,
 						"questionnaire" => 0,
-						"annual_followup" => 0,//TODO 
+						"annual_followup" => 0,
 						"contact_if_info_req" => 0,
 						"contact_if_discovery" => 0,
 						"study_other_diseases" => 0,
@@ -46,7 +45,6 @@ class ReportsControllerCustom extends ReportsController {
 						"other_contacts_if_die" => 0//TODO
 					)
 				);
-				AppController::addWarningMsg("Les valeurs pour le suivi annuel et les autres contacts en cas de décès ne sont pas calculées");
 				while($year_start < $year_end || $month_start <= $month_end){
 					$key = $year_start."-".$month_start;
 					$data[$key] = $initial_data;
@@ -61,7 +59,7 @@ class ReportsControllerCustom extends ReportsController {
 				
 				$participants_ids = $date_range;
 				$data_result = array();
-				foreach($tmp_data as $data_unit){
+				foreach($tmp_data as $data_unit){pr($data_unit);exit;
 					$year = $data_unit[0]['signed_year'];
 					$month = $data_unit[0]['signed_month'];
 					$key = $year."-".$month;
@@ -80,7 +78,9 @@ class ReportsControllerCustom extends ReportsController {
 					if($data_unit['ConsentDetail']['allow_questionnaire'] == "yes"){
 						$data[$key][0]["questionnaire"] ++;
 					}
-					
+					if($data_unit['ConsentDetail']['urine_blood_use_for_followup'] == 'yes'){
+						$data[$key][0]["annual_followup"] ++;
+					}
 					if($data_unit['ConsentDetail']['contact_for_additional_data'] == 'yes'){
 						$data[$key][0]["contact_if_info_req"] ++;
 					}
@@ -104,11 +104,7 @@ class ReportsControllerCustom extends ReportsController {
 				}
 				$total['period'] = __('total', true);
 				$data['total'][0] = $total;
-			}
-		}else{
-			$load_form = true;
 		}
-		$this->set("submit", $load_form);
 
 		return array(
 			"header"		=> "PROCURE - consent report",
@@ -198,4 +194,240 @@ class ReportsControllerCustom extends ReportsController {
 
 		return $array_to_return;
 	}
+	
+	function bankActiviySummary($parameters) {
+		
+		// 1- Build Header
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+		
+		$title = __('bank', true) . ': ' ;
+		$description = '';
+		if(!empty($parameters['Collection']['bank_id'][0])) {
+			// find bank	
+			$res_1 = $this->Report->query("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
+			if(empty($res_1)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$title .= $res_1['0']['banks']['name'];
+		} else {
+			$title .= __('all',true);
+		}
+		
+		if(!empty($parameters[0]['report_date_range_start']['year'])) {
+			$description .= __('from',true) . ' ' . $start_date_for_display . ' ';
+		}
+		if(!empty($parameters[0]['report_date_range_end']['year'])) {
+			$description .= __('to',true) . ' ' . $end_date_for_display;
+		}
+		$description = (empty($description))? __('no date restriction', true) : $description;
+		
+		$header = array(
+			'title' => $title,
+			'description' => $description);
+
+		// 2- Search data
+		$data = array();
+		
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+
+		$search_on_date_range = true;
+		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
+		
+		// NEW PARTICIPANTS
+		
+		$participant_sql = "";
+		$participant_conditions = $search_on_date_range? "part.created >= '$start_date_for_sql' AND part.created <= '$end_date_for_sql'" : 'TRUE';
+		if(empty($parameters['Collection']['bank_id'][0])) {
+			// No bank restriction
+			$participant_sql = "SELECT DISTINCT part.id FROM participants AS part WHERE part.deleted != '1' AND ($participant_conditions)";
+		} else {
+			// Bank restriction
+			$participant_sql = 
+				"SELECT DISTINCT part.id
+				FROM participants AS part 
+				INNER JOIN misc_identifiers AS ident ON ident.participant_id = part.id AND ident.deleted != '1'
+				INNER JOIN banks AS bk ON ident.misc_identifier_control_id = bk.misc_identifier_control_id AND  bk.deleted != '1'
+				WHERE part.deleted != '1' 
+				AND ($participant_conditions)
+				AND bk.id = '".$parameters['Collection']['bank_id'][0]."'";
+		}	
+		
+		$new_participants_nbr = $this->Report->query("SELECT COUNT(*) FROM ($participant_sql) AS res");
+		$data['0']['new_participants_nbr'] = $new_participants_nbr[0][0]['COUNT(*)'];
+
+		// NEW CONSENTS
+		
+		$consent_sql = "";
+		$consent_conditions = $search_on_date_range? "cs.consent_signed_date >= '$start_date_for_sql' AND cs.consent_signed_date <= '$end_date_for_sql'" : 'TRUE';
+		if(empty($parameters['Collection']['bank_id'][0])) {
+			// No bank restriction
+			$consent_sql = "SELECT DISTINCT cs.id FROM consent_masters AS cs WHERE cs.consent_status = 'obtained' AND cs.deleted != '1' AND ($consent_conditions)";
+		} else {
+			// Bank restriction
+			$consent_sql = 
+				"SELECT DISTINCT cs.id
+				FROM consent_masters AS cs 
+				INNER JOIN misc_identifiers AS ident ON ident.participant_id = cs.participant_id AND ident.deleted != '1'
+				INNER JOIN banks AS bk ON ident.misc_identifier_control_id = bk.misc_identifier_control_id AND  bk.deleted != '1'
+				WHERE cs.deleted != '1' AND cs.consent_status = 'obtained' 
+				AND ($consent_conditions)
+				AND bk.id = '".$parameters['Collection']['bank_id'][0]."'";
+		}	
+		
+		$new_consents_nbr = $this->Report->query("SELECT COUNT(*) FROM ($consent_sql) AS res");
+		$data['0']['obtained_consents_nbr'] = $new_consents_nbr[0][0]['COUNT(*)'];		
+		
+		// NEW COLLECTIONS
+		
+		$bank_conditions = empty($parameters['Collection']['bank_id'][0])? 'TRUE' : "col.bank_id = '".$parameters['Collection']['bank_id'][0]."'";
+				
+		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
+		$new_collections_nbr = $this->Report->query(
+			"SELECT COUNT(*) FROM (
+				SELECT DISTINCT link.participant_id 
+				FROM sample_masters AS sm 
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
+				WHERE link.participant_id IS NOT NULL 
+				AND link.participant_id != '0'
+				AND ($conditions)
+				AND ($bank_conditions)
+				AND col.deleted != '1'
+			) AS res;");
+		$data['0']['new_collections_nbr'] = $new_collections_nbr[0][0]['COUNT(*)'];
+		
+		$array_to_return = array(
+			'header' => $header, 
+			'data' => $data, 
+			'columns_names' => null,
+			'error_msg' => null);
+		
+		return $array_to_return;
+	}
+	
+	function sampleAndDerivativeCreationSummary($parameters) {
+		// 1- Build Header
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+		
+		$title = __('bank', true) . ': ' ;
+		$description = '';
+		if(!empty($parameters['Collection']['bank_id'][0])) {
+			// find bank	
+			$res_1 = $this->Report->query("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
+			if(empty($res_1)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$title .= $res_1['0']['banks']['name'];
+		} else {
+			$title .= __('all',true);
+		}
+		
+		if(!empty($parameters[0]['report_date_range_start']['year'])) {
+			$description .= __('from',true) . ' ' . $start_date_for_display . ' ';
+		}
+		if(!empty($parameters[0]['report_date_range_end']['year'])) {
+			$description .= __('to',true) . ' ' . $end_date_for_display;
+		}
+		$description = (empty($description))? __('no date restriction', true) : $description;
+		
+		$header = array(
+			'title' => $title,
+			'description' => $description);
+
+		// 2- Search data
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+		
+		$search_on_date_range = true;
+		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
+		
+		$res_final = array();
+		$tmp_res_final = array();
+		
+		$bank_conditions = empty($parameters['Collection']['bank_id'][0])? 'TRUE' : "col.bank_id = '".$parameters['Collection']['bank_id'][0]."'";
+			
+		// Work on specimen
+		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
+		$res_1 = $this->Report->query(
+			"SELECT COUNT(*), sm.sample_type
+			FROM sample_masters AS sm 
+			INNER JOIN collections AS col ON col.id = sm.collection_id 
+			WHERE sm.sample_category = 'specimen'
+			AND ($conditions)
+			AND ($bank_conditions)
+			AND sm.deleted != '1'
+			GROUP BY sample_type;");
+		foreach($res_1 as $data) {
+			$tmp_res_final[$data['sm']['sample_type']] = array(
+				'SampleMaster' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm']['sample_type']),
+				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
+		}	
+		$res_2 = $this->Report->query(
+			"SELECT COUNT(*), res.sample_type FROM (
+				SELECT DISTINCT link.participant_id, sm.sample_type  
+				FROM sample_masters AS sm 
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
+				WHERE link.participant_id IS NOT NULL 
+				AND link.participant_id != '0'
+				AND sm.sample_category = 'specimen'
+				AND ($conditions)
+				AND ($bank_conditions)
+				AND sm.deleted != '1'
+			) AS res GROUP BY res.sample_type;");
+		foreach($res_2 as $data) {
+			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+		}
+		
+		// Work on derivative
+		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
+		$res_1 = $this->Report->query(
+			"SELECT COUNT(*), sm.sample_type
+			FROM sample_masters AS sm 
+			INNER JOIN collections AS col ON col.id = sm.collection_id 
+			INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
+			WHERE sm.sample_category = 'derivative'
+			AND ($bank_conditions)
+			AND ($conditions)
+			AND sm.deleted != '1'
+			GROUP BY sample_type;");
+		foreach($res_1 as $data) {
+			$tmp_res_final[$data['sm']['sample_type']] = array(
+				'SampleMaster' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm']['sample_type']),
+				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
+		}
+		$res_2 = $this->Report->query(
+			"SELECT COUNT(*), res.sample_type FROM (
+				SELECT DISTINCT link.participant_id, sm.sample_type  
+				FROM sample_masters AS sm 
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = sm.collection_id 
+				WHERE link.participant_id IS NOT NULL 
+				AND link.participant_id != '0'
+				AND sm.sample_category = 'derivative'
+				AND ($conditions)
+				AND ($bank_conditions)
+				AND sm.deleted != '1'
+			) AS res GROUP BY res.sample_type;");
+		foreach($res_2 as $data) {
+			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+		}
+		
+		// Format data for report
+		foreach($tmp_res_final as $new_sample_type_data) {
+			$res_final[] = $new_sample_type_data;
+		}	
+		
+		$array_to_return = array(
+			'header' => $header, 
+			'data' => $res_final, 
+			'columns_names' => null,
+			'error_msg' => null);
+		
+		return $array_to_return;		
+	}
+	
+	
+	
+	
 }
