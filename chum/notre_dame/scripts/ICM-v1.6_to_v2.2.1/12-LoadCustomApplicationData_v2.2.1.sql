@@ -110,4 +110,27 @@ WHERE field = 'storage_method' AND model = 'ViewAliquot';
 
 UPDATE structure_fields SET type = 'select' WHERE field IN ('tmp_tube_storage_method', 'tmp_tube_storage_solution');
 
+INSERT INTO structures(`alias`) VALUES ('qc_report_bank_and_date_range_definition');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_report_bank_and_date_range_definition'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='report_date_range' AND `language_label`='date range' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_report_bank_and_date_range_definition'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+UPDATE datamart_reports SET form_alias_for_search = 'qc_report_bank_and_date_range_definition' 
+WHERE name IN ('bank activity report', 'specimens collection/derivatives creation');
+
+UPDATE datamart_reports SET flag_active= '0' WHERE name = 'bank activity report (per period)';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('no date restriction', 'No date restriction' ,'Aucune restriction de date'),
+('total', 'Total' ,'Total'),
+('PROCURE - consent report', 'PROCURE - Consent Report', 'PROCURE - Rapport des consentements'),
+('PROCURE consent''s statistics', 'Statistics built on PROCURE consents.', 'Statistiques basées sur ​​les consentements PROCURE'),
+('other contacts if deceased', 'Other Contacts if Deceased', 'Autre contacts si décès');
+
+UPDATE structure_fields SET language_label = 'urine blood use for followup' WHERE language_label = 'annual followup' AND model = '0';	
+UPDATE structure_fields SET language_label = 'contact for additional data' WHERE language_label = 'contact if info required' AND model = '0';	
+UPDATE structure_fields SET language_label = 'contact for additional data' WHERE language_label = 'contact if discovery' AND model = '0';	
+UPDATE structure_fields SET language_label = 'research other disease' WHERE language_label = 'study other diseases' AND model = '0';	
+UPDATE structure_fields SET language_label = 'inform discovery on other disease' WHERE language_label = 'contact if discovery on other diseases' AND model = '0';	
+UPDATE structure_fields SET language_label = '' WHERE language_label = 'other contacts if deceased' AND model = '0';	
+	
