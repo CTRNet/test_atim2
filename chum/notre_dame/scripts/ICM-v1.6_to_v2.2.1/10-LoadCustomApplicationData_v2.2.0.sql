@@ -718,3 +718,6 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barc
 AND structure_id IN (SELECT id FROM structures WHERE alias = 'view_aliquot_joined_to_sample_and_collection');
 
 UPDATE users SET flag_active = '0' WHERE username IN ('NicoFr', 'AuroreP', 'Karine', 'cfduchat');
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
