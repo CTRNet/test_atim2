@@ -7,8 +7,8 @@ class ReportsControllerCustom extends ReportsController {
 		$error = null;
 		if(!empty($data)){
 			$this->set("csv", isset($data['action']) && $data['action'] == "true");
-			$date_from = $data['report_date_range_start']['year']."-".$data['report_date_range_start']['month']."-".$data['report_date_range_start']['day']." 00:00:00";
-			$date_to = $data['report_date_range_end']['year']."-".$data['report_date_range_end']['month']."-".$data['report_date_range_end']['day']." 23:59:59";
+			$date_from = $data[0]['report_date_range_start']['year']."-".$data[0]['report_date_range_start']['month']."-".$data[0]['report_date_range_start']['day']." 00:00:00";
+			$date_to = $data[0]['report_date_range_end']['year']."-".$data[0]['report_date_range_end']['month']."-".$data[0]['report_date_range_end']['day']." 23:59:59";
 			$this->set("date_from", $date_from);
 			$this->set("date_to", $date_to);
 			if(!preg_match(VALID_DATETIME_YMD, $date_from) || !preg_match(VALID_DATETIME_YMD, $date_to)){
