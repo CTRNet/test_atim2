@@ -123,6 +123,8 @@ UPDATE datamart_reports SET flag_active= '0' WHERE name = 'bank activity report 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('no date restriction', 'No date restriction' ,'Aucune restriction de date'),
 ('total', 'Total' ,'Total'),
+('all obtained consents should have a signed date', 'All obtained consents should have a signed date!', 'Tous les consentements obtenus devraient avoir une date de signature!'),
+('period','Period','Période'),
 ('PROCURE - consent report', 'PROCURE - Consent Report', 'PROCURE - Rapport des consentements'),
 ('PROCURE consent''s statistics', 'Statistics built on PROCURE consents.', 'Statistiques basées sur ​​les consentements PROCURE'),
 ('other contacts if deceased', 'Other Contacts if Deceased', 'Autre contacts si décès');
@@ -132,5 +134,10 @@ UPDATE structure_fields SET language_label = 'contact for additional data' WHERE
 UPDATE structure_fields SET language_label = 'contact for additional data' WHERE language_label = 'contact if discovery' AND model = '0';	
 UPDATE structure_fields SET language_label = 'research other disease' WHERE language_label = 'study other diseases' AND model = '0';	
 UPDATE structure_fields SET language_label = 'inform discovery on other disease' WHERE language_label = 'contact if discovery on other diseases' AND model = '0';	
-UPDATE structure_fields SET language_label = '' WHERE language_label = 'other contacts if deceased' AND model = '0';	
 	
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('date_from','action'));
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='other_contacts_if_die' AND type='integer' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='denied' AND type='integer' AND structure_value_domain  IS NULL );
+

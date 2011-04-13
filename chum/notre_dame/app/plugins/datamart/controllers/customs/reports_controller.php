@@ -1,117 +1,118 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 	
-	function procureConsentStat($data){pr($data);
-		$load_form = false;
-		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
-		$error = null;
-		if(!empty($data)){
-			$date_from = AppController::getFormatedDatetimeSQL($data[0]['report_date_range_start'], 'start');
-			$date_to = AppController::getFormatedDatetimeSQL($data[0]['report_date_range_end'], 'end');
-pr('clean up to finsih');exit;			
-pr($date_from);	
-pr($date_to);		
+	function procureConsentStat($parameters){
+		
+		// Build Header
+		
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+		
+		$title = '';
+		if(!empty($parameters[0]['report_date_range_start']['year'])) {
+			$title .= __('from',true) . ' ' . $start_date_for_display . ' ';
+		}
+		if(!empty($parameters[0]['report_date_range_end']['year'])) {
+			$title .= __('to',true) . ' ' . $end_date_for_display;
+		}
+		$title = (empty($title))? __('no date restriction', true) : $title;
+		
+		$header = array(
+			'title' => $title,
+			'description' => null);
 
-				//step 1 - fetch procure consents for specified interval
-				$conditions = array(
-					'ConsentMaster.consent_control_id' => 5, 
-					"cs.consent_status = 'obtained",
-					"ConsentMaster.consent_signed_date IS NOT NULL",
-					"ConsentMaster.consent_signed_date BETWEEN '".$date_from."' AND '".$date_to."'");
-				$fields = array(
-					'YEAR(ConsentMaster.consent_signed_date) AS signed_year',
-					'MONTH(ConsentMaster.consent_signed_date) AS signed_month',
-					'ConsentMaster.*');
-				
-				//build time ranges
-				$year_start = (int)$data[0]['report_date_range_start']['year'];
-				$month_start = (int)$data[0]['report_date_range_start']['month'];
-				$year_end = $tmp = (int)$data[0]['report_date_range_end']['year'];
-				$month_end = $tmp = (int)$data[0]['report_date_range_end']['month'];
-				$date_range = array();
-				$data = array();
-				
-				$initial_data = array(0 => array(
-						"denied" => 0,
-						"participant" => 0,
-						"blood" => 0,
-						"urine" => 0,
-						"questionnaire" => 0,
-						"annual_followup" => 0,
-						"contact_if_info_req" => 0,
-						"contact_if_discovery" => 0,
-						"study_other_diseases" => 0,
-						"contact_if_disco_other_diseases" => 0,
-						"other_contacts_if_die" => 0//TODO
-					)
-				);
-				while($year_start < $year_end || $month_start <= $month_end){
-					$key = $year_start."-".$month_start;
+		// Get Data
+		
+		$date_from = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$date_to = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+			
+		$conditions = array(
+			'ConsentMaster.consent_control_id' => 5, 
+			"ConsentMaster.consent_status = 'obtained'");
+		if(strpos($date_from, '-9999') !== 0) $conditions[] = "ConsentMaster.consent_signed_date >= '$date_from'";
+		if(strpos($date_to, '9999') !== 0) $conditions[] = "ConsentMaster.consent_signed_date <= '$date_to'";
+	
+		$fields = array(
+			'YEAR(ConsentMaster.consent_signed_date) AS signed_year',
+			'MONTH(ConsentMaster.consent_signed_date) AS signed_month',
+			'ConsentMaster.*');
+		
+		$initial_data = array(0 => array(
+				"denied" => 0,//TODO
+				"participant" => 0,
+				"blood" => 0,
+				"urine" => 0,
+				"questionnaire" => 0,
+				"annual_followup" => 0,
+				"contact_if_info_req" => 0,
+				"contact_if_discovery" => 0,
+				"study_other_diseases" => 0,
+				"contact_if_disco_other_diseases" => 0,
+				"other_contacts_if_die" => 0//TODO
+			)
+		);
+		
+		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
+		$this->ConsentMaster->unbindModel(array('hasMany' => array('ClinicalCollectionLink')));
+		$tmp_data = $this->ConsentMaster->find('all', array('conditions' => $conditions, 'recursive' => '2', 'fields' => $fields, 'order' => array("ConsentMaster.consent_signed_date")));
+
+		$data = array();
+		foreach($tmp_data as $data_unit){
+			$year = $data_unit[0]['signed_year'];
+			$month = $data_unit[0]['signed_month'];
+			$key = $year."-".$month;
+			if(empty($year)) $key = __('unknown',true);
+			if(!isset($data[$key])) {
 					$data[$key] = $initial_data;
 					$data[$key][0]['period'] = $key;
-					$month_start ++;
-					if($month_start > 12){
-						$year_start ++;
-						$month_start = 1;
-					}
-				}
-				$tmp_data = $this->ConsentMaster->find('all', array('conditions' => $conditions, 'recursive' => 2, 'fields' => $fields, 'order' => array("ConsentMaster.consent_signed_date")));
-				
-				$participants_ids = $date_range;
-				$data_result = array();
-				foreach($tmp_data as $data_unit){pr($data_unit);exit;
-					$year = $data_unit[0]['signed_year'];
-					$month = $data_unit[0]['signed_month'];
-					$key = $year."-".$month;
-					
-					
-					if($data_unit['ConsentMaster']['consent_status'] == 'denied' || $data_unit['ConsentMaster']['consent_status'] == 'withdrawn'){
-						$data[$key][0]["denied"] ++;
-					}
-					$data[$key][0]["participant"] ++;
-					if($data_unit['ConsentDetail']['use_of_blood'] == "yes"){
-						$data[$key][0]["blood"] ++;
-					}
-					if($data_unit['ConsentDetail']['use_of_urine'] == "yes"){
-						$data[$key][0]["urine"] ++;
-					}
-					if($data_unit['ConsentDetail']['allow_questionnaire'] == "yes"){
-						$data[$key][0]["questionnaire"] ++;
-					}
-					if($data_unit['ConsentDetail']['urine_blood_use_for_followup'] == 'yes'){
-						$data[$key][0]["annual_followup"] ++;
-					}
-					if($data_unit['ConsentDetail']['contact_for_additional_data'] == 'yes'){
-						$data[$key][0]["contact_if_info_req"] ++;
-					}
-					if($data_unit['ConsentDetail']['inform_significant_discovery'] == 'yes'){
-						$data[$key][0]["contact_if_discovery"] ++;
-					}
-					if($data_unit['ConsentDetail']['research_other_disease'] == 'yes'){
-						$data[$key][0]["study_other_diseases"] ++;
-					}
-					if($data_unit['ConsentDetail']['inform_discovery_on_other_disease'] == 'yes'){
-						$data[$key][0]["contact_if_disco_other_diseases"] ++;
-					}
-				}
-				
-				$total = $initial_data[0];
-				foreach($data as $key => $data_unit){
-					$sub_data_unit = $data_unit[0];
-					foreach($total as $sub_key => &$value){
-						$value += $sub_data_unit[$sub_key];
-					}
-				}
-				$total['period'] = __('total', true);
-				$data['total'][0] = $total;
+			}
+			
+			if($data_unit['ConsentMaster']['consent_status'] == 'denied' || $data_unit['ConsentMaster']['consent_status'] == 'withdrawn'){
+				$data[$key][0]["denied"] ++;
+			}
+			$data[$key][0]["participant"] ++;
+			if($data_unit['ConsentDetail']['use_of_blood'] == "yes"){
+				$data[$key][0]["blood"] ++;
+			}
+			if($data_unit['ConsentDetail']['use_of_urine'] == "yes"){
+				$data[$key][0]["urine"] ++;
+			}
+			if($data_unit['ConsentDetail']['allow_questionnaire'] == "yes"){
+				$data[$key][0]["questionnaire"] ++;
+			}
+			if($data_unit['ConsentDetail']['urine_blood_use_for_followup'] == 'yes'){
+				$data[$key][0]["annual_followup"] ++;
+			}
+			if($data_unit['ConsentDetail']['contact_for_additional_data'] == 'yes'){
+				$data[$key][0]["contact_if_info_req"] ++;
+			}
+			if($data_unit['ConsentDetail']['inform_significant_discovery'] == 'yes'){
+				$data[$key][0]["contact_if_discovery"] ++;
+			}
+			if($data_unit['ConsentDetail']['research_other_disease'] == 'yes'){
+				$data[$key][0]["study_other_diseases"] ++;
+			}
+			if($data_unit['ConsentDetail']['inform_discovery_on_other_disease'] == 'yes'){
+				$data[$key][0]["contact_if_disco_other_diseases"] ++;
+			}
 		}
+		
+		$total = $initial_data[0];
+		foreach($data as $key => $data_unit){
+			$sub_data_unit = $data_unit[0];
+			foreach($total as $sub_key => &$value){
+				$value += $sub_data_unit[$sub_key];
+			}
+		}
+		$total['period'] = __('total', true);
+		$data['total'][0] = $total;
 
 		return array(
-			"header"		=> "PROCURE - consent report",
+			"header"		=> $header,
 			"data"			=> $data,
 			"columns_names"	=> array(),
-			"error_msg"		=> $error
-		);	
+			"error_msg"		=> null
+		);
 	}	
 	
 	function aliquotSpentTimesCalulations($parameters, $default_unit = 'mn') {
