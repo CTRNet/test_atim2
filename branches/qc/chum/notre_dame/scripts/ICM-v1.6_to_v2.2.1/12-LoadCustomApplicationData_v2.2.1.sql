@@ -153,15 +153,17 @@ WHERE det.hemolysis_signs = 'yes'
 AND mast.id = det.sample_master_id
 AND mast.deleted != 1;
 
+UPDATE structure_fields SET setting = 'class=range' WHERE field = 'identifier_value' AND model In ('ViewSample','ViewCollection','ViewAliquot');
+
+UPDATE structure_formats 
+SET `flag_search`='0' ,`flag_index`='0' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_joined_to_sample_and_collection' , 'view_sample_joined_to_collection')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='participant_identifier');
 
 
 
 
-
-
-
-
-
+ 
 
 
 
