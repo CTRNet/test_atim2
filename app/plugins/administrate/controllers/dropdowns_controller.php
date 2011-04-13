@@ -13,11 +13,13 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function view($control_id){
-		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
-		if(empty($control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); } 
+		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id), 'recursive' => 0));
+		if(empty($control_data)){ 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		} 
 		$this->set("control_data", $control_data);
 		
-		$this->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id)));
+		$this->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id), 'order' => array('display_order', 'value')));
 		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
 	}
 	
@@ -204,6 +206,40 @@ class DropdownsController extends AdministrateAppController {
 				if(!$this->StructurePermissibleValuesCustom->save($this->data)){
 					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
+				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
+			}
+		}
+	}
+	
+	function configure($control_id){
+		//TODO: Complete! Req checkbox already checked when all at 0. + sorting here and in the list
+		if(empty($this->data)){
+			$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
+			if(empty($control_data)){ 
+				$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+			} 
+			$this->set("control_data", $control_data);
+			$this->set( 'atim_menu_variables', array('StructurePermissibleValuesCustom.control_id'=>$control_id));
+			
+			$this->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id), 'recursive' => -1, 'order' => array('display_order', 'value')));
+			if(empty($this->data)){
+				$this->flash(__("you cannot configure an empty list", true), "javascript:history.back();", 5);
+			}
+			$this->set('alpha_order', $this->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
+			$this->Structures->set('administrate_dropdown_values');
+		}else{
+			$data = array();
+			if(isset($this->data[0]['default_order'])){
+				foreach($this->data[0]['option_id'] as $id){
+					$data[] = array("id" => $id, "display_order" => 0);
+				}
+			}else{
+				$order = 1;
+				foreach($this->data[0]['option_id'] as $id){
+					$data[] = array("id" => $id, "display_order" => $order ++);
+				}
+			}
+			if($this->StructurePermissibleValuesCustom->saveAll($data)){
 				$this->atimFlash('your data has been updated', '/administrate/dropdowns/view/'.$control_id);
 			}
 		}

@@ -1925,3 +1925,14 @@ small{
 .labBook{
 	display: none;	
 }
+
+tbody.disabled{
+	background: grey;
+}
+
+tr.draggableRow:hover{
+	background-color: #ffa;
+}
+tr.draggedRow{
+	background-color: #ff0;
+}

@@ -692,6 +692,9 @@ function uncheckAll( $div ) {
 		if(window.labBookPopup){
 			initLabBookPopup();
 		}
+		if(window.dropdownConfig){
+			initDropdownConfig();
+		}
 		
 		if(window.realiquotInit){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
