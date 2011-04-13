@@ -143,8 +143,6 @@ class SampleMasterCustom extends SampleMaster {
 			case 'blood cell':
 			case 'pbmc':
 			case 'b cell':
-			case 'plasma':
-			case 'serum':
 			case 'concentrated urine':
 			case 'centrifuged urine':		
     		case 'amplified dna': 			
@@ -160,6 +158,11 @@ class SampleMasterCustom extends SampleMaster {
 				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label;
     			break;
     			
+    		case 'plasma':
+			case 'serum':
+				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label . (($sample_data['SampleDetail']['hemolysis_signs'] == 'yes')? ' -HEMO': '');
+    			break;
+    							
     		case 'cell culture':
     			if(!array_key_exists('qc_culture_population', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				if(!empty($sample_data['SampleDetail']['qc_culture_population'])) {	
