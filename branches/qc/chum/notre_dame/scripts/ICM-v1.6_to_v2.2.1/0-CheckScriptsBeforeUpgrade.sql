@@ -153,3 +153,6 @@ WHERE aliq.aliquot_label LIKE 'LB-PBMC%';
 SELECT count(*) FROM `global_lookups` WHERE `alias` LIKE 'qc_consent_form_version_date';
 -- -> 48
 
+
+-- check #21
+select consent_signed_date,consent_status from consent_masters  WHERE consent_status like 'obtained' AND deleted != 1 AND (consent_signed_date NOT LIKE '1%' AND consent_signed_date NOT LIKE '2%');
