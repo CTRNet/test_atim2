@@ -32,6 +32,7 @@ class StructuresHelper extends Helper {
 				'form_bottom'	=> true,
 				'name_prefix'	=> NULL,
 				'pagination'	=> true,
+				'sorting'		=> false, //if pagination is false, sorting can still be turned on (if pagination is on, sorting is ignored)
 				'columns_names' => array(), // columns names - usefull for reports. only works in detail views
 				'stretch'		=> true, //the structure will take full page width
 				
@@ -1257,21 +1258,28 @@ class StructuresHelper extends Helper {
 							$return_string .= '
 								<th>
 							';
-							$sorting_link = $_SERVER['REQUEST_URI'];
-							$sorting_link = explode('?', $sorting_link);
-							$sorting_link = $sorting_link[0];
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
-							
-							$sorting_link .= '?sortBy='.$table_row_part['field'];
-							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
-							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
-							if($options['settings']['pagination']){
+
+							if($options['settings']['pagination'] || $options['settings']['sorting']){
 								if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
 									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
 								}
-								$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+								if($options['settings']['pagination']){
+									$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+								}else{
+									//sorting
+									$url = array_merge(
+										$this->Paginator->options['url'], 
+										array(
+											'sort' => $table_row_part['model'].'.'.$table_row_part['field'], 
+											'direction' => $table_row_part['model'].'.'.$table_row_part['field'] == $sort_on && $sort_asc ? "desc" : "asc", 
+											'order' => null
+										)
+									);
+									$return_string .= $this->Html->link(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $url, array()); 
+								}
 							}else{
 								$return_string .= $table_row_part['label'];
 							}
