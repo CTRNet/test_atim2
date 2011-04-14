@@ -161,9 +161,9 @@ WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_j
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='participant_identifier');
 
 
+DELETE FROM `versions`;
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.2.1', NOW(), '2921');
 
-
- 
 
 
 
