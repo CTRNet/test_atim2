@@ -53,7 +53,7 @@ function copyDataToRevs(){
 	foreach($tables as $table_name){
 		$revs_table_name = $table_name."_revs";
 		if(array_key_exists($revs_table_name, $revs_tables)){
-			echo "Copying ",$table_name,"\n";
+			//echo "Copying ",$table_name,"\n";
 			$table_cols = getFields($table_name);
 			$revs_table_cols = getFields($revs_table_name);
 			$common_columns = array_intersect($table_cols, $revs_table_cols);
@@ -109,9 +109,9 @@ function updateAliquotsStorage(){
 	
 	
 	if(count($studied_aliquot_master_ids) > 0){
-		echo "Updating aliquot: ";
+		//echo "Updating aliquot: ";
 		foreach($studied_aliquot_master_ids as $id => $control_id){
-			echo $id," ";
+			//echo $id," ";
 			if(!isset($controls_mapping[$control_id])) die("aliquots8893 failed");
 			$current_control = $controls_mapping[$control_id];
 
@@ -121,6 +121,6 @@ function updateAliquotsStorage(){
 			$db->query("INSERT INTO aliquot_masters_revs (`".implode("`, `", $aliquot_master_common_columns)."`, `version_created`) (SELECT `".implode("`, `", $aliquot_master_common_columns)."`, '".$modified."' FROM aliquot_masters WHERE id=".$id.")") or die("aliquots died on id ".$id);
 			$db->query("INSERT INTO ".$current_control['detail_tablename']."_revs (`".implode("`, `", $current_control['common_columns'])."`, `version_created`) (SELECT `".implode("`, `", $current_control['common_columns'])."`, '".$modified."' FROM ".$current_control['detail_tablename']." WHERE aliquot_master_id=".$id.")") or die("aliquots died on id ".$id);
 		}
-		echo "\n";
+		//echo "\n";
 	}
 }
