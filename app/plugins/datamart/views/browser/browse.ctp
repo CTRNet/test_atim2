@@ -16,7 +16,7 @@
 			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = __("select an action", true);
-			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'sorting' => true, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
 		}else{
 			//overflow
 			?>

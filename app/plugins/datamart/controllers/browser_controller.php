@@ -312,6 +312,8 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->checklist_result_structure);
 				$this->data = $this->Browser->checklist_data;
 				$this->set("header", $this->Browser->checklist_header);
+				//sort this->data on URL
+				$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
 			}else{
 				//!is_array($this->Browser->checklist_data)
 				//merged display
@@ -478,6 +480,8 @@ class BrowserController extends DatamartAppController {
 					//all went well
 					$this->set("header", $header);
 					$this->set("result_structure", $result_structure);
+					//sort this->data on URL
+					$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
 				}else{
 					//we've got an overflow at some point
 					$this->set("result_structure", $overflow_structure);
@@ -485,6 +489,7 @@ class BrowserController extends DatamartAppController {
 					$this->set("header", $overflow_header);
 				}
 			}
+			
 		}else if($browsing != null){
 			//search screen
 			$this->set('type', "search");

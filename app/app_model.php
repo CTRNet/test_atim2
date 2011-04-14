@@ -544,6 +544,34 @@ class AppModel extends Model {
 		} 
 		return  '#err#';
 	}
+	
+	/**
+	 * Uses the same url sorting options as cakephp paginator uses to sort a data array
+	 * @param array $data The data to sort
+	 * @param array $passed_args The controller passed arguments. (From the controller, $this->passedArgs)
+	 * @return The data sorted if the passed_args were compatible with it
+	 */
+	static function sortWithUrl(array $data, array $passed_args){
+		$order = array();
+		if(isset($passed_args['sort'])){
+			$result = array();
+			list($sort_model, $sort_field) = explode(".", $passed_args['sort']);
+			$i = 0;
+			foreach($data as $data_unit){
+				if(isset($data_unit[$sort_model]) && isset($data_unit[$sort_model][$sort_field])){
+					$result[sprintf("%s%04d", $data_unit[$sort_model][$sort_field], ++ $i)] = $data_unit;
+				}else{
+					$result[sprintf("%04d", ++ $i)] = $data_unit;
+				}
+			}
+			ksort($result);
+			if(isset($passed_args['direction']) && $passed_args['direction'] == 'desc'){
+				$result = array_reverse($result);
+			}
+			return $result;
+		}
+		return $data;
+	}
 }
 
 ?>

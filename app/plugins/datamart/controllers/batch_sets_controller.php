@@ -174,7 +174,7 @@ class BatchSetsController extends DatamartAppController {
     		}
 			$results = $this->ModelToSearch->find( 'all', array( 'conditions' => $criteria, 'recursive' => 0 ) );
 		}
-		$this->set( 'results', $results ); // set for display purposes...
+		$this->set( 'results', AppModel::sortWithUrl($results, $this->passedArgs)); // set for display purposes...
 		$this->set( 'data_for_detail', $batch_set );
 		$this->set( 'atim_structure_for_results', $atim_structure_for_results);
 		if(isset($atim_structure_for_results['Structure']['alias'])){
