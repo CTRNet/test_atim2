@@ -1233,6 +1233,16 @@ class StructuresHelper extends Helper {
 					$sort_asc = false;
 				}
 			}
+			if(strlen($sort_on) == 0
+			&& isset($this->Paginator->params['paging']) 
+			&& ($part = current($this->Paginator->params['paging'])) 
+			&& isset($part['defaults']['order'])){
+					$sort_on = is_array($part['defaults']['order']) ? current($part['defaults']['order']) : $part['defaults']['order']; 
+					list($sort_on) = explode(",", $sort_on);//discard any but the first order by clause
+					$sort_on = explode(" ", $sort_on);
+					$sort_asc = !isset($sort_on[1]) || strtoupper($sort_on[1]) != "DESC";
+					$sort_on = $sort_on[0];
+			}
 			
 			$content_columns_count = 0;
 			foreach ($table_structure as $table_column){
@@ -1263,18 +1273,23 @@ class StructuresHelper extends Helper {
 							$default_sorting_direction = strtolower($default_sorting_direction);
 
 							if($options['settings']['pagination'] || $options['settings']['sorting']){
-								if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
+								$sorted_on_current_column = $table_row_part['model'].'.'.$table_row_part['field'] == $sort_on;
+								if($sorted_on_current_column){
 									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
 								}
 								if($options['settings']['pagination']){
-									$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+									$paginator_string = $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
+									if($sorted_on_current_column && $sort_asc){
+										$paginator_string = str_replace('/direction:asc">', '/direction:desc">', $paginator_string);
+									}
+									$return_string .= $paginator_string;
 								}else{
 									//sorting
 									$url = array_merge(
 										$this->Paginator->options['url'], 
 										array(
 											'sort' => $table_row_part['model'].'.'.$table_row_part['field'], 
-											'direction' => $table_row_part['model'].'.'.$table_row_part['field'] == $sort_on && $sort_asc ? "desc" : "asc", 
+											'direction' => $sorted_on_current_column && $sort_asc ? "desc" : "asc", 
 											'order' => null
 										)
 									);
