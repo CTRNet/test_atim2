@@ -13,6 +13,8 @@
 		);
 		// General detail form display
 		$structure_links['bottom']['list'] = '/storagelayout/tma_slides/listAll/' . $atim_menu_variables['StorageMaster.id'];
+	}else{
+		$structure_links['bottom']['access to all data'] = '/storagelayout/tma_slides/detail/'. $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];
 	}
 	
 	if($is_tree_view_detail_form > 0){
