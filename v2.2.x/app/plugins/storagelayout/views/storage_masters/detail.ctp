@@ -5,7 +5,7 @@
 	// Set links
 	$structure_links = array();
 	$settings = array();
-	
+	echo $is_tree_view_detail_form;
 	if($is_tree_view_detail_form < 2){
 		$structure_links = array('bottom' => array(
 			'edit' => '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'],
@@ -24,6 +24,8 @@
 			ksort($add_links);
 			$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);					
 		}
+	}else{
+		$structure_links['bottom']['access to all data'] = '/storagelayout/storage_masters/detail/'.$atim_menu_variables['StorageMaster.id'];
 	}
 	
 	if($is_tree_view_detail_form > 0){
