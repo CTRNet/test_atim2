@@ -26,6 +26,8 @@
 			'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 		$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+	}else{
+		$structure_links['bottom']['access to all data'] = '/inventorymanagement/aliquot_masters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	}
 	
 	if($is_tree_view_detail_form) {
@@ -44,13 +46,10 @@
 	
 	$structure_override = array();
 
+	$final_atim_structure = $atim_structure;
 	if($is_tree_view_detail_form){
-		
 		// DISPLAY ONLY ALIQUOT DETAIL FORM
-		
 		// 1- ALIQUOT DETAIL	
-		
-		$final_atim_structure = $atim_structure;
 		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data, 'settings' => array('header' => __('Aliquot', null)));
 
 		// CUSTOM CODE
@@ -63,12 +62,8 @@
 		$structures->build($final_atim_structure, $final_options);
 
 	}else{
-		
 		// DISPLAY BOTH ALIQUOT DETAIL FORM AND ALIQUOT USES LIST
-		
 		// 1- ALIQUOT DETAIL	
-		
-		$final_atim_structure = $atim_structure;
 		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $aliquot_master_data);
 		
 		// CUSTOM CODE
@@ -81,7 +76,6 @@
 		$structures->build($final_atim_structure, $final_options);
 		
 		// 2- USES LIST
-		
 		$structure_links['index'] = array(
 		   'detail' => '/inventorymanagement/aliquot_masters/redirectToAliquotUseDetail/%%ViewAliquotUse.detail_url%%');
 		
@@ -98,7 +92,6 @@
 		$structures->build($final_atim_structure, $final_options);
 
 		// 3- STORAGE HISTORY	
-		
 		unset($structure_links['index']);
 		$final_atim_structure = $custom_aliquot_storage_history;
 		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'pagination' => false));
