@@ -162,7 +162,7 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='particip
 
 
 DELETE FROM `versions`;
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.2.1', NOW(), '2921');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.2.1', NOW(), '2961');
 
 
 
