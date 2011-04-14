@@ -307,6 +307,17 @@ class BrowserController extends DatamartAppController {
 			$this->set("dropdown_options", $dropdown_options);
 			$this->Structures->set("datamart_browser_start");
 			
+			if($this->Browser->checklist_model_name_to_search != $browsing['DatamartStructure']['model']){
+				$browsing['DatamartStructure']['index_link'] = str_replace(
+					$browsing['DatamartStructure']['model'], 
+					$this->Browser->checklist_model_name_to_search,
+					str_replace(
+						$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'], 
+						$this->Browser->checklist_model_name_to_search.".".$this->Browser->checklist_use_key, 
+						$browsing['DatamartStructure']['index_link']
+					)
+				);
+			}
 			$this->set('index', $browsing['DatamartStructure']['index_link']);
 			if($merge_to == 0){
 				$this->set("result_structure", $this->Browser->checklist_result_structure);
