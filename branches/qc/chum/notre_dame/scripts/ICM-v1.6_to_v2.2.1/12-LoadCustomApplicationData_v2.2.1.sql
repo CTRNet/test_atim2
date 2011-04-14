@@ -160,11 +160,13 @@ SET `flag_search`='0' ,`flag_index`='0'
 WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('view_aliquot_joined_to_sample_and_collection' , 'view_sample_joined_to_collection')) 
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='participant_identifier');
 
-
 DELETE FROM `versions`;
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.2.1', NOW(), '2961');
 
-
+UPDATE structure_fields, structure_validations
+SET structure_validations.rule = 'custom,/(^[0-9]+[-][0-9]*$)|(^[0-9]*$)/'
+WHERE structure_fields.id = structure_validations.structure_field_id
+AND structure_fields.field LIKE 'cell_passage_number' AND model LIKE 'SampleDetail';
 
 
 
