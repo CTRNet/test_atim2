@@ -142,13 +142,13 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_procure_consent_stats_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='0' AND tablename='' AND field='denied' AND type='integer' AND structure_value_domain  IS NULL );
 
 UPDATE sample_masters mast, sd_der_serums det
-SET mast.sample_label = CONCAT(mast.sample_label, ' -HEMO')
+SET mast.sample_label = CONCAT(mast.sample_label, ' HEMO')
 WHERE det.hemolysis_signs = 'yes'
 AND mast.id = det.sample_master_id
 AND mast.deleted != 1;
 
 UPDATE sample_masters mast, sd_der_plasmas det
-SET mast.sample_label = CONCAT(mast.sample_label, ' -HEMO')
+SET mast.sample_label = CONCAT(mast.sample_label, ' HEMO')
 WHERE det.hemolysis_signs = 'yes'
 AND mast.id = det.sample_master_id
 AND mast.deleted != 1;
