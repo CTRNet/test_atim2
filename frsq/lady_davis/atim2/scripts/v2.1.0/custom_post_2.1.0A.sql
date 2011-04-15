@@ -1,5 +1,7 @@
-DIE -- TODO: Verify the query to generate the collection
-UPDATE misc_identifiers SET identifier_value=SUBSTR(identifier_value, 3), misc_identifier_control_id=9, identifier_name='collection' WHERE misc_identifier_control_id IN(1,2,3,4);
+INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `autoincrement_name`, `display_order`, `misc_identifier_format`, `flag_once_per_participant`) VALUES
+('collection', '1', 'main_participant_id', 8, '%%key_increment%%', '1');
+
+UPDATE misc_identifiers SET identifier_value=SUBSTR(identifier_value, 3), misc_identifier_control_id=9, identifier_name='collection' WHERE misc_identifier_control_id IN(1,2,3,4) AND id >= 523;
 ALTER TABLE misc_identifiers
  ADD COLUMN delete_me int not null default 0;
 UPDATE misc_identifiers AS mi1
@@ -11,8 +13,7 @@ ALTER TABLE misc_identifiers
  DROP COLUMN delete_me;
 
 
-INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `autoincrement_name`, `display_order`, `misc_identifier_format`, `flag_once_per_participant`) VALUES
-('collection', '1', 'main_participant_id', 8, '%%key_increment%%', '1');
+
 
 -- missing data
 INSERT INTO specimen_details(`sample_master_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `deleted_date`)
