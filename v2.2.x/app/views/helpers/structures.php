@@ -904,9 +904,9 @@ class StructuresHelper extends Helper {
 										</span>
 										
 										<span class="links">
-											',$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ),'
+											',$this->Paginator->prev( __( 'prev',true ), NULL, __( 'prev',true ) ),'
 											',$this->Paginator->numbers(),'
-											',$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ),'
+											',$this->Paginator->next( __( 'next',true ), NULL, __( 'next',true ) ),'
 										</span>
 										
 										',$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)),' |
