@@ -13,9 +13,9 @@ UPDATE structure_formats SET type='float_positive' WHERE type='number';
 
 INSERT INTO datamart_adhoc (title, description, plugin, model, form_alias_for_search, form_alias_for_results, form_links_for_results, sql_query_for_results, flag_use_query_results) VALUES
 ('participant B-M-T', 'qc_lady_participant_bmt_query_desc', 'clinicalannotation', 'Participant', 'participants', 'participants', '', 
-'SELECT participant_id FROM clinical_collection_links AS ccl_tumor
+'SELECT Participant.* FROM clinical_collection_links AS ccl_tumor
 INNER JOIN collections AS c_tumor ON ccl_tumor.collection_id=c_tumor.id AND c_tumor.qc_lady_type="tumor"
-INNER JOIN participants AS Participant
+INNER JOIN participants AS Participant ON Participant.id= ccl_tumor.participant_id
 WHERE participant_id IN(
  SELECT participant_id FROM clinical_collection_links AS ccl_metastasis
  INNER JOIN collections AS c_metastasis ON ccl_metastasis.collection_id=c_metastasis.id AND c_metastasis.qc_lady_type="metastasis"
