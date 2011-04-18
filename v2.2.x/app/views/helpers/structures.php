@@ -524,7 +524,7 @@ class StructuresHelper extends Helper {
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
 									|| $table_row_part['type'] == 'float'
-									|| $table_row_part['type'] == 'foat_positive')
+									|| $table_row_part['type'] == 'float_positive')
 								){
 									//input type, add the sufix to the name
 									$table_row_part['format_back'] = $table_row_part['format'];
@@ -535,7 +535,7 @@ class StructuresHelper extends Helper {
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
 									|| $table_row_part['type'] == 'float'
-									|| $table_row_part['type'] == 'foat_positive')
+									|| $table_row_part['type'] == 'float_positive')
 								){
 									$table_row_part['format'] = $table_row_part['format_back'];
 								}
