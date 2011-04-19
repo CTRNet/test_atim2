@@ -7,7 +7,6 @@ class BatchSetsController extends DatamartAppController {
 		
 		'Datamart.BatchSet', 
 		'Datamart.BatchId', 
-		'Datamart.BatchSetProcess',
 		'Datamart.BrowsingResult',
 		'Datamart.DatamartStructure',
 	
@@ -232,13 +231,6 @@ class BatchSetsController extends DatamartAppController {
 		}
 		
 		$this->set( 'ctrapp_form_links', $ctrapp_form_links ); // set for display purposes...
-		
-		// get any/all valid PROCESSES for SET's model
-		$conditions = array();
-		$conditions['BatchSetProcess.plugin'] = $batch_set['BatchSet']['plugin'];
-		$conditions['BatchSetProcess.model'] = $batch_set['BatchSet']['model'];
-		$conditions['BatchSetProcess.flag_active'] = '1';
-		$batch_set_process_results = $this->BatchSetProcess->find( 'all', array( 'conditions'=>$conditions, 'recursive'=>3 ) );
 	}
 	
 	function add( $target_batch_set_id=0 ) {
