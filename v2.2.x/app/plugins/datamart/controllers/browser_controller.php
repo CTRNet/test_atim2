@@ -367,7 +367,7 @@ class BrowserController extends DatamartAppController {
 				
 				if($descending){
 					//clear drilldown parents
-					$remove = $browsing['BrowsingResult']['raw'] == 0;
+					$remove = $previous_browsing['BrowsingResult']['raw'] == 0;
 					foreach($nodes_to_fetch as $index => $node_to_fetch){
 						if($remove){
 							unset($nodes_to_fetch[$index]);
@@ -385,7 +385,6 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				
 
 				$iteration_count = 1;
 				if(is_array($this->data)){
