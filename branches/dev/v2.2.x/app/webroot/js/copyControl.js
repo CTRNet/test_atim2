@@ -37,7 +37,7 @@ function initCopyControl(){
  */
 function copyLine(line){
 	copyBuffer = new Object();
-	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
+	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled)").each(function(){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 		if($(this).attr("type") == "checkbox"){
