@@ -1923,5 +1923,11 @@ small{
 }
 
 .labBook{
-	display: none;	
+	display: none;
+}
+div.pasteDisabled{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/icons/Paste_Disabled_16x16.png) no-repeat left top;	
 }

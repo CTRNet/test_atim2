@@ -40,7 +40,9 @@ class StructuresHelper extends Helper {
 				'del_fields'	=> false, // if TRUE, add a "remove" link after each row, to allow it to be removed from the form
 				
 				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
-				'data_miss_warn'=> true//in debug mode, prints a warning if data is not found for a field
+				'data_miss_warn'=> true, //in debug mode, prints a warning if data is not found for a field
+				
+				'paste_disabled_fields' => array()//pasting on those fields will be disabled
 			),
 			
 			'links'		=> array(
@@ -675,6 +677,12 @@ class StructuresHelper extends Helper {
 			
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
 			
+			if(($options['type'] == "addgrid" || $options['type'] == "editgrid") 
+			&& strpos($table_row_part['settings']['class'], "pasteDisabled") !== false
+			&& $table_row_part['type'] != "hidden"){
+				//displays the "no copy" icon on the left of the fields with disabled copy option
+				$display = '<div class="pasteDisabled"></div>'.$display;
+			} 
 		}else if(strlen($current_value) > 0){
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
@@ -1346,6 +1354,7 @@ class StructuresHelper extends Helper {
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
 	private function buildStack(array $atim_structure, array $options){
+		//TODO: WARNING ON paste_disabled if field mentioned in the view is not found here
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
@@ -1354,6 +1363,7 @@ class StructuresHelper extends Helper {
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
 		if(isset($atim_structure['Sfs'])){
+			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
@@ -1382,7 +1392,11 @@ class StructuresHelper extends Helper {
 							$field_name .= $options['settings']['name_prefix'].".";
 						}
 						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
-							$field_name .= "%d.";	
+							$field_name .= "%d.";
+							if(in_array($sfs['model'].".".$sfs['field'], $options['settings']['paste_disabled_fields'])){
+								$settings['class'] .= " pasteDisabled";
+								$paste_disabled[] = $sfs['model'].".".$sfs['field']; 
+							}
 						}
 						$field_name .= $sfs['model'].".".$sfs['field'];
 						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
@@ -1478,12 +1492,6 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 						}
 						
-//						if(isset($settings['disabled']) && ($settings['disabled'] === true || $settings['disabled'] == "disabled")){
-//							unset($settings['disabled']);
-//							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
-//							$settings['disabled'] = "disabled";
-//						}
-						
 						$current['default'] = $sfs['default'];
 						$current['settings'] = $settings;
 					}
@@ -1578,6 +1586,13 @@ class StructuresHelper extends Helper {
 					$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
 				}
 				
+			}
+			
+			if(Configure::read('debug') > 0){
+				$paste_disabled = array_diff($options['settings']['paste_disabled_fields'], $paste_disabled);
+				if(count($paste_disabled) > 0){
+					AppController::addWarningMsg("DEBUG Paste disabled field(s) not found: ". implode(", ", $paste_disabled));
+				}
 			}
 		}
 		
