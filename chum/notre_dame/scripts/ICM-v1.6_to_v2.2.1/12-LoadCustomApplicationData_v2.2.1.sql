@@ -181,3 +181,64 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='use_of_urine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='use of urine' AND `language_tag`=''), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='research other disease' AND `language_tag`=''), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+
+
+
+
+INSERT INTO datamart_adhoc(title, description, plugin, model, form_alias_for_search, form_alias_for_results, form_links_for_results,
+sql_query_for_results, flag_use_query_results) VALUES(
+'manon collection query title', 
+'manon collection query desc', 
+'inventorymanagement', 
+'Collection', 
+'new_participants_manon', 
+'new_participants_manon', 
+'detail=>/inventorymanagement/collections/detail/%%Collection.id%%/',
+'SELECT BankNumber.identifier_value AS bank_number, NdNumber.identifier_value AS nd_number, HdNumber.identifier_value AS hd_number,
+SlNumber.identifier_value AS sl_number, Participant.last_name, Participant.first_name, RamqNumber.identifier_value as ramq_number,
+Collection.collection_site AS collection_site, Collection.collection_datetime AS collection_datetime,
+Collection.collection_datetime_accuracy AS collection_datetime_accuracy, Collection.id AS id
+ FROM collections AS Collection
+INNER JOIN clinical_collection_links AS ccl ON Collection.id=ccl.collection_id
+INNER JOIN participants AS Participant ON ccl.participant_id=Participant.id
+LEFT JOIN banks ON Collection.bank_id = banks.id
+LEFT JOIN misc_identifiers AS BankNumber ON BankNumber.participant_id=Participant.id AND banks.misc_identifier_control_id=BankNumber.misc_identifier_control_id  
+LEFT JOIN misc_identifiers AS NdNumber ON  NdNumber.participant_id=Participant.id AND NdNumber.misc_identifier_control_id=9
+LEFT JOIN misc_identifiers AS HdNumber ON HdNumber.participant_id=Participant.id AND HdNumber.misc_identifier_control_id=8
+LEFT JOIN misc_identifiers AS SlNumber ON SlNumber.participant_id=Participant.id AND SlNumber.misc_identifier_control_id=10
+LEFT JOIN misc_identifiers as RamqNumber ON RamqNumber.participant_id=Participant.id AND RamqNumber.misc_identifier_control_id=7
+WHERE Collection.collection_datetime >= "@@Collection.collection_datetime_start@@" 
+ AND Collection.collection_datetime <= "@@Collection.collection_datetime_end@@" 
+ AND Collection.collection_site = "@@Collection.collection_site@@"
+ AND Collection.bank_id = "@@Collection.bank_id@@"',
+'1'
+);
+
+INSERT INTO structures(`alias`) VALUES ('new_participants_manon');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', 'BankNumber', 'misc_identifiers', 'bank_number', 'input',  NULL , '0', '', '', '', 'bank #', ''), 
+('', 'NdNumber', 'misc_identifiers', 'nd_number', 'input',  NULL , '0', '', '', '', 'notre-dame id', ''), 
+('', 'HdNumber', 'misc_identifiers', 'hd_number', 'input',  NULL , '0', '', '', '', 'hotel-dieu id', ''), 
+('', 'SlNumber', 'misc_identifiers', 'sl_number', 'input',  NULL , '0', '', '', '', 'saint-luc id', ''), 
+('', 'RamqNumber', 'misc_identifiers', 'ramq_number', 'input',  NULL , '0', '', '', '', 'ramq #', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='BankNumber' AND `tablename`='misc_identifiers' AND `field`='bank_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank #' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='NdNumber' AND `tablename`='misc_identifiers' AND `field`='nd_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notre-dame id' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='HdNumber' AND `tablename`='misc_identifiers' AND `field`='hd_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hotel-dieu id' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='SlNumber' AND `tablename`='misc_identifiers' AND `field`='sl_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='saint-luc id' AND `language_tag`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '0', '5', '', '1', 'last name', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '0', '6', '', '1', 'first name', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='RamqNumber' AND `tablename`='misc_identifiers' AND `field`='ramq_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ramq #' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='collection site' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '9', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime_accuracy' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `flag_confidential`='0'), '0', '10', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='new_participants_manon'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0'), '0', '11', '', '1', 'bank', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+('manon collection query title', "New participants (for Manon)", "Nouveaux participants (pour Manon)"),
+('manon collection query desc', "Displays collections with some of the linked participant data.", "Affiche les collections avec certaines informations des participants liés."),
+INSERT INTO i18n (id, en, fr) VALUES
+("bank #", "Bank #", "# banque"),
+("notre-dame id", "Notre-Date ID", "# Dossier Notre-Dame"),
+("hotel-dieu id", "Hotel-Dieu ID", "# Dossier Hotel-Dieu"),
+("saint-luc id", "Saint-Luc ID", "# Dossier Saint-Luc"),
+("ramq #", "RAMQ #", "# RAMQ");
