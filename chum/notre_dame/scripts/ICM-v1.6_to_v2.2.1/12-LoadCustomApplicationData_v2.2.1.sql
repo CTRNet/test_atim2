@@ -279,3 +279,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_nd_banking_activity'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='serum' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='serum' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_nd_banking_activity'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='derivative_products' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='derivative products' AND `language_tag`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+UPDATE collections SET bank_id = 5 WHERE bank_id IS NULL AND acquisition_label LIKE 'ORL-300%';
+UPDATE collections_revs SET bank_id = 5 WHERE bank_id IS NULL AND acquisition_label LIKE 'ORL-300%';
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) 
+VALUES 
+((SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch'), 
+(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='study_summary_id'), 
+'0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='order_study' WHERE structure_id=(SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Order' AND tablename='orders' AND field='study_summary_id');
+
+
