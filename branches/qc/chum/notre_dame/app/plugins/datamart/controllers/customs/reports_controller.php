@@ -486,7 +486,7 @@ class ReportsControllerCustom extends ReportsController {
 			$data[] = array(
 				'0' => array(
 					'bank_id'				=> $bank_id,
-					'new_participants'		=> $mi_model->find('count', array('conditions' => array('MiscIdentifier.misc_identifier_control_id' => $bank['Bank']['misc_identifier_control_id'], 'MiscIdentifier.participant_id' => $participant_ids))),
+					'new_patients'			=> $mi_model->find('count', array('conditions' => array('MiscIdentifier.misc_identifier_control_id' => $bank['Bank']['misc_identifier_control_id'], 'MiscIdentifier.participant_id' => $participant_ids))),
 					'normal_tissues'		=> $sample_data[0][0]['nov'],
 					'tumoral_tissues'		=> $sample_data[0][0]['tov'],
 					'benin_tissues' 		=> $sample_data[0][0]['bov'],
