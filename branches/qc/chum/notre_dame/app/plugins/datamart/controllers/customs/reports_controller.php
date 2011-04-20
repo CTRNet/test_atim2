@@ -429,6 +429,101 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	
-	
+	function bankingNd(array $parameters){
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
+		
+		$title = '';
+		if(!empty($parameters[0]['report_date_range_start']['year'])) {
+			$title .= __('from',true) . ' ' . $start_date_for_display . ' ';
+		}
+		if(!empty($parameters[0]['report_date_range_end']['year'])) {
+			$title .= __('to',true) . ' ' . $end_date_for_display;
+		}
+		$title = (empty($title))? __('no date restriction', true) : $title;
+		
+		$header = array(
+			'title' => $title,
+			'description' => null);
+
+		$date_from = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$date_to = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
+		
+		$bank_ids = array_filter($parameters[0]['bank_id']);
+		$bank_model = AppModel::atimNew("administrate", "Bank", true);
+		if(empty($bank_ids)){
+			$banks = $bank_model->find('all', array('conditions' => array('Bank.misc_identifier_control_id !=' => '0')));
+		}else{
+			$banks = $bank_model->find('all', array('conditions' => array('Bank.misc_identifier_control_id !=' => '0', "Bank.id" => $bank_ids)));
+		}
+		
+		$participant_model = AppModel::atimNew("clinicalannotation", "Participant", true);
+		$participant_ids_raw = $participant_model->find('all', array('fields' => ('Participant.id'), 'conditions' => array('Participant.created >=' => $date_from, 'Participant.created <=' => $date_to)));
+		$participant_ids = array();
+		foreach($participant_ids_raw as $participant){
+			$participant_ids[] = $participant['Participant']['id'];
+		}
+		
+		$mi_model = AppModel::atimNew("clinicalannotation", "MiscIdentifier", true);
+		$sample_model = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
+		
+		$data = array();
+		foreach($banks as $bank){
+			$bank_id = $bank['Bank']['id'];
+			
+			$sample_data =$sample_model->query(
+				"SELECT SUM(IF(SpecimenDetail.type_code = 'NOV', 1, 0)) AS nov, SUM(IF(SpecimenDetail.type_code = 'TOV', 1, 0)) AS tov,
+				SUM(IF(SpecimenDetail.type_code = 'BOV', 1, 0)) AS bov, SUM(IF(SpecimenDetail.type_code = 'OV', 1, 0)) AS ov,
+				SUM(IF(SampleDetail.blood_type = 'EDTA', 1, 0)) AS edta, SUM(IF(SampleDetail.blood_type = 'gel SST', 1, 0)) AS sst,
+				SUM(IF(SampleMaster.sample_control_id IN(11, 12, 13), 1, 0)) AS other 
+				FROM sample_masters AS SampleMaster
+				INNER JOIN collections AS Collection ON SampleMaster.collection_id=Collection.id AND Collection.bank_id='".$bank_id."' 
+				LEFT JOIN specimen_details AS SpecimenDetail ON SampleMaster.id=SpecimenDetail.sample_master_id
+				LEFT JOIN sd_spe_bloods AS SampleDetail ON SampleMaster.id=SampleDetail.sample_master_id
+				WHERE SampleMaster.created BETWEEN '".$date_from."' AND '".$date_to."'"
+			);
+			
+			$data[] = array(
+				'0' => array(
+					'bank_id'				=> $bank_id,
+					'new_participants'		=> $mi_model->find('count', array('conditions' => array('MiscIdentifier.misc_identifier_control_id' => $bank['Bank']['misc_identifier_control_id'], 'MiscIdentifier.participant_id' => $participant_ids))),
+					'normal_tissues'		=> $sample_data[0][0]['nov'],
+					'tumoral_tissues'		=> $sample_data[0][0]['tov'],
+					'benin_tissues' 		=> $sample_data[0][0]['bov'],
+					'ascite'				=> $sample_data[0][0]['ov'],
+					'blood_collection'		=> $sample_data[0][0]['edta'],
+					'serum'					=> $sample_data[0][0]['sst'],
+					'derivative_products'	=> $sample_data[0][0]['other'],
+				)
+			);
+		}
+		
+		if(count($data) > 1){
+			//add "total" row
+			$keys = array_keys($data[0][0]);
+			array_shift($keys);
+			//init
+			$total = array();
+			foreach($keys as $key){
+				$total[$key] = 0;
+			}
+			//sum
+			foreach($data as $data_unit){
+				$data_sub_unit = $data_unit[0];
+				foreach($keys as $key){
+					$total[$key] += $data_sub_unit[$key];
+				}
+			}
+			$total['bank_id'] = __("total", true);
+			$data[] = array("0" => $total);
+		}
+		
+		
+		return array(
+			'header' => $header, 
+			'data' => $data, 
+			'columns_names' => null,
+			'error_msg' => null);
+	}
 	
 }
