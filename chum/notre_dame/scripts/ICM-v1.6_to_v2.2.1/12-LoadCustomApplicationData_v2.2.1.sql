@@ -290,4 +290,8 @@ VALUES
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='order_study' WHERE structure_id=(SELECT id FROM structures WHERE alias='order_lines_to_addAliquotsInBatch') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Order' AND tablename='orders' AND field='study_summary_id');
 
+UPDATE orders SET processing_status = '' WHERE processing_status IS NULL;
+UPDATE orders_revs SET processing_status = '' WHERE processing_status IS NULL;
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='aliquot_label' AND type='input' AND structure_value_domain  IS NULL );
 
