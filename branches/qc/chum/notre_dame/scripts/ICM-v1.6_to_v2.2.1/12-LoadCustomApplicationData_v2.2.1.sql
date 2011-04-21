@@ -295,3 +295,15 @@ UPDATE orders_revs SET processing_status = '' WHERE processing_status IS NULL;
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='aliquot_label' AND type='input' AND structure_value_domain  IS NULL );
 
+UPDATE sample_masters AS samp, specimen_details AS spec
+SET spec.supplier_dept = 'gynaecology/oncology clinic'
+WHERE samp.id = spec.sample_master_id AND samp.sample_type = 'ascite'
+AND spec.supplier_dept = 'family cancer center';
+
+UPDATE sample_masters AS samp, specimen_details_revs AS spec
+SET spec.supplier_dept = 'gynaecology/oncology clinic'
+WHERE samp.id = spec.sample_master_id AND samp.sample_type = 'ascite'
+AND spec.supplier_dept = 'family cancer center';
+
+
+
