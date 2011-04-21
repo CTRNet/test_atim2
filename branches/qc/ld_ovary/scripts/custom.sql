@@ -1,6 +1,8 @@
 INSERT INTO i18n (id, en, fr) VALUES
 ('core_installname', 'Lady Davis - Ovary', 'Lady Davis - Ovaire'),
-("sample system code", "Sample system code", "Code système d'échantillon");
+("sample system code", "Sample system code", "Code système d'échantillon"),
+("aliquot system code", "Aliquot system code", "Code système d'aliquot"),
+("concentration", "Concentration", "Concentration");
 
 UPDATE users SET flag_active=1 WHERE id=1;
 
@@ -32,7 +34,7 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 CREATE TABLE tmp
 (SELECT sf1.id, MAX(sf2.display_column) AS display_column, MAX(sf2.display_order) AS display_order FROM structure_formats AS sf1 
 INNER JOIN structure_formats AS sf2 ON sf1.structure_id=sf2.structure_id
-WHERE sf1.structure_field_id=(SELECT id FROM structure_fields WHERE field='sample_code')
+WHERE sf1.structure_field_id IN (SELECT id FROM structure_fields WHERE field='sample_code')
 GROUP BY sf1.structure_id);
 
 UPDATE structure_formats AS sf1 
@@ -42,9 +44,9 @@ SET sf1.display_column=sf2.display_column, sf1.display_order=sf2.display_order +
 DROP TABLE tmp;
 
 -- update sample code label to sample system code
-UPDATE structure_fields SET language_label='sample system code' WHERE field='sample_code'
+UPDATE structure_fields SET language_label='sample system code' WHERE field='sample_code';
 
---Supplier departments
+-- Supplier departments
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 (4, "clinic", "Clinic", "Clinique"),
 (4, "surgery room", "Surgery room", "Salle de chirurgie"),
@@ -134,4 +136,97 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
- 
+-- serums hemolosis signs
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', '', 'hemolysis_signs', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown') , '0', '', 'u', '', 'hemolysis signs', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='hemolysis_signs' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='hemolysis_signs' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT `id` FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='hemolysis_signs' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown')), 'notEmpty', 'value is required');
+
+-- barcode at the end of the form + readonly
+CREATE TABLE tmp
+(SELECT sf1.id, MAX(sf2.display_column) AS display_column, MAX(sf2.display_order) AS display_order FROM structure_formats AS sf1 
+INNER JOIN structure_formats AS sf2 ON sf1.structure_id=sf2.structure_id
+WHERE sf1.structure_field_id IN (SELECT id FROM structure_fields WHERE field='barcode' AND model IN('AliquotMaster', 'AliquotMasterChildren', 'ViewAliquot'))
+GROUP BY sf1.structure_id);
+
+UPDATE structure_formats AS sf1 
+INNER JOIN tmp AS sf2 USING(id)
+SET sf1.display_column=sf2.display_column, sf1.display_order=sf2.display_order + 1, sf1.flag_add=0, sf1.flag_edit_readonly='1', sf1.flag_addgrid=0, sf1.flag_editgrid_readonly='1', sf1.flag_batchedit_readonly='1';
+
+DROP TABLE tmp;
+
+-- rename barcode to aliquot system code
+UPDATE structure_fields
+SET language_label='aliquot system code'
+WHERE field='barcode' AND model IN('AliquotMaster', 'AliquotMasterChildren', 'ViewAliquot');
+
+-- blood cell tube cloth
+ALTER TABLE ad_tubes
+ ADD COLUMN qc_ldov_cloth CHAR(1) DEFAULT 'u';
+ALTER TABLE ad_tubes_revs
+ ADD COLUMN qc_ldov_cloth CHAR(1) DEFAULT 'u';
+
+INSERT INTO structures(`alias`) VALUES ('qc_ldov_cloth');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'qc_ldov_cloth', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown') , '0', '', 'u', '', 'cloth', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_ldov_cloth'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_ldov_cloth' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='u' AND `language_help`='' AND `language_label`='cloth' AND `language_tag`=''), '1', '78', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO aliquot_controls (aliquot_type, aliquot_type_precision, form_alias, detail_tablename, volume_unit, comment, display_order, databrowser_label) VALUES
+('tube', 'cells', 'aliquot_masters,ad_der_cell_tubes_incl_ml_vol,qc_ldov_cloth', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml specific for cells', 0, 'tube');
+
+UPDATE sample_to_aliquot_controls SET aliquot_control_id=16 WHERE sample_control_id=7;
+
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_ldov_cloth' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='u' AND `language_help`='' AND `language_label`='cloth' AND `language_tag`=''), 'notEmpty', 'value is required');
+
+-- protein tube concentration 
+INSERT INTO structures(`alias`) VALUES ('qc_ldov_protein_tube');
+INSERT INTO structure_formats (structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, type, flag_override_setting, setting, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_summary, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail) 
+(SELECT (SELECT id FROM structures WHERE alias='qc_ldov_protein_tube'), structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, type, flag_override_setting, setting, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_summary, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol'));
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'concentration', 'float_positive',  NULL , '0', '', '', '', 'concentration', ''), 
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'concentration_unit', 'input',  NULL , '0', '', 'ul', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_ldov_protein_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='concentration' AND `language_tag`=''), '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_ldov_protein_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='ul' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '76', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '1', '1', '1', '0', '0', '0', '0', '1', '1', '1');
+UPDATE structure_formats SET `display_order`='77' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_ldov_protein_tube') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO aliquot_controls (aliquot_type, aliquot_type_precision, form_alias, detail_tablename, volume_unit, comment, display_order, databrowser_label) VALUES
+('tube', 'derivative tube (ml)', 'aliquot_masters,qc_ldov_protein_tube', 'ad_tubes', 'ml', 'Derivative tube requiring volume in ml + concentration in ul', 0, 'tube');
+
+UPDATE sample_to_aliquot_controls SET aliquot_control_id=17 WHERE sample_control_id=119;
+
+-- tissue concentration
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotMaster', 'ad_tubes', 'concentration', 'float_positive',  NULL , '0', '', '', '', 'concentration', ''), 
+('Inventorymanagement', 'AliquotMaster', 'ad_tubes', 'concentration_unit', 'input',  NULL , '0', '', 'ul', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='ad_tubes' AND `field`='concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='concentration' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='ul' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0', '0', '1', '1', '1');
+UPDATE structure_formats SET `display_order`='73' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- protein extraction method
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('qc ldov protein extraction method', 1, 20);
+
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+(8, "homogenization", "Homogenization", "Homogénéisation"),
+(8, "lysis buffer", "Lysis buffer", "Tampon de lyse");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('qc_ldov_protein_extraction_method', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('qc ldov protein extraction method')");
+
+ALTER TABLE sd_der_proteins
+ ADD COLUMN qc_ldov_extraction_method VARCHAR(20) NOT NULL DEFAULT '';
+ALTER TABLE sd_der_proteins_revs
+ ADD COLUMN qc_ldov_extraction_method VARCHAR(20) NOT NULL DEFAULT '';
+
+INSERT INTO structures(`alias`) VALUES ('qc_ldov_protein_extraction_method');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_proteins', 'qc_ldov_extraction_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_protein_extraction_method') , '0', '', '', '', 'extraction method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_ldov_protein_extraction_method'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_proteins' AND `field`='qc_ldov_extraction_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_protein_extraction_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='extraction method' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',qc_ldov_protein_extraction_method') WHERE id=119;
