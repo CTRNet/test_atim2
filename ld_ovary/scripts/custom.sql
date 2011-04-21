@@ -1,5 +1,6 @@
 INSERT INTO i18n (id, en, fr) VALUES
-('core_installname', 'Lady Davis - Ovary', 'Lady Davis - Ovaire');
+('core_installname', 'Lady Davis - Ovary', 'Lady Davis - Ovaire'),
+("sample system code", "Sample system code", "Code système d'échantillon");
 
 UPDATE users SET flag_active=1 WHERE id=1;
 
@@ -26,3 +27,111 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 (1, "Amber Yasmeen", "Amber Yasmeen", "Amber Yasmeen"),
 (1, "Eric Segal", "Eric Segal", "Eric Segal");
 
+
+-- sample_code at the end of every forms
+CREATE TABLE tmp
+(SELECT sf1.id, MAX(sf2.display_column) AS display_column, MAX(sf2.display_order) AS display_order FROM structure_formats AS sf1 
+INNER JOIN structure_formats AS sf2 ON sf1.structure_id=sf2.structure_id
+WHERE sf1.structure_field_id=(SELECT id FROM structure_fields WHERE field='sample_code')
+GROUP BY sf1.structure_id);
+
+UPDATE structure_formats AS sf1 
+INNER JOIN tmp AS sf2 USING(id)
+SET sf1.display_column=sf2.display_column, sf1.display_order=sf2.display_order + 1;
+
+DROP TABLE tmp;
+
+-- update sample code label to sample system code
+UPDATE structure_fields SET language_label='sample system code' WHERE field='sample_code'
+
+--Supplier departments
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+(4, "clinic", "Clinic", "Clinique"),
+(4, "surgery room", "Surgery room", "Salle de chirurgie"),
+(4, "radiology", "Radiology", "Radiologie"),
+(4, "pathology", "Pathology", "Pathologie");
+
+-- hiding lab book fields from samples/aliquots
+UPDATE structure_formats
+SET flag_add=0, flag_edit=0, flag_addgrid=0, flag_editgrid=0, flag_search=0, flag_index=0, flag_detail=0, flag_batchedit=0, flag_summary=0
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN('lab_book_master_code', 'lab_book_master_id', 'sync_with_lab_book', 'sync_with_lab_book_now'));
+
+-- blood types
+UPDATE structure_value_domains_permissible_values AS svdpv 
+LEFT JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id
+SET flag_active=0 
+WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='blood_type')
+ AND spv.language_alias NOT IN('EDTA', 'heparin');
+
+-- tissues source custom
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('qc ldov tissues sources', 1, 20);
+
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+(6, "ovary", "Ovary", "Ovaire"),
+(6, "peritoneum", "Peritoneum", "Péritoine"),
+(6, "fallopian tube", "Fallopian tube", "Trompes de Fallope"),
+(6, "vagina", "Vagina", "Vagin"),
+(6, "uterus", "Uterus", "Utérus"),
+(6, "omentum", "Omentum", "Omentum"),
+(6, "cervix", "Cervix", "Col de l'utérus"),
+(6, "lymph node", "Lymph node", "Ganglion lymphatique"),
+(6, "endometrium", "Endometrium", "Endometrium");
+
+UPDATE structure_value_domains 
+SET source="StructurePermissibleValuesCustom::getCustomDropdown('qc ldov tissues sources')"
+WHERE domain_name='tissue_source_list';
+
+-- tissue type
+ALTER TABLE sd_spe_tissues
+ ADD COLUMN qc_ldov_tissue_type VARCHAR(20) NOT NULL DEFAULT '';
+ALTER TABLE sd_spe_tissues_revs
+ ADD COLUMN qc_ldov_tissue_type VARCHAR(20) NOT NULL DEFAULT '';
+ 
+INSERT INTO structure_value_domains (domain_name, source) VALUES
+('qc_ldov_tissue_type', "StructurePermissibleValuesCustom::getCustomDropdown('qc ldov tissues types')");
+
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('qc ldov tissues types', 1, 20);
+
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+(7, 'tumor', 'Tumor', 'Tumeur'),
+(7, 'benin', 'Benin', 'Bénin'),
+(7, 'normal', 'Normal', 'Normal'),
+(7, 'other', 'Other', 'Autre'); 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_ldov_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_tissue_type') , '0', '', '', '', 'tissue type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_ldov_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue type' AND `language_tag`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0');
+
+-- tissue biopsy
+ALTER TABLE sd_spe_tissues
+ ADD COLUMN qc_ldov_biopsy CHAR(1) NOT NULL DEFAULT 'u';
+ALTER TABLE sd_spe_tissues_revs
+ ADD COLUMN qc_ldov_biopsy CHAR(1) NOT NULL DEFAULT 'u';
+ 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_ldov_yes_no_unknown', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("y", "yes");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_yes_no_unknown"),  (SELECT id FROM structure_permissible_values WHERE value="y" AND language_alias="yes"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("n", "no");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_yes_no_unknown"),  (SELECT id FROM structure_permissible_values WHERE value="n" AND language_alias="no"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("u", "unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_yes_no_unknown"),  (SELECT id FROM structure_permissible_values WHERE value="u" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_ldov_biopsy', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown') , '0', '', 'n', '', 'biopsy', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_ldov_biopsy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown')  AND `flag_confidential`='0' AND `setting`='' AND `default`='n' AND `language_help`='' AND `language_label`='biopsy' AND `language_tag`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_ldov_biopsy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown')), 'notEmpty', 'value is required');
+
+-- tissue size, weight, patho
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_size_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_weight_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ 
