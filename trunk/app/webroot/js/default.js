@@ -742,6 +742,11 @@ function uncheckAll( $div ) {
 		
 		//focus on first field
 		$("input, select, textarea").first().focus();
+		
+		//on login page, displays a warning if the server is more than ~2 min late compared to the client
+		if(window.serverClientTimeDiff && window.serverClientTimeDiff < -120){
+			$("#timeErr").show();
+		}
 	}
 
 	function debug(str){
