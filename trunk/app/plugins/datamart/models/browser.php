@@ -479,6 +479,8 @@ class Browser extends DatamartAppModel {
 							}else{
 								$info .= __("direct access", true)." - ".$search_datetime;
 							}
+						}else if($cell['BrowsingResult']['parent_node_id'] == 0){
+							$info .= __("from batchset", true)." - ".$search_datetime;
 						}else{
 							$info .= __("direct access", true)." - ".$search_datetime;
 						}

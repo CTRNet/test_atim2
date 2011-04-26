@@ -12,6 +12,11 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("dropdown_config_desc", 
  "To have the list ordered alphabetically with the displayed values, check the \"Alphabetcical ordering\" option. Otherwise, uncheck it and use the cursor to drag the lines in the order you want the options to be displayed.",
  "Pour que la liste soit ordinnée alphabétiquement par les valeurs affichées, cochez l'option \"Ordonnancement alphabétique\". Sinon, décochez la et utilisez le curseur pour déplacer les lignes dans l'ordre d'affichage que vous voulez."),
-("configure", "Configure", "Configurer");
+("configure", "Configure", "Configurer"),
+("server_client_time_discrepency", 
+ "There is a time discrapency between the server and your computer. Verify that your computer time and date are accurate. It they are, contact the administrator.",
+ "Il y a un écart entre l'heure et la date de votre serveur et de votre ordinateur. Vérifiez que votre heure et votre date sont correctement définis. S'ils le sont, contactez l'administrateur."),
+("initiate browsing", "Initiate browsing", "Initier la navigation"),
+("from batchset", "From batchset", "À partir d'un lot de données");
 
 DROP TABLE datamart_batch_processes;
