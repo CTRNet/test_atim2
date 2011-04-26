@@ -213,8 +213,17 @@ class BatchSetsController extends DatamartAppController {
 					$tmp,
 					$actions[0]['children']
 				);
-			}	
+			}
+
+			if($this->DatamartStructure->getIdByModelName($batch_set['BatchSet']['model']) != null){
+				$actions[] = array(
+					"value"		=> 0,
+					"default"	=> __("initiate browsing", true),
+					"action"	=> "datamart/browser/batchToDatabrowser/".$batch_set['BatchSet']['model']."/"
+				);
+			}
 		}
+		
 
 		$this->set('actions', $actions);
 		// parse LINKS field in ADHOCS list for links in CHECKLIST

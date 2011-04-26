@@ -536,4 +536,45 @@ class BrowserController extends DatamartAppController {
 		Configure::write('debug', 0);
 		$this->layout = false;
 	}
+	
+	/**
+	 * If the model is found, creates a batchset based based on it and displays the first node. The ids must be in
+	 * $this->data[$model][id]
+	 * @param String $model
+	 */
+	function batchToDatabrowser($model){
+		$ids = isset($this->data[$model]) && isset($this->data[$model]['id']) ? $this->data[$model]['id'] : array();
+		$ids = array_filter($ids);
+		if(empty($ids)){
+			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
+		}
+		
+		$dm_structure_id = $this->DatamartStructure->getIdByModelName($model);
+		if($dm_structure_id == null){
+			$this->redirect( '/pages/err_internal?p[]=model+not+found', NULL, TRUE );
+		}
+		
+		$save = array('BrowsingResult' => array(
+			"user_id" => $_SESSION['Auth']['User']['id'],
+			"parent_node_id" => 0,
+			"browsing_structures_id" => $dm_structure_id,
+			"browsing_structures_sub_id" => 0,
+			"id_csv" => implode(",", $ids),
+			"raw" => true
+		));
+		
+		$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
+		$node_id = null;
+		if(empty($tmp)){
+			$this->BrowsingResult->save($save);
+			$node_id = $this->BrowsingResult->id;
+			$this->BrowsingIndex->save(array("BrowsingIndex" => array('root_node_id' => $node_id)));
+		}else{
+			//current set already exists, use it
+			$node_id = $tmp['BrowsingResult']['id'];
+		}
+		
+		$this->data = array();
+		$this->browse($node_id);
+	}
 }
