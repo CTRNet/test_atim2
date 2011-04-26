@@ -531,7 +531,13 @@ class StructuresHelper extends Helper {
 									$table_row_part['format_back'] = $table_row_part['format'];
 									$table_row_part['format'] = preg_replace('/name="data\[((.)*)\]"/', 'name="data[$1'.$suffix.']"', $table_row_part['format']);
 								}
-								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
+								
+								if($table_row_part['type'] == 'textarea'){
+									$display[0] .= '<span>'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix);
+								}else{
+									$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
+								}
+								
 								if(strlen($suffix) > 0 && ($table_row_part['type'] == 'input'
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
