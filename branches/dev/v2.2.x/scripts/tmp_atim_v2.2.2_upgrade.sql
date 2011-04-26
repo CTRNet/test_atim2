@@ -20,9 +20,11 @@ INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALU
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="datetime_accuracy_indicator"),  (SELECT id FROM structure_permissible_values WHERE value="h" AND language_alias="datetime_accuracy_indicator_h"), "0", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="datetime_accuracy_indicator"),  (SELECT id FROM structure_permissible_values WHERE value="i" AND language_alias="datetime_accuracy_indicator_i"), "0", "1");
+
 INSERT INTO i18n (id, en, fr) VALUES
 ("datetime_accuracy_indicator_h", "h", "h"),
-("datetime_accuracy_indicator_i", "i", "i");
+("datetime_accuracy_indicator_i", "i", "i"),
+("you cannot delete yourself", "You cannot delete yourself", "Vous ne pouvez pas vous effacer vous-même");
 
 UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='date_accuracy')
 WHERE field IN('dob_date_accuracy', 'dod_date_accuracy', 'dx_date_accuracy', 'start_date_accuracy', 'finish_date_accuracy');
@@ -73,3 +75,8 @@ UPDATE structure_value_domains_permissible_values
 SET display_order=5 
 WHERE structure_value_domain_id IN (SELECT id FROM structure_value_domains WHERE domain_name IN('datetime_accuracy_indicator', 'date_accuracy'))
  AND structure_permissible_value_id=(SELECT id FROM structure_permissible_values WHERE value='y' AND language_alias='datetime_accuracy_indicator_y');
+
+ 
+ALTER TABLE users
+ ADD COLUMN deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+ ADD COLUMN deleted_date DATETIME DEFAULT NULL;
