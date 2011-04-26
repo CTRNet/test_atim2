@@ -552,9 +552,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($is_batch_process) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
 				}
 				
 			}else{
