@@ -64,5 +64,9 @@ class VersionsController extends AdministrateAppController {
 		}
 		exit;
 	}
+	
+	function latencyTest(){
+		
+	}
 }
 ?>
