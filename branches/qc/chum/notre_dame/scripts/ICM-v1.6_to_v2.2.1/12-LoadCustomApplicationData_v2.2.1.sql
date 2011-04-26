@@ -305,5 +305,8 @@ SET spec.supplier_dept = 'gynaecology/oncology clinic'
 WHERE samp.id = spec.sample_master_id AND samp.sample_type = 'ascite'
 AND spec.supplier_dept = 'family cancer center';
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("isopentane + OCT", "isopentane + oct");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="block_type"),  (SELECT id FROM structure_permissible_values WHERE value="isopentane + OCT" AND language_alias="isopentane + oct"), "4", "1");
+
 
 
