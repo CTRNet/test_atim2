@@ -80,3 +80,5 @@ WHERE structure_value_domain_id IN (SELECT id FROM structure_value_domains WHERE
 ALTER TABLE users
  ADD COLUMN deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
  ADD COLUMN deleted_date DATETIME DEFAULT NULL;
+ 
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
