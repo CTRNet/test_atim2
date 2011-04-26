@@ -51,6 +51,12 @@
 		$final_options_children['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
 		$final_options_children['override']= $created_aliquot_override_data;
 		$final_options_children['data'] = $data['children'];
+
+		// CUSTOM CODE
+		$hook_link = $structures->hook('loop');
+		if($hook_link){
+			require($hook_link); 
+		}
 		
 		$structures->build($in_stock_detail, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
