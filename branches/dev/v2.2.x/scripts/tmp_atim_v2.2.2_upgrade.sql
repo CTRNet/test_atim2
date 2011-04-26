@@ -82,3 +82,11 @@ ALTER TABLE users
  ADD COLUMN deleted_date DATETIME DEFAULT NULL;
  
 UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE orders SET processing_status = '' WHERE processing_status IS NULL;
+UPDATE orders_revs SET processing_status = '' WHERE processing_status IS NULL;
+
+ALTER TABLE orders
+ MODIFY COLUMN processing_status VARCHAR(45) NOT NULL DEFAULT '';
+ALTER TABLE orders_revs
+ MODIFY COLUMN processing_status VARCHAR(45) NOT NULL DEFAULT '';
