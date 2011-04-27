@@ -90,3 +90,20 @@ ALTER TABLE orders
  MODIFY COLUMN processing_status VARCHAR(45) NOT NULL DEFAULT '';
 ALTER TABLE orders_revs
  MODIFY COLUMN processing_status VARCHAR(45) NOT NULL DEFAULT '';
+
+-- fixing bad flags in structure_formats
+UPDATE structure_formats SET flag_add='0' WHERE flag_add='';
+UPDATE structure_formats SET flag_add_readonly='0' WHERE flag_add_readonly='';
+UPDATE structure_formats SET flag_edit='0' WHERE flag_edit='';
+UPDATE structure_formats SET flag_edit_readonly='0' WHERE flag_edit_readonly='';
+UPDATE structure_formats SET flag_search='0' WHERE flag_search='';
+UPDATE structure_formats SET flag_search_readonly='0' WHERE flag_add_readonly='';
+UPDATE structure_formats SET flag_addgrid='0' WHERE flag_addgrid='';
+UPDATE structure_formats SET flag_addgrid_readonly='0' WHERE flag_addgrid_readonly='';
+UPDATE structure_formats SET flag_editgrid='0' WHERE flag_editgrid='';
+UPDATE structure_formats SET flag_editgrid_readonly='0' WHERE flag_editgrid_readonly='';
+UPDATE structure_formats SET flag_summary='0' WHERE flag_summary='';
+UPDATE structure_formats SET flag_batchedit='0' WHERE flag_batchedit='';
+UPDATE structure_formats SET flag_batchedit_readonly='0' WHERE flag_batchedit_readonly='';
+UPDATE structure_formats SET flag_index='0' WHERE flag_index='';
+UPDATE structure_formats SET flag_detail='0' WHERE flag_detail='';
