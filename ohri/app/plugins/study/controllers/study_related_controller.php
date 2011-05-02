@@ -6,11 +6,14 @@ class StudyRelatedController extends StudyAppController {
 	var $paginate = array('StudyRelated'=>array('limit' => pagination_amount,'order'=>'StudyRelated.title'));
 	
 	function listall( $study_summary_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
     	// MANAGE DATA
     	$study_related_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_related_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$this->data = $this->paginate($this->StudyRelated, array('StudyRelated.study_summary_id'=>$study_summary_id));
 
@@ -26,13 +29,16 @@ class StudyRelatedController extends StudyAppController {
 	}
 
 	function detail( $study_summary_id, $study_related_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_related_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 
     	// MANAGE DATA
     	$study_related_data= $this->StudyRelated->find('first',array('conditions'=>array('StudyRelated.id'=>$study_related_id, 'StudyRelated.study_summary_id'=>$study_summary_id)));
-    	if(empty($study_related_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+    	if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
     	$this->data = $study_related_data;
 
     	// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -46,11 +52,14 @@ class StudyRelatedController extends StudyAppController {
 
 
 	function add( $study_summary_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
         // MANAGE DATA
         $study_related_data= $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id), 'recursive' => '-1'));
-        if(empty($study_related_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+        if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 	
 
         // MANAGE FORM, MENU AND ACTION BUTTONS
@@ -96,12 +105,15 @@ class StudyRelatedController extends StudyAppController {
 
 
 	function edit( $study_summary_id, $study_related_id ) {
-    	if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_related_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_related_data= $this->StudyRelated->find('first',array('conditions'=>array('StudyRelated.id'=>$study_related_id, 'StudyRelated.study_summary_id'=>$study_summary_id)));
-		if(empty($study_related_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -144,12 +156,15 @@ class StudyRelatedController extends StudyAppController {
 
   
 	function delete( $study_summary_id, $study_related_id ) {
-		if ( !$study_summary_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
-		if ( !$study_related_id ) { $this->redirect( '/pages/err_study_funct_param_missing', NULL, TRUE ); }
+pr('Has to be reviewed before to be used in prod.');
+$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+exit;
+		if ( !$study_summary_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if ( !$study_related_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
 		$study_related_data= $this->StudyRelated->find('first',array('conditions'=>array('StudyRelated.id'=>$study_related_id, 'StudyRelated.study_summary_id'=>$study_summary_id)));
-		if(empty($study_related_data)) { $this->redirect( '/pages/err_study_no_data', null, true ); }
+		if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$arr_allow_deletion = $this->allowStudyRelatedDeletion($study_related_id);
 

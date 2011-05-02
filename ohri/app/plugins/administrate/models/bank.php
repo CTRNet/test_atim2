@@ -8,13 +8,10 @@ class Bank extends AdministrateAppModel {
 			$result = $this->find('first', array('conditions'=>array('Bank.id'=>$variables['Bank.id'])));
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, $result['Bank']['name']),
-					'title'			=>	array( NULL, $result['Bank']['name']),
-					'description'	=>	array(
-						__('description', TRUE)		=>	__($result['Bank']['description'], TRUE)
-					)
-				)
+				'menu'			=>	array( NULL, $result['Bank']['name'] ),
+				'title'			=>	array( NULL, $result['Bank']['name'] ),
+				'data'			=> $result,
+				'structure alias'=>'banks'
 			);
 		}
 		return $return;
@@ -23,9 +20,6 @@ class Bank extends AdministrateAppModel {
  	/**
 	 * Get permissible values array gathering all existing banks.
 	 *
-	 * @return Array having following structure:
-	 * 	array ('value' => 'ProtocolControl.type', 'value' => (translated string describing bank))
-	 * 
 	 * @author N. Luc
 	 * @since 2010-05-26
 	 * @updated N. Luc
@@ -33,14 +27,13 @@ class Bank extends AdministrateAppModel {
 	function getBankPermissibleValues(){
 		$result = array();
 		foreach($this->find('all', array('order' => 'Bank.name ASC')) as $bank){
-			$result[] = array("value" => $bank["Bank"]["id"], "default" => $bank["Bank"]["name"]);
+			$result[$bank["Bank"]["id"]] = $bank["Bank"]["name"];
 		}
 		return $result;
 	}
 	
 	function isBeingUsed($bank_id){
-		App::import("Model", "Administrate.Group");
-		$this->Group = new Group();
+		$this->Group = AppModel::atimNew("Administrate", "Group", true);
 		$data = $this->Group->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
 		return !empty($data);
 	}

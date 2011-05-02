@@ -8,10 +8,12 @@
 	);
 	
 	$structure_override = array();
-	$structure_override['SampleMaster.parent_id'] = $parent_sample_data_for_display;
-				
+	$dropdown_options = array(
+		'SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''),
+		'DerivativeDetail.lab_book_master_id' => (isset($lab_books_list) && (!empty($lab_books_list)))? $lab_books_list: array('' => ''));
+	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links, 'override' => $structure_override);
+	$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -21,3 +23,6 @@
 	$structures->build( $final_atim_structure, $final_options );	
 	
 ?>
+<script>
+var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+</script>

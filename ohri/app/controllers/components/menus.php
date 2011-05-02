@@ -27,15 +27,15 @@ class MenusComponent extends Object {
 			$alias_with_params = $alias;
 			foreach ( $this->controller->params['pass'] as $param ) {
 				$alias_with_params .= '/'.$param;
-				$alias_calculated[]	= 'Menu.use_link LIKE "'.$alias_with_params.'%"';
+				$alias_calculated[]	= $alias_with_params.'%';
 			}
 			$alias_calculated = array_reverse($alias_calculated);
 			
-			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/detail%"';
-			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/profile%"';
-			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/listall%"';
-			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/index%"';
-			$alias_calculated[]	= 'Menu.use_link LIKE "/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%"';
+			$alias_calculated[]	= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/detail%';
+			$alias_calculated[]	= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/profile%';
+			$alias_calculated[]	= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/listall%';
+			$alias_calculated[]	= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/index%';
+			$alias_calculated[]	= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'%';
 			
 		}
 		
@@ -59,7 +59,10 @@ class MenusComponent extends Object {
 				$result = $this->Component_Menu->find(
 								'all', 
 								array(
-									'conditions'	=>	'(Menu.use_link="'.$alias.'" OR Menu.use_link="'.$alias.'/") AND Menu.flag_active="1"', 
+									'conditions'	=>	array(
+										"Menu.use_link" => array($alias, $alias.'/'),
+										"Menu.flag_active" => 1
+									), 
 									'recursive'		=>	3,
 									'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -71,7 +74,10 @@ class MenusComponent extends Object {
 					$result = $this->Component_Menu->find(
 									'all', 
 									array(
-										'conditions'	=>	'(Menu.use_link LIKE "'.$alias.'%") AND Menu.flag_active="1"', 
+										'conditions'	=>	array(
+											'Menu.use_link LIKE' => $alias.'%',
+											'Menu.flag_active' => 1
+										), 
 										'recursive'		=>	3,
 										'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -86,7 +92,10 @@ class MenusComponent extends Object {
 						$result = $this->Component_Menu->find(
 									'all', 
 									array(
-										'conditions'	=>	'('.$alias_calculated[$alias_count].') AND Menu.flag_active="1"', 
+										'conditions'	=>	array(
+											"Menu.use_link LIKE " => $alias_calculated[$alias_count],
+											"Menu.flag_active" => 1
+										), 
 										'recursive'		=>	3,
 										'order'			=> 'Menu.parent_id DESC, Menu.display_order ASC',
 										'limit'			=> 1
@@ -105,8 +114,12 @@ class MenusComponent extends Object {
 				
 				while ( $parent_id!==false ) {
 					
-					$current_level = $this->Component_Menu->find('all', array('conditions' => '(Menu.parent_id = "'.$parent_id.'") AND Menu.flag_active="1"', 'order'=>'Menu.parent_id DESC, Menu.display_order ASC'));
-					
+					$current_level = $this->Component_Menu->find('all', array('conditions' => array(
+							"Menu.parent_id" => $parent_id,
+							"Menu.flag_active" => 1
+						),
+						'order'=>'Menu.parent_id DESC, Menu.display_order ASC')
+					);
 					if ( $current_level && count($current_level) ) {
 						
 						foreach ( $current_level as &$current_item ) {
@@ -123,7 +136,7 @@ class MenusComponent extends Object {
 						
 						$menu[] = $current_level;
 						
-						$source_result = $this->Component_Menu->find('first', array('conditions' => 'Menu.id = "'.$parent_id.'"'));
+						$source_result = $this->Component_Menu->find('first', array('conditions' => array('Menu.id' => $parent_id)));
 						
 						$source_id = $source_result['Menu']['id'];
 						$parent_id = $source_result['Menu']['parent_id'];

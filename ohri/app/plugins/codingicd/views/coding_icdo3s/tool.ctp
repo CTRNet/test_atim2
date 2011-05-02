@@ -8,7 +8,7 @@ $this->Structures->build($atim_structure, array('type' => 'search', 'links' => a
 
 </div>
 <?php 
-$this->Structures->build($empty, array('settings' => array('top' => false)));
+$this->Structures->build($empty, array('type' => 'search', 'settings' => array('form_top' => false)));
 ?>
 </div>
 

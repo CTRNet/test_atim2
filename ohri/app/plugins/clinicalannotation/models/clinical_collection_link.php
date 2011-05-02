@@ -22,12 +22,8 @@ class ClinicalCollectionLink extends ClinicalAnnotationAppModel{
 			$result = $this->find('first', array('conditions'=>array('ClinicalCollectionLink.id'=>$variables['ClinicalCollectionLink.id'])));
 			
 			$return = array(
-				'Summary' => array(
-					'participant_id' => array(NULL, $result['ClinicalCollectionLinks']['participant_id']),
-					'collection_id'	=> array(NULL, $result['ClincicalCollectionLinks']['collection_id']),
-					'diagnosis_master_id'	=> array(NULL, $result['ClinicalCollectionLinks']['diagnosis_master_id']),
-					'consent_master_id'	=> array(NULL, $result['ClinicalCollectionLinks']['consent_master_id'])
-				)
+				'data'			=> $result,
+				'structure alias'=>'clinicalcollectionlinks'
 			);
 		}
 		

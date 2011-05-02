@@ -138,26 +138,26 @@ class ClassRegistry {
 				}
 
 				if (class_exists($class) || App::import($type, $pluginPath . $class)) {
-					${$class} =& new $class($settings);
 					
 					// ATiM2: load custom controller
 					$modelCustom = $class.'Custom';
 					if (class_exists($modelCustom)){
-							${$class} =& new $modelCustom($settings);
-				
-							// loop through all DEFAULT model's behaviours and properly reattach them to custom model...
-							foreach(${$class}->actsAs as $key => $data){
-								if ( is_array($data) ) {
-									$behavior = $key;
-									$config = $data;
-								} else {
-									$behavior = $data;
-									$config = null;
-								}
-								
-								${$class}->Behaviors->attach($behavior, $config);
-								${$class}->Behaviors->$behavior->setup(${$class},$config);
+						${$class} =& new $modelCustom($settings);
+						// loop through all DEFAULT model's behaviours and properly reattach them to custom model...
+						foreach(${$class}->actsAs as $key => $data){
+							if ( is_array($data) ) {
+								$behavior = $key;
+								$config = $data;
+							} else {
+								$behavior = $data;
+								$config = null;
 							}
+							
+							${$class}->Behaviors->attach($behavior, $config);
+							${$class}->Behaviors->$behavior->setup(${$class},$config);
+						}
+					}else{
+						${$class} =& new $class($settings);
 					}
 					
 				} elseif ($type === 'Model') {
