@@ -5,7 +5,7 @@ class ParticipantCustom extends Participant{
 	
 	function summary($variables=array()){
 		$result = parent::summary($variables);
-		$label = array(NULL, $result['data']['Participant']['id']." - ".$result['data']['Participant']['last_name'].", ".$result['data']['Participant']['first_name']);
+		$label = array(NULL, $result['data']['Participant']['participant_identifier']);
 		$result['menu'] = $label;
 		$result['title'] = $label;
 		return $result;
