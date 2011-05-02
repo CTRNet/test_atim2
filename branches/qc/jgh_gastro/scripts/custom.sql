@@ -173,8 +173,8 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT INTO structures(`alias`) VALUES ('qc_gastro_dx_other');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dx_other', 'qc_gastro_tissue_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') , '0', '', '', '', 'tissue source', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dx_other', 'qc_gastro_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_tissue_precision') , '0', '', '', '', '', 'precision');
+('Clinicalannotation', 'DiagnosisDetail', 'dxd_tissues', 'qc_gastro_tissue_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') , '0', '', '', '', 'tissue source', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'dxd_tissues', 'qc_gastro_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_tissue_precision') , '0', '', '', '', '', 'precision');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='help_dx identifier' AND `language_label`='diagnosis identifier' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete,tool=/codingicd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='help_primary code' AND `language_label`='primary disease code' AND `language_tag`=''), '2', '1', 'coding', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
@@ -205,8 +205,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1, maxlength=3' AND `default`='' AND `language_help`='help_path_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='dx_laterality' AND `language_label`='laterality' AND `language_tag`=''), '2', '99', 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dx_other' AND `field`='qc_gastro_tissue_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue source' AND `language_tag`=''), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dx_other' AND `field`='qc_gastro_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_tissue_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='qc_gastro_tissue_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue source' AND `language_tag`=''), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dx_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='qc_gastro_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_tissue_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 ALTER TABLE dxd_tissues 
  ADD COLUMN qc_gastro_tissue_source VARCHAR(50) NOT NULL DEFAULT '',
@@ -615,7 +615,7 @@ INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `form_alia
 UPDATE consent_controls SET flag_active = '0' WHERE id = 1;
 
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
-('qc_gastro tissue source list', 1, 20),
+('qc_gastro tissue source list', 1, 50),
 ('qc_gastro consent version', 1, 50);
 UPDATE structure_value_domains SET source="StructurePermissibleValuesCustom::getCustomDropdown('qc_gastro tissue source list')" WHERE domain_name='tissue_source_list';
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
@@ -728,9 +728,18 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_act
 
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
 
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/material/%' OR use_link LIKE '/sop/%' OR use_link LIKE '/labbook/%' ; 
 
+UPDATE menus SET flag_active = '0'
+WHERE `use_link` LIKE '/study/%' AND `use_link` NOT LIKE '/study/study_summaries%';
 
-
-
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field NOT IN ('title', 'summary') 
+AND str.alias = 'studysummaries'
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
 
 
