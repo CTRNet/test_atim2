@@ -30,20 +30,36 @@ class OrderLine extends OrderAppModel {
 				
 			$line_title = __($result['SampleControl']['sample_type'], true) . (empty($result['AliquotControl']['aliquot_type'])? '': ' '.__($result['AliquotControl']['aliquot_type'], true));			
 			$return = array(
-				'Summary' => array(
-					'menu'			=>	array('line', ':' . $line_title),
-					'title'			=>	array(null, __('order line', null). ' : '.$line_title),
-					'description'	=>	array(
-						__('sample type', true)		=>	__($result['SampleControl']['sample_type'], true),
-						__('aliquot type', true)=>	__($result['AliquotControl']['aliquot_type'], true),
-						__('product code', true)		=>  __($result['OrderLine']['product_code'], true),
-						__('status', true)			=>  __($result['OrderLine']['status'], true)
-					)
-				)
+				'menu'			=>	array('line', ':' . $line_title),
+				'title'			=>	array(null, __('order line', null). ' : '.$line_title),
+				'data'			=> $result,
+				'structure alias'=>'orderlines'
 			);
 		}
 		
 		return $return;
+	}
+	
+	
+	
+	function afterFind($results){
+		$results = parent::afterFind($results);
+		
+		if(isset($results['0']['OrderItem'])) {
+			foreach($results as &$new_order_line) {
+				$shipped_counter = 0;
+				$items_counter = 0;
+				foreach($new_order_line['OrderItem'] as $new_item) {
+					++ $items_counter;	
+					if($new_item['status'] == 'shipped'){
+						++ $shipped_counter; 
+					}
+				}
+				$new_order_line['Generated']['order_line_completion'] = empty($items_counter)? 'n/a': $shipped_counter.'/'.$items_counter;
+			}
+		}		
+
+		return $results;
 	}
 	
 }

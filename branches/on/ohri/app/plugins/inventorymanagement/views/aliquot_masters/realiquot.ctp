@@ -1,84 +1,68 @@
-<?php
-	$final_options = array('type'=>'radiolist', 'data'=>$diagnosis_data, 'settings'=>array('form_bottom'=>true, 'form_top'=>true, 'form_inputs'=>false, 'actions'=>true, 'pagination'=>false, 'header' => __('diagnosis', true), 'form_bottom' => false, 'actions' => false, 'separator' => true), 'links'=>$structure_links);
-
-	$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false),
-		'links' => array(
-			'top' => '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true')
+<?php 
+	$first = true;
+	$options = array(
+			"links"		=> array(
+				"top" => "/inventorymanagement/aliquot_masters/realiquot/".$aliquot_id,
+				'bottom' => array('cancel' => $url_to_cancel))
 	);
-	$structures->build($empty, $final_options);
 	
-	$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false,
-			'pagination' => false),
-		'type' => 'index'
-	);
-	$tabindex = 0;
-	foreach($aliquots as $aliquot){
-		$final_options['data'][] = $aliquot;
-		$final_structure = $aliquots_listall_structure;
-		$structures->build($final_structure, $final_options);
-		foreach($aliquot['RealiquotingControl'] as $key => $val){
-			$tabindex += 100;
-			$final_structure = ${$aliquot_controls[$key]};
-			$final_options['type'] = 'datagrid';
-			$final_options['settings']['add_fields'] = true;
-			$final_options['settings']['del_fields'] = true;
-			$final_options['settings']['name_prefix'] = "_".$aliquot['AliquotMaster']['id']."_".$key;
-			$final_options['settings']['tabindex'] = $tabindex;
-			$final_options['override'] = array("AliquotMaster.aliquot_type" => $val);
-			if($final_structure['Structure']['volume_unit']){
-				$final_options['override']['AliquotMaster.aliquot_volume_unit'] = $final_structure['Structure']['volume_unit']; 
-			}
-			unset($final_options['settings']['separator']);
-			unset($final_options['data']);
-			$final_options['data'] = array();
-			$none = true;
-			foreach($this->data as $data_unit){
-				if(isset($data_unit["_".$aliquot['AliquotMaster']['id']."_".$key])){
-					$final_options['data'][] = array();
-					$none = false;
-				}
-			}
-			if($none){
-				$final_options['data'][] = array();
-			}
-			$final_options['links']['top'] = '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true';
-			$structures->build($final_structure, $final_options);
-		}
-		$final_options = array(
-		'settings' => array(
-			'form_bottom' => false,
-			'actions' => false,
-			'pagination' => false,
-			'separator' => true),
-		'type' => 'index'
-		);
+	$options_parent = array_merge($options, array(
+		"type" => "edit",
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)
+	));
+	$options_children = array_merge($options, array(
+		"type" => "addgrid",
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
+	));
+
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link); 
 	}
-	unset($final_options['settings']['separator']);
-	$final_options = array(
-		'settings' => array(
-			'form_top' => false,
-			'form_bottom' => true,
-			'actions' => true
-		),
-		'links' => array(
-			'top' => '/inventorymanagement/aliquot_masters/realiquot/'.$batch_set_id.'/true'
-		)
-	);
-	$structures->build($empty, $final_options);
+
+	$counter = 0;
+	while($data = array_shift($this->data)){
+		$counter++;
+		$parent = $data['parent'];
+		$final_options_parent = $options_parent;
+		$final_options_children = $options_children;
+		if($first){
+			$final_options_parent['settings']['form_top'] = true;
+			$first = false;
+		}
+		if(count($this->data) == 0){
+			$final_options_children['settings']['form_bottom'] = true;
+			$final_options_children['settings']['actions'] = true;
+			$final_options_children['extras'] = 
+				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
+				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
+				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+				<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
+				<input type="hidden" name="data[Realiquoting][lab_book_master_code]" value="'.$lab_book_code.'"/>
+				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
+				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+		}
+		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
+		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
+		$final_options_parent['data'] = $parent;
+		
+		$final_options_children['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
+		$final_options_children['override']= $created_aliquot_override_data;
+		$final_options_children['data'] = $data['children'];
+		
+		$structures->build($in_stock_detail, $final_options_parent);
+		$structures->build($atim_structure, $final_options_children);
+	}
 ?>
 
-<div id="debug"></div>
 <script type="text/javascript">
 var copyStr = "<?php echo(__("copy", null)); ?>";
 var pasteStr = "<?php echo(__("paste")); ?>";
 var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
+var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>");
+var labBookHideOnLoad = true;
 </script>
-<div id="debug"></div>

@@ -80,12 +80,12 @@ class AppController extends Controller {
 //		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));
 		
 		if(sizeof(AppController::$missing_translations) > 0){
-			$query = "INSERT IGNORE INTO missing_translations VALUES ";
+			App::import("Model", "MissingTranslation");
+			$mt = new MissingTranslation();
 			foreach(AppController::$missing_translations as $missing_translation){
-				$query .= '("'.str_replace('"', '\\"', str_replace("\\", "\\\\", $missing_translation)).'"), ';
+				$mt->set(array("MissingTranslation" => array("id" => $missing_translation)));
+				$mt->save();//ignore errors, kind of insert ingnore
 			}
-			$query = substr($query, 0, strlen($query) -2);
-			$this->{$this->params["models"][0]}->query($query);
 		}
 	}
 	
@@ -142,12 +142,15 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
+		define('CONFIDENTIAL_MARKER', 'Confidential Data');
+		
 		// ATiM2 configuration variables from Datatable
 		
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
 		define('VALID_INTEGER_POSITIVE', '/^[+]?[\\s]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT', '/^[-+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
 		define('VALID_FLOAT_POSITIVE', '/^[+]?[\\s]?[0-9]*[,\\.]?[0-9]+[\\s]?$/');
+		define('VALID_24TIME', '/^([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/');
 		
 		//ripped from validation.php date + time
 		define('VALID_DATETIME_YMD', '%^(?:(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)(?:0?2\\1(?:29)))|(?:(?:(?:1[6-9]|2\\d)\\d{2})(-)(?:(?:(?:0?[13578]|1[02])\\2(?:31))|(?:(?:0?(1|[3-9])|1[0-2])\\2(29|30))|(?:(?:0?[1-9])|(?:1[0-2]))\\2(?:0?[1-9]|1\\d|2[0-8])))\s([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$%');
@@ -190,15 +193,27 @@ class AppController extends Controller {
 		
 		// get CONFIG for logged in user
 		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND user_id="'.$logged_in_user.'"'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				"user_id" => $logged_in_user
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
 		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND Config.group_id="'.$logged_in_group.'" AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				"Config.group_id" => $logged_in_group,
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
 		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=>'(bank_id="0" OR bank_id IS NULL) AND (group_id="0" OR group_id IS NULL) AND (user_id="0" OR user_id IS NULL)'));
+			$config_results = $config_data_model->find('first', array('conditions'=> array(
+				array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
+				array("OR" => array("group_id" => 0, "group_id IS NULL")),
+				array("OR" => array("user_id" => 0, "user_id IS NULL"))
+			)));
 		}
 		
 		// parse result, set configs/defines
@@ -277,19 +292,36 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		$divider = $nbsp_spaces ? "&nbsp;" : " ";
-		if(is_numeric($month)){
-			$month_str = AppController::getCalInfo($short_months);
-			$month = $month_str[(int)$month];
-		}
-		if(date_format == 'MDY') {
-			$result = $month.$divider.$day.$divider.$year;
-		}else if (date_format == 'YMD') {
-			$result = $year.$divider.$month.$divider.$day;
-		}else { // default of DATE_FORMAT=='DMY'
-			$result = $day.$divider.$month.$divider.$year;
+		if($year == 0 && $month == 0 && $day == 0){
+			$result = "";
+		}else{
+			$divider = $nbsp_spaces ? "&nbsp;" : " ";
+			if(is_numeric($month)){
+				$month_str = AppController::getCalInfo($short_months);
+				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
+			}
+			if(date_format == 'MDY') {
+				$result = $month.$divider.$day.$divider.$year;
+			}else if (date_format == 'YMD') {
+				$result = $year.$divider.$month.$divider.$day;
+			}else { // default of DATE_FORMAT=='DMY'
+				$result = $day.$divider.$month.$divider.$year;
+			}
 		}
 		return $result;
+	}
+	
+	static function getFormatedTimeString($hour, $minutes, $nbsp_spaces = true){
+		if(time_format == 12){
+			$meridiem = $hour >= 12 ? "PM" : "AM";
+			$hour %= 12;
+			if($hour == 0){
+				$hour = 12;
+			}
+			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+		}else{
+			return $hour.":".$minutes;
+		}
 	}
 	
 	/**
@@ -301,10 +333,11 @@ class AppController extends Controller {
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-			list($date, $time) = explode(" ", $datetime_string);
-			list($year, $month, $day) = explode("-", $date);
-			$formated_date = AppController::getFormatedDateString($year, $month, $day);
-			return $formated_date.($nbsp_spaces ? "&nbsp;" : "").$time;
+		list($date, $time) = explode(" ", $datetime_string);
+		list($year, $month, $day) = explode("-", $date);
+		list($hour, $minutes, ) = explode(":", $time);
+		$formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
+		return $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
@@ -420,12 +453,99 @@ class AppController extends Controller {
 		}
 		return $result;
 	}
+	
+	/**
+	 * Builds the value definition array for an updateAll call
+	 * @param array They data array to build the values with
+	 */
+	static function getUpdateAllValues(array $data){
+		$result = array();
+		foreach($data as $model => $fields){
+			foreach($fields as $name => $value){
+				if(is_array($value)){
+					if(strlen($value['year'])){
+						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
+					}
+				}else if(strlen($value)){
+					$result[$model.".".$name] = "'".$value."'";
+				}
+			}
+		}
+		return $result;
+	}
+	
+	/**
+	 * @desc cookie manipulation to counter cake problems. see eventum #1032
+	 */
+	static function atimSetCookie(){
+		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
+		}
+		return $session_delay;
+	}
+	
+	/**
+	 * @desc Global function to initialize a batch action. Redirect/flashes on error.
+	 * @param AppModek $model The model to work on
+	 * @param string $data_model_name The model name used in $this->data
+	 * @param string $data_key The data key name used in $this->data
+	 * @param string $control_key_name The name of the control field used in the model table
+	 * @param AppModel $possibilities_model The model to fetch the possibilities from
+	 * @param string $possibilities_parent_key The possibilities parent key to base the search on
+	 * @return An array with the ids and the possibilities
+	 */
+	function batchInit($model, $data_model_name, $data_key, $control_key_name, $possibilities_model, $possibilities_parent_key, $no_possibilities_msg){
+		if(empty($this->data)){
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else if(!is_array($this->data[$data_model_name][$data_key]) && strpos($this->data[$data_model_name][$data_key], ',')){
+			//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+			return array('error' => "batch init - number of submitted records too big");
+		}
+		//extract valid ids
+		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
+		$ids = $ids[0][0]['ids'];
+		if(empty($ids)){
+			return array('error' => "batch init no data");
+		}
+		
+		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
+		if(count($controls) != 1){
+			return array('error' => "you must select elements with a common type");
+		}
+		
+		$possibilities = $possibilities_model->find('all', array('conditions' => array($possibilities_parent_key => $controls[0][$model->name][$control_key_name], 'flag_active' => '1')));
+		
+		if(empty($possibilities)){
+			return array('error' => $no_possibilities_msg);
+		}
+		
+		return array('ids' => $ids, 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
+	}
+	
+	/**
+	 * Replaces the array key (generally of a find) with an inner value
+	 * @param array $in_array
+	 * @param string $model The model ($in_array[$model])
+	 * @param string $field The field (new key = $in_array[$model][$field])
+	 * @return array
+	 */
+	static function defineArrayKey($in_array, $model, $field){
+		$out_array = array();
+		foreach($in_array as $val){
+			if(isset($val[$model])){
+				$out_array[$val[$model][$field]][] = $val;
+			}else{
+				//the key cannot be foud
+				$out_array[-1][] = $val;
+			}
+		}
+		return $out_array;
+	}
 }
 
-
-	
 	AppController::init();
-		
+
 	function myErrorHandler($errno, $errstr, $errfile, $errline, $context = null){
 		if(class_exists("CakeLog")){
 			$CakeLog = CakeLog::getInstance();
@@ -457,5 +577,13 @@ class AppController extends Controller {
 				$controller->redirect('/pages/err_query?err_msg='.urlencode($errstr.$traceMsg));
 			}
 		}
+	}
+	
+	/**
+	 * Returns the date in a classic format (usefull for SQL)
+	 * @throws Exception
+	 */
+	function now(){
+		return date("Y-m-d H:i:s");	
 	}
 ?>

@@ -17,10 +17,6 @@
 	
 	if($is_tree_view_detail_form > 0){
 		// Detail form displayed in children storage tree view
-		// Add button to access all TMA slide data
-		$structure_links['bottom']['access to all data'] = array(
-			'link'=> '/storagelayout/tma_slides/detail/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
-			'icon' => 'access_to_data');
 		$settings = array('header' => __('tma slide', true));
 	}
 				

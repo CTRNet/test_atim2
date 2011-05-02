@@ -5,27 +5,43 @@ class StructureValueDomain extends AppModel {
 	var $name = 'StructureValueDomain';
 
 	var $hasMany = array(
-		'StructurePermissibleValue'	=> array(
-			'className'		=> 'StructurePermissibleValue',
-			'foreignKey'	=>	false,
-			'finderQuery'	=> '
-				SELECT 
-					StructurePermissibleValue.* 
-				FROM 
-					structure_value_domains,
-					structure_value_domains_permissible_values,
-					structure_permissible_values AS StructurePermissibleValue 
-				WHERE 
-					structure_value_domains.id={$__cakeID__$} 
-					AND structure_value_domains.id=structure_value_domains_permissible_values.structure_value_domain_id
-					AND structure_value_domains_permissible_values.flag_active="1"
-					AND structure_value_domains_permissible_values.structure_permissible_value_id=StructurePermissibleValue.id
-				ORDER BY
-					structure_value_domains_permissible_values.display_order ASC
-				'
+		'StructureValueDomainsPermissibleValue'	=> array(
+			'className'		=> 'StructureValueDomainsPermissibleValue',
+			'foreignKey'	=>	'structure_value_domain_id'
 		)
 	);
 	
+	function afterFind($results){
+		if(isset($results[0])){
+			foreach($results as &$sub_result){		
+				if(isset($sub_result['StructureValueDomainsPermissibleValue'])){
+					$old_result = $sub_result;
+					$svd = $old_result['StructureValueDomain'];
+					$sub_result = array(
+						"id"			=> $svd['id'],
+						"domain_name"	=> $svd['domain_name'],
+						"overrive"		=> $svd['override'],
+						"category"		=> $svd['category'],
+						"source"		=> $svd['source']
+					);
+					$permissible_values = array();
+					foreach($old_result['StructureValueDomainsPermissibleValue'] as $svdpv){
+						$permissible_values[] = array(
+							"id"				=> $svdpv['id'],
+							"value"				=> $svdpv['StructurePermissibleValue']['value'],
+							"language_alias"	=> $svdpv['StructurePermissibleValue']['language_alias'],
+							"display_order"		=> $svdpv['display_order']
+						);
+					}
+					$sub_result['StructurePermissibleValue'] = $permissible_values;
+				}else{
+					break;
+				}
+			}
+			$results['StructurePermissibleValue'] = $permissible_values;
+		}
+		return $results;
+	}
 }
 
 ?>

@@ -3,7 +3,7 @@
 		'bottom'=>array(
 			'edit'=>'/order/order_lines/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
 			'add order line item'=>'/order/order_items/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
-			'add shipment'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/',
+			'add shipment'=>array('link'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'),
 			'delete'=>'/order/order_lines/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id']
 		)
 	);

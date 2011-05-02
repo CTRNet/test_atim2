@@ -6,7 +6,7 @@ class PreferencesController extends AdministrateAppController {
 	var $uses = array('User', 'Config');
 	
 	function index($group_id, $user_id ) {
-		$this->Structures->set('preferences');
+		$this->Structures->set('preferences_lock,preferences');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		// get USER data
@@ -34,7 +34,7 @@ class PreferencesController extends AdministrateAppController {
 	}
 	
 	function edit($group_id, $user_id ) {
-		$this->Structures->set('preferences');
+		$this->Structures->set($_SESSION['Auth']['User']['id'] == $user_id ? 'preferences' : 'preferences_lock,preferences');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		$config_id = NULL;
@@ -68,12 +68,16 @@ class PreferencesController extends AdministrateAppController {
 			$this->data['Config']['bank_id'] = 0;
 			$this->data['Config']['group_id'] = 0;
 			$this->data['Config']['user_id'] = $user_id;
+
+			$this->User->set($this->data);
+			$this->Config->set($this->data);
 			
-			if ( $this->User->validates($this->data) && $this->Config->validates($this->data) ) {
-				$this->User->save($this->data);
-				$this->Config->save($this->data);
-				
-				$this->atimFlash( 'your data has been updated','/administrate/preferences/index/'.$bank_id.'/'.$group_id.'/'.$user_id );
+			if($this->User->validates() && $this->Config->validates()) {
+				if($this->User->save($this->data, false) && $this->Config->save($this->data, false)){
+					$this->atimFlash( 'your data has been updated','/administrate/preferences/index/'.$group_id.'/'.$user_id );
+				} else {
+					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+				}
 			}
 			
 		} else {
