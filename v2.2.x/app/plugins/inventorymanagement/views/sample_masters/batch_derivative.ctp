@@ -56,12 +56,14 @@
 		$final_options_children['data'] = $data['children'];
 		$final_options_children['dropdown_options']['SampleMaster.parent_id'] = array($parent['ViewSample']['sample_master_id'] => $parent['ViewSample']['sample_code']);
 		$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
-		$structures->build($sample_info, $final_options_parent);
-		$structures->build($atim_structure, $final_options_children);
-		
+
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
+		
+		$structures->build($sample_info, $final_options_parent);
+		$structures->build($atim_structure, $final_options_children);
+		
 	}
 ?>
 <script type="text/javascript">
