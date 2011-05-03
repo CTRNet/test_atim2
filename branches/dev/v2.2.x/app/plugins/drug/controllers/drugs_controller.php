@@ -137,7 +137,7 @@ class DrugsController extends DrugAppController {
 	 
 	function allowDrugDeletion($drug_id){
 		
-		$this->TreatmentExtend = new TreatmentExtend(false, 'txe_chemos');
+		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, 'txe_chemos');
 		$returned_nbr = $this->TreatmentExtend->find('count', array('conditions' => array('TreatmentExtend.drug_id' => $drug_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one participant chemotherapy'); }
 		
