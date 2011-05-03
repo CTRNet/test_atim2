@@ -1994,12 +1994,16 @@ TRUNCATE acos;
 TRUNCATE clinical_collection_links;
 TRUNCATE clinical_collection_links_revs;
 
+SET foreign_key_checks=0;
+
 TRUNCATE collections;
 TRUNCATE collections_revs;
 
 TRUNCATE participants;
 TRUNCATE participants_revs;
 TRUNCATE missing_translations;
+
+SET foreign_key_checks=1;
 
 INSERT INTO `specimen_review_controls` (`id`, `sample_control_id`, `aliquot_review_control_id`, `specimen_sample_type`, `review_type`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES
 (null, (SELECT id FROM sample_controls WHERE sample_type = 'tissue'), NULL, 'tissue', 'ohri - ovarian tissue', 1, 'spr_ohri_ovarian_tissues', 'spr_ohri_ovarian_tissues', 'tissue|ohri - ovarian tissue');
