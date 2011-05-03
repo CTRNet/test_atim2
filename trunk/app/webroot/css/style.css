@@ -623,13 +623,11 @@ div.menu.level_1 ul {
 	background: none;
 }
 div.menu.level_1 li {
-	min-width: 200px;
-	margin: 0;
-	padding: 6px 10px 6px 20px;
-	border: 0;
 	background: none;
-	color: #dde8f2;
+	margin: 0;
+	border: 0;
 	height: auto;
+	padding: 0;
 	border-top: 1px dotted #999;
 }
 div.menu.level_1 li.not_allowed {
@@ -644,7 +642,10 @@ div.menu.level_1 li a {
 
 	font-size: 11px;
 	line-height: 1.1em;
-	padding-left: 20px;
+	padding: 7px 10px 7px 30px;
+	display: inline-block;
+	min-width: 200px;
+	background: url("../img/icons/Folder Open_16x16.png") no-repeat 10px center;
 }
 div.menu.level_1 li:hover { 
 	background-color: #293B49; 
