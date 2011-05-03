@@ -79,7 +79,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}else{
-			$this->set("specimen_sample_controls_list", $this->SampleControl->find('all', array('conditions' => array('SampleControl.sample_category' => 'specimen'), 'recursive' => -1)));
+			$this->set("specimen_sample_controls_list", $this->SampleControl->getPermissibleSamplesArray(null));
 		}
 		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');

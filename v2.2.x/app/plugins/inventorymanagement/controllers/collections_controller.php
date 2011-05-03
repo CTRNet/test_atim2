@@ -81,21 +81,25 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
-		if(!$collection_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 		
 		$collection_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($collection_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		$this->data = $collection_data;
 		
 		// Set participant id
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
-		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id IS NULL', 'ParentToDerivativeSampleControl.flag_active' => true), 'fields' => array('DerivativeControl.*')));
+		$controls = $this->SampleControl->getPermissibleSamplesArray(null);
 		foreach($controls as $control){
-			$specimen_sample_controls_list[]['SampleControl'] = $control['DerivativeControl'];	
+			$specimen_sample_controls_list[] = $control;	
 		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
@@ -111,7 +115,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function add($clinical_collection_link_id = 0) {
