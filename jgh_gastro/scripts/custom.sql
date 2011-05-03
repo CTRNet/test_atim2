@@ -512,7 +512,7 @@ INSERT INTO structures(`alias`) VALUES ('qc_gastro_sd_rna');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', 'SampleDetail', 'sd_der_rnas', 'qc_gastro_micro_rna', 'checkbox',  NULL , '0', '', '', '', 'micro-rna', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_gastro_sd_rna'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qc_gastro_micro_rna' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='micro-rna' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='qc_gastro_sd_rna'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qc_gastro_micro_rna' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='micro-rna' AND `language_tag`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE sample_controls SET form_alias='sample_masters,sd_undetailed_derivatives,derivative_lab_book,qc_gastro_sd_rna' WHERE id=13;
 
@@ -526,7 +526,7 @@ INSERT INTO structures(`alias`) VALUES ('qc_gastro_sd_pbmc');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', 'SampleDetail', 'sd_der_pbmcs', 'qc_gastro_ficol', 'checkbox',  NULL , '0', '', '', '', 'ficol use', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_gastro_sd_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_gastro_ficol' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ficol use' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='qc_gastro_sd_pbmc'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_gastro_ficol' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ficol use' AND `language_tag`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE sample_controls SET form_alias='sample_masters,sd_undetailed_derivatives,derivative_lab_book,qc_gastro_sd_pbmc' WHERE id=8;
 
@@ -728,7 +728,7 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_act
 
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
 
-UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/material/%' OR use_link LIKE '/sop/%' OR use_link LIKE '/labbook/%' ; 
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/material/%' OR use_link LIKE '/sop/%' ; 
 
 UPDATE menus SET flag_active = '0'
 WHERE `use_link` LIKE '/study/%' AND `use_link` NOT LIKE '/study/study_summaries%';
@@ -741,5 +741,106 @@ sfo.flag_index = '0', sfo.flag_detail = '0'
 WHERE sfi.field NOT IN ('title', 'summary') 
 AND str.alias = 'studysummaries'
 AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(3);
+UPDATE sample_to_aliquot_controls SET flag_active=true WHERE id IN(7, 8);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(8);
+
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='marital_status' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='marital_status'));
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='title' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='person title'));
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='date_of_birth' AND type='date' AND structure_value_domain  IS NULL );
+
+ALTER TABLE collections
+ ADD COLUMN project VARCHAR(20) NOT NULL DEFAULT '' AFTER acquisition_label;
+ALTER TABLE collections_revs
+ ADD COLUMN project VARCHAR(20) NOT NULL DEFAULT '' AFTER acquisition_label;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'Collection', 'collections', 'project', 'project', '', 'input', 'size=10', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='project' AND `language_label`='project' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='project' AND `language_label`='project' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('project', 'Project', 'Projet');
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('acquisition_label', 'Col-Biobank ID', 'Col-Biobank ID');
+
+ALTER TABLE specimen_details
+ ADD COLUMN specimen_biobank_id VARCHAR(20) NOT NULL DEFAULT '' AFTER sample_master_id;
+ALTER TABLE specimen_details_revs
+ ADD COLUMN specimen_biobank_id VARCHAR(20) NOT NULL DEFAULT '' AFTER sample_master_id;
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'SpecimenDetail', 'specimen_details', 'specimen_biobank_id', 'specimen biobank id', '', 'input', 'size=10', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='specimen_biobank_id' AND `language_label`='specimen biobank id' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='specimen_biobank_id' AND `language_label`='specimen biobank id' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `language_message`) VALUES
+(NULL, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='project' ), 
+'between,0,10', 'value limited to 10 characters');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `language_message`) VALUES
+(NULL, (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='specimen_biobank_id' AND `language_label`='specimen biobank id' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), 
+'custom,/^[0-9][0-9][0-9][TNB]$/', 'the format expected is defined as follow : 000T, 000N, 000B');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('value limited to 10 characters', 'The value is limited to 10 characters.', 'La valeur est limitée à 10 caractères.'),
+('specimen biobank id', 'Spec-Biobank ID', 'Spec-Biobank ID'),
+('the format expected is defined as follow : 000T, 000N, 000B', 'The format expected is defined as follow : 000T, 000N, 000B.', 'Le format attendu est défini comme suit : 000T, 000N, 000B');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
+`flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0',  `flag_index`='0', 
+`flag_detail`='0' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='sop_master_id');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `field`='specimen_biobank_id' ), 'notEmpty', '', 'value is required');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
+`flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0',  `flag_index`='0', 
+`flag_detail`='0' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='sop_master_id');
+
+UPDATE structure_fields SET language_label = 'jgh gastro barcode' WHERE field = 'barcode' and model LIKE '%Aliquot%';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('jgh gastro barcode', 'Biobank ID', 'Biobank ID'),
+('jgh gastro barcode is required' , 'Biobank ID is required!' , 'Le ''Biobank ID'' est requis!');
+
+UPDATE structure_validations
+SET language_message = 'jgh gastro barcode is required' 
+WHERE language_message = 'barcode is required' 
+AND structure_field_id in (SELECT id FROM structure_fields WHERE field = 'barcode' and model LIKE '%Aliquot%');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('the barcode [%s] has already been recorded', 'The Biobank ID [%s] has already been recorded!', 'Le Biobank ID [%s] a déjà été enregistré!'),
+('you can not record barcode [%s] twice', 'You can not record Biobank ID [%s] twice!', 'Vous ne pouvez enregistrer le Biobank ID [%s] deux fois!');
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `storage_type_code`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES
+(null, 'box100', 'B100', 'position', 'integer', 100, NULL, NULL, NULL, 10, 10, 0, 0, 1, 'FALSE', 'FALSE', 1, 'std_undetail_stg_with_surr_tmp', 'std_boxs', 'box100');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('box100','Box100 1-100','Boîte100 1-100'),
+('qc gastro block cut thickness','Thickness','Épaisseur');
+
+UPDATE storage_controls SET flag_active = '0' WHERE is_tma_block = 'TRUE';
+
+UPDATE sample_controls SET form_alias=REPLACE(form_alias, ',derivative_lab_book', '') WHERE form_alias LIKE '%derivative_lab_book%';
+
+UPDATE lab_book_controls SET flag_active = '0' WHERE book_type != 'slide creation';
+
+ALTER TABLE lbd_slide_creations
+ ADD COLUMN qc_gastro_block_cut_thickness int(10) NULL AFTER sections_nbr;
+ALTER TABLE lbd_slide_creations_revs
+ ADD COLUMN qc_gastro_block_cut_thickness int(10) NULL AFTER sections_nbr;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Labbook', 'LabBookDetail', 'lbd_slide_creations', 'qc_gastro_block_cut_thickness', 'qc gastro block cut thickness', '', 'integer', 'size=3', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='lbd_slide_creations'), (SELECT id FROM structure_fields WHERE `model`='LabBookDetail' AND `tablename`='lbd_slide_creations' AND `field`='qc_gastro_block_cut_thickness' AND `language_label`='qc gastro block cut thickness' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 
