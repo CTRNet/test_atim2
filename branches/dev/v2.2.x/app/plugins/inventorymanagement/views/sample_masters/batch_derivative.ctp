@@ -20,7 +20,13 @@
 		'SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''),
 		'DerivativeDetail.lab_book_master_id' => (isset($lab_books_list) && (!empty($lab_books_list)))? $lab_books_list: array('' => ''));
 	
-		
+	$hook_link = $structures->hook();
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
+
+	$hook_link = $structures->hook('loop');
+	
 	$first = true;
 	$counter = 0;
 	while($data = array_shift($this->data)){
@@ -52,6 +58,10 @@
 		$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
 		$structures->build($sample_info, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
+		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 ?>
 <script type="text/javascript">
