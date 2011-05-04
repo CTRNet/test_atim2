@@ -647,6 +647,10 @@ div.menu.level_1 li a {
 	min-width: 200px;
 	background: url("../img/icons/Folder Open_16x16.png") no-repeat 10px center;
 }
+div.menu.level_1 li.not_allowed a.plugin.not_allowed{
+	background: url("../img/icons/Warning_16x16.png") no-repeat 10px center;
+}
+
 div.menu.level_1 li:hover { 
 	background-color: #293B49; 
 	color: #fff; 
