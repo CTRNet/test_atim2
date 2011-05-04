@@ -20,3 +20,49 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("from batchset", "From batchset", "À partir d'un lot de données");
 
 DROP TABLE datamart_batch_processes;
+
+-- Updating some ATiM core fields from checkbox to yes_no type
+UPDATE structure_fields SET type='yes_no' WHERE plugin='Inventorymanagement' AND model='SampleMaster' AND field='is_problematic';
+UPDATE structure_fields SET type='yes_no' WHERE plugin='Inventorymanagement' AND model='AliquotReviewMaster' AND field='basis_of_specimen_review';
+UPDATE structure_fields SET type='yes_no' WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND field='path_tnm_descriptor_m';
+UPDATE structure_fields SET type='yes_no' WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND field='path_tnm_descriptor_r';
+UPDATE structure_fields SET type='yes_no' WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND field='path_tnm_descriptor_y';
+
+ALTER TABLE sample_masters
+ MODIFY is_problematic CHAR(1) DEFAULT '';
+UPDATE sample_masters SET is_problematic='' WHERE is_problematic='0';
+UPDATE sample_masters SET is_problematic='y' WHERE is_problematic='1';
+ALTER TABLE sample_masters_revs
+ MODIFY is_problematic CHAR(1) DEFAULT '';
+UPDATE sample_masters_revs SET is_problematic='' WHERE is_problematic='0';
+UPDATE sample_masters_revs SET is_problematic='y' WHERE is_problematic='1';
+
+ALTER TABLE aliquot_review_masters
+ MODIFY basis_of_specimen_review CHAR(1) DEFAULT '';
+UPDATE aliquot_review_masters SET basis_of_specimen_review='' WHERE basis_of_specimen_review='0';  
+UPDATE aliquot_review_masters SET basis_of_specimen_review='y' WHERE basis_of_specimen_review='1';  
+ALTER TABLE aliquot_review_masters_revs
+ MODIFY basis_of_specimen_review CHAR(1) DEFAULT '';
+UPDATE aliquot_review_masters_revs SET basis_of_specimen_review='' WHERE basis_of_specimen_review='0';  
+UPDATE aliquot_review_masters_revs SET basis_of_specimen_review='y' WHERE basis_of_specimen_review='1';
+
+ALTER TABLE diagnosis_masters
+ MODIFY path_tnm_descriptor_m CHAR(1) DEFAULT '',
+ MODIFY path_tnm_descriptor_r CHAR(1) DEFAULT '',
+ MODIFY path_tnm_descriptor_y CHAR(1) DEFAULT '';
+UPDATE diagnosis_masters SET path_tnm_descriptor_m='' WHERE path_tnm_descriptor_m='0';
+UPDATE diagnosis_masters SET path_tnm_descriptor_m='y' WHERE path_tnm_descriptor_m='1';
+UPDATE diagnosis_masters SET path_tnm_descriptor_r='' WHERE path_tnm_descriptor_r='0';
+UPDATE diagnosis_masters SET path_tnm_descriptor_r='y' WHERE path_tnm_descriptor_r='1';
+UPDATE diagnosis_masters SET path_tnm_descriptor_y='' WHERE path_tnm_descriptor_y='0';
+UPDATE diagnosis_masters SET path_tnm_descriptor_y='y' WHERE path_tnm_descriptor_y='1';
+ALTER TABLE diagnosis_masters_revs
+ MODIFY path_tnm_descriptor_m CHAR(1) DEFAULT '',
+ MODIFY path_tnm_descriptor_r CHAR(1) DEFAULT '',
+ MODIFY path_tnm_descriptor_y CHAR(1) DEFAULT '';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_m='' WHERE path_tnm_descriptor_m='0';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_m='y' WHERE path_tnm_descriptor_m='1';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_r='' WHERE path_tnm_descriptor_r='0';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_r='y' WHERE path_tnm_descriptor_r='1';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='' WHERE path_tnm_descriptor_y='0';
+UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='y' WHERE path_tnm_descriptor_y='1';
