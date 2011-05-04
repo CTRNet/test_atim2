@@ -12,23 +12,24 @@ class ShellHelper extends Helper {
 		$menu_for_wrapper			= $menu_array[0];
 		
 		// get/set menu for header
-		
 		$menu_array					= $this->menu( $options['atim_menu_for_header'], array('variables'=>$options['atim_menu_variables']) );
 		
 		$user_for_header			= '';
 		$root_menu_for_header		= '';
-		$main_menu_for_header		= '';
 		
 		if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 			$logged_in = true;
-			
 			// set HEADER root menu links
 			if(isset($menu_array[1]) && count($menu_array[1])){
 				
 				$root_menu_for_header .= '<ul id="root_menu_for_header" class="header_menu">';
+				$online_wiki_str = __('online wiki', true);
+				$root_menu_for_header .= '
+					<li>
+						'.$this->Html->link( $online_wiki_str, "http://ctrnet.ca/mediawiki/index.php/", array("target" => "blank", "class" => "menu help", "title" => $online_wiki_str) ).'
+					</li>';
 				
 				foreach( $menu_array[1] as $key => $menu_item){
-					
 					$html_attributes = array();
 					$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 					$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
@@ -44,7 +45,7 @@ class ShellHelper extends Helper {
 						$root_menu_for_header .= '
 								<!-- '.$menu_item['Menu']['id'].' -->
 								<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-									'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
+									'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
 								</li>
 						';
 					}
@@ -59,7 +60,7 @@ class ShellHelper extends Helper {
 				foreach($menu_array[2] as $key => $menu_item){
 					$html_attributes = array();
 					$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-					$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
+					$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 					
 					if(!$menu_item['Menu']['allowed']){
 						$root_menu_for_header .= '
@@ -72,7 +73,7 @@ class ShellHelper extends Helper {
 						$root_menu_for_header .= '
 								<!-- '.$menu_item['Menu']['id'].' -->
 								<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
-									'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
+									'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
 								</li>
 						';
 					}
@@ -89,7 +90,6 @@ class ShellHelper extends Helper {
 				<h1>'.__('core_appname', true).'</h1>
 				<h2>'.__('core_installname', true).'</h2>
 				'.$root_menu_for_header.'
-				'.$main_menu_for_header.'
 			</div></div>
 			<!-- end #header -->
 			

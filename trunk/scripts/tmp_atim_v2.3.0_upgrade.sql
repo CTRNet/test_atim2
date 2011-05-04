@@ -66,3 +66,8 @@ UPDATE diagnosis_masters_revs SET path_tnm_descriptor_r='' WHERE path_tnm_descri
 UPDATE diagnosis_masters_revs SET path_tnm_descriptor_r='y' WHERE path_tnm_descriptor_r='1';
 UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='' WHERE path_tnm_descriptor_y='0';
 UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='y' WHERE path_tnm_descriptor_y='1';
+
+REPLACE INTO i18n(id, en, fr) VALUES
+('credits_title', 'Credits', 'Auteurs'),
+('online wiki', 'Online Wiki', "Wiki en ligne (en anglais)"),
+('core_customize', 'Customize', 'Personnaliser');
