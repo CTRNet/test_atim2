@@ -652,7 +652,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
-			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
+			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
 				&& count($table_row_part['settings']['options']) > 1){
 					//add the unmatched value if there is more than a value
@@ -675,6 +675,11 @@ class StructuresHelper extends Helper {
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
+			}else if($table_row_part['type'] == "yes_no"){
+				$display =
+					$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'hidden', 'value' => "")))
+					.__('yes', true).$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "y", 'hiddenField' => false, 'checked' => $current_value == "y" ? true : false)))
+					.__('no', true). $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "n", 'hiddenField' => false, 'checked' => $current_value == "n" ? true : false)));
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$current_value = str_replace('.', ',', $current_value);
 			}
@@ -693,7 +698,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time" && $elligible_as_date){
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
-			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"){
+			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"){
 				if(isset($table_row_part['settings']['options'][$current_value])){
 					$display = $table_row_part['settings']['options'][$current_value];
 				}else{
@@ -1378,7 +1383,7 @@ class StructuresHelper extends Helper {
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
-		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null);
+		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
@@ -1507,12 +1512,6 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "text"), $settings));
 						}
 						
-//						if(isset($settings['disabled']) && ($settings['disabled'] === true || $settings['disabled'] == "disabled")){
-//							unset($settings['disabled']);
-//							$current["format"] .= $this->Form->text($field_name, array("type" => "hidden", "id" => false, "value" => "%s"), $settings);
-//							$settings['disabled'] = "disabled";
-//						}
-						
 						$current['default'] = $sfs['default'];
 						$current['settings'] = $settings;
 					}
@@ -1584,6 +1583,9 @@ class StructuresHelper extends Helper {
 						}else if($sfs['type'] == "checkbox"){
 							//provide yes/no as default for checkboxes
 							$dropdown_result = array(0 => __("no", true), 1 => __("yes", true));
+						}else if($sfs['type'] == "yes_no"){
+							//provide yes/no/? as default for yes_no
+							$dropdown_result = array("" => "", "n" => __("no", true), "y" => __("yes", true));
 						}
 						
 						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
