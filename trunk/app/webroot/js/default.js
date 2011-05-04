@@ -355,7 +355,7 @@ function uncheckAll( $div ) {
 					$(this).parent().find("div").css("display", "none");
 				});
 			});
-			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
+			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"});
 		});	
 	}
 	
@@ -658,6 +658,22 @@ function uncheckAll( $div ) {
 		$("#default_popup input[type=text]").first().focus();
 	}
 	
+	function initCheckboxes(scope){
+		$(scope).find("input[type=checkbox]").each(function(){
+			if(!$(this).data("exclusive")){
+				var checkboxes = $(this).parent().find("input[type=checkbox]");
+				$(checkboxes).each(function(){
+					$(this).data("exclusive", true);
+				});
+				$(checkboxes).click(function(){
+					var checked = $(this).attr("checked"); 
+					$(checkboxes).attr("checked", false);
+					$(this).attr("checked", checked);
+				});
+			}
+		});
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -733,6 +749,8 @@ function uncheckAll( $div ) {
 		initAddLine(document);
 		initRemoveLine(document);
 		
+		initCheckboxes(document);
+		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
 				//access denied, most likely a session timeout
@@ -747,6 +765,7 @@ function uncheckAll( $div ) {
 		if(window.serverClientTimeDiff && window.serverClientTimeDiff < -120){
 			$("#timeErr").show();
 		}
+		
 	}
 
 	function debug(str){
