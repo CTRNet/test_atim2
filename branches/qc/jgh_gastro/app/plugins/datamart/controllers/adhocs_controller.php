@@ -29,6 +29,10 @@ class AdhocsController extends DatamartAppController {
 		} else if ( $type_of_list=='saved' ) {
 			$this->data = $this->paginate($this->AdhocSaved, array('AdhocSaved.user_id'=>$_SESSION['Auth']['User']['id']));
 		}
+		foreach($this->data as &$data_unit){
+			$data_unit['Adhoc']['title'] = __($data_unit['Adhoc']['title'], true);
+			$data_unit['Adhoc']['description'] = __($data_unit['Adhoc']['description'], true);
+		}
 	}
 	
 	// save IDs to Lookup, avoid duplicates

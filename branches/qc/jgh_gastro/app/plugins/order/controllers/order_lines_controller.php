@@ -19,8 +19,7 @@ class OrderLinesController extends OrderAppController {
 		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// Set data
-		$this->setDataForOrderLinesList($order_id);
-		$this->data = array();
+		$this->data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -137,20 +136,6 @@ class OrderLinesController extends OrderAppController {
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
 		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
-		// Add completion information
-		$shipped_counter = 0;
-		$items_counter = 0;
-		foreach($order_line_data['OrderItem'] as $new_item) {
-			++ $items_counter;
-			if($new_item['status'] == 'shipped'){
-				++ $shipped_counter;
-			}
-		 }
-		 
-		$completion = empty($order_line_data['OrderItem'])? 'n/a': $shipped_counter.'/'.$items_counter;
-		$order_line_data['Generated']['order_line_completion'] = $completion;
-
 		$this->data = $order_line_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
