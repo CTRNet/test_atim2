@@ -198,16 +198,10 @@ class ShellHelper extends Helper {
 			
 			<!-- start #footer -->
 			<div id="footer">
-				
-				<p>
-					<span>
-						'.$this->Html->link( html_entity_decode(__('core_footer_about', true), ENT_QUOTES, "UTF-8"), '/pages/about/' ).'
-						'.$this->Html->link( html_entity_decode(__('core_footer_installation', true), ENT_QUOTES, "UTF-8"), '/pages/installation/' ).'
-						'.$this->Html->link( html_entity_decode(__('core_footer_credits', true), ENT_QUOTES, "UTF-8"), '/pages/credits/' ).'
-					</span>
-						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( html_entity_decode(__('core_ctrnet', true), ENT_QUOTES, "UTF-8"), 'https://www.ctrnet.ca/' ).'
-				</p>
-				
+						'.$this->Html->link( __('core_footer_about', true), '/pages/about/' ).' | '
+						.$this->Html->link( __('core_footer_installation', true), '/pages/installation/' ).' | ' 
+						.$this->Html->link( __('core_footer_credits', true), '/pages/credits/' ).'<br/>
+						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'
 			</div>
 			<!-- end #footer -->
 			</fieldset>

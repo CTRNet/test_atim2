@@ -1278,23 +1278,16 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		
 div#footer {
 	margin: 20px 0 0 0;
-	padding: 1px 30px 100px 30px;
+	padding: 10px 30px 100px 30px;
 	border: 0;
 	background: #fff url(../img/footer_bk01.png) top left repeat-x;
 	font-size: 11px;
-	color: #9cb1c1;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	
-}
-
-div#footer span {
-	float: right;
+	color: #889;
+	text-align: center;
 }
 
 div#footer a {
-	color: #9cb1c1;
-	margin-left: 1em;
+	color: #889;
 	text-decoration: none;
 }
 div#footer a:hover {
