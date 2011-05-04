@@ -3,7 +3,7 @@ INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.
 
 DELETE FROM i18n WHERE id='Details' AND page_id='global';
 DELETE FROM i18n WHERE id='inv_collection_type_defintion' AND page_id='';
-DELETE FROM i18n WHERE id='may' AND page_id='';
+DELETE FROM i18n WHERE id='May' AND page_id='global';
 DELETE FROM i18n WHERE id='Next' AND page_id='global';
 DELETE FROM i18n WHERE id='Prev' AND page_id='global';
 DELETE FROM i18n WHERE id='received tissue weight' AND page_id='global';
