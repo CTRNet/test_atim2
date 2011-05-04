@@ -202,6 +202,18 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
+		if(Configure::read('debug') > 0){
+			$tmp = array();
+			if(isset($atim_structure['Structure'][0])){
+				foreach($atim_structure['Structure'] as $struct){
+					$tmp[] = $struct['alias'];
+				}
+			}else if(isset($atim_structure['Structure'])){
+				$tmp[] = $atim_structure['Structure']['alias'];
+			}
+			echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
+		}
+		
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
