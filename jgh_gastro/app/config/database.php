@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_gastro',
+		'password' => '',
+		'database' => 'jgh_gastro',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

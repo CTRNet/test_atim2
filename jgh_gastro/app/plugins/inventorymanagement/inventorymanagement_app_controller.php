@@ -85,53 +85,14 @@ class InventorymanagementAppController extends AppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
+	 * @deprecated use app model function
 	 */
 	 
 	function getSpentTime($start_date, $end_date){
-		$arr_spent_time 
-			= array(
-				'message' => null,
-				'days' => '0',
-				'hours' => '0',
-				'minutes' => '0');
-		
-		$empty_date = '0000-00-00 00:00:00';
-		
-		// Verfiy date is not empty
-		if(empty($start_date)||empty($end_date)
-		|| (strcmp($start_date, $empty_date) == 0)
-		|| (strcmp($end_date, $empty_date) == 0)){
-			// At least one date is missing to continue
-			$arr_spent_time['message'] = 'missing date';	
-		} else {
-			$start = $this->getTimeStamp($start_date);
-			$end = $this->getTimeStamp($end_date);
-			$spent_time = $end - $start;
-			
-			if(($start === false)||($end === false)){
-				// Error in the date
-				$arr_spent_time['message'] = 'error: unable to define date';
-			} else if($spent_time < 0){
-				// Error in the date
-				$arr_spent_time['message'] = 'error in the date definitions';
-			} else if($spent_time == 0){
-				// Nothing to change to $arr_spent_time
-				$arr_spent_time['message'] = '0';
-			} else {
-				// Return spend time
-				$arr_spent_time['days'] = floor($spent_time / 86400);
-				$diff_spent_time = $spent_time % 86400;
-				$arr_spent_time['hours'] = floor($diff_spent_time / 3600);
-				$diff_spent_time = $diff_spent_time % 3600;
-				$arr_spent_time['minutes'] = floor($diff_spent_time / 60);
-				if($arr_spent_time['minutes']<10) {
-					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
-				}
-			}
-			
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (getSpentTime) [file:".__FILE__." - line".__LINE__."]");
 		}
-		
-		return $arr_spent_time;
+		return AppModel::getSpentTime($start_date, $end_date);;
 	}
 
 	/**
@@ -145,42 +106,36 @@ class InventorymanagementAppController extends AppController {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
+	 * @deprecated use app model function
 	 */
 	 
 	function getTimeStamp($date_string){
-		list($date, $time) = explode(' ', $date_string);
-		list($year, $month, $day) = explode('-', $date);
-		list($hour, $minute, $second) = explode(':',$time);
-
-		return mktime($hour, $minute, $second, $month, $day, $year);
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (getTimeStamp) [file:".__FILE__." - line".__LINE__."]");
+		}
+		return AppModel::getTimeStamp($date_string);
 	}	
 	
+	/**
+	 * @deprecated use app model function
+	 */
+	
 	function manageSpentTimeDataDisplay($spent_time_data) {
-		$spent_time_msg = '';
-		if(!empty($spent_time_data)) {	
-			if(!is_null($spent_time_data['message'])) {
-				if($spent_time_data['message'] == '0') {
-					$spent_time_msg = $spent_time_data['message'];
-				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
-					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
-				} else {
-					$spent_time_msg = __($spent_time_data['message'], TRUE);
-				}
-			} else {
-				$spent_time_msg = $this->translateDateValueAndUnit($spent_time_data, 'days') 
-								.$this->translateDateValueAndUnit($spent_time_data, 'hours') 
-								.$this->translateDateValueAndUnit($spent_time_data, 'minutes');
-			} 	
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (getTimeStamp) [file:".__FILE__." - line".__LINE__."]");
 		}
-		
-		return $spent_time_msg;
+		return AppModel::manageSpentTimeDataDisplay($spent_time_data);
 	}
 	
+	/**
+	 * @deprecated use app model function
+	 */
+	
 	function translateDateValueAndUnit($spent_time_data, $time_unit) {
-		if(array_key_exists($time_unit, $spent_time_data)) {
-			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
-		} 
-		return  '#err#';
+		if(Configure::read('debug') == 2){
+			echo("WARNING: USAGE OF A DEPRECATED FUNCTION (translateDateValueAndUnit) [file:".__FILE__." - line".__LINE__."]");
+		}
+		return AppModel::translateDateValueAndUnit($spent_time_data, $time_unit);
 	}
 }
 
