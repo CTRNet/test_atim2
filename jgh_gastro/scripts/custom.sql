@@ -53,21 +53,6 @@ INSERT INTO misc_identifier_controls(misc_identifier_name, misc_identifier_name_
 ("régime d'assurance maladie du québec", 'RAMQ', 1, 4, '', '', 1),
 ("hospital number", "hospital #", 1, 4, '', '', 1);
 
-DROP VIEW view_collections;
-CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` 
-AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` 
-AS `consent_master_id`,`identifier`.`identifier_value` AS `participant_identifier`,`col`.`acquisition_label` 
-AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` 
-AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` 
-AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`, `banks`.`name` 
-AS `bank_name`,`col`.`created` AS `created` 
-FROM (((`collections` `col` 
-LEFT JOIN `clinical_collection_links` `link` ON(((`col`.`id` = `link`.`collection_id`) AND (`link`.`deleted` <> 1)))) 
-LEFT JOIN `participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
-LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1)))) 
-LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id=4
-WHERE (`col`.`deleted` <> 1); 
-
 REPLACE INTO i18n (id, en, fr) VALUES
 ('acquisition label is required', 'The Biobank ID is required!','Le ''Biobank ID'' est requis!'),
 ('acquisition_label', 'Biobank ID', 'Biobank ID'),
@@ -697,14 +682,14 @@ UPDATE tx_controls SET extend_tablename = null,	extend_form_alias = null WHERE t
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewCollection' AND tablename='' AND field='collection_site' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site'));
 UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewCollection' AND tablename='' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list'));
 
-UPDATE USERS SET flag_active = 1 WHERE username = 'administrator';
+UPDATE users SET flag_active = 1 WHERE username = 'administrator';
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='collection_site' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site'));
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list'));
 
 UPDATE `banks` SET `name` = 'LD-Gastro' WHERE `banks`.`id` = 1;
 
-DROP VIEW view_collections;
+DROP VIEW IF EXISTS view_collections;
 CREATE VIEW `view_collections` AS SELECT `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,
 `link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,
 `part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,
@@ -860,7 +845,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='15', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='participant_identifier' AND type='input' AND structure_value_domain  IS NULL );
 UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewSample' AND tablename='' AND field='participant_ramq' AND type='input' AND structure_value_domain  IS NULL );
 
-DROP VIEW view_samples;
+DROP VIEW IF EXISTS view_samples;
 CREATE VIEW view_samples AS 
 SELECT 
 samp.id AS sample_master_id,
@@ -900,7 +885,7 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.identifier_name='RAMQ'
 WHERE samp.deleted != 1;
 
-DROP VIEW view_aliquots;
+DROP VIEW IF EXISTS view_aliquots;
 CREATE VIEW view_aliquots AS 
 SELECT 
 al.id AS aliquot_master_id,
