@@ -17,7 +17,13 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "There is a time discrapency between the server and your computer. Verify that your computer time and date are accurate. It they are, contact the administrator.",
  "Il y a un écart entre l'heure et la date de votre serveur et de votre ordinateur. Vérifiez que votre heure et votre date sont correctement définis. S'ils le sont, contactez l'administrateur."),
 ("initiate browsing", "Initiate browsing", "Initier la navigation"),
-("from batchset", "From batchset", "À partir d'un lot de données");
+("from batchset", "From batchset", "À partir d'un lot de données"),
+('credits_title', 'Credits', 'Auteurs'),
+('online wiki', 'Online Wiki', "Wiki en ligne (en anglais)"),
+('core_customize', 'Customize', 'Personnaliser'),
+("passwords minimal length", 
+ "Passwords must have a minimal length of 6 characters", 
+ "Les mots de passe doivent avoir une longueur minimale de 6 caractères");
 
 DROP TABLE datamart_batch_processes;
 
@@ -67,7 +73,7 @@ UPDATE diagnosis_masters_revs SET path_tnm_descriptor_r='y' WHERE path_tnm_descr
 UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='' WHERE path_tnm_descriptor_y='0';
 UPDATE diagnosis_masters_revs SET path_tnm_descriptor_y='y' WHERE path_tnm_descriptor_y='1';
 
-REPLACE INTO i18n(id, en, fr) VALUES
-('credits_title', 'Credits', 'Auteurs'),
-('online wiki', 'Online Wiki', "Wiki en ligne (en anglais)"),
-('core_customize', 'Customize', 'Personnaliser');
+-- password minimal length
+INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
+((SELECT id FROM structure_fields WHERE model='User' AND field='password'), 'minLength,6', '', 'password must have a minimal length of 6 characters'),
+((SELECT id FROM structure_fields WHERE model='User' AND field='password'), 'notEmpty', '', 'password is required');
