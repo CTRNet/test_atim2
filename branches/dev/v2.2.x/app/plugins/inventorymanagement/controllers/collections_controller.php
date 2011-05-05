@@ -80,7 +80,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $is_from_tree_view = 0) {
+		// $is_from_tree_view : 0-Normal, 1-Tree view
+		
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
@@ -109,8 +111,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->Structures->set('view_collection');
 
 		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		$this->set('is_from_tree_view', $is_from_tree_view);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
