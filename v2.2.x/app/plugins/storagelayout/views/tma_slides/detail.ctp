@@ -1,25 +1,30 @@
 <?php
 	
-	// Set links
+	// Set links and settings
 	$structure_links = array();
 	$settings = array();
 	
-	if($is_tree_view_detail_form < 2){
-		$structure_links = array(
-			'bottom' => array(
-				'edit' => '/storagelayout/tma_slides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
-				'delete' => '/storagelayout/tma_slides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id']
-			)
-		);
-		// General detail form display
-		$structure_links['bottom']['list'] = '/storagelayout/tma_slides/listAll/' . $atim_menu_variables['StorageMaster.id'];
-	}else{
-		$structure_links['bottom']['access to all data'] = '/storagelayout/tma_slides/detail/'. $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];
-	}
+	//Basic
+	$structure_links = array(
+		'bottom' => array(
+			'edit' => '/storagelayout/tma_slides/edit/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
+			'delete' => '/storagelayout/tma_slides/delete/' . $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'],
+			'list' => '/storagelayout/tma_slides/listAll/' . $atim_menu_variables['StorageMaster.id']
+		)
+	);		
 	
-	if($is_tree_view_detail_form > 0){
-		// Detail form displayed in children storage tree view
+	//Clean up based on form type 
+	if($is_from_tree_view_or_layout == 1) {
+		// Tree view
+		unset($structure_links['bottom']['list']);
 		$settings = array('header' => __('tma slide', true));
+	
+	} else if($is_from_tree_view_or_layout == 2) {
+		// Storage Layout
+		$structure_links = array();
+		$structure_links['bottom']['access to all data'] = '/storagelayout/tma_slides/detail/'. $atim_menu_variables['StorageMaster.id'] . '/' . $atim_menu_variables['TmaSlide.id'];
+		$settings = array('header' => __('tma slide', true));
+		
 	}
 				
 	$form_override = array();
