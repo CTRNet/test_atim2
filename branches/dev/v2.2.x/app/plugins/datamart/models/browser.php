@@ -805,13 +805,13 @@ class Browser extends DatamartAppModel {
 	 * subset. Updates $browsing[BrowsingResult][id_csv].
 	 * @param array $browsing The currently seeked node (Example: SampleMaster)
 	 * @param array $data The current data set
-	 * @param string $model_field The children model (Example: AliquotMaster)
+	 * @param string $model_name The children model (Example: AliquotMaster)
 	 * @param string $id_field The children id field (Example: id)
 	 */
-	public function applyFilterOnParent(array &$browsing, array $data, $model_field, $id_field){
+	public function applyFilterOnParent(array &$browsing, array $data, $model_name, $id_field){
 		$filter_ids = array();
 		foreach($data as $data_unit){
-			$filter_ids[] = $data_unit[$model_name][$id_fields];
+			$filter_ids[] = $data_unit[$model_name][$id_field];
 		}
 		$filter_ids = array_unique($filter_ids);
 		$org_filter_ids = explode(",", $browsing['BrowsingResult']['id_csv']);
