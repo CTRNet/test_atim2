@@ -62,6 +62,30 @@ class OrderLine extends OrderAppModel {
 		return $results;
 	}
 	
+	/**
+	 * Check if an order line can be deleted.
+	 *
+	 * @param $order_line_id Id of the studied order line.
+	 *
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 *
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	function allowDeletion($order_line_id){
+		// Check no order item exists
+		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
+		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'item exists for the deleted order line'); 
+		}
+
+		return array('allow_deletion' => true, 'msg' => '');
+	}	
+	
+	
 }
 
 ?>

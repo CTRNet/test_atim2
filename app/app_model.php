@@ -572,6 +572,17 @@ class AppModel extends Model {
 		}
 		return $data;
 	}
+	
+	/**
+	 * Generic function made to be overriden in model/custom models.
+	 * @param int $id The db id of the element to allow the deletion of
+	 * @return array with two keys, one being allow_detion, a boolean telling
+	 * whether the element can be deleted or not and the second one being msg,
+	 * a string that telles why, if relevant, the element cannot be deleted.
+	 */
+	function allowDeletion($id){
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>

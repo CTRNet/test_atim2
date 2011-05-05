@@ -111,7 +111,7 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 		$participant_contact_data = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id, 'ParticipantContact.participant_id'=>$participant_id), 'recursive' => '-1'));		
 		if(empty($participant_contact_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowParticipantContactDeletion($participant_contact_id);
+		$arr_allow_deletion = $this->ParticipantContact->allowDeletion($participant_contact_id);
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atim_delete( $participant_contact_id ) ) {
@@ -124,29 +124,6 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id);
 		}
 	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $participant_contact_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */	
-	 
-	function allowParticipantContactDeletion( $participant_contact_id ) {
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
 }
 
 ?>

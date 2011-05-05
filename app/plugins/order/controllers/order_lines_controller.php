@@ -159,7 +159,7 @@ class OrderLinesController extends OrderAppController {
 		}
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowOrderLineDeletion($order_line_id);
+		$arr_allow_deletion = $this->OrderLine->allowDeletion($order_line_id);
 		
 		$hook_link = $this->hook('delete');
 		if($hook_link){
@@ -176,32 +176,6 @@ class OrderLinesController extends OrderAppController {
 			$this->flash($arr_allow_deletion['msg'], '/order/order_lines/detail/' . $order_id . '/' . $order_line_id);
 		}
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if an order line can be deleted.
-	 *
-	 * @param $order_line_id Id of the studied order line.
-	 *
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 *
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-
-	function allowOrderLineDeletion($order_line_id){
-		// Check no order item exists
-		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'item exists for the deleted order line'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
-	
 }
 
 ?>

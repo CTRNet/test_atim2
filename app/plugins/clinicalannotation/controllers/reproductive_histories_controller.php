@@ -132,30 +132,6 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id);	
 		}
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $family_history_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowReproductiveHistoryDeletion($reproductive_history_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
 }
 
 ?>
