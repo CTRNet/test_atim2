@@ -167,7 +167,7 @@ exit;
 		$study_funding_data= $this->StudyFunding->find('first',array('conditions'=>array('StudyFunding.id'=>$study_funding_id, 'StudyFunding.study_summary_id'=>$study_summary_id)));
 		if(empty($study_funding_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowStudyFundingDeletion($study_funding_id);
+		$arr_allow_deletion = $this->StudyFunding->allowDeletion($study_funding_id);
 
 
 		// CUSTOM CODE
@@ -187,33 +187,6 @@ exit;
 					$this->flash($arr_allow_deletion['msg'], '/study/study_fundings/detail/'.$study_summary_id.'/'.$study_fundings_id);
 			}
 	}
-
-
-
-/* --------------------------------------------------------------------------
-* ADDITIONAL FUNCTIONS
-* -------------------------------------------------------------------------- */
-
-/**
- * Check if a record can be deleted.
- *
- * @param $family_history_id Id of the studied record.
- *
- * @return Return results as array:
- * 	['allow_deletion'] = true/false
- * 	['msg'] = message to display when previous field equals false
- *
- * @author N. Luc
- * @since 2007-10-16
- */
-
-	function allowStudyFundingDeletion($study_funding_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-
 }
 
 ?>

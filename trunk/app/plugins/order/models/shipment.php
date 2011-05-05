@@ -43,6 +43,47 @@ class Shipment extends OrderAppModel
 		
 		return $result;
 	}
+	
+	/**
+	 * Check if a shipment can be deleted.
+	 * 
+	 * @param $shipment_id Id of the studied shipment.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowDeletion($shipment_id){
+		// Check no item is linked to this shipment
+		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
+		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.shipment_id' => $shipment_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'order item exists for the deleted shipment'); 
+		}
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Check if an item can be removed from a shipment.
+	 *
+	 * @param $order_item_id  Id of the studied item.
+	 * @param $shipment_id Id of the studied shipemnt.
+	 *
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 *
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	function allowItemRemoveFromShipment($order_item_id, $shipment_id){
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>

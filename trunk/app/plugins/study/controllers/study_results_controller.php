@@ -166,7 +166,7 @@ exit;
 		$study_results_data= $this->StudyResult->find('first',array('conditions'=>array('StudyResult.id'=>$study_results_id, 'StudyResult.study_summary_id'=>$study_summary_id)));
 		if(empty($study_results_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowStudyResultDeletion($study_results_id);
+		$arr_allow_deletion = $this->allowDeletion($study_results_id);
 
 
 		// CUSTOM CODE
@@ -185,32 +185,6 @@ exit;
 			}else {
 					$this->flash($arr_allow_deletion['msg'], '/study/study_results/detail/'.$study_summary_id.'/'.$study_results_id);
 			}
-	}
-
-		
-
-/* --------------------------------------------------------------------------
-* ADDITIONAL FUNCTIONS
-* -------------------------------------------------------------------------- */
-
-/**
- * Check if a record can be deleted.
- *
- * @param $family_history_id Id of the studied record.
- *
- * @return Return results as array:
- * 	['allow_deletion'] = true/false
- * 	['msg'] = message to display when previous field equals false
- *
- * @author N. Luc
- * @since 2007-10-16
- */
-
-	function allowStudyResultDeletion($study_results_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

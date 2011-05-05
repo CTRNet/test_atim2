@@ -147,7 +147,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $participant_data;
 
-		$arr_allow_deletion = $this->allowParticipantDeletion($participant_id);
+		$arr_allow_deletion = $this->Participant->allowDeletion($participant_id);
 		
 		// CUSTOM CODE	
 		$hook_link = $this->hook('delete');
@@ -164,89 +164,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		}
 	}
 
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $participant_id ID of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowParticipantDeletion( $participant_id ) {
-		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
-		
-		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_linked_collection > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_collection';
-		}
-		
-		$nbr_consents = $this->ConsentMaster->find('count', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_consents > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_consent';
-		}
-		
-		$nbr_diagnosis = $this->DiagnosisMaster->find('count', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_diagnosis > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_diagnosis';
-		}
-
-		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_treatment > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_treatment';
-		}	
-		
-		$nbr_familyhistory = $this->FamilyHistory->find('count', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_familyhistory > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_familyhistory';
-		}			
-
-		$nbr_reproductive = $this->ReproductiveHistory->find('count', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_reproductive > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_reproductive';
-		}			
-
-		$nbr_contacts = $this->ParticipantContact->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_contacts > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';
-		}
-
-		$nbr_identifiers = $this->MiscIdentifier->find('count', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_identifiers > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_identifiers';
-		}
-
-		$nbr_messages = $this->ParticipantMessage->find('count', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_messages > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_messages';
-		}			
-
-		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_events > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_events';
-		}
-		return $arr_allow_deletion;
-	}
-	
 	function chronology($participant_id){
 		$tmpArray = array();
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );

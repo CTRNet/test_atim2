@@ -90,7 +90,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				
 				// Record additional qc data
 				$qc_data_to_update = array();
-				$qc_data_to_update['QualityCtrl']['qc_code'] = $this->createQcCode($qc_id, $this->data, $sample_data);
+				$qc_data_to_update['QualityCtrl']['qc_code'] = $this->QualityCtrl->createCode($qc_id, $this->data, $sample_data);
 				
 				$this->QualityCtrl->id = $qc_id;					
 				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
@@ -190,7 +190,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowQcDeletion($quality_ctrl_id);
+		$arr_allow_deletion = $this->QualityCtrl->allowDeletion($quality_ctrl_id);
 			
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
@@ -407,50 +407,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}
 		
-	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Check if a quality control can be deleted.
-	 * 
-	 * @param $quality_ctrl_id Id of the studied quality control.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowQcDeletion($quality_ctrl_id){
-		// Check no aliquot has been linked to qc	
-		$returned_nbr = $this->QualityCtrlTestedAliquot->find('count', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot has been linked to the deleted qc'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Create code of a new quality control. 
-	 * 
-	 * @param $qc_id ID of the studied quality control.
-	 * @param $qc_data Data of the quality control.
-	 * @param $sample_data Data of the sample linked to this quality control.
-	 * 
-	 * @return The new code.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-01-31
-	 */
-	 
-	function createQcCode($qc_id, $storage_data, $qc_data = null, $sample_data = null) {
-		$qc_code = 'QC - ' . $qc_id;
-		
-		return $qc_code;
 	}
 }
 ?>

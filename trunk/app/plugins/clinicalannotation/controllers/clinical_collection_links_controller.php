@@ -210,7 +210,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
-		$arr_allow_deletion = $this->allowClinicalCollectionLinkDeletion($clinical_collection_link_id);
+		$arr_allow_deletion = $this->allowDeletion($clinical_collection_link_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -236,20 +236,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id);
 		}
-	}
-	
-	/**
-	 * Define if a collection could be separated from the participant.
-	 * 
-	 * @param $clinical_collection_link_id Id of the link
-	 * 
-	 * @author N. Luc
-	 * @since 2008-03-04
-	 */
-	 
-	function allowClinicalCollectionLinkDeletion($clinical_collection_link_id){
-		//empty function to allow easy customization
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

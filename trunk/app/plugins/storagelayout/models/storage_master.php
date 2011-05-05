@@ -408,6 +408,309 @@ class StorageMaster extends StoragelayoutAppModel {
 		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
 	}
 	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param array $children_array
+	 * @param unknown_type $type_key
+	 * @param unknown_type $label_key
+	 */
+	function getLabel(array $children_array, $type_key, $label_key){
+		return $children_array[$type_key][$label_key];
+	}
+	
+	function allowDeletion($storage_master_id) {	
+		// Check storage contains no chlidren storage
+		$nbr_children_storages = $this->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
+		if($nbr_children_storages > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'children storage exists within the deleted storage'); 
+		}
+		
+		// Check storage contains no aliquots
+		$aliquot_master_model = AppModel::atimNew("Inventorymangement", "AliquotMaster", true);
+		$nbr_storage_aliquots = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		if($nbr_storage_aliquots > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted storage'); 
+		}
+
+		// Check storage is not a block attached to tma slide
+		$tma_slide_model = 	AppModel::atimNew("Storagelayout", "TmaSlide", true);
+		$nbr_tma_slides = $tma_slide_model->find('count', array('conditions' => array('TmaSlide.tma_block_storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		if($nbr_tma_slides > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'slide exists for the deleted tma'); 
+		}
+		
+		// verify storage is not attached to tma slide
+		$nbr_children_storages = $tma_slide_model->find('count', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+		if($nbr_children_storages > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'slide exists within the deleted storage'); 
+		}
+					
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	function manageTemperature(&$storage_data) {
+		// storage temperature	
+		if((strcmp($storage_data['StorageMaster']['set_temperature'], 'FALSE') == 0)) {
+			if(!empty($storage_data['StorageMaster']['parent_id'])) {
+				$parent_storage_data = $this->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id']), 'recursive' => '-1'));
+				if(empty($parent_storage_data)) { 
+					AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				
+				// Define storage surrounding temperature based on selected parent temperature
+				$storage_data['StorageMaster']['temperature'] = $parent_storage_data['StorageMaster']['temperature'];
+				$storage_data['StorageMaster']['temp_unit'] = $parent_storage_data['StorageMaster']['temp_unit'];				
+			} else {
+				$storage_data['StorageMaster']['temperature'] = null;
+				$storage_data['StorageMaster']['temp_unit'] = null;					
+			}
+		}
+	}
+	
+	/**
+	 * Get the selection label of a storage.
+	 *
+	 * @param $storage_data Storage data including storage master, storage control, etc.
+	 * 
+	 * @return The new storage selection label.
+	 * 
+	 * @author N. Luc
+	 * @since 2009-09-13
+	 */
+	function getSelectionLabel($storage_data) {
+		if(empty($storage_data['StorageMaster']['parent_id'])) {
+			// No parent exists: Selection Label equals short label
+			return $storage_data['StorageMaster']['short_label'];
+		
+		}
+		
+		// Set selection label according to the parent selection label		
+		$parent_storage_data = $this->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id']), 'recursive' => '-1'));
+		if(empty($parent_storage_data)) { 
+			AppController::getInstance()->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
+		
+		return ($this->createSelectionLabel($storage_data, $parent_storage_data));
+	}
+	
+	/**
+	 * Create the selection label of a storage.
+	 *
+	 * @param $storage_data Storage data including storage master, storage control, etc.
+	 * @param $storage_data Parent storage data including storage master, storage control, etc.
+	 * 
+	 * @return The created selection label.
+	 * 
+	 * @author N. Luc
+	 * @since 2009-09-13
+	 */
+	function createSelectionLabel($storage_data, $parent_storage_data) {
+		if(!array_key_exists('selection_label', $parent_storage_data['StorageMaster'])) { 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
+		
+		if(!array_key_exists('short_label', $storage_data['StorageMaster'])) { 
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
+		
+		return ($parent_storage_data['StorageMaster']['selection_label'] . '-' . $storage_data['StorageMaster']['short_label']);
+	}
+	
+		/**
+	 * Manage the selection label of the children storages of a specific parent storage.
+	 *
+	 * @param $parent_storage_id ID of the parent storage that should be studied
+	 * to update the selection labels of its children storages.
+	 * @param $parent_storage_data Parent storage data.
+	 * 
+	 * @author N. Luc
+	 * @since 2008-01-31
+	 * @updated A. Suggitt
+	 */
+	function updateChildrenStorageSelectionLabel($parent_storage_id, $parent_storage_data){
+		$arr_studied_parents_data = array($parent_storage_id => $parent_storage_data);
+		
+		while(!empty($arr_studied_parents_data)) {
+			// Search 'direct' children to update
+			$conditions = array();
+			$conditions['StorageMaster.parent_id'] = array_keys($arr_studied_parents_data);
+	
+			$children_storage_to_update = $this->find('all', array('conditions' => $conditions, 'recursive' => '-1'));	
+			$new_arr_studied_parents_data = array();
+			foreach($children_storage_to_update as $new_children_to_update) {
+				// New children to update
+				$studied_children_id = $new_children_to_update['StorageMaster']['id'];
+				$parent_storage_data = $arr_studied_parents_data[$new_children_to_update['StorageMaster']['parent_id']];
+				
+				$storage_data_to_update = array();
+				$storage_data_to_update['StorageMaster']['selection_label'] = $this->createSelectionLabel($new_children_to_update, $parent_storage_data);
+	
+				$this->id = $studied_children_id;					
+				if(!$this->save($storage_data_to_update, false)) { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}		
+	
+				// Re-populate the list of parent storages to study
+				$new_children_to_update['StorageMaster']['selection_label'] = $storage_data_to_update['StorageMaster']['selection_label'];
+				$new_arr_studied_parents_data[$studied_children_id] = $new_children_to_update;
+			}
+			
+			$arr_studied_parents_data = $new_arr_studied_parents_data;			
+		}
+
+		return;		
+	}
+
+	/**
+	 * Create code of a new storage. 
+	 * 
+	 * @param $storage_master_id Storage master id of the studied storage.
+	 * @param $storage_data Storage data including storage master, storage control, etc.
+	 * @param $storage_control_data Control data of the studied storage.
+	 * 
+	 * @return The new code.
+	 * 
+	 * @author N. Luc
+	 * @since 2008-01-31
+	 * @updated A. Suggitt
+	 */
+	function createCode($storage_master_id, $storage_data, $storage_control_data) {
+		$storage_code = $storage_control_data['StorageControl']['storage_type_code'] . ' - ' . $storage_master_id;
+		
+		return $storage_code;
+	}
+	
+	/**
+	 * Update the surrounding temperature and unit of children storages.
+	 * 
+	 * Note: only children storages having temperature or unit different than the parent will
+	 * be updated.
+	 * 
+	 * @param $parent_storage_master_id Id of the parent storage. 
+	 * @param $parent_temperature Parent storage temperature.
+	 * @param $parent_temp_unit Parent storage temperature unit.
+	 *
+	 * @author N. Luc
+	 * @since 2007-05-22
+	 * @updated A. Suggitt
+	 */
+	 
+	function updateChildrenSurroundingTemperature($parent_storage_master_id, $parent_temperature, $parent_temp_unit) {	
+		$studied_parent_storage_ids = array($parent_storage_master_id => $parent_storage_master_id);
+		
+		while(!empty($studied_parent_storage_ids)) {
+			// Search 'direct' children to update
+			$conditions = array();
+			$conditions['StorageMaster.parent_id'] = $studied_parent_storage_ids;
+			$conditions['StorageMaster.set_temperature'] = 'FALSE';
+			$conditions['OR'] = array();
+			
+			if(empty($parent_temperature) && (!is_numeric($parent_temperature))) {
+				$conditions['OR'][] = "StorageMaster.temperature IS NOT NULL";
+			} else {
+				$conditions['OR'][] = "StorageMaster.temperature IS NULL";				
+				$conditions['OR'][] = "StorageMaster.temperature != '$parent_temperature'";				
+			}
+			
+			if(empty($parent_temp_unit)) {
+				$conditions['OR'][] = "StorageMaster.temp_unit IS NOT NULL";
+				$conditions['OR'][] = "StorageMaster.temp_unit != ''";
+			} else {
+				$conditions['OR'][] = "StorageMaster.temp_unit IS NULL";				
+				$conditions['OR'][] = "StorageMaster.temp_unit != '$parent_temp_unit'";				
+			}
+
+			$studied_parent_storage_ids = array();
+			
+			$children_storage_to_update = $this->find('all', array('conditions' => $conditions, 'recursive' => '-1'));	
+			
+			foreach($children_storage_to_update as $new_children_to_update) {
+				// New children to update
+				$studied_children_id = $new_children_to_update['StorageMaster']['id'];
+				
+				$storage_data_to_update = array();
+				$storage_data_to_update['StorageMaster']['temperature'] = $parent_temperature;
+				$storage_data_to_update['StorageMaster']['temp_unit'] = $parent_temp_unit;
+	
+				$this->id = $studied_children_id;					
+				if(!$this->save($storage_data_to_update, false)) { 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}		
+	
+				// Re-populate the list of parent storages to study
+				$studied_parent_storage_ids[$studied_children_id] = $studied_children_id;
+			}
+		}
+
+		return;
+	}
+	
+	/**
+	 * Parses the data_array and updates it with the rcv_data array. Saves the modifications into the database and
+	 * cleans it of the no longer related data. 
+	 * @param data_array The data read from the database
+	 * @param type The current type we are seeking
+	 * @param x_key The name of the key for the x coordinate
+	 * @param y_key The name of the key for the y coordinate
+	 * @param $storage_parent_key The name of the key of the parent storage id
+	 * @param rcv_data The data received from the user
+	 * @param UpdaterObject The object to use to update the data
+	 */
+	function updateAndSaveDataArray(&$data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $UpdaterObject, $storage_control){
+		for($i = sizeof($data_array) - 1; $i >= 0; -- $i){
+			if(isset($rcv_data[$type]) && isset($rcv_data[$type][$data_array[$i][$type]['id']])){
+				$trash = false;
+				//this is is a cell
+				if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 't'){
+					//trash
+					$data_array[$i][$type][$x_key] = null;
+					$data_array[$i][$type][$y_key] = null;
+					$data_array[$i][$type][$storage_parent_key] = null;
+					
+					if($type == "StorageMaster") {
+						// Set new selection label 
+						$data_array[$i][$type]['selection_label'] = $this->getSelectionLabel($data_array[$i]);	
+						
+						// Set new temperature
+						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+							$data_array[$i][$type]['temperature'] = null;
+							$data_array[$i][$type]['temp_unit'] = null;
+						}
+					}
+					
+					$trash = true;
+
+				}else if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 'u'){
+					//unclassified
+					$data_array[$i][$type][$x_key] = null;
+					$data_array[$i][$type][$y_key] = null;
+				}else{
+					//positioned
+					$data_array[$i][$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['x']); 
+					$data_array[$i][$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['y']);
+				}
+				//clean the array asap to gain efficiency
+				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
+				$UpdaterObject->save($data_array[$i], false);
+				
+				if($trash){
+					if($type == "StorageMaster") {
+						$this->updateChildrenStorageSelectionLabel($data_array[$i][$type]['id'], $data_array[$i]);
+						
+						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+							$this->updateChildrenSurroundingTemperature($data_array[$i][$type]['id'], null, null);
+						}
+					}
+					
+					unset($data_array[$i]);
+				}
+			}
+		}
+		// Re-index
+		$data_array = array_values($data_array);
+		
+	}
 }
 
 ?>

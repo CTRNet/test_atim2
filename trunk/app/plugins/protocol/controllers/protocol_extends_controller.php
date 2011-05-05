@@ -155,7 +155,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
 		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
-		$arr_allow_deletion = $this->allowProtocolExtendDeletion($protocol_extend_id);
+		$arr_allow_deletion = $this->ProtocolExtend->allowDeletion($protocol_extend_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -172,29 +172,6 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 		
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $protocol_extend_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2010-04-18
-	 */
-	 
-	function allowProtocolExtendDeletion($protocol_extend_id){		
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
-	
-	
 }
 
 ?>
