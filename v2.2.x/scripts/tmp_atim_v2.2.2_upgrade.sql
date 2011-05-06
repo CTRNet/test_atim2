@@ -24,7 +24,7 @@ INSERT INTO i18n (id, en, fr) VALUES
 ("datetime_accuracy_indicator_h", "h", "h"),
 ("datetime_accuracy_indicator_i", "i", "i"),
 ("you cannot delete yourself", "You cannot delete yourself", "Vous ne pouvez pas vous effacer vous-même");
-
+ 
 UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='date_accuracy')
 WHERE field IN('dob_date_accuracy', 'dod_date_accuracy', 'dx_date_accuracy', 'start_date_accuracy', 'finish_date_accuracy');
 
@@ -106,3 +106,10 @@ UPDATE structure_formats SET flag_batchedit='0' WHERE flag_batchedit='';
 UPDATE structure_formats SET flag_batchedit_readonly='0' WHERE flag_batchedit_readonly='';
 UPDATE structure_formats SET flag_index='0' WHERE flag_index='';
 UPDATE structure_formats SET flag_detail='0' WHERE flag_detail='';
+
+-- deleting certainti_of_age value domain
+UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') WHERE structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='certainty_of_age');
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='certainty_of_age');
+DELETE FROM structure_value_domains WHERE domain_name='certainty_of_age';
+
+UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='date_accuracy') WHERE field='lnmp_accuracy' AND model='ReproductiveHistory';
