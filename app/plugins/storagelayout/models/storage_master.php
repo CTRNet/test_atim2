@@ -709,7 +709,24 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 		// Re-index
 		$data_array = array_values($data_array);
+	}
+	
+	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list, $link, $icon_name = "detail"){
+		$children_array['DisplayData']['id'] = $children_array[$type_key]['id'];
+		$children_array['DisplayData']['y'] = strlen($children_array[$type_key][$y_key]) > 0 ? $children_array[$type_key][$y_key] : 1; 
+		if($coordinate_list == null){
+			$children_array['DisplayData']['x'] = $children_array[$type_key][$x_key];
+		}else if(isset($coordinate_list[$children_array[$type_key][$x_key]])){
+			$children_array['DisplayData']['x'] = $coordinate_list[$children_array[$type_key][$x_key]]['StorageCoordinate']['id'];
+			$children_array['DisplayData']['y'] = 1;
+		}else{
+			$children_array['DisplayData']['x'] = "";
+		}
 		
+		$children_array['DisplayData']['label'] = $this->getLabel($children_array, $type_key, $label_key);
+		$children_array['DisplayData']['type'] = $type_key;
+		$children_array['DisplayData']['link'] = $link;
+		$children_array['DisplayData']['icon_name'] = $icon_name;
 	}
 }
 
