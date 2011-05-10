@@ -18,7 +18,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Codingicd.CodingIcdo3Topo'
 	);
 	
-	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
+	var $paginate = array('ClinicalCollectionLink'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }

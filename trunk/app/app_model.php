@@ -362,7 +362,7 @@ class AppModel extends Model {
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
-		if(!App::import('Model', $import_name)){
+		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
 			if($error_view_on_null){
 				$app = AppController::getInstance();
 				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
@@ -375,6 +375,19 @@ class AppModel extends Model {
 		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
 		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
 		return $loaded_class;
+	}
+	
+	/**
+	 * Use this function to instantiate extend models. It loads it based on the 
+	 * table_name and and configures the shadow model
+	 * @param class $class The class to instantiate
+	 * @param string $table_name The table to use
+	 * @return The instantiated class
+	 */
+	static function atimInstantiateExtend($class, $table_name){
+		$extend = new $class(false, $table_name);
+		$extend->Behaviors->Revision->setup($extend);//activate shadow model
+		return $extend;
 	}
 	
 	/**

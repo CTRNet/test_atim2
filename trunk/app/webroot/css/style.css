@@ -1261,7 +1261,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		div#validation li, ul.error li, ul.warning li {
+		ul.error li, ul.warning li, ul.confirm li {
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; 
 			border-radius: 5px; 
@@ -1272,7 +1272,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			background-color: #933;
 		}
 	
-		div#validation ul.confirm li {
+		ul.confirm li {
 			background-color: #393;
 		}
 		
@@ -1922,7 +1922,13 @@ small{
 }
 
 .labBook{
-	display: none;	
+	display: none;
+}
+div.pasteDisabled{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/icons/Paste_Disabled_16x16.png) no-repeat left top;	
 }
 
 tbody.disabled{

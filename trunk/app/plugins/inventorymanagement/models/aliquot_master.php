@@ -65,8 +65,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$storage_data[]['custom'] = array(
 					'date' => $current['am']['modified'], 
 					'event' => __('new storage', true)." "
-						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label']." ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
-						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label']." ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
+						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label'].", ".__('position', true).": (".$previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y']."), ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
+						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label'].", ".__('position', true).": (".$current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y']."), ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
 			}else if($previous['sm']['temperature'] != $current['sm']['temperature'] || $previous['sm']['selection_label'] != $current['sm']['selection_label']){
 				//filter 2, storage changes (temperature, label)
 				$event = "";
