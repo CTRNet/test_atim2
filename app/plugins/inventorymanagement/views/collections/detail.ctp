@@ -1,33 +1,27 @@
 <?php 
 
 	$structure_links = array();
-	if($is_inventory_plugin_form){
-		$add_links = array();
-		foreach ($specimen_sample_controls_list as $sample_control) {
-			$add_links[__($sample_control['SampleControl']['sample_type'], true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
-		}
-		ksort($add_links);
-		
-		$bottom_links = array('edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id']);
-		if(empty($participant_id)){
-			$bottom_links['participant'] = '/underdevelopment/';
-		}else{
-			$bottom_links['participant'] = array(
-				'detail'		=> '/clinicalannotation/participants/profile/' . $participant_id,
-				'collections'	=> array(
-					'icon'	=> 'detail',
-					'link'	=> '/clinicalannotation/product_masters/productsTreeView/' . $participant_id
-					) 
-					
-			);
-		}
-		$bottom_links['add specimen'] = $add_links;
-		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
-		$structure_links['bottom'] = $bottom_links;
+	$settings = array();
+	
+	$add_links = array();
+	foreach ($specimen_sample_controls_list as $sample_control) {
+		$add_links[__($sample_control['SampleControl']['sample_type'], true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
 	}
-		
-	if($is_tree_view_detail_form){
+	ksort($add_links);
+	
+	$structure_links['bottom'] = array(
+		'edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id'], 
+		'access to participant' => array(
+			'link' => empty($participant_id)? '/underdevelopment/': '/clinicalannotation/participants/profile/' . $participant_id, 
+			'icon' => 'participant'),
+		'add specimen' => $add_links,
+		'delete' => '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id']
+	);
+	
+	if($is_from_tree_view){
 		// Detail form displayed in tree view
+		$settings = array('header' => __('collection', true));
+		
 	}else{
 		// General detail form display
 		$search_type_links = array();
@@ -41,7 +35,7 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override);
+	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'settings' => $settings);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

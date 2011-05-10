@@ -442,7 +442,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('override_data', array(
 				'AliquotMaster.aliquot_type' => $aliquot_control['AliquotControl']['aliquot_type'],
 				'AliquotMaster.aliquot_volume_unit' => $aliquot_control['AliquotControl']['volume_unit'],
-				'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->AliquotMaster->getDefaultStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
+				'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->getDefaultAliquotStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
 				'AliquotMaster.in_stock' => 'yes - available'));
 		
 		// Set url to cancel
@@ -552,9 +552,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($is_batch_process) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
 				}
 				
 			}else{
@@ -574,11 +574,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
+		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)){
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
-		if($is_tree_view_detail_form){
+		if($is_from_tree_view_or_layout){
 			Configure::write('debug', 0);
 		}
 		// MANAGE DATA
@@ -615,7 +617,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
 		
 		// Set aliquot uses
-		if(!$is_tree_view_detail_form) {		
+		if(!$is_from_tree_view_or_layout) {		
 			$this->set('aliquots_uses_data', $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id));
 		}
 
@@ -636,15 +638,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		if(!$is_tree_view_detail_form) {
+		if(!$is_from_tree_view_or_layout) {
 			$this->Structures->set('viewaliquotuses', 'aliquots_uses_structure');
 			$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
 		}
 		
-		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
-
+		// Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
+		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
+		
 		// Define if aliquot is included into an order
 		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
 		if(!empty($order_item)){
@@ -775,7 +776,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->AliquotMaster->allowDeletion($aliquot_master_id);
+		$arr_allow_deletion = $this->allowAliquotDeletion($aliquot_master_id);
 			
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
@@ -1874,7 +1875,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$excluded_parent_aliquot[] = $parent_aliquot_data;
 				} else {
 					//Set default data
-					$default_use_datetime = $this->AliquotMaster->getDefaultRealiquotingDate($parent_aliquot_data);
+					$default_use_datetime = $this->getDefaultRealiquotingDate($parent_aliquot_data);
 					foreach($aliquot_data_for_selection as &$children_aliquot) {
 						$children_aliquot['GeneratedParentAliquot']['aliquot_volume_unit'] = empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])? '': $parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'];
 						$children_aliquot['Realiquoting']['realiquoting_datetime'] = $default_use_datetime;
@@ -2152,6 +2153,114 @@ class AliquotMastersController extends InventoryManagementAppController {
 		} else {
 			$this->flash('error deleting data - contact administrator', $flash_url); 
 		}
+	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+			
+	/**
+	 * Get default storage date for a new created aliquot.
+	 * 
+	 * @param $sample_master_data Master data of the studied sample.
+	 * 
+	 * @return Default storage date.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getDefaultAliquotStorageDate($sample_master_data) {
+		switch($sample_master_data['SampleMaster']['sample_category']) {
+			case 'specimen':
+				// Default creation date will be the specimen reception date
+				$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
+				if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_data['SampleMaster']['id'])));
+				return $sample_master['SpecimenDetail']['reception_datetime'];
+				
+			case 'derivative':
+				// Default creation date will be the derivative creation date or Specimen reception date
+				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
+				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+				
+				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
+				
+			default:
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);			
+		}
+		
+		return null;
+	}
+	
+	function validateAliquotStorageData(&$aliquots_data) {
+		pr('deprecated');
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	}
+
+	/**
+	 * Check if an aliquot can be deleted.
+	 * 
+	 * @param $aliquot_master_id Id of the studied sample.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowAliquotDeletion($aliquot_master_id){
+		// Check aliquot has no use	
+		$returned_nbr = $this->AliquotInternalUse->find('count', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'use exists for the deleted aliquot'); }
+	
+		// Check aliquot is not linked to realiquoting process	
+		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
+		$returned_nbr = $this->Realiquoting->find('count', array('conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); }
+		
+		// Check aliquot is not linked to review	
+		$returned_nbr = $this->AliquotReviewMaster->find('count', array('conditions' => array('AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); }
+	
+		// Check aliquot is not linked to order	
+		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); }
+
+		// Check aliquot is not linked to a qc	
+		$returned_nbr = $this->QualityCtrlTestedAliquot->find('count', array('conditions' => array('QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control data exists for the deleted aliquot'); }
+		
+		// Check aliquot is not linked to a derivative	
+		$returned_nbr = $this->SourceAliquot->find('count', array('conditions' => array('SourceAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'derivative creation data exists for the deleted aliquot'); }
+
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Get the default realiquoting date.
+	 * 
+	 * @param $aliquot_data_for_selection Sample Aliquots that could be defined as child.
+	 * 
+	 * @return Default realiquoting date.
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 * @updated N. Luc
+	 */
+	 
+	function getDefaultRealiquotingDate($aliquot_data_for_selection) {
+		// Get first found storage datetime
+		foreach($aliquot_data_for_selection as $aliquot) {
+			if(!empty($aliquot['AliquotMaster']['storage_datetime'])) { return $aliquot['AliquotMaster']['storage_datetime']; }
+		}
+
+		return date('Y-m-d G:i');
 	}
 	
 	function autocompleteBarcode(){

@@ -623,11 +623,13 @@ div.menu.level_1 ul {
 	background: none;
 }
 div.menu.level_1 li {
-	background: none;
+	min-width: 200px;
 	margin: 0;
+	padding: 6px 10px 6px 20px;
 	border: 0;
+	background: none;
+	color: #dde8f2;
 	height: auto;
-	padding: 0;
 	border-top: 1px dotted #999;
 }
 div.menu.level_1 li.not_allowed {
@@ -642,15 +644,8 @@ div.menu.level_1 li a {
 
 	font-size: 11px;
 	line-height: 1.1em;
-	padding: 7px 10px 7px 30px;
-	display: inline-block;
-	min-width: 200px;
-	background: url("../img/icons/Folder Open_16x16.png") no-repeat 10px center;
+	padding-left: 20px;
 }
-div.menu.level_1 li.not_allowed a.plugin.not_allowed{
-	background: url("../img/icons/Warning_16x16.png") no-repeat 10px center;
-}
-
 div.menu.level_1 li:hover { 
 	background-color: #293B49; 
 	color: #fff; 
@@ -1168,7 +1163,6 @@ a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") n
 a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
 a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
 a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
-a.menu.help{background: url("../img/icons/help_32x32.png") no-repeat center center;}
 td.id a,
 td.id a:hover,
 table.tree ul a,
@@ -1261,7 +1255,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		div#validation li, ul.error li, ul.warning li {
+		ul.error li, ul.warning li, ul.confirm li {
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; 
 			border-radius: 5px; 
@@ -1272,7 +1266,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			background-color: #933;
 		}
 	
-		div#validation ul.confirm li {
+		ul.confirm li {
 			background-color: #393;
 		}
 		
@@ -1283,16 +1277,23 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		
 div#footer {
 	margin: 20px 0 0 0;
-	padding: 10px 30px 100px 30px;
+	padding: 1px 30px 100px 30px;
 	border: 0;
 	background: #fff url(../img/footer_bk01.png) top left repeat-x;
 	font-size: 11px;
-	color: #889;
-	text-align: center;
+	color: #9cb1c1;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	
+}
+
+div#footer span {
+	float: right;
 }
 
 div#footer a {
-	color: #889;
+	color: #9cb1c1;
+	margin-left: 1em;
 	text-decoration: none;
 }
 div#footer a:hover {
@@ -1922,16 +1923,11 @@ small{
 }
 
 .labBook{
-	display: none;	
+	display: none;
 }
-
-tbody.disabled{
-	background: grey;
-}
-
-tr.draggableRow:hover{
-	background-color: #ffa;
-}
-tr.draggedRow{
-	background-color: #ff0;
+div.pasteDisabled{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/icons/Paste_Disabled_16x16.png) no-repeat left top;	
 }

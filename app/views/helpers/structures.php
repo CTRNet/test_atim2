@@ -32,7 +32,6 @@ class StructuresHelper extends Helper {
 				'form_bottom'	=> true,
 				'name_prefix'	=> NULL,
 				'pagination'	=> true,
-				'sorting'		=> false, //if pagination is false, sorting can still be turned on (if pagination is on, sorting is ignored)
 				'columns_names' => array(), // columns names - usefull for reports. only works in detail views
 				'stretch'		=> true, //the structure will take full page width
 				
@@ -41,7 +40,9 @@ class StructuresHelper extends Helper {
 				'del_fields'	=> false, // if TRUE, add a "remove" link after each row, to allow it to be removed from the form
 				
 				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
-				'data_miss_warn'=> true//in debug mode, prints a warning if data is not found for a field
+				'data_miss_warn'=> true, //in debug mode, prints a warning if data is not found for a field
+				
+				'paste_disabled_fields' => array()//pasting on those fields will be disabled
 			),
 			
 			'links'		=> array(
@@ -201,6 +202,18 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
+		if(Configure::read('debug') > 0){
+			$tmp = array();
+			if(isset($atim_structure['Structure'][0])){
+				foreach($atim_structure['Structure'] as $struct){
+					$tmp[] = $struct['alias'];
+				}
+			}else if(isset($atim_structure['Structure'])){
+				$tmp[] = $atim_structure['Structure']['alias'];
+			}
+			echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
+		}
+		
 		// DEFAULT set of options, overridden by PASSED options
 		$options = $this->arrayMergeRecursiveDistinct(self::$defaults,$options);
 		if(!isset($options['type'])){
@@ -525,24 +538,18 @@ class StructuresHelper extends Helper {
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
 									|| $table_row_part['type'] == 'float'
-									|| $table_row_part['type'] == 'foat_positive')
+									|| $table_row_part['type'] == 'float_positive')
 								){
 									//input type, add the sufix to the name
 									$table_row_part['format_back'] = $table_row_part['format'];
 									$table_row_part['format'] = preg_replace('/name="data\[((.)*)\]"/', 'name="data[$1'.$suffix.']"', $table_row_part['format']);
 								}
-								
-								if($table_row_part['type'] == 'textarea'){
-									$display[0] .= '<span>'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix);
-								}else{
-									$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
-								}
-								
+								$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
 								if(strlen($suffix) > 0 && ($table_row_part['type'] == 'input'
 									|| $table_row_part['type'] == 'integer'
 									|| $table_row_part['type'] == 'integer_positive'
 									|| $table_row_part['type'] == 'float'
-									|| $table_row_part['type'] == 'foat_positive')
+									|| $table_row_part['type'] == 'float_positive')
 								){
 									$table_row_part['format'] = $table_row_part['format_back'];
 								}
@@ -652,7 +659,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
-			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"))){
+			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"))){
 				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
 				&& count($table_row_part['settings']['options']) > 1){
 					//add the unmatched value if there is more than a value
@@ -675,11 +682,6 @@ class StructuresHelper extends Helper {
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
-			}else if($table_row_part['type'] == "yes_no"){
-				$display =
-					$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'hidden', 'value' => "")))
-					.__('yes', true).$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "y", 'hiddenField' => false, 'checked' => $current_value == "y" ? true : false)))
-					.__('no', true). $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "n", 'hiddenField' => false, 'checked' => $current_value == "n" ? true : false)));
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$current_value = str_replace('.', ',', $current_value);
 			}
@@ -687,6 +689,12 @@ class StructuresHelper extends Helper {
 			
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
 			
+			if(($options['type'] == "addgrid" || $options['type'] == "editgrid") 
+			&& strpos($table_row_part['settings']['class'], "pasteDisabled") !== false
+			&& $table_row_part['type'] != "hidden"){
+				//displays the "no copy" icon on the left of the fields with disabled copy option
+				$display = '<div class="pasteDisabled"></div>'.$display;
+			} 
 		}else if(strlen($current_value) > 0){
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
@@ -698,7 +706,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time" && $elligible_as_date){
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
-			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"){
+			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox"){
 				if(isset($table_row_part['settings']['options'][$current_value])){
 					$display = $table_row_part['settings']['options'][$current_value];
 				}else{
@@ -916,9 +924,9 @@ class StructuresHelper extends Helper {
 										</span>
 										
 										<span class="links">
-											',$this->Paginator->prev( __( 'Prev',true ), NULL, __( 'Prev',true ) ),'
+											',$this->Paginator->prev( __( 'prev',true ), NULL, __( 'prev',true ) ),'
 											',$this->Paginator->numbers(),'
-											',$this->Paginator->next( __( 'Next',true ), NULL, __( 'Next',true ) ),'
+											',$this->Paginator->next( __( 'next',true ), NULL, __( 'next',true ) ),'
 										</span>
 										
 										',$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)),' |
@@ -1244,16 +1252,6 @@ class StructuresHelper extends Helper {
 					$sort_asc = false;
 				}
 			}
-			if(strlen($sort_on) == 0
-			&& isset($this->Paginator->params['paging']) 
-			&& ($part = current($this->Paginator->params['paging'])) 
-			&& isset($part['defaults']['order'])){
-					$sort_on = is_array($part['defaults']['order']) ? current($part['defaults']['order']) : $part['defaults']['order']; 
-					list($sort_on) = explode(",", $sort_on);//discard any but the first order by clause
-					$sort_on = explode(" ", $sort_on);
-					$sort_asc = !isset($sort_on[1]) || strtoupper($sort_on[1]) != "DESC";
-					$sort_on = $sort_on[0];
-			}
 			
 			$content_columns_count = 0;
 			foreach ($table_structure as $table_column){
@@ -1279,33 +1277,21 @@ class StructuresHelper extends Helper {
 							$return_string .= '
 								<th>
 							';
+							$sorting_link = $_SERVER['REQUEST_URI'];
+							$sorting_link = explode('?', $sorting_link);
+							$sorting_link = $sorting_link[0];
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
-
-							if($options['settings']['pagination'] || $options['settings']['sorting']){
-								$sorted_on_current_column = $table_row_part['model'].'.'.$table_row_part['field'] == $sort_on;
-								if($sorted_on_current_column){
+							
+							$sorting_link .= '?sortBy='.$table_row_part['field'];
+							$sorting_link .= '&amp;direction='.( $default_sorting_direction=='asc' ? 'desc' : 'asc' );
+							$sorting_link .= isset($_REQUEST['page']) ? '&amp;page='.$_REQUEST['page'] : '';
+							if($options['settings']['pagination']){
+								if($table_row_part['model'].'.'.$table_row_part['field'] == $sort_on){
 									$return_string .= '<div style="display: inline-block;" class="ui-icon ui-icon-triangle-1-'.($sort_asc ? "s" : "n").'"></div>';
 								}
-								if($options['settings']['pagination']){
-									$paginator_string = $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
-									if($sorted_on_current_column && $sort_asc){
-										$paginator_string = str_replace('/direction:asc">', '/direction:desc">', $paginator_string);
-									}
-									$return_string .= $paginator_string;
-								}else{
-									//sorting
-									$url = array_merge(
-										$this->Paginator->options['url'], 
-										array(
-											'sort' => $table_row_part['model'].'.'.$table_row_part['field'], 
-											'direction' => $sorted_on_current_column && $sort_asc ? "desc" : "asc", 
-											'order' => null
-										)
-									);
-									$return_string .= $this->Html->link(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $url, array()); 
-								}
+								$return_string .= $this->Paginator->sort(html_entity_decode($table_row_part['label'], ENT_QUOTES, "UTF-8"), $table_row_part['model'].'.'.$table_row_part['field']);
 							}else{
 								$return_string .= $table_row_part['label'];
 							}
@@ -1380,14 +1366,16 @@ class StructuresHelper extends Helper {
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
 	private function buildStack(array $atim_structure, array $options){
+		//TODO: WARNING ON paste_disabled if field mentioned in the view is not found here
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
-		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null);
+		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
 		if(isset($atim_structure['Sfs'])){
+			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
@@ -1416,7 +1404,11 @@ class StructuresHelper extends Helper {
 							$field_name .= $options['settings']['name_prefix'].".";
 						}
 						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
-							$field_name .= "%d.";	
+							$field_name .= "%d.";
+							if(in_array($sfs['model'].".".$sfs['field'], $options['settings']['paste_disabled_fields'])){
+								$settings['class'] .= " pasteDisabled";
+								$paste_disabled[] = $sfs['model'].".".$sfs['field']; 
+							}
 						}
 						$field_name .= $sfs['model'].".".$sfs['field'];
 						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
@@ -1583,9 +1575,6 @@ class StructuresHelper extends Helper {
 						}else if($sfs['type'] == "checkbox"){
 							//provide yes/no as default for checkboxes
 							$dropdown_result = array(0 => __("no", true), 1 => __("yes", true));
-						}else if($sfs['type'] == "yes_no"){
-							//provide yes/no/? as default for yes_no
-							$dropdown_result = array("" => "", "n" => __("no", true), "y" => __("yes", true));
 						}
 						
 						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
@@ -1609,6 +1598,13 @@ class StructuresHelper extends Helper {
 					$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
 				}
 				
+			}
+			
+			if(Configure::read('debug') > 0){
+				$paste_disabled = array_diff($options['settings']['paste_disabled_fields'], $paste_disabled);
+				if(count($paste_disabled) > 0){
+					AppController::addWarningMsg("DEBUG Paste disabled field(s) not found: ". implode(", ", $paste_disabled));
+				}
 			}
 		}
 		

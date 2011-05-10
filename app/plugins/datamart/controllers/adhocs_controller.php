@@ -8,10 +8,7 @@ class AdhocsController extends DatamartAppController {
 		'Datamart.AdhocSaved', 
 		
 		'Datamart.BatchSet',
-		'Datamart.BatchId',
-	
-		'Datamart.DatamartStructure'
-		
+		'Datamart.BatchId'
 	);
 	
 	var $paginate = array(
@@ -265,14 +262,6 @@ class AdhocsController extends DatamartAppController {
 		// save for display
 
 		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
-		
-		if($this->DatamartStructure->getIdByModelName($adhoc['Adhoc']['model']) != null){
-			$actions[] = array(
-				"value"		=> 0,
-				"default"	=> __("initiate browsing", true),
-				"action"	=> "datamart/browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
-			);
-		}
 		$this->set( 'save_this_search_data', $save_this_search_data );
 		$this->set('actions', $actions);
 	}

@@ -65,8 +65,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$storage_data[]['custom'] = array(
 					'date' => $current['am']['modified'], 
 					'event' => __('new storage', true)." "
-						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label']." ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
-						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label']." ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
+						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label'].", ".__('position', true).": (".$previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y']."), ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
+						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label'].", ".__('position', true).": (".$current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y']."), ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
 			}else if($previous['sm']['temperature'] != $current['sm']['temperature'] || $previous['sm']['selection_label'] != $current['sm']['selection_label']){
 				//filter 2, storage changes (temperature, label)
 				$event = "";
@@ -330,126 +330,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 	function hasChild(array $aliquot_master_ids){
 		$realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", TRUE);
 		return array_filter($realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id'))));
-	}
-	
-	
-	/**
-	 * Get default storage date for a new created aliquot.
-	 * 
-	 * @param $sample_master_data Master data of the studied sample.
-	 * 
-	 * @return Default storage date.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	function getDefaultStorageDate($sample_master_data) {
-		$collection_model = AppModel::atimNew("Inventorymanagement", "Collection", true);
-		$sample_master_model = AppModel::atimNew("Inventorymanagement", "SampleMaster", true);
-		$derivative_detail_model = AppModel::atimNew("Inventorymanagement", "DerivativeDetail", true);
-		switch($sample_master_data['SampleMaster']['sample_category']) {
-			case 'specimen':
-				// Default creation date will be the specimen reception date
-				$collection_data = $collection_model->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
-				if(empty($collection_data)) { 
-					$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-				$sample_master = $sample_master_model->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_data['SampleMaster']['id'])));
-				return $sample_master['SpecimenDetail']['reception_datetime'];
-				
-			case 'derivative':
-				// Default creation date will be the derivative creation date or Specimen reception date
-				$derivative_detail_data = $derivative_detail_model->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_data['SampleMaster']['id']), 'recursive' => '-1'));
-				if(empty($derivative_detail_data)) { 
-					$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-				
-				return $derivative_detail_data['DerivativeDetail']['creation_datetime'];
-				
-			default:
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);			
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Check if an aliquot can be deleted.
-	 * 
-	 * @param $aliquot_master_id Id of the studied sample.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	function allowDeletion($aliquot_master_id){
-		// Check aliquot has no use
-		$aliquot_internal_use_model = AppModel::atimNew("Inventorymanagement", "AliquotInternalUse", true);	
-		$returned_nbr = $aliquot_internal_use_model->find('count', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'use exists for the deleted aliquot'); 
-		}
-	
-		// Check aliquot is not linked to realiquoting process	
-		$realiquoting_model = AppModel::atimNew("Inventorymanagement", "Realiquoting", true);
-		$returned_nbr = $realiquoting_model->find('count', array('conditions' => array("OR" => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id, 'Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); 
-		}
-
-		// Check aliquot is not linked to review	
-		$aliquot_review_master_model = AppModel::atimNew("Inventorymanagement", "AliquotReviewMaster", true);
-		$returned_nbr = $aliquot_review_master_model->find('count', array('conditions' => array('AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); 
-		}
-	
-		// Check aliquot is not linked to order
-		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
-		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); 
-		}
-
-		// Check aliquot is not linked to a qc	
-		$quality_ctrl_tested_aliquot_model = AppModel::atimNew("Inventorymanagement", "QualityCtrlTestedAliquot", true);
-		$returned_nbr = $quality_ctrl_tested_aliquot_model->find('count', array('conditions' => array('QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'quality control data exists for the deleted aliquot'); 
-		}
-		
-		// Check aliquot is not linked to a derivative	
-		$source_aliquot_model = AppModel::atimNew("Inventorymanagement", "SourceAliquot", true);
-		$returned_nbr = $source_aliquot_model->find('count', array('conditions' => array('SourceAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'derivative creation data exists for the deleted aliquot'); 
-		}
-
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Get the default realiquoting date.
-	 * 
-	 * @param $aliquot_data_for_selection Sample Aliquots that could be defined as child.
-	 * 
-	 * @return Default realiquoting date.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	function getDefaultRealiquotingDate($aliquot_data_for_selection) {
-		// Get first found storage datetime
-		foreach($aliquot_data_for_selection as $aliquot) {
-			if(!empty($aliquot['AliquotMaster']['storage_datetime'])) { return $aliquot['AliquotMaster']['storage_datetime']; }
-		}
-
-		return date('Y-m-d G:i');
 	}
 	
 }

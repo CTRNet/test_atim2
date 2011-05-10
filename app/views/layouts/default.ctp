@@ -76,12 +76,11 @@ header ('Content-type: text/html; charset=utf-8');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.5.min')."\n";
+	echo $javascript->link('jquery-1.5.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";
 	echo $javascript->link('jquery.popup.js')."\n";
-	echo $javascript->link('jquery.tablednd_0_5.js')."\n";
 	echo $javascript->link('fg.menu.js')."\n";
 	echo $javascript->link('default')."\n";
 	echo $javascript->link('storage_layout')."\n";
@@ -89,7 +88,6 @@ header ('Content-type: text/html; charset=utf-8');
 	echo $javascript->link('copyControl')."\n";
 	echo $javascript->link('ccl')."\n";
 	echo $javascript->link('treeViewControl')."\n";
-	echo $javascript->link('dropdownConfig')."\n";
 	?>
 	
 	<script type="text/javascript">

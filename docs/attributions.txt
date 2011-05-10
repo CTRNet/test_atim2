@@ -2,4 +2,3 @@ Attributions for the icons found in ATiM
 icons/book_opened_32x32.png - FatCow Web Hosting (http://www.fatcow.com/)
 icons/arrow_add_into_10x10.png (and all icons using it) - Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
 icons/truck_16x16.png (and all icons using it) - Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
-icons/help_32x32.png - hbons (http://hbons.deviantart.com/)

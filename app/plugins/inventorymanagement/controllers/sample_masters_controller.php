@@ -79,7 +79,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}else{
-			$this->set("specimen_sample_controls_list", $this->SampleControl->find('all', array('conditions' => array('SampleControl.sample_category' => 'specimen'), 'recursive' => -1)));
+			$this->set("specimen_sample_controls_list", $this->SampleControl->getPermissibleSamplesArray(null));
 		}
 		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
@@ -361,7 +361,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $sample_master_id, $is_from_tree_view = 0) {
+		// $is_from_tree_view : 0-Normal, 1-Tree view
+		
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		// MANAGE DATA
 
@@ -392,7 +394,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
-		$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);	
 	
 		// Calulate spent time between:
@@ -409,7 +411,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = array();
 					
 		// Set sample aliquot list
-		if(!$is_tree_view_detail_form) { 		
+		if(!$is_from_tree_view) { 		
 			$this->set('aliquots_data', $this->paginate($this->AliquotMaster, array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
 		}
 		
@@ -426,15 +428,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set structure
 		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
-		if(!$is_tree_view_detail_form) { 
+		if(!$is_from_tree_view) { 
 			$this->Structures->set('aliquotmasters', 'aliquots_listall_structure');	
 		}
 
 		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		
-		// Define if this detail form is displayed into a form of the inventory plugin
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		$this->set('is_from_tree_view', $is_from_tree_view);
 		
 		// Get all sample control types to build the add to selected button
 		$this->set('allowed_derivative_type', $this->SampleControl->getPermissibleSamplesArray($sample_data['SampleControl']['id']));
@@ -500,7 +499,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set("lab_book_fields", $lab_book_fields);
 		
 		// Set parent data
-		$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);
 		
 		// Set new sample control information
@@ -610,7 +609,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				
 					// Record additional sample data
 					$sample_data_to_update = array();
-					$sample_data_to_update['SampleMaster']['sample_code'] = $this->SampleMaster->createCode($sample_master_id, $this->data, $sample_control_data);
+					$sample_data_to_update['SampleMaster']['sample_code'] = $this->createSampleCode($sample_master_id, $this->data, $sample_control_data);
 					if($is_specimen) { $sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
 					
 					$this->SampleMaster->id = $sample_master_id;					
@@ -674,7 +673,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
-		$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data));	
+		$this->set('parent_sample_data_for_display', $this->formatParentSampleDataForDisplay($parent_sample_data));	
 		
 		// Manage Lab Book
 		
@@ -800,7 +799,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 				
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->SampleMaster->allowDeletion($sample_master_id);
+		$arr_allow_deletion = $this->allowSampleDeletion($sample_master_id);
 		
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
@@ -1078,7 +1077,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						$child_id = $this->SampleMaster->getLastInsertId();
 						
 						// Update sample code
-						$child['SampleMaster']['sample_code'] = $this->SampleMaster->createCode($this->SampleMaster->id, $child, $children_control_data);
+						$child['SampleMaster']['sample_code'] = $this->createSampleCode($this->SampleMaster->id, $child, $children_control_data);
 						$this->SampleMaster->id = $child_id;
 						if(!$this->SampleMaster->save($child, false)){ 
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -1117,6 +1116,92 @@ class SampleMastersController extends InventorymanagementAppController {
 				}
 			}
 		}
+	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+	
+	/**
+	 * Create Sample code of a created sample. 
+	 * 
+	 * @param $sample_master_id Id of the created sample.
+	 * @param $sample_master_data Array that contains sample master data of the created sample.
+	 * @param $sample_control_data Array that contains sample control data of the created sample.
+	 * 
+	 * @return The sample code of the created sample.
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	function createSampleCode($sample_master_id, $sample_master_data, $sample_control_data){	
+		$sample_code = $sample_control_data['SampleControl']['sample_type_code'] . ' - '. $sample_master_id;		
+		return $sample_code;		
+	}
+
+	/**
+	 * Check if a sample can be deleted.
+	 * 
+	 * @param $sample_master_id Id of the studied sample.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowSampleDeletion($sample_master_id){
+		// Check sample has no chidlren	
+		$returned_nbr = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.parent_id' => $sample_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'derivative exists for the deleted sample'); }
+	
+		// Check sample is not linked to aliquot	
+		$returned_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists for the deleted sample'); }
+
+		// Verify this sample has not been used.
+		// Note: Not necessary because we can not delete a sample aliquot 
+		// when this one has been used at least once.
+		
+		// Verify that no parent sample aliquot is attached to the sample list  
+		// 'used aliquot' that allows to display all source aliquots used to create 
+		// the studied sample.
+		$returned_nbr = $this->SourceAliquot->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot'); }
+
+		// Check sample is not linked to qc	
+		$returned_nbr = $this->QualityCtrl->find('count', array('conditions' => array('QualityCtrl.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); }
+
+		// Check sample has not been linked to review	
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); }
+
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Format parent sample data array for display.
+	 * 
+	 * @param $parent_sample_data Parent sample data
+	 * 
+	 * @return Parent sample list into array having following structure: 
+	 * 	array($parent_sample_master_id => $sample_title_built_by_function)
+	 *
+	 * @author N. Luc
+	 * @since 2009-09-11
+	 */	
+	 
+	function formatParentSampleDataForDisplay($parent_sample_data) {
+		$formatted_data = array();
+		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
+		}
+		
+		return $formatted_data;
 	}
 }
 	

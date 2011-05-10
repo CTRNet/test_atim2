@@ -16,7 +16,7 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'sorting' => true), 'links'=>$structure_links) );
+	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false), 'links'=>$structure_links) );
 	
 	// display adhoc-to-batchset ADD form
 	$structure_links = array(

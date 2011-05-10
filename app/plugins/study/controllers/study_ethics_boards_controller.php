@@ -167,7 +167,7 @@ exit;
 		$study_ethics_board_data= $this->StudyEthicsBoard->find('first',array('conditions'=>array('StudyEthicsBoard.id'=>$study_ethics_board_id, 'StudyEthicsBoard.study_summary_id'=>$study_summary_id)));
 		if(empty($study_ethics_board_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->StudyEthicsBoard->allowDeletion($study_ethics_board_id);
+		$arr_allow_deletion = $this->allowStudyEthicsBoardDeletion($study_ethics_board_id);
 
 
 		// CUSTOM CODE
@@ -188,6 +188,32 @@ exit;
 				$this->flash($arr_allow_deletion['msg'], '/study/study_ethics_boards/detail/'.$study_summary_id.'/'.$study_ethics_board_id);
 		}
 	}
+
+
+/* --------------------------------------------------------------------------
+* ADDITIONAL FUNCTIONS
+* -------------------------------------------------------------------------- */
+
+/**
+ * Check if a record can be deleted.
+ *
+ * @param $family_history_id Id of the studied record.
+ *
+ * @return Return results as array:
+ * 	['allow_deletion'] = true/false
+ * 	['msg'] = message to display when previous field equals false
+ *
+ * @author N. Luc
+ * @since 2007-10-16
+ */
+
+	function allowStudyEthicsBoardDeletion($study_ethics_board_id){
+		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
+		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
+
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+
 }
 
 ?>

@@ -111,7 +111,9 @@ class TmaSlidesController extends StoragelayoutAppController {
 		}
 	}
 	
-	function detail($tma_block_storage_master_id, $tma_slide_id, $is_tree_view_detail_form = 0) {
+	function detail($tma_block_storage_master_id, $tma_slide_id, $is_from_tree_view_or_layout = 0) {
+		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		
 		if((!$tma_block_storage_master_id) || (!$tma_slide_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// MANAGE DATA
@@ -129,7 +131,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		$this->data = $tma_slide_data; 
 		
 		// Define if this detail form is displayed into the children storage tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
 			
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -245,7 +247,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowDeletion($tma_slide_id);
+		$arr_allow_deletion = $this->allowTMASlideDeletion($tma_slide_id);
 		
 		// CUSTOM CODE
 		
@@ -263,6 +265,28 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$this->flash($arr_allow_deletion['msg'], '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 		}		
 	}
+
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */	
+	
+	/**
+	 * Check tma slide can be deleted.
+	 * 
+	 * @param $tma_slide_id Id of the tma slide when this one is known.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2009-09-14
+	 */
+	 
+	function allowTMASlideDeletion($tma_slide_id){
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
 }
 
 ?>

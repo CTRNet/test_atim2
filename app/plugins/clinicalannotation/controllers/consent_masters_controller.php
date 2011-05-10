@@ -134,7 +134,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
 		if(empty($consent_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowDeletion($consent_master_id);
+		$arr_allow_deletion = $this->allowConsentDeletion($consent_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -150,6 +150,35 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id);
 		}
 	}
+
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $consent_master_id Id of the studied record.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowConsentDeletion($consent_master_id){
+		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
+
+		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.consent_master_id' => $consent_master_id)));
+		if($returned_nbr > 0){
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_consent_linked_collection';
+		}
+		return $arr_allow_deletion;
+	}	
+	
 }
 
 ?>

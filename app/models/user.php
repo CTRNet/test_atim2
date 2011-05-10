@@ -3,15 +3,13 @@ class User extends AppModel {
 
 	var $belongsTo = array('Group');
 	
-	var $actsAs = array('Acl' => array('requester'));
-
-	const PASSWORD_MINIMAL_LENGTH = 6;
+	var $actsAs = array('Acl' => array('requester')); 
 	
 	function parentNode() {    
 		
 		if (!$this->id && empty($this->data)) {        
 			return null;    
-		}    
+		}
 		
 		$data = $this->data;    
 		
@@ -19,7 +17,7 @@ class User extends AppModel {
 			$data = $this->read();    
 		}    
 		
-		if (!$data['User']['group_id']) {        
+		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {        
 			return null;    
 		} else {        
 			return array('Group' => array('id' => $data['User']['group_id']));    
@@ -55,28 +53,6 @@ class User extends AppModel {
 			$result[$data['User']['id']] = $data['User']['first_name'] . ' ' . $data['User']['last_name']; 
 		}
 		return $result;
-	}
-	
-	function savePassword(array $data, $error_flash_link, $success_flash_link){
-		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
-			//do nothing
-
-		}else if ( $data['User']['new_password'] !== $data['User']['confirm_password'] ) {
-			AppController::getInstance()->flash( 'Sorry, new password was not entered correctly.', $error_flash_link );
-
-		}else if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
-			AppController::getInstance()->flash( 'passwords minimal length', $error_flash_link );
-		}else{
-			//all good! save
-			$data['User']['password'] = Security::hash($data['User']['new_password'], null, true);
-
-			unset($data['User']['new_password'], $data['User']['confirm_password']);
-			
-			$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
-			if ( $this->save( $data ) ) {
-				AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
-			}
-		}
 	}
 
 }

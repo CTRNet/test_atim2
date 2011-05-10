@@ -177,7 +177,7 @@ class ShipmentsController extends OrderAppController {
 		if(empty($shipment_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->Shipment->allowDeletion($shipment_id);
+		$arr_allow_deletion = $this->allowShipmentDeletion($shipment_id);
 			
 		// CUSTOM CODE
 				
@@ -315,7 +315,7 @@ class ShipmentsController extends OrderAppController {
 		$aliquot_master_id = $order_item_data['OrderItem']['aliquot_master_id'];
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->Shipment->allowItemRemoveFromShipment($order_item_id, $shipment_id);
+		$arr_allow_deletion = $this->allowItemRemoveFromShipment($order_item_id, $shipment_id);
 			
 		$hook_link = $this->hook('delete_from_shipment');
 		if( $hook_link ) { require($hook_link); }		
@@ -366,6 +366,50 @@ class ShipmentsController extends OrderAppController {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
 	}
+  	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a shipment can be deleted.
+	 * 
+	 * @param $shipment_id Id of the studied shipment.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowShipmentDeletion($shipment_id){
+		// Check no item is linked to this shipment
+		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.shipment_id' => $shipment_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order item exists for the deleted shipment'); }
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Check if an item can be removed from a shipment.
+	 * 
+	 * @param $order_item_id  Id of the studied item.
+	 * @param $shipment_id Id of the studied shipemnt.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowItemRemoveFromShipment($order_item_id, $shipment_id){
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
 }
 
 ?>

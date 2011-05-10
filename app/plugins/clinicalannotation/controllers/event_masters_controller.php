@@ -186,7 +186,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
-		$arr_allow_deletion = $this->EventMaster->allowDeletion($event_master_id);
+		$arr_allow_deletion = $this->allowEventDeletion($event_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -202,6 +202,29 @@ class EventMastersController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 		}
 	}
+
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if a record can be deleted.
+	 * 
+	 * @param $consent_master_id Id of the studied record.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowEventDeletion($event_master_id){
+		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
+
+		return $arr_allow_deletion;
+	}	
 }
 
 ?>

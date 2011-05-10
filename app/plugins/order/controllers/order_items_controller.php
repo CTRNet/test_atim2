@@ -458,7 +458,7 @@ class OrderItemsController extends OrderAppController {
 		if(empty($order_item_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->OrderItem->allowDeletion($order_item_data);
+		$arr_allow_deletion = $this->allowOrderItemDeletion($order_item_data);
 			
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }		
@@ -500,6 +500,30 @@ class OrderItemsController extends OrderAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
+	}
+  	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/**
+	 * Check if an item can be deleted.
+	 * 
+	 * @param $order_line_data Data of the studied order item.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowOrderItemDeletion($order_line_data){
+		// Check aliquot is not gel matrix used to create either core
+		if(!empty($order_line_data['Shipment']['id'])) { return array('allow_deletion' => false, 'msg' => 'this item cannot be deleted because it was already shipped'); }	
+		
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 ?>

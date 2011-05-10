@@ -16,11 +16,11 @@
 			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = __("select an action", true);
-			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'sorting' => true, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
 		}else{
 			//overflow
 			?>
-			<ul class="error">
+			<ul class="warning">
 				<li><?php echo(__("the query returned too many results", true).". ".__("try refining the search parameters", true).". "
 				.sprintf(__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", true), __('browse', true), __('batchset', true))); ?>.</li>
 			</ul>

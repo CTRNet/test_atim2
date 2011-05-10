@@ -355,7 +355,7 @@ function uncheckAll( $div ) {
 					$(this).parent().find("div").css("display", "none");
 				});
 			});
-			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"});
+			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
 		});	
 	}
 	
@@ -640,7 +640,7 @@ function uncheckAll( $div ) {
 					//saved
 					$("#default_popup").popup('close');
 					$("input, select").each(function(){
-						if($(this).attr("name") == 'data[DerivativeDetail][lab_book_master_code]'){
+						if($(this).attr("name").indexOf('lab_book_master_code') != -1){
 							$(this).val(data2);
 						}
 					});
@@ -656,22 +656,6 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		$("#default_popup input[type=text]").first().focus();
-	}
-	
-	function initCheckboxes(scope){
-		$(scope).find("input[type=checkbox]").each(function(){
-			if(!$(this).data("exclusive")){
-				var checkboxes = $(this).parent().find("input[type=checkbox]");
-				$(checkboxes).each(function(){
-					$(this).data("exclusive", true);
-				});
-				$(checkboxes).click(function(){
-					var checked = $(this).attr("checked"); 
-					$(checkboxes).attr("checked", false);
-					$(this).attr("checked", checked);
-				});
-			}
-		});
 	}
 	
 	function initJsControls(){
@@ -707,9 +691,6 @@ function uncheckAll( $div ) {
 		}
 		if(window.labBookPopup){
 			initLabBookPopup();
-		}
-		if(window.dropdownConfig){
-			initDropdownConfig();
 		}
 		
 		if(window.realiquotInit){
@@ -749,8 +730,6 @@ function uncheckAll( $div ) {
 		initAddLine(document);
 		initRemoveLine(document);
 		
-		initCheckboxes(document);
-		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
 				//access denied, most likely a session timeout
@@ -760,12 +739,6 @@ function uncheckAll( $div ) {
 		
 		//focus on first field
 		$("input, select, textarea").first().focus();
-		
-		//on login page, displays a warning if the server is more than ~2 min late compared to the client
-		if(window.serverClientTimeDiff && window.serverClientTimeDiff < -120){
-			$("#timeErr").show();
-		}
-		
 	}
 
 	function debug(str){

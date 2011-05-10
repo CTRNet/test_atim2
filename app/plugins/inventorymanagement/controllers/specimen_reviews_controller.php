@@ -452,7 +452,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		$aliquot_review_data_list = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->SpecimenReview->allowDeletion($collection_id);
+		$arr_allow_deletion = $this->allowSpecimeReviewDeletion($collection_id);
 		
 		// CUSTOM CODE
 				
@@ -484,6 +484,27 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/specimen_reviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
 		}			
+	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+	
+	/**
+	 * Check if a review can be deleted.
+	 * 
+	 * @param $specimen_review_id Id of the studied review.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowSpecimeReviewDeletion($specimen_review_id){
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

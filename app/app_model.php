@@ -164,6 +164,10 @@ class AppModel extends Model {
 		
 	}
 	
+	function find($conditions = null, $fields = array(), $order = null, $recursive = null) {
+		return Model::find($conditions, $fields, $order, $recursive);
+	}
+	
 	function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
 		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra));
 	}
@@ -362,7 +366,7 @@ class AppModel extends Model {
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
-		if(!App::import('Model', $import_name)){
+		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
 			if($error_view_on_null){
 				$app = AppController::getInstance();
 				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
@@ -375,6 +379,19 @@ class AppModel extends Model {
 		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
 		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
 		return $loaded_class;
+	}
+	
+	/**
+	 * Use this function to instantiate extend models. It loads it based on the 
+	 * table_name and and configures the shadow model
+	 * @param class $class The class to instantiate
+	 * @param string $table_name The table to use
+	 * @return The instantiated class
+	 */
+	static function atimInstantiateExtend($class, $table_name){
+		$extend = new $class(false, $table_name);
+		$extend->Behaviors->Revision->setup($extend);//activate shadow model
+		return $extend;
 	}
 	
 	/**
@@ -543,45 +560,6 @@ class AppModel extends Model {
 			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
 		} 
 		return  '#err#';
-	}
-	
-	/**
-	 * Uses the same url sorting options as cakephp paginator uses to sort a data array
-	 * @param array $data The data to sort
-	 * @param array $passed_args The controller passed arguments. (From the controller, $this->passedArgs)
-	 * @return The data sorted if the passed_args were compatible with it
-	 */
-	static function sortWithUrl(array $data, array $passed_args){
-		$order = array();
-		if(isset($passed_args['sort'])){
-			$result = array();
-			list($sort_model, $sort_field) = explode(".", $passed_args['sort']);
-			$i = 0;
-			foreach($data as $data_unit){
-				if(isset($data_unit[$sort_model]) && isset($data_unit[$sort_model][$sort_field])){
-					$result[sprintf("%s%04d", $data_unit[$sort_model][$sort_field], ++ $i)] = $data_unit;
-				}else{
-					$result[sprintf("%04d", ++ $i)] = $data_unit;
-				}
-			}
-			ksort($result);
-			if(isset($passed_args['direction']) && $passed_args['direction'] == 'desc'){
-				$result = array_reverse($result);
-			}
-			return $result;
-		}
-		return $data;
-	}
-	
-	/**
-	 * Generic function made to be overriden in model/custom models.
-	 * @param int $id The db id of the element to allow the deletion of
-	 * @return array with two keys, one being allow_detion, a boolean telling
-	 * whether the element can be deleted or not and the second one being msg,
-	 * a string that telles why, if relevant, the element cannot be deleted.
-	 */
-	function allowDeletion($id){
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

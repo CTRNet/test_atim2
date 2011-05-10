@@ -80,22 +80,28 @@ class CollectionsController extends InventorymanagementAppController {
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function detail($collection_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
-		if(!$collection_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+	function detail($collection_id, $is_from_tree_view = 0) {
+		// $is_from_tree_view : 0-Normal, 1-Tree view
+		
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 		
 		$collection_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($collection_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		$this->data = $collection_data;
 		
 		// Set participant id
 		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
-		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id IS NULL', 'ParentToDerivativeSampleControl.flag_active' => true), 'fields' => array('DerivativeControl.*')));
+		$controls = $this->SampleControl->getPermissibleSamplesArray(null);
 		foreach($controls as $control){
-			$specimen_sample_controls_list[]['SampleControl'] = $control['DerivativeControl'];	
+			$specimen_sample_controls_list[] = $control;	
 		}
 		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
 		
@@ -105,13 +111,14 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->Structures->set('view_collection');
 
 		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		$this->set('is_from_tree_view', $is_from_tree_view);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function add($clinical_collection_link_id = 0) {
@@ -252,7 +259,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->Collection->allowDeletion($collection_id);
+		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
 		
 		// CUSTOM CODE
 				
@@ -270,6 +277,45 @@ class CollectionsController extends InventorymanagementAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/collections/detail/' . $collection_id);
 		}		
+	}
+	
+	/* --------------------------------------------------------------------------
+	 * ADDITIONAL FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+	
+	/**
+	 * Check if a collection can be deleted.
+	 * 
+	 * @param $collection_id Id of the studied collection.
+	 * 
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 * 
+	 * @author N. Luc
+	 * @since 2007-10-16
+	 */
+	 
+	function allowCollectionDeletion($collection_id){
+		// Check collection has no sample	
+		$returned_nbr = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'sample exists within the deleted collection'); }
+		
+		// Check collection has no aliquot	
+		$returned_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted collection'); }
+
+		// Check collection has not been linked to review	
+		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.collection_id' => $collection_id), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
+
+		// Check Collection has not been linked to a participant, consent or diagnosis
+		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
+		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';		
+		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
+		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
+
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 
