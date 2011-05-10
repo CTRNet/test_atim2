@@ -79,7 +79,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}else{
-			$this->set("specimen_sample_controls_list", $this->SampleControl->find('all', array('conditions' => array('SampleControl.sample_category' => 'specimen'), 'recursive' => -1)));
+			$this->set("specimen_sample_controls_list", $this->SampleControl->getPermissibleSamplesArray(null));
 		}
 		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
@@ -361,7 +361,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $sample_master_id, $is_from_tree_view = 0) {
+		// $is_from_tree_view : 0-Normal, 1-Tree view
+		
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		// MANAGE DATA
 
@@ -409,7 +411,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = array();
 					
 		// Set sample aliquot list
-		if(!$is_tree_view_detail_form) { 		
+		if(!$is_from_tree_view) { 		
 			$this->set('aliquots_data', $this->paginate($this->AliquotMaster, array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
 		}
 		
@@ -426,15 +428,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set structure
 		$this->Structures->set($sample_data['SampleControl']['form_alias']);	
-		if(!$is_tree_view_detail_form) { 
+		if(!$is_from_tree_view) { 
 			$this->Structures->set('aliquotmasters', 'aliquots_listall_structure');	
 		}
 
 		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		
-		// Define if this detail form is displayed into a form of the inventory plugin
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
+		$this->set('is_from_tree_view', $is_from_tree_view);
 		
 		// Get all sample control types to build the add to selected button
 		$this->set('allowed_derivative_type', $this->SampleControl->getPermissibleSamplesArray($sample_data['SampleControl']['id']));

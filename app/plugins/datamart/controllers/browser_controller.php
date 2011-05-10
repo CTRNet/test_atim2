@@ -307,6 +307,17 @@ class BrowserController extends DatamartAppController {
 			$this->set("dropdown_options", $dropdown_options);
 			$this->Structures->set("datamart_browser_start");
 			
+			if($this->Browser->checklist_model_name_to_search != $browsing['DatamartStructure']['model']){
+				$browsing['DatamartStructure']['index_link'] = str_replace(
+					$browsing['DatamartStructure']['model'], 
+					$this->Browser->checklist_model_name_to_search,
+					str_replace(
+						$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'], 
+						$this->Browser->checklist_model_name_to_search.".".$this->Browser->checklist_use_key, 
+						$browsing['DatamartStructure']['index_link']
+					)
+				);
+			}
 			$this->set('index', $browsing['DatamartStructure']['index_link']);
 			if($merge_to == 0){
 				$this->set("result_structure", $this->Browser->checklist_result_structure);
@@ -325,6 +336,7 @@ class BrowserController extends DatamartAppController {
 				$overflow_header = $this->Browser->checklist_header;
 				$overflow_structure = $this->Browser->checklist_result_structure;
 				$descending = null;
+				$previous_browsing = $browsing;
 				$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 				$result_structure = $this->Browser->checklist_result_structure;
 				$header = $this->Browser->checklist_header;
@@ -357,7 +369,7 @@ class BrowserController extends DatamartAppController {
 				
 				if($descending){
 					//clear drilldown parents
-					$remove = $browsing['BrowsingResult']['raw'] == 0;
+					$remove = $previous_browsing['BrowsingResult']['raw'] == 0;
 					foreach($nodes_to_fetch as $index => $node_to_fetch){
 						if($remove){
 							unset($nodes_to_fetch[$index]);
@@ -375,17 +387,13 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-				
 
 				$iteration_count = 1;
 				if(is_array($this->data)){
 					//we don't already have an overflow, move on
 					foreach($nodes_to_fetch as $node_to_fetch){
 						$browsing = $browsing_cache[$node_to_fetch];
-						$this->Browser->fetchChecklist($browsing, self::$display_limit);
-						if(!is_array($this->Browser->checklist_data)){
-							break;
-						}
+						
 						//id1 got the key to match on
 						//data marge
 						$browsing_control = $this->BrowsingControl->find('first', array('conditions' => array('id1' => $latest_struct_id, 'id2' => $browsing['BrowsingResult']['browsing_structures_id'])));
@@ -396,8 +404,18 @@ class BrowserController extends DatamartAppController {
 						if(empty($browsing_control)){
 							$browsing_control = $this->BrowsingControl->find('first', array('conditions' => array('id2' => $latest_struct_id, 'id1' => $browsing['BrowsingResult']['browsing_structures_id'])));
 							assert(!empty($browsing_control)) or die();
-	
+							
 							list($checklist_model, $checklist_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
+							
+							//filter to only get required rows
+							$additional_condition = array(array("field" => $checklist_field, "ids" => $this->Browser->getFilterIdChildCondition($this->data, $previous_browsing)));
+							 
+							$this->Browser->fetchChecklist($browsing, self::$display_limit, $additional_condition);
+							if(!is_array($this->Browser->checklist_data)){
+								break;
+							}
+							
+							
 							if(!isset($this->Browser->checklist_data[0][$checklist_model])){
 								//alternate
 								$checklist_model = $datamart_structures_cache[$browsing['BrowsingResult']['browsing_structures_id']]['control_master_model'];
@@ -438,7 +456,17 @@ class BrowserController extends DatamartAppController {
 	
 							$this->data = $tmp_data;
 						}else{
-							list($data_model, $data_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
+							$model_name = isset($this->data[0][$previous_browsing['DatamartStructure']['model']]) ? $previous_browsing['DatamartStructure']['model'] : $previous_browsing['DatamartStructure']['control_master_model'];
+							list($data_model, $id_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
+							
+							//only going to load required ids rather than the entire set
+							$this->Browser->applyFilterOnParent($browsing, $this->data, $data_model, $id_field);
+							
+							$this->Browser->fetchChecklist($browsing, self::$display_limit);
+							if(!is_array($this->Browser->checklist_data)){
+								break;
+							}
+							
 							if(!isset($this->data[0][$data_model])){
 								//alternate
 								$data_model = $datamart_structures_cache[$latest_struct_id]['control_master_model'];
@@ -455,7 +483,7 @@ class BrowserController extends DatamartAppController {
 							}
 							$this->Browser->checklist_data = AppController::defineArrayKey($this->Browser->checklist_data, $checklist_model, $checklist_field);
 							foreach($this->data as &$data_unit){
-								$index = $data_unit[$data_model][$data_field];
+								$index = $data_unit[$data_model][$id_field];
 								if(isset($this->Browser->checklist_data[$index])){
 									$data_unit = array_merge($this->Browser->checklist_data[$index][0], $data_unit);
 								}
@@ -473,7 +501,10 @@ class BrowserController extends DatamartAppController {
 						
 						$latest_struct_id = $browsing['BrowsingResult']['browsing_structures_id'];
 						++ $iteration_count;
+
+						$previous_browsing = $browsing;
 					}
+					
 				}
 				
 				if(is_array($this->Browser->checklist_data)){

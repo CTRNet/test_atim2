@@ -271,6 +271,7 @@ class BatchSetsController extends DatamartAppController {
 				}
 				
 				$this->data['BatchSet']['datamart_structure_id'] = $browsing_result['DatamartStructure']['id'];
+				$this->data['BatchSet']['lookup_key_name'] = "";//counter the default db value
 			}else if(array_key_exists('BatchSet', $this->data) && isset($this->data['BatchSet']['datamart_structure_id'])){
 				$this->data['BatchSet']['datamart_structure_id'] = $this->data['BatchSet']['datamart_structure_id'];
 			}else if(array_key_exists('BatchSet', $this->data)) {
@@ -302,7 +303,6 @@ class BatchSetsController extends DatamartAppController {
 			$this->data['BatchSet']['user_id'] = $_SESSION['Auth']['User']['id'];
 			$this->data['BatchSet']['group_id'] = $_SESSION['Auth']['User']['group_id'];
 			$this->data['BatchSet']['sharing_status'] = 'user';
-			
 			$this->BatchSet->save( $this->data['BatchSet'] );
 			
 			// get new SET id, and save
@@ -336,6 +336,7 @@ class BatchSetsController extends DatamartAppController {
 				
 			}else{
 				$batch_set['BatchSet']['model'] = $datamart_structure['model'];
+				$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['use_key'];
 			}
 			$batch_set['BatchSet']['plugin'] = $batch_set['BatchSet']['plugin'];
 		}else{

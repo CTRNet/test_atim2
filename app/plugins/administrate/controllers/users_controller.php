@@ -99,6 +99,30 @@ class UsersController extends AdministrateAppController {
 			$this->redirect( '/pages/err_no_data', null, true );
 		}
 	}
+	
+	function delete($group_id, $user_id){
+		//to be used in a hook
+		$arr_allow_deletion = array(
+			"allow_deletion"	=> $user_id != $_SESSION['Auth']['User']['id'],
+			"msg"				=> null
+		);
+		
+		if(!$arr_allow_deletion['allow_deletion']){
+			$arr_allow_deletion['msg'] = 'you cannot delete yourself';
+		}
+
+		$hook_link = $this->hook('delete');
+		if($hook_link){
+			require($hook_link);
+		}
+
+		if ($arr_allow_deletion['allow_deletion']) {
+			$this->User->atim_delete($user_id);
+			$this->atimFlash(__('your data has been deleted', true), "/administrate/users/listall/".$group_id);
+		} else {
+			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
+		}
+	}
 }
 
 ?>

@@ -552,9 +552,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($is_batch_process) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
 				}
 				
 			}else{
@@ -574,11 +574,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
+		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)){
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
-		if($is_tree_view_detail_form){
+		if($is_from_tree_view_or_layout){
 			Configure::write('debug', 0);
 		}
 		// MANAGE DATA
@@ -615,7 +617,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
 		
 		// Set aliquot uses
-		if(!$is_tree_view_detail_form) {		
+		if(!$is_from_tree_view_or_layout) {		
 			$this->set('aliquots_uses_data', $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id));
 		}
 
@@ -636,15 +638,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		if(!$is_tree_view_detail_form) {
+		if(!$is_from_tree_view_or_layout) {
 			$this->Structures->set('viewaliquotuses', 'aliquots_uses_structure');
 			$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
 		}
 		
-		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
-
+		// Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
+		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
+		
 		// Define if aliquot is included into an order
 		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
 		if(!empty($order_item)){
