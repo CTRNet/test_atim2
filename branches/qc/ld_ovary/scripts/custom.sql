@@ -1,13 +1,15 @@
 INSERT INTO i18n (id, en, fr) VALUES
 ('core_installname', 'Lady Davis - Ovary', 'Lady Davis - Ovaire'),
-("sample system code", "Sample system code", "Code système d'échantillon"),
+("sample system code", "Sample System Code", "Code système d'échantillon"),
 ("aliquot system code", "Aliquot system code", "Code système d'aliquot"),
 ("concentration", "Concentration", "Concentration");
 
 UPDATE users SET flag_active=1 WHERE id=1;
 
+DELETE FROM structure_permissible_values_customs WHERE control_id = 3;
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
-(3, "clinic surgery room", "Clinic surgery room", "Salle de chirurgie clinique"),
+(3, "surgery room", "Surgery Room", "Salle de chirurgie"),
+(3, "clinic", "Clinic", "Clinique"),
 (3, "radiology", "Radiology", "Radiologie");
 
 
@@ -220,9 +222,9 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 ('qc_ldov_protein_extraction_method', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('qc ldov protein extraction method')");
 
 ALTER TABLE sd_der_proteins
- ADD COLUMN qc_ldov_extraction_method VARCHAR(20) NOT NULL DEFAULT '';
+ ADD COLUMN qc_ldov_extraction_method VARCHAR(30) NOT NULL DEFAULT '';
 ALTER TABLE sd_der_proteins_revs
- ADD COLUMN qc_ldov_extraction_method VARCHAR(20) NOT NULL DEFAULT '';
+ ADD COLUMN qc_ldov_extraction_method VARCHAR(30) NOT NULL DEFAULT '';
 
 INSERT INTO structures(`alias`) VALUES ('qc_ldov_protein_extraction_method');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -230,3 +232,136 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_ldov_protein_extraction_method'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_proteins' AND `field`='qc_ldov_extraction_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_protein_extraction_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='extraction method' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',qc_ldov_protein_extraction_method') WHERE id=119;
+
+--
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi, structures AS str
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '1', sfo.flag_edit_readonly = '1',
+sfo.flag_search = '1', sfo.flag_search_readonly = '0',
+sfo.flag_index = '1', sfo.flag_detail = '1',
+language_heading = 'system data',
+sfo.display_column = '3', sfo.display_order = '98'
+WHERE sfi.field IN ('participant_identifier') 
+AND str.alias IN ('participants')
+AND sfi.id = sfo.structure_field_id AND str.id = sfo.structure_id;
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('system data', 'System Data', 'Données système');
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('participant identifier','Participant System Code','Code système participant'); 
+
+UPDATE structure_formats SET `language_heading`='clin_demographics' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='first_name' );
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='first_name' ), 'notEmpty', '', 'value is required'),
+(null, (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='last_name' ), 'notEmpty', '', 'value is required');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='middle_name' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='MiscIdentifier' AND tablename='misc_identifiers' 
+AND field IN ('notes','effective_date','identifier_abrv','expiry_date'));
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' , `flag_search`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='participants')
+AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='title' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='person title'));
+
+UPDATE `banks` SET `name` = 'LD-Ovary' WHERE `banks`.`id` = 1;
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id' ), 'notEmpty', '', 'value is required'),
+(null, (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `field`='bank_id' ), 'notEmpty', '', 'value is required');
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_index`='1', `flag_summary`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='bank_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='banks'));
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', flag_index=0, flag_search=0, flag_detail=0 
+WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE field='sop_master_id');
+
+UPDATE structure_formats SET `language_heading`='system data' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field='sample_code');
+
+DELETE FROM structure_value_domains_permissible_values WHERE flag_active = 0;
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("gel", "gel");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"),  (SELECT id FROM structure_permissible_values WHERE value="gel" AND language_alias="gel"), "2", "1");
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('gel', 'Gel', 'Gel');
+
+UPDATE structure_value_domains SET source = NULL WHERE domain_name = 'qc_ldov_tissue_type';
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'qc ldov tissues types');
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'qc ldov tissues types';
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("normal", "normal");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("benin", "benin");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="benin" AND language_alias="benin"), "1", "2");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("tumoral", "tumoral");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="tumoral" AND language_alias="tumoral"), "1", "3");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("other", "other");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_ldov_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "1", "4");
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('benin', 'Benin', 'Bénin'),
+('tumoral', 'Tumoral', 'Tumoral'),
+('tissue type','Type','Type'),
+('biopsy','Biopsy','Biopsie'),
+('ca125','CA125','CA125');
+
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleDetail' AND tablename='sd_spe_tissues' AND field='qc_ldov_biopsy' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_ldov_yes_no_unknown'));
+
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name like 'laboratory sites'), 'laboratory', 'Lab', 'Lab'); 
+
+ALTER TABLE sd_der_cell_cultures
+ ADD COLUMN qc_ca_125 DECIMAL(8,3) NULL AFTER `cell_passage_number`;
+ALTER TABLE sd_der_cell_cultures_revs
+ ADD COLUMN qc_ca_125 DECIMAL(8,3) NULL AFTER `cell_passage_number`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_cell_cultures', 'qc_ca_125', 'ca125', '', 'float', 'size=5', '',  NULL , '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_cell_cultures' AND `field`='qc_ca_125' AND `language_label`='ca125' AND `language_tag`='' AND `type`='float' AND `setting`='size=5' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='SampleMaster' AND tablename='sample_masters' AND field='sop_master_id' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list'));
+
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(1, 23, 2, 3, 31, 30, 49, 8);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(17, 7, 5);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE id IN(25, 4, 143, 101, 102, 140);
+UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE id IN(23, 136);
+
+INSERT INTO parent_to_derivative_sample_controls (`parent_sample_control_id`,`derivative_sample_control_id`,`flag_active`)
+VALUES 
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1),
+((SELECT id FROM sample_controls WHERE sample_type = 'ascite cell'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1),
+((SELECT id FROM sample_controls WHERE sample_type = 'peritoneal wash cell'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1),
+((SELECT id FROM sample_controls WHERE sample_type = 'cystic fluid cell'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1),
+((SELECT id FROM sample_controls WHERE sample_type = 'blood cell'), (SELECT id FROM sample_controls WHERE sample_type = 'protein'), 1);
+
+UPDATE parent_to_derivative_sample_controls SET flag_active = 1
+WHERE parent_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture')
+AND derivative_sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(130);
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('extraction method','Extraction Method','Méthode d''extraction');
+
+
+
+
