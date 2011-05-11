@@ -212,7 +212,6 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function configure($control_id){
-		//TODO: Complete! Req checkbox already checked when all at 0. + sorting here and in the list
 		if(empty($this->data)){
 			$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
 			if(empty($control_data)){ 
@@ -230,13 +229,13 @@ class DropdownsController extends AdministrateAppController {
 		}else{
 			$data = array();
 			if(isset($this->data[0]['default_order'])){
-				foreach($this->data[0]['option_id'] as $id){
-					$data[] = array("id" => $id, "display_order" => 0);
+				foreach($this->data as $unit){
+					$data[] = array("id" => $unit['StructurePermissibleValuesCustom']['id'], "display_order" => 0, "use_as_input" => $unit['StructurePermissibleValuesCustom']['use_as_input']);
 				}
 			}else{
 				$order = 1;
-				foreach($this->data[0]['option_id'] as $id){
-					$data[] = array("id" => $id, "display_order" => $order ++);
+				foreach($this->data as $unit){
+					$data[] = array("id" => $unit['option_id'], "display_order" => $order ++, "use_as_input" => $unit['StructurePermissibleValuesCustom']['use_as_input']);
 				}
 			}
 			if($this->StructurePermissibleValuesCustom->saveAll($data)){

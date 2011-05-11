@@ -8,7 +8,7 @@ class StructurePermissibleValuesCustom extends AppModel {
 			'className'    => 'StructurePermissibleValuesCustomControl',            
 			'foreignKey'    => 'control_id'));
 		
-	function getCustomDropdown($args){
+	function getCustomDropdown(array $args, $context = null){
 		$control_name = null;
 		if(sizeof($args) == 1) { 
 			$control_name = $args['0'];
@@ -19,7 +19,11 @@ class StructurePermissibleValuesCustom extends AppModel {
 		$lang = isset($tmp_l10n->__l10nMap[$_SESSION['Config']['language']])? $tmp_l10n->__l10nMap[$_SESSION['Config']['language']]: '';
 		
 		$spvc = new StructurePermissibleValuesCustom();
-		$data = $spvc->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => $control_name), 'order' => array('StructurePermissibleValuesCustom.display_order', 'StructurePermissibleValuesCustom.'.$lang)));
+		$conditions = array('StructurePermissibleValuesCustomControl.name' => $control_name);
+		if($context != "search"){
+			$conditions['StructurePermissibleValuesCustom.use_as_input'] = 1;
+		}
+		$data = $spvc->find('all', array('conditions' => $conditions, 'order' => array('StructurePermissibleValuesCustom.display_order', 'StructurePermissibleValuesCustom.'.$lang)));
 		if(empty($data)){ 
 			return array(); 
 		}

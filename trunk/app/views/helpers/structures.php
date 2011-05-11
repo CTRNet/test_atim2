@@ -1567,7 +1567,7 @@ class StructuresHelper extends Helper {
 						}else if(count($sfs['StructureValueDomain']) > 0){
 							if(strlen($sfs['StructureValueDomain']['source']) > 0){
 								//load source
-								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
+								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source'], $options['type']);
 								$is_old_version = false;
 								foreach($tmp_dropdown_result as $k => $v){
 									//foreach only used to fetch the first value
