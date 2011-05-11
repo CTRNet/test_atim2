@@ -95,3 +95,5 @@ UPDATE structure_formats SET `flag_editgrid_readonly`='1' WHERE structure_id=(SE
 UPDATE structure_formats SET `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='administrate_dropdown_values') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='en' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='administrate_dropdown_values') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustom' AND `tablename`='structure_permissible_values_customs' AND `field`='fr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+ALTER TABLE structure_value_domains_permissible_values
+ ADD COLUMN use_as_input BOOLEAN NOT NULL DEFAULT TRUE;
