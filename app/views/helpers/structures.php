@@ -1540,6 +1540,8 @@ class StructuresHelper extends Helper {
 						
 						$current['default'] = $sfs['default'];
 						$current['settings'] = $settings;
+					}else{
+						$current["format"] = "";
 					}
 					
 					if(array_key_exists($sfs['type'], $independent_types)){
