@@ -244,7 +244,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 	 
 	function allowTrtDeletion($tx_master_id, $tx_extend_tablename){
 		if(!empty($tx_extend_tablename)) {
-			$this->TreatmentExtend = new TreatmentExtend( false, $tx_extend_tablename);
+			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_extend_tablename);
 			$nbr_extends = $this->TreatmentExtend->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
 			if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); }
 		}

@@ -1,7 +1,8 @@
 <?php
 
-	// Set links
+	// Set links and basic sample settings
 	$structure_links = array();
+	$sample_settings = array();
 	
 	// If a parent sample is defined then set the 'Show Parent' button
 	$show_parent_link = null;
@@ -25,23 +26,20 @@
 	}
 	ksort($add_aliquots);
 	
-	$structure_links = array();
-	if($is_inventory_plugin_form){
-		$structure_links['bottom'] = array(
-			'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
-			'add derivative' => $add_derivatives,
-			'add aliquot' => $add_aliquots,
-			'see parent sample' => ($is_tree_view_detail_form? null : $show_parent_link),
-			'see lab book' => null,
-			'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
-		);
-		if(isset($lab_book_master_id)) {
-			$structure_links['bottom']['see lab book'] = array(
-				'link'=>'/labbook/lab_book_masters/detail/'.$lab_book_master_id,
-				'icon'=>'lab_book');
-		} else {
-			unset($structure_links['bottom']['see lab book']);
-		}
+	$structure_links['bottom'] = array(
+		'edit' => '/inventorymanagement/sample_masters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
+		'add derivative' => $add_derivatives,
+		'add aliquot' => $add_aliquots,
+		'see parent sample' => ($is_from_tree_view? null : $show_parent_link),
+		'see lab book' => null,
+		'delete' => '/inventorymanagement/sample_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
+	);
+	if(isset($lab_book_master_id)) {
+		$structure_links['bottom']['see lab book'] = array(
+			'link'=>'/labbook/lab_book_masters/detail/'.$lab_book_master_id,
+			'icon'=>'lab_book');
+	} else {
+		unset($structure_links['bottom']['see lab book']);
 	}
 	
 	// Clean up structure link
@@ -49,8 +47,10 @@
 	if(empty($structure_links['bottom']['add aliquot'])) unset($structure_links['bottom']['add aliquot']);
 	if(empty($structure_links['bottom']['see parent sample'])) unset($structure_links['bottom']['see parent sample']);
 			
-	if($is_tree_view_detail_form) {
+	if($is_from_tree_view) {
 		// Detail form displayed in tree view
+		$sample_settings['header'] = __('sample', null);
+		
 	} else {
 		// General detail form display
 		$search_type_links = array();
@@ -74,7 +74,7 @@
 		// 1- SAMPLE DETAIL	
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'links' => $structure_links, 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'links' => $structure_links, 'settings' => $sample_settings, 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
@@ -88,9 +88,10 @@
 		// DISPLAY BOTH SAMPLE DETAIL FORM AND SAMPLE ALIQUOTS LIST
 		
 		// 1- SAMPLE DETAIL	
+		$sample_settings['actions'] = false;
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'settings' => array('actions' => false), 'data' => $sample_master_data);
+		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'settings' => $sample_settings, 'data' => $sample_master_data);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();

@@ -96,7 +96,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			$this->data = $protocol_data;
 			$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 			if($is_used['is_used']){
-				$this->ProtocolMaster->validationErrors[] = __('warning', true).": ".__($is_used['msg'], true).".";
+				AppController::addWarningMsg(__('warning', true).": ".__($is_used['msg'], true));
 			}
 			$submitted_data_validates = false;
 		} else {
@@ -122,7 +122,9 @@ class ProtocolMastersController extends ProtocolAppController {
 				
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
-		if ($hook_link) { require($hook_link); }
+		if ($hook_link) { 
+			require($hook_link); 
+		}
 		
 		if ($is_used['is_used']) {
 			$this->flash($is_used['msg'], '/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
