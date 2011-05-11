@@ -667,8 +667,13 @@ class StructuresHelper extends Helper {
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
 			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"))){
-				if(!array_key_exists($current_value, $table_row_part['settings']['options'])
-				&& count($table_row_part['settings']['options']) > 1){
+				if(array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])){
+					$table_row_part['settings']['options']['previously_defined'] = array($current_value => $table_row_part['settings']['options']['previously_defined'][$current_value]);
+					
+				}else if(!array_key_exists($current_value, $table_row_part['settings']['options']['defined'])
+					&& !array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])
+					&& count($table_row_part['settings']['options']) > 1
+				){
 					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
@@ -676,10 +681,20 @@ class StructuresHelper extends Helper {
 					}else{
 						$table_row_part['settings']['options'] = array(
 								__( 'unmatched value', true ) => array($current_value => $current_value),
-								__( 'supported value', true ) => $table_row_part['settings']['options']
+								__( 'supported value', true ) => $table_row_part['settings']['options']['defined']
 						);
 					}
+				}else if($options['type'] == "search" && !empty($table_row_part['settings']['options']['previously_defined'])){
+					$tmp = $table_row_part['settings']['options']['defined'];
+					unset($table_row_part['settings']['options']['defined']);
+					$table_row_part['settings']['options'][__('defined', true)] = $tmp;
+					$tmp = $table_row_part['settings']['options']['previously_defined'];
+					unset($table_row_part['settings']['options']['previously_defined']); 
+					$table_row_part['settings']['options'][__('previously defined', true)] = $tmp; 
+				}else{
+					$table_row_part['settings']['options'] = $table_row_part['settings']['options']['defined'];
 				}
+				
 				$table_row_part['settings']['class'] = str_replace("%c ", isset($this->my_validation_errors[$table_row_part['field']]) ? "error " : "", $table_row_part['settings']['class']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'select', 'value' => $current_value)));
 			}else if($table_row_part['type'] == "radio"){
@@ -702,8 +717,9 @@ class StructuresHelper extends Helper {
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
 			
 			if(($options['type'] == "addgrid" || $options['type'] == "editgrid") 
-			&& strpos($table_row_part['settings']['class'], "pasteDisabled") !== false
-			&& $table_row_part['type'] != "hidden"){
+				&& strpos($table_row_part['settings']['class'], "pasteDisabled") !== false
+				&& $table_row_part['type'] != "hidden"
+			){
 				//displays the "no copy" icon on the left of the fields with disabled copy option
 				$display = '<div class="pasteDisabled"></div>'.$display;
 			} 
@@ -719,8 +735,10 @@ class StructuresHelper extends Helper {
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
 			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"){
-				if(isset($table_row_part['settings']['options'][$current_value])){
-					$display = $table_row_part['settings']['options'][$current_value];
+				if(isset($table_row_part['settings']['options']['defined'][$current_value])){
+					$display = $table_row_part['settings']['options']['defined'][$current_value];
+				}else if(isset($table_row_part['settings']['options']['previously_defined'][$current_value])){
+					$display = $table_row_part['settings']['options']['previously_defined'][$current_value];
 				}else{
 					$display = $current_value;
 					if(Configure::read('debug') > 0 && ($current_value != "-" || $options['settings']['data_miss_warn'])){
@@ -737,6 +755,12 @@ class StructuresHelper extends Helper {
 		if($table_row_part['readonly']){
 			$tmp = $table_row_part['format'];
 			
+			if(isset($table_row_part['settings']['options'])){
+				$table_row_part['settings']['options'] = array_merge(
+					$table_row_part['settings']['options']['defined'], 
+					$table_row_part['settings']['options']['previously_defined']
+				);
+			}
 			if($table_row_part['type'] =='select' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
 				//disabled dropdown with unmatched value, pick the first one
 				$arr_keys = array_keys($table_row_part['settings']['options']);
@@ -1545,7 +1569,7 @@ class StructuresHelper extends Helper {
 					}
 					
 					if(array_key_exists($sfs['type'], $independent_types)){
-						$dropdown_result = array();
+						$dropdown_result = array("defined" => array(), "previously_defined" => array());
 						if($sfs['type'] == "select"){
 							$add_blank = true;
 							if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
@@ -1558,75 +1582,69 @@ class StructuresHelper extends Helper {
 								}
 							}
 							if($add_blank){
-								$dropdown_result = array("" => "");
+								$dropdown_result["defined"][""] = "";
 							}
 						}
 								
 						if(isset($options['dropdown_options'][$sfs['model'].".".$sfs['field']])){
-							$dropdown_result = $options['dropdown_options'][$sfs['model'].".".$sfs['field']]; 
+							$dropdown_result['defined'] = $options['dropdown_options'][$sfs['model'].".".$sfs['field']]; 
 						}else if(count($sfs['StructureValueDomain']) > 0){
 							if(strlen($sfs['StructureValueDomain']['source']) > 0){
 								//load source
-								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source'], $options['type']);
-								$is_old_version = false;
-								foreach($tmp_dropdown_result as $k => $v){
-									//foreach only used to fetch the first value
-									if(is_array($v)){
-										$is_old_version = true;
+								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
+								if(array_key_exists('defined', $tmp_dropdown_result)){
+									$dropdown_result['defined'] += $tmp_dropdown_result['defined'];
+									if(array_key_exists('previously_defined', $tmp_dropdown_result)){
+										$dropdown_result['previously_defined'] += $tmp_dropdown_result['previously_defined'];
 									}
-									break;
-								}
-
-								if($is_old_version){
-									//old version, convert
-									//TODO: Remove this conversion in ATiM 2.3
-									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(sprintf(__("the source function of StructureValueDomain with id [%d] uses a deprecated return array", true), $sfs['StructureValueDomain']['id']));
-									}
-									$tmp = array();
-									foreach($tmp_dropdown_result as $v){
-										$tmp[$v['value']] = $v['default'];
-									}
-									$dropdown_result += $tmp;
 								}else{
-									$dropdown_result += $tmp_dropdown_result;
+									$dropdown_result['defined'] += $tmp_dropdown_result;
 								}
 							}else{
 								$tmp_dropdown_result = $this->StructureValueDomain->find('first', array(
 									'recursive' => 2,
-									'conditions' => 
-										array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
+									'conditions' => array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
 								if(count($tmp_dropdown_result['StructurePermissibleValue']) > 0){
-									$tmp_result = array();
+									$tmp_result = array('defined' => array(), 'previously_defined' => array());
 									//sort based on flag and on order
 									foreach($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry){
-										$tmp_result[$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
+										if($tmp_entry['flag_active']){
+											if($tmp_entry['use_as_input']){
+												$tmp_result['defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
+											}else{
+												$tmp_result['previously_defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
+											}
+										}
 									}
-									asort($tmp_result);
-									$tmp_result = array_map(create_function('$str', 'return substr($str, 4);'), $tmp_result);
+									asort($tmp_result['defined']);
+									asort($tmp_result['previously_defined']);
+									$substr4_func = create_function('$str', 'return substr($str, 4);');
+									$tmp_result['defined'] = array_map($substr4_func, $tmp_result['defined']);
+									$tmp_result['previously_defined'] = array_map($substr4_func, $tmp_result['previously_defined']);
 		
-									$dropdown_result += $tmp_result;//merging arrays and keeping numeric keys intact
+									$dropdown_result['defined'] += $tmp_result['defined'];//merging arrays and keeping numeric keys intact
+									$dropdown_result['previously_defined'] += $tmp_result['previously_defined'];
 								}
 							}
 						}else if($sfs['type'] == "checkbox"){
 							//provide yes/no as default for checkboxes
-							$dropdown_result = array(0 => __("no", true), 1 => __("yes", true));
+							$dropdown_result['defined'] = array(0 => __("no", true), 1 => __("yes", true));
 						}else if($sfs['type'] == "yes_no"){
 							//provide yes/no/? as default for yes_no
-							$dropdown_result = array("" => "", "n" => __("no", true), "y" => __("yes", true));
+							$dropdown_result['defined'] = array("" => "", "n" => __("no", true), "y" => __("yes", true));
 						}
 						
 						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
 							//checkbox and radio buttons in search mode are dropdowns 
-							$dropdown_result = array_merge(array("" => ""), $dropdown_result);
+							$dropdown_result['defined'] = array_merge(array("" => ""), $dropdown_result['defined']);
 						}
 						
-						if(count($dropdown_result) == 2 
+						if(count($dropdown_result['defined']) == 2 
 						&& isset($sfs['flag_'.$options['type'].'_readonly']) 
 						&& $sfs['flag_'.$options['type'].'_readonly'] 
 						&& $add_blank){
 							//unset the blank value, the single value for a disabled field should be default
-							unset($dropdown_result[""]);
+							unset($dropdown_result['defined'][""]);
 						}
 						$current['settings']['options'] = $dropdown_result;
 					}

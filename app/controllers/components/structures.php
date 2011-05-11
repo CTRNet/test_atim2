@@ -443,7 +443,7 @@ class StructuresComponent extends Object {
 	 * Retrieves pulldown values from a specified source. The source needs to have translated already
 	 * @param unknown_type $source
 	 */
-	static function getPulldownFromSource($source, $context){
+	static function getPulldownFromSource($source){
 		// Get arguments
 		$args = null;
 		preg_match('(\(\'.*\'\))', $source, $matches);
@@ -473,7 +473,7 @@ class StructuresComponent extends Object {
 			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
 
 			// run model::function
-			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args, $context);
+			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
 		}
 
 		return $pulldown_result;
