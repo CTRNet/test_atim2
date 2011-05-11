@@ -342,8 +342,8 @@ function uncheckAll( $div ) {
 		});
 	}
 	
-	function initTooltips(){
-		$(".tooltip").each(function() {
+	function initTooltips(scope){
+		$(scope).find(".tooltip").each(function() {
 			$(this).find("input").each(function(){
 				$(this).focus(function(){
 					//fixes a datepicker issue where the calendar stays open
@@ -633,6 +633,7 @@ function uncheckAll( $div ) {
 	function labBookPopupAddForm(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 		initDatepicker("#default_popup .datepicker");
+		initTooltips("#default_popup");
 		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
 			$(this).hide();
 			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
@@ -735,7 +736,7 @@ function uncheckAll( $div ) {
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
-		initTooltips();
+		initTooltips(document);
 		initActions();
 		initSummary();
 		initAjaxClass(document);
