@@ -8,8 +8,9 @@
 			'cancel' => '/administrate/dropdowns/view/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/'
 		)
 	);
+	
 	$desc = __('dropdown_config_desc', true);
-	$structures->build($atim_structure, array('type' => 'index', 'settings' => array('header' => array('title' => '', 'description' => $desc), 'form_inputs' => false, 'pagination' => false), 'links' => $links));
+	$structures->build($atim_structure, array('type' => 'editgrid', 'settings' => array('header' => array('title' => '', 'description' => $desc), 'pagination' => false), 'links' => $links));
 
 ?>
 <script>

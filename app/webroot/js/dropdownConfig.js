@@ -1,7 +1,9 @@
 function initDropdownConfig(){
+	var i = 0;
 	$("input[type=radio]").each(function(){
-		$(this).parent().append("<input type='hidden' name='data[0][option_id][]' value='" + $(this).val() + "'/>");
+		$(this).parent().append("<input type='hidden' name='data[" + i + "][StructurePermissibleValuesCustom][id]' value='" + $(this).val() + "'/>");
 		$(this).remove();
+		++ i;
 	});
 	
 	var checkboxId = "alphabetical";
