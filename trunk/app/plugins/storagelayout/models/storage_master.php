@@ -43,26 +43,65 @@ class StorageMaster extends StoragelayoutAppModel {
 		$this->data['StorageMaster']['parent_id'] = isset($parent_storage_data['StorageMaster']['id'])? $parent_storage_data['StorageMaster']['id'] : null;
 		
 		if(array_key_exists('id', $this->data['StorageMaster']) && (!empty($parent_storage_data))
-		&& ($this->find('count', array('conditions' => array('StorageMaster.id' => $this->data['StorageMaster']['id'], 'StorageMaster.lft <= '.$parent_storage_data['StorageMaster']['lft'], 'StorageMaster.rght >= '.$parent_storage_data['StorageMaster']['rght']), 'recursive' => -1)))) {
+			&& ($this->find('count', array('conditions' => array('StorageMaster.id' => $this->data['StorageMaster']['id'], 'StorageMaster.lft <= '.$parent_storage_data['StorageMaster']['lft'], 'StorageMaster.rght >= '.$parent_storage_data['StorageMaster']['rght']), 'recursive' => -1)))
+		){
 			$this->validationErrors['recorded_storage_selection_label'] = 'you can not store your storage inside itself';
 
 		} else if(!empty($parent_storage_data) && (strcmp($parent_storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
 			$this->validationErrors['recorded_storage_selection_label'] = 'you can not define a tma block as a parent storage';
 					
 		} else {
-			if($parent_storage_selection_results['change_position_x_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
-			if($parent_storage_selection_results['change_position_y_to_uppercase']) $this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
+			if($parent_storage_selection_results['change_position_x_to_uppercase']){
+				$this->data['StorageMaster']['parent_storage_coord_x'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_x']);
+			}
+			if($parent_storage_selection_results['change_position_y_to_uppercase']){
+				$this->data['StorageMaster']['parent_storage_coord_y'] = strtoupper($this->data['StorageMaster']['parent_storage_coord_y']);
+			}
 			
 			// Set error
-			if(!empty($parent_storage_selection_results['storage_definition_error'])) $this->validationErrors['recorded_storage_selection_label'] = $parent_storage_selection_results['storage_definition_error'];
-			if(!empty($parent_storage_selection_results['position_x_error'])) $this->validationErrors['parent_storage_coord_x'] = $parent_storage_selection_results['position_x_error'];
-			if(!empty($parent_storage_selection_results['position_y_error'])) $this->validationErrors['parent_storage_coord_y'] = $parent_storage_selection_results['position_y_error'];
-		}		
+			if(!empty($parent_storage_selection_results['storage_definition_error'])){
+				$this->validationErrors['recorded_storage_selection_label'] = $parent_storage_selection_results['storage_definition_error'];
+			}
+			if(!empty($parent_storage_selection_results['position_x_error'])){
+				$this->validationErrors['parent_storage_coord_x'] = $parent_storage_selection_results['position_x_error'];
+			}
+			if(!empty($parent_storage_selection_results['position_y_error'])){
+				$this->validationErrors['parent_storage_coord_y'] = $parent_storage_selection_results['position_y_error'];
+			}
+			
+			
+			if(empty($this->validationErrors['recorded_storage_selection_label'])
+				&& empty($this->validationErrors['parent_storage_coord_x'])
+				&& empty($this->validationErrors['parent_storage_coord_y'])
+				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+				&& (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)
+			){
+				$exception = $this->id ? array("StorageMaster" => $this->id) : array();
+				if(!$this->isPositionAvailableQuick(
+						$parent_storage_selection_results['storage_data']['StorageMaster']['id'], 
+						array(
+							'x' => $this->data['StorageMaster']['parent_storage_coord_x'], 
+							'y' => $this->data['StorageMaster']['parent_storage_coord_y']
+						), $exception
+					)
+				){
+					$msg = sprintf(
+						__('the storage [%s] already contained something at position [%s, %s]', true),
+						$parent_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
+						$this->data['StorageMaster']['parent_storage_coord_x'],
+						$this->data['StorageMaster']['parent_storage_coord_y']
+					);
+					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+						AppController::addWarningMsg($msg);
+					}else{
+						$this->validationErrors['parent_storage_coord_x'] = $msg;
+					}
+				}
+			}
+		}	
 			
 		$this->IsDuplicatedStorageBarCode($this->data);		
-				
 		parent::validates($options);
-		
 		return empty($this->validationErrors);
 	}
 	
@@ -85,11 +124,6 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 				
 	}	
-	
-	function getParentStoragePermissibleValues($excluded_storage_master_id = null) {	
-		pr('deprecated');
-		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-	}
 	
 	static function getStoragesDropdown(){
 		return array();
@@ -168,16 +202,6 @@ class StorageMaster extends StoragelayoutAppModel {
 				
 	}
 	
-	function validateStorageIdVersusSelectionLabel() {
-		pr('deprecated');
-		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-	}
-	
-	function validatePositionWithinStorage($storage_master_id, $position_x, $position_y, $storage_data = null) {
-		pr('deprecated');
-		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-	}
-
 	/**
 	 * Validate a value set to define position of an entity into a storage coordinate ('x' or 'y').
 	 * 
@@ -727,6 +751,72 @@ class StorageMaster extends StoragelayoutAppModel {
 		$children_array['DisplayData']['type'] = $type_key;
 		$children_array['DisplayData']['link'] = $link;
 		$children_array['DisplayData']['icon_name'] = $icon_name;
+	}
+	
+	/**
+	 * Checks wheter a storage position is already occupied or not. This is a
+	 * quick check up that will not behave properly on bogus positions.
+	 * @param int $storage_master_id
+	 * @param array $position ("x" => int [, "y" => int])
+	 * @param array $exception (model name => id). An exception to ommit when
+	 * checking availability. Usefull when editing something.
+	 * @return true if no aliquot with an "in_stock" flag other than "no" is
+	 * found in the position, false otherwise.
+	 */
+	function isPositionAvailableQuick($storage_master_id, array $position, array $exception = array()){
+		//check if an aliquot occupied the position
+		$conditions = array(
+			'AliquotMaster.storage_master_id' => $storage_master_id,
+			'AliquotMaster.in_stock !='	=> "no"
+		);
+		foreach($position as $key => $val){
+			$conditions['AliquotMaster.storage_coord_'.$key] = $val;
+		}
+		if(array_key_exists("AliquotMaster", $exception)){
+			$conditions['AliquotMaster.id !='] = $exception['AliquotMaster'];
+		}
+		$aliquot_master_model = ClassRegistry::getObject('AliquotMaster');
+		$tmp = $aliquot_master_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
+		if(!empty($tmp)){
+			return false;
+		}
+
+		
+		//check if a storage occupies the position
+		$conditions = array(
+			'StorageMaster.parent_id' => $storage_master_id
+		);
+		foreach($position as $key => $val){
+			$conditions['StorageMaster.parent_storage_coord_'.$key] = $val;
+		}
+		if(array_key_exists("StorageMaster", $exception)){
+			$conditions['StorageMaster.id !='] = $exception['StorageMaster'];
+		}
+		$tmp = $this->find('first', array('conditions' => $conditions, 'recursive' => -1));
+		if(!empty($tmp)){
+			return false;
+		}
+		
+		
+		//check if a TMA occupies the position
+		$conditions = array(
+			'TmaSlide.storage_master_id' => $storage_master_id
+		);
+		foreach($position as $key => $val){
+			$conditions['TmaSlide.storage_coord_'.$key] = $val;
+		}
+		if(array_key_exists("TmaSlide", $exception)){
+			$conditions['TmaSlide.id !='] = $exception['TmaSlide'];
+		}
+		if(!$tma_slide_model = ClassRegistry::getObject('TmaSlide')){
+			$tma_slide_model = ClassRegistry::init('TmaSlide');
+		}
+		$tmp = $tma_slide_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
+		if(!empty($tmp)){
+			return false;
+		}
+		
+		return true;
 	}
 }
 
