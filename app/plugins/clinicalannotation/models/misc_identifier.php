@@ -5,7 +5,12 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	var $belongsTo = array(
 		'Participant' => array(
 			'className' => 'Clinicalannotation.Participant',
-			'foreignKey' => 'participant_id'));
+			'foreignKey' => 'participant_id'),
+		'MiscIdentifierControl' => array(
+			'className' => 'Clinicalannotation.MiscIdentifierControl',
+			'foreignKey' => 'misc_identifier_control_id'
+		)
+	);
 
 	private $confid_warning_absent = true;
 	
