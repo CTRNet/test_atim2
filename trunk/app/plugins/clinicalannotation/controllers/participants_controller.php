@@ -1,7 +1,7 @@
 <?php
 
 class ParticipantsController extends ClinicalannotationAppController {
-
+	
 	var $components = array(); 
 		
 	var $uses = array(
@@ -22,7 +22,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	);
 	var $paginate = array(
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC')); 
+		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -61,7 +61,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->data = $participant_data;
 		
 		// Set data for identifier list
-		
 		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		$this->set('participant_identifiers_data', $participant_identifiers_data);
 		

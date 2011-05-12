@@ -10,7 +10,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		'Clinicalannotation.MiscIdentifierControl'
 	);
 	
-	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC, MiscIdentifier.identifier_value ASC'));
+	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
 	
 	function index() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
@@ -70,7 +70,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id)));		
 		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		$this->data = $misc_identifier_data;
 		

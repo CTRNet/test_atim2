@@ -26,7 +26,9 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Les mots de passe doivent avoir une longueur minimale de 6 caractères"),
 ("permissible_values_custom_use_as_input",
  "If checked, the value can be used as input. If not, the value can only be used for search and data look ups.",
- "Si sélectionné, la valeur peut être utilisée comme entrée. Sinon, la valeur peut seulement être utilisée pour les recherches et pour le pairage des données.");
+ "Si sélectionné, la valeur peut être utilisée comme entrée. Sinon, la valeur peut seulement être utilisée pour les recherches et pour le pairage des données."),
+("defined", "Defined", "Défini"),
+("previously defined", "Previously defined", "Défini précédemment");
 
 DROP TABLE datamart_batch_processes;
 
@@ -97,3 +99,10 @@ UPDATE structure_formats SET `flag_editgrid_readonly`='1' WHERE structure_id=(SE
 
 ALTER TABLE structure_value_domains_permissible_values
  ADD COLUMN use_as_input BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE misc_identifiers
+ DROP COLUMN identifier_name,
+ DROP COLUMN identifier_abrv;
+ALTER TABLE misc_identifiers_revs
+ DROP COLUMN identifier_name,
+ DROP COLUMN identifier_abrv;
