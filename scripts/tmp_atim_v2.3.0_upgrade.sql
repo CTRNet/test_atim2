@@ -28,7 +28,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "If checked, the value can be used as input. If not, the value can only be used for search and data look ups.",
  "Si sélectionné, la valeur peut être utilisée comme entrée. Sinon, la valeur peut seulement être utilisée pour les recherches et pour le pairage des données."),
 ("defined", "Defined", "Défini"),
-("previously defined", "Previously defined", "Défini précédemment");
+("previously defined", "Previously defined", "Défini précédemment"),
+("the storage [%s] already contained something at position [%s, %s]", 
+ "The storage [%s] already contained something at position [%s, %s]",
+ "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"); 
 
 DROP TABLE datamart_batch_processes;
 
@@ -106,3 +109,15 @@ ALTER TABLE misc_identifiers
 ALTER TABLE misc_identifiers_revs
  DROP COLUMN identifier_name,
  DROP COLUMN identifier_abrv;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'MiscIdentifierControl', 'misc_identifier_controls', 'misc_identifier_name', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') , '0', '', '', '', 'name', ''), 
+('Clinicalannotation', 'MiscIdentifierControl', 'misc_identifier_controls', 'misc_identifier_name_abbrev', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') , '0', '', '', '', 'identifier abrv', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='MiscIdentifierControl' AND `tablename`='misc_identifier_controls' AND `field`='misc_identifier_name' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='MiscIdentifierControl' AND `tablename`='misc_identifier_controls' AND `field`='misc_identifier_name_abbrev' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_abrv' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='MiscIdentifierControl' AND `tablename`='misc_identifier_controls' AND `field`='misc_identifier_name' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_name' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_name_list') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'MiscIdentifierControl', 'misc_identifiers_controls', 'misc_identifier_name_abbrev', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') , '0', '', '', '', 'identifier abrv', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='MiscIdentifierControl' AND `tablename`='misc_identifiers_controls' AND `field`='misc_identifier_name_abbrev' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_abrv' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='identifier_abrv_list') AND `flag_confidential`='0');
+
+ALTER TABLE storage_controls 
+ ADD COLUMN check_conficts TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '0=no, 1=warn, anything else=error';

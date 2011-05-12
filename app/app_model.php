@@ -359,6 +359,8 @@ class AppModel extends Model {
 	 * @param string $class_name
 	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
 	 * @return An ATiM model 
+	 * 
+	 * @deprecated use ClassRegistry::init instead
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
