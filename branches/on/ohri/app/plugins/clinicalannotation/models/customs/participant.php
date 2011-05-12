@@ -26,18 +26,10 @@ class ParticipantCustom extends Participant {
 			}
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, (empty($bank_identifier)? $result['Participant']['participant_identifier'] : $bank_identifier) ),
-					'title'			=>	array( NULL, (empty($bank_identifier)? $result['Participant']['participant_identifier'] : $bank_identifier) ),
-					
-					'description'		=>	array(
-						__('ohri_bank_participant_id', true) => $bank_identifier,
-						__('name', TRUE)					=>	($result['Participant']['first_name'].' '.$result['Participant']['last_name']),
-						__('date of birth', TRUE)			=>	$result['Participant']['date_of_birth'],
-						__('vital status', TRUE)			=>	array($result['Participant']['vital_status'], 'vital_status'), // select-option
-						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex')
-					)
-				)
+					'menu'				=>	array( NULL, __('ohri_bank_participant_id', true).": ".$bank_identifier ),
+					'title'				=>	array( NULL, __('ohri_bank_participant_id', true).": ".$bank_identifier ),
+					'structure alias' 	=> 'participants',
+					'data'				=> $result
 			);
 		}
 		
