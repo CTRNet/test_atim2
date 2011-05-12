@@ -55,11 +55,27 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['Participant']['date_of_death'];
 					$line[] = $unit['Participant']['dod_date_accuracy'];
 					$line[] = "";//suspected dod
+//NL_NOTE: A confirmer avec OHRI => $unit['Participant']['date_of_death']; 
 					$line[] = "";//Suspected Date of Death date accuracy
+//NL_NOTE: A confirmer avec OHRI => $unit['Participant']['dod_date_accuracy'];
 					$line[] = $unit['Participant']['last_chart_checked_date'];
+//NL_NOTE: Prendre date la plus rescente parmis:
+// Participant.last_chart_checked_date
+// TreatmentMaster.start_date
+// DiagnosisMaster.dx_date
+// EventMaster.event_summary					
 					$line[] = "";//last contact date acc
 					$line[] = "?";//TODO: family history
+//NL_NOTE: For each participant, get all FamilyHistory.ohri_disease_site
+//if 1 other => 'unknown'
+//if 1 breast => 'breast cancer'	
+//if 1 ovary => 'ovarian cancer'
+//if 1 ovary && 1 breast => 'ovarian and breast cancer'
+//if 1 breast && n other => 'breast cancer'	
+//if 1 ovary && n other  => 'ovarian cancer'
+//if 1 ovary && 1 breast && n other => 'ovarian and breast cancer'
 					$line[] = "?";//TODO: BRCA status
+//NL_NOTE: Export last record of ohri_ed_lab_markers.brca for each participant					
 					echo implode(csv_separator, $line), "\n";
 				}
 				++ $i;
@@ -109,29 +125,77 @@ class ReportsControllerCustom extends ReportsController {
 					WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id IN(".implode(", ", $participant_ids).")
 					ORDER BY DiagnosisMaster.participant_id LIMIT 10 OFFSET ".($i * 10), false
 				);
-				
+//NL_NOTE: Ne prendre que les diagnosis_masters.dx_origin = 'primary' avec diagnosis_control_id = 14 (diagnosis ohri - ovary)
+// Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
+// select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
+//
+//+----+----------------+-------------+----------------------+
+//| id | participant_id | dx_origin   | diagnosis_control_id |
+//+----+----------------+-------------+----------------------+
+//| 63 |              5 | unknown     |                   14 |
+//| 10 |             11 | primary     |                   15 |
+//| 20 |             22 | synchronous |                   14 |
+//| 21 |             22 | synchronous |                   15 |
+//| 29 |             31 | primary     |                   14 |
+//| 30 |             31 | primary     |                   15 |
+//| 32 |             33 | primary     |                   15 |
+//| 38 |             38 | primary     |                   15 |
+//| 42 |             42 | primary     |                   15 |
+//| 44 |             43 | primary     |                   15 |
+//| 43 |             43 | primary     |                   14 |
+//| 50 |             49 | primary     |                   15 |
+//| 65 |             66 | secondary   |                   14 |
+//| 91 |             94 | secondary   |                   14 |
+//| 92 |             95 | secondary   |                   14 |
+//| 93 |             96 | secondary   |                   14 |
+//| 95 |             98 | secondary   |                   14 |
+//| 96 |             99 | secondary   |                   14 |
+//| 97 |            100 | secondary   |                   14 |
+//+----+----------------+-------------+----------------------+	
+
 				foreach($data as $unit){
 					$line = array();
 					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
 					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
 					$line[] = "?";//TODO: Presence of precursor of benign lesions
+//NL_NOTE: Doesn't exist
 					$line[] = "?";//TODO: fallopian tube lesions	Age at Time of Diagnosis (yr)
+//NL_NOTE: Doesn't exist
 					$line[] = $unit['DiagnosisDetail']['laterality'];
 					$line[] = $unit['DiagnosisDetail']['histopathology'];
 					$line[] = $unit['DiagnosisMaster']['tumour_grade'];
 					$line[] = $unit['DiagnosisDetail']['figo'];
 					$line[] = "?";//TODO: Residual Disease
-					$line[] = "?";//TODO: Progression status
-					$line[] = "?";//TODO: Date of Progression/Recurrence Date
-					$line[] = "?";//TODO: Date of Progression/Recurrence Accuracy
-					$line[] = $unit['DiagnosisMaster']['ohri_tumor_site'];//TODO: not certain, might not be metastasis
+//NL_NOTE:
+//Pour chaque patient faire l'analyse suivante:
+//Si pas de chirurgie.... rien
+//Sinon chercher la chirurgie liée au diagnostic 
+//    si tx_masters.tx_method = 'surgery' && tx_masters.diagnosis_master_id = id du diagnostic => prendre cette chirurgie (si plusieurs... = probleme)
+//    si  tx_masters.diagnosis_master_id = null et une seule chirurgie pour le patient => prendre cette chirurgie
+//    sinon champs vide
+//Pour la chirurgie sélectionnée prendre le champ: TreatmentDetail.residual_disease
+					$line[] = "";//TODO: Progression status
+//NL_NOTE: Doesn't exist (auccun patient avec un primair ovaire et un metastasis...)
+					$line[] = "";//TODO: Date of Progression/Recurrence Date
+//NL_NOTE: Doesn't exist
+					$line[] = "";//TODO: Date of Progression/Recurrence Accuracy
+//NL_NOTE: Doesn't exist
+					$line[] = "";//$unit['DiagnosisMaster']['ohri_tumor_site'];//TODO: not certain, might not be metastasis
+//NL_NOTE: Selon la requete suivante, aucun diagnostic metastatic autre existe dans leur ATiM
+//Donc ne'existe pas
 					$line[] = "";//Only one site
-					$line[] = "?";//TODO: progression time (months)
-					$line[] = "?";//TODO: Date of Progression of CA125 Date
-					$line[] = "?";//TODO: Date of Progression of CA125 Accuracy
-					$line[] = "?";//TODO: CA125 progression time (months)
+//NL_NOTE: Doesn't exist
+					$line[] = "";//TODO: progression time (months)
+//NL_NOTE: Doesn't exist
+					$line[] = "";//TODO: Date of Progression of CA125 Date
+//NL_NOTE: Doesn't exist
+					$line[] = "";//TODO: Date of Progression of CA125 Accuracy
+//NL_NOTE: Doesn't exist
+					$line[] = "";//TODO: CA125 progression time (months)
+//NL_NOTE: Doesn't exist
 					$line[] = "?";//TODO Follow-up from ovarectomy (months)
+//NL_NOTE: Doesn't exist
 					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
 					
 					echo implode(csv_separator, $line), "\n";
@@ -228,7 +292,9 @@ class ReportsControllerCustom extends ReportsController {
 						"drug3"						=> $drug3,
 						"drug4"						=> $drug4,
 						"ca125"						=> "?",//TODO
+//NL_NOTE: ohri_ed_lab_chemistries.CA125_u_ml
 						"ctscan precision"			=> "?"//TODO
+//NL_NOTE: ohri_ed_clinical_ctscans.response
 					);
 				}
 
