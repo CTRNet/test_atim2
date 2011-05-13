@@ -28,7 +28,7 @@ $fields = array(
 	"qc_tf_last_contact" => "Date of last contact Date",
 	"qc_tf_last_contact_accuracy" => "Date of last contact Accuracy",
 	"qc_tf_bank_id"				=> "identifier_id",
-	"qc_tf_death_from_cancer"	=> array("Death from prostate cancer" => array("no" => "n", "yes" => "y", "unknown" => "")),
+	"qc_tf_death_from_cancer"	=> array("Death from prostate cancer" => array("no" => "n", "yes" => "y", "unknown" => "", "" => "")),
 );
 
 function postParticipantWrite(Model $m, $participant_id){

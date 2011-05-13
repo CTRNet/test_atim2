@@ -3,6 +3,8 @@ $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
 	"participant_id" 		=> $pkey,
+	"disease_site"			=> "@all",
+	"event_group"			=> "@clinical",
 	"event_control_id" 		=> "@35",
 	"event_date"			=> "Dates of event Date of event (beginning)",
 	"event_date_accuracy"	=> "Dates of event Accuracy",
@@ -14,7 +16,7 @@ $detail_fields = array(
 	"psa_ng_on_ml"				=> "PSA (ng/ml)",
 	"radiotherapy"				=> "Radiotherapy",
 	"radiotherapy_dose"			=> "radiotherapy dose",
-	"tx_precision1"				=> "treatment Precision Drug 1",
+	"tx_precision1"				=> "treatment Precision drug 1",
 	"tx_precision2"				=> "treatment Precision drug 2",
 	"tx_precision3"				=> "treatment Precision drug 3",
 	"tx_precision4"				=> "treatment Precision drug 4",
@@ -30,4 +32,4 @@ $tables['qc_tf_ed_cpcbn']->custom_data = array(
 		$detail_fields["event_end_date"]	=> $detail_fields["event_end_date"],
 	)
 );
-$tables['qc_tf_cpcbn']->post_read_function = 'postRead';
+$tables['qc_tf_ed_cpcbn']->post_read_function = 'postRead';
