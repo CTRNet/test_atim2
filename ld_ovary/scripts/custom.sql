@@ -627,4 +627,555 @@ UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id F
 UPDATE aliquot_review_controls SET flag_active = 0;
 UPDATE specimen_review_controls SET flag_active = 0;
 
-UPDATE structure_formats SET `flag_add`='1', `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET  `display_order`='1', `flag_add`='1', `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `display_order`='0', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='in_stock_detail') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `display_column`='0', `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='autocomplete' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `display_order`='1', `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+UPDATE structure_formats SET `display_order`='1', `flag_add`='0', `flag_edit_readonly`='0', `flag_addgrid`='1', `flag_batchedit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='barcode' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Participant' AND tablename='participants' AND field='marital_status' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='marital_status'));
+
+INSERT INTO misc_identifier_controls(misc_identifier_name, misc_identifier_name_abbrev, flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant) VALUES
+("régime d'assurance maladie du québec", 'RAMQ', 1, 4, '', '', 1),
+("hospital number", "hospital #", 1, 4, '', '', 1);
+REPLACE INTO i18n (id, en, fr) VALUES
+("régime d'assurance maladie du québec", "Régime d'Assurance Maladie du Québec", "Régime d'Assurance Maladie du Québec");
+UPDATE misc_identifier_controls SET misc_identifier_name = misc_identifier_name_abbrev WHERE misc_identifier_name_abbrev = 'RAMQ';
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('participant identifier','Participant Initial','initial du participant'); 
+
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewCollection' AND tablename='' AND field='collection_property' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property'));
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='ViewCollection' AND tablename='' AND field='collection_datetime_accuracy' AND type='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator'));
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_search_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
+
+UPDATE structure_fields SET flag_confidential =1
+WHERE model = 'Participant' AND field IN ('fist_name', 'laste_name', 'date_of_birth');
+
+
+
+
+
+
+-- ============================================================================================================================
+-- CLICNICAL FORMS FROM - TRFI.Coeur
+-- ============================================================================================================================
+
+-- Profile
+
+ALTER TABLE participants
+ ADD qc_tf_brca_status VARCHAR(50) NOT NULL DEFAULT '';
+
+ALTER TABLE participants_revs
+ ADD qc_tf_brca_status VARCHAR(50) NOT NULL DEFAULT '';
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('wild type', 'wild type'),
+('BRCA mutation known but not identified', 'BRCA mutation known but not identified'),
+('BRCA1 mutated', 'BRCA1 mutated'),
+('BRCA2 mutated', 'BRCA2 mutated'),
+('BRCA1/2 mutated', 'BRCA1/2 mutated'),
+('unknown ', 'unknown');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_brca', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_brca"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='wild type' AND language_alias='wild type') OR
+(value='BRCA mutation known but not identified' AND language_alias='BRCA mutation known but not identified') OR
+(value='BRCA1 mutated' AND language_alias='BRCA1 mutated') OR
+(value='BRCA2 mutated' AND language_alias='BRCA2 mutated') OR
+(value='BRCA1/2 mutated' AND language_alias='BRCA1/2 mutated') OR
+(value='unknown' AND language_alias='unknown'));
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'Participant', 'participants', 'qc_tf_brca_status', 'brca status', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca') , '', 'open', 'open', 'open');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_brca_status' AND `language_label`='brca status' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_brca')  AND `language_help`=''), '3', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '1');
+
+INSERT INTO i18n (id, en, fr) VALUES
+("brca status", "BRCA status", "BRCA status");
+
+-- Diagnosis
+
+UPDATE `diagnosis_controls` SET flag_active=0;
+INSERT INTO `diagnosis_controls` (`controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`) VALUES
+ ('EOC', 1, 'qc_tf_dx_eoc', 'qc_tf_dxd_eocs', 1),
+ ('other primary cancer', 1, 'qc_tf_dxd_other_primary_cancer', 'qc_tf_dxd_other_primary_cancers', 2);  
+
+CREATE TABLE qc_tf_dxd_eocs(
+ `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ `diagnosis_master_id` INTEGER NOT NULL,
+ `presence_of_precursor_of_benign_lesions` VARCHAR(50) NOT NULL DEFAULT '',
+ `fallopian_tube_lesion` VARCHAR(50) NOT NULL DEFAULT '',
+ `laterality` VARCHAR(50) NOT NULL DEFAULT '',
+ `histopathology` VARCHAR(50) NOT NULL DEFAULT '',
+ `tumor_grade` TINYINT UNSIGNED DEFAULT NULL,
+ `figo` VARCHAR(50) NOT NULL DEFAULT '',
+ `residual_disease` VARCHAR(50) NOT NULL DEFAULT '',
+ `date_of_progression_recurrence` DATE,
+ `date_of_progression_recurrence_accuracy` VARCHAR(50) NOT NULL DEFAULT '',
+ `date_of_ca125_progression` DATE DEFAULT NULL,
+ `date_of_ca125_progression_accu` VARCHAR(1) DEFAULT '',
+ `ca125_progression_time_in_months` FLOAT UNSIGNED,
+ `site_1_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `site_2_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `progression_time_in_months` FLOAT UNSIGNED,
+ `follow_up_from_ovarectomy_in_months` FLOAT UNSIGNED,
+ `survival_from_ovarectomy_in_months` FLOAT UNSIGNED,
+ `progression_status` VARCHAR(50) NOT NULL DEFAULT '',
+ `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters`(`id`)
+)Engine=InnoDb;
+CREATE TABLE qc_tf_dxd_eocs_revs(
+ `id` INTEGER UNSIGNED NOT NULL,
+ `diagnosis_master_id` INTEGER NOT NULL,
+ `presence_of_precursor_of_benign_lesions` VARCHAR(50) NOT NULL DEFAULT '',
+ `fallopian_tube_lesion` VARCHAR(50) NOT NULL DEFAULT '',
+ `laterality` VARCHAR(50) NOT NULL DEFAULT '',
+ `histopathology` VARCHAR(50) NOT NULL DEFAULT '',
+ `tumor_grade` TINYINT UNSIGNED DEFAULT NULL,
+ `figo` VARCHAR(50) NOT NULL DEFAULT '',
+ `residual_disease` VARCHAR(50) NOT NULL DEFAULT '',
+ `date_of_progression_recurrence` DATE,
+ `date_of_progression_recurrence_accuracy` VARCHAR(50) NOT NULL DEFAULT '',
+ `site_1_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `site_2_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `progression_time_in_months` FLOAT UNSIGNED,
+ `follow_up_from_ovarectomy_in_months` FLOAT UNSIGNED,
+ `survival_from_ovarectomy_in_months` FLOAT UNSIGNED,
+ `progression_status` VARCHAR(50) NOT NULL DEFAULT '',
+ `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
+CREATE TABLE `qc_tf_dxd_other_primary_cancers`(
+ `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ `diagnosis_master_id` INTEGER NOT NULL,
+ `tumor_site` VARCHAR(50) NOT NULL DEFAULT '',
+ `laterality` VARCHAR(50) NOT NULL DEFAULT '',
+ `histopathology` VARCHAR(50) NOT NULL DEFAULT '',
+ `date_of_progression_recurrence` DATE,
+ `date_of_progression_recurrence_accuracy` VARCHAR(50) NOT NULL DEFAULT '',
+ `site_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `survival_in_months` FLOAT UNSIGNED,
+ `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters`(`id`)
+)Engine=InnoDb;
+
+CREATE TABLE `qc_tf_dxd_other_primary_cancers_revs`(
+ `id` INTEGER UNSIGNED NOT NULL,
+ `diagnosis_master_id` INTEGER NOT NULL,
+ `tumor_site` VARCHAR(50) NOT NULL DEFAULT '',
+ `laterality` VARCHAR(50) NOT NULL DEFAULT '',
+ `histopathology` VARCHAR(50) NOT NULL DEFAULT '',
+ `date_of_progression_recurrence` DATE,
+ `date_of_progression_recurrence_accuracy` VARCHAR(50) NOT NULL DEFAULT '',
+ `site_of_tumor_progression` VARCHAR(50) NOT NULL DEFAULT '',
+ `survival_in_months` FLOAT UNSIGNED,
+ `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_tumor_site', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('Digestive-Anal', 'Digestive-Anal'),
+('Digestive-Appendix', 'Digestive-Appendix'),
+('Digestive-Bile Ducts', 'Digestive-Bile Ducts'),
+('Digestive-Colonic', 'Digestive-Colonic'),
+('Digestive-Esophageal', 'Digestive-Esophageal'),
+('Digestive-Gallbladder', 'Digestive-Gallbladder'),
+('Digestive-Liver', 'Digestive-Liver'),
+('Digestive-Pancreas', 'Digestive-Pancreas'),
+('Digestive-Rectal', 'Digestive-Rectal'),
+('Digestive-Small Intestine', 'Digestive-Small Intestine'),
+('Digestive-Stomach', 'Digestive-Stomach'),
+('Digestive-Other Digestive', 'Digestive-Other Digestive'),
+('Thoracic-Lung', 'Thoracic-Lung'),
+('Thoracic-Mesothelioma', 'Thoracic-Mesothelioma'),
+('Thoracic-Other Thoracic', 'Thoracic-Other Thoracic'),
+('Ophthalmic-Eye', 'Ophthalmic-Eye'),
+('Ophthalmic-Other Eye', 'Ophthalmic-Other Eye'),
+('Breast-Breast', 'Breast-Breast'),
+('Female Genital-Cervical', 'Female Genital-Cervical'),
+('Female Genital-Endometrium', 'Female Genital-Endometrium'),
+('Female Genital-Fallopian Tube', 'Female Genital-Fallopian Tube'),
+('Female Genital-Gestational Trophoblastic Neoplasia', 'Female Genital-Gestational Trophoblastic Neoplasia'),
+('Female Genital-Ovary', 'Female Genital-Ovary'),
+('Female Genital-Peritoneal', 'Female Genital-Peritoneal'),
+('Female Genital-Uterine', 'Female Genital-Uterine'),
+('Female Genital-Vulva', 'Female Genital-Vulva'),
+('Female Genital-Vagina', 'Female Genital-Vagina'),
+('Female Genital-Other Female Genital', 'Female Genital-Other Female Genital'),
+('Head & Neck-Larynx', 'Head & Neck-Larynx'),
+('Head & Neck-Nasal Cavity and Sinuses', 'Head & Neck-Nasal Cavity and Sinuses'),
+('Head & Neck-Lip and Oral Cavity', 'Head & Neck-Lip and Oral Cavity'),
+('Head & Neck-Pharynx', 'Head & Neck-Pharynx'),
+('Head & Neck-Thyroid', 'Head & Neck-Thyroid'),
+('Head & Neck-Salivary Glands', 'Head & Neck-Salivary Glands'),
+('Head & Neck-Other Head & Neck', 'Head & Neck-Other Head & Neck'),
+('Haematological-Leukemia', 'Haematological-Leukemia'),
+('Haematological-Lymphoma', 'Haematological-Lymphoma'),
+("Haematological-Hodgkin's Disease", "Haematological-Hodgkin's Disease"),
+("Haematological-Non-Hodgkin's Lymphomas", "Haematological-Non-Hodgkin's Lymphomas"),
+('Haematological-Other Haematological', 'Haematological-Other Haematological'),
+('Skin-Melanoma', 'Skin-Melanoma'),
+('Skin-Non Melanomas', 'Skin-Non Melanomas'),
+('Skin-Other Skin', 'Skin-Other Skin'),
+('Urinary Tract-Bladder', 'Urinary Tract-Bladder'),
+('Urinary Tract-Renal Pelvis and Ureter', 'Urinary Tract-Renal Pelvis and Ureter'),
+('Urinary Tract-Kidney', 'Urinary Tract-Kidney'),
+('Urinary Tract-Urethra', 'Urinary Tract-Urethra'),
+('Urinary Tract-Other Urinary Tract', 'Urinary Tract-Other Urinary Tract'),
+('Central Nervous System-Brain', 'Central Nervous System-Brain'),
+('Central Nervous System-Spinal Cord', 'Central Nervous System-Spinal Cord'),
+('Central Nervous System-Other Central Nervous System', 'Central Nervous System-Other Central Nervous System'),
+('Musculoskeletal Sites-Soft Tissue Sarcoma', 'Musculoskeletal Sites-Soft Tissue Sarcoma'),
+('Musculoskeletal Sites-Bone', 'Musculoskeletal Sites-Bone'),
+('Musculoskeletal Sites-Other Bone', 'Musculoskeletal Sites-Other Bone'),
+('Other-Primary Unknown', 'Other-Primary Unknown'),
+('Other-Gross Metastatic Disease', 'Other-Gross Metastatic Disease');
+INSERT IGNORE INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tumor_site"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='Digestive-Anal' AND language_alias='Digestive-Anal') OR
+(value='Digestive-Appendix' AND language_alias='Digestive-Appendix') OR
+(value='Digestive-Bile Ducts' AND language_alias='Digestive-Bile Ducts') OR
+(value='Digestive-Colonic' AND language_alias='Digestive-Colonic') OR
+(value='Digestive-Esophageal' AND language_alias='Digestive-Esophageal') OR
+(value='Digestive-Gallbladder' AND language_alias='Digestive-Gallbladder') OR
+(value='Digestive-Liver' AND language_alias='Digestive-Liver') OR
+(value='Digestive-Pancreas' AND language_alias='Digestive-Pancreas') OR
+(value='Digestive-Rectal' AND language_alias='Digestive-Rectal') OR
+(value='Digestive-Small Intestine' AND language_alias='Digestive-Small Intestine') OR
+(value='Digestive-Stomach' AND language_alias='Digestive-Stomach') OR
+(value='Digestive-Other Digestive' AND language_alias='Digestive-Other Digestive') OR
+(value='Thoracic-Lung' AND language_alias='Thoracic-Lung') OR
+(value='Thoracic-Mesothelioma' AND language_alias='Thoracic-Mesothelioma') OR
+(value='Thoracic-Other Thoracic' AND language_alias='Thoracic-Other Thoracic') OR
+(value='Ophthalmic-Eye' AND language_alias='Ophthalmic-Eye') OR
+(value='Ophthalmic-Other Eye' AND language_alias='Ophthalmic-Other Eye') OR
+(value='Breast-Breast' AND language_alias='Breast-Breast') OR
+(value='Female Genital-Cervical' AND language_alias='Female Genital-Cervical') OR
+(value='Female Genital-Endometrium' AND language_alias='Female Genital-Endometrium') OR
+(value='Female Genital-Fallopian Tube' AND language_alias='Female Genital-Fallopian Tube') OR
+(value='Female Genital-Gestational Trophoblastic Neoplasia' AND language_alias='Female Genital-Gestational Trophoblastic Neoplasia') OR
+(value='Female Genital-Ovary' AND language_alias='Female Genital-Ovary') OR
+(value='Female Genital-Peritoneal' AND language_alias='Female Genital-Peritoneal') OR
+(value='Female Genital-Uterine' AND language_alias='Female Genital-Uterine') OR
+(value='Female Genital-Vulva' AND language_alias='Female Genital-Vulva') OR
+(value='Female Genital-Vagina' AND language_alias='Female Genital-Vagina') OR
+(value='Female Genital-Other Female Genital' AND language_alias='Female Genital-Other Female Genital') OR
+(value='Head & Neck-Larynx' AND language_alias='Head & Neck-Larynx') OR
+(value='Head & Neck-Nasal Cavity and Sinuses' AND language_alias='Head & Neck-Nasal Cavity and Sinuses') OR
+(value='Head & Neck-Lip and Oral Cavity' AND language_alias='Head & Neck-Lip and Oral Cavity') OR
+(value='Head & Neck-Pharynx' AND language_alias='Head & Neck-Pharynx') OR
+(value='Head & Neck-Thyroid' AND language_alias='Head & Neck-Thyroid') OR
+(value='Head & Neck-Salivary Glands' AND language_alias='Head & Neck-Salivary Glands') OR
+(value='Head & Neck-Other Head & Neck' AND language_alias='Head & Neck-Other Head & Neck') OR
+(value='Haematological-Leukemia' AND language_alias='Haematological-Leukemia') OR
+(value='Haematological-Lymphoma' AND language_alias='Haematological-Lymphoma') OR
+(value="Haematological-Hodgkin's Disease" AND language_alias="Haematological-Hodgkin's Disease") OR
+(value="Haematological-Non-Hodgkin's Lymphomas" AND language_alias="Haematological-Non-Hodgkin's Lymphomas") OR
+(value='Haematological-Other Haematological' AND language_alias='Haematological-Other Haematological') OR
+(value='Skin-Melanoma' AND language_alias='Skin-Melanoma') OR
+(value='Skin-Non Melanomas' AND language_alias='Skin-Non Melanomas') OR
+(value='Skin-Other Skin' AND language_alias='Skin-Other Skin') OR
+(value='Urinary Tract-Bladder' AND language_alias='Urinary Tract-Bladder') OR
+(value='Urinary Tract-Renal Pelvis and Ureter' AND language_alias='Urinary Tract-Renal Pelvis and Ureter') OR
+(value='Urinary Tract-Kidney' AND language_alias='Urinary Tract-Kidney') OR
+(value='Urinary Tract-Urethra' AND language_alias='Urinary Tract-Urethra') OR
+(value='Urinary Tract-Other Urinary Tract' AND language_alias='Urinary Tract-Other Urinary Tract') OR
+(value='Central Nervous System-Brain' AND language_alias='Central Nervous System-Brain') OR
+(value='Central Nervous System-Spinal Cord' AND language_alias='Central Nervous System-Spinal Cord') OR
+(value='Central Nervous System-Other Central Nervous System' AND language_alias='Central Nervous System-Other Central Nervous System') OR
+(value='Musculoskeletal Sites-Soft Tissue Sarcoma' AND language_alias='Musculoskeletal Sites-Soft Tissue Sarcoma') OR
+(value='Musculoskeletal Sites-Bone' AND language_alias='Musculoskeletal Sites-Bone') OR
+(value='Musculoskeletal Sites-Other Bone' AND language_alias='Musculoskeletal Sites-Other Bone') OR
+(value='Other-Primary Unknown' AND language_alias='Other-Primary Unknown') OR
+(value='Other-Gross Metastatic Disease' AND language_alias='Other-Gross Metastatic Disease'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_histopathology_opc', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('unknown', 'unknown'),
+('non applicable', 'non applicable'),
+('high grade serous', 'high grade serous'),
+('low grade serous', 'low grade serous'),
+('mucinous', 'mucinous'),
+('endometrioid', 'endometrioid'),
+('clear cells', 'clear cells');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology_opc"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='unknown' AND language_alias='unknown') OR
+(value='non applicable' AND language_alias='non applicable') OR
+(value='high grade serous' AND language_alias='high grade serous') OR
+(value='low grade serous' AND language_alias='low grade serous') OR
+(value='mucinous' AND language_alias='mucinous') OR
+(value='endometrioid' AND language_alias='endometrioid') OR
+(value='clear cells' AND language_alias='clear cells'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('0_to_3', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+(0, 0),
+(1, 1),
+(2, 2),
+(3, 3);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="0_to_3"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='0' AND language_alias='0') OR
+(value='1' AND language_alias='1') OR
+(value='2' AND language_alias='2') OR
+(value='3' AND language_alias='3'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_stage', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('Ia', 'Ia'),
+('Ib', 'Ib'),
+('Ic', 'Ic'),
+('IIa', 'IIa'),
+('IIb', 'IIb'),
+('IIc', 'IIc'),
+('IIIa', 'IIIa'),
+('IIIb', 'IIIb'),
+('IIIc', 'IIIc'),
+('IV', 'IV'),
+('unknown', 'unknown');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_stage"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='Ia' AND language_alias='Ia') OR
+(value='Ib' AND language_alias='Ib') OR
+(value='Ic' AND language_alias='Ic') OR
+(value='IIa' AND language_alias='IIa') OR
+(value='IIb' AND language_alias='IIb') OR
+(value='IIc' AND language_alias='IIc') OR
+(value='IIIa' AND language_alias='IIIa') OR
+(value='IIIb' AND language_alias='IIIb') OR
+(value='IIIc' AND language_alias='IIIc') OR
+(value='IV' AND language_alias='IV') OR
+(value='unknown' AND language_alias='unknown'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_presence_of_precursor_of_benign_lesions', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('no', 'no'),
+('unknown', 'unknown'),
+('ovarian cysts', 'ovarian cysts'),
+('endometriosis', 'endometriosis'),
+('endosalpingiosis', 'endosalpingiosis'),
+('benign  or borderline tumours', 'benign  or borderline tumours');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_presence_of_precursor_of_benign_lesions"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='no' AND language_alias='no') OR
+(value='unknown' AND language_alias='unknown') OR
+(value='ovarian cysts' AND language_alias='ovarian cysts') OR
+(value='endometriosis' AND language_alias='endometriosis') OR
+(value='endosalpingiosis' AND language_alias='endosalpingiosis') OR
+(value='benign  or borderline tumours' AND language_alias='benign  or borderline tumours'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_fallopian_tube_lesion', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('no', 'no'),
+('yes', 'yes'),
+('unknown', 'unknown'),
+('salpingitis', 'salpingitis'),
+('benign tumors', 'benign tumors'),
+('malignant tumors', 'malignant tumors');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_fallopian_tube_lesion"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='no' AND language_alias='no') OR
+(value='yes' AND language_alias='yes') OR
+(value='unknown' AND language_alias='unknown') OR
+(value='salpingitis' AND language_alias='salpingitis') OR
+(value='benign tumors' AND language_alias='benign tumors') OR
+(value='malignant tumors' AND language_alias='malignant tumors'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_histopathology', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('high grade serous', 'high grade serous'),
+('low grade serous', 'low grade serous'),
+('mucinous', 'mucinous'),
+('clear cells', 'clear cells'),
+('endometrioid', 'endometrioid'),
+('mixed', 'mixed'),
+('undifferentiated', 'undifferentiated');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='high grade serous' AND language_alias='high grade serous') OR
+(value='low grade serous' AND language_alias='low grade serous') OR
+(value='mucinous' AND language_alias='mucinous') OR
+(value='clear cells' AND language_alias='clear cells') OR
+(value='endometrioid' AND language_alias='endometrioid') OR
+(value='mixed' AND language_alias='mixed') OR
+(value='undifferentiated' AND language_alias='undifferentiated'));
+
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_figo', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('Ia', 'Ia'),
+('Ib', 'Ib'),
+('Ic', 'Ic'),
+('IIa', 'IIa'),
+('IIb', 'IIb'),
+('IIc', 'IIc'),
+('IIIa', 'IIIa'),
+('IIIb', 'IIIb'),
+('IIIc', 'IIIc'),
+('IV', 'IV');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_figo"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='Ia' AND language_alias='Ia') OR
+(value='Ib' AND language_alias='Ib') OR
+(value='Ic' AND language_alias='Ic') OR
+(value='IIa' AND language_alias='IIa') OR
+(value='IIb' AND language_alias='IIb') OR
+(value='IIc' AND language_alias='IIc') OR
+(value='IIIa' AND language_alias='IIIa') OR
+(value='IIIb' AND language_alias='IIIb') OR
+(value='IIIc' AND language_alias='IIIc') OR
+(value='IV' AND language_alias='IV'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_residual_disease', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('none', 'none'),
+('miliary', 'miliary'),
+('<1cm', '<1cm'),
+('1-2cm', '1-2cm'),
+('>2cm', '>2cm'),
+('unknown', 'unknown');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_residual_disease"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='none' AND language_alias='none') OR
+(value='miliary' AND language_alias='miliary') OR
+(value='<1cm' AND language_alias='<1cm') OR
+(value='1-2cm' AND language_alias='1-2cm') OR
+(value='>2cm' AND language_alias='>2cm') OR
+(value='unknown' AND language_alias='unknown'));
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_laterality', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('bilateral', 'bilateral');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_laterality"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='left' AND language_alias='left') OR
+(value='right' AND language_alias='right') OR
+(value='bilateral' AND language_alias='bilateral') OR
+(value='unknown' AND language_alias='unknown'));
+
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_dx_eoc');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'fallopian_tube_lesion', 'fallopian tube lesion', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fallopian_tube_lesion') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'presence_of_precursor_of_benign_lesions', 'presence of precursor of benign lesions', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_presence_of_precursor_of_benign_lesions') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'age_at_dx', 'age at diagnosis', '', 'integer', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'laterality', 'laterality', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'histopathology', 'histopathology', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_histopathology') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'tumour grade', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='0_to_3') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'figo', 'figo', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_figo') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'residual_disease', 'residual disease', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_residual_disease') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'date_of_progression_recurrence', 'date of progession/recurrence', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'date_of_progression_recurrence_accuracy', '', 'accuracy', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'site_1_of_tumor_progression', 'site 1 of tumor progression (metastasis) if applicable', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site') , '', 'open', 'open', 'open'),
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'site_2_of_tumor_progression', 'site 2 of tumor progression (metastasis) if applicable', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'survival_from_ovarectomy_in_months', 'survival from ovarectomy (months)', '', 'float_positive', 'size=3', '',  NULL , '', 'open', 'open', 'open'),
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'progression_time_in_months', 'progression time (months)', '', 'float_positive', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'follow_up_from_ovarectomy_in_months', 'follow up from ovarectomy (months)', '', 'float_positive', 'size=3', '',  NULL , '', 'open', 'open', 'open');
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_tf_dx_eoc');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, 
+`language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
+`flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `type`='date' AND `structure_value_domain`  IS NULL  ), 
+'1', '1', '', '1', 'date of diagnosis', '0', '', '1', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date_accuracy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  ), '1', '2', '', '0', '', '1', 'accuracy', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='fallopian_tube_lesion' AND `language_label`='fallopian tube lesion' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_fallopian_tube_lesion')  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='presence_of_precursor_of_benign_lesions' AND `language_label`='presence of precursor of benign lesions' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_presence_of_precursor_of_benign_lesions')  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `language_label`='age at diagnosis' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='laterality' ), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='histopathology' AND `language_label`='histopathology' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_histopathology')  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `language_label`='tumour grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='0_to_3')  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='figo' AND `language_label`='figo' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_figo')  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='residual_disease' AND `language_label`='residual disease' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_residual_disease')  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='date_of_progression_recurrence' AND `language_label`='date of progession/recurrence' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='date_of_progression_recurrence_accuracy' AND `language_label`='' AND `language_tag`='accuracy' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='site_1_of_tumor_progression' AND `language_label`='site 1 of tumor progression (metastasis) if applicable' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site')  AND `language_help`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='site_2_of_tumor_progression' AND `language_label`='site 2 of tumor progression (metastasis) if applicable' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site')  AND `language_help`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='survival_from_ovarectomy_in_months' AND `language_label`='survival from ovarectomy (months)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='progression_time_in_months' AND `language_label`='progression time (months)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_eocs' AND `field`='follow_up_from_ovarectomy_in_months' AND `language_label`='follow up from ovarectomy (months)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
+'1', '0', '1', '0', '1', '0', '1', '1');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_laterality')  WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='laterality' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='laterality'); 
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_dxd_other_primary_cancer');
+
+INSERT INTO structure_fields(`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`) VALUES
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'age_at_dx', 'age at dx', '', 'integer', 'size=3', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'tumor_site', 'tumor site', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'laterality', 'laterality', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'histopathology', 'histopathology', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_histopathology_opc') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'path_stage_summary', 'stage', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_stage') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'date_of_progression_recurrence', 'date of progression recurrence', '', 'date', '', '',  NULL , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'date_of_progression_recurrence_accuracy', '', 'accuracy', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'site_of_tumor_progression', 'site of tumor progression', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site') , '', 'open', 'open', 'open'), 
+('', 'Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_other_primary_cancers', 'survival_in_months', 'survival (months)', '', 'float_positive', 'size=3', '',  NULL , '', 'open', 'open', 'open');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_index`, `flag_detail`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `type`='date' AND `structure_value_domain`  IS NULL  ), '1', '1', '', '1', 'diagnosis date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date_accuracy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  ), '1', '2', '', '0', '', '1', 'accuracy', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `language_label`='age at dx' AND `language_tag`='' AND `type`='integer' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='tumor_site' AND `language_label`='tumor site' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site')  AND `language_help`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='laterality' AND `language_label`='laterality' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `language_help`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='histopathology' AND `language_label`='histopathology' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_histopathology_opc')  AND `language_help`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `language_label`='tumour grade' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='0_to_3')  AND `language_help`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `language_label`='stage' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_stage')  AND `language_help`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='date_of_progression_recurrence' AND `language_label`='date of progression recurrence' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='date_of_progression_recurrence_accuracy' AND `language_label`='' AND `language_tag`='accuracy' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  AND `language_help`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='site_of_tumor_progression' AND `language_label`='site of tumor progression' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site')  AND `language_help`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='survival_in_months' AND `language_label`='survival (months)' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=3' AND `default`='' AND `structure_value_domain`  IS NULL  AND `language_help`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '1');
+
+ALTER TABLE qc_tf_dxd_eocs_revs
+ ADD date_of_ca125_progression DATE DEFAULT NULL,
+ ADD date_of_ca125_progression_accu VARCHAR(1) DEFAULT '',
+ ADD ca125_progression_time_in_months FLOAT UNSIGNED DEFAULT NULL;
+ 
+-- end of dx --
+
+-- ============================================================================================================================
+-- END CLICNICAL FORMS FROM - TRFI.Coeur
+-- ============================================================================================================================
+
+
+
+
+
+
