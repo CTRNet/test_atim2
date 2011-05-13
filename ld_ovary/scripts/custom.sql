@@ -416,7 +416,7 @@ UPDATE structure_fields
 SET language_label='aliquot system code'
 WHERE field='barcode' AND model IN('AliquotMaster', 'AliquotMasterChildren', 'ViewAliquot');
 
-DROP VIEW view_aliquots;
+DROP VIEW IF EXISTS view_aliquots;
 CREATE VIEW view_aliquots AS 
 SELECT 
 al.id AS aliquot_master_id,
@@ -650,12 +650,18 @@ UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FR
 UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_search_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE model='Collection' AND tablename='collections' AND field='acquisition_label' AND type='input' AND structure_value_domain  IS NULL );
 
 UPDATE structure_fields SET flag_confidential =1
-WHERE model = 'Participant' AND field IN ('fist_name', 'laste_name', 'date_of_birth');
+WHERE model = 'Participant' AND field IN ('first_name', 'last_name', 'date_of_birth');
 
+UPDATE structure_formats AS sfo, structure_fields AS sfi
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field = 'barcode'
+AND  sfi.model = 'StorageMaster'
+AND sfi.id = sfo.structure_field_id;
 
-
-
-
+UPDATE aliquot_controls SET volume_unit = 'ml' WHERE form_alias LIKE '%qc_ldov_tissue_tube%';
 
 -- ============================================================================================================================
 -- CLICNICAL FORMS FROM - TRFI.Coeur
