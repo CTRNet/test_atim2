@@ -857,7 +857,6 @@ class StructuresHelper extends Helper {
 						$data["%d"] = array();
 					}
 					$row_num = 1;
-					$link_location = $this->generateLinksList(null, $options['links'], 'index');//raw links
 					$default_settings_wo_class = self::$default_settings_arr;
 					unset($default_settings_wo_class['class']);
 					foreach($data as $key => $data_unit){
@@ -903,8 +902,16 @@ class StructuresHelper extends Helper {
 		
 						//index
 						if(count($options['links']['index'])){
+							$current_links = array();
+							if(is_array($options['links']['index'])){
+								foreach($options['links']['index'] as &$link){
+									$current_links[] = $this->strReplaceLink($link, $data_unit);
+								}
+							}else{
+								$current_links[] = $this->strReplaceLink($options['links']['index'], $data_unit);
+							}
 							echo '
-								<td class="id">',$this->strReplaceLink($link_location, $data_unit),'</td>
+								<td class="id">',$this->generateLinksList(null, array('index' => $current_links), 'index'),'</td>
 							';
 						}
 						
@@ -2017,7 +2024,9 @@ class StructuresHelper extends Helper {
 	}
 
 	
-	// FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value 
+	/**
+	 * FUNCTION to replace %%MODEL.FIELDNAME%% in link with MODEL.FIELDNAME value
+	 */ 
 	function strReplaceLink($link = '', $data = array()){
 		if(is_array($data)){
 			foreach($data as $model => $fields){
@@ -2028,7 +2037,7 @@ class StructuresHelper extends Helper {
 							// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
 							$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
 							$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
-						} 
+						}
 					}
 				}
 			}
