@@ -206,6 +206,13 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 UPDATE tx_controls SET flag_active = 0;
 
+-- -----------------------------------------------------------------
+-- INVENTORY GENERAL
+-- -----------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131, 23, 136, 25, 3, 132, 142, 143, 144, 130, 101, 102, 140);
+UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(23, 3, 41, 8);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(17, 3, 7, 8, 5);
 
 
 
