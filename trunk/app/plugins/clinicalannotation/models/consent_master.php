@@ -28,7 +28,7 @@ class ConsentMaster extends ClinicalannotationAppModel {
 	function allowDeletion($consent_master_id){
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 
-		$ccl_model = AppModel::atimNew("Clinicalannotation", "ClinicalCollectionLink", true);
+		$ccl_model = AppModel::getInstance("Clinicalannotation", "ClinicalCollectionLink", true);
 		$returned_nbr = $ccl_model->find('count', array('conditions' => array('ClinicalCollectionLink.consent_master_id' => $consent_master_id)));
 		if($returned_nbr > 0){
 			$arr_allow_deletion['allow_deletion'] = false;

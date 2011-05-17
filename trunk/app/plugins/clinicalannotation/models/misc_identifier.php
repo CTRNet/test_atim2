@@ -40,7 +40,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 				AppController::addWarningMsg(__('due to your restriction on confidential data, your search did not return confidential identifiers', true));
 				$this->confid_warning_absent = false;
 			}
-			$misc_control_model = AppModel::atimNew("clinicalannotation", "MiscIdentifierControl", true);
+			$misc_control_model = AppModel::getInstance("clinicalannotation", "MiscIdentifierControl", true);
 			$confidential_control_ids = $misc_control_model->getConfidentialIds();
 			$queryData['conditions'][] = array("MiscIdentifier.misc_identifier_control_id NOT" => $misc_control_model->getConfidentialIds()); 
 		}
@@ -50,7 +50,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	function afterFind($results){
 		$results = parent::afterFind($results);
 		if(!$_SESSION['Auth']['User']['flag_show_confidential'] && isset($results[0]) && isset($results[0]['MiscIdentifier'])){
-			$misc_control_model = AppModel::atimNew("clinicalannotation", "MiscIdentifierControl", true);
+			$misc_control_model = AppModel::getInstance("clinicalannotation", "MiscIdentifierControl", true);
 			$confidential_control_ids = $misc_control_model->getConfidentialIds();
 			if(!empty($confidential_control_ids)){
 				if(isset($results[0]) && isset($results[0]['MiscIdentifier'])){

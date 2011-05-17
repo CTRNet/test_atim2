@@ -311,7 +311,7 @@ class StorageMaster extends StoragelayoutAppModel {
 			} else {
 				// Only TYPE is defined for the studied coordinate: The system can only return a custom coordinate list set by user.			
 				if((strcmp($storage_data['StorageControl']['coord_' . $coord . '_type'], 'list') == 0) && (strcmp($coord, 'x') == 0)) {
-					$storage_coordinate = AppModel::atimNew("Storagelayout", "StorageCoordinate", true);
+					$storage_coordinate = AppModel::getInstance("Storagelayout", "StorageCoordinate", true);
 					$coordinates = $storage_coordinate->atim_list(array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_data['StorageMaster']['id'], 'StorageCoordinate.dimension' => $coord), 'order' => 'StorageCoordinate.order ASC', 'recursive' => '-1'));
 					if(!empty($coordinates)) {
 						foreach($coordinates as $new_coordinate) {
@@ -428,7 +428,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		//child can be a storage or an aliquot
 		$result = array_filter($this->find('list', array('fields' => array("StorageMaster.parent_id"), 'conditions' => array('StorageMaster.parent_id' => $storage_master_ids), 'group' => array('StorageMaster.parent_id'))));
 		$storage_master_ids = array_diff($storage_master_ids, $result);
-		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		$aliquot_master = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
 		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.storage_master_id'), 'conditions' => array('AliquotMaster.storage_master_id' => $storage_master_ids), 'group' => array('AliquotMaster.storage_master_id')))));
 	}
 	
@@ -451,14 +451,14 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 		
 		// Check storage contains no aliquots
-		$aliquot_master_model = AppModel::atimNew("Inventorymangement", "AliquotMaster", true);
+		$aliquot_master_model = AppModel::getInstance("Inventorymangement", "AliquotMaster", true);
 		$nbr_storage_aliquots = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted storage'); 
 		}
 
 		// Check storage is not a block attached to tma slide
-		$tma_slide_model = 	AppModel::atimNew("Storagelayout", "TmaSlide", true);
+		$tma_slide_model = 	AppModel::getInstance("Storagelayout", "TmaSlide", true);
 		$nbr_tma_slides = $tma_slide_model->find('count', array('conditions' => array('TmaSlide.tma_block_storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_tma_slides > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'slide exists for the deleted tma'); 

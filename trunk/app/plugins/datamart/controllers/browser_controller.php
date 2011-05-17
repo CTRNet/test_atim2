@@ -171,7 +171,7 @@ class BrowserController extends DatamartAppController {
 					$use_sub_model = false;
 				}
 				
-				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
 				$select_key = $model_to_import.".".$model_key_name;
 				if($use_sub_model){
@@ -186,7 +186,7 @@ class BrowserController extends DatamartAppController {
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
 					if(!empty($control_data)){
 						//retreive the ids in the parent first
-						$this->ParentModel = AppModel::atimNew($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
+						$this->ParentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
 						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")"), 'recursive' => 0));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
@@ -197,7 +197,7 @@ class BrowserController extends DatamartAppController {
 						$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent['DatamartStructure']['id'])));
 						if($use_sub_model){
 							//we need to load the ids from the main model then send them for the sub model
-							$this->MainModel = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+							$this->MainModel = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 							$tmp_data = $this->MainModel->find('all', 
 								array("conditions" => array($control_data['BrowsingControl']['use_field']." IN (".$parent['BrowsingResult']['id_csv'].")"),
 									"fields" => array($browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']),

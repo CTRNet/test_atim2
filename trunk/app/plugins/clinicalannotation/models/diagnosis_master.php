@@ -55,21 +55,21 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 		
 		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$ccl_model = AppModel::atimNew("Clinicalannotation", "ClinicalCollectionLink", true);
+		$ccl_model = AppModel::getInstance("Clinicalannotation", "ClinicalCollectionLink", true);
 		$nbr_linked_collection = $ccl_model->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $diagnosis_master_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_linked_collection > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_collection';
 		}
 		
-		$event_master_model = AppModel::atimNew("Clinicalannotation", "EventMaster", true);
+		$event_master_model = AppModel::getInstance("Clinicalannotation", "EventMaster", true);
 		$nbr_events = $event_master_model->find('count', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_events > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_events';
 		}
 
-		$treatment_master_model = AppModel::atimNew("Clinicalannotation", "TreatmentMaster", true);
+		$treatment_master_model = AppModel::getInstance("Clinicalannotation", "TreatmentMaster", true);
 		$nbr_treatment = $treatment_master_model->find('count', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
 		if ($nbr_treatment > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;

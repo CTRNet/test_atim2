@@ -550,7 +550,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { require($hook_link); }
 					
 				if($is_batch_process) {
-					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
@@ -1462,7 +1462,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sync_with_lab_book = null;
 		$lab_book_fields = array();
 		if(isset($this->data['Realiquoting']) && isset($this->data['Realiquoting']['lab_book_master_code']) && (strlen($this->data['Realiquoting']['lab_book_master_code']) > 0 || $this->data['Realiquoting']['sync_with_lab_book'])){
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book = AppModel::getInstance("labbook", "LabBookMaster", true);
 			$sample_ctrl_id = isset($this->data['sample_ctrl_id'])? $this->data['sample_ctrl_id']: null;
 			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $parent_aliquot_ctrl_id, $child_aliquot_ctrl_id);
 			$sync_response = $lab_book->syncData($this->data, array(), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
@@ -1720,7 +1720,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { require($hook_link); }
 				
 				if(empty($aliquot_id)) {
-					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				} else {
@@ -1774,7 +1774,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sync_with_lab_book = null;
 		$lab_book_fields = array();
 		if(isset($this->data['Realiquoting']) && isset($this->data['Realiquoting']['lab_book_master_code']) && (strlen($this->data['Realiquoting']['lab_book_master_code']) > 0 || $this->data['Realiquoting']['sync_with_lab_book'])){
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book = AppModel::getInstance("labbook", "LabBookMaster", true);
 			$sample_ctrl_id = isset($this->data['sample_ctrl_id'])? $this->data['sample_ctrl_id']: null;
 			$lab_book_expected_ctrl_id = $this->RealiquotingControl->getLabBookCtrlId($sample_ctrl_id, $parent_aliquot_ctrl_id, $child_aliquot_ctrl_id);
 			$sync_response = $lab_book->syncData($this->data, array(), $this->data['Realiquoting']['lab_book_master_code'], $lab_book_expected_ctrl_id);
@@ -2044,7 +2044,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
-				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+				$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 
 				$hook_link = $this->hook('postsave_process');

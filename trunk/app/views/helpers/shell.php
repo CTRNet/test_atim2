@@ -443,8 +443,7 @@ class ShellHelper extends Helper {
 				}
 				
 				// load MODEL, and override with CUSTOM model if it exists...
-				$summary_model = AppModel::atimNew($plugin, $model, true);
-				
+				$summary_model = AppModel::getInstance($plugin, $model, true);
 				$summary_result = $summary_model->{$function}($options['variables']);
 				if(isset($summary_result['Summary'])){
 					if(Configure::read('debug') > 0){

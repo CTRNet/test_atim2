@@ -12,8 +12,8 @@ class DatamartAppModel extends AppModel {
 	 * @param int $batch_set_id The id of the current batch set
 	 */	
 	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey, $batch_set_id = null){
-		$batch_set = AppModel::atimNew("datamart", "BatchSet", true);
-		$datamart_structures = AppModel::atimNew("datamart", "DatamartStructure", true);
+		$batch_set = AppModel::getInstance("datamart", "BatchSet", true);
+		$datamart_structures = AppModel::getInstance("datamart", "DatamartStructure", true);
 		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'DatamartStructure.model' => $data_model)));
 		$datamart_structure_id = count($d_struct) ? $d_struct['DatamartStructure']['id'] : 0;
 		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id, $batch_set_id);
@@ -36,7 +36,7 @@ class DatamartAppModel extends AppModel {
 			'children' => $batch_set_menu
 		);
 		
-		$structure_functions = AppModel::atimNew("datamart", "DatamartStructureFunction", true);
+		$structure_functions = AppModel::getInstance("datamart", "DatamartStructureFunction", true);
 		$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $datamart_structure_id, 'DatamartStructureFunction.flag_active' => true)));
 		if(count($functions)){
 			$functions_menu = array();

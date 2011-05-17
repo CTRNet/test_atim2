@@ -24,7 +24,7 @@ class Collection extends InventorymanagementAppModel {
 	 * @return array The collection ids having a child
 	 */
 	function hasChild(array $collection_ids){
-		$sample_master = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
+		$sample_master = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
 		return array_filter($sample_master->find('list', array('fields' => array("SampleMaster.collection_id"), 'conditions' => array('SampleMaster.collection_id' => $collection_ids, 'SampleMaster.parent_id IS NULL'), 'group' => array('SampleMaster.collection_id'))));
 	}
 
@@ -42,7 +42,7 @@ class Collection extends InventorymanagementAppModel {
 	 */
 	function allowDeletion($collection_id){
 		// Check collection has no sample
-		$sample_master_model = AppModel::atimNew("Inventorymanagement", "SampleMaster", true);
+		$sample_master_model = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
 		$returned_nbr = $sample_master_model->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'sample exists within the deleted collection'); 
@@ -51,7 +51,7 @@ class Collection extends InventorymanagementAppModel {
 		// Check Collection has not been linked to a participant, consent or diagnosis
 		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
 		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';
-		$ccl_model = AppModel::atimNew("Clinicalcollection", "ClinicalCollectionLink", true);		
+		$ccl_model = AppModel::getInstance("Clinicalcollection", "ClinicalCollectionLink", true);		
 		$returned_nbr = $ccl_model->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); 

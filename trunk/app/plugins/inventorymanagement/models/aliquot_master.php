@@ -146,7 +146,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				}
 						
 				$total_used_volume = 0;
-				$view_aliquot_use = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$view_aliquot_use = AppModel::getInstance("inventorymanagement", "ViewAliquotUse", true);
 				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
 				foreach($aliquot_uses as $id => $aliquot_use){
 					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
@@ -182,7 +182,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			// UPDATE ALIQUOT USE COUNTER	
 		
 			if(is_null($aliquot_uses)) {
-				$view_aliquot_use = AppModel::atimNew("inventorymanagement", "ViewAliquotUse", true);
+				$view_aliquot_use = AppModel::getInstance("inventorymanagement", "ViewAliquotUse", true);
 				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
 			}
 			
@@ -248,7 +248,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		// Load model
 		if(self::$storage == null){
-			self::$storage = AppModel::atimNew("storagelayout", "StorageMaster", true);
+			self::$storage = AppModel::getInstance("storagelayout", "StorageMaster", true);
 		}
 				
 		// Launch validation		
@@ -365,7 +365,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	function hasChild(array $aliquot_master_ids){
-		$realiquoting = AppModel::atimNew("inventorymanagement", "Realiquoting", TRUE);
+		$realiquoting = AppModel::getInstance("inventorymanagement", "Realiquoting", TRUE);
 		return array_filter($realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id'))));
 	}
 	
@@ -382,9 +382,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 * @updated N. Luc
 	 */
 	function getDefaultStorageDate($sample_master_data) {
-		$collection_model = AppModel::atimNew("Inventorymanagement", "Collection", true);
-		$sample_master_model = AppModel::atimNew("Inventorymanagement", "SampleMaster", true);
-		$derivative_detail_model = AppModel::atimNew("Inventorymanagement", "DerivativeDetail", true);
+		$collection_model = AppModel::getInstance("Inventorymanagement", "Collection", true);
+		$sample_master_model = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
+		$derivative_detail_model = AppModel::getInstance("Inventorymanagement", "DerivativeDetail", true);
 		switch($sample_master_data['SampleMaster']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
@@ -425,42 +425,42 @@ class AliquotMaster extends InventoryManagementAppModel {
 	 */
 	function allowDeletion($aliquot_master_id){
 		// Check aliquot has no use
-		$aliquot_internal_use_model = AppModel::atimNew("Inventorymanagement", "AliquotInternalUse", true);	
+		$aliquot_internal_use_model = AppModel::getInstance("Inventorymanagement", "AliquotInternalUse", true);	
 		$returned_nbr = $aliquot_internal_use_model->find('count', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'use exists for the deleted aliquot'); 
 		}
 	
 		// Check aliquot is not linked to realiquoting process	
-		$realiquoting_model = AppModel::atimNew("Inventorymanagement", "Realiquoting", true);
+		$realiquoting_model = AppModel::getInstance("Inventorymanagement", "Realiquoting", true);
 		$returned_nbr = $realiquoting_model->find('count', array('conditions' => array("OR" => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id, 'Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); 
 		}
 
 		// Check aliquot is not linked to review	
-		$aliquot_review_master_model = AppModel::atimNew("Inventorymanagement", "AliquotReviewMaster", true);
+		$aliquot_review_master_model = AppModel::getInstance("Inventorymanagement", "AliquotReviewMaster", true);
 		$returned_nbr = $aliquot_review_master_model->find('count', array('conditions' => array('AliquotReviewMaster.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'review exists for the deleted aliquot'); 
 		}
 	
 		// Check aliquot is not linked to order
-		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
+		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
 		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'order exists for the deleted aliquot'); 
 		}
 
 		// Check aliquot is not linked to a qc	
-		$quality_ctrl_tested_aliquot_model = AppModel::atimNew("Inventorymanagement", "QualityCtrlTestedAliquot", true);
+		$quality_ctrl_tested_aliquot_model = AppModel::getInstance("Inventorymanagement", "QualityCtrlTestedAliquot", true);
 		$returned_nbr = $quality_ctrl_tested_aliquot_model->find('count', array('conditions' => array('QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'quality control data exists for the deleted aliquot'); 
 		}
 		
 		// Check aliquot is not linked to a derivative	
-		$source_aliquot_model = AppModel::atimNew("Inventorymanagement", "SourceAliquot", true);
+		$source_aliquot_model = AppModel::getInstance("Inventorymanagement", "SourceAliquot", true);
 		$returned_nbr = $source_aliquot_model->find('count', array('conditions' => array('SourceAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'derivative creation data exists for the deleted aliquot'); 
