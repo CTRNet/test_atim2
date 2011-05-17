@@ -128,7 +128,6 @@ class StructuresComponent extends Object {
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['structure']['Sfs'] as $sfs){
 					if(strpos($sfs['setting'], $trigger) !== false){
-						$key = AppModel::atimNew('codingicd', $key, true);
 						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
@@ -218,7 +217,7 @@ class StructuresComponent extends Object {
 				}
 				
 				//CocingIcd magic
-				if(isset($simplified_structure['Structure']['codingIcdCheck']) && $simplified_structure['Structure']['codingIcdCheck']){
+				if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
 					foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $setting_lookup){
 						if(strpos($value['setting'], $setting_lookup) !== false){
 							$form_fields[$form_fields_key]['cast_icd'] = $key;
@@ -263,7 +262,7 @@ class StructuresComponent extends Object {
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
 							if(is_array($data) && $model != "0"){
-									$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
+									$format_data_model = AppModel::getInstance($form_fields[$form_fields_key]['plugin'], $model, true);
 									$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 									if(is_array($data)){
 										$data = array_unique($data);
@@ -470,7 +469,7 @@ class StructuresComponent extends Object {
 			}
 
 			// load MODEL
-			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
+			$pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true);
 
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);

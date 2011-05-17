@@ -92,7 +92,7 @@ class SampleMaster extends InventorymanagementAppModel {
 		//fetch the aliquots ids having the remaining samples as parent
 		//we can fetch the realiquots too because they imply the presence of a direct child
 		$sample_master_ids = array_diff($sample_master_ids, $result);
-		$aliquot_master = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		$aliquot_master = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
 		return array_merge($result, array_filter($aliquot_master->find('list', array('fields' => array('AliquotMaster.sample_master_id'), 'conditions' => array('AliquotMaster.sample_master_id' => $sample_master_ids), 'group' => array('AliquotMaster.sample_master_id')))));
 		
 	}
@@ -163,7 +163,7 @@ class SampleMaster extends InventorymanagementAppModel {
 		}
 	
 		// Check sample is not linked to aliquot
-		$aliquot_master_model = AppModel::atimNew("Iventorymanagement", "AliquotMaster", true);	
+		$aliquot_master_model = AppModel::getInstance("Iventorymanagement", "AliquotMaster", true);	
 		$returned_nbr = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot exists for the deleted sample'); 
@@ -176,21 +176,21 @@ class SampleMaster extends InventorymanagementAppModel {
 		// Verify that no parent sample aliquot is attached to the sample list  
 		// 'used aliquot' that allows to display all source aliquots used to create 
 		// the studied sample.
-		$source_aliquot_model = AppModel::atimNew("Inventorymanagement", "SourceAliquot", true);
+		$source_aliquot_model = AppModel::getInstance("Inventorymanagement", "SourceAliquot", true);
 		$returned_nbr = $source_aliquot_model->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot'); 
 		}
 
 		// Check sample is not linked to qc
-		$quality_ctrl_model = AppModel::atimNew("Inventorymanagement", "QualityCtrl", true);	
+		$quality_ctrl_model = AppModel::getInstance("Inventorymanagement", "QualityCtrl", true);	
 		$returned_nbr = $quality_ctrl_model->find('count', array('conditions' => array('QualityCtrl.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'quality control exists for the deleted sample'); 
 		}
 
 		// Check sample has not been linked to review	
-		$specimen_review_master_model = AppModel::atimNew("Inventorymanagement", "SpecimenReviewMaster", true);
+		$specimen_review_master_model = AppModel::getInstance("Inventorymanagement", "SpecimenReviewMaster", true);
 		$returned_nbr = $specimen_review_master_model->find('count', array('conditions' => array('SpecimenReviewMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'review exists for the deleted sample'); 

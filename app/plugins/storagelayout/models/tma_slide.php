@@ -31,7 +31,7 @@ class TmaSlide extends StoragelayoutAppModel {
 		$tma_slide_data =& $this->data;
 		// Load model
 		if(self::$storage == null){
-			self::$storage = AppModel::atimNew("storagelayout", "StorageMaster", true);
+			self::$storage = AppModel::getInstance("storagelayout", "StorageMaster", true);
 		}
 				
 		// Launch validation		

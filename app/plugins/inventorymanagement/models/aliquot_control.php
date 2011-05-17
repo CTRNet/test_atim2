@@ -28,7 +28,7 @@ class AliquotControl extends InventorymanagementAppModel {
 		$result = array();
 		
 		// Build tmp array to sort according translation
-		$this->SampleToAliquotControl = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
+		$this->SampleToAliquotControl = AppModel::getInstance("Inventorymanagement", "SampleToAliquotControl", true);
 		$conditions = array('SampleToAliquotControl.flag_active' => 1);
 		if($parent_sample_id != null){
 			$conditions['SampleToAliquotControl.sample_control_id'] = $parent_sample_id;
@@ -54,7 +54,7 @@ class AliquotControl extends InventorymanagementAppModel {
 		$conditions = array('SampleToAliquotControl.flag_active' => true,
 			'SampleToAliquotControl.sample_control_id' => $parent_sample_control_id);
 		
-		$this->SampleToAliquotControl = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
+		$this->SampleToAliquotControl = AppModel::getInstance("Inventorymanagement", "SampleToAliquotControl", true);
 		$controls = $this->SampleToAliquotControl->find('all', array('conditions' => $conditions, 'fields' => array('AliquotControl.*')));
 		$aliquot_controls_list = array();
 		foreach($controls as $control){

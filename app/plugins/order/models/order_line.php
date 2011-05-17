@@ -76,7 +76,7 @@ class OrderLine extends OrderAppModel {
 	 */
 	function allowDeletion($order_line_id){
 		// Check no order item exists
-		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
+		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
 		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'item exists for the deleted order line'); 

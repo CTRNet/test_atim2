@@ -110,14 +110,14 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new participant
 		if(!isset($this->Participant)) {
-			$this->Participant = AppModel::atimNew("Clinicalannotation", "Participant", true);
+			$this->Participant = AppModel::getInstance("Clinicalannotation", "Participant", true);
 		}
 		$conditions = $search_on_date_range? array("Participant.created >= '$start_date_for_sql'", "Participant.created <= '$end_date_for_sql'") : array();
 		$data['0']['new_participants_nbr'] = $this->Participant->find('count', (array('conditions' => $conditions)));		
 
 		// Get new consents obtained
 		if(!isset($this->ConsentMaster)) {
-			$this->ConsentMaster = AppModel::atimNew("Clinicalannotation", "ConsentMaster", true);
+			$this->ConsentMaster = AppModel::getInstance("Clinicalannotation", "ConsentMaster", true);
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
 		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		
@@ -367,7 +367,7 @@ class ReportsController extends DatamartAppController {
 			'error_msg' => null);
 
 		// Get aliquot id
-		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
 		
 		$aliquot_master_ids = array();
 		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {

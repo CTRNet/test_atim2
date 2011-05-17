@@ -59,7 +59,7 @@ class Shipment extends OrderAppModel
 	 
 	function allowDeletion($shipment_id){
 		// Check no item is linked to this shipment
-		$order_item_model = AppModel::atimNew("Order", "OrderItem", true);
+		$order_item_model = AppModel::getInstance("Order", "OrderItem", true);
 		$returned_nbr = $order_item_model->find('count', array('conditions' => array('OrderItem.shipment_id' => $shipment_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'order item exists for the deleted shipment'); 

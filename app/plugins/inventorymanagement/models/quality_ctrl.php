@@ -49,7 +49,7 @@ class QualityCtrl extends InventoryManagementAppModel {
 	 */
 	function allowDeletion($quality_ctrl_id){
 		// Check no aliquot has been linked to qc
-		$quality_ctrl_tested_aliquot_model = AppModel::atimNew("InventoryManagement", "QualityCtrlTestedAliquot", true);	
+		$quality_ctrl_tested_aliquot_model = AppModel::getInstance("InventoryManagement", "QualityCtrlTestedAliquot", true);	
 		$returned_nbr = $quality_ctrl_tested_aliquot_model->find('count', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot has been linked to the deleted qc'); 

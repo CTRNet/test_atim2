@@ -360,7 +360,8 @@ class AppModel extends Model {
 	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
 	 * @return An ATiM model 
 	 * 
-	 * @deprecated use ClassRegistry::init instead
+	 * @deprecated use ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance
+	 * TODO: delete for ATiM 2.4
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
@@ -376,7 +377,28 @@ class AppModel extends Model {
 		$custom_class_name = $class_name."Custom";
 		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
 		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
+		
+		if(Configure::read('debug') > 0){
+			AppController::addWarningMsg("AppModel::atimNew is deprecated. ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance.");
+		}
 		return $loaded_class;
+	}
+	
+	static function getInstance($plugin_name, $class_name, $error_view_on_null){
+		$instance = ClassRegistry::getObject($class_name);
+		if($instance !== false && $instance instanceof $class_name){
+			return $instance;
+		}
+		
+		if($plugin_name != null && strlen($plugin_name) > 0){
+			$plugin_name .= ".";
+		}
+		$instance = ClassRegistry::init($plugin_name.$class_name, 'Model');
+		if($instance === false && $error_view_on_null){
+			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
+		}
+		
+		return $instance;
 	}
 	
 	/**

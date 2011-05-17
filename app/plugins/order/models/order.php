@@ -42,14 +42,14 @@ class Order extends OrderAppModel {
 	 */
 	function allowDeletion($order_id){
 		// Check no order line exists
-		$order_ling_model = AppModel::atimNew("Order", "OrderLine", true);
+		$order_ling_model = AppModel::getInstance("Order", "OrderLine", true);
 		$returned_nbr = $order_ling_model->find('count', array('conditions' => array('OrderLine.order_id' => $order_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'order line exists for the deleted order'); 
 		}
 	
 		// Check no order line exists
-		$shipment_model = AppModel::atimNew("Order", "Shipment", true);
+		$shipment_model = AppModel::getInstance("Order", "Shipment", true);
 		$returned_nbr = $shipment_model->find('count', array('conditions' => array('Shipment.order_id' => $order_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'shipment exists for the deleted order'); 

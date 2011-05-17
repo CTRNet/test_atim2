@@ -25,14 +25,14 @@ class StorageCoordinate extends StoragelayoutAppModel {
 	 */
 	function allowDeletion($storage_master_id, $storage_coordinate_data){
 		// Check storage contains no chlidren storage stored within this position
-		$storage_master_model = AppModel::atimNew("Storagelayout", "StorageMaster", true);
+		$storage_master_model = AppModel::getInstance("Storagelayout", "StorageMaster", true);
 		$nbr_children_storages = $storage_master_model->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
 		if($nbr_children_storages > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'children storage is stored within the storage at this position'); 
 		}
 
 		// Verify storage contains no aliquots
-		$aliquot_master_model = AppModel::atimNew("Inventorymanagement", "AliquotMaster", true);
+		$aliquot_master_model = AppModel::getInstance("Inventorymanagement", "AliquotMaster", true);
 		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x ' =>  $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot is stored within the storage at this position'); 

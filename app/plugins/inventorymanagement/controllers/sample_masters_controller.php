@@ -492,7 +492,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$sample_control_data['SampleControl'] = $parent_to_derivative_sample_control['DerivativeControl'];
 			
 			// Get Lab Book Ctrl Id & Fields
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book = AppModel::getInstance("labbook", "LabBookMaster", true);
 			$lab_book_ctrl_id = $parent_to_derivative_sample_control['ParentToDerivativeSampleControl']['lab_book_control_id'];
 			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
 		}
@@ -683,7 +683,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if(!$is_specimen){
 			// Set Lab book data for display
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book = AppModel::getInstance("labbook", "LabBookMaster", true);
 			$lab_book_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_data['SampleMaster']['sample_control_id'], $sample_data['SampleMaster']['sample_control_id']);
 			$lab_book_fields = $lab_book->getFields($lab_book_ctrl_id);
 			
@@ -949,7 +949,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(isset($this->data['DerivativeDetail']['lab_book_master_code']) && !empty($this->data['DerivativeDetail']['lab_book_master_code'])){
 			$lab_book_master_code = $this->data['DerivativeDetail']['lab_book_master_code'];
 			$sync_with_lab_book = $this->data['DerivativeDetail']['sync_with_lab_book'];
-			$lab_book = AppModel::atimNew("labbook", "LabBookMaster", true);
+			$lab_book = AppModel::getInstance("labbook", "LabBookMaster", true);
 			$lab_book_expected_ctrl_id = $this->ParentToDerivativeSampleControl->getLabBookControlId($parent_sample_control_id,$this->data['SampleMaster']['sample_control_id']); 
 			$foo = array();
 			$result = $lab_book->syncData($foo, array(), $lab_book_master_code, $lab_book_expected_ctrl_id);
@@ -1098,7 +1098,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					$_SESSION['tmp_batch_set']['BatchId'] = $child_ids;
 				}
 				
-				$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+				$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
 				
 				$hook_link = $this->hook('postsave_process');
