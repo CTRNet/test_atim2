@@ -1,7 +1,6 @@
 <?php
 
 class UsersController extends AdministrateAppController {
-	//TODO: add a feature to move a user from a group to another	
 	var $uses = array('User', 'Group');
 	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
 	
