@@ -26,7 +26,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			$_SESSION['MasterDetail_filter'] = array();
 			
 			$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
-			$_SESSION['MasterDetail_filter']['EventMaster.event_group'] = $event_group;
+			$_SESSION['MasterDetail_filter']['EventControl.event_group'] = $event_group;
 			
 			$this->Structures->set('eventmasters');
 		} else {
@@ -39,7 +39,9 @@ class EventMastersController extends ClinicalannotationAppController {
 			
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($participant_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		
@@ -52,7 +54,9 @@ class EventMastersController extends ClinicalannotationAppController {
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function detail( $event_group, $participant_id, $event_master_id ) {
@@ -74,7 +78,9 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function add( $event_group, $participant_id, $event_control_id) {
@@ -111,7 +117,9 @@ class EventMastersController extends ClinicalannotationAppController {
 					
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ( !empty($this->data) ) {
 			$this->data['EventMaster']['participant_id'] = $participant_id;
@@ -166,7 +174,9 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ( !empty($this->data) ) {
 			$this->EventMaster->id = $event_master_id;
@@ -202,7 +212,9 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
-		if ($hook_link) { require($hook_link); }
+		if ($hook_link) { 
+			require($hook_link); 
+		}
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atim_delete( $event_master_id )) {
