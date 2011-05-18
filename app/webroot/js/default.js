@@ -339,7 +339,7 @@ function uncheckAll( $div ) {
 				$(cell).append(" <a href='#' class='file_btn'></a>").data('mode', 'specific');
 				
 				if($(cell).find(".specific_btn").length == 0){
-					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific").hide();
+					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
 					$(cell).find("span:first").addClass("specific_span");
 					tabindex = $(cell).find("input").attr("tabindex");
 				}
@@ -355,12 +355,15 @@ function uncheckAll( $div ) {
 			//trigger buttons
 			$(scope).find(".range_btn").click(function(){
 				setFieldSpan(this, "range_span");
+				return false;
 			});
 			$(scope).find(".specific_btn").click(function(){
 				setFieldSpan(this, "specific_span");
+				return false;
 			});
 			$(scope).find(".file_btn").click(function(){
 				setFieldSpan(this, "file_span");
+				return false;
 			});
 		}
 	}
