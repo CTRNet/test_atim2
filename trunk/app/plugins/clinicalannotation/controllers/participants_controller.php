@@ -197,7 +197,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		
 		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
 		foreach($annotations as $annotation){
-			$tmpArray[$annotation['EventMaster']['event_date']][] = array('event' => __($annotation['EventMaster']['event_type'], true), 'link' => '/clinicalannotation/event_masters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id']);
+			$tmpArray[$annotation['EventMaster']['event_date']][] = array('event' => __($annotation['EventControl']['event_type'], true), 'link' => '/clinicalannotation/event_masters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id']);
 		}
 		
 		$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
