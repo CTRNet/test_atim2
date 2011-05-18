@@ -128,6 +128,7 @@ class StructuresComponent extends Object {
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['structure']['Sfs'] as $sfs){
 					if(strpos($sfs['setting'], $trigger) !== false){
+						AppModel::getInstance('codingicd', $key, true);
 						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
