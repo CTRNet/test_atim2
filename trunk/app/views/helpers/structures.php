@@ -896,8 +896,8 @@ class StructuresHelper extends Helper {
 						if(count($options['links']['index'])){
 							$current_links = array();
 							if(is_array($options['links']['index'])){
-								foreach($options['links']['index'] as &$link){
-									$current_links[] = $this->strReplaceLink($link, $data_unit);
+								foreach($options['links']['index'] as $name => &$link){
+									$current_links[$name] = $this->strReplaceLink($link, $data_unit);
 								}
 							}else{
 								$current_links[] = $this->strReplaceLink($options['links']['index'], $data_unit);

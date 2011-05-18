@@ -1,10 +1,7 @@
 <?php
 	$structure_links = array(
 		"index" => array(
-			'detail' => array(
-				'link' => "/datamart/browser/browse/%%BrowsingIndex.root_node_id%%",
-				'icon' => 'detail'
-			),
+			'detail' => "/datamart/browser/browse/%%BrowsingIndex.root_node_id%%",
 			'edit' => "/datamart/browser/edit/%%BrowsingIndex.id%%",
 			'delete' => "/datamart/browser/delete/%%BrowsingIndex.id%%"),
 		"bottom" => array(
