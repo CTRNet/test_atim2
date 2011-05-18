@@ -121,3 +121,6 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 
 ALTER TABLE storage_controls 
  ADD COLUMN check_conficts TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '0=no, 1=warn, anything else=error';
+ 
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`=' ' AND `field`='field1' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
