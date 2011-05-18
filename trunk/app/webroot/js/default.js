@@ -249,6 +249,23 @@ function uncheckAll( $div ) {
 		
 	}
 	
+	function setFieldSpan(clickedButton, spanClassToDisplay){
+		$(clickedButton).parent().find("a").show();
+		$(clickedButton).hide();
+		$(clickedButton).parent().children("span").hide().each(function(){
+			//store all active field names into their data and remove the name
+			$(this).find("input, select").each(function(){
+				if($(this).attr('name').length > 0){
+					$(this).data('name', $(this).attr('name')).attr('name', ''); 
+				}
+			});
+		});
+		$(clickedButton).parent().find("span." + spanClassToDisplay).show().find('input, select').each(function(){
+			//activate names of displayed fields
+			$(this).attr('name', $(this).data('name'));
+		});
+	}
+	
 	/**
 	 * Advanced controls are search OR options and RANGE buttons
 	 */
@@ -273,7 +290,7 @@ function uncheckAll( $div ) {
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
@@ -300,46 +317,52 @@ function uncheckAll( $div ) {
 			}
 		});
 		
-		$(scope).find(".range").each(function(){
-			//uses .btn_add_or to know if this is a search form and if advanced controls are on
-			$(this).parent().parent().parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
-		});
-		$(scope).find(".range_btn").toggle(function(){
-			var cell = getParentElement(this, "TD");
-			$(cell).find("input").val("");
-			if($(cell).find(".range_span").length == 0){
+		if($(scope).find(".btn_add_or:first").length == 1){
+			var tabIndex = null;
+			$(scope).find(".range").each(function(){
+				//uses .btn_add_or to know if this is a search form and if advanced controls are on
+				var cell = $(this).parent().parent().parent(); 
+				$(cell).append(" <a href='#' class='range_btn' title='" + STR_RANGE + "'></a> " +
+						"<a href='#' class='specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
+				$(cell).find("span:first").addClass("specific_span");
+				
 				var baseName = $(cell).find("input").attr("name");
 				baseName = baseName.substr(0, baseName.length - 3);
-				$(cell).find("span:first").addClass("adv_ctrl");
-				$(cell).prepend("<span class='range_span'><input type='text' name='" + baseName + "_start]'/> " + STR_TO + " <input type='text' name='" + baseName + "_end]'/></span>");
-			}else{
-				$(cell).find(".range_span").show();
-				//restore names
-				$(cell).find(".range_span input").each(function(){
-					$(this).attr("name", $(this).attr("name").substr(1));
-				});
-			}
-			$(this).html("(" + STR_SPECIFIC + ")");
-			$(cell).find(".adv_ctrl").hide();
-			//obfuscate names
-			$(cell).find(".adv_ctrl input").each(function(){
-				$(this).attr("name", "x" + $(this).attr("name"));
+				tabindex = $(cell).find("input").attr("tabindex");
+				$(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> " 
+						+ STR_TO 
+						+ " <input type='text' tabindex='" + tabindex + "' name='" + baseName + "_end]'/></span>");					
 			});
-		}, function(){
-			var cell = getParentElement(this, "TD");
-			$(cell).find("input").val("");
-			$(this).html("(" + STR_RANGE + ")");
-			$(cell).find(".range_span").hide();
-			$(cell).find(".adv_ctrl").show();
-			//restore input names
-			$(cell).find(".adv_ctrl input").each(function(){
-				$(this).attr("name", $(this).attr("name").substr(1));
+			
+			$(scope).find(".file").each(function(){
+				var cell = $(this).parent().parent().parent();
+				$(cell).append(" <a href='#' class='file_btn'></a>").data('mode', 'specific');
+				
+				if($(cell).find(".specific_btn").length == 0){
+					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific").hide();
+					$(cell).find("span:first").addClass("specific_span");
+					tabindex = $(cell).find("input").attr("tabindex");
+				}
+				var name = $(cell).find("input:last").attr("name");
+				name = name.substr(0, name.length -3) + "_with_file_upload]";
+				$(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 			});
-			//obfuscate input names
-			$(cell).find(".range_span input").each(function(){
-				$(this).attr("name", "x" + $(this).attr("name"));
+			//store hidden field names into their data
+			$(scope).find("span.range_span input, span.file_span input").each(function(){
+				$(this).data('name', $(this).attr('name')).attr('name', "");
 			});
-		});
+			
+			//trigger buttons
+			$(scope).find(".range_btn").click(function(){
+				setFieldSpan(this, "range_span");
+			});
+			$(scope).find(".specific_btn").click(function(){
+				setFieldSpan(this, "specific_span");
+			});
+			$(scope).find(".file_btn").click(function(){
+				setFieldSpan(this, "file_span");
+			});
+		}
 	}
 	
 	function initTooltips(scope){
@@ -724,15 +747,6 @@ function uncheckAll( $div ) {
 		
 		initDeleteConfirm();
 		
-		if(useHighlighting){
-			//field highlighting
-			if($("#table1row0").length == 1){
-				//gridview
-				$('form').highlight('td');
-			}else{
-				$('form').highlight('tr');
-			}
-		}
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
@@ -767,6 +781,15 @@ function uncheckAll( $div ) {
 			$("#timeErr").show();
 		}
 		
+		if(useHighlighting){
+			//field highlighting
+			if($("#table1row0").length == 1){
+				//gridview
+				$('form').highlight('td');
+			}else{
+				$('form').highlight('tr');
+			}
+		}
 	}
 
 	function debug(str){

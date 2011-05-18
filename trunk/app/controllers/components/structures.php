@@ -239,6 +239,7 @@ class StructuresComponent extends Object {
 		foreach($this->controller->data as $model => $fields){
 			if(is_array($fields)){
 				foreach($fields as $key => $data){
+					$key = str_replace("_with_file_upload", "", $key);
 					$form_fields_key = $model.'.'.$key;
 					// if MODEL data was passed to this function, use it to generate SQL criteria...
 					if(count($form_fields)){
@@ -249,7 +250,7 @@ class StructuresComponent extends Object {
 								
 								// set $DATA array based on contents of uploaded FILE
 								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-								
+								unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
 								// in each LINE, get FIRST csv value, and attach to DATA array
 								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
 								    $data[] = $csv_data[0];
