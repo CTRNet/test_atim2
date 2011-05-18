@@ -1904,7 +1904,11 @@ class StructuresHelper extends Helper {
 			
 			// display SEARCH RESULTS, if any
 			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
-				if ( isset($_SESSION['ctrapp_core']['search']) && is_array($_SESSION['ctrapp_core']['search']) && !empty($_SESSION['ctrapp_core']['search']['results'])) {
+				if (isset($_SESSION['ctrapp_core']['search']) 
+					&& is_array($_SESSION['ctrapp_core']['search']) 
+					&& !empty($_SESSION['ctrapp_core']['search']['results'])
+					&& AppController::getInstance()->layout != 'ajax'
+				){
 					$return_string .= '
 						<div class="leftCell">
 							<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
