@@ -86,6 +86,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 				
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$qc_id = $this->QualityCtrl->getLastInsertId();
 				
 				// Record additional qc data
@@ -93,7 +97,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$qc_data_to_update['QualityCtrl']['qc_code'] = $this->QualityCtrl->createCode($qc_id, $this->data, $sample_data);
 				
 				$this->QualityCtrl->id = $qc_id;					
-				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
 				
 				$this->atimFlash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
 			}
@@ -178,6 +184,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			// Save data
 			$this->QualityCtrl->id = $quality_ctrl_id;	
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
@@ -330,7 +340,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				
 			} else {
 				// Launch save functions
-	
 				// Parse records to save
 				foreach($aliquots_defined_as_tested as $new_used_aliquot) {
 					// Get Tested Aliquot Master Id
@@ -348,16 +357,27 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					// - AliquotMaster
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					
 					// - QualityCtrlTestedAliquot
 					$this->QualityCtrlTestedAliquot->id = null;
 					$new_used_aliquot['QualityCtrlTestedAliquot']['aliquot_master_id'] = $aliquot_master_id;	
 					$new_used_aliquot['QualityCtrlTestedAliquot']['quality_ctrl_id'] = $quality_ctrl_id;	
-					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 
 					// - Update aliquot current volume
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
 				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
@@ -388,7 +408,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}		
 		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 			
 		// LAUNCH DELETION
 		$deletion_done = true;

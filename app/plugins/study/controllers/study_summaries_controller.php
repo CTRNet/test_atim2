@@ -45,10 +45,16 @@ class StudySummariesController extends StudyAppController {
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }				
+			if( $hook_link ) { 
+				require($hook_link); 
+			}				
 		
 			if($submitted_data_validates) {
 				if ( $this->StudySummary->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/study/study_summaries/detail/'.$this->StudySummary->id );
 				}
 			}
@@ -78,11 +84,17 @@ class StudySummariesController extends StudyAppController {
 			
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {	
 				$this->StudySummary->id = $study_summary_id;
 				if ( $this->StudySummary->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/study/study_summaries/detail/'.$study_summary_id );
 				}		
 			}

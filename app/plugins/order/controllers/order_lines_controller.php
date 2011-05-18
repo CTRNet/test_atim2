@@ -75,6 +75,10 @@ class OrderLinesController extends OrderAppController {
 				
 			if ($submitted_data_validates) {
 				if( $this->OrderLine->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
 				}
 			} 
@@ -123,6 +127,10 @@ class OrderLinesController extends OrderAppController {
 			if ($submitted_data_validates) {
 				$this->OrderLine->id = $order_line_id;
 				if($this->OrderLine->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					$this->atimFlash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
 				}
 			}

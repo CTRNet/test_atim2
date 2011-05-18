@@ -92,9 +92,15 @@ class ProtocolExtendsController extends ProtocolAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 				
 			if ($submitted_data_validates && $this->ProtocolExtend->save( $this->data ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/protocol/protocol_extends/listall/'.$protocol_master_id );
 			}
 		}
@@ -135,6 +141,10 @@ class ProtocolExtendsController extends ProtocolAppController {
 
 			$this->ProtocolExtend->id = $protocol_extend_id;
 			if ($submitted_data_validates && $this->ProtocolExtend->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/protocol/protocol_extends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
 			}
 		}

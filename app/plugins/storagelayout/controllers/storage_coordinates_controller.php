@@ -90,11 +90,17 @@ class StorageCoordinatesController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				// Save data		
 				if ($this->StorageCoordinate->save($this->data['StorageCoordinate'])) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been saved', '/storagelayout/storage_coordinates/listAll/' . $storage_master_id);				
 				}
 			}

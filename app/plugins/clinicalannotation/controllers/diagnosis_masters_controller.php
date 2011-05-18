@@ -92,6 +92,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->DiagnosisMaster->save( $this->data )) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
 				}
 			}
@@ -132,6 +136,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->DiagnosisMaster->id = $diagnosis_master_id;
 				if ( $this->DiagnosisMaster->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}

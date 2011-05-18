@@ -126,9 +126,15 @@ class EventMastersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
@@ -170,9 +176,15 @@ class EventMastersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 			
 			if ($submitted_data_validates && $this->EventMaster->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/event_masters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {

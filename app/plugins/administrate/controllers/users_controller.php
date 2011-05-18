@@ -54,6 +54,10 @@ class UsersController extends AdministrateAppController {
 				
 				if($submitted_data_validates) {
 					if($this->User->save($this->data)){
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
@@ -88,6 +92,10 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}

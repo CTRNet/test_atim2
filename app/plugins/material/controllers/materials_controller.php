@@ -40,9 +40,15 @@ class MaterialsController extends MaterialAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 						
 			if ( $submitted_data_validates && $this->Material->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/material/materials/detail/'.$this->Material->id );
 			}
 		}		
@@ -66,11 +72,17 @@ class MaterialsController extends MaterialAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				$this->Material->id = $material_id;
 				if ( $this->Material->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/material/materials/detail/'.$material_id );
 				}
 			}

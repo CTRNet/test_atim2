@@ -100,11 +100,17 @@ class TmaSlidesController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				// Save data	
 				if ($this->TmaSlide->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been saved', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
 				}
 			}
@@ -218,12 +224,18 @@ class TmaSlidesController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 
 			if($submitted_data_validates) {
 				// Save tma slide data
 				$this->TmaSlide->id = $tma_slide_id;		
-				if($this->TmaSlide->save($this->data, false)) { 				
+				if($this->TmaSlide->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been updated', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id); 
 				}
 			}	

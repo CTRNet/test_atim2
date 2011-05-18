@@ -102,6 +102,10 @@ class ShipmentsController extends OrderAppController {
 			}
 			
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved','/order/shipments/listall/'.$order_id.'/' );
 			}
 		}	
@@ -138,6 +142,10 @@ class ShipmentsController extends OrderAppController {
 			
 			$this->Shipment->id = $shipment_id;
 			if ($submitted_data_validates && $this->Shipment->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated', '/order/shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
@@ -267,7 +275,9 @@ class ShipmentsController extends OrderAppController {
 		
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($aliquot_master, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }										
+					if(!$this->AliquotMaster->save($aliquot_master, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					
 					// 2- Record Order Item Update
 					$order_item_data = array();
@@ -275,15 +285,20 @@ class ShipmentsController extends OrderAppController {
 					$order_item_data['OrderItem']['status'] = 'shipped';
 
 					$this->OrderItem->id = $order_item_id;
-					if(!$this->OrderItem->save($order_item_data, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }		
-					
+					if(!$this->OrderItem->save($order_item_data, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
+						
 					// 3- Update Aliquot Use Counter					
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					
 					// 4- Set order line to update
 					$order_line_to_update[$order_line_id] = $order_line_id;
 				}
 				
+				$hook_link_line = $this->hook('postsave_process_line');
 				foreach($order_line_to_update as $order_line_id){
 					$items_counts = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status != "shipped"')));
 					if($items_counts == 0){
@@ -291,10 +306,16 @@ class ShipmentsController extends OrderAppController {
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
 						$this->OrderLine->id = $order_line_id;
-						if(!$this->OrderLine->save($order_line, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }		
+						if(!$this->OrderLine->save($order_line, false)) { 
+							$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					}
 				}
 				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
@@ -318,7 +339,9 @@ class ShipmentsController extends OrderAppController {
 		$arr_allow_deletion = $this->Shipment->allowItemRemoveFromShipment($order_item_id, $shipment_id);
 			
 		$hook_link = $this->hook('delete_from_shipment');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 		
 		// LAUNCH DELETION
 		
@@ -333,7 +356,9 @@ class ShipmentsController extends OrderAppController {
 			$order_item['OrderItem']['aliquot_use_id'] = null;
 			$order_item['OrderItem']['status'] = 'pending';
 			$this->OrderItem->id = $order_item_id;
-			if(!$this->OrderItem->save($order_item, false)) { $remove_done = false; }
+			if(!$this->OrderItem->save($order_item, false)) { 
+				$remove_done = false; 
+			}
 
 			// -> Update aliquot master
 			if($remove_done) {
@@ -343,8 +368,12 @@ class ShipmentsController extends OrderAppController {
 				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
-				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { $remove_done = false; }
-				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { $remove_done = false; }
+				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { 
+					$remove_done = false; 
+				}
+				if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, false, true)) { 
+					$remove_done = false; 
+				}
 			}
 			
 			// -> Update order line
@@ -352,7 +381,9 @@ class ShipmentsController extends OrderAppController {
 				$order_line = array();
 				$order_line['OrderLine']['status'] = "pending";
 				$this->OrderLine->id = $order_line_id;
-				if(!$this->OrderLine->save($order_line, false)) { $remove_done = false; }	
+				if(!$this->OrderLine->save($order_line, false)) { 
+					$remove_done = false; 
+				}	
 			}
 
 			// Redirect

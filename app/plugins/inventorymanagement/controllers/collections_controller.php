@@ -164,7 +164,9 @@ class CollectionsController extends InventorymanagementAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 
@@ -172,6 +174,11 @@ class CollectionsController extends InventorymanagementAppController {
 				
 				$collection_id = null;
 				if($this->Collection->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					
 					$collection_id = $this->Collection->getLastInsertId();
 					
 					// Create clinical collection link
@@ -241,7 +248,9 @@ class CollectionsController extends InventorymanagementAppController {
 				if ($this->Collection->save($this->data)) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}

@@ -547,7 +547,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 					
 				if($is_batch_process) {
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
@@ -736,7 +738,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }	
+				if( $hook_link ) { 
+					require($hook_link); 
+				}	
 				
 				$this->atimFlash('your data has been updated', '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 				return;
@@ -860,8 +864,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// if data VALIDATE, then save data
 			if ($submitted_data_validates) {
 				$this->data['AliquotInternalUse']['aliquot_master_id'] = $aliquot_master_id;			
-				if ($this->AliquotInternalUse->save($this->data)) { 
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }	
+				if ($this->AliquotInternalUse->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}	
 					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detail/'.$collection_id.'/'.$sample_master_id.'/'.$aliquot_master_id.'/');
 				} 
 			}
@@ -974,8 +984,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// if data VALIDATE, then save data
 			if ($submitted_data_validates) {
 				$this->AliquotInternalUse->id = $aliquot_use_id;			
-				if ($this->AliquotInternalUse->save($this->data)) { 
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if ($this->AliquotInternalUse->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $aliquot_master_id . '/' . $aliquot_use_id . '/');
 				} 
 			}
@@ -1138,8 +1154,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 			} else {
 				// Launch save process
-								
 				// Parse records to save
+				
 				foreach($aliquots_defined_as_source as $new_source_aliquot) {
 					// Get Source Aliquot Master Id
 					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
@@ -1156,18 +1172,28 @@ class AliquotMastersController extends InventoryManagementAppController {
 					// - AliquotMaster
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					
 					// - SourceAliquot
 					$this->SourceAliquot->id = null;
 					$new_source_aliquot['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
 					$new_source_aliquot['SourceAliquot']['sample_master_id'] = $sample_master_id;
-					if(!$this->SourceAliquot->save($new_source_aliquot)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->SourceAliquot->save($new_source_aliquot)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 
 					// - Update aliquot current volume
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 				}
 				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
 					'/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id); 
 			}
@@ -1695,9 +1721,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						if(!$this->AliquotMaster->save($children, false)){ 
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						} 						
+						} 
+
 						$child_id = $this->AliquotMaster->getLastInsertId();
-						if(empty($aliquot_id)) $_SESSION['tmp_batch_set']['BatchId'][] = $child_id;
+						if(empty($aliquot_id)){
+							$_SESSION['tmp_batch_set']['BatchId'][] = $child_id;
+						}
 							
 						// C- Save realiquoting data	
 						
@@ -1717,7 +1746,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
@@ -2032,8 +2063,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 							$this->Realiquoting->id = NULL;
 			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot['Realiquoting'], false))){
 								$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-							}		
-							
+							}
+								
 							// Set data for batchset
 							$_SESSION['tmp_batch_set']['BatchId'][] = $children_aliquot['AliquotMaster']['id'];	
 						}
@@ -2048,7 +2079,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				//redirect
 				
