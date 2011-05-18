@@ -58,6 +58,27 @@ class User extends AppModel {
 	}
 	
 	function savePassword(array $data, $error_flash_link, $success_flash_link){
+		
+		$this->validatePassword($data, $error_flash_link);
+		
+		//all good! save
+		$data['User']['password'] = Security::hash($data['User']['new_password'], null, true);
+
+		unset($data['User']['new_password'], $data['User']['confirm_password']);
+		
+		$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+		if ( $this->save( $data ) ) {
+			AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
+		}
+	}
+	
+	/**
+	 * Will throw a flash message if the password is not valid
+	 * @param array $data
+	 * @param string $error_flash_link
+	 * @param string $success_flash_link
+	 */
+	function validatePassword(array $data, $error_flash_link){
 		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
 			//do nothing
 
@@ -66,16 +87,6 @@ class User extends AppModel {
 
 		}else if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
 			AppController::getInstance()->flash( 'passwords minimal length', $error_flash_link );
-		}else{
-			//all good! save
-			$data['User']['password'] = Security::hash($data['User']['new_password'], null, true);
-
-			unset($data['User']['new_password'], $data['User']['confirm_password']);
-			
-			$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
-			if ( $this->save( $data ) ) {
-				AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
-			}
 		}
 	}
 
