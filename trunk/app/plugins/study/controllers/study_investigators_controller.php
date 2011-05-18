@@ -87,13 +87,19 @@ exit;
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
 
 				// 4- SAVE
 
 				if ( $this->StudyInvestigator->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/study/study_investigators/detail/'.$study_summary_id.'/'.$this->StudyInvestigator->id );
 					}
 				}
@@ -137,7 +143,9 @@ exit;
 				// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 
 				$hook_link = $this->hook('presave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 
 				if($submitted_data_validates) {
 
@@ -145,6 +153,10 @@ exit;
 
 					$this->StudyInvestigator->id = $study_investigator_id;
 					if ( $this->StudyInvestigator->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been updated','/study/study_investigators/detail/'.$study_summary_id.'/'.$study_investigator_id );
 						}
 					}

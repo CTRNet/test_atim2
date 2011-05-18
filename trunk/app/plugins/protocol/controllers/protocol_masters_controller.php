@@ -58,9 +58,15 @@ class ProtocolMastersController extends ProtocolAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 			
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ){
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/protocol/protocol_masters/detail/'.$this->ProtocolMaster->getLastInsertId());
 			}
 		} 
@@ -103,10 +109,16 @@ class ProtocolMastersController extends ProtocolAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 			
 			$this->ProtocolMaster->id = $protocol_master_id;
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash( 'your data has been updated','/protocol/protocol_masters/detail/'.$protocol_master_id.'/');
 			}
 		}		

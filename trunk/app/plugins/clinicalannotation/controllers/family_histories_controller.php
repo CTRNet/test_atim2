@@ -114,13 +114,19 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				
 				// 4- SAVE
 				
 				if ( $this->FamilyHistory->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
 				}				
 			}
@@ -163,7 +169,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				
@@ -171,6 +179,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				
 				$this->FamilyHistory->id = $family_history_id;
 				if ( $this->FamilyHistory->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id );
 				}				
 			}

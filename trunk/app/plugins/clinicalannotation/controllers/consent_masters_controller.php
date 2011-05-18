@@ -84,6 +84,10 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->ConsentMaster->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
 				}
 			}
@@ -121,6 +125,10 @@ class ConsentMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->ConsentMaster->id = $consent_master_id;
 				if ( $this->ConsentMaster->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent_master_id );
 				}
 			}

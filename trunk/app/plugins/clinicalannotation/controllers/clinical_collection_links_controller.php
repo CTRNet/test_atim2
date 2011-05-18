@@ -112,7 +112,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 			
 				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
@@ -191,7 +193,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
@@ -227,7 +231,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ($this->ClinicalCollectionLink->save($this->data)){
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				$this->atimFlash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{

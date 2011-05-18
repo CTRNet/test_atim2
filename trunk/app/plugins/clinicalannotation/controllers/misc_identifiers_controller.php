@@ -145,7 +145,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
 				// Set incremented identifier if required
@@ -159,7 +161,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 				if ( $this->MiscIdentifier->save($this->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/listall/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
@@ -209,14 +213,18 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
 				if ( $this->MiscIdentifier->save($this->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
 				}

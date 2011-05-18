@@ -114,6 +114,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			}
 			
 			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->data ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
@@ -155,10 +159,16 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($submitted_data_validates && $this->TreatmentExtend->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
 		}

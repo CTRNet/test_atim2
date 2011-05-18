@@ -156,7 +156,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 			
 		if(!empty($this->data)) {			
 			
@@ -187,7 +189,9 @@ class StorageMastersController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 						
 			if($submitted_data_validates) {
 				// Save storage data
@@ -209,6 +213,11 @@ class StorageMastersController extends StoragelayoutAppController {
 					if(!$this->StorageMaster->save($storage_data_to_update, false)) {
 						$bool_save_done = false;
 					}
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
 				}
 					
 				if($bool_save_done) {
@@ -295,12 +304,19 @@ class StorageMastersController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				// Save storage data
 				$this->StorageMaster->id = $storage_master_id;		
-				if($this->StorageMaster->save($this->data, false)) { 
+				if($this->StorageMaster->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					
 					// Manage children temperature
 					$storage_temperature = (array_key_exists('temperature', $this->data['StorageMaster']))? $this->data['StorageMaster']['temperature'] : $storage_data['StorageMaster']['temperature'];
 					$storage_temp_unit = (array_key_exists('temp_unit', $this->data['StorageMaster']))? $this->data['StorageMaster']['temp_unit'] : $storage_data['StorageMaster']['temp_unit'];
@@ -336,7 +352,10 @@ class StorageMastersController extends StoragelayoutAppController {
 			// First remove storage from tree
 			$this->StorageMaster->id = $storage_master_id;	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => ''));
-			if(!$this->StorageMaster->save($cleaned_storage_data, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+			if(!$this->StorageMaster->save($cleaned_storage_data, false)) { 
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}
+			
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))), false);	

@@ -61,10 +61,16 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 			
 			if($submitted_data_validates) {
 				if ( $this->ParticipantContact->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
 				}
 			}
@@ -93,11 +99,17 @@ class ParticipantContactsController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
 				$this->ParticipantContact->id = $participant_contact_id;
 				if ( $this->ParticipantContact->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/participant_contacts/detail/'.$participant_id.'/'.$participant_contact_id );
 				}
 			}

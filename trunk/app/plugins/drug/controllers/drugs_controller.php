@@ -45,9 +45,15 @@ class DrugsController extends DrugAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 						
 			if ( $submitted_data_validates && $this->Drug->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$this->Drug->id );
 			}
 		}
@@ -70,11 +76,17 @@ class DrugsController extends DrugAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				$this->Drug->id = $drug_id;
 				if ( $this->Drug->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/drug/drugs/detail/'.$drug_id );
 				}
 			}

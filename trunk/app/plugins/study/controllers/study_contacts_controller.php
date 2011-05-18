@@ -83,17 +83,21 @@ exit;
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
-
 				// 4- SAVE
-
 				if ( $this->StudyContact->save($this->data) ) {
-					$this->atimFlash( 'your data has been saved','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
 					}
+					$this->atimFlash( 'your data has been saved','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
 				}
 			}
+		}
  	}
   
 	function edit( $study_summary_id, $study_contact_id ) {
@@ -131,14 +135,19 @@ exit;
 				// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 
 				$hook_link = $this->hook('presave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 
 				if($submitted_data_validates) {
 
 					// 4- SAVE
-
 					$this->StudyContact->id = $study_contact_id;
 					if ( $this->StudyContact->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been updated','/study/study_contacts/detail/'.$study_summary_id.'/'.$study_contact_id );
 						}
 					}

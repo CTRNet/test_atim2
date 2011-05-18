@@ -605,29 +605,40 @@ class SampleMastersController extends InventorymanagementAppController {
 				// Save sample data
 				$sample_master_id = null;
 				if($this->SampleMaster->save($this->data, false)) {
+					
 					$sample_master_id = $this->SampleMaster->getLastInsertId();
 				
 					// Record additional sample data
 					$sample_data_to_update = array();
 					$sample_data_to_update['SampleMaster']['sample_code'] = $this->SampleMaster->createCode($sample_master_id, $this->data, $sample_control_data);
-					if($is_specimen) { $sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
+					if($is_specimen) { 
+						
+						$sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
 					
 					$this->SampleMaster->id = $sample_master_id;					
-					if(!$this->SampleMaster->save($sample_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->SampleMaster->save($sample_data_to_update, false)) { 
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
 					
 					// Save either specimen or derivative detail
 					if($is_specimen){
 						// SpecimenDetail
 						$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
-						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+						if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { 
+							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					} else {
 						// DerivativeDetail
 						$this->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
-						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+						if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { 
+							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					}						
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
@@ -767,7 +778,9 @@ class SampleMastersController extends InventorymanagementAppController {
 					}
 
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}				
@@ -1102,7 +1115,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
 				
