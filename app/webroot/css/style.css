@@ -1941,3 +1941,33 @@ tr.draggableRow:hover{
 tr.draggedRow{
 	background-color: #ff0;
 }
+
+a.add_10x10, a.delete_10x10{
+	display: inline-block;
+	height: 10px;
+	width: 10px;
+}
+
+a.add_10x10{
+	background: url(../img/icons/add_10x10.png) no-repeat;	
+}
+a.delete_10x10{
+	background: url(../img/icons/delete_10x10.png) no-repeat;
+}
+
+a.range_btn, a.specific_btn, a.file_btn{
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+}
+a.range_btn{
+	background: url(../img/icons/range_16x16.png) no-repeat 0px 3px;
+}
+
+a.specific_btn{
+	background: url(../img/icons/field_16x16.png) no-repeat 0px 2px;
+}
+
+a.file_btn{
+	background: url(../img/icons/upload_16x16.png) no-repeat;
+}

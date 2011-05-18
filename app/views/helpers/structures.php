@@ -553,7 +553,7 @@ class StructuresHelper extends Helper {
 									$table_row_part['format'] = $table_row_part['format_back'];
 								}
 								if($options['type'] == "search" && !in_array($table_row_part['type'], self::$range_types)){
-									$display[0] .= '<a class="adv_ctrl btn_add_or" href="#" onclick="return false;">(+)</a>';
+									$display[0] .= '<a class="adv_ctrl btn_add_or add_10x10" href="#" onclick="return false;"></a>';
 								}
 								$display[0] .= '</span>';
 							}
@@ -939,7 +939,7 @@ class StructuresHelper extends Helper {
 						if($remove_line_ctrl){
 							echo '
 									<td class="right">
-										<a href="#" class="removeLineLink" title="',__( 'click to remove these elements', true ),'">(-)</a>
+										<a href="#" class="removeLineLink delete_10x10" title="',__( 'click to remove these elements', true ),'"></a>
 									</td>
 							';
 						}
@@ -981,7 +981,7 @@ class StructuresHelper extends Helper {
 					if($add_line_ctrl){
 						echo '<tr>
 								<td class="right" colspan="',$header_data['count'],'">
-									<a class="addLineLink" href="#" title="',__( 'click to add a line', true ),'">(+)</a>
+									<a class="addLineLink add_10x10" href="#" title="',__( 'click to add a line', true ),'"></a>
 									<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
 								</td>
 							</tr>
