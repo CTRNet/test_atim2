@@ -167,35 +167,24 @@ div.submitBar{
 	padding: 5px 5px; 
 	line-height: 25px;
 	background-color: #F2F2FF;
-	text-align: left;
-}
-/* actions, links */
-div.actionsOuter{
-	display: table;
-	width: 100%;
-	background: #dde8f2;
-	-moz-border-radius: 0 0 5px 5px;
-	border-radius: 0 0 5px 5px;
-}
-div.actions div.leftCell{
-	display: table-cell;
-	text-align: left;
-	padding: 7px 0 0 10px;
-}
-div.actions div.rightCell{
-	display: table-cell;
 	text-align: right;
-	padding: 7px 10px 0 0;
+	height: 32px;
 }
+div.flyOverSubmit{
+	position: relative;
+}
+
+/* actions, links */
 div.actions {
 	position: relative;
-	display: table-row;
-	height: 25px;
+	height: 35px;
 	font-size: 11px;
 	line-height: 1.3em;
 	color: #bbf;
+	background: #dde8f2;
 	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
+	padding: 6px 0 0 10px;
 }
 
 	div.bottom_button {
@@ -256,7 +245,7 @@ div.actions {
 		position: absolute;
 		/*min-width: 400px*/;
 		bottom: 32px;
-		right: 0px;
+		left: 0px;
 		
 		margin: 0;
 		padding: 15px 2px;
@@ -284,7 +273,7 @@ div.actions {
 	}
 	div.filter_menu div.arrow span{
 		position: absolute;
-		right: 0px;
+		left: 0px;
 		width: 76px;
 		height: 13px;
 		display: inline-block;

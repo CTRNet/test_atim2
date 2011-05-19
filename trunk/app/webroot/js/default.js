@@ -418,7 +418,7 @@ function uncheckAll( $div ) {
 	
 	function initAliquotVolumeCheck(){
 		var checkFct = function(){
-			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")) };
+			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")); };
 			var denom = fctMod($("#AliquotMasterCurrentVolume").val());
 			var nom = fctMod($("#AliquotUseUsedVolume").val());
 			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
@@ -701,6 +701,10 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function flyOverSubmit(){
+		$(".flyOverSubmit").css("right", (Math.max($(document).width() - $(window).width() - $(document).scrollLeft(), 0)) + "px");
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -793,7 +797,13 @@ function uncheckAll( $div ) {
 				$('form').highlight('tr');
 			}
 		}
+		
+		//fly over submit button, always in the screen
+		flyOverSubmit();
+		$(document).scroll(flyOverSubmit);
+		$(window).resize(flyOverSubmit);
 	}
+	
 
 	function debug(str){
 //		$("#debug").append(str + "<br/>");
