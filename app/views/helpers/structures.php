@@ -375,7 +375,7 @@ class StructuresHelper extends Helper {
 			if($options['type'] == 'search'){	//search mode
 				$link_class = "search";
 				$link_label = __("search", null);
-				$exact_search = '<input type="checkbox" name="data[exact_search]"/>'.__("exact search", true);
+				$exact_search = __("exact search", true).'<input type="checkbox" name="data[exact_search]"/>';
 			}else{								//other mode
 				$link_class = "submit";
 				$link_label = __("submit", null);
@@ -383,11 +383,13 @@ class StructuresHelper extends Helper {
 			}
 			echo('
 				<div class="submitBar">
-					<div class="bottom_button">
-						<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-						<a href="#n" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+					<div class="flyOverSubmit">
+						'.$exact_search.'
+						<div class="bottom_button">
+							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
+							<a href="#n" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+						</div>
 					</div>
-					'.$exact_search.'
 				</div>
 			');
 		}
@@ -1899,38 +1901,35 @@ class StructuresHelper extends Helper {
 		if($state == 'bottom'){ 
 			
 			$return_string = '
-				<div class="actionsOuter"><div class="actions">
+				<div class="actions">
 			';
 			
-			// display SEARCH RESULTS, if any
 			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 				if (isset($_SESSION['ctrapp_core']['search']) 
 					&& is_array($_SESSION['ctrapp_core']['search']) 
 					&& !empty($_SESSION['ctrapp_core']['search']['results'])
 					&& AppController::getInstance()->layout != 'ajax'
 				){
+					//
 					$return_string .= '
-						<div class="leftCell">
-							<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
-								'.$_SESSION['ctrapp_core']['search']['results'].'
-							</a></div>
-						</div>
+						<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
+							'.$_SESSION['ctrapp_core']['search']['results'].'
+						</a></div>
 					';
 				}
 			}else{
 				unset($_SESSION['ctrapp_core']['search']);
 			}
-			$return_string .= '
-				<div class="rightCell">
-			';
+
 			if(count($return_links)){
 				$return_string .= '
 						<div class="bottom_button">'.implode('</div><div class="bottom_button">',$return_links).'</div>
 					';
 			}
 			
+			
 			$return_string .= '
-				</div></div></div>
+				</div>
 			';
 			
 			
