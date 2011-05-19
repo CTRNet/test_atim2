@@ -16,9 +16,11 @@ class ReportsControllerCustom extends ReportsController {
 		//sheet 1 - find all patients within the date range who have the bank id
 		{	
 			echo "SHEET 1 - Patients\n";
-			$misc_identifier_model->bindModel(array('belongsTo' => array('Participant' => array(
-				'className' => 'Clinicalannotation.Participant',
-				'foreignKey' => 'participant_id'))));
+			$misc_identifier_model->bindModel(array('belongsTo' => array(
+				'Participant' => array(
+					'className' => 'Clinicalannotation.Participant',
+					'foreignKey' => 'participant_id'),
+				)));
 			
 			$title_row = array(
 				"Patient Biobank Number (required & unique)", 
@@ -45,8 +47,40 @@ class ReportsControllerCustom extends ReportsController {
 					'limit' 		=> 10,
 					'offset'		=> $i * 10));
 				foreach($data as $unit){
-					$pid_bid_assoc[$unit['Participant']['id']] = $unit['MiscIdentifier']['identifier_value'];
+					$participant_id = $unit['Participant']['id'];
+					$pid_bid_assoc[$participant_id] = $unit['MiscIdentifier']['identifier_value'];
+					$tmp_data = $this->Report->query("SELECT MAX(last_chart_checked_date) AS last_chart_checked_date FROM
+						(SELECT MAX(last_chart_checked_date) AS last_chart_checked_date FROM participants WHERE id=".$participant_id."
+						UNION
+						SELECT MAX(start_date) AS last_chart_checked_date FROM tx_masters WHERE participant_id=".$participant_id."
+						UNION
+						SELECT MAX(dx_date) AS last_chart_checked_date FROM diagnosis_masters WHERE participant_id=".$participant_id."
+						UNION
+						SELECT MAX(event_date) AS last_chart_checked_date FROM event_masters WHERE participant_id=".$participant_id.") AS tmp"
+					, false);
 					
+					$fam_history_data = $this->Report->query("SELECT ohri_disease_site FROM family_histories AS FamilyHistory WHERE participant_id=".$participant_id, false);
+					$fam_history_data_count = array_fill_keys(array('other', 'breast', 'ovary'), 0);
+					foreach($fam_history_data as $ohri_disease_site){
+						$fam_history_data_count[$ohri_disease_site['FamilyHistory']['ohri_disease_site']] ++; 
+					}
+					$family_history = null;
+					if($fam_history_data_count['ovary'] > 0 && $fam_history_data_count['breast'] > 0){
+						$family_history = 'ovarian and breast cancer';
+					}else if($fam_history_data_count['ovary'] > 0){
+						$family_history = 'ovarian cancer';
+					}else if($fam_history_data_count['breast'] > 0){
+						$family_history = 'breast cancer';
+					}else if($fam_history_data_count['other'] > 0){
+						$family_history = 'unknown';
+					}else{
+						$family_history = "";
+					}
+					
+					$brca_data = $this->Report->query("SELECT brca FROM ohri_ed_lab_markers AS EventDetail
+						INNER JOIN event_masters ON EventDetail.event_master_id=event_masters.id
+						WHERE event_masters.participant_id=".$participant_id."
+						ORDER BY event_masters.event_date DESC");
 					$line = array();
 					$line[] = $unit['MiscIdentifier']['identifier_value'];
 					$line[] = $unit['Participant']['date_of_birth'];
@@ -58,24 +92,11 @@ class ReportsControllerCustom extends ReportsController {
 //NL_NOTE: A confirmer avec OHRI => $unit['Participant']['date_of_death']; 
 					$line[] = "";//Suspected Date of Death date accuracy
 //NL_NOTE: A confirmer avec OHRI => $unit['Participant']['dod_date_accuracy'];
-					$line[] = $unit['Participant']['last_chart_checked_date'];
-//NL_NOTE: Prendre date la plus rescente parmis:
-// Participant.last_chart_checked_date
-// TreatmentMaster.start_date
-// DiagnosisMaster.dx_date
-// EventMaster.event_summary					
+					$line[] = $tmp_data[0][0]['last_chart_checked_date'];
 					$line[] = "";//last contact date acc
-					$line[] = "?";//TODO: family history
-//NL_NOTE: For each participant, get all FamilyHistory.ohri_disease_site
-//if 1 other => 'unknown'
-//if 1 breast => 'breast cancer'	
-//if 1 ovary => 'ovarian cancer'
-//if 1 ovary && 1 breast => 'ovarian and breast cancer'
-//if 1 breast && n other => 'breast cancer'	
-//if 1 ovary && n other  => 'ovarian cancer'
-//if 1 ovary && 1 breast && n other => 'ovarian and breast cancer'
-					$line[] = "?";//TODO: BRCA status
-//NL_NOTE: Export last record of ohri_ed_lab_markers.brca for each participant					
+					$line[] = $family_history;
+					$line[] = isset($brca_data[0]['EventDetail']['brca']) ? $brca_data[0]['EventDetail']['brca'] : ""; 
+					
 					echo implode(csv_separator, $line), "\n";
 				}
 				++ $i;
@@ -116,86 +137,56 @@ class ReportsControllerCustom extends ReportsController {
 			echo implode(csv_separator, $title_row),"\n";
 			$i = 0;
 			do{
-				
 				$data = $this->Report->query("
 					SELECT * FROM diagnosis_masters AS DiagnosisMaster
 					INNER JOIN ohri_dx_ovaries AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
-					LEFT JOIN event_masters AS EventMaster ON DiagnosisMaster.participant_id=EventMaster.participant_id AND EventMaster.deleted=0
-					LEFT JOIN ohri_ed_lab_chemistries AS EventDetail ON EventMaster.id=EventDetail.event_master_id
 					WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id IN(".implode(", ", $participant_ids).")
+					AND DiagnosisMaster.dx_origin='primary' AND DiagnosisMaster.diagnosis_control_id=14
 					ORDER BY DiagnosisMaster.participant_id LIMIT 10 OFFSET ".($i * 10), false
 				);
-//NL_NOTE: Ne prendre que les diagnosis_masters.dx_origin = 'primary' avec diagnosis_control_id = 14 (diagnosis ohri - ovary)
-// Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
-// select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
-//
-//+----+----------------+-------------+----------------------+
-//| id | participant_id | dx_origin   | diagnosis_control_id |
-//+----+----------------+-------------+----------------------+
-//| 63 |              5 | unknown     |                   14 |
-//| 10 |             11 | primary     |                   15 |
-//| 20 |             22 | synchronous |                   14 |
-//| 21 |             22 | synchronous |                   15 |
-//| 29 |             31 | primary     |                   14 |
-//| 30 |             31 | primary     |                   15 |
-//| 32 |             33 | primary     |                   15 |
-//| 38 |             38 | primary     |                   15 |
-//| 42 |             42 | primary     |                   15 |
-//| 44 |             43 | primary     |                   15 |
-//| 43 |             43 | primary     |                   14 |
-//| 50 |             49 | primary     |                   15 |
-//| 65 |             66 | secondary   |                   14 |
-//| 91 |             94 | secondary   |                   14 |
-//| 92 |             95 | secondary   |                   14 |
-//| 93 |             96 | secondary   |                   14 |
-//| 95 |             98 | secondary   |                   14 |
-//| 96 |             99 | secondary   |                   14 |
-//| 97 |            100 | secondary   |                   14 |
-//+----+----------------+-------------+----------------------+	
+//TODO NL_NOTE: Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
+// >>select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
 
 				foreach($data as $unit){
+					
+					$residual_disease = null;
+					$tx_data = $this->Report->query("SELECT residual_disease FROM ohri_txd_surgeries AS TxDetail
+					INNER JOIN tx_masters ON TxDetail.tx_master_id=tx_masters.id
+					WHERE tx_masters.diagnosis_master_id=".$unit['DiagnosisMaster']['id'], false);
+					if(empty($tx_data)){
+						$tx_data = $this->Report->query("SELECT residual_disease FROM ohri_txd_surgeries AS TxDetail
+						INNER JOIN tx_masters ON TxDetail.tx_master_id=tx_masters.id
+						WHERE tx_masters.participant_id=".$participant_id, false);
+					}
+					if(count($tx_data) == 1){
+						$residual_disease = $tx_data[0]['TxDetail']['residual_disease'];
+					}else if(count($tx_data) > 1){
+						$residual_disease = "CANNOT FETCH - TOO MANY RELATED TREATMENTS";
+					}else{
+						$residual_disease = 0;
+					}
+					
 					$line = array();
 					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
 					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
-					$line[] = "?";//TODO: Presence of precursor of benign lesions
-//NL_NOTE: Doesn't exist
-					$line[] = "?";//TODO: fallopian tube lesions	Age at Time of Diagnosis (yr)
-//NL_NOTE: Doesn't exist
+					$line[] = "";//Presence of precursor of benign lesions
+					$line[] = "";//fallopian tube lesions	Age at Time of Diagnosis (yr)
 					$line[] = $unit['DiagnosisDetail']['laterality'];
 					$line[] = $unit['DiagnosisDetail']['histopathology'];
 					$line[] = $unit['DiagnosisMaster']['tumour_grade'];
 					$line[] = $unit['DiagnosisDetail']['figo'];
-					$line[] = "?";//TODO: Residual Disease
-//NL_NOTE:
-//Pour chaque patient faire l'analyse suivante:
-//Si pas de chirurgie.... rien
-//Sinon chercher la chirurgie liée au diagnostic 
-//    si tx_masters.tx_method = 'surgery' && tx_masters.diagnosis_master_id = id du diagnostic => prendre cette chirurgie (si plusieurs... = probleme)
-//    si  tx_masters.diagnosis_master_id = null et une seule chirurgie pour le patient => prendre cette chirurgie
-//    sinon champs vide
-//Pour la chirurgie sélectionnée prendre le champ: TreatmentDetail.residual_disease
-					$line[] = "";//TODO: Progression status
-//NL_NOTE: Doesn't exist (auccun patient avec un primair ovaire et un metastasis...)
-					$line[] = "";//TODO: Date of Progression/Recurrence Date
-//NL_NOTE: Doesn't exist
-					$line[] = "";//TODO: Date of Progression/Recurrence Accuracy
-//NL_NOTE: Doesn't exist
-					$line[] = "";//$unit['DiagnosisMaster']['ohri_tumor_site'];//TODO: not certain, might not be metastasis
-//NL_NOTE: Selon la requete suivante, aucun diagnostic metastatic autre existe dans leur ATiM
-//Donc ne'existe pas
+					$line[] = $residual_disease;
+					$line[] = "";//Progression status
+					$line[] = "";//Date of Progression/Recurrence Date
+					$line[] = "";//Date of Progression/Recurrence Accuracy
+					$line[] = "";
 					$line[] = "";//Only one site
-//NL_NOTE: Doesn't exist
-					$line[] = "";//TODO: progression time (months)
-//NL_NOTE: Doesn't exist
-					$line[] = "";//TODO: Date of Progression of CA125 Date
-//NL_NOTE: Doesn't exist
-					$line[] = "";//TODO: Date of Progression of CA125 Accuracy
-//NL_NOTE: Doesn't exist
-					$line[] = "";//TODO: CA125 progression time (months)
-//NL_NOTE: Doesn't exist
-					$line[] = "?";//TODO Follow-up from ovarectomy (months)
-//NL_NOTE: Doesn't exist
+					$line[] = "";//progression time (months)
+					$line[] = "";//Date of Progression of CA125 Date
+					$line[] = "";//Date of Progression of CA125 Accuracy
+					$line[] = "";//CA125 progression time (months)
+					$line[] = "";//Follow-up from ovarectomy (months)
 					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
 					
 					echo implode(csv_separator, $line), "\n";
@@ -230,7 +221,9 @@ class ReportsControllerCustom extends ReportsController {
 			do{
 				$data1 = $this->Report->query("
 					SELECT * FROM event_masters AS EventMaster 
-					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id=39 AND EventMaster.participant_id IN(".implode(", ", $participant_ids).")
+					LEFT JOIN ohri_ed_lab_chemistries AS ed_with_ca125 ON ed_with_ca125.event_master_id=EventMaster.id
+					LEFT JOIN ohri_ed_clinical_ctscans AS ed_with_ctscan ON ed_with_ctscan.event_master_id=EventMaster.id
+					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(37, 39) AND EventMaster.participant_id IN(".implode(", ", $participant_ids).")
 					LIMIT 10 OFFSET ".$i * 10, false
 				);
 				$data2 = $this->Report->query("
@@ -251,8 +244,8 @@ class ReportsControllerCustom extends ReportsController {
 						"drug2"						=> "",
 						"drug3"						=> "",
 						"drug4"						=> "",
-						"ca125"						=> "",
-						"ctscan precision"			=> ""
+						"ca125"						=> $unit['ed_with_ca125']['CA125_u_ml'],
+						"ctscan precision"			=> $unit['ed_with_ctscan']['response']
 					);
 				}
 				
@@ -291,10 +284,8 @@ class ReportsControllerCustom extends ReportsController {
 						"drug2"						=> $drug2,
 						"drug3"						=> $drug3,
 						"drug4"						=> $drug4,
-						"ca125"						=> "?",//TODO
-//NL_NOTE: ohri_ed_lab_chemistries.CA125_u_ml
-						"ctscan precision"			=> "?"//TODO
-//NL_NOTE: ohri_ed_clinical_ctscans.response
+						"ca125"						=> "",
+						"ctscan precision"			=> ""//TODO
 					);
 				}
 
@@ -345,10 +336,10 @@ class ReportsControllerCustom extends ReportsController {
 				$line[] = $unit['DiagnosisDetail']['laterality'];
 				$line[] = $unit['DiagnosisDetail']['histopathology'];
 				$line[] = $unit['DiagnosisMaster']['tumour_grade'];
-				$line[] = "?";//TODO: Stage (clinical or pathologic??)
-				$line[] = "?";//TODO: Date of Progression/Recurrence Date
-				$line[] = "?";//TODO: Date of Progression/Recurrence Accuracy
-				$line[] = "?";//TODO: Site of Tumor Progression (metastasis)  If Applicable
+				$line[] = "";//Stage (clinical or pathologic??)
+				$line[] = "";//Date of Progression/Recurrence Date
+				$line[] = "";//Date of Progression/Recurrence Accuracy
+				$line[] = "";//Site of Tumor Progression (metastasis)  If Applicable
 				
 				$line[] = $unit['DiagnosisMaster']['survival_time_months'];
 				echo implode(csv_separator, $line), "\n";
