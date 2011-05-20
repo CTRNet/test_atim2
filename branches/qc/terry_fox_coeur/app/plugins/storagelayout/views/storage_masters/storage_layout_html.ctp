@@ -11,7 +11,7 @@
 	<table id="table" class='storageLayout'>
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
-		if($data['parent']['StorageControl']['horizontal_display']){
+		if(isset($data['parent']['StorageControl']['horizontal_display']) && $data['parent']['StorageControl']['horizontal_display']){
 			echo("<tr>");
 			foreach($data['parent']['list'] as $list_item){
 				echo("<td class='droppable mycell'>"
