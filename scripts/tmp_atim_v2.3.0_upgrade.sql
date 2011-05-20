@@ -141,3 +141,8 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_type' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
 
 UPDATE datamart_structures SET index_link='/clinicalannotation/event_masters/detail/%%EventControl.event_group%%/%%EventMaster.participant_id%%/%%EventMaster.id%%/' WHERE id=14;
+
+ALTER TABLE banks
+ ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+ALTER TABLE banks_revs
+ ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
