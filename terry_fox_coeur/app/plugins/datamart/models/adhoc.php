@@ -12,8 +12,8 @@ class Adhoc extends DatamartAppModel {
 			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
 			
 			if(!empty($adhoc_data)) {
-				$return['menu'] = array($adhoc_data['Adhoc']['title']);
-				$return['title'] = array(null, $adhoc_data['Adhoc']['title']);
+				$return['menu'] = array(__($adhoc_data['Adhoc']['title'], true));
+				$return['title'] = array(null, __($adhoc_data['Adhoc']['title'], true));
 				$return['structure alias'] = 'querytool_adhoc';
 				$return['data'] = $adhoc_data;
 			}

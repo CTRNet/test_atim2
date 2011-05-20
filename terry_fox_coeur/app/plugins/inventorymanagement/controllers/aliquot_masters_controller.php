@@ -552,9 +552,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($is_batch_process) {
 					$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					$this->flash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
 				}
 				
 			}else{
@@ -574,11 +574,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_tree_view_detail_form = false, $is_inventory_plugin_form = true) {
+	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
+		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		
 		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)){
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
-		if($is_tree_view_detail_form){
+		if($is_from_tree_view_or_layout){
 			Configure::write('debug', 0);
 		}
 		// MANAGE DATA
@@ -592,14 +594,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Set times spent since either sample collection/reception or sample creation and sample storage		
 		switch($aliquot_data['SampleMaster']['sample_category']) {
 			case 'specimen':
-				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $aliquot_data['SampleMaster']['id'])));
-				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 			case 'derivative':
+				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
 				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
-				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = $this->manageSpentTimeDataDisplay($this->getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
 			default:
@@ -614,7 +617,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
 		
 		// Set aliquot uses
-		if(!$is_tree_view_detail_form) {		
+		if(!$is_from_tree_view_or_layout) {		
 			$this->set('aliquots_uses_data', $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id));
 		}
 
@@ -635,15 +638,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set structure
 		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		if(!$is_tree_view_detail_form) {
+		if(!$is_from_tree_view_or_layout) {
 			$this->Structures->set('viewaliquotuses', 'aliquots_uses_structure');
 			$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
 		}
 		
-		// Define if this detail form is displayed into the collection content tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
-		$this->set('is_inventory_plugin_form', $is_inventory_plugin_form);
-
+		// Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
+		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
+		
 		// Define if aliquot is included into an order
 		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
 		if(!empty($order_item)){
@@ -1143,7 +1145,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
 					
 					// Set aliquot master data					
-					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] = 'no')) {
+					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
 						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
 						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;
@@ -1257,6 +1259,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$ids = $this->data['ViewAliquot']['aliquot_master_id'];
 			} else {
 				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			if(!is_array($ids) && strpos($ids, ',')){
+				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+				$this->flash(__("batch init - number of submitted records too big", true), "javascript:history.back();", 5);
+				return;
 			}
 			$ids = array_filter($ids);	
 		} else {
@@ -1426,6 +1433,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)){ 
 			$this->redirect("/pages/err_inv_no_data", null, true); 
 		} else if(isset($this->data[0]) && isset($this->data[0]['ids'])){ 
+			if($this->data[0]['realiquot_into'] == ''){
+				$this->flash(__("you must select an aliquot type", true), "javascript:history.back();", 5);
+				return;
+			}
 			$initial_display = true;
 			$parent_aliquots_ids = $this->data[0]['ids'];
 		} else if(isset($this->data['ids'])) {
@@ -1734,6 +1745,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)){ 
 			$this->redirect("/pages/err_inv_no_data", null, true); 
 		} else if(isset($this->data[0]) && isset($this->data[0]['ids'])){ 
+			if($this->data[0]['realiquot_into'] == ''){
+				$this->flash(__("you must select an aliquot type", true), "javascript:history.back();", 5);
+				return;
+			}
 			$initial_display = true;
 			$parent_aliquots_ids = $this->data[0]['ids'];
 		} else if(isset($this->data['ids'])) {

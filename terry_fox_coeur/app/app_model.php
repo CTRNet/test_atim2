@@ -206,11 +206,14 @@ class AppModel extends Model {
 				if($is_end && isset($data['hour']) && strlen($data['hour']) > 0 && isset($data['meridian']) && strlen($data['meridian']) == 0){
 					$data['meridian'] = 'pm';
 				}
-				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
-					$data['hour'] = $data['hour'] + 12;
-				}
-				if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
-					$data['hour'] = '00';
+				if(is_numeric($data['hour'])){
+					//do not alter an invalid hour
+					if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] != 12 && 'pm' == $data['meridian']) {
+						$data['hour'] = $data['hour'] + 12;
+					}
+					if (isset($data['hour']) && isset($data['meridian']) && $data['hour'] == 12 && 'am' == $data['meridian']) {
+						$data['hour'] = '00';
+					}
 				}
 				
 				
@@ -363,7 +366,7 @@ class AppModel extends Model {
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){
 		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
-		if(!App::import('Model', $import_name)){
+		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
 			if($error_view_on_null){
 				$app = AppController::getInstance();
 				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
@@ -376,6 +379,19 @@ class AppModel extends Model {
 		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
 		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
 		return $loaded_class;
+	}
+	
+	/**
+	 * Use this function to instantiate extend models. It loads it based on the 
+	 * table_name and and configures the shadow model
+	 * @param class $class The class to instantiate
+	 * @param string $table_name The table to use
+	 * @return The instantiated class
+	 */
+	static function atimInstantiateExtend($class, $table_name){
+		$extend = new $class(false, $table_name);
+		$extend->Behaviors->Revision->setup($extend);//activate shadow model
+		return $extend;
 	}
 	
 	/**
@@ -398,7 +414,153 @@ class AppModel extends Model {
 			}
 			self::$auto_validation[$use_name] = $auto_validation;
 		}
-	} 
+	}
+
+	/**
+	 * Searches recursively for field in CakePHP SQL conditions
+	 * @param string $field The field to look for
+	 * @param array $conditions CakePHP SQL conditionnal array
+	 * @return true if the field was found
+	 */
+	static function isFieldUsedAsCondition($field, array $conditions){
+		foreach($conditions as $key => $value){
+			$is_array = is_array($value);
+			$pos1 = strpos($key, $field);
+			$pos2 = strpos($key, " ");
+			if($pos1 !== false && ($pos2 === false || $pos1 < $pos2)){
+				return true;
+			}
+			if($is_array){
+				if(self::isFieldUsedAsCondition($field, $value)){
+					return true;
+				}
+			}else{
+				$pos1 = strpos($value, $field);
+				$pos2 = strpos($value, " ");
+				if($pos1 !== false && ($pos2 === false || $pos1 < $pos2)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Return the spent time between 2 dates. 
+	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
+	 * 
+	 * @param $start_date Start date
+	 * @param $end_date End date
+	 * 
+	 * @return Return an array that contains the spent time
+	 * or an error message when the spent time can not be calculated.
+	 * The sturcture of the array is defined below:
+	 *	Array (
+	 * 		'message' => '',
+	 * 		'days' => '0',
+	 * 		'hours' => '0',
+	 * 		'minutes' => '0'
+	 * 	)
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	static function getSpentTime($start_date, $end_date){
+		$arr_spent_time 
+			= array(
+				'message' => null,
+				'days' => '0',
+				'hours' => '0',
+				'minutes' => '0');
+		
+		$empty_date = '0000-00-00 00:00:00';
+		
+		// Verfiy date is not empty
+		if(empty($start_date)||empty($end_date)
+		|| (strcmp($start_date, $empty_date) == 0)
+		|| (strcmp($end_date, $empty_date) == 0)){
+			// At least one date is missing to continue
+			$arr_spent_time['message'] = 'missing date';	
+		} else {
+			$start = AppModel::getTimeStamp($start_date);
+			$end = AppModel::getTimeStamp($end_date);
+			$spent_time = $end - $start;
+			
+			if(($start === false)||($end === false)){
+				// Error in the date
+				$arr_spent_time['message'] = 'error: unable to define date';
+			} else if($spent_time < 0){
+				// Error in the date
+				$arr_spent_time['message'] = 'error in the date definitions';
+			} else if($spent_time == 0){
+				// Nothing to change to $arr_spent_time
+				$arr_spent_time['message'] = '0';
+			} else {
+				// Return spend time
+				$arr_spent_time['days'] = floor($spent_time / 86400);
+				$diff_spent_time = $spent_time % 86400;
+				$arr_spent_time['hours'] = floor($diff_spent_time / 3600);
+				$diff_spent_time = $diff_spent_time % 3600;
+				$arr_spent_time['minutes'] = floor($diff_spent_time / 60);
+				if($arr_spent_time['minutes']<10) {
+					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
+				}
+			}
+			
+		}
+		
+		return $arr_spent_time;
+	}
+
+	/**
+	 * Return time stamp of a date. 
+	 * Notes: The supported date format is YYYY-MM-DD HH:MM:SS
+	 * 
+	 * @param $date_string Date
+	 * @param $end_date End date
+	 * 
+	 * @return Return time stamp of the date.
+	 * 
+	 * @author N. Luc
+	 * @since 2007-06-20
+	 */
+	 
+	static function getTimeStamp($date_string){
+		list($date, $time) = explode(' ', $date_string);
+		list($year, $month, $day) = explode('-', $date);
+		list($hour, $minute, $second) = explode(':',$time);
+
+		return mktime($hour, $minute, $second, $month, $day, $year);
+	}	
+	
+	static function manageSpentTimeDataDisplay($spent_time_data) {
+		$spent_time_msg = '';
+		if(!empty($spent_time_data)) {	
+			if(!is_null($spent_time_data['message'])) {
+				if($spent_time_data['message'] == '0') {
+					$spent_time_msg = $spent_time_data['message'];
+				} else if(strcmp('error in the date definitions', $spent_time_data['message']) == 0) {
+					$spent_time_msg = '<span class="red">'.__($spent_time_data['message'], TRUE).'</span>';
+				} else {
+					$spent_time_msg = __($spent_time_data['message'], TRUE);
+				}
+			} else {
+				$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'days') 
+								.AppModel::translateDateValueAndUnit($spent_time_data, 'hours') 
+								.AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
+			} 	
+		}
+		
+		return $spent_time_msg;
+	}
+	
+	static function translateDateValueAndUnit($spent_time_data, $time_unit) {
+		if(array_key_exists($time_unit, $spent_time_data)) {
+			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit, TRUE) . ' ') : '');
+		} 
+		return  '#err#';
+	}
 }
 
 ?>

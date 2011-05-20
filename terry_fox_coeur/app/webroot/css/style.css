@@ -772,6 +772,7 @@ div.menu ul#summary ul span.list_header {
 *===========================================================*/
 span.tag {
 	font-size: 100%;
+	font-weight: bold;
 }
 span.help {
 	position: relative;
@@ -883,7 +884,7 @@ span.help {
 		
 		div.wrapper table.columns.index td, div.wrapper table.columns.detail td{ 
 			padding: 0.5em 1em; 
-			border-top: 1px solid #eaedf2; 
+			border-top: 1px solid #eaedf2;
 		}
 		
 				.descriptive_heading h4,
@@ -904,7 +905,7 @@ span.help {
 					margin: 0 0 0 0;
 					padding: 0 1em 1em 1em;
 				
-					color: #a9a9a9;
+					color: #2d5069;
 				}
 		
 		div.wrapper table.structure table td.heading { 
@@ -960,7 +961,7 @@ span.help {
 			div.wrapper table.structure table.columns td {
 				vertical-align: top;
 				line-height: 14px;
-				color: #666;
+				color: #444;
 			}
 			ul.big_announcements {
 				list-style: none;
@@ -1254,7 +1255,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		div#validation li, ul.error li {
+		ul.error li, ul.warning li, ul.confirm li {
 			padding: 0.5em 1em;
 			-moz-border-radius: 5px; 
 			border-radius: 5px; 
@@ -1265,11 +1266,11 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			background-color: #933;
 		}
 	
-		div#validation ul.confirm li {
+		ul.confirm li {
 			background-color: #393;
 		}
 		
-		div#validation ul.warning li {
+		ul.warning li {
 			background-color: #EB0;
 		}
 	
@@ -1922,5 +1923,11 @@ small{
 }
 
 .labBook{
-	display: none;	
+	display: none;
+}
+div.pasteDisabled{
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/icons/Paste_Disabled_16x16.png) no-repeat left top;	
 }

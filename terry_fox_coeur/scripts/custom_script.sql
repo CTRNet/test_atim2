@@ -1,3 +1,4 @@
+-- run after 2.2.2
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`) VALUES
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'date_of_ca125_progression', 'date of ca125 progression', '', 'date', '', '',  NULL , ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_tf_dxd_eocs', 'date_of_ca125_progression_accu', '', 'accuracy', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') , ''), 

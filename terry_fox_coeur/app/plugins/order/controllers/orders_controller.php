@@ -83,7 +83,7 @@ class OrdersController extends OrderAppController {
 		$this->data = array();
 		
 		// Set order lines data
-		$this->setDataForOrderLinesList($order_id);
+		$this->set('order_lines_data', $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0)));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

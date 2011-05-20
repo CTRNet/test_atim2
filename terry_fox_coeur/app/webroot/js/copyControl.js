@@ -37,17 +37,15 @@ function initCopyControl(){
  */
 function copyLine(line){
 	copyBuffer = new Object();
-	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
+	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled)").each(function(){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-		console.log($(this).attr("name") + " - " + name + "- " + $(this).attr("type") + " - " + $(this).val());
 		if($(this).attr("type") == "checkbox"){
 			copyBuffer[name] = $(this).attr("checked");
 		}else{
 			copyBuffer[name] = $(this).val();
 		}
 	});
-	console.log(copyBuffer);
 }
 
 /**
@@ -76,8 +74,8 @@ function pasteLine(line){
  * replaces them with copy controls
  */
 function enableCopyCtrl(){
-	$(":checkbox").each(function(){
-		if($(this).attr("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
+	$(":hidden").each(function(){
+		if($(this).attr("name") != undefined && $(this).attr("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
 			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='form paste' title='" + STR_PASTE + "'></a></span>");
 			bindCopyCtrl($(this).parent());
 			$(this).remove();
