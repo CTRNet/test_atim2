@@ -410,10 +410,11 @@ function postCollectionWrite(Model $m, $collection_id){
 }
 
 
-$tables['collections'] = new Model(5, $pkey, array(), true, NULL, 'collections', $fields);
-$tables['collections']->custom_data = array("date_fields" => array(
+$model = new Model(5, $pkey, array(), true, NULL, 'collections', $fields);
+$model->custom_data = array("date_fields" => array(
 	$fields["collection_datetime"] => $fields["collection_datetime_accuracy"]
 )); 
-$tables['collections']->post_read_function = 'postRead';
-$tables['collections']->post_write_function = 'postCollectionWrite';
+$model->post_read_function = 'excelDateFix';
+$model->post_write_function = 'postCollectionWrite';
 
+Config::$models['collections'] = $model;
