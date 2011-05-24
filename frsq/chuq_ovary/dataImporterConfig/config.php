@@ -19,10 +19,10 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/data.xls";//file to read
+	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/chuq_ovary_all_data_for_test.xls";//file to read
 	static $xls_header_rows = 1;
 	
-	static $print_queries	= true;//wheter to output the dataImporter generated queries
+	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= false;//wheter to insert generated queries data in revs as well
 	//--------------------------------------
 	
@@ -53,15 +53,14 @@ class Config{
 Config::$value_domains[] = "marital_status";
 
 //add the parent models here
-Config::$parent_models[] = "a";
+Config::$parent_models[] = "Participant";
 
 //add your configs
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/participants.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
-
-
-
-
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/dos_identifiers.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/patho_identifiers.php'; 
 
 
 ?>
