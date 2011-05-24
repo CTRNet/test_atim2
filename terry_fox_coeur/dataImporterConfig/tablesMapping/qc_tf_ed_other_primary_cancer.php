@@ -1,6 +1,5 @@
 <?php
-$pkey = "Patient Biobank Number
-(required)";
+$pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
@@ -11,20 +10,22 @@ $fields = array(
 );
 
 $detail_fields = array(
-	"date_accuracy" => "Date of event (beginning) Accuracy",
+	"date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"end_date" => "Date of event (end) Date",
-	"end_date_accuracy" => "Date of event (end) Accuracy",
-	"drug1" => "Chimiotherapy Precision Drug1",
-	"drug2" => "Chimiotherapy Precision Drug2",
-	"drug3" => "Chimiotherapy Precision Drug3",
-	"drug4" => "Chimiotherapy Precision Drug4",
-	"m_event_type" => "Event Type",
+	"end_date_accuracy" => array("Date of event (end) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"drug1" => array("Chimiotherapy Precision Drug1" => new ValueDomain('qc_tf_other_primary_cancer_event_drug', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"drug2" => array("Chimiotherapy Precision Drug2" => new ValueDomain('qc_tf_other_primary_cancer_event_drug', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"drug3" => array("Chimiotherapy Precision Drug3" => new ValueDomain('qc_tf_other_primary_cancer_event_drug', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"drug4" => array("Chimiotherapy Precision Drug4" => new ValueDomain('qc_tf_other_primary_cancer_event_drug', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"m_event_type" => array("Event Type" => new ValueDomain('qc_tf_other_primary_cancer_event_type', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
 );
 
 
 
-$tables['qc_tf_ed_other_primary_cancers'] = new MasterDetailModel(4, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_other_primary_cancers', 'event_master_id', $detail_fields);
-$tables['qc_tf_ed_other_primary_cancers']->custom_data = array("date_fields" => array(
+$model = new MasterDetailModel(4, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_other_primary_cancers', 'event_master_id', $detail_fields);
+$model->custom_data = array("date_fields" => array(
 	$fields["event_date"]		=> $detail_fields["date_accuracy"], 
 	$detail_fields["end_date"]	=> $detail_fields["end_date_accuracy"]));
-$tables['qc_tf_ed_other_primary_cancers']->post_read_function = 'postRead';
+$model->post_read_function = 'excelDateFix';
+
+Config::$models['qc_tf_ed_other_primary_cancers'] = $model;

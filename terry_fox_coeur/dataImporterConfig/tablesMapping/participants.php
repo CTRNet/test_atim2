@@ -1,7 +1,6 @@
 <?php
 
-$pkey = "Patient Biobank Number
-(required & unique)";
+$pkey = "Patient Biobank Number (required & unique)";
 $child = array("qc_tf_dxd_eocs", "qc_tf_dxd_other_primary_cancers", "qc_tf_ed_eocs", "qc_tf_ed_other_primary_cancers");
 $fields = array(
 	"title" => "",
@@ -9,26 +8,26 @@ $fields = array(
 	"middle_name" => "",
 	"last_name" => "",
 	"date_of_birth" => "Date of Birth Date",
-	"dob_date_accuracy" => "Date of Birth date accuracy",
+	"dob_date_accuracy" => array("Date of Birth date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"marital_status" => "",
 	"language_preferred" => "",
 	"sex" => "",
 	"race" => "",
-	"vital_status" => "Death Death",
+	"vital_status" => array("Death Death" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
 	"notes" => "",
 	"date_of_death" => "Registered Date of Death Date",
-	"dod_date_accuracy" => "Registered Date of Death date accuracy",
+	"dod_date_accuracy" => array("Registered Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"cod_icd10_code" => "",
 	"secondary_cod_icd10_code" => "",
 	"cod_confirmation_source" => "",
 	"participant_identifier" => "@tmp_id",
 	"last_chart_checked_date" => "",
 	"qc_tf_suspected_date_of_death" => "Suspected Date of Death Date",
-	"qc_tf_sdod_accuracy" => "Suspected Date of Death date accuracy",
+	"qc_tf_sdod_accuracy" => array("Suspected Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_family_history" => "family history",
-	"qc_tf_brca_status" => "BRCA status",
+	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_last_contact" => "Date of Last Contact Date",
-	"qc_tf_last_contact_acc" => "Date of Last Contact date accuracy",
+	"qc_tf_last_contact_acc" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_bank_id"				=> "identifier_id"
 );
 
@@ -52,14 +51,19 @@ function postParticipantWrite(Model $m, $participant_id){
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 }
 
-$tables['participants'] = new Model(0, $pkey, $child, true, NULL, 'participants', $fields);
-$tables['participants']->custom_data = array(
+$model = new Model(0, $pkey, $child, true, NULL, 'participants', $fields);
+$model->custom_data = array(
 	"date_fields" => array(
 		$fields["date_of_birth"]					=> $fields["dob_date_accuracy"], 
 		$fields["date_of_death"]					=> $fields["dod_date_accuracy"], 
 		$fields["qc_tf_suspected_date_of_death"]	=> $fields["qc_tf_sdod_accuracy"], 
 		$fields["qc_tf_last_contact"]				=> $fields["qc_tf_last_contact_acc"])
 );
-$tables['participants']->post_read_function = 'postRead';
-$tables['participants']->post_write_function = 'postParticipantWrite';
+$model->post_read_function = 'excelDateFix';
+$model->post_write_function = 'postParticipantWrite';
+
+Config::$models['participants'] = $model;
 ?>
+
+
+
