@@ -146,3 +146,6 @@ ALTER TABLE banks
  ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
 ALTER TABLE banks_revs
  ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+ 
+ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
+ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;

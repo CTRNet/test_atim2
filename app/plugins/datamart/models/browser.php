@@ -424,9 +424,8 @@ class Browser extends DatamartAppModel {
 		do{
 			$prev_node = $tmp_node;
 			$br = $BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $tmp_node)));
-			if(!empty($br)){
-				$tmp_node = $br['BrowsingResult']['parent_node_id'];
-			}
+			assert($br);
+			$tmp_node = $br['BrowsingResult']['parent_node_id'];
 		}while($tmp_node);
 		$fm = Browser::getTree($prev_node, $current_node, $merged_ids);
 		Browser::buildTree($fm, $tree);
