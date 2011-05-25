@@ -21,6 +21,8 @@
 	if($hook_link){
 		require($hook_link); 
 	}
+	
+	$hook_link = $structures->hook('loop');
 
 	$counter = 0;
 	while($data = array_shift($this->data)){
@@ -55,6 +57,10 @@
 		// CUSTOM CODE
 		$hook_link = $structures->hook('loop');
 		if($hook_link){
+			require($hook_link); 
+		}
+		
+		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		

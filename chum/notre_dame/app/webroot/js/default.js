@@ -640,7 +640,7 @@ function uncheckAll( $div ) {
 					//saved
 					$("#default_popup").popup('close');
 					$("input, select").each(function(){
-						if($(this).attr("name") == 'data[DerivativeDetail][lab_book_master_code]'){
+						if($(this).attr("name").indexOf('lab_book_master_code') != -1){
 							$(this).val(data2);
 						}
 					});
