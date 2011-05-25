@@ -53,7 +53,7 @@
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
-			
+				
 		if($is_batch_process) $structures->build($sample_info, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
 	}
