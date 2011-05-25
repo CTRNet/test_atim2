@@ -17,6 +17,12 @@ class AppController extends Controller {
 	
 	function beforeFilter() {
 		AppController::$me = $this;
+		if(Configure::read('debug') != 0){
+			Cache::clear(false, "structures");
+			Cache::clear(false, "menus");
+			Cache::clear(false, "tables_accuracy");
+		}
+		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language')); 

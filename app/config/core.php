@@ -226,10 +226,8 @@
  *	));
  *
  */
+	Cache::config('tables_accuracy', array('engine' => 'File', 'path' => CACHE . "tables_accuracy"));
+	Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures"));
+	Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus"));
 	Cache::config('default', array('engine' => 'File'));
-	
-	/* Custom ATiM cache for menus and structures. Can be set manually, but by default, switches handled by debug mode */
-	$ATiMCache = Configure::read('debug') ? true : false; 
-	Configure::write('ATiMMenuCache.disable', $ATiMCache);
-	Configure::write('ATiMStructureCache.disable', $ATiMCache);
 ?>

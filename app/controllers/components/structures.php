@@ -78,28 +78,8 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		$structure_cache_directory = "../tmp/cache/structures/";
-		$fname = $structure_cache_directory.".".$alias.".cache";
-		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
-			$fhandle = fopen($fname, 'r');
-			$return = unserialize(fread($fhandle, filesize($fname)));
-			fclose($fhandle);
-		}else{
-			if(Configure::read('ATiMStructureCache.disable')){
-				//clear structure cache
-				try{
-					if ($dh = opendir($structure_cache_directory)) {
-				        while (($file = readdir($dh)) !== false) {
-				            if(filetype($structure_cache_directory . $file) == "file"){
-				            	unlink($structure_cache_directory . $file);
-				            }
-				        }
-				        closedir($dh);
-				    }
-				}catch(Exception $e){
-					//do nothing, it's a race condition with someone else
-				}
-			}
+		
+		if(($return = Cache::read($alias, "structures")) === false){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
@@ -113,13 +93,13 @@ class StructuresComponent extends Object {
 								)
 				);
 				
-				if ( $result ) $return = $result;
+				if ( $result ){
+					$return = $result;
+				}
 			}
-			if(Configure::read('ATiMStructureCache.disable') != 1){
-				$fhandle = fopen($fname, 'w');
-				fwrite($fhandle, serialize($return));
-				fflush($fhandle);
-				fclose($fhandle);
+			
+			if(Configure::read('debug') == 0){
+				Cache::write($alias, $return, "structures");
 			}
 		}
 		
