@@ -95,7 +95,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->QualityCtrl->id = $qc_id;					
 				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
-				$hook_link = $this->hook('postsave_process');
+				$hook_link = $this->hook('qc_postsave_process');
 				if($hook_link){
 					require($hook_link);
 				}
