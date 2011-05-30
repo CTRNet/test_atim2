@@ -59,7 +59,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('ramq#', 'RAMQ #', '# RAMQ'),
 ('mold id', 'Mold ID', 'Mold ID'),
 ("régime d'assurance maladie du québec", "Régime d'Assurance Maladie du Québec", "Régime d'Assurance Maladie du Québec"), 
-('core_installname', 'Lady Davis - Colorectal', 'Lady Davis - Colorectal'),
+('core_installname', 'JGH - Central Biobank', 'JGH - Biobanque centrale'),
 ("anterior", "Anterior", "Antérieur"),
 ("posterior", "Posterior", "Postérieur"),
 ("transversal", "Transversal", "Transversal"),
@@ -652,7 +652,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('height (inches)', '-', '-'),
 ('smoking history', 'Smoking History', 'Antécédents de tabagisme'),
 ('height (cm)', 'Height (cm)', 'Taille (cm)'),
-('consent ld gastro', 'LD Gastro', 'LD Gastro'),
+('consent ld gastro', 'JGH Central Biobank', 'JGH Biobanque centrale'),
 ('participant_ramq', 'RAMQ','RAMQ'),
 ('cigars','Cigars','Cigares'),
 ('did you mother smoke when she was pregnant with you','Did you mother smoke when she was pregnant with you?','Vore mère fumait elle lorsque elle était enceinte de vous?'),
@@ -754,7 +754,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('project', 'Project', 'Projet');
 
 REPLACE INTO i18n (id, en, fr) VALUES
-('acquisition_label', 'Col-Biobank ID', 'Col-Biobank ID');
+('acquisition_label', 'Biobank ID - Prefix', 'Biobank ID - Préfixe');
 
 ALTER TABLE specimen_details
  ADD COLUMN specimen_biobank_id VARCHAR(20) NOT NULL DEFAULT '' AFTER sample_master_id;
