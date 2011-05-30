@@ -21,6 +21,8 @@
 	if($hook_link){
 		require($hook_link); 
 	}
+	
+	$hook_link = $structures->hook('loop');
 
 	$counter = 0;
 	while($data = array_shift($this->data)){
@@ -51,10 +53,8 @@
 		$final_options_children['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
 		$final_options_children['override']= $created_aliquot_override_data;
 		$final_options_children['data'] = $data['children'];
-
-		// CUSTOM CODE
-		$hook_link = $structures->hook('loop');
-		if($hook_link){
+		
+		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		

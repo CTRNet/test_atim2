@@ -713,8 +713,11 @@ class Browser extends DatamartAppModel {
 	 * Fetches all checklist related data and stores it in the object
 	 * @param array $browsing
 	 * @param int $display_limit If the limit is -1 then there is no limit
+	 * @param array $additional_conditions An additional condition array 
+	 * containing arrays with "field" and "ids" keys. The field must only be
+	 * the field and not model dot field.
 	 */
-	public function fetchCheckList(array $browsing, $display_limit){
+	public function fetchCheckList(array $browsing, $display_limit, array $additional_conditions = array()){
 		$model_to_import = null;
 		$this->checklist_model_name_to_search = null;
 		$this->checklist_use_key = null;
@@ -748,6 +751,9 @@ class Browser extends DatamartAppModel {
 		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
 			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
+			foreach($additional_conditions as $additional_condition){
+				$conditions[$this->checklist_model_name_to_search.".".$additional_condition['field']] = $additional_condition['ids'];
+			}
 			
 			//fetch the count since deletions might make the set smaller than the count of ids
 			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
@@ -764,6 +770,52 @@ class Browser extends DatamartAppModel {
 		}else{
 			$this->data = array();
 		}
+	}
+	
+	/**
+	 * Used in merges, gets the parent id to search a child on 
+	 * (Example: AliquotMaster.sample_master_id)
+	 * @param array $data The data array
+	 * @param array $previous_browsing The node that was browsed before the 
+	 * current node (Must be a parent. example: The current node is 
+	 * AliquotMaster and the previous node is SampleMaster)
+	 * @return array The ids to filter on
+	 */
+	public function getFilterIdChildCondition(array $data, array $previous_browsing){
+		$model = null;
+		$id_field = null;
+		if(isset($data[0][$previous_browsing['DatamartStructure']['control_master_model']])){
+			$model = $previous_browsing['DatamartStructure']['control_master_model'];
+			$id_field = "id";
+		}else{
+			$model = $previous_browsing['DatamartStructure']['model'];
+			$id_field = $previous_browsing['DatamartStructure']['use_key'];
+		}
+		
+		$filter_ids = array();
+		foreach($data as $unit){
+			$filter_ids[] = $unit[$model][$id_field];
+		}
+		
+		return $filter_ids;
+	}
+	
+	/**
+	 * Used in merges, filters the ids of a parent node based on the children
+	 * subset. Updates $browsing[BrowsingResult][id_csv].
+	 * @param array $browsing The currently seeked node (Example: SampleMaster)
+	 * @param array $data The current data set
+	 * @param string $model_name The children model (Example: AliquotMaster)
+	 * @param string $id_field The children id field (Example: id)
+	 */
+	public function applyFilterOnParent(array &$browsing, array $data, $model_name, $id_field){
+		$filter_ids = array();
+		foreach($data as $data_unit){
+			$filter_ids[] = $data_unit[$model_name][$id_field];
+		}
+		$filter_ids = array_unique($filter_ids);
+		$org_filter_ids = explode(",", $browsing['BrowsingResult']['id_csv']);
+		$browsing['BrowsingResult']['id_csv'] = implode(", ", array_intersect($filter_ids, $org_filter_ids));
 	}
 	
 }

@@ -33,7 +33,7 @@
 		'tree'=>array(
 			'SampleMaster' => array(
 				'detail' => array(
-					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . true,
+					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
 					'icon' => 'flask'
 				),
 				'access to all data' => array(
@@ -43,7 +43,7 @@
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
-					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
+					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
 					'icon' => 'aliquot'
 				),
 				'access to all data' => array(
