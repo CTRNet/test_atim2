@@ -195,6 +195,44 @@ class StructuresHelper extends Helper {
 		
 		return $hook_file;
 	}
+	
+	private function updateDataWithAccuracy(array &$data, array &$structure){
+		if(!empty($structure['Accuracy']) && !empty($data)){
+			$single_node = false;
+			if(!is_array(current(current($data)))){
+				$single_node = true;
+				$data = array($data);
+			}
+
+			foreach($data as &$data_line){
+				foreach($structure['Accuracy'] as $model => $fields){
+					foreach($fields as $date_field => $accuracy_field){
+						if(isset($data_line[$model][$accuracy_field])){
+							$accuracy = $data_line[$model][$accuracy_field];
+							if($accuracy != 'c'){
+								if($accuracy == 'd'){
+									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 7);
+								}else if($accuracy == 'm'){
+									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 4);
+								}else if($accuracy == 'y'){
+									$data_line[$model][$date_field] = '±'.substr($data_line[$model][$date_field], 0, 4);
+								}else if($accuracy == 'h'){
+									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 11);
+								}else if($accuracy == 'i'){
+									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 13);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if($single_node){
+				$data = $data[0];
+			}
+			
+		}
+	}
 
 	/**
 	 * Builds a structure
@@ -312,6 +350,8 @@ class StructuresHelper extends Helper {
 		if($data == null){
 			$data = array();
 		}
+		
+		$this->updateDataWithAccuracy($data, $atim_structure);
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
@@ -653,10 +693,19 @@ class StructuresHelper extends Helper {
 					$date = $current_value;
 					$time = $current_value;
 				}else if(strlen($current_value) > 0 && $current_value != "NULL"){
-					list($date, $time) = explode(" ", $current_value);
+					if(strpos($current_value, " ") === false){
+						$date = $current_value;
+					}else{
+						list($date, $time) = explode(" ", $current_value);
+					}
 				}
-				$display = self::getDateInputs($field_name, $date, $table_row_part['settings']);
-				$display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
+				
+				$display = "";
+				if($options['type'] != "search"){
+					$display = "<div class='accuracy_target_blue'></div>";
+				}
+				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings'])
+					.self::getTimeInputs($field_name, $time, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" 
@@ -720,7 +769,17 @@ class StructuresHelper extends Helper {
 		}else if(strlen($current_value) > 0){
 			$elligible_as_date = strlen($current_value) > 1;
 			if($table_row_part['type'] == "date" && $elligible_as_date){
-				list($year, $month, $day) = explode("-", $current_value);
+				$date = explode("-", $current_value);
+				$year = $date[0];
+				$month = null;
+				$day = null;
+				switch(count($date)){
+					case 3:
+						$day = $date[2];
+					case 2:
+						$month = $date[1];
+						break;
+				}
 				list($day) = explode(" ", $day);//in case the current date is a datetime
 				$display = AppController::getFormatedDateString($year, $month, $day, $options['type'] != 'csv');
 			}else if($table_row_part['type'] == "datetime" && $elligible_as_date){
@@ -1485,6 +1544,8 @@ class StructuresHelper extends Helper {
 									}else{
 										$current['tool'] = '<a href="'.$this->webroot.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
 									}
+								}else if($setting[0] == 'accuracy'){
+									continue;
 								}else{
 									$settings[$setting[0]] = $setting[1];
 								}
@@ -2074,7 +2135,15 @@ class StructuresHelper extends Helper {
 			$month = $date['month'];
 			$day = $date['day'];
 		}else if(strlen($date) > 0 && $date != "NULL"){
-			list($year, $month, $day) = explode("-", $date);
+			$date = explode("-", $date);
+			$year = $date[0];
+			switch(count($date)){
+				case 3:
+					$day = $date[2];
+				case 2:
+					$month = $date[1];
+					break;
+			}
 		}
 		$result = "";
 		unset($attributes['options']);//fixes an IE js bug where $(select).val() returns an error if "options" is present as an attribute
@@ -2156,7 +2225,6 @@ class StructuresHelper extends Helper {
 		return $result;
 	}
 
-	
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
 		if(is_array($data_unit) 
 		&& array_key_exists($table_row_part['model'], $data_unit) 

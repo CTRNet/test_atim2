@@ -5,6 +5,7 @@ class AppModel extends Model {
 	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
 	private $validation_in_progress = false;
 	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
+	public $accuracy_config = array();
 
 	//The values in this array can trigger magic actions when applied to a field settings
 	private static $magic_coding_icd_trigger_array = array(
@@ -45,9 +46,8 @@ class AppModel extends Model {
 		if(!isset(self::$auto_validation[$this->name])){
 			$this->buildAutoValidation($this->name, $this);
 		}
+		
 	}
-	
-	
 	
 	/**
 	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
@@ -64,21 +64,15 @@ class AppModel extends Model {
 			// editing an existing entry with an existing session
 			unset($this->data[$this->name]['created_by']);
 			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-		} 
-		
-		else if ($this->Session ) {
+		} else if ($this->Session ) {
 			// creating a new entry with an existing session
 			$this->data[$this->name]['created_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
 			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-		} 
-		
-		else if ( $this->id ) {
+		} else if ( $this->id ) {
 			// editing an existing entry with no session
 			unset($this->data[$this->name]['created_by']);
 			$this->data[$this->name]['modified_by'] = 0;
-		} 
-		
-		else {
+		} else {
 			// creating a new entry with no session
 			$this->data[$this->name]['created_by'] = 0;
 			$this->data[$this->name]['modified_by'] = 0;
@@ -99,7 +93,8 @@ class AppModel extends Model {
 					} 
 				}
 			}else if(($tmp_type == "datetime" || $tmp_type == "date" || $tmp_type == "time") 
-			&& isset($this->data[$this->name][$field_name]) && empty($this->data[$this->name][$field_name])){
+				&& isset($this->data[$this->name][$field_name]) && empty($this->data[$this->name][$field_name])
+			){
 				//manage date so that the generated query contains NULL instead of an empty string
 				unset($this->data[$this->name][$field_name]);
 			}
@@ -234,33 +229,45 @@ class AppModel extends Model {
 							}
 						}
 					}
-				}
-				if(in_array($type, array('datetime', 'timestamp'))){
-					if(strlen($data['hour']) == 0 && strlen($data['min']) == 0 && strlen($data['sec']) == 0){
-						//only patch hour if min and sec are empty
-						$data['hour'] = $is_end ? 23 : 0;
+				
+					if(in_array($type, array('datetime', 'timestamp'))){
+						if(strlen($data['hour']) == 0 && strlen($data['min']) == 0 && strlen($data['sec']) == 0){
+							//only patch hour if min and sec are empty
+							$data['hour'] = $is_end ? 23 : 0;
+						}
 					}
-				}
-				if($got_time){
-					if(strlen($data['min']) == 0){
-						$data['min'] = $is_end ? 59 : 0;
+
+					if($got_time){
+						if(strlen($data['min']) == 0){
+							$data['min'] = $is_end ? 59 : 0;
+						}
+						if(!isset($data['sec']) || strlen($data['sec']) == 0){
+							$data['sec'] = $is_end ? 59 : 0;
+						}
 					}
-					if(!isset($data['sec']) || strlen($data['sec']) == 0){
-						$data['sec'] = $is_end ? 59 : 0;
+				}else{
+					if(isset($data['year_accuracy'])){
+						$data['year'] = '±'.$data['year'];
 					}
 					
+					if(!isset($data['sec']) || strlen($data['sec']) == 0){
+						$data['sec'] = '00';
+					}
+				}
+				
+				if($got_time){
 					foreach(array('hour', 'min', 'sec') as $key){
 						if(is_numeric($data[$key])){
-							$data[$key] = sprintf("%02d", $data[$key]);
+							$data[$key] = sprintf("%s", $data[$key]);
 						}
 					}
 				}
 				
 				$result = null;
 				if($got_date && $got_time){
-					$result = sprintf("%d-%02d-%02d %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
+					$result = sprintf("%s-%s-%s %s:%s:%s", $data['year'], $data['month'], $data['day'], $data['hour'], $data['min'], $data['sec']);
 				}else if($got_date){
-					$result = sprintf("%d-%02d-%02d", $data['year'], $data['month'], $data['day']);
+					$result = sprintf("%s-%s-%s", $data['year'], $data['month'], $data['day']);
 				}else{
 					$result = sprintf("%s:%s:%s", $data['hour'], $data['min'], $data['sec']);
 				}
@@ -293,11 +300,83 @@ class AppModel extends Model {
 		return self::$magic_coding_icd_trigger_array;
 	}
 	
-
+	/*function afterFind($results){
+		if(!empty($this->accuracy_config) && isset($results[0][$this->name])){
+			//echo $this->name,"<br/>";
+			foreach($results as &$data){
+				foreach($this->accuracy_config as $date_field => $accuracy_field){
+					$accuracy = $data[$this->name][$accuracy_field];
+					if($accuracy != 'c'){
+						if($accuracy == 'd'){
+							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 7);
+						}else if($accuracy == 'm'){
+							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 4);
+						}else if($accuracy == 'y'){
+							$data[$this->name][$date_field] = '±'.substr($data[$this->name][$date_field], 0, 4);
+						}else if($accuracy == 'h'){
+							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 11);
+						}else if($accuracy == 'i'){
+							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 13);
+						}
+					}
+				}
+			}
+		}
+		return $results;
+	}*/
+	
 	function validates($options = array()){
+		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+		foreach($this->accuracy_config as $date_field => $accuracy_field){
+			$current = &$this->data[$this->name][$date_field];
+			if(!empty($current)){
+				list($year, $month, $day) = explode("-", trim($current));
+				$hour = null;
+				$minute = null;
+				$time = null;
+				if(strpos($day, ' ') !== false){
+					list($day, $time) = explode(" ", $day);
+					list($hour, $minute) = explode(":", $time);
+				}
+				if(!empty($year)){
+					if(empty($month) && empty($day) && empty($hour) && empty($minute)){
+						$month = '01';
+						$day = '01';
+						$hour = '00';
+						$minute = '00';
+						if(strpos($year, '±') === 0){
+							$this->data[$this->name][$accuracy_field] = 'y';
+							$year = substr(trim($year), 2);
+						}else{
+							$this->data[$this->name][$accuracy_field] = 'm';
+						}
+					}else if(empty($day) && empty($hour) && empty($minute)){
+						$day = '01';
+						$hour = '00';
+						$minute = '00';
+						$this->data[$this->name][$accuracy_field] = 'd';
+					}else if(empty($time)){
+						$this->data[$this->name][$accuracy_field] = 'c';
+					}else if(empty($hour) && empty($minute)){
+						$hour = '00';
+						$minute = '00';
+						$this->data[$this->name][$accuracy_field] = 'h';
+					}else if(empty($minute)){
+						$minute = '00';
+						$this->data[$this->name][$accuracy_field] = 'i';
+					}else{
+						$this->data[$this->name][$accuracy_field] = 'c';
+					}
+					$current = sprintf("%s-%02s-%02s", $year, $month, $day);
+					if(!empty($time)){
+						$current .= sprintf(" %02s:%02s:00", $hour, $minute);
+					}
+				}
+			}
+		}
+		
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
-			$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 			$master_class		= $settings['master_class'];
 			$control_foreign 	= $settings['control_foreign'];
 			$control_class 		= $settings['control_class'];

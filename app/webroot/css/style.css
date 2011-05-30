@@ -1960,3 +1960,13 @@ a.specific_btn{
 a.file_btn{
 	background: url(../img/icons/upload_16x16.png) no-repeat;
 }
+div.accuracy_target_blue{
+	position: relative;
+	top: 4px;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: none;
+	background: url(../img/icons/target_blue_20x20.gif) no-repeat;
+	cursor: pointer;
+}

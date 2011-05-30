@@ -701,6 +701,37 @@ function uncheckAll( $div ) {
 		});
 	}
 	
+	function initAccuracy(scope){
+		$(scope).find(".accuracy_target_blue").click(function(){
+			console.log("clicked");
+			if($(this).find("input").length == 0){
+				//accuracy going to year
+				$(this).parent().find("input, select").each(function(){
+					if($(this).attr("name").indexOf("year") == -1){
+						$(this).hide();
+					}
+				});
+				var name = $(this).parent().find("input, select").first().attr("name");
+				$(this).html("<input type='hidden' name='" + name.substr(0, name.lastIndexOf("[")) + "[year_accuracy]' value='1'/>");
+			}else{
+				//accuracy going to manual
+				$(this).html("");
+				$(this).parent().find("input, select").show();
+			}
+			return false;
+		});
+		
+		$(scope).find(".accuracy_target_blue").each(function(){
+			var current_accuracy_btn = this;
+			$(this).parent().find("input, select").each(function(){
+				if($(this).attr("name").indexOf("year") != -1 && $(this).val().indexOf('±') == 0){
+					$(this).val($(this).val().substr(1));
+					$(current_accuracy_btn).click();
+				}
+			});
+		});
+	}
+	
 	function flyOverSubmit(){
 		$(".flyOverSubmit").css("right", (Math.max($(document).width() - $(window).width() - $(document).scrollLeft(), 0)) + "px");
 	}
@@ -761,6 +792,7 @@ function uncheckAll( $div ) {
 		initActions();
 		initSummary();
 		initAjaxClass(document);
+		initAccuracy(document);
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
