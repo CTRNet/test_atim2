@@ -19,7 +19,7 @@ class StructuresComponent extends Object {
 		if(!is_array($alias)){
 			$alias = explode(",", $alias);			
 		}
-		$structure = array('Structure' => array(), 'Sfs' => array());
+		$structure = array('Structure' => array(), 'Sfs' => array(), 'Accuracy' => array());
 		$all_structures = array();
 		foreach($alias as $alias_unit){
 			$struct_unit = $this->getSingleStructure($alias_unit);
@@ -31,12 +31,13 @@ class StructuresComponent extends Object {
 			if(isset($struct_unit['structure']['Sfs'])){
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
+				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
 			}
 		}
 		
-		//rules are formatted, apply them
-		foreach($all_structures as $struct_unit){
+		foreach($all_structures as &$struct_unit){
 			foreach ($struct_unit['rules'] as $model => $rules){
+				//rules are formatted, apply them
 				$this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
 			}
 		}
@@ -46,7 +47,22 @@ class StructuresComponent extends Object {
 		}else if(count($structure['Structure']) == 1){
 			$structure['Structure'] = $structure['Structure'][0];
 		}
+		
 		$this->controller->set($structure_name, $structure);
+	}
+	
+	/**
+	 * Stores data into model accuracy_config. Will be used for validation. Stores the same data into the structure.
+	 * @param array $structure
+	 */
+	private function updateAccuracyChecks(&$structure){
+		$structure['Accuracy'] = array();
+		foreach($structure['Sfs'] as &$field){
+			if(($field['type'] == 'date' || $field['type'] == 'datetime') && in_array("accuracy", explode(",", $field['setting']))){
+				$this->controller->{ $field['model'] }->accuracy_config[$field['field']] = $field['field']."_accuracy";
+				$structure['Accuracy'][$field['model']][$field['field']] = $field['field']."_accuracy";
+			}
+		}
 	}
 	
 	function get($mode = null, $alias = NULL){
@@ -71,6 +87,8 @@ class StructuresComponent extends Object {
 		}else if($mode == 'form'){
 			$result = $result['structure'];
 		}
+		
+		$this->updateAccuracyChecks($result);
 		return $result;
 	}
 	
@@ -115,6 +133,8 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
+		
+		$this->updateAccuracyChecks($return['structure']);
 		return $return;
 	}
 	

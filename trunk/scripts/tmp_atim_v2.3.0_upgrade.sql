@@ -149,3 +149,23 @@ ALTER TABLE banks_revs
  
 ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
+
+CREATE TABLE tmp_accuracy_fields (SELECT substr(field, 1, length(field) - 9) AS field, tablename FROM structure_fields WHERE field LIKE '%_accuracy');
+UPDATE structure_fields AS sf  
+ INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
+ SET sf.setting=CONCAT(setting, ',accuracy') 
+ WHERE setting!=''; 
+UPDATE structure_fields AS sf
+ INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
+ SET setting='accuracy' 
+ WHERE setting=''; 
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%_accuracy%');
+DELETE FROM structure_fields WHERE field LIKE '%_accuracy%';
+DROP TABLE tmp_accuracy_fields;
+
+UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND tablename='participants' AND field='date_of_birth' AND `type`='date' AND structure_value_domain  IS NULL ;
+
+ALTER TABLE participants
+ CHANGE dod_date_accuracy date_of_death_accuracy CHAR(1) NOT NULL DEFAULT '',
+ CHANGE dob_date_accuracy date_of_birth_accuracy CHAR(1) NOT NULL DEFAULT '';
