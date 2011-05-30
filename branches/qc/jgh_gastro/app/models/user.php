@@ -9,7 +9,7 @@ class User extends AppModel {
 		
 		if (!$this->id && empty($this->data)) {        
 			return null;    
-		}    
+		}
 		
 		$data = $this->data;    
 		
@@ -17,7 +17,7 @@ class User extends AppModel {
 			$data = $this->read();    
 		}    
 		
-		if (!$data['User']['group_id']) {        
+		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {        
 			return null;    
 		} else {        
 			return array('Group' => array('id' => $data['User']['group_id']));    

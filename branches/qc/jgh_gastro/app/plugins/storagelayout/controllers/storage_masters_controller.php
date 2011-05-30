@@ -55,7 +55,9 @@ class StorageMastersController extends StoragelayoutAppController {
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function detail($storage_master_id, $is_tree_view_detail_form = 0, $storage_category = null) {
+	function detail($storage_master_id, $is_from_tree_view_or_layout = 0, $storage_category = null) {
+		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		
 		// Note: The $storage_category variable is not really used.
 		//       Just added to parameters list to be consistent with use_link set into menu table
 		//       for TMA.
@@ -111,8 +113,8 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Set boolean
 		$this->set('is_tma', $is_tma);		
 
-		// Define if this detail form is displayed into the children storage tree view
-		$this->set('is_tree_view_detail_form', $is_tree_view_detail_form);
+		// Define if this detail form is displayed into the children storage tree view, storage layout, etc
+		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
 		
 		// Get all storage control types to build the add to selected button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
@@ -550,7 +552,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$link = $this->webroot."/storagelayout/storage_masters/detail/".$children_array["StorageMaster"]['id']."/2";
 				$this->buildChildrenArray($children_array, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "selection_label", $rkey_coordinate_list, $link, "storage");
 			}else if(isset($children_array['AliquotMaster'])){
-				$link = $this->webroot."/inventorymanagement/aliquot_masters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/1/0/";
+				$link = $this->webroot."/inventorymanagement/aliquot_masters/detail/".$children_array["AliquotMaster"]["collection_id"]."/".$children_array["AliquotMaster"]["sample_master_id"]."/".$children_array["AliquotMaster"]["id"]."/2";
 				$this->buildChildrenArray($children_array, "AliquotMaster", "storage_coord_x", "storage_coord_y", "barcode", $rkey_coordinate_list, $link, "aliquot");
 			}else if(isset($children_array['TmaSlide'])){
 				$link = $this->webroot."/storagelayout/tma_slides/detail/".$children_array["TmaSlide"]['tma_block_storage_master_id']."/".$children_array["TmaSlide"]['id']."/2";
