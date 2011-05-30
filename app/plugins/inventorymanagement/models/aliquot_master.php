@@ -57,7 +57,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
 				WHERE am.id='".$aliquot_master_id."' AND ((am.modified >= sm.modified AND (am.modified < smn.modified OR smn.modified IS NULL)) OR (sm.modified > am.modified AND (sm.modified <= amn.modified OR amn.modified IS NULL)) OR am.storage_master_id IS NULL)";
 		$storage_data_tmp = $this->query($qry);
-		pr($storage_data_tmp);
+		
 		$previous = array_shift($storage_data_tmp);
 		while($current = array_shift($storage_data_tmp)){
 			if($previous['sm']['id'] != $current['sm']['id']){
