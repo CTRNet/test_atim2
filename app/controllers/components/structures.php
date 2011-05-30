@@ -215,6 +215,8 @@ class StructuresComponent extends Object {
 			}
 		}
 		
+		App::import('Sanitize');
+		
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach($this->controller->data as $model => $fields){
@@ -266,10 +268,11 @@ class StructuresComponent extends Object {
 									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
+										$data = array_map('Sanitize::escape', $data);
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
-										$data = '%'.$data.'%';
+										$data = '%'.Sanitize::escape($data).'%';
 									}
 								}
 								
