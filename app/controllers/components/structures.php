@@ -268,7 +268,9 @@ class StructuresComponent extends Object {
 									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
-										$data = array_map('Sanitize::escape', $data);
+										foreach($data as &$unit){
+											$unit = Sanitize::escape($unit);
+										}
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
