@@ -32,7 +32,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("the storage [%s] already contained something at position [%s, %s]", 
  "The storage [%s] already contained something at position [%s, %s]",
  "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"),
-("hour_sign", "h", "h"); 
+("hour_sign", "h", "h"),
+("paste on all lines of all sections", "Paste on all lines of all sections", "Coller sur toutes les lignes de toutes les sections");
 
 DROP TABLE datamart_batch_processes;
 
