@@ -175,8 +175,9 @@ function uncheckAll( $div ) {
 		return null;
 	}
 
-	function initDatepicker(elements){
-		$(elements).each(function(){
+	function initDatepicker(scope){
+		console.log("init");
+		$(scope).find(".datepicker").each(function(){
 			var dateFields = $(this).parent().parent().find('input, select');
 			var yearField = null;
 			var monthField = null;
@@ -235,13 +236,12 @@ function uncheckAll( $div ) {
 					}
 			    }
 			});
-
+			
 			//bug fix for Safari and Chrome
 			$(this).click(function(){
 				$(this).datepicker('show');
 			});
 		});
-		
 	}
 	
 	function setFieldSpan(clickedButton, spanClassToDisplay){
@@ -289,7 +289,7 @@ function uncheckAll( $div ) {
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
-					initDatepicker($($newField).find(".datepicker"));
+					initDatepicker($newField);
 					
 					initAutocomplete($newField);
 					initToolPopup($newField);
@@ -369,7 +369,7 @@ function uncheckAll( $div ) {
 				$(this).focus(function(){
 					//fixes a datepicker issue where the calendar stays open
 					$("#ui-datepicker-div").stop(true, true);
-					$(".datepicker").datepicker('hide');
+					//$(".datepicker").datepicker('hide');
 					$(this).parent().find("div").css("display", "inline-block");
 				});
 				$(this).blur(function(){
@@ -553,6 +553,7 @@ function uncheckAll( $div ) {
 				var newLines = $(tableBody).find("tr.newLine");
 				initRemoveLine(newLines);
 				initAutocomplete(newLines);
+				initDatepicker(newLines);
 				initToolPopup(newLines);
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
@@ -654,7 +655,7 @@ function uncheckAll( $div ) {
 	
 	function labBookPopupAddForm(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
-		initDatepicker("#default_popup .datepicker");
+		initDatepicker("#default_popup");
 		initTooltips("#default_popup");
 		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
 			$(this).hide();
@@ -788,14 +789,15 @@ function uncheckAll( $div ) {
 		initSummary();
 		initAjaxClass(document);
 		initAccuracy(document);
+		initAddLine(document);//must be before datepicker
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		initDatepicker(".datepicker");
+		initDatepicker(document);
 		
 		initCheckAll(document);
 		
-		initAddLine(document);
+		
 		initRemoveLine(document);
 		
 		initCheckboxes(document);
