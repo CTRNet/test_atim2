@@ -134,9 +134,9 @@ class StructuresComponent extends Object {
 					}
 				}
 			}
+			$this->updateAccuracyChecks($return['structure']);
 		}
 		
-		$this->updateAccuracyChecks($return['structure']);
 		return $return;
 	}
 	
