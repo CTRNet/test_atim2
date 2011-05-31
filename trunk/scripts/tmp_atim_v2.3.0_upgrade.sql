@@ -288,10 +288,5 @@ SET aliquot_type_precision = REPLACE(aliquot_type_precision,'specimen tube ','')
 UPDATE aliquot_controls
 SET aliquot_type_precision = ''
 WHERE aliquot_type_precision IN ('specimen tube','cells','tissue');
-	 
-SELECT REPLACE(aliquot_type_precision,'derivative tube ','') from aliquot_controls;
 
-GO
-
-
-
+INSERT INTO i18n (id,en,fr) VALUES ('(ml)','(ml)','(ml)'),('(ul + conc)','(Ul + Conc)','(Ul + Conc)');
