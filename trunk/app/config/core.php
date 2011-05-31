@@ -226,7 +226,6 @@
  *	));
  *
  */
-	Cache::config('tables_accuracy', array('engine' => 'File', 'path' => CACHE . "tables_accuracy"));
 	Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures"));
 	Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus"));
 	Cache::config('default', array('engine' => 'File'));
