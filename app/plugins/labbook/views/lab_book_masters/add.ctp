@@ -2,17 +2,17 @@
 	
 	$bottom_buttons = array();
 	$settings = array();
-	$structure_links = array(
-		'top' => '/labbook/lab_book_masters/add/' . $atim_menu_variables['LabBookControl.id'].'/'.$is_ajax,
-		'bottom' => $bottom_buttons
-	);
-	
-	
+
 	if($is_ajax){ 
 		$settings['header'] = array('title' => __('add lab book', true), 'description' => $book_type);
 	}else{
 		$bottom_buttons['cancel'] = '/labbook/lab_book_masters/index/';
 	}
+	
+	$structure_links = array(
+		'top' => '/labbook/lab_book_masters/add/' . $atim_menu_variables['LabBookControl.id'].'/'.$is_ajax,
+		'bottom' => $bottom_buttons
+	);
 
 	$structure_override = array();
 
