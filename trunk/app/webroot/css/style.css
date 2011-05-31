@@ -1852,6 +1852,9 @@ table.browserBubble th{
 	white-space: nowrap;
 	vertical-align: middle;	
 }
+table.browserBubble th, table.browserBubble td{
+	padding: 0 10px;	
+}
 
 span.button a{
 	text-decoration: none;
