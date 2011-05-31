@@ -560,6 +560,7 @@ function uncheckAll( $div ) {
 				if(window.labBookFields){
 					initLabBook(newLines);
 				}
+				initAccuracy(newLines);
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -706,7 +707,7 @@ function uncheckAll( $div ) {
 					}
 				});
 				var name = $(this).parent().find("input, select").first().attr("name");
-				$(this).html("<input type='hidden' name='" + name.substr(0, name.lastIndexOf("[")) + "[year_accuracy]' value='1'/>");
+				$(this).html("<input type='hidden' class='accuracy' name='" + name.substr(0, name.lastIndexOf("[")) + "[year_accuracy]' value='1'/>");
 			}else{
 				//accuracy going to manual
 				$(this).html("");
