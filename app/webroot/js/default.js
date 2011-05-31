@@ -176,7 +176,6 @@ function uncheckAll( $div ) {
 	}
 
 	function initDatepicker(scope){
-		console.log("init");
 		$(scope).find(".datepicker").each(function(){
 			var dateFields = $(this).parent().parent().find('input, select');
 			var yearField = null;
@@ -369,7 +368,7 @@ function uncheckAll( $div ) {
 				$(this).focus(function(){
 					//fixes a datepicker issue where the calendar stays open
 					$("#ui-datepicker-div").stop(true, true);
-					//$(".datepicker").datepicker('hide');
+					$(".datepicker").datepicker('hide');
 					$(this).parent().find("div").css("display", "inline-block");
 				});
 				$(this).blur(function(){
@@ -555,6 +554,7 @@ function uncheckAll( $div ) {
 				initAutocomplete(newLines);
 				initDatepicker(newLines);
 				initToolPopup(newLines);
+				initTooltips(document);
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
@@ -784,7 +784,6 @@ function uncheckAll( $div ) {
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
-		initTooltips(document);
 		initActions();
 		initSummary();
 		initAjaxClass(document);
@@ -795,11 +794,9 @@ function uncheckAll( $div ) {
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		initDatepicker(document);
 		
+		initTooltips(document);
 		initCheckAll(document);
-		
-		
 		initRemoveLine(document);
-		
 		initCheckboxes(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
