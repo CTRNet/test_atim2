@@ -523,6 +523,16 @@ class Browser extends DatamartAppModel {
 	 */
 	static function formatSearchToPrint(array $search_params, array $structure){
 		$params = $search_params['search_conditions'];
+		
+		//preprocess to clena datetime accuracy
+		foreach($params as $key => $value){
+			if(is_array($value) && isset($value['OR'][0])){
+				$tmp = current($value['OR'][0]);
+				$params[key($value['OR'][0])] = $tmp;
+				unset($params[$key]);
+			}
+		}
+
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
@@ -530,7 +540,7 @@ class Browser extends DatamartAppModel {
 		$conditions[] = "false";
 		foreach($keys as $key){
 			if(is_numeric($key)){
-				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...)
+				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...) or an "OR"
 				list($model_field) = explode(" ", $params[$key]);
 				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
@@ -581,39 +591,41 @@ class Browser extends DatamartAppModel {
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					
-					if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
-						if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
-							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sf_unit['StructureValueDomain']['source']);
-						}else{
-							if($structure_value_domain_model == null){
-								App::import('model', "StructureValueDomain");
-								$structure_value_domain_model = new StructureValueDomain();
-							}
-							$tmp_dropdown_result = $structure_value_domain_model->find('first', array(
-										'recursive' => 2,
-										'conditions' => 
-											array('StructureValueDomain.id' => $sf_unit['StructureValueDomain']['id'])));
-							$dropdown_values = array();
-							foreach($tmp_dropdown_result['StructurePermissibleValue'] as $value_array){
-								$dropdown_values[$value_array['value']] = $value_array['language_alias'];
-							}
-							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = $dropdown_values; 
-						}
-					}
-					foreach($values as &$value){//foreach values
-						foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_key => $p_value){//find the match
-							if($p_key == $value){//match found
-								if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
-									//value comes from a source, it's already translated
-									$value = $p_value;
-								}else{
-									$value = __($p_value, true);
+					if(!empty($sf_unit['StructureValueDomain'])){
+						if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
+							if(isset($sf_unit['StructureValueDomain']['source']) && strlen($sf_unit['StructureValueDomain']['source']) > 0){
+								$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sf_unit['StructureValueDomain']['source']);
+							}else{
+								if($structure_value_domain_model == null){
+									App::import('model', "StructureValueDomain");
+									$structure_value_domain_model = new StructureValueDomain();
 								}
-								break; 
+								$tmp_dropdown_result = $structure_value_domain_model->find('first', array(
+											'recursive' => 2,
+											'conditions' => 
+												array('StructureValueDomain.id' => $sf_unit['StructureValueDomain']['id'])));
+								$dropdown_values = array();
+								foreach($tmp_dropdown_result['StructurePermissibleValue'] as $value_array){
+									$dropdown_values[$value_array['value']] = $value_array['language_alias'];
+								}
+								$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = $dropdown_values; 
 							}
 						}
+						foreach($values as &$value){//foreach values
+							foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_key => $p_value){//find the match
+								if($p_key == $value){//match found
+									if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
+										//value comes from a source, it's already translated
+										$value = $p_value;
+									}else{
+										$value = __($p_value, true);
+									}
+									break; 
+								}
+							}
+						}
+						break;
 					}
-					break;
 				}
 			}
 			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".implode(", ", $values)."</td>\n";
