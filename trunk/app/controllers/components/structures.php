@@ -309,12 +309,12 @@ class StructuresComponent extends Object {
 										//accuracy treatment
 										if(isset($this->controller->data['exact_search'])){
 											$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
-											$conditions[ $form_fields[$form_fields_key.'_accuracy']['key'] ] = 'c';
+											$conditions[ $form_fields[$form_fields_key.'_accuracy']['key'] ] = array('c', ' ');
 										}else{
 											$tmp_cond = array();
 											$tmp_cond[] = array(
 												$form_fields[$form_fields_key]['key'] => $data,
-												$form_fields[$form_fields_key.'_accuracy']['key'] => 'c'
+												$form_fields[$form_fields_key.'_accuracy']['key'] => array('c', ' ')
 											);
 											if(strpos($data, " ") !== false){
 												//datetime
