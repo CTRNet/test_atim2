@@ -1,6 +1,7 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+		$this->Paginator->options['url'] = array($node_id);
+		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
