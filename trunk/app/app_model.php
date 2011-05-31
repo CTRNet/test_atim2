@@ -300,31 +300,6 @@ class AppModel extends Model {
 		return self::$magic_coding_icd_trigger_array;
 	}
 	
-	/*function afterFind($results){
-		if(!empty($this->accuracy_config) && isset($results[0][$this->name])){
-			//echo $this->name,"<br/>";
-			foreach($results as &$data){
-				foreach($this->accuracy_config as $date_field => $accuracy_field){
-					$accuracy = $data[$this->name][$accuracy_field];
-					if($accuracy != 'c'){
-						if($accuracy == 'd'){
-							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 7);
-						}else if($accuracy == 'm'){
-							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 4);
-						}else if($accuracy == 'y'){
-							$data[$this->name][$date_field] = '±'.substr($data[$this->name][$date_field], 0, 4);
-						}else if($accuracy == 'h'){
-							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 11);
-						}else if($accuracy == 'i'){
-							$data[$this->name][$date_field] = substr($data[$this->name][$date_field], 0, 13);
-						}
-					}
-				}
-			}
-		}
-		return $results;
-	}*/
-	
 	function validates($options = array()){
 		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 		foreach($this->accuracy_config as $date_field => $accuracy_field){
@@ -339,7 +314,7 @@ class AppModel extends Model {
 					list($hour, $minute) = explode(":", $time);
 				}
 				if(!empty($year)){
-					if(empty($month) && empty($day) && empty($hour) && empty($minute)){
+					if(strpos($year, '±') === 0 || (empty($month) && empty($day) && empty($hour) && empty($minute))){
 						$month = '01';
 						$day = '01';
 						$hour = '00';
