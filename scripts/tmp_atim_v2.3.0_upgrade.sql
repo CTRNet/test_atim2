@@ -281,3 +281,17 @@ DROP TABLE tmp_aliquot_controls;
 UPDATE structure_value_domains SET `source` = 'Inventorymanagement.AliquotControl::getSampleAliquotTypesPermissibleValues'
 WHERE source = 'Inventorymanagement.SampleToAliquotControl::getSampleAliquotTypesPermissibleValues';
 
+UPDATE aliquot_controls
+SET aliquot_type_precision = REPLACE(aliquot_type_precision,'derivative tube ','');
+UPDATE aliquot_controls
+SET aliquot_type_precision = REPLACE(aliquot_type_precision,'specimen tube ','');
+UPDATE aliquot_controls
+SET aliquot_type_precision = ''
+WHERE aliquot_type_precision IN ('specimen tube','cells','tissue');
+	 
+SELECT REPLACE(aliquot_type_precision,'derivative tube ','') from aliquot_controls;
+
+GO
+
+
+

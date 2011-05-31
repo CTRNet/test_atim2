@@ -32,14 +32,22 @@ class AliquotControl extends InventorymanagementAppModel {
 		if($parent_sample_control_id != null){
 			$conditions['AliquotControl.sample_control_id'] = $parent_sample_control_id;
 		}
-		$aliquot_controls = $this->find('all', array('conditions' => $conditions));
+		
 		if($use_id){
-			foreach($aliquot_controls as $aliquot_control) {
+			$this->bindModel(
+				array('belongsTo' => array(
+					'SampleControl'	=> array(
+						'className'  	=> 'Inventorymanagement.SampleControl',
+						'foreignKey'	=> 'sample_control_id'))));
+			$aliquot_controls = $this->find('all', array('conditions' => $conditions));
+			foreach($aliquot_controls as $aliquot_control) {pr($aliquot_control);
 				$aliquot_type_precision = $aliquot_control['AliquotControl']['aliquot_type_precision'];
 				$result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true) 
-					. (empty($aliquot_type_precision)? '' :  ' [' . __($aliquot_type_precision, true) . ']');
+					. ' ['.__($aliquot_control['SampleControl']['sample_type'], true)
+					. (empty($aliquot_type_precision)? '' :  ' - ' . __($aliquot_type_precision, true)) . ']';
 			}
 		}else{
+			$aliquot_controls = $this->find('all', array('conditions' => $conditions));
 			foreach($aliquot_controls as $aliquot_control) {
 				$result[$aliquot_control['AliquotControl']['aliquot_type']] = __($aliquot_control['AliquotControl']['aliquot_type'], true);
 			}
