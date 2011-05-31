@@ -349,8 +349,13 @@ class AppController extends Controller {
 			$date = $datetime_string;
 		}else{
 			list($date, $time) = explode(" ", $datetime_string);
-			list($hour, $minutes, ) = explode(":", $time);
+			if(strpos($time, ":") === false){
+				$hour = $time;
+			}else{
+				list($hour, $minutes, ) = explode(":", $time);
+			}
 		}
+		
 		$date = explode("-", $date);
 		$year = $date[0];
 		switch(count($date)){
@@ -361,7 +366,7 @@ class AppController extends Controller {
 				break;
 		}
 		$formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
-		return empty($hours) ? $formated_date : $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+		return $hour === null ? $formated_date : $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**

@@ -56,7 +56,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		$view_sample = $this->Structures->get('form', 'view_sample_joined_to_collection');
 		$this->set('atim_structure', $view_sample);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_sample);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_sample);
 		
 		$this->set('samples_data', $this->paginate($this->ViewSample, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();

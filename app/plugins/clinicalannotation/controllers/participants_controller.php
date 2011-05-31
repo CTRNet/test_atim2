@@ -34,7 +34,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function search() {
 		// if SEARCH form data, parse and create conditions
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		// MANAGE DATA
 		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search']['criteria']);

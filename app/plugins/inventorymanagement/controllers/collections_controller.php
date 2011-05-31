@@ -54,7 +54,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$view_collection = $this->Structures->get('form', 'view_collection');
 		$this->set('atim_structure', $view_collection);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_collection);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_collection);
 		
 		if($is_ccl_ajax){
 			$limit = 20;

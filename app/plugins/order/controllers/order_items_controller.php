@@ -35,7 +35,7 @@ class OrderItemsController extends OrderAppController {
 
 		$oderitems_structure = $this->Structures->get('form', 'orderitems');
 		$this->set('atim_structure', $oderitems_structure);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($oderitems_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($oderitems_structure);
 		
 		$this->data = $this->paginate($this->OrderItem, $_SESSION['ctrapp_core']['search']['criteria']);
 		

@@ -30,7 +30,7 @@ class ShipmentsController extends OrderAppController {
 
 		$shipments_structure = $this->Structures->get('form', 'shipments');
 		$this->set('atim_structure', $shipments_structure);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($shipments_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($shipments_structure);
 		
 		$this->data = $this->paginate($this->Shipment, $_SESSION['ctrapp_core']['search']['criteria']);
 		

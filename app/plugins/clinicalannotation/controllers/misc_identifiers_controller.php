@@ -29,7 +29,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
 		$this->Structures->set('miscidentifiers_for_participant_search');
 			
-		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($this->viewVars['atim_structure']);
+		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($this->viewVars['atim_structure']);
 							
 		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
 

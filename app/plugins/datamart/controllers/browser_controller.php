@@ -172,7 +172,7 @@ class BrowserController extends DatamartAppController {
 				}
 				
 				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
-				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
+				$search_conditions = $this->Structures->parseSearchConditions($result_structure);
 				$select_key = $model_to_import.".".$model_key_name;
 				if($use_sub_model){
 					//adding filtering search condition
