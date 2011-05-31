@@ -659,21 +659,23 @@ class Browser extends DatamartAppModel {
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
-			$stac = AppModel::getInstance("Inventorymanagement", "SampleToAliquotControl", true);
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
+			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+			$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
-				$ids[] = $unit['SampleToAliquotControl']['aliquot_control_id'];
+				$ids[] = $unit['AliquotControl']['id'];
 			}
 			$sub_models_id_filter['AliquotControl'] = $ids;
 		}else if($browsing['DatamartStructure']['id'] == 1){
+//TODO delete pr()
+pr('function to validate Browser.getDropdownSubFiltering()');
 			//aliquot->sample hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
-			$stac = AppModel::getInstance("Inventorymanagement", "SampleToAliquotControl", true);
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
+			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+			$data = $ac->find('all', array('conditions' => array("AliquotControl.id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
-				$ids[] = $unit['SampleToAliquotControl']['sample_control_id'];
+				$ids[] = $unit['AliquotControl']['sample_control_id'];
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}
