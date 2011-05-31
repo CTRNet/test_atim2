@@ -867,7 +867,6 @@ class StructuresHelper extends Helper {
 			$this->params['pass']['per'] = $this->params['named']['per'];
 		}
 		
-		$this->Paginator->options(array('url' => $this->params['pass']));
 		$table_structure = $this->buildStack( $atim_structure, $options );
 		
 		$structure_count = 0;
@@ -879,7 +878,6 @@ class StructuresHelper extends Helper {
 				<tbody>
 					<tr>
 		';
-		
 		foreach($structure_index as $table_key => $table_index){
 			$structure_count++;
 			if (is_array($table_index)){
