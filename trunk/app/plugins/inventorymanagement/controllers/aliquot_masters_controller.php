@@ -11,7 +11,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.DerivativeDetail',
 		
 		'Inventorymanagement.SampleControl',
-		'Inventorymanagement.SampleToAliquotControl',
 		
 		'Inventorymanagement.AliquotControl', 
 		'Inventorymanagement.AliquotMaster',
@@ -19,7 +18,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.ViewAliquot',
 		'Inventorymanagement.AliquotDetail',			
 		
-		'Inventorymanagement.SampleToAliquotControl',
 		'Inventorymanagement.RealiquotingControl',
 		
 		'Inventorymanagement.ViewAliquotUse',
@@ -313,7 +311,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$model,
 			$key,
 			'sample_control_id',
-			$this->SampleToAliquotControl, 
+			$this->AliquotControl, 
 			'sample_control_id',
 			'you cannot create aliquots with this sample type');
 		if(array_key_exists('error', $init_data)) {
@@ -409,10 +407,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 			
 		$criteria = array(
-			'SampleControl.id' => $sample_control_id,
-			'SampleToAliquotControl.flag_active' => '1',
+			'AliquotControl.sample_control_id' => $sample_control_id,
+			'AliquotControl.flag_active' => '1',
 			'AliquotControl.id' => $aliquot_control['AliquotControl']['id']);
-		if(!$this->SampleToAliquotControl->find('count', array('conditions' => $criteria))) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(!$this->AliquotControl->find('count', array('conditions' => $criteria))) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

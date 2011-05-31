@@ -24,7 +24,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.SpecimenReviewMaster',
 		
-		'Inventorymanagement.SampleToAliquotControl',
 		'Inventorymanagement.Realiquoting'
 		);
 	

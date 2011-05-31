@@ -171,3 +171,113 @@ UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND 
 ALTER TABLE participants
  CHANGE dod_date_accuracy date_of_death_accuracy CHAR(1) NOT NULL DEFAULT '',
  CHANGE dob_date_accuracy date_of_birth_accuracy CHAR(1) NOT NULL DEFAULT '';
+ 
+-- -----------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tmp_aliquot_controls` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	
+	`sample_control_id` int(11) DEFAULT NULL,  
+	`old_aliquot_control_id` int(11) DEFAULT NULL,   
+	`old_sample_to_aliquot_control_id` int(11) DEFAULT NULL,   
+	`flag_active` tinyint(1) NOT NULL DEFAULT '1', 
+  	
+	`aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper') NOT NULL COMMENT 'Generic name.',
+	`aliquot_type_precision` varchar(30) DEFAULT NULL COMMENT 'Use to differentiate two aliquot controls having the same aliquot_type in case they can be used for the same sample type. (Ex: tissue tube (5ml) and tissue tube (cryogenic)).',
+	`form_alias` varchar(255) NOT NULL,
+	`detail_tablename` varchar(255) NOT NULL,
+	`volume_unit` varchar(20) DEFAULT NULL,
+	`comment` varchar(255) DEFAULT NULL,
+	`display_order` int(11) NOT NULL DEFAULT '0',
+	`databrowser_label` varchar(50) NOT NULL DEFAULT '',
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO tmp_aliquot_controls (sample_control_id,old_aliquot_control_id,old_sample_to_aliquot_control_id,flag_active,
+aliquot_type,aliquot_type_precision,form_alias,detail_tablename,volume_unit,comment,display_order,databrowser_label)
+(SELECT s2ac.sample_control_id, ac.id, s2ac.id, s2ac.flag_active, 
+ac.aliquot_type, ac.aliquot_type_precision, ac.form_alias, ac.detail_tablename, ac.volume_unit, ac.comment, ac.display_order, ac.databrowser_label
+FROM sample_to_aliquot_controls AS s2ac 
+INNER JOIN aliquot_controls AS ac ON s2ac.aliquot_control_id = ac.id);
+
+CREATE TABLE IF NOT EXISTS `tmp_realiquoting_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_aliquot_control_id` int(11) DEFAULT NULL,
+  `child_aliquot_control_id` int(11) DEFAULT NULL,
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `lab_book_control_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1  AUTO_INCREMENT=1 ;
+
+INSERT INTO tmp_realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active, lab_book_control_id)
+(SELECT parent.id, child.id, rc.flag_active, rc.lab_book_control_id
+FROM tmp_aliquot_controls AS parent
+INNER JOIN realiquoting_controls AS rc ON parent.old_sample_to_aliquot_control_id = rc.parent_sample_to_aliquot_control_id
+INNER JOIN tmp_aliquot_controls AS child ON child.old_sample_to_aliquot_control_id = rc.child_sample_to_aliquot_control_id);
+
+ALTER TABLE aliquot_masters DROP FOREIGN KEY FK_aliquot_masters_aliquot_controls;
+
+UPDATE tmp_aliquot_controls tmp, sample_masters samp, aliquot_masters al
+SET al.aliquot_control_id = tmp.id
+WHERE al.sample_master_id = samp.id 
+AND tmp.sample_control_id = samp.sample_control_id
+AND tmp.old_aliquot_control_id = al.aliquot_control_id;
+
+UPDATE tmp_aliquot_controls tmp, order_lines ol
+SET ol.aliquot_control_id = tmp.id
+WHERE tmp.sample_control_id = ol.sample_control_id
+AND tmp.old_aliquot_control_id = ol.aliquot_control_id;
+
+DROP TABLE realiquoting_controls;
+DROP TABLE sample_to_aliquot_controls;
+DROP TABLE aliquot_controls;
+
+CREATE TABLE IF NOT EXISTS `aliquot_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_control_id` int(11) DEFAULT NULL, 
+  `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper') NOT NULL COMMENT 'Generic name.',
+  `aliquot_type_precision` varchar(30) DEFAULT NULL COMMENT 'Use to differentiate two aliquot controls having the same aliquot_type in case they can be used for the same sample type. (Ex: tissue tube (5ml) and tissue tube (cryogenic)).',
+  `form_alias` varchar(255) NOT NULL,
+  `detail_tablename` varchar(255) NOT NULL,
+  `volume_unit` varchar(20) DEFAULT NULL,
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `comment` varchar(255) DEFAULT NULL,
+  `display_order` int(11) NOT NULL DEFAULT '0',
+  `databrowser_label` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO aliquot_controls (id, sample_control_id,aliquot_type,aliquot_type_precision,form_alias,detail_tablename,volume_unit,flag_active,comment,display_order,databrowser_label)
+(SELECT id, sample_control_id,aliquot_type,aliquot_type_precision,form_alias,detail_tablename,volume_unit,flag_active,comment,display_order,databrowser_label FROM tmp_aliquot_controls);
+
+ALTER TABLE `aliquot_controls`
+  ADD CONSTRAINT `FK_aliquot_controls_sample_controls` FOREIGN KEY (`sample_control_id`) REFERENCES `sample_controls` (`id`);
+
+CREATE TABLE IF NOT EXISTS `realiquoting_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `parent_aliquot_control_id` int(11) DEFAULT NULL,
+  `child_aliquot_control_id` int(11) DEFAULT NULL,
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  `lab_book_control_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO realiquoting_controls (id, parent_aliquot_control_id, child_aliquot_control_id, flag_active, lab_book_control_id)
+(SELECT id, parent_aliquot_control_id, child_aliquot_control_id, flag_active, lab_book_control_id FROM tmp_realiquoting_controls);
+
+ALTER TABLE `realiquoting_controls`
+  ADD CONSTRAINT `FK_realiquoting_controls_parent_aliquot_controls` FOREIGN KEY (`parent_aliquot_control_id`) REFERENCES `aliquot_controls` (`id`),
+  ADD CONSTRAINT `FK_realiquoting_controls_child_aliquot_controls` FOREIGN KEY (`child_aliquot_control_id`) REFERENCES `aliquot_controls` (`id`);
+
+ALTER TABLE `aliquot_masters`
+  ADD CONSTRAINT `FK_aliquot_masters_aliquot_controls` FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`);
+
+ALTER TABLE `order_lines`
+  ADD CONSTRAINT `FK_order_lines_aliquot_controls` FOREIGN KEY (`aliquot_control_id`) REFERENCES `aliquot_controls` (`id`);
+
+DROP TABLE tmp_realiquoting_controls;
+DROP TABLE tmp_aliquot_controls;
+
+UPDATE structure_value_domains SET `source` = 'Inventorymanagement.AliquotControl::getSampleAliquotTypesPermissibleValues'
+WHERE source = 'Inventorymanagement.SampleToAliquotControl::getSampleAliquotTypesPermissibleValues';
+
