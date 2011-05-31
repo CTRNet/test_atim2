@@ -37,7 +37,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/'));
 		
 		if(!empty($this->data)){
-			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		}
 		
 		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);

@@ -31,7 +31,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("previously defined", "Previously defined", "Défini précédemment"),
 ("the storage [%s] already contained something at position [%s, %s]", 
  "The storage [%s] already contained something at position [%s, %s]",
- "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"); 
+ "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"),
+("hour_sign", "h", "h"); 
 
 DROP TABLE datamart_batch_processes;
 

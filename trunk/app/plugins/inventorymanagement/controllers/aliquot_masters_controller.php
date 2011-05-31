@@ -66,7 +66,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		$view_aliquot = $this->Structures->get('form', 'view_aliquot_joined_to_sample_and_collection');
 		$this->set('atim_structure', $view_aliquot);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_aliquot);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_aliquot);
 		
 		$this->set('aliquots_data', $this->paginate($this->ViewAliquot, $_SESSION['ctrapp_core']['search']['criteria']));
 		$this->data = array();

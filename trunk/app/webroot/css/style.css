@@ -1436,11 +1436,7 @@ a.form:focus{
 }
 
 .datepicker{
-	border-style: none;
-	width: 22px;
-	color: #fff;
-	background: url("../img/cal.gif") no-repeat;
-	cursor: pointer;
+	
 }
 
 img.fake_datepicker{
@@ -1824,8 +1820,14 @@ table.index tr td:first-child{
 }
 
 input.datepicker[type=button]{
-	width: 1px;
-	height: 1px;
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	color: #fff;
+	background: url("../img/cal.gif") no-repeat;
+	cursor: pointer;
+	display: inline-block;
+	position: relative;
 }
 
 ul.error{

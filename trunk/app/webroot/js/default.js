@@ -236,11 +236,6 @@ function uncheckAll( $div ) {
 			    }
 			});
 
-			//activate fake_datepicker in case there is a problem with z-index
-			$(this).parent().children("img").click(function(){
-				$(this).datepicker('show');
-			});
-
 			//bug fix for Safari and Chrome
 			$(this).click(function(){
 				$(this).datepicker('show');
@@ -703,7 +698,6 @@ function uncheckAll( $div ) {
 	
 	function initAccuracy(scope){
 		$(scope).find(".accuracy_target_blue").click(function(){
-			console.log("clicked");
 			if($(this).find("input").length == 0){
 				//accuracy going to year
 				$(this).parent().find("input, select").each(function(){

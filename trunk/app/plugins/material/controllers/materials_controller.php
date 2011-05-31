@@ -13,7 +13,7 @@ class MaterialsController extends MaterialAppController {
 	}
 	
 	function search(){
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		$this->data = $this->paginate($this->Material, $_SESSION['ctrapp_core']['search']['criteria']);
 

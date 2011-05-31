@@ -28,7 +28,7 @@ class OrdersController extends OrderAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
 			
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 			
 		$this->data = $this->paginate($this->Order, $_SESSION['ctrapp_core']['search']['criteria']);
 		

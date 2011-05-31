@@ -4,6 +4,8 @@ class StructuresComponent extends Object {
 	var $controller;
 	static $singleton;
 	
+	public static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
+	
 	function initialize( &$controller, $settings=array() ) {
 		$this->controller =& $controller;
 		StructuresComponent::$singleton = $this;
@@ -156,15 +158,16 @@ class StructuresComponent extends Object {
 		}
 	}
 	
-	function parse_search_conditions($atim_structure = NULL){
+	function parseSearchConditions($atim_structure = NULL){
 		// conditions to ultimately return
 		$conditions = array();
 		
 		// general search format, after parsing STRUCTURE
 		$form_fields = array();
+		$accuracy_fields = array();
 		
 		// if no STRUCTURE provided, try and get one
-		if($atim_structure===NULL){
+		if($atim_structure === NULL){
 			$atim_structure = $this->getSingleStructure();
 			$atim_structure = $atim_structure['structure'];
 		}
@@ -182,25 +185,28 @@ class StructuresComponent extends Object {
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
 				$value_type = $value['type'];
-				if ($value_type == 'number'
-				|| $value_type == 'integer'
-				|| $value_type == 'integer_positive'
-				|| $value_type == 'float'
-				|| $value_type == 'float_positive' 
-				|| $value_type == 'date' 
-				|| $value_type == 'datetime'
-				|| $value_type == 'time'
-				|| (strpos($value['setting'], "range") !== false)
-						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
-					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
-					$form_fields[$form_fields_key.'_start']['model']		= $value['model'];
-					$form_fields[$form_fields_key.'_start']['field']		= $value['field'];
-					$form_fields[$form_fields_key.'_start']['key']			= $form_fields_key.' >=';
+				if (in_array($value_type, self::$range_types)
+					|| (strpos($value['setting'], "range") !== false)
+						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])
+				){
+					$key_start = $form_fields_key.'_start';
+					$form_fields[$key_start]['plugin']		= $value['plugin'];
+					$form_fields[$key_start]['model']		= $value['model'];
+					$form_fields[$key_start]['field']		= $value['field'];
+					$form_fields[$key_start]['key']			= $form_fields_key.' >=';
 					
-					$form_fields[$form_fields_key.'_end']['plugin']			= $value['plugin'];
-					$form_fields[$form_fields_key.'_end']['model']			= $value['model'];
-					$form_fields[$form_fields_key.'_end']['field']			= $value['field'];
-					$form_fields[$form_fields_key.'_end']['key']			= $form_fields_key.' <=';
+					$key_end = $form_fields_key.'_end';
+					$form_fields[$key_end]['plugin']			= $value['plugin'];
+					$form_fields[$key_end]['model']			= $value['model'];
+					$form_fields[$key_end]['field']			= $value['field'];
+					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
+					
+					if(strpos($value['setting'], 'accuracy') !== false){
+						$accuracy_fields[] = $key_start;
+						$accuracy_fields[] = $key_end;
+						$form_fields[$key_start.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
+						$form_fields[$key_end.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
+					}
 				}else if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
 					// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
 					$form_fields[$form_fields_key]['plugin']= $value['plugin'];
@@ -299,7 +305,44 @@ class StructuresComponent extends Object {
 								}
 								
 								if(isset($data)){
-									$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+									if(in_array($form_fields_key, $accuracy_fields)){
+										//accuracy treatment
+										if(isset($this->controller->data['exact_search'])){
+											$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+											$conditions[ $form_fields[$form_fields_key.'_accuracy']['key'] ] = 'c';
+										}else{
+											$tmp_cond = array();
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => $data,
+												$form_fields[$form_fields_key.'_accuracy']['key'] => 'c'
+											);
+											if(strpos($data, " ") !== false){
+												//datetime
+												list($data, $time) = explode(" ", $data);
+												list($hour, ) = explode(":", $time);
+												$tmp_cond[] = array(
+													$form_fields[$form_fields_key]['key'] => sprintf("%s %s:00:00", $data, $hour),
+													$form_fields[$form_fields_key.'_accuracy']['key'] => 'i'
+												);
+												$tmp_cond[] = array(
+													$form_fields[$form_fields_key]['key'] => $data." 00:00:00",
+													$form_fields[$form_fields_key.'_accuracy']['key'] => 'h'
+												);
+											}
+											list($year, $month) = explode("-", $data);
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => sprintf("%s-%s-01 00:00:00", $year, $month),
+												$form_fields[$form_fields_key.'_accuracy']['key'] => 'd'
+											);
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => sprintf("%s-01-01 00:00:00", $year),
+												$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
+											);
+											$conditions[] = array("OR" => $tmp_cond);
+										}
+									}else{
+										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+									}
 								}
 							}
 						}
@@ -307,6 +350,7 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
+
 		return $conditions;
 	}
 	

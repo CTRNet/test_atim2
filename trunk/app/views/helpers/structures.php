@@ -77,8 +77,6 @@ class StructuresHelper extends Helper {
 			"legend" => false,
 		);
 		
-	private static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
-	
 	private static $display_class_mapping = array(
 		'index'		=>	'list',
 		'table'		=>	'list',
@@ -548,7 +546,7 @@ class StructuresHelper extends Helper {
 						
 						//value
 						$current_value = null;
-						$suffixes = $options['type'] == "search" && in_array($table_row_part['type'], self::$range_types) ? array("_start", "_end") : array("");
+						$suffixes = $options['type'] == "search" && in_array($table_row_part['type'], StructuresComponent::$range_types) ? array("_start", "_end") : array("");
 						foreach($suffixes as $suffix){
 							$current_value = self::getCurrentValue($data_unit, $table_row_part, $suffix, $options);
 							if($many_columns){
@@ -594,7 +592,7 @@ class StructuresHelper extends Helper {
 								){
 									$table_row_part['format'] = $table_row_part['format_back'];
 								}
-								if($options['type'] == "search" && !in_array($table_row_part['type'], self::$range_types)){
+								if($options['type'] == "search" && !in_array($table_row_part['type'], StructuresComponent::$range_types)){
 									$display[0] .= '<a class="adv_ctrl btn_add_or add_10x10" href="#" onclick="return false;"></a>';
 								}
 								$display[0] .= '</span>';
@@ -2174,7 +2172,7 @@ class StructuresHelper extends Helper {
 				'<span>'.$result 
 				.'<span style="position: relative;">
 						<input type="button" class="datepicker" value=""/>
-						<img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/>
+						<!-- <img src="'.$this->Html->Url('/img/cal.gif').'" alt="cal" class="fake_datepicker"/> -->
 					</span>
 				</span>';
 		}

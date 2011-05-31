@@ -152,7 +152,7 @@ class AdhocsController extends DatamartAppController {
 		$sql_query_with_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 		$sql_query_without_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 		
-		$conditions = $this->Structures->parse_search_conditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']));
+		$conditions = $this->Structures->parseSearchConditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']));
 		//rename the keys to make them ready for parse_sql_conditions
 		foreach($conditions as $key => $value){
 			if(strpos($key, " >=") == strlen($key) - 3){

@@ -46,7 +46,7 @@ class LabBookMastersController extends LabBookAppController {
 		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/index/'));
 		
 		if(!empty($this->data)){
-			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		}
 		
 		$this->data = $this->paginate($this->LabBookMaster, $_SESSION['ctrapp_core']['search']['criteria']);
