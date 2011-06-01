@@ -807,11 +807,12 @@ class StructuresHelper extends Helper {
 			$tmp = $table_row_part['format'];
 			
 			if(isset($table_row_part['settings']['options'])){
-				$table_row_part['settings']['options'] = array_merge(
-					$table_row_part['settings']['options']['defined'], 
-					$table_row_part['settings']['options']['previously_defined']
-				);
+				//merging with numerical keys
+				$table_row_part['settings']['options'] = 
+					$table_row_part['settings']['options']['defined'] + 
+					$table_row_part['settings']['options']['previously_defined'];
 			}
+			
 			if($table_row_part['type'] =='select' && !array_key_exists($current_value, $table_row_part['settings']['options'])){
 				//disabled dropdown with unmatched value, pick the first one
 				$arr_keys = array_keys($table_row_part['settings']['options']);
