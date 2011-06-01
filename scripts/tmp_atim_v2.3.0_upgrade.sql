@@ -227,10 +227,18 @@ WHERE al.sample_master_id = samp.id
 AND tmp.sample_control_id = samp.sample_control_id
 AND tmp.old_aliquot_control_id = al.aliquot_control_id;
 
+UPDATE aliquot_masters a, aliquot_masters_revs ar
+SET ar.aliquot_control_id = a.aliquot_control_id
+WHERE a.id = ar.id;
+
 UPDATE tmp_aliquot_controls tmp, order_lines ol
 SET ol.aliquot_control_id = tmp.id
 WHERE tmp.sample_control_id = ol.sample_control_id
 AND tmp.old_aliquot_control_id = ol.aliquot_control_id;
+
+UPDATE order_lines o, order_lines_revs ors
+SET ors.aliquot_control_id = o.aliquot_control_id
+WHERE o.id = ors.id;
 
 DROP TABLE realiquoting_controls;
 DROP TABLE sample_to_aliquot_controls;
