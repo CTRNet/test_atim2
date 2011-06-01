@@ -15,7 +15,7 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'data' => $aliquots_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('aliquots', null)));
+	$final_options = array('type' => 'index', 'data' => $aliquots_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => array( 'title' => __('search type', null).': '.__('aliquots', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url))));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

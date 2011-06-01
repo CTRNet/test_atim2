@@ -31,7 +31,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Storagelayout.StorageMaster',
 		'Storagelayout.StorageCoordinate',
 		
-		'Datamart.BatchId'
+		'Datamart.BatchId',
+	
+		'ExternalLink'
 	);
 	
 	var $paginate = array(
@@ -53,6 +55,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		$this->Structures->set('view_aliquot_joined_to_sample_and_collection');
 		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
@@ -72,6 +77,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewAliquot']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/aliquot_masters/search';
+		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){

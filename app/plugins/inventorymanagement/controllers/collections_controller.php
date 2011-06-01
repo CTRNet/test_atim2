@@ -13,7 +13,9 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.SpecimenReviewMaster',
 		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
-		'Clinicalannotation.ClinicalCollectionLink');
+		'Clinicalannotation.ClinicalCollectionLink',
+	
+		'ExternalLink');
 	
 	var $paginate = array(
 		'Collection' => array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
@@ -35,6 +37,9 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->unsetInventorySessionData();
 				
 		$this->Structures->set('view_collection');
+		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -73,6 +78,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewCollection']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
+		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
