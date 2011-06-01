@@ -258,50 +258,59 @@ class AliquotMaster extends InventoryManagementAppModel {
 			// Check the aliquot storage definition
 			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
 			
-			// Update aliquot data
-			$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
-			if($arr_storage_selection_results['change_position_x_to_uppercase']){
-				$aliquot_data['AliquotMaster']['storage_coord_x'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_x']);
-			}
-			if($arr_storage_selection_results['change_position_y_to_uppercase']){
-				$aliquot_data['AliquotMaster']['storage_coord_y'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_y']);
+			$pursue = false;
+			foreach(array('storage_data', 'storage_definition_error', 'position_x_error', 'position_y_error', 'change_position_x_to_uppercase', 'change_position_y_to_uppercase') as $key){
+				if(!empty($arr_storage_selection_results[$key])){
+					$pursue = true;
+				}
 			}
 			
-			// Set error
-			if(!empty($arr_storage_selection_results['storage_definition_error'])){
-				$this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
-			}
-			if(!empty($arr_storage_selection_results['position_x_error'])){
-				$this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
-			}
-			if(!empty($arr_storage_selection_results['position_y_error'])){
-				$this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
-			}
-			
-			if(empty($this->validationErrors['storage_coord_x']) 
-				&& empty($this->validationErrors['storage_coord_y']) 
-				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
-				&& (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)
-			){
-				$exception = $this->id ? array('AliquotMaster' => $this->id) : array();
-				if(!$this->StorageMaster->isPositionAvailableQuick(
-						$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
-						array(
-							'x' => $aliquot_data['AliquotMaster']['storage_coord_x'], 
-							'y' => $aliquot_data['AliquotMaster']['storage_coord_y']
-						), $exception
-					)
+			if($pursue){
+				// Update aliquot data
+				$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
+				if($arr_storage_selection_results['change_position_x_to_uppercase']){
+					$aliquot_data['AliquotMaster']['storage_coord_x'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_x']);
+				}
+				if($arr_storage_selection_results['change_position_y_to_uppercase']){
+					$aliquot_data['AliquotMaster']['storage_coord_y'] = strtoupper($aliquot_data['AliquotMaster']['storage_coord_y']);
+				}
+				
+				// Set error
+				if(!empty($arr_storage_selection_results['storage_definition_error'])){
+					$this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
+				}
+				if(!empty($arr_storage_selection_results['position_x_error'])){
+					$this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
+				}
+				if(!empty($arr_storage_selection_results['position_y_error'])){
+					$this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
+				}
+				
+				if(empty($this->validationErrors['storage_coord_x']) 
+					&& empty($this->validationErrors['storage_coord_y']) 
+					&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+					&& (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)
 				){
-					$msg = sprintf(
-						__('the storage [%s] already contained something at position [%s, %s]', true),
-						$arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
-						$aliquot_data['AliquotMaster']['storage_coord_x'],
-						$aliquot_data['AliquotMaster']['storage_coord_y']
-					);
-					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
-						AppController::addWarningMsg($msg);
-					}else{
-						$this->validationErrors['storage_coord_x'] = $msg;
+					$exception = $this->id ? array('AliquotMaster' => $this->id) : array();
+					if(!$this->StorageMaster->isPositionAvailableQuick(
+							$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
+							array(
+								'x' => $aliquot_data['AliquotMaster']['storage_coord_x'], 
+								'y' => $aliquot_data['AliquotMaster']['storage_coord_y']
+							), $exception
+						)
+					){
+						$msg = sprintf(
+							__('the storage [%s] already contained something at position [%s, %s]', true),
+							$arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
+							$aliquot_data['AliquotMaster']['storage_coord_x'],
+							$aliquot_data['AliquotMaster']['storage_coord_y']
+						);
+						if($arr_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+							AppController::addWarningMsg($msg);
+						}else{
+							$this->validationErrors['storage_coord_x'] = $msg;
+						}
 					}
 				}
 			}
