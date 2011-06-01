@@ -24,8 +24,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		'Inventorymanagement.QualityCtrl',
 		'Inventorymanagement.SpecimenReviewMaster',
 		
-		'Inventorymanagement.Realiquoting'
-		);
+		'Inventorymanagement.Realiquoting',
+	
+		'ExternalLink');
 	
 	var $paginate = array(
 		'SampleMaster' => array('limit' => pagination_amount, 'order' => 'SampleMaster.sample_code DESC'),
@@ -44,6 +45,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$this->Structures->set('view_sample_joined_to_collection');
 				
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
@@ -63,6 +67,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewSample']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){

@@ -476,3 +476,14 @@ WHERE al.deleted != 1;
 -- SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary= '0'  
 -- WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
 -- AND sfield.field = 'aliquot_label';
+
+INSERT INTO `external_links` (`id`, `name`, `link`) VALUES
+(null, 'inventory_elements_defintions', 'http://www.ctrnet.ca/mediawiki/index.php/ATiM_Inventory_Elements');
+
+INSERT INTO i18n (id,en,fr) VALUES
+('more information about the types of samples and aliquots are available %s here',
+"More information about the types of samples and aliquots are available <a href='%s' target='blank'>here</a>.",
+"Plus d'informations sur les types d''échantillons et d''aliquots sont disponibles <a href='%s' target='blank'>ici</a>.");
+
+
+
