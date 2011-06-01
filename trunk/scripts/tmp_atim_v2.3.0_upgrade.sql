@@ -372,3 +372,99 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='derivatives'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_creation_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '400', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivatives') WHERE sample_category='derivative';
+
+-- Add aliquot_label
+
+ALTER TABLE aliquot_masters
+ ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+ALTER TABLE aliquot_masters_revs
+ ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+
+INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, type, setting, default, structure_value_domain, language_help) VALUES
+('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, type, setting, default, structure_value_domain, language_help) VALUES
+('Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label', 'Étiquette');
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'aliquot_label');
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, type, flag_override_setting, setting, flag_override_default, default, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', sf.flag_override_label, sf.language_label, sf.flag_override_tag, sf.language_tag, sf.flag_override_help, sf.language_help, sf.flag_override_type, sf.type, sf.flag_override_setting, sf.setting, sf.flag_override_default, sf.default, 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+INNER JOIN structures AS str ON str.id = sf.structure_id
+WHERE  bc_field.model = 'AliquotMaster' AND bc_field.field = 'barcode' 
+AND str.alias NOT IN ('lab_book_realiquotings_summary');
+
+UPDATE structure_formats sf, structures str, structure_fields sfield
+ SET sf.flag_add = '0' 
+ WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
+ AND str.alias IN ('orderitems') AND sfield.field = 'aliquot_label';
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewAliquot' AND field = 'aliquot_label');
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, type, flag_override_setting, setting, flag_override_default, default, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+(SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', sf.flag_override_label, sf.language_label, sf.flag_override_tag, sf.language_tag, sf.flag_override_help, sf.language_help, sf.flag_override_type, sf.type, sf.flag_override_setting, sf.setting, sf.flag_override_default, sf.default, 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+WHERE  bc_field.model = 'ViewAliquot' AND bc_field.field = 'barcode');
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+-- Comment following line to hidde label
+
+UPDATE structure_formats sf, structures str, structure_fields sfield
+SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary= '0'  
+WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
+AND sfield.field = 'aliquot_label';
