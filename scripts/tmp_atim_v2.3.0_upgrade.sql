@@ -462,9 +462,9 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
--- Comment following line to hidde label
+-- Uncomment following line to hidde label
 
-UPDATE structure_formats sf, structures str, structure_fields sfield
-SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary= '0'  
-WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
-AND sfield.field = 'aliquot_label';
+-- UPDATE structure_formats sf, structures str, structure_fields sfield
+-- SET flag_add = '0', flag_add_readonly = '0', flag_edit = '0', flag_edit_readonly = '0', flag_search = '0', flag_search_readonly = '0', flag_addgrid = '0', flag_addgrid_readonly = '0', flag_editgrid = '0', flag_editgrid_readonly = '0', flag_batchedit = '0', flag_batchedit_readonly = '0', flag_index = '0', flag_detail = '0', flag_summary= '0'  
+-- WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
+-- AND sfield.field = 'aliquot_label';
