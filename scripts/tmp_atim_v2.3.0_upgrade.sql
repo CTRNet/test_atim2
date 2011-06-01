@@ -33,7 +33,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "The storage [%s] already contained something at position [%s, %s]",
  "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"),
 ("hour_sign", "h", "h"),
-("paste on all lines of all sections", "Paste on all lines of all sections", "Coller sur toutes les lignes de toutes les sections");
+("paste on all lines of all sections", "Paste on all lines of all sections", "Coller sur toutes les lignes de toutes les sections"),
+("the linked consent status is [%s]", "The linked consent status is [%s]", "Le statut du consentement lié est [%s]");
 
 DROP TABLE datamart_batch_processes;
 
@@ -298,4 +299,3 @@ INSERT INTO structure_formats (structure_id, structure_field_id, display_column,
 (SELECT DISTINCT @structure_id, @structure_field_id, `display_column`, @max_display_order, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`
 FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') AND structure_field_id = @structure_field_id);
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') AND structure_field_id = @structure_field_id;
-
