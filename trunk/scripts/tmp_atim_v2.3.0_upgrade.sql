@@ -34,7 +34,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "L'entreposage [%s] contenait déjà quelque chose à la position [%s, %s]"),
 ("hour_sign", "h", "h"),
 ("paste on all lines of all sections", "Paste on all lines of all sections", "Coller sur toutes les lignes de toutes les sections"),
-("the linked consent status is [%s]", "The linked consent status is [%s]", "Le statut du consentement lié est [%s]");
+("the linked consent status is [%s]", "The linked consent status is [%s]", "Le statut du consentement lié est [%s]"),
+("no consent is linked to the current participant collection", 
+ "No consent is linked to the current participant collection",
+ "Aucun consentement n'est lié à la présente collection de participant"); 
 
 DROP TABLE datamart_batch_processes;
 

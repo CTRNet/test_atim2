@@ -25,6 +25,8 @@ class ViewCollection extends InventorymanagementAppModel {
 				if($consent_data['ConsentMaster']['consent_status'] != 'obtained'){
 					AppController::addWarningMsg(sprintf(__('the linked consent status is [%s]', true), __($consent_data['ConsentMaster']['consent_status'], true)));
 				}
+			}else if($collection_data['ViewCollection']['collection_property'] == 'participant collection'){
+				AppController::addWarningMsg(__('no consent is linked to the current participant collection', true));
 			}
 		}
 		
