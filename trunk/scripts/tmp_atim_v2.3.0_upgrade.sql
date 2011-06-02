@@ -41,7 +41,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("default study", "Default study", "Étude par défaut"),
 ("help default study", 
  "Study that is selected by default when adding order lines.",
- "Étude qui est sélectionnée par défaut lorsque des lignes de commandes sont ajoutées.");
+ "Étude qui est sélectionnée par défaut lorsque des lignes de commandes sont ajoutées."),
+("permissions have been regenerated", "Permissions have been regenerated", "Les permissions ont été regénérées");
 
 DROP TABLE datamart_batch_processes;
 
@@ -520,3 +521,4 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='orderlines'), (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study' AND `language_tag`=''), '0', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
+ALTER TABLE versions ADD COLUMN permissions_regenerated BOOLEAN DEFAULT FALSE AFTER build_number;
