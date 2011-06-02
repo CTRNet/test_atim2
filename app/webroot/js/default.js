@@ -88,12 +88,31 @@ var actionClickDown = function() {
 };
 
 /**
+ * Handling mouse scroll on action menus. Sending up/down commands if there is
+ * no ongoing animations
+ * @param event
+ * @param delta
+ * @returns false so that the page never scrolls
+ */
+function actionMouseweelHandler(event, delta){
+	if($(event.currentTarget).find("ul:animated").length == 0){
+		if(delta > 0){
+			$(event.currentTarget).find(".up").click();
+		}else{
+			$(event.currentTarget).find(".down").click();
+		}
+	}
+	return false;
+}
+
+/**
  * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
  */
 function initActions(){
 	$('div.actions div.bottom_button').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
 	$('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
 	$('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
+	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
 }
 
 function checkAll( $div ) {
