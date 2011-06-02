@@ -482,8 +482,8 @@ INSERT INTO `external_links` (`id`, `name`, `link`) VALUES
 
 INSERT INTO i18n (id,en,fr) VALUES
 ('more information about the types of samples and aliquots are available %s here',
-"More information about the types of samples and aliquots are available <a href='%s' target='blank'>here</a>.",
-"Plus d'informations sur les types d''échantillons et d''aliquots sont disponibles <a href='%s' target='blank'>ici</a>.");
+"Information about the types of samples and aliquots is available <a href='%s' target='blank'>here</a>.",
+"L'information sur les types d'échantillons et d'aliquots est disponible <a href='%s' target='blank'>ici</a>.");
 
 
 
