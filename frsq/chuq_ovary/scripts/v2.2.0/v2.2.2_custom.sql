@@ -38,6 +38,10 @@ INSERT INTO misc_identifier_controls
 ('NO DOS', 'NO DOS', 1, 1, '', '', 1, 1),
 ('NO PATHO', 'NO PATHO', 1, 2, '', '', 0, 0);
 
+INSERT INTO misc_identifier_controls
+(misc_identifier_name, misc_identifier_name_abbrev, flag_active, display_order, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_confidential) VALUES
+('MDEIE', 'MDEIE', 1, 4, '', '', 0, 0);
+
 UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') 
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE model='MiscIdentifier' AND tablename='misc_identifiers' 
@@ -206,25 +210,224 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 UPDATE tx_controls SET flag_active = 0;
 
+INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+(null, 'chemotherapy', 'CHUQ', 1, 'txd_chemos', 'chuq_txd_chemos', NULL, NULL, 0, 1, NULL, 'chemotherapy'),
+(null, 'radiation', 'CHUQ', 1, 'txd_radiations', 'chuq_txd_radiations', NULL, NULL, 0, NULL, NULL, 'radiation'),
+(null, 'surgery', 'CHUQ', 1, 'txd_surgeries', 'chuq_txd_surgeries', NULL, NULL, 0, 2, NULL, 'surgery');
+
+INSERT INTO structures(`alias`) VALUES ('chuq_txd_chemos'),('chuq_txd_radiations'),('chuq_txd_surgeries');
+
+SET @ref_structre_id = (SELECT id FROM structures WHERE alias = 'txd_radiations');
+SET @dest_structre_id = (SELECT id FROM structures WHERE alias = 'chuq_txd_radiations');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`)
+(SELECT @dest_structre_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`
+FROM structure_formats WHERE structure_id = @ref_structre_id);
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chuq_txd_radiations') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('facility','information_source','protocol_master_id'));
+
+SET @ref_structre_id = (SELECT id FROM structures WHERE alias = 'txd_surgeries');
+SET @dest_structre_id = (SELECT id FROM structures WHERE alias = 'chuq_txd_surgeries');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`)
+(SELECT @dest_structre_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`
+FROM structure_formats WHERE structure_id = @ref_structre_id);
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chuq_txd_surgeries') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('facility','target_site_icdo','information_source','protocol_master_id'));
+
+SET @ref_structre_id = (SELECT id FROM structures WHERE alias = 'txd_chemos');
+SET @dest_structre_id = (SELECT id FROM structures WHERE alias = 'chuq_txd_chemos');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`)
+(SELECT @dest_structre_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`
+FROM structure_formats WHERE structure_id = @ref_structre_id);
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='chuq_txd_chemos') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('facility','target_site_icdo','information_source','protocol_master_id'));
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------
+-- ANNOTATION
+-- -----------------------------------------------------------------
+
+-- CA 125
+
+UPDATE event_controls SET flag_active = 0;
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'CHUQ', 'lab', 'ca125', 1, 'chuq_ed_labs', 'chuq_ed_labs', 0, 'lab|CHUQ|ca125');
+
+CREATE TABLE IF NOT EXISTS `chuq_ed_labs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `ca_125` decimal(10,5) DEFAULT NULL,
+  
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `breast_tumour_size` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chuq_ed_labs`
+  ADD CONSTRAINT `chuq_ed_labs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `chuq_ed_labs_revs` (
+  `id` int(11) NOT NULL,
+  
+  `ca_125` decimal(10,5) DEFAULT NULL,
+  
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `deleted_date` datetime DEFAULT NULL,
+  `breast_tumour_size` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO structures(`alias`) VALUES ('chuq_ed_labs');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chuq_ed_labs', 'ca_125', 'float_positive',  NULL , '0', '', '', '', 'ca125', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chuq_ed_labs'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '1', 'ca125', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chuq_ed_labs'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chuq_ed_labs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chuq_ed_labs' AND `field`='ca_125' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ca125' AND `language_tag`=''), '1', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT into i18n (id,en,fr) VALUES ('ca125', 'CA125', 'CA125');
+
+SET @id = (SELECT use_link FROM menus WHERE id = 'clin_CAN_28');
+UPDATE menus SET use_link = @id WHERE id = 'clin_CAN_4';
+
+UPDATE menus SET flag_active = 0 WHERE use_link like '%event%' AND id NOT IN ('clin_CAN_4','clin_CAN_28');
+
+-- -----------------------------------------------------------------
+-- TOOLS
+-- -----------------------------------------------------------------
+
+UPDATE menus SET flag_active = 0 WHERE use_link like '/protocol%' OR  use_link like '/drug%' OR  use_link like '/material%' OR  use_link like '/sop%' OR  use_link like '/labbok%';
+UPDATE menus SET flag_active = 0 WHERE use_link like '/study%' AND use_link NOT LIKE '%listall%' AND use_link NOT LIKE '%detail%';
+
+UPDATE structure_formats sf, structures st, structure_fields sfi 
+SET sf.flag_add = 0, sf.flag_detail = 0, sf.flag_edit = 0 , sf.flag_index = 0
+WHERE sf.structure_id = st.id AND sfi.id = sf.structure_field_id
+AND st.alias = 'studysummaries'
+AND sfi.field NOT IN ('title','summary');
+
 -- -----------------------------------------------------------------
 -- INVENTORY GENERAL
 -- -----------------------------------------------------------------
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`) 
+VALUES 
+('Dimcho Bachvarov', 'Dimcho Bachvarov', 'Dimcho Bachvarov', 1),
+('Magdalena Batchvarova', 'Magdalena Batchvarova', 'Magdalena Batchvarova', 1);
+
+UPDATE banks SET name = 'CHUQ Ovary/ovaire', description = '' WHERE id = 1;
+
+UPDATE structure_formats sf, structure_fields sfi 
+SET `flag_add` = 0, `flag_add_readonly` = 0, `flag_edit` = 0, `flag_edit_readonly` = 0, `flag_search` = 0, `flag_search_readonly` = 0, `flag_addgrid` = 0, `flag_addgrid_readonly` = 0, `flag_editgrid` = 0, `flag_editgrid_readonly` = 0, `flag_batchedit` = 0, `flag_batchedit_readonly` = 0, `flag_index` = 0, `flag_detail` = 0, `flag_summary` = 0
+WHERE sfi.id = sf.structure_field_id
+AND sfi.field IN ('sop_master_id','collection_site');
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131, 23, 136, 25, 3, 132, 142, 143, 144, 130, 101, 102, 140);
 UPDATE sample_to_aliquot_controls SET flag_active=false WHERE id IN(23, 3, 41, 8);
 UPDATE realiquoting_controls SET flag_active=false WHERE id IN(17, 3, 7, 8, 5);
 
+-- TISSUE ----------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id, en, fr) VALUES
+('metastatic','Metastatic','Métastatique'),
+('tissue nature','Tissue Nature','Nature du tissu');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chuq_tissue_nature', '', '', NULL);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'tissue_nature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_nature') , '0', '', '', '', 'tissue nature', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue nature' AND `language_tag`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0');
+
+CREATE TABLE IF NOT EXISTS `chuq_tissue_code_defintions` (
+  	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`tissue_code` varchar(50) NOT NULL UNIQUE,
+	`tissue_source` varchar(50) DEFAULT NULL,
+	`tissue_nature` varchar(15) DEFAULT NULL,
+	`tissue_laterality` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO chuq_tissue_code_defintions (tissue_code,tissue_source,tissue_laterality,tissue_nature) VALUES
+('AS','other','',''),	
+
+('MA','abdominal mass','',''),	
+('KYSTE ','cyst','',''),	
+('E','endometrium','',''),	
+('G','endometrium','',''),	
+('EP','epiplon','',''),	
+('NODUL','nodule','',''),	
+('BOVD','ovary','right','benin'),	
+('BOVG','ovary','left','benin'),	
+('KOVD','ovary','right','benin'),	
+('KOVG','ovary','left','benin'),	
+('NOVD','ovary','right','normal'),	
+('OV','ovary','unknown','unknown'),	
+('OVD','ovary','right','unknown'),	
+('OVG','ovary','left','unknown'),	
+('NOVG','ovary','left','normal'),	
+('TOVD','ovary','right','malignant'),	
+('TOVG','ovary','left','malignant'),	
+('TOV','ovary','','malignant'),	
+('MP','pelvic mass','',''),	
+('IP','peritoneal implant','',''),	
+('NP','peritoneum','','');	
+
+ALTER TABLE sd_spe_tissues
+	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
+ALTER TABLE sd_spe_tissues_revs
+	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('chuq_tissue_code', '', '', "Inventorymanagement.TissueCodeDefintion::getTissueCodeList");	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', '', 'chuq_tissue_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_code') , '0', '', '', '', 'chuq tissue code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_tissue_code'), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE model='SampleDetail' AND field='chuq_tissue_code'), 'notEmpty', 'value is required');
+
+UPDATE structure_value_domains SET source="Inventorymanagement.TissueCodeDefintion::getTissueSourceList" WHERE domain_name='tissue_source_list';
+UPDATE structure_value_domains SET source="Inventorymanagement.TissueCodeDefintion::getTissueNatureList" WHERE domain_name='chuq_tissue_nature';
+
+INSERT INTO i18n (id,en,fr) VALUES ('chuq tissue code','Tissue Code', 'Code du tissu');
+
+ajouter prcision et validation lors ajout AS
 
 
 
 
 
+other precision...
+ALTER TABLE sd_spe_tissues
+	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
+ALTER TABLE sd_spe_tissues_revs
+	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
 
 
-
-
-
-
-
++-----------------------+
+ 
+ 
+ 
+ 
 
 
