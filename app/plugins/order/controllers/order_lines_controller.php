@@ -34,13 +34,17 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function add( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if ( !$order_id ) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -57,36 +61,49 @@ class OrderLinesController extends OrderAppController {
 
 		if ( !empty($this->data) ) {
 			// Set sample and aliquot control id
-			$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
-			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-			$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
-			$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
+			if(empty($this->data['FunctionManagement']['sample_aliquot_control_id'])){
+				$this->OrderLine->set($this->data);
+				$this->OrderLine->validates();
+				//manual error on custom field
+				$this->OrderLine->validationErrors['sample_aliquot_control_id'] = __('this field is required', true)." (".__('product type', true).")";
+			}else{
+				$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
+				if(sizeof($product_controls) != 2)  { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
+				$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
+					
+				// Set order id
+				$this->data['OrderLine']['order_id'] = $order_id;
+				$this->data['OrderLine']['status'] = 'pending';
+					
+				$submitted_data_validates = true;
 				
-			// Set order id
-			$this->data['OrderLine']['order_id'] = $order_id;
-			$this->data['OrderLine']['status'] = 'pending';
-				
-			$submitted_data_validates = true;
-			
-			$hook_link = $this->hook('presave_process');
-			if($hook_link){
-				require($hook_link);
-			}
-				
-			if ($submitted_data_validates) {
-				if( $this->OrderLine->save($this->data) ) {
-					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) {
-						require($hook_link);
+				$hook_link = $this->hook('presave_process');
+				if($hook_link){
+					require($hook_link);
+				}
+					
+				if ($submitted_data_validates) {
+					if( $this->OrderLine->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
+						$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
 					}
-					$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
 				}
 			} 
+		}else{
+			$this->data = array('OrderLine' => array('study_summary_id' => $order_data['Order']['default_study_summary_id']));
 		}
 	}
 
 	function edit( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		// MANAGE DATA
 		

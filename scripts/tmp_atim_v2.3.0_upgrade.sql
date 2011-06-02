@@ -37,7 +37,11 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("the linked consent status is [%s]", "The linked consent status is [%s]", "Le statut du consentement lié est [%s]"),
 ("no consent is linked to the current participant collection", 
  "No consent is linked to the current participant collection",
- "Aucun consentement n'est lié à la présente collection de participant"); 
+ "Aucun consentement n'est lié à la présente collection de participant"),
+("default study", "Default study", "Étude par défaut"),
+("help default study", 
+ "Study that is selected by default when adding order lines.",
+ "Étude qui est sélectionnée par défaut lorsque des lignes de commandes sont ajoutées.");
 
 DROP TABLE datamart_batch_processes;
 
@@ -486,4 +490,33 @@ INSERT INTO i18n (id,en,fr) VALUES
 "L'information sur les types d'échantillons et d'aliquots est disponible <a href='%s' target='blank'>ici</a>.");
 
 
+ALTER TABLE orders 
+ DROP FOREIGN KEY FK_orders_study_summaries,
+ CHANGE study_summary_id default_study_summary_id INT DEFAULT NULL,
+ ADD FOREIGN KEY (`default_study_summary_id`) REFERENCES `study_summaries` (`id`);
+ALTER TABLE orders_revs
+ CHANGE study_summary_id default_study_summary_id INT DEFAULT NULL;
+ 
+UPDATE structure_fields SET  `field`='default_study_summary_id',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list') ,  `language_help`='help default study',  `language_label`='default study' WHERE model='Order' AND tablename='orders' AND field='study_summary_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='study_list');
+
+ALTER TABLE order_lines
+ ADD COLUMN study_summary_id INT DEFAULT NULL AFTER order_id,
+ ADD FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+ALTER TABLE order_lines_revs
+ ADD COLUMN study_summary_id INT DEFAULT NULL AFTER order_id;
+UPDATE order_lines AS ol
+INNER JOIN orders AS o ON o.id=ol.order_id
+SET ol.study_summary_id=o.default_study_summary_id;
+
+CREATE TABLE tmp_version_id(SELECT MAX(version_id) AS version_id FROM order_lines_revs GROUP BY id);
+UPDATE order_lines_revs AS olr
+INNER JOIN order_lines AS ol ON olr.id=ol.id
+SET olr.study_summary_id=ol.study_summary_id
+WHERE version_id IN(SELECT version_id FROM tmp_version_id); 
+DROP TABLE tmp_version_id;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'OrderLine', 'order_lines', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='orderlines'), (SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study' AND `language_tag`=''), '0', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
