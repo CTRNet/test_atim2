@@ -1,6 +1,6 @@
 <?php
 $pkey = "NS";
-$child = array('ConsentMaster','DiagnosisMaster','PathoMiscIdentfier','DosMiscIdentfier');
+$child = array('ConsentMaster','DiagnosisMaster','PathoMiscIdentfier','DosMiscIdentfier','MdeieMiscIdentfier');
 $fields = array(
 	"participant_identifier" => "NS", 
 	"date_of_birth" => "DN",
@@ -30,62 +30,65 @@ $model->custom_data = array(
 Config::$models['Participant'] = $model;
 
 $model->tissueCode2Details = array(
-	'BOVD' => array('code' => 'BOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
-	'BOVG' => array('code' => 'BOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
-	'KOVD' => array('code' => 'KOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
-	'KOVG' => array('code' => 'KOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
-	'TOVG' => array('code' => 'TOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'malignant'),
-	'NOVD' => array('code' => 'NOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
-	'NOVG' => array('code' => 'NOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
-	'OVDN' => array('code' => 'NOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
-	'OVGN' => array('code' => 'NOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
-	'OV' => array('code' => 'OV', 'source' => 'ovary', 'laterality' => 'unknown', 'type' => 'unknown'),
-	'OVD' => array('code' => 'OVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'unknown'),
-	'OVG' => array('code' => 'OVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'unknown'),
-	'TOVG' => array('code' => 'TOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'malignant'),
-	'TOVD' => array('code' => 'TOVG', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'malignant'),
-	'TOV' => array('code' => 'TOV', 'source' => 'ovary', 'laterality' => 'unknown', 'type' => 'malignant'),
-'AN.UT' => array('code' => 'AN.UT', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'A' => array('code' => 'A', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'AEP' => array('code' => '', 'source' => '', 'laterality' => '', 'type' => ''),
+	'AG' => array('code' => 'AG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'AOV' => array('code' => '', 'source' => '', 'laterality' => '', 'type' => ''),
+	'AN.UT' => array('code' => 'AN.UT', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'AND' => array('code' => 'AND', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'ANXG' => array('code' => '', 'source' => '', 'laterality' => '', 'type' => ''),
 	'AS' => array('code' => 'AS', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'ASC' => array('code' => 'ASC', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-	'AOV' => array('code' => 'AOV', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'AU' => array('code' => 'AU', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'AEP' => array('code' => 'AEP', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-
-'A' => array('code' => 'A', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-	'AG' => array('code' => 'AG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'G' => array('code' => 'G', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'AU' => array('code' => 'AU', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'B' => array('code' => 'B', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'D' => array('code' => 'D', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'TEP' => array('code' => 'TEP', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'N' => array('code' => 'N', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'E' => array('code' => 'E', 'source' => 'endometrium', 'laterality' => '', 'type' => ''),
+	'BOVD' => array('code' => 'BOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
+	'BOVG' => array('code' => 'BOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
+	'D' => array('code' => 'D', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'E' => array('code' => 'E', 'source' => 'endometrium', 'laterality' => '', 'type' => ''),
+	'E-N' => array('code' => 'E-N', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'E-T' => array('code' => 'E-T', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'EP' => array('code' => 'EP', 'source' => 'epiplon', 'laterality' => '', 'type' => ''),
+	'G' => array('code' => 'G', 'source' => 'endometrium', 'laterality' => '', 'type' => ''),
 	'IP' => array('code' => 'IP', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => ''),
+	'KOVD' => array('code' => 'KOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
+	'KOVG' => array('code' => 'KOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
 	'KYSTE' => array('code' => 'KYSTE ', 'source' => 'cyst', 'laterality' => '', 'type' => ''),
 	'M.BUT' => array('code' => 'M.BUT', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'MASSEABDOMINAL' => array('code' => 'MA', 'source' => 'abdominal mass', 'laterality' => '', 'type' => ''),
 	'MP' => array('code' => 'MP', 'source' => 'pelvic mass', 'laterality' => '', 'type' => ''),
+	'N' => array('code' => 'N', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'NC' => array('code' => 'NC', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'ND' => array('code' => 'ND', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'NM' => array('code' => 'NM', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'ANXG'=> array('code' => 'ANXG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'NODUL' => array('code' => 'NODUL', 'source' => 'nodule', 'laterality' => '', 'type' => ''),
+	'NOVD' => array('code' => 'NOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
+	'NOVG' => array('code' => 'NOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
 	'NP' => array('code' => 'NP', 'source' => 'peritoneum', 'laterality' => '', 'type' => ''),
+	'OV' => array('code' => 'OV', 'source' => 'ovary', 'laterality' => 'unknown', 'type' => 'unknown'),
+	'OVD' => array('code' => 'OVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'unknown'),
+	'OVDN' => array('code' => 'NOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
+	'OVG' => array('code' => 'OVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'unknown'),
+	'OVGN' => array('code' => 'NOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
+	'TOVD' => array('code' => 'TOVD', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'malignant'),
+	'TOVG' => array('code' => 'TOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'malignant'),
+	'TOV' => array('code' => 'TOV', 'source' => 'ovary', 'laterality' => '', 'type' => 'malignant'),
 	'PO' => array('code' => 'PO', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-
-'R' => array('code' => 'R', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'R-E' => array('code' => 'R-E', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'R-OG' => array('code' => 'R-OG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'R-OD' => array('code' => 'R-OD', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'E-N' => array('code' => 'E-N', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-'E-T' => array('code' => 'E-T', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-
+	'R' => array('code' => 'R', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'R-E' => array('code' => 'R-E', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'R-OD' => array('code' => 'R-OD', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'R-OG' => array('code' => 'R-OG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'SIGMOIDE' => array('code' => 'SIGMOIDE', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
 	'TCS' => array('code' => 'TCS', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'TEP' => array('code' => 'TEP', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'TOVG' => array('code' => 'TOVG', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'malignant'),
 	'TR' => array('code' => 'TR', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
-	'UT' => array('code' => 'UT', 'source' => 'uterus', 'laterality' => '', 'type' => ''));
+	'UT' => array('code' => 'UT', 'source' => 'uterus', 'laterality' => '', 'type' => ''),
+	'M.ANN' => array('code' => 'M.ANN', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'LIQ.PERIT.' => array('code' => 'LIQ.PERIT.', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'MOVG' => array('code' => 'MOVG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'M.P.' => array('code' => 'M.P.', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'ANG' => array('code' => 'ANG', 'source' => 'unknown', 'laterality' => '', 'type' => ''),
+	'ANXD' => array('code' => 'ANXD', 'source' => 'unknown', 'laterality' => '', 'type' => ''));
 
 $model->tissueCodeSynonimous = array(
 	'ED' => 'E',
@@ -93,9 +96,8 @@ $model->tissueCodeSynonimous = array(
 	'ENDO.' => 'E',
 	'ENDO.BT' => 'E',
 	'ENDOMÈTRE' => 'E',
-	'EPN' => 'EP',
-'OGT' => 'TOVG',
 	'EPD' => 'EP',
+	'EPN' => 'EP',
 	'NEP' => 'EP',
 	'IMP' => 'IP',
 	'IMP.G.' => 'IP',
@@ -111,22 +113,23 @@ $model->tissueCodeSynonimous = array(
 	'M.A.' => 'MASSEABDOMINAL',
 	'MAP' => 'MASSEABDOMINAL',
 	'M.P' => 'MP',
+	'M.PEL.' => 'MP',
 	'MASSPELVIENNE' => 'MP',
 	'MASSEPEL.' => 'MP',
 	'MASSEPELVIEN' => 'MP',
 	'MASSEPELVIENE' => 'MP',
 	'MASSEPELVIENNE' => 'MP',
 	'MPG' => 'MP',
-	'M.PEL.' => 'MP',
 	'PELVIEN' => 'MP',
 	'NOD' => 'NODUL',
 	'NODULEPELVIEN' => 'NODUL',
 	'NODULES' => 'NODUL',
 	'O' => 'OV',
-	'T' => 'TOV',
 	'OD' => 'OVD',
 	'OG' => 'OVG',
 	'PRIM.OV.' => 'PO',
+	'T' => 'TOV',
+	'OGT' => 'TOVG',
 	'MASSEUTÉRINE' => 'UT',
 	'MASSEUTÉRINEBÉNIN' => 'UT',
 	'UTÉRUS' => 'UT');
@@ -144,14 +147,16 @@ foreach($model->tissueCode2Details as $code => $data) {
 
 function postParticipantRead(Model $m){
 	excelDateFix($m);
+	
+echo"<br>----------------------------------------------------------------------<br>";	
+echo "New Participant : NS = ".$m->values['NS']." (Line: ".$m->line.")";
+echo"<br>----------------------------------------------------------------------<br>";	
 }
 
 function postParticipantWrite(Model $m, $participant_id){
 	$line =  $m->line;
 	$invantory_data_from_file =  $m->values;
 	$collections = array();
-	
-echo"<br>Line ".$m->line. " -------------------------------------------------<br>";
 	
 	// TISSUS ----------------------------------------------------------------------
 	
@@ -703,9 +708,9 @@ $pbs_tmp = preg_replace('/-[0-9]/', '', $pbs_tmp);
 	$aliquot_type = 'tube';
 	if(!empty($invantory_data_from_file['DNA'])) {
 		$dnas_tmp = str_replace(' ', '', $invantory_data_from_file['DNA']);
-		$dnas_tmp = str_replace(',', '/', $dnas_tmp);echo "<br>^^^$dnas_tmp^^<br>";
+		$dnas_tmp = str_replace(',', '/', $dnas_tmp);
 		$dnas = explode('/', strtoupper($dnas_tmp));
-print_r($dnas);
+
 		if($dnas[0] != 'ADN' && $dnas[0] != 'DNA') die("<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA]: DNA cell content dones not start with 'ADN'!</FONT><br>");
 		unset($dnas[0]);
 		if(empty($dnas)) {
@@ -754,6 +759,59 @@ print_r($dnas);
 		}
 	} //End of DNA
 	
-	echo "<pre>";
-	print_r($collections);
+	
+	
+	
+	
+	
+	
+	//
+	
+	echo "<br>:::::::::::::: SAMPLES SUMMARY ::::::::::::::<br>";
+	
+	$space = '. . . . . . ';
+	if(empty($collections)) {
+		echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [WARNING]: No sample defined for this participant!</FONT><br>";
+	} else {
+		foreach($collections as $specimen_key => $data) {
+			// Manage Specimen
+			switch($specimen_key) {
+				case 'blood':
+					echo '<br><FONT COLOR=\"red\" >** BLOOD</FONT><br>';
+					break;
+				case 'ascite':
+					echo '<br><FONT COLOR=\"red\" >** ASCITE</FONT><br>';
+					break;
+				default:
+					if($data['type'] != 'tissue') die ('ERR: 9973671812cacacasc');
+					echo '<br><FONT COLOR=\"red\" >** TISSUE </FONT>(code : '.$data['details']['code'].', source : '.$data['details']['source'].', laterality : '.$data['details']['laterality'].', type : '.$data['details']['type'].')<br>';		
+			}
+			
+			// Display Aliquot
+			manageAliquots($m, $participant_id, $data['aliquots'], $space);
+			
+			// Manage Derivative
+			manageDerivative($m, $participant_id, $data['derivatives'], $space, $space);
+		}
+	}
+	echo "<br>";
+
 }
+
+function manageAliquots(Model $m, $participant_id, $aliquot_data, $space_to_use){
+	foreach($aliquot_data as $new_aliquot) {
+		echo $space_to_use."|==> @ 1 ".$new_aliquot['type']." (Box: ".(empty($new_aliquot['storage'])? '-': $new_aliquot['storage']).")<br>";
+	}
+}
+
+function manageDerivative(Model $m, $participant_id, $derivative_data, $space_to_use, $space){
+	
+	if(!empty($derivative_data['details']))die('ERR: 98736621cacacsasccsa');
+		foreach($derivative_data as $new_derivative) {
+			echo $space_to_use.'|==> <FONT COLOR=\"red\" >* '.strtoupper($new_derivative['type']).' </FONT><br>';
+			manageAliquots($m, $participant_id, $new_derivative['aliquots'], $space.$space_to_use);
+			manageDerivative($m, $participant_id, $new_derivative['derivatives'], $space.$space_to_use,$space);
+	}
+}
+
+
