@@ -1,5 +1,62 @@
 <?php
+	if(isset($this->data[0]['parent']['AliquotMaster'])){
+		//hack structures to add aliquot data
+		//start with parent
+		$max_column = max(1, $sample_info['Sfs'][0]['display_column']);
+		foreach($sample_info['Sfs'] as $sfs){
+			$max_column = max($max_column, $sfs['display_column']);
+		}
+
+		foreach($sourcealiquots['Sfs'] as &$sfs){
+			$sfs['display_column'] += $max_column;
+		}
+		
+		//updating parent language headings
+		foreach($sample_info['Sfs'] as &$sfs){
+			if($sfs['flag_edit']){
+				$sfs['language_heading'] = 'parent sample';
+				break;
+			}
+		}
+		foreach($sourcealiquots['Sfs'] as &$sfs){
+			if($sfs['flag_edit']){
+				$sfs['language_heading'] = __('used aliquot', true);
+				break;
+			}
+		}
+		
+		//merging parent structures		
+		$sample_info['Structure'] = array($sample_info['Structure'], $sourcealiquots['Structure']);
+		$sample_info['Sfs'] = array_merge($sample_info['Sfs'], $sourcealiquots['Sfs']);
+		
+		
+		if(!empty($this->data[0]['parent']['AliquotMaster']['aliquot_volume_unit'])){
+			//add volume data to parent
+			$sourcealiquots_volume_sfs_copy = array_merge($sourcealiquots_volume['Sfs']);
+			unset($sourcealiquots_volume_sfs_copy[0]);
+			foreach($sourcealiquots_volume_sfs_copy as &$sfs){
+				$sfs['display_column'] += $max_column;
+			}
+			$sample_info['Structure'][] = $sourcealiquots_volume['Structure'];
+			$sample_info['Sfs'] = array_merge($sample_info['Sfs'], $sourcealiquots_volume_sfs_copy);
+			
+			//add volume field to children
+			$min_column = min(-1, $atim_structure['Sfs'][0]['display_column']);
+			unset($sfs);
+			foreach($atim_structure['Sfs'] as $sfs){
+				$min_column = min($min_column, $sfs['display_column']);
+			}
+			foreach($sourcealiquots_volume['Sfs'] as &$sfs){
+				$sfs['display_column'] += $min_column;
+			}
+			
+			$atim_structure['Structure'][] = $sourcealiquots_volume['Structure'];
+			unset($sourcealiquots_volume['Sfs'][1], $sourcealiquots_volume['Sfs'][2]);//only keep used volume
+			$atim_structure['Sfs'] = array_merge($sourcealiquots_volume['Sfs'], $atim_structure['Sfs']);
+		}
+	}
 	
+	//structure options
 	$options = array(
 			"links"		=> array(
 				"top" => '/inventorymanagement/sample_masters/batchDerivative/',
@@ -29,6 +86,9 @@
 	
 	$first = true;
 	$counter = 0;
+	
+	
+	//print the layout
 	while($data = array_shift($this->data)){
 		$counter++;
 		$parent = $data['parent'];
@@ -48,11 +108,12 @@
 				<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
+		$prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
 		$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) ." #".$counter;
-		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+		$final_options_parent['settings']['name_prefix'] = $prefix;
 		$final_options_parent['data'] = $parent;
 		
-		$final_options_children['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
+		$final_options_children['settings']['name_prefix'] = $prefix;
 		$final_options_children['data'] = $data['children'];
 		$final_options_children['dropdown_options']['SampleMaster.parent_id'] = array($parent['ViewSample']['sample_master_id'] => $parent['ViewSample']['sample_code']);
 		$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];

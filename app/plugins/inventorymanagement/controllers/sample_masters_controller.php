@@ -856,13 +856,39 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Get Data
 		$model = null;
 		$key = null;
-		if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
+		if(isset($this->data['BatchSet']) || isset($this->data['node'])){
 			if(isset($this->data['SampleMaster'])) {
 				$model = 'SampleMaster';
 				$key = 'id';
 			} else if(isset($this->data['ViewSample'])) {
 				$model = 'ViewSample';
 				$key = 'sample_master_id';
+			}else if(isset($this->data['ViewAliquot']) || isset($this->data['AliquotMaster'])){
+				//aliquot init case
+				$aliquot_ids = array_filter(isset($this->data['ViewAliquot']) ? $this->data['ViewAliquot']['aliquot_master_id'] : $this->data['AliquotMaster']['id']);
+				if(empty($aliquot_ids)){
+					$this->flash(__("batch init no data", true), "javascript:history.back();", 5);
+				}
+				$aliquot_data = $this->AliquotMaster->find('all', array(
+					'fields' => array('AliquotMaster.aliquot_control_id', 'AliquotMaster.sample_master_id'),
+					'conditions' => array('AliquotMaster.id' => $aliquot_ids)));
+				
+				if(empty($aliquot_data)){
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+				
+				$ids = array();
+				$expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
+				foreach($aliquot_data as $aliquot_unit){
+					if($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id){
+						$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+					}
+					$ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
+				}
+				$this->data['SampleMaster'] = array('id' => $ids);
+				$model = 'SampleMaster';
+				$key = 'id';
+				$this->set("aliquot_ids", implode(",", $aliquot_ids));
 			} else {
 				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
@@ -924,6 +950,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
 		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		if(isset($this->data['AliquotMaster']['ids'])){
+			$this->set('aliquot_master_ids', $this->data['AliquotMaster']['ids']);
+		}
 		
 		$tmp = $this->ParentToDerivativeSampleControl->find('first', array('conditions' => array(
 			'ParentToDerivativeSampleControl.parent_sample_control_id' => $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'],
@@ -995,6 +1024,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
 		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']));
+		$this->Structures->set('sourcealiquots', 'sourcealiquots');
+		$this->Structures->set('sourcealiquots_volume', 'sourcealiquots_volume');
 
 		$this->set('children_sample_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('created_sample_override_data', array(
@@ -1009,11 +1040,20 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(isset($this->data['SampleMaster']['ids'])){
 
 			//1- INITIAL DISPLAY
-			
-			$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->data['SampleMaster']['ids'])), 'recursive' => -1));
-			$this->data = array();
-			foreach($samples as $sample){
-				$this->data[] = array('parent' => $sample, 'children' => array());
+			if(isset($this->data['AliquotMaster']['ids'])){
+				$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => explode(",", $this->data['AliquotMaster']['ids'])), 'recursive' => -1));
+				$this->data = array();
+				foreach($aliquots as $aliquot){
+					$sample = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $aliquot['AliquotMaster']['sample_master_id']), 'recursive' => -1));
+					$aliquot += $sample;
+					$this->data[] = array('parent' => $aliquot, 'children' => array());
+				}
+			}else{
+				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->data['SampleMaster']['ids'])), 'recursive' => -1));
+				$this->data = array();
+				foreach($samples as $sample){
+					$this->data[] = array('parent' => $sample, 'children' => array());
+				}
 			}
 						
 			$hook_link = $this->hook('format');
@@ -1031,15 +1071,34 @@ class SampleMastersController extends InventorymanagementAppController {
 			$prev_data = $this->data;
 			$this->data = array();
 			$record_counter = 0;
+			$aliquots_data = array();
+			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
 			foreach($prev_data as $parent_id => &$children){
+				$aliquot_curr_data = null;
 				$record_counter++;
-				
+				if(isset($children['AliquotMaster'])){
+					$parent = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $parent_id), 'recursive' => -1));
+					$parent += $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent['AliquotMaster']['sample_master_id']), 'recursive' => -1));
+					$aliquot_curr_data = array("AliquotMaster" => $children['AliquotMaster'], "FunctionManagement" => $children['FunctionManagement']);
+					$aliquot_curr_data['AliquotMaster']['id'] = $parent_id;
+					$aliquots_data[] = $aliquot_curr_data;
+					$this->AliquotMaster->data = array();
+					$this->AliquotMaster->set($aliquot_curr_data);
+					$this->AliquotMaster->validates();
+					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
+						$errors[$field][$msg][] = $record_counter;
+					}
+					
+					
+					unset($children['AliquotMaster'], $children['FunctionManagement']);
+				}else{
+					$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));
+				}
 				unset($children['ViewSample']);
-				$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));
-				$new_derivative_created = false;
+				
+				$new_derivative_created = !empty($children);
 				$sample_control_id = $children_control_data['SampleControl']['id'];
 				foreach($children as &$child){
-					$new_derivative_created = true;
 					$child['SampleMaster']['sample_control_id'] = $sample_control_id;
 					$child['SampleMaster']['collection_id'] = $parent['ViewSample']['collection_id'];
 					
@@ -1051,27 +1110,29 @@ class SampleMastersController extends InventorymanagementAppController {
 					$child['DerivativeDetail']['sync_with_lab_book'] = $sync_with_lab_book;
 					$child['DerivativeDetail']['lab_book_master_id'] = $lab_book_id;
 					
-					$this->SampleMaster->data = array();
-					$this->SampleMaster->set($child);
-					if(!$this->SampleMaster->validates()){
-						foreach($this->SampleMaster->validationErrors as $field => $msg) {
-							$errors[$field][$msg][] = $record_counter;
-						}
-					}
+					$child['AliquotMaster']['id'] = $aliquot_curr_data == null ? null : $parent_id;
 					
-					$this->DerivativeDetail->set($child);
-					if(!$this->DerivativeDetail->validates()){
-						foreach($this->DerivativeDetail->validationErrors as $field => $msg) {
-							$errors[$field][$msg][] = $record_counter;
+					foreach($validation_iterations as $validation_model_name){
+						$validation_model = $this->{$validation_model_name}; 
+						$validation_model->data = array();
+						$validation_model->set($child);
+						if(!$validation_model->validates()){
+							foreach($validation_model->validationErrors as $field => $msg) {
+								$errors[$field][$msg][] = $record_counter;
+							}
 						}
 					}
 				}
+				
 				if($lab_book_id != null){
 					$lab_book->syncData($children, array("DerivativeDetail"), $lab_book_master_code);
 				}
 				$this->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
-				if(!$new_derivative_created) $errors[]['at least one child has to be created'][] = $record_counter;
+				if(!$new_derivative_created){
+					$errors[]['at least one child has to be created'][] = $record_counter;
+				}
 			}
+			$this->SourceAliquot->validationErrors = null;
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1107,10 +1168,33 @@ class SampleMastersController extends InventorymanagementAppController {
 						$child['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child, false)){ 
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						} 		
+						}
+
+						if(isset($child['AliquotMaster']['id'])){
+							//record aliquot use -> source_aliquots
+							$this->SourceAliquot->data = array();
+							$this->SourceAliquot->save(array('SourceAliquot' => array(
+								'sample_master_id'	=> $child_id,
+								'aliquot_master_id'	=> $child['AliquotMaster']['id'],
+								'used_volume'		=> isset($child['SourceAliquot']['used_volume']) ? $child['SourceAliquot']['used_volume'] : null,
+							)));
+						}
 													
 						$child_ids[] = $child_id;
 					}
+				}
+				
+				foreach($aliquots_data as $aliquot){
+					//update all used aliquots
+					$this->AliquotMaster->data = array();
+					if($aliquot['FunctionManagement']['remove_from_storage'] || ($aliquot['AliquotMaster']['in_stock'] == 'no')) {
+						// Delete aliquot storage data
+						$aliquot['AliquotMaster']['storage_master_id'] = null;
+						$aliquot['AliquotMaster']['storage_coord_x'] = null;
+						$aliquot['AliquotMaster']['storage_coord_y'] = null;
+					}
+					$this->AliquotMaster->save($aliquot, false);
+					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
 				}
 				if(!empty($child_ids)){
 					//prevent double access bug to empty our BatchId
@@ -1137,6 +1221,71 @@ class SampleMastersController extends InventorymanagementAppController {
 				}
 			}
 		}
+		
+		if(isset($this->data[0]['parent']['AliquotMaster']) && empty($this->data[0]['parent']['AliquotMaster']['aliquot_volume_unit'])){
+			 $this->Structures->set('sourcealiquots', 'sourcealiquots');//overwrite, we do not need the volume
+		}
+	}
+	
+	function batchDerivativeFromAliquotsInit(){
+		if(!isset($this->data['ViewAliquot']['aliquot_master_id'])){
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		$this->set('url_to_cancel', isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id']);
+		
+		$aliquot_ids = array_filter($this->data['ViewAliquot']['aliquot_master_id']);
+		if(empty($aliquot_ids)){
+			$this->flash(__("batch init no data", true), "javascript:history.back();", 5);
+		}
+		$aliquot_data = $this->AliquotMaster->find('all', array(
+			'fields' => array('AliquotMaster.aliquot_control_id', 'AliquotMaster.sample_master_id'),
+			'conditions' => array('AliquotMaster.id' => $aliquot_ids)));
+		
+		if(empty($aliquot_data)){
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$ids = array();
+		$expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
+		foreach($aliquot_data as $aliquot_unit){
+			if($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id){
+				$this->flash(__("you must select elements with a common type", true), "javascript:history.back();", 5);
+			}
+			$ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
+		}
+		$this->data = array('SampleMaster' => array('id' => $ids));
+		
+		$init_data = $this->batchInit(
+			$this->SampleMaster,
+			'SampleMaster',
+			'id',
+			"sample_control_id", 
+			$this->ParentToDerivativeSampleControl,
+			"parent_sample_control_id",
+			"you cannot create derivatives for this aliquot type");
+		if(array_key_exists('error', $init_data)) {
+			$this->flash(__($init_data['error'], true), "javascript:history.back();", 5);
+			return;
+		}
+		
+		foreach($init_data['possibilities'] as $possibility){
+			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type'], true);
+		}
+		
+		$this->set('ids', $ids);
+		
+		$this->Structures->set('derivative_init');
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$this->set('parent_sample_control_id', $init_data['control_id']);
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+	}
+	
+	function batchDerivativeFromAliquots(){
+		
 	}
 }
 	
