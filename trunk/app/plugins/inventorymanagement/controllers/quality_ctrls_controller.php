@@ -318,7 +318,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 						$errors['AliquotMaster'][$field][$error] = '-'; 
 					}					
 
-					// Reste data to get position data (not really required for this function)
+					// Reset data to get position data (not really required for this function)
 					$studied_aliquot_pointer = $this->AliquotMaster->data;
 					
 					// Launch Aliquot Use validation
