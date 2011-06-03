@@ -222,12 +222,16 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	/* ------------------------------ TESTED ALIQUOTS ------------------------------ */
 	
 	function addTestedAliquots($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 
 		// MANAGE DATA
 		
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($qc_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 				
 		$already_tested_aliquot_ids = array();
 		if(!empty($qc_data['QualityCtrlTestedAliquot'])) {
@@ -239,12 +243,17 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$criteria = array(
 			'AliquotMaster.collection_id' => $collection_id,
 			'AliquotMaster.sample_master_id' => $sample_master_id,
+			'OR' => array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL)),
 			'NOT' => array('AliquotMaster.id' => $already_tested_aliquot_ids));
-		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+		$available_sample_aliquots_wo_vol = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => -1));
+		unset($criteria['OR']);
+		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
+		$available_sample_aliquots_w_vol = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => -1));
 
-		if(empty($available_sample_aliquots)) {
+		if(empty($available_sample_aliquots_w_vol) && empty($available_sample_aliquots_wo_vol)) {
 			$this->flash('no new sample aliquot could be actually defined as tested aliquot', '/inventorymanagement/quality_ctrls/detail/'. $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
 		}
+		$available_sample_aliquots = array('vol' => $available_sample_aliquots_w_vol, 'no_vol' => $available_sample_aliquots_wo_vol); 
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -257,7 +266,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 
-		$this->Structures->set('qctestedaliquots');
+		$this->Structures->set('qctestedaliquots', 'qctestedaliquots');
+		$this->Structures->set('qctestedaliquots,qctestedaliquots_volume', 'qctestedaliquots_volume');
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
@@ -273,47 +283,57 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			// Launch validation
 			$submitted_data_validates = true;	
 			
-			$aliquots_defined_as_tested = array();
 			$errors = array();
-			foreach($this->data as $key => $new_studied_aliquot){
-				if($new_studied_aliquot['FunctionManagement']['use']){
+
+			//using arrays of pointers to directly update $this->data without having to separate vol and no_vol
+			$aliquots_defined_as_tested_pointers = array();
+			$unified_data_pointers = array();
+			$this->data = array_merge_recursive($this->data, array("vol" => array(), "no_vol" => array()));
+			foreach($this->data as &$category_array_pointer){
+				foreach($category_array_pointer as &$data_unit_pointer){
+					$unified_data_pointers[] = &$data_unit_pointer;
+				}
+			}
+			foreach($unified_data_pointers as &$studied_aliquot_pointer){
+				if($studied_aliquot_pointer['FunctionManagement']['use']){
 					// New aliquot defined as used
 
 					// Check volume
-					if((!empty($new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
+					if((!empty($studied_aliquot_pointer['QualityCtrlTestedAliquot']['used_volume'])) && empty($studied_aliquot_pointer['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
 						$errors['QualityCtrlTestedAliquot']['used_volume']['no volume has to be recorded for this aliquot type'] = '-'; 
-						$new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'] = '#err#';
+						$studied_aliquot_pointer['QualityCtrlTestedAliquot']['used_volume'] = '#err#';
 						$submitted_data_validates = false;			
-					} else if(empty($new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'])) {
+					} else if(empty($studied_aliquot_pointer['QualityCtrlTestedAliquot']['used_volume'])) {
 						// Change '0' to null
-						$new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'] = null;
+						$studied_aliquot_pointer['QualityCtrlTestedAliquot']['used_volume'] = null;
 					}
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->set($new_studied_aliquot);
-					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
-					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
+					$this->AliquotMaster->set($studied_aliquot_pointer);
+					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
+					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates : false;
+					foreach($this->AliquotMaster->invalidFields() as $field => $error) { 
+						$errors['AliquotMaster'][$field][$error] = '-'; 
+					}					
 
 					// Reste data to get position data (not really required for this function)
-					$new_studied_aliquot = $this->AliquotMaster->data;
+					$studied_aliquot_pointer = $this->AliquotMaster->data;
 					
 					// Launch Aliquot Use validation
-					$this->QualityCtrlTestedAliquot->set($new_studied_aliquot);
-					$submitted_data_validates = ($this->QualityCtrlTestedAliquot->validates())? $submitted_data_validates: false;
-					foreach($this->QualityCtrlTestedAliquot->invalidFields() as $field => $error) { $errors['QualityCtrlTestedAliquot'][$field][$error] = '-'; }					
+					$this->QualityCtrlTestedAliquot->set($studied_aliquot_pointer);
+					$submitted_data_validates = ($this->QualityCtrlTestedAliquot->validates())? $submitted_data_validates : false;
+					foreach($this->QualityCtrlTestedAliquot->invalidFields() as $field => $error) { 
+						$errors['QualityCtrlTestedAliquot'][$field][$error] = '-'; 
+					}					
 					
 					// Add record to array of tested aliquots
-					$aliquots_defined_as_tested[] = $new_studied_aliquot;		
+					$aliquots_defined_as_tested_pointers[] = $studied_aliquot_pointer;		
 				}
-				
-				// Reset data
-				$this->data[$key] = $new_studied_aliquot;
 			}
 			
-			if(empty($aliquots_defined_as_tested)) { 
+			if(empty($aliquots_defined_as_tested_pointers)) { 
 				$this->QualityCtrlTestedAliquot->validationErrors[] = 'no aliquot has been defined as sample tested aliquot';	
 				$submitted_data_validates = false;			
 			}
@@ -341,31 +361,31 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			} else {
 				// Launch save functions
 				// Parse records to save
-				foreach($aliquots_defined_as_tested as $new_used_aliquot) {
+				foreach($aliquots_defined_as_tested_pointers as $used_aliquot_pointer) {
 					// Get Tested Aliquot Master Id
-					$aliquot_master_id = $new_used_aliquot['AliquotMaster']['id'];
+					$aliquot_master_id = $used_aliquot_pointer['AliquotMaster']['id'];
 
 					// set aliquot master data					
-					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] == 'no')) {
+					if($used_aliquot_pointer['FunctionManagement']['remove_from_storage'] || ($used_aliquot_pointer['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
-						$new_used_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_y'] = null;	
+						$used_aliquot_pointer['AliquotMaster']['storage_master_id'] = null;
+						$used_aliquot_pointer['AliquotMaster']['storage_coord_x'] = null;
+						$used_aliquot_pointer['AliquotMaster']['storage_coord_y'] = null;	
 					}
 									
 					// Save data:
 					// - AliquotMaster
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { 
+					if(!$this->AliquotMaster->save($used_aliquot_pointer, false)) { 
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 					
 					// - QualityCtrlTestedAliquot
 					$this->QualityCtrlTestedAliquot->id = null;
-					$new_used_aliquot['QualityCtrlTestedAliquot']['aliquot_master_id'] = $aliquot_master_id;	
-					$new_used_aliquot['QualityCtrlTestedAliquot']['quality_ctrl_id'] = $quality_ctrl_id;	
-					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { 
+					$used_aliquot_pointer['QualityCtrlTestedAliquot']['aliquot_master_id'] = $aliquot_master_id;	
+					$used_aliquot_pointer['QualityCtrlTestedAliquot']['quality_ctrl_id'] = $quality_ctrl_id;	
+					if(!$this->QualityCtrlTestedAliquot->save($used_aliquot_pointer, false)) { 
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 
