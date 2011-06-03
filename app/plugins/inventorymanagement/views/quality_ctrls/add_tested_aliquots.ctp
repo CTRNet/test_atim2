@@ -55,7 +55,7 @@
 	);
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook('no_vol');
+	$hook_link = $structures->hook('vol');
 	if( $hook_link ) { 
 		require($hook_link); 
 	}
