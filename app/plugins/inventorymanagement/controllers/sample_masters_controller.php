@@ -1283,10 +1283,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			require($hook_link);
 		}
 	}
-	
-	function batchDerivativeFromAliquots(){
-		
-	}
 }
 	
 ?>
