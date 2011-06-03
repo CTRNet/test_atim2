@@ -1040,13 +1040,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* ----------------------------- SOURCE ALIQUOTS ---------------------------- */
 	
 	function addSourceAliquots($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if((!$collection_id) || (!$sample_master_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 
 		// Get Sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '0'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
 		// Get aliquot already defined as source
 		$existing_source_aliquots = $this->SourceAliquot->find('all', array('conditions' => array('SourceAliquot.sample_master_id'=>$sample_master_id), 'recursive' => '-1'));
@@ -1060,14 +1064,22 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get parent sample aliquot that could be defined as source
 		$criteria = array(
 			'AliquotMaster.collection_id' => $collection_id,
-			'AliquotMaster.sample_master_id' => $sample_data['SampleMaster']['parent_id']);
-		if(!empty($existing_source_aliquot_ids)) { $criteria['NOT'] = array('AliquotMaster.id' => $existing_source_aliquot_ids); }
-		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+			'AliquotMaster.sample_master_id' => $sample_data['SampleMaster']['parent_id'],
+			'OR' => array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL)),
+			'NOT' => array('AliquotMaster.id' => $existing_source_aliquot_ids)
+		);
+		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+		unset($criteria['OR']);
+		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
+		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
 		
-		if(empty($available_sample_aliquots)) {
+		if(empty($available_sample_aliquots_w_volme) && empty($available_sample_aliquots_wo_volume)){
 			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
-		
+		$available_sample_aliquots = array(
+			'vol' 		=> $available_sample_aliquots_w_volume,
+			'no_vol'	=> $available_sample_aliquots_wo_volume
+		);
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
@@ -1079,7 +1091,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) );
 
 		// Set structure
-		$this->Structures->set('sourcealiquots,sourcealiquots_volume');
+		$this->Structures->set('sourcealiquots', 'sourcealiquots');
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'sourcealiquots_volume');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -1095,53 +1108,56 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// Launch validation
 			$submitted_data_validates = true;	
 			
-			$aliquots_defined_as_source = array();
+			$aliquots_defined_as_source_pointers = array();
+			$unified_data_pointers = array();
 			$errors = array();	
 			$line_counter = 0;
-			foreach($this->data as $key => $new_studied_aliquot){
+			foreach($this->data as &$types_array_pointers){
+				foreach($types_array_pointers as &$data_unit_pointer){
+					$unified_data_pointers[] = &$data_unit_pointer;
+				}
+			}
+			foreach($unified_data_pointers as &$studied_aliquot_pointer){
 				$line_counter++;
 				
-				if($new_studied_aliquot['FunctionManagement']['use']){
+				if($studied_aliquot_pointer['FunctionManagement']['use']){
 					// New aliquot defined as source
 				
 					// Check volume
-					if((!empty($new_studied_aliquot['SourceAliquot']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
+					if((!empty($studied_aliquot_pointer['SourceAliquot']['used_volume'])) && empty($studied_aliquot_pointer['AliquotMaster']['aliquot_volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
 						$errors['SourceAliquot']['used_volume']['no volume has to be recorded for this aliquot type'][] = $line_counter; 
 						$submitted_data_validates = false;			
-					} else if(empty($new_studied_aliquot['SourceAliquot']['used_volume'])) {
+					} else if(empty($studied_aliquot_pointer['SourceAliquot']['used_volume'])) {
 						// Change '0' to null
-						$new_studied_aliquot['SourceAliquot']['used_volume'] = null;
+						$studied_aliquot_pointer['SourceAliquot']['used_volume'] = null;
 					}
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->set($new_studied_aliquot);
-					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
-					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
+					$this->AliquotMaster->set($studied_aliquot_pointer);
+					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
+					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
 					foreach($this->AliquotMaster->invalidFields() as $field => $error) { 
 						$errors['AliquotMaster'][$field][$error][] = $line_counter; 
 					}					
 					
-					// Reste data to get position data (not really required for this function)
-					$new_studied_aliquot = $this->AliquotMaster->data;				
+					// Reset data to get position data (not really required for this function)
+					$studied_aliquot_pointer = $this->AliquotMaster->data;				
 
 					// Launch Aliquot Source validation
-					$this->SourceAliquot->set($new_studied_aliquot);
-					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates: false;
+					$this->SourceAliquot->set($studied_aliquot_pointer);
+					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates : false;
 					foreach($this->SourceAliquot->invalidFields() as $field => $error) { 
 						$errors['SourceAliquot'][$field][$error][] = $line_counter; 
 					}
 					
 					// Add record to array of tested aliquots
-					$aliquots_defined_as_source[] = $new_studied_aliquot;		
+					$aliquots_defined_as_source_pointers[] = $studied_aliquot_pointer;		
 				}
-				
-				// Reset data
-				$this->data[$key] = $new_studied_aliquot;				
 			}
 			
-			if(empty($aliquots_defined_as_source)) { 
+			if(empty($aliquots_defined_as_source_pointers)) { 
 				$this->SourceAliquot->validationErrors['use'] = 'no aliquot has been defined as source aliquot';	
 				$submitted_data_validates = false;			
 			}
@@ -1166,31 +1182,31 @@ class AliquotMastersController extends InventoryManagementAppController {
 				// Launch save process
 				// Parse records to save
 				
-				foreach($aliquots_defined_as_source as $new_source_aliquot) {
+				foreach($aliquots_defined_as_source_pointers as $source_aliquot_pointer) {
 					// Get Source Aliquot Master Id
-					$aliquot_master_id = $new_source_aliquot['AliquotMaster']['id'];
+					$aliquot_master_id = $source_aliquot_pointer['AliquotMaster']['id'];
 					
 					// Set aliquot master data					
-					if($new_source_aliquot['FunctionManagement']['remove_from_storage'] || ($new_source_aliquot['AliquotMaster']['in_stock'] == 'no')) {
+					if($source_aliquot_pointer['FunctionManagement']['remove_from_storage'] || ($source_aliquot_pointer['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
-						$new_source_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_source_aliquot['AliquotMaster']['storage_coord_y'] = null;	
+						$source_aliquot_pointer['AliquotMaster']['storage_master_id'] = null;
+						$source_aliquot_pointer['AliquotMaster']['storage_coord_x'] = null;
+						$source_aliquot_pointer['AliquotMaster']['storage_coord_y'] = null;	
 					}
 					
 					// Save data:
 					// - AliquotMaster
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_source_aliquot, false)) { 
+					if(!$this->AliquotMaster->save($source_aliquot_pointer, false)) { 
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 					
 					// - SourceAliquot
 					$this->SourceAliquot->id = null;
-					$new_source_aliquot['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
-					$new_source_aliquot['SourceAliquot']['sample_master_id'] = $sample_master_id;
-					if(!$this->SourceAliquot->save($new_source_aliquot)) { 
+					$source_aliquot_pointer['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
+					$source_aliquot_pointer['SourceAliquot']['sample_master_id'] = $sample_master_id;
+					if(!$this->SourceAliquot->save($source_aliquot_pointer)) { 
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 
