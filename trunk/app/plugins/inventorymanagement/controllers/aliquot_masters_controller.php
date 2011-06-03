@@ -1079,7 +1079,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) );
 
 		// Set structure
-		$this->Structures->set('sourcealiquots');
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -1118,16 +1118,20 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->set($new_studied_aliquot);
 					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
-					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error][] = $line_counter; }					
+					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
+					foreach($this->AliquotMaster->invalidFields() as $field => $error) { 
+						$errors['AliquotMaster'][$field][$error][] = $line_counter; 
+					}					
 					
 					// Reste data to get position data (not really required for this function)
 					$new_studied_aliquot = $this->AliquotMaster->data;				
 
 					// Launch Aliquot Source validation
 					$this->SourceAliquot->set($new_studied_aliquot);
-					$submitted_data_validates = ($this->SourceAliquot->validates())? $submitted_data_validates: false;
-					foreach($this->SourceAliquot->invalidFields() as $field => $error) { $errors['SourceAliquot'][$field][$error][] = $line_counter; }
+					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates: false;
+					foreach($this->SourceAliquot->invalidFields() as $field => $error) { 
+						$errors['SourceAliquot'][$field][$error][] = $line_counter; 
+					}
 					
 					// Add record to array of tested aliquots
 					$aliquots_defined_as_source[] = $new_studied_aliquot;		
@@ -1225,7 +1229,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
 		
 		// Set structure
-		$this->Structures->set('sourcealiquots');
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -1256,17 +1260,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 			
 		// LAUNCH DELETION
-		$deletion_done = true;
-		
 		// -> Delete Realiquoting
-		if(!$this->SourceAliquot->atim_delete($source_data['SourceAliquot']['id'])) { $deletion_done = false; }	
+		$deletion_done = $this->SourceAliquot->atim_delete($source_data['SourceAliquot']['id']);	
 		
 		// -> Update volume
 		if($deletion_done) {
-			if(!$this->AliquotMaster->updateAliquotUseAndVolume($source_data['AliquotMaster']['id'], true, true)) { $deletion_done = false; }
+			$deletion_done = $this->AliquotMaster->updateAliquotUseAndVolume($source_data['AliquotMaster']['id'], true, true);
 		}
 		
 		if($deletion_done) {
