@@ -19,7 +19,7 @@ class TissueCodeDefintion extends InventorymanagementAppModel {
 		$result = array();
 		
 		foreach($this->find('all') as $new_record) {
-			$result[$new_record['TissueCodeDefintion']['tissue_source']] = 'cccc'.__($new_record['TissueCodeDefintion']['tissue_source'],true);
+			$result[$new_record['TissueCodeDefintion']['tissue_source']] = __($new_record['TissueCodeDefintion']['tissue_source'],true);
 		}
 		asort($result);
 		
@@ -30,7 +30,7 @@ class TissueCodeDefintion extends InventorymanagementAppModel {
 		$result = array();
 		
 		foreach($this->find('all') as $new_record) {
-			$result[$new_record['TissueCodeDefintion']['tissue_nature']] = 'acscascsa'.__($new_record['TissueCodeDefintion']['tissue_nature'],true);
+			$result[$new_record['TissueCodeDefintion']['tissue_nature']] = __($new_record['TissueCodeDefintion']['tissue_nature'],true);
 		}
 		asort($result);
 		

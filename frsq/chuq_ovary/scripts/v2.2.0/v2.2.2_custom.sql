@@ -435,7 +435,6 @@ INSERT INTO chuq_tissue_code_defintions (tissue_code,tissue_source,tissue_latera
 ('TMPD', 'pelvic mass', 'right','tumoral'),
 ('TMPG', 'pelvic mass', 'left','tumoral');
 
-
 ALTER TABLE sd_spe_tissues
 	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
 ALTER TABLE sd_spe_tissues_revs
@@ -446,7 +445,7 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', 'SampleDetail', '', 'chuq_tissue_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_code') , '0', '', '', '', 'chuq tissue code', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_tissue_code'), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_tissue_code'), '1', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
 
 INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE model='SampleDetail' AND field='chuq_tissue_code'), 'notEmpty', 'value is required');
@@ -454,26 +453,184 @@ INSERT INTO structure_validations (structure_field_id, rule, language_message) V
 UPDATE structure_value_domains SET source="Inventorymanagement.TissueCodeDefintion::getTissueSourceList" WHERE domain_name='tissue_source_list';
 UPDATE structure_value_domains SET source="Inventorymanagement.TissueCodeDefintion::getTissueNatureList" WHERE domain_name='chuq_tissue_nature';
 
-INSERT INTO i18n (id,en,fr) VALUES ('chuq tissue code','Tissue Code', 'Code du tissu');
+INSERT INTO i18n (id,en,fr) VALUES ('chuq tissue code','Tissue Code', 'Code du tissu'),
+('abdominal mass','abdominal mass','Masse abdominale'),
+('benin','Benin','Bénin'),
+('cyst','Cyst','Kyste'),
+('endometrium','Endometrium','Endomètre'),
+('epiplon','Epiplon','Epiplon'),
+('nodule','Nodule','Nodule'),
+('ovary','Ovary','Ovaire'),
+('pelvic mass','Pelvic Mass','Masse pelvienne'),
+('peritoneal implant','Peritoneal Implant','Implant péritonéale'),
+('peritoneum','Peritoneum','Péritoine'),
+('chuq as precision', 'AS - Precision', 'AS - Précision');
 
-ajouter prcision et validation lors ajout AS
-
-
-
-
-
-other precision...
 ALTER TABLE sd_spe_tissues
-	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
+	ADD chuq_as_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
 ALTER TABLE sd_spe_tissues_revs
-	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
+	ADD chuq_as_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', '', 'chuq_as_tissue_precision', 'input', NULL , '0', 'size=15', '', '', '', 'chuq as precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_as_tissue_precision'), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' ,`flag_add_readonly`='0', `flag_edit_readonly`='0', `flag_addgrid_readonly`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field` IN ('tissue_source', 'tissue_nature', 'tissue_laterality'));
+
+ALTER TABLE specimen_details
+	ADD chuq_evaluated_spent_time_from_coll int(10) DEFAULT NULL AFTER reception_datetime_accuracy,
+	ADD chuq_evaluated_spent_time_from_coll_unit varchar (10) DEFAULT NULL AFTER chuq_evaluated_spent_time_from_coll;
+ALTER TABLE specimen_details_revs
+	ADD chuq_evaluated_spent_time_from_coll int(10) DEFAULT NULL AFTER reception_datetime_accuracy,
+	ADD chuq_evaluated_spent_time_from_coll_unit varchar (10) DEFAULT NULL AFTER chuq_evaluated_spent_time_from_coll;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chuq_spent_time_unit', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('d', 'days'),
+('h', 'hours'),
+('mn', 'minutes');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="chuq_spent_time_unit"), (SELECT id FROM structure_permissible_values WHERE value='d' AND language_alias='days'), 1,1),
+((SELECT id FROM structure_value_domains WHERE domain_name="chuq_spent_time_unit"), (SELECT id FROM structure_permissible_values WHERE value='h' AND language_alias='hours'), 2,1),
+((SELECT id FROM structure_value_domains WHERE domain_name="chuq_spent_time_unit"), (SELECT id FROM structure_permissible_values WHERE value='mn' AND language_alias='minutes'), 3,1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SpecimenDetail', '', 'chuq_evaluated_spent_time_from_coll', 'integer_positive', NULL , '0', 'size=5', '', '', 'evaluated collection to reception spent time', ''),
+('Inventorymanagement', 'SpecimenDetail', '', 'chuq_evaluated_spent_time_from_coll_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name="chuq_spent_time_unit")  , '0', '', '', '', '', 'unit');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll'), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll_unit'), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll'), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll_unit'), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll'), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll_unit'), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll'), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='sd_spe_peritoneal_washes'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='chuq_evaluated_spent_time_from_coll_unit'), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('evaluated collection to reception spent time', 'Collection to Reception Evaluated Spent Time', 'Délai évalué entre le pr&eacute;l&egrave;vement et la r&eacute;ception');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chuq_consent_version', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('chuq ovary consent version')");
+UPDATE structure_fields SET `type` = 'select' , `setting` = '', `structure_value_domain` = (SELECT id FROM structure_value_domains WHERE domain_name="chuq_consent_version")
+WHERE `model`='ConsentMaster' AND `field` IN ('form_version');
+
+INSERT INTO `structure_permissible_values_custom_controls` (`id`, `name`, `flag_active`, `values_max_length`) VALUES
+(null, 'chuq ovary consent version', 1, 30);
+
+ALTER TABLE aliquot_masters
+ ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+ALTER TABLE aliquot_masters_revs
+ ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+
+INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
+('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
+('Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label', 'Étiquette');
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'aliquot_label');
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, `type`, flag_override_setting, `setting`, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', sf.flag_override_label, sf.language_label, sf.flag_override_tag, sf.language_tag, sf.flag_override_help, sf.language_help, sf.flag_override_type, sf.type, sf.flag_override_setting, sf.setting, sf.flag_override_default, sf.default, 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+INNER JOIN structures AS str ON str.id = sf.structure_id
+WHERE  bc_field.model = 'AliquotMaster' AND bc_field.field = 'barcode' 
+AND str.alias NOT IN ('lab_book_realiquotings_summary');
+
+UPDATE structure_formats sf, structures str, structure_fields sfield
+ SET sf.flag_add = '0' 
+ WHERE sfield.id = sf.structure_field_id AND str.id = sf.structure_id
+ AND str.alias IN ('orderitems') AND sfield.field = 'aliquot_label';
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewAliquot' AND field = 'aliquot_label');
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, `type`, flag_override_setting, `setting`, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+(SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', sf.flag_override_label, sf.language_label, sf.flag_override_tag, sf.language_tag, sf.flag_override_help, sf.language_help, sf.flag_override_type, sf.type, sf.flag_override_setting, sf.setting, sf.flag_override_default, sf.default, 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+WHERE  bc_field.model = 'ViewAliquot' AND bc_field.field = 'barcode');
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+
+
+
+
+
+
+
+
+
+barcode system code
 
 +-----------------------+
  
+ verifier revs
  
- 
-C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\Common Files\Lenovo;C:\chumi\orachumi\BIN;c:\oracle\products\lgiora920\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\ThinkPad\ConnectUtilities;C:\Program Files\Windows Imaging\;C:\Program Files\TortoiseSVN\bin;
-C:\Program Files\wamp\bin\mysql\mysql5.1.36\bin;C:\Program Files\Microsoft Application Virtualization Client;C:\Program Files\QuickTime\QTSystem\;C:\WINDOWS\system32\WindowsPowerShell\v1.0;C:\Program Files\wamp\bin\php;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\VSShell\Common7\IDE\;c:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE\PrivateAssemblies\;C:\Program Files\Microsoft SQL Server\100\Tools\Binn\;
-
 
