@@ -46,6 +46,63 @@ function postParticipantWrite(Model $m, $participant_id){
 	$ns = $invantory_data_from_file['NS'];
 	$collections = array();
 	
+	$collections['NOTES'] = $invantory_data_from_file['REMARQUE'];
+
+	$spent_time = array('default' => null, 'details' => array());
+	$spent_time_data = $invantory_data_from_file[utf8_decode('Délais chir.')];
+	if(!empty($spent_time_data)) {
+
+		$times = explode('/', strtoupper(str_replace(' ', '', $spent_time_data)));
+		foreach($times as $new) {
+			$value = '';
+			$unit = '';
+			$tissue = '';
+			
+			$new = str_replace('-','', $new);
+			$new = str_replace('JOURS','JOUR', $new);
+			
+			preg_match('/([0-9]+JOUR)/', $new, $matches_day);	
+			preg_match('/([0-9]+H)/', $new, $matches_hour);	
+			preg_match('/([0-9]+MIN\.)/', $new, $matches_mn);	
+			
+			if(!empty($matches_day)) {
+				if(sizeof($matches_day) != 2) { pr($matches_day);die('a1'); }
+				$value = str_replace('JOUR', '', $matches_day[0]);
+				$unit = 'd';
+				$tissue = str_replace($matches_day[0], '', $new);
+				
+			} else if(!empty($matches_hour)) {
+				if(sizeof($matches_hour) != 2)  {  pr($matches_hour);die('a2'); }
+				$value = str_replace('H', '', $matches_hour[0]);
+				$unit = 'h';
+				$tissue = str_replace($matches_hour[0], '', $new);
+				
+			} else if(!empty($matches_mn)) {
+				if(sizeof($matches_mn) != 2) {  pr($matches_mn);die('a3'); }
+				$value = str_replace('MIN.', '', $matches_mn[0]);
+				$unit = 'm';
+				$tissue = str_replace($matches_mn[0], '', $new);
+			
+			} else {
+				echo"<pre>$new";
+				print_r($times);
+				die('98466733');
+			} 
+		
+			if(empty($tissue)) {
+				if(!empty($spent_time['default'])) { die('3131313'); }
+				$spent_time['default'] = array('value' => $value, 'unit' => $unit);
+			} else {
+				if(!empty($spent_time['default'])) { die('3131313'); }
+				if(isset($spent_time['details'][$tissue])) {
+					echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [WARNING]: Spent time defined twice for tissue ($tissue)!</FONT><br>";
+				} else {
+					$spent_time['details'][$tissue] = array('value' => $value, 'unit' => $unit);
+				}
+			}
+		}	
+	}
+
 	// SITE  ----------------------------------------------------------------------
 
 	//	if(!empty($invantory_data_from_file['SITE'])) die("<br><FONT COLOR=\"red\" >Line ".$m->line." [SITE][ERROR]: SITE not empty!</FONT><br>");
@@ -68,7 +125,7 @@ function postParticipantWrite(Model $m, $participant_id){
 					if(array_key_exists($new_tissue, $collections)) {
 						$suffix_counter = 1;
 						while(array_key_exists($new_tissue.$suffix, $collections)) {
-							$suffix = '{'.$suffix_counter.'}';
+							$suffix = '###'.$suffix_counter.'###';
 							$suffix_counter++;
 						}	
 						echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [TISSUS][WARNING]: TISSUS code {$new_tissue} is created at least twice!</FONT><br>";						
@@ -117,7 +174,7 @@ function postParticipantWrite(Model $m, $participant_id){
 					$created_tube_nbr++;
 				}				
 			}
-			if($created_tube_nbr != $intial_tubes_nbr) echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [OCT_file][ERROR]: Nbr of tubes defined into file is wrong ($intial_tubes_nbr != $created_tube_nbr).</FONT><br>");
+			if($created_tube_nbr != $intial_tubes_nbr) echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [OCT_file][WARNING]: Nbr of tubes defined into file is wrong ($intial_tubes_nbr != $created_tube_nbr).</FONT><br>");
 		}
 	}		
 	
@@ -145,7 +202,7 @@ function postParticipantWrite(Model $m, $participant_id){
 							break;
 						case 'OV-2':
 							$new_source = 'OV';
-							$suffix = '{1}';
+							$suffix = '###1###';
 							break;
 						default;	
 					}
@@ -164,7 +221,7 @@ function postParticipantWrite(Model $m, $participant_id){
 					}
 				}				
 			}
-			if(!empty($intial_tubes_nbr) && ($created_tube_nbr != $intial_tubes_nbr)) echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSUE_file][ERROR]: Nbr of tubes defined into file is wrong ($intial_tubes_nbr != $created_tube_nbr).</FONT><br>");
+			if(!empty($intial_tubes_nbr) && ($created_tube_nbr != $intial_tubes_nbr)) echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSUE_file][WARNING]: Nbr of tubes defined into file is wrong ($intial_tubes_nbr != $created_tube_nbr).</FONT><br>");
 		}
 	}	
 	
@@ -354,7 +411,7 @@ function postParticipantWrite(Model $m, $participant_id){
 							}							
 							break;							
 						default:
-							die("<br><FONT COLOR=\"red\" >Line ".$m->line." [ERR][blood_file]: blood sample '$new_source' is not supported. </FONT><br>");		
+							die("<br><FONT COLOR=\"red\" >Line ".$m->line." [blood_file][ERROR]: blood sample '$new_source' is not supported. </FONT><br>");		
 					}
 				}				
 			}
@@ -669,19 +726,12 @@ function postParticipantWrite(Model $m, $participant_id){
 		}
 	} //End of DNA	
 	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//
+	// Display data
 	
 	echo "<br>:::::::::::::: SAMPLES SUMMARY ::::::::::::::<br>";
+	
+	echo "<br>Comments: ".$collections['NOTES'];
+	unset($collections['NOTES']);
 	
 	$space = '. . . . . . ';
 	if(empty($collections)) {
@@ -693,18 +743,49 @@ function postParticipantWrite(Model $m, $participant_id){
 				case 'blood':
 					echo '<br><FONT COLOR=\"red\" >** BLOOD</FONT><br>';
 					break;
+				
 				case 'ascite':
-					echo '<br><FONT COLOR=\"red\" >** ASCITE</FONT><br>';
+					$pent_time_message = '';
+					if(isset($spent_time['details']['ASC'])) {
+						$pent_time_message = ', **spent_time = '.
+							$spent_time['details']['ASC']['value'].
+							$spent_time['details']['ASC']['unit'];
+					} else if(isset($spent_time['default']['value'])) {
+						$pent_time_message = ', spent_time = '.
+						$spent_time['default']['value'].
+						$spent_time['default']['unit'];
+					}					
+					
+					echo '<br><FONT COLOR=\"red\" >** ASCITE '.$pent_time_message.'</FONT><br>';
 					break;
+				
 				default:
 					if($data['type'] != 'tissue') {
 						echo "<pre>";
 						print_r($collections);
 						die ('ERR: 9973671812cacacasc');
 					}
-					echo '<br><FONT COLOR=\"red\" >** TISSUE </FONT>(code : '.$data['details']['code'].', source : '.$data['details']['source'].', laterality : '.$data['details']['laterality'].', type : '.$data['details']['type'].')<br>';		
+					
+					//TODO check
+					preg_match('/(###.*###)/', $specimen_key, $matches);
+					if(!empty($matches)) {
+						echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [WARNING]: The same type of tissue has been created twice (".str_replace($matches[0], '', $specimen_key).").</FONT><br>");
+					} 
+					
+					$pent_time_message = '';
+					if(isset($spent_time['details'][$data['details']['code']])) {
+						$pent_time_message = ', **spent_time = '.
+							$spent_time['details'][$data['details']['code']]['value'].
+							$spent_time['details'][$data['details']['code']]['unit'];
+					} else if(isset($spent_time['default']['value'])) {
+						$pent_time_message = ', spent_time = '.
+							$spent_time['default']['value'].
+							$spent_time['default']['unit'];
+					}					
+					
+					echo '<br><FONT COLOR=\"red\" >** TISSUE </FONT>(code : '.$data['details']['code'].', source : '.$data['details']['source'].', laterality : '.$data['details']['laterality'].', type : '.$data['details']['type'].' '.$pent_time_message .')<br>';		
 			}
-//TODO géere les { }			
+						
 			// Display Aliquot
 			manageAliquots($m, $participant_id, $data['aliquots'], $space);
 			
@@ -713,7 +794,6 @@ function postParticipantWrite(Model $m, $participant_id){
 		}
 	}
 	echo "<br>";
-
 }
 
 //=========================================================================================================
