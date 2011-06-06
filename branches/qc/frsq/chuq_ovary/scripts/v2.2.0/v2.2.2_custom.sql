@@ -367,29 +367,74 @@ CREATE TABLE IF NOT EXISTS `chuq_tissue_code_defintions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 INSERT INTO chuq_tissue_code_defintions (tissue_code,tissue_source,tissue_laterality,tissue_nature) VALUES
-('AS','other','',''),	
+('OV', 'ovary', '',''),
+('OVD', 'ovary', 'right',''),
+('OVG', 'ovary', 'left',''),
+	
+('BOV', 'ovary', '','benin'),
+('BOVD', 'ovary', 'right','benin'),
+('BOVG', 'ovary', 'left','benin'),
+		
+('KOV', 'ovary', '','cyst'),
+('KOVD', 'ovary', 'right','cyst'),
+('KOVG', 'ovary', 'left','cyst'),
+		
+('NOV', 'ovary', '','normal'),
+('NOVD', 'ovary', 'right','normal'),
+('NOVG', 'ovary', 'left','normal'),
+		
+('TOV', 'ovary', '','tumoral'),
+('TOVD', 'ovary', 'right','tumoral'),
+('TOVG', 'ovary', 'left','tumoral'),
+		
+('AP', 'other', '',''),
+('APD', 'other', 'right',''),
+('APG', 'other', 'left',''),
+	
+('NAP', 'other', '','normal'),
+('NAPD', 'other', 'right','normal'),
+('NAPG', 'other', 'left','normal'),
+		
+('TAP', 'other', '','tumoral'),
+('TAPD', 'other', 'right','tumoral'),
+('TAPG', 'other', 'left','tumoral'),
+	
+('EP', 'epiplon', '',''),
+('EPD', 'epiplon', 'right',''),
+('EPG', 'epiplon', 'left',''),
 
-('MA','abdominal mass','',''),	
-('KYSTE ','cyst','',''),	
-('E','endometrium','',''),	
-('G','endometrium','',''),	
-('EP','epiplon','',''),	
-('NODUL','nodule','',''),	
-('BOVD','ovary','right','benin'),	
-('BOVG','ovary','left','benin'),	
-('KOVD','ovary','right','benin'),	
-('KOVG','ovary','left','benin'),	
-('NOVD','ovary','right','normal'),	
-('OV','ovary','unknown','unknown'),	
-('OVD','ovary','right','unknown'),	
-('OVG','ovary','left','unknown'),	
-('NOVG','ovary','left','normal'),	
-('TOVD','ovary','right','malignant'),	
-('TOVG','ovary','left','malignant'),	
-('TOV','ovary','','malignant'),	
-('MP','pelvic mass','',''),	
-('IP','peritoneal implant','',''),	
-('NP','peritoneum','','');	
+('NEP', 'epiplon', '','normal'),
+('NEPD', 'epiplon', 'right','normal'),
+('NEPG', 'epiplon', 'left','normal'),
+		
+('TEP', 'epiplon', '','tumoral'),
+('NEPD', 'epiplon', 'right','tumoral'),
+('NEPG', 'epiplon', 'left','tumoral'),
+	
+('IP', 'peritoneal implant', '',''),
+('IPD', 'peritoneal implant', 'right',''),
+('IPG', 'peritoneal implant', 'left',''),
+		
+('NIP', 'peritoneal implant', '','normal'),
+('NIPD', 'peritoneal implant', 'right','normal'),
+('NIPG', 'peritoneal implant', 'left','normal'),
+		
+('TIP', 'peritoneal implant', '','tumoral'),
+('TIPD', 'peritoneal implant', 'right','tumoral'),
+('TIPG', 'peritoneal implant', 'left','tumoral'),
+
+('MP', 'pelvic mass', '',''),
+('MPD', 'pelvic mass', 'right',''),
+('MPG', 'pelvic mass', 'left',''),
+		
+('NMP', 'pelvic mass', '','normal'),
+('NMPD', 'pelvic mass', 'right','normal'),
+('NMPG', 'pelvic mass', 'left','normal'),
+		
+('TMP', 'pelvic mass', '','tumoral'),
+('TMPD', 'pelvic mass', 'right','tumoral'),
+('TMPG', 'pelvic mass', 'left','tumoral');
+
 
 ALTER TABLE sd_spe_tissues
 	ADD chuq_tissue_code varchar(50) DEFAULT NULL AFTER sample_master_id;
@@ -428,6 +473,7 @@ ALTER TABLE sd_spe_tissues_revs
  
  
  
- 
+C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\Common Files\Lenovo;C:\chumi\orachumi\BIN;c:\oracle\products\lgiora920\bin;C:\Program Files\Oracle\jre\1.3.1\bin;C:\Program Files\Oracle\jre\1.1.8\bin;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\ThinkPad\ConnectUtilities;C:\Program Files\Windows Imaging\;C:\Program Files\TortoiseSVN\bin;
+C:\Program Files\wamp\bin\mysql\mysql5.1.36\bin;C:\Program Files\Microsoft Application Virtualization Client;C:\Program Files\QuickTime\QTSystem\;C:\WINDOWS\system32\WindowsPowerShell\v1.0;C:\Program Files\wamp\bin\php;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\;c:\Program Files\Microsoft SQL Server\100\DTS\Binn\;c:\Program Files\Microsoft SQL Server\100\Tools\Binn\VSShell\Common7\IDE\;c:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE\PrivateAssemblies\;C:\Program Files\Microsoft SQL Server\100\Tools\Binn\;
 
 

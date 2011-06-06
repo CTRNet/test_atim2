@@ -146,11 +146,12 @@ function postParticipantWrite(Model $m, $participant_id){
 
 	// OCT FROM FILE ---------------------------------------------------------------------- 
 
-	$aliquot_type = 'oct tube';
+	$aliquot_type = 'oct block';
 	if(isset($m->boxesData[$ns]['OCT'])) {
 		foreach($m->boxesData[$ns]['OCT'] as $new_octs) {
 			$storage = str_replace('BT#', '', str_replace(' ','', $new_octs['box']));
 			$intial_tubes_nbr = str_replace(' ','', $new_octs['nbr_tubes']);
+			if(empty($intial_tubes_nbr)) $intial_tubes_nbr = 1;
 			$sources = explode(',', strtoupper(str_replace(' ','', $new_octs['samples'])));
 			$created_tube_nbr = 0;
 			foreach($sources as $new_source) {
@@ -185,6 +186,7 @@ function postParticipantWrite(Model $m, $participant_id){
 		foreach($m->boxesData[$ns]['TISSU'] as $new_forzen_tubes) {
 			$storage = str_replace('BT#', '', str_replace(' ','', $new_forzen_tubes['box']));
 			$intial_tubes_nbr = str_replace(' ','', $new_forzen_tubes['nbr_tubes']);
+			if(empty($intial_tubes_nbr)) $intial_tubes_nbr = 1;
 			$sources = explode(',', strtoupper(str_replace(' ','', $new_forzen_tubes['samples'])));
 			$created_tube_nbr = 0;
 			foreach($sources as $new_source) {
@@ -228,10 +230,10 @@ function postParticipantWrite(Model $m, $participant_id){
 	// FFPE ----------------------------------------------------------------------
 	
 	$aliquot_type = 'paraffin block';
-	$storage = empty($invantory_data_from_file['BOITE FFPE'])? null : $invantory_data_from_file['BOITE FFPE'];
+	$storage = empty($invantory_data_from_file['boite FFPE'])? null : $invantory_data_from_file['boite FFPE'];
 	if(!is_null($storage)) {
 		preg_match('/^([0-9]+)$/', $storage, $matches);
-		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['BOITE FFPE']);
+		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['boite FFPE']);
 	}
 	if(!empty($invantory_data_from_file['FFPE'])) {
 		$pbs_tmp = str_replace(' ', '', $invantory_data_from_file['FFPE']);
@@ -494,6 +496,39 @@ function postParticipantWrite(Model $m, $participant_id){
 							}
 							break;
 						case 'NC':
+							die ('8981239123');
+							break;
+						default:
+							die("<br><FONT COLOR=\"red\" >Line ".$m->line." [ERR][ASCITE_file]: Ascite sample '$new_source' is not supported. </FONT><br>");		
+					}
+				}				
+			}
+		}
+	}
+	
+	// ASC NC FROM FILE ---------------------------------------------------------------------- 
+	
+	$aliquot_type = 'tube';
+	if(isset($m->boxesData[$ns]['ASC_NC'])) {
+		foreach($m->boxesData[$ns]['ASC_NC'] as $ascite_tubes) {
+			$storage = str_replace('BT#', '', str_replace(' ','', $ascite_tubes['box']));
+			if(!empty($ascite_tubes['nbr_tubes'])) die("ERR:dadaad9");
+			$sources = explode(',', strtoupper(str_replace(' ','', $ascite_tubes['samples'])));
+			foreach($sources as $new_source) {
+				if(!empty($new_source)) {
+					if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+					
+					preg_match('/^([0-9]+)/', $new_source, $matches);	
+					$tubes_nbr = empty($matches)? '1' : $matches[1];
+					$new_source = str_replace($tubes_nbr, '', $new_source);	
+					
+					switch($new_source) {
+						case 'ASC':
+						case 'S':
+						case 'SASC':
+							die ('8981239123');
+							break;
+						case 'NC':
 							if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 							while($tubes_nbr > 0) { 
 								$collections['ascite']['derivatives']['ascite cells']['aliquots'][] = array('type' =>$aliquot_type,'storage' => $storage); 
@@ -501,7 +536,7 @@ function postParticipantWrite(Model $m, $participant_id){
 							}
 							break;
 						default:
-							die("<br><FONT COLOR=\"red\" >Line ".$m->line." [ERR][ASCITE_file]: Ascite sample '$new_source' is not supported. </FONT><br>");		
+							die("<br><FONT COLOR=\"red\" >Line ".$m->line." [ERR][ASCITE_NC_file]: Ascite sample '$new_source' is not supported. </FONT><br>");		
 					}
 				}				
 			}
@@ -585,10 +620,10 @@ function postParticipantWrite(Model $m, $participant_id){
 	// RNA ----------------------------------------------------------------------
 	
 	$aliquot_type = 'tube';
-	$storage = empty($invantory_data_from_file['BOITE ARN'])? null : $invantory_data_from_file['BOITE ARN'];
+	$storage = empty($invantory_data_from_file['boite ARN'])? null : $invantory_data_from_file['boite ARN'];
 	if(!is_null($storage)) {
 		preg_match('/^([0-9]+)$/', $storage, $matches);
-		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['BOITE ARN']);
+		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['boite ARN']);
 	}	
 	if(!empty($invantory_data_from_file['RNA (PC)'])) {
 		$rnas_tmp = str_replace(' ', '', $invantory_data_from_file['RNA (PC)']);
@@ -657,10 +692,10 @@ function postParticipantWrite(Model $m, $participant_id){
 	// DNA ----------------------------------------------------------------------
 
 	$aliquot_type = 'tube';
-	$storage = empty($invantory_data_from_file['BOITE ADN'])? null : $invantory_data_from_file['BOITE ADN'];
+	$storage = empty($invantory_data_from_file['boite ADN'])? null : $invantory_data_from_file['boite ADN'];
 	if(!is_null($storage)) {
 		preg_match('/^([0-9]+)$/', $storage, $matches);
-		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['BOITE ADN']);
+		if(empty($matches)) die('ER:98873 -'.$invantory_data_from_file['boite ADN']);
 	}	
 	if((!empty($invantory_data_from_file['DNA(PC)'])) && ($invantory_data_from_file['DNA(PC)'] != ' ')) {
 		$dnas_tmp = str_replace(' ', '', $invantory_data_from_file['DNA(PC)']);
@@ -803,31 +838,79 @@ function postParticipantWrite(Model $m, $participant_id){
 function setDataForpostParticipantWrite(Model &$m) {
 	
 	$m->tissueCode2Details = array(
+		//OV:ovary
 		'OV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => ''),
 		'OVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => ''),
 		'OVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => ''),
+	
+		'BOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'benin'),
 		'BOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
 		'BOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
+		
 		'KOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'cyst'),
 		'KOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'cyst'),
 		'KOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'cyst'),
+		
 		'NOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'normal'),
 		'NOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
 		'NOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
+		
 		'TOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'tumoral'),
 		'TOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'tumoral'),
 		'TOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'tumoral'),
 		
+		//AP: other
 		'AP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => ''),
+		'APD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => ''),
+		'APG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => ''),
+	
+		'NAP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => 'normal'),
+		'NAPD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => 'normal'),
+		'NAPG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TAP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => 'tumoral'),
+		'TAPD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TAPG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => 'tumoral'),
+	
+		//EP: epiplon
 		'EP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => ''),
 		'EPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => ''),
 		'EPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => ''),
+
 		'NEP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => 'normal'),
+		'NEPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => 'normal'),
+		'NEPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => 'normal'),
+		
 		'TEP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => 'tumoral'),
+		'NEPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => 'tumoral'),
+		'NEPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => 'tumoral'),
+	
+		//IP: peritoneal implant
 		'IP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => ''),
-		'IPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => ''),
 		'IPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => ''),
-		'MP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => ''));
+		'IPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => ''),
+		
+		'NIP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => 'normal'),
+		'NIPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => 'normal'),
+		'NIPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TIP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => 'tumoral'),
+		'TIPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TIPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => 'tumoral'),
+
+		//MP: pelvic mass
+		'MP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => ''),
+		'MPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => ''),
+		'MPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => ''),
+		
+		'NMP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => 'normal'),
+		'NMPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => 'normal'),
+		'NMPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TMP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => 'tumoral'),
+		'TMPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TMPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => 'tumoral')
+	);
 	foreach($m->tissueCode2Details as $key => $detail) {
 		$m->tissueCode2Details[$key]['code'] = $key;
 	}
@@ -843,14 +926,13 @@ function setDataForpostParticipantWrite(Model &$m) {
 		'OVGN' => 'NOVG',
 		'OVDT' => 'TOVD',
 		'OVGT' => 'TOVG',
-		'OG' => 'OVG', //TODO: to confirm
-		'VG' => 'OVG', //TODO: to confirm
+		'OG' => 'OVG',
+		'VG' => 'OVG',
 		'VOG' => 'OVG',
-		'EPPD' => 'EPD', //TODO: to confirm
+		'EPPD' => 'EPD', 
 		'M.P' => 'MP',
-	//TODO: to confirm
-		'MT' => 'AP',
-		'ANXG' => 'AP');
+		'MT' => 'OV',
+		'ANXG' => 'OVG');
 
 	$m->ovCodes = array();
 	foreach($m->tissueCode2Details as $code => $data) {
@@ -864,11 +946,11 @@ function getBoxesDataFromFile() {
 	$boxes_data = array();
 	
 	$xls_reader_boxes = new Spreadsheet_Excel_Reader();
-	$xls_reader_boxes->read( "/Documents and Settings/u703617/Desktop/Banque_Bachvarov_boites_20110603.xls");
+	$xls_reader_boxes->read( "/Documents and Settings/u703617/Desktop/chuq_boites_20110606_17h10.xls");
 	
 	$sheets_nbr = array();
 	foreach($xls_reader_boxes->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
-
+	
 	// TISSU
 	
 	foreach($xls_reader_boxes->sheets[$sheets_nbr['TISSU']]['cells'] as $line => $new_line) {
@@ -943,6 +1025,21 @@ function getBoxesDataFromFile() {
 				'box' => strtoupper($new_line['3']));
 		}	
 	}
+	
+	// ASCITE NC
+	
+	foreach($xls_reader_boxes->sheets[$sheets_nbr['ASC NC']]['cells'] as $line => $new_line) {
+		preg_match('/^([0-9]+)$/', $new_line['1'], $matches);
+		if(!empty($matches)) { 
+			$ns = $new_line['1'];
+			if(!isset($new_line['2'])) { echo"<pre>";print_r($new_line);die('Err7c335-'.$line); }
+			if(!isset($new_line['3'])) { echo"<pre>";print_r($new_line);die('Err1193-'.$line); }
+			$boxes_data[$ns]['ASC_NC'][] = array(
+				'samples' => $new_line['3'], 
+				'nbr_tubes' => null, 
+				'box' => strtoupper($new_line['2']));
+		}	
+	}	
 	
 	// SANG
 	
