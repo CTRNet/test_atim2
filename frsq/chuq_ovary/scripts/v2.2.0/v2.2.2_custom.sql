@@ -730,3 +730,37 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN('lab
 UPDATE structure_formats SET `language_heading`='', `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='in_stock_detail') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='parent aliquot data update' WHERE structure_id=(SELECT id FROM structures WHERE alias='in_stock_detail') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+SET @sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood');
+SET @old_aliquot_control_id = (SELECT aliquot_control_id FROM sample_to_aliquot_controls AS link
+INNER JOIN aliquot_controls as al on link.aliquot_control_id = al.id
+WHERE link.sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood')
+AND aliquot_type = 'tube');
+
+INSERT INTO aliquot_controls (aliquot_type, aliquot_type_precision, form_alias, detail_tablename, volume_unit, comment, display_order, databrowser_label) VALUES
+('tube', 'blood tube', 'aliquot_masters,ad_spec_tubes_incl_ml_vol,chuq_blood_tube_solution', 'ad_tubes', 'ml', 'Blood tube', 0, 'tube');
+SET @new_aliquot_control_id = LAST_INSERT_ID();
+
+UPDATE sample_to_aliquot_controls SET aliquot_control_id=@new_aliquot_control_id WHERE aliquot_control_id=@old_aliquot_control_id
+AND sample_control_id = @sample_control_id;
+
+ALTER TABLE ad_tubes
+	ADD chuq_blood_solution varchar(20) DEFAULT NULL AFTER cell_count_unit;
+ALTER TABLE ad_tubes_revs
+	ADD chuq_blood_solution varchar(20) DEFAULT NULL AFTER cell_count_unit;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chuq_blood_solutions', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('RNA later', 'RNA later');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="chuq_blood_solutions"), 
+(SELECT id FROM structure_permissible_values WHERE value='RNA later' AND language_alias='RNA later'), 1,1);
+
+INSERT INTO structures (alias) VALUES ('chuq_blood_tube_solution');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', '', 'chuq_blood_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name="chuq_blood_solutions") , '0', '', '', '', '', 'storage solution');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chuq_blood_tube_solution'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='chuq_blood_solution'), 
+'1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+INSERT into i18n (id,en,fr) VALUES ('storage solution', 'Storage Solution', 'Solution d''entreposage');
+

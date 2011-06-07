@@ -46,12 +46,15 @@ $model = new MasterDetailModel(0, $pkey, $child, true, "participant_id", 'diagno
 		
 //we can then attach post read/write functions
 $model->custom_data = array();
+$model->post_read_function = 'postDiagnosisRead';
 
 //adding this model to the config
 Config::$models['DiagnosisMaster'] = $model;
 
 		
-
+function postDiagnosisRead(Model $m){
+	$m->values['Diagnostic'] = utf8_encode($m->values['Diagnostic']);
+}
 
 
 

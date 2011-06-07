@@ -26,7 +26,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				break;	
 	
 			case 'blood':
-				$prefix = '?';
+				$prefix = '?';	//C
 				break;	
 			case 'plasma':
 				$prefix = 'P';
@@ -35,7 +35,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'SE';
 				break;					
 			case 'pbmc':
-				$prefix = 'BC';
+				$prefix = 'C';
 				break;	
 			case 'peritoneal wash':
 			case 'peritoneal wash cell ':
