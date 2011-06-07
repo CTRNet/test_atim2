@@ -414,7 +414,8 @@ class AppModel extends Model {
 	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
 	 * @return An ATiM model 
 	 * 
-	 * @deprecated use ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance
+	 * @deprecated use AppModel::getInstance to get an instance. One will be created if none exists. If you
+	 * want a new one, use ClassRegistry::init.
 	 * TODO: delete for ATiM 2.4
 	 */
 	static function atimNew($plugin_name, $class_name, $error_view_on_null){

@@ -24,7 +24,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		'Inventorymanagement.AliquotInternalUse',
 		'Inventorymanagement.Realiquoting',
 		'Inventorymanagement.SourceAliquot',
-		'Inventorymanagement.QualityCtrlTestedAliquot',	
 		'Inventorymanagement.AliquotReviewMaster',
 		'Order.OrderItem',
 	

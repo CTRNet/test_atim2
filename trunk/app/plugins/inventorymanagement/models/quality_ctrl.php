@@ -4,12 +4,11 @@ class QualityCtrl extends InventoryManagementAppModel {
 
   var $belongsTo = array('SampleMaster' =>
 		array('className' => 'Inventorymanagement.SampleMaster',
-			'foreignKey' => 'sample_master_id'));
-			
-	var $hasMany = array(
-		'QualityCtrlTestedAliquot' => array(
-			'className'   => 'Inventorymanagement.QualityCtrlTestedAliquot',
-			 'foreignKey'  => 'quality_ctrl_id'));			 			
+			'foreignKey' => 'sample_master_id'),
+		'AliquotMaster' => array(
+			'className'   => 'Inventorymanagement.AliquotMaster',
+			 	'foreignKey'  => 'aliquot_master_id')
+	);
 			
 	function summary($variables=array()) {
 		$return = false;
@@ -48,13 +47,6 @@ class QualityCtrl extends InventoryManagementAppModel {
 	 * @since 2007-10-16
 	 */
 	function allowDeletion($quality_ctrl_id){
-		// Check no aliquot has been linked to qc
-		$quality_ctrl_tested_aliquot_model = AppModel::getInstance("InventoryManagement", "QualityCtrlTestedAliquot", true);	
-		$returned_nbr = $quality_ctrl_tested_aliquot_model->find('count', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'aliquot has been linked to the deleted qc'); 
-		}
-		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
