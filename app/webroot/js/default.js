@@ -618,7 +618,11 @@ function uncheckAll( $div ) {
 				}
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
-					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+					var parentTd = getParentElement(this, "TD");
+					if($(parentTd).find(".labBook").length == 0){
+						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+						$(parentTd).find(".datepicker").hide();
+					}
 				}
 			}
 			if(currName.indexOf("[sync_with_lab_book]") > 0){
@@ -676,6 +680,7 @@ function uncheckAll( $div ) {
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 		initDatepicker("#default_popup");
 		initTooltips("#default_popup");
+		initAccuracy("#default_popup");
 		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
 			$(this).hide();
 			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
