@@ -462,8 +462,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 
 		// Check aliquot is not linked to a qc	
-		$quality_ctrl_tested_aliquot_model = AppModel::getInstance("Inventorymanagement", "QualityCtrlTestedAliquot", true);
-		$returned_nbr = $quality_ctrl_tested_aliquot_model->find('count', array('conditions' => array('QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
+		$quality_ctrl_model = AppModel::getInstance("Inventorymanagement", "QualityCtrl", true);
+		$returned_nbr = $quality_ctrl_model->find('count', array('conditions' => array('QualityCtrl.aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'quality control data exists for the deleted aliquot'); 
 		}

@@ -47,8 +47,14 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("no aliquot has been defined as sample tested aliquot",
  "No aliquot has been defined as sample tested aliquot",
  "Aucun aliquot de l'échantillon n'a été défini comme testé"),
-("aliquots without volume", "Aliquots without volume", "Aliquots sans volume",
-("aliquots with volume", "Aliquots with volume", "Aliquots avec volume");
+("aliquots without volume", "Aliquots without volume", "Aliquots sans volume"),
+("aliquots with volume", "Aliquots with volume", "Aliquots avec volume"),
+("create quality control", "Create quality control", "Créer un contrôle de qualité"),
+("this aliquot has no recorded volume", "This aliquot has no recorded volume", "Cet aliquot n'a aucun volume enregistré"), 
+("the inputed volume was automatically removed", "The inputed volume was automatically removed", "La valeur de volume entrée a été automatiquement retirée"),
+("quality control creation process", "Quality control creation process", "Processus de création de contrôle de qualité"),
+("used aliquot", "Used aliquot", "Aliquot utilisé");
+
 
 DROP TABLE datamart_batch_processes;
 
@@ -563,3 +569,209 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qctestedaliquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `language_label`='current volume' AND `language_tag`='' AND `type`='float' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qctestedaliquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qctestedaliquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='QualityCtrlTestedAliquot' AND `tablename`='quality_ctrl_tested_aliquots' AND `field`='used_volume' AND `language_label`='used volume' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+ALTER TABLE quality_ctrls
+ ADD COLUMN aliquot_master_id INT DEFAULT NULL AFTER notes,
+ ADD COLUMN used_volume DECIMAL(10,5) DEFAULT NULL AFTER aliquot_master_id,
+ ADD FOREIGN KEY (aliquot_master_id) REFERENCES aliquot_masters(id);
+ALTER TABLE quality_ctrls_revs
+ ADD COLUMN aliquot_master_id INT DEFAULT NULL AFTER notes,
+ ADD COLUMN used_volume DECIMAL(10,5) DEFAULT NULL AFTER aliquot_master_id;
+
+UPDATE quality_ctrls AS qc
+INNER JOIN quality_ctrl_tested_aliquots AS qcta ON qcta.quality_ctrl_id=qc.id
+SET qc.aliquot_master_id=qcta.aliquot_master_id, qc.used_volume=qcta.used_volume;
+
+INSERT INTO quality_ctrls_revs(id, qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
+aliquot_master_id, used_volume, created, created_by, modified, modified_by, deleted, version_created)
+(SELECT qc1.id, qc1.qc_code, qc1.sample_master_id, qc1.type, qc1.qc_type_precision, qc1.tool, qc1.run_id, qc1.run_by, 
+qc1.date, qc1.score, qc1.unit, qc1.conclusion, qc1.notes, 
+qcta.aliquot_master_id, qcta.used_volume, qc1.created, qc1.created_by, qcta.modified, qcta.modified_by, qcta.deleted, qcta.modified
+FROM quality_ctrl_tested_aliquots_revs AS qcta
+LEFT JOIN quality_ctrls_revs AS qc1 ON qcta.quality_ctrl_id=qc1.id AND qcta.modified >= qc1.modified
+LEFT JOIN quality_ctrls_revs AS qc2 ON qcta.quality_ctrl_id=qc2.id AND qcta.modified >= qc2.modified AND qc1.modified <	 qc2.modified
+WHERE qc2.id IS NULL);
+
+DROP TABLE quality_ctrl_tested_aliquots;
+DROP TABLE quality_ctrl_tested_aliquots_revs;
+
+DROP VIEW view_aliquot_uses;
+
+CREATE VIEW view_aliquot_uses AS 
+
+SELECT 
+CONCAT(source.id, 1) AS id,
+aliq.id AS aliquot_master_id,
+'sample derivative creation' AS use_definition, 
+samp.sample_code AS use_code,
+'' AS use_details,
+source.used_volume,
+aliq.aliquot_volume_unit,
+der.creation_datetime AS use_datetime,
+der.creation_by AS used_by,
+source.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
+samp2.id AS sample_master_id,
+samp2.collection_id AS collection_id
+FROM source_aliquots AS source
+INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
+INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE source.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(realiq.id, 2) AS id,
+aliq.id AS aliquot_master_id,
+'realiquoted to' AS use_definition, 
+child.barcode AS use_code,
+'' AS use_details,
+realiq.parent_used_volume AS used_volume,
+aliq.aliquot_volume_unit,
+realiq.realiquoting_datetime AS use_datetime,
+realiq.realiquoted_by AS used_by,
+realiq.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM realiquotings AS realiq
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE realiq.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(qc.id, 3) AS id,
+aliq.id AS aliquot_master_id,
+'quality control' AS use_definition, 
+qc.qc_code AS use_code,
+'' AS use_details,
+qc.used_volume,
+aliq.aliquot_volume_unit,
+qc.date AS use_datetime,
+qc.run_by AS used_by,
+qc.created,
+CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM quality_ctrls AS qc
+INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE qc.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(item.id, 4) AS id,
+aliq.id AS aliquot_master_id,
+'aliquot shipment' AS use_definition, 
+sh.shipment_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+sh.datetime_shipped AS use_datetime,
+sh.shipped_by AS used_by,
+sh.created,
+CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM order_items AS item
+INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE item.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(alr.id, 5) AS id,
+aliq.id AS aliquot_master_id,
+'specimen review' AS use_definition, 
+spr.review_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+spr.review_date AS use_datetime,
+'' AS used_by,
+alr.created,
+CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_review_masters AS alr
+INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE alr.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(aluse.id, 6) AS id,
+aliq.id AS aliquot_master_id,
+'internal use' AS use_definition, 
+aluse.use_code,
+aluse.use_details,
+aluse.used_volume,
+aliq.aliquot_volume_unit,
+aluse.use_datetime,
+aluse.used_by,
+aluse.created,
+CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_internal_uses AS aluse
+INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE aluse.deleted != 1;
+
+INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
+(1, 'create quality control', '/inventorymanagement/quality_ctrls/add/', 1),
+(5, 'create quality control', '/inventorymanagement/quality_ctrls/add/', 1);
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='tool' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_qc_tool') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='score' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='conclusion' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_conclusion') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_type_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '0', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('qualityctrls_volume');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'QualityCtrl', 'quality_ctrls', 'used_volume', 'float_positive',  NULL , '0', 'size=5', '', '', 'used volume', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls_volume'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_type', 'input',  NULL , '0', '', '', '', 'aliquot type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type='autocomplete'), '0', '30', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot type' AND `language_tag`=''), '0', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `language_heading`='quality control' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `language_heading`='used aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' and type='autocomplete');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+INSERT INTO structures(`alias`) VALUES ('qualityctrls_volume_for_detail');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotControl', 'aliquot_controls', 'volume_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls_volume_for_detail'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls_volume_for_detail'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structures(`alias`) VALUES ('aliquotmasters_volume');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotmasters_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '30', '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '25', '', '0', '', '0', '', '0', '', '1', 'float', '1', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
