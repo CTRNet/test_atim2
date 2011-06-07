@@ -408,8 +408,8 @@ INSERT INTO chuq_tissue_code_defintions (tissue_code,tissue_source,tissue_latera
 ('NEPG', 'epiplon', 'left','normal'),
 		
 ('TEP', 'epiplon', '','tumoral'),
-('NEPD', 'epiplon', 'right','tumoral'),
-('NEPG', 'epiplon', 'left','tumoral'),
+('TEPD', 'epiplon', 'right','tumoral'),
+('TEPG', 'epiplon', 'left','tumoral'),
 	
 ('IP', 'peritoneal implant', '',''),
 ('IPD', 'peritoneal implant', 'right',''),
@@ -464,17 +464,17 @@ INSERT INTO i18n (id,en,fr) VALUES ('chuq tissue code','Tissue Code', 'Code du t
 ('pelvic mass','Pelvic Mass','Masse pelvienne'),
 ('peritoneal implant','Peritoneal Implant','Implant péritonéale'),
 ('peritoneum','Peritoneum','Péritoine'),
-('chuq as precision', 'AS - Precision', 'AS - Précision');
+('chuq ap precision', 'AP - Precision', 'AP - Précision');
 
 ALTER TABLE sd_spe_tissues
-	ADD chuq_as_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
+	ADD chuq_ap_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
 ALTER TABLE sd_spe_tissues_revs
-	ADD chuq_as_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
+	ADD chuq_ap_tissue_precision varchar(50) DEFAULT NULL AFTER chuq_tissue_code;
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Inventorymanagement', 'SampleDetail', '', 'chuq_as_tissue_precision', 'input', NULL , '0', 'size=15', '', '', '', 'chuq as precision');
+('Inventorymanagement', 'SampleDetail', '', 'chuq_ap_tissue_precision', 'input', NULL , '0', 'size=15', '', '', '', 'chuq ap precision');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_as_tissue_precision'), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='chuq_ap_tissue_precision'), '1', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0' ,`flag_add_readonly`='0', `flag_edit_readonly`='0', `flag_addgrid_readonly`='0' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') 
@@ -540,6 +540,9 @@ INSERT INTO structure_fields(plugin, model, tablename, field, language_label, la
 ('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
 INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
 ('Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='aliquot_label' ), 'notEmpty', '', 'value is required');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label', 'Étiquette');
 
@@ -618,19 +621,108 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
+INSERT INTO i18n (id, en, fr) VALUES
+("sample system code", "Sample System Code", "Code système d'échantillon"),
+("aliquot system code", "Aliquot system code", "Code système d'aliquot");
 
+-- update sample code label to sample system code
+UPDATE structure_fields SET language_label='sample system code' WHERE field='sample_code';
 
+CREATE TABLE tmp
+(SELECT sf1.id, MAX(sf2.display_column) AS display_column, MAX(sf2.display_order) AS display_order FROM structure_formats AS sf1 
+INNER JOIN structure_formats AS sf2 ON sf1.structure_id=sf2.structure_id
+WHERE sf1.structure_field_id IN (SELECT id FROM structure_fields WHERE field='sample_code')
+GROUP BY sf1.structure_id);
 
+UPDATE structure_formats AS sf1 
+INNER JOIN tmp AS sf2 USING(id)
+SET sf1.display_column=sf2.display_column, sf1.display_order=sf2.display_order + 1;
 
+DROP TABLE tmp;
 
+UPDATE structure_formats SET `language_heading`='system data' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field='sample_code');
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('system data', 'System Data', 'Données système');
 
+CREATE TABLE tmp
+(SELECT sf1.id, MAX(sf2.display_column) AS display_column, MAX(sf2.display_order) AS display_order FROM structure_formats AS sf1 
+INNER JOIN structure_formats AS sf2 ON sf1.structure_id=sf2.structure_id
+WHERE sf1.structure_field_id IN (SELECT id FROM structure_fields WHERE field='barcode' AND model IN('AliquotMaster', 'AliquotMasterChildren', 'ViewAliquot'))
+GROUP BY sf1.structure_id);
 
+UPDATE structure_formats AS sf1 
+INNER JOIN tmp AS sf2 USING(id)
+SET sf1.display_column=sf2.display_column, sf1.display_order=sf2.display_order + 1, sf1.flag_add=0, sf1.flag_edit_readonly='1', sf1.flag_addgrid=0, sf1.flag_editgrid_readonly='1', sf1.flag_batchedit_readonly='1';
 
-barcode system code
+DROP TABLE tmp;
 
-+-----------------------+
- 
- verifier revs
- 
+-- rename barcode to aliquot system code
+UPDATE structure_fields
+SET language_label='aliquot system code'
+WHERE field='barcode' AND model IN('AliquotMaster', 'AliquotMasterChildren', 'ViewAliquot');
 
+SET @display_order = (SELECT display_order FROM structure_formats 
+WHERE structure_id = (SELECT id FROM structures WHERE  alias='aliquot_masters') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode' AND model IN('AliquotMaster')));
+
+UPDATE structure_formats
+SET display_order = (@display_order + 1)
+WHERE structure_id IN (SELECT id FROM structures WHERE  alias LIKE 'ad_%')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'created' AND model IN('AliquotMaster'));
+
+UPDATE structure_formats
+SET language_heading = 'system data'
+WHERE structure_id IN (SELECT id FROM structures WHERE  alias = 'aliquot_masters')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode' AND model IN('AliquotMaster'));
+
+UPDATE structure_formats AS sfo, structure_fields AS sfi
+SET sfo.flag_add = '0', sfo.flag_add_readonly = '0', 
+sfo.flag_edit = '0', sfo.flag_edit_readonly = '0',
+sfo.flag_search = '0', sfo.flag_search_readonly = '0',
+sfo.flag_index = '0', sfo.flag_detail = '0'
+WHERE sfi.field = 'barcode'
+AND  sfi.model = 'StorageMaster'
+AND sfi.id = sfo.structure_field_id;
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+col.collection_datetime, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+samp.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+UPDATE structure_formats
+SET flag_add=0, flag_edit=0, flag_addgrid=0, flag_editgrid=0, flag_search=0, flag_index=0, flag_detail=0, flag_batchedit=0, flag_summary=0
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN('lab_book_master_code', 'lab_book_master_id', 'sync_with_lab_book', 'sync_with_lab_book_now'));
