@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/Banque_Bachvarov_final_data_20110603.xls";//file to read
+	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/chuq_all_20110606_17h10.xls";//file to read
 	static $xls_header_rows = 1;
 	
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
