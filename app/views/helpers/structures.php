@@ -248,7 +248,7 @@ class StructuresHelper extends Helper {
 			}else if(isset($atim_structure['Structure'])){
 				$tmp[] = $atim_structure['Structure']['alias'];
 			}
-			echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
+			//echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
 		}
 		
 		// DEFAULT set of options, overridden by PASSED options
@@ -699,7 +699,7 @@ class StructuresHelper extends Helper {
 				}
 				
 				$display = "";
-				if($options['type'] != "search"){
+				if($options['type'] != "search" && strpos($table_row_part['setting'], 'accuracy') !== false){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
 				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings'])
