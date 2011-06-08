@@ -1373,3 +1373,37 @@ ALTER TABLE	 std_tma_blocks_revs                          	DROP COLUMN modified_
 ALTER TABLE	 txd_chemos_revs                              	DROP COLUMN modified_by;
 ALTER TABLE	 txd_radiations_revs                          	DROP COLUMN modified_by;
 ALTER TABLE	 txd_surgeries_revs                           	DROP COLUMN modified_by;
+
+
+ALTER TABLE ad_tubes
+ ADD COLUMN hemolysis_signs VARCHAR(10) NOT NULL DEFAULT '' AFTER cell_count_unit;
+ALTER TABLE ad_tubes_revs
+ ADD COLUMN hemolysis_signs VARCHAR(10) NOT NULL DEFAULT '' AFTER cell_count_unit;
+UPDATE ad_tubes 
+INNER JOIN aliquot_masters ON aliquot_masters.id=ad_tubes.aliquot_master_id
+INNER JOIN sample_masters ON aliquot_masters.sample_master_id=sample_masters.id AND sample_masters.sample_control_id=9
+INNER JOIN sd_der_plasmas ON sample_masters.id=sd_der_plasmas.sample_master_id
+SET ad_tubes.hemolysis_signs=sd_der_plasmas.hemolysis_signs;
+UPDATE ad_tubes 
+INNER JOIN aliquot_masters ON aliquot_masters.id=ad_tubes.aliquot_master_id
+INNER JOIN sample_masters ON aliquot_masters.sample_master_id=sample_masters.id AND sample_masters.sample_control_id=10
+INNER JOIN sd_der_serums ON sample_masters.id=sd_der_serums.sample_master_id
+SET ad_tubes.hemolysis_signs=sd_der_serums.hemolysis_signs;
+
+CREATE TABLE tmp(SELECT max(version_id) FROM ad_tubes_revs GROUP BY id); 
+UPDATE ad_tubes_revs
+INNER JOIN ad_tubes ON ad_tubes_revs.id=ad_tubes.id
+SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
+WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
+DROP TABLE tmp;
+
+INSERT INTO structures(`alias`) VALUES ('ad_hemolysis');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'hemolysis_signs', 'yes_no',  NULL , '0', '', '', '', 'hemolysis signs', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_hemolysis'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hemolysis signs' AND `language_tag`=''), '1', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+
+UPDATE aliquot_controls SET form_alias=CONCAT(form_alias, ',ad_hemolysis') WHERE aliquot_type='tube' AND sample_control_id IN(9, 10);
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
