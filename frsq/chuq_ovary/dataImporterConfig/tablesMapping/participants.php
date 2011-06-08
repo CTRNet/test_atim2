@@ -385,7 +385,7 @@ function postParticipantWrite(Model $m, $participant_id){
 					switch($new_source) {
 						case 'SANG':
 						case 'RL':
-							$blood_aliquot_type = ($new_source == 'SANG')? 'EDTA '.$aliquot_type : 'RNALater '.$aliquot_type;
+							$blood_aliquot_type = ($new_source == 'SANG')? $aliquot_type : 'RNALater '.$aliquot_type;
 							while($tubes_nbr > 0) { 
 								$collections['blood']['aliquots'][] = array('type' =>$blood_aliquot_type,'storage' => $storage); 
 								$tubes_nbr--;
@@ -574,24 +574,24 @@ function postParticipantWrite(Model $m, $participant_id){
 			if(array_key_exists($new_source, $m->tissueCode2Details)) {
 				// SOURCE = TISSUE
 				
-				if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-					// Try to match with existing ovary
-					$ovaries_already_recorded = '';
-					$ov_list_to_display = '';
-					foreach($collections as $key_source => $tmp) {
-						if(in_array($key_source, $m->ovCodes)) {
-							$ovaries_already_recorded[] = $key_source;
-							$ov_list_to_display .= $key_source.', ';
-						}
-					}
-					if(sizeof($ovaries_already_recorded) == 1) {
-						$source_already_recorded = $ovaries_already_recorded[0];
-						echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-						$new_source = $source_already_recorded;
-					} else if(sizeof($ovaries_already_recorded) > 1) {
-						echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-					}	
-				}
+//				if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
+//					// Try to match with existing ovary
+//					$ovaries_already_recorded = '';
+//					$ov_list_to_display = '';
+//					foreach($collections as $key_source => $tmp) {
+//						if(in_array($key_source, $m->ovCodes)) {
+//							$ovaries_already_recorded[] = $key_source;
+//							$ov_list_to_display .= $key_source.', ';
+//						}
+//					}
+//					if(sizeof($ovaries_already_recorded) == 1) {
+//						$source_already_recorded = $ovaries_already_recorded[0];
+//						echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
+//						$new_source = $source_already_recorded;
+//					} else if(sizeof($ovaries_already_recorded) > 1) {
+//						echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
+//					}	
+//				}
 				
 				if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => $m->tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -644,24 +644,24 @@ function postParticipantWrite(Model $m, $participant_id){
 				
 				if(array_key_exists($new_source, $m->tissueCode2Details)) {
 					// SOURCE = TISSUE
-					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-						// Try to match with existing ovary
-						$ovaries_already_recorded = '';
-						$ov_list_to_display = '';
-						foreach($collections as $key_source => $tmp) {
-							if(in_array($key_source, $m->ovCodes)) {
-								$ovaries_already_recorded[] = $key_source;
-								$ov_list_to_display .= $key_source.', ';
-							}
-						}
-						if(sizeof($ovaries_already_recorded) == 1) {
-							$source_already_recorded = $ovaries_already_recorded[0];
-							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [RNA]: Changed the parent defintion for a 'RNA' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-							$new_source = $source_already_recorded;
-						} else if(sizeof($ovaries_already_recorded) > 1) {
-							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [RNA][WARNING]: Unable to define parent for a 'RNA' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-						}	
-					}
+//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
+//						// Try to match with existing ovary
+//						$ovaries_already_recorded = '';
+//						$ov_list_to_display = '';
+//						foreach($collections as $key_source => $tmp) {
+//							if(in_array($key_source, $m->ovCodes)) {
+//								$ovaries_already_recorded[] = $key_source;
+//								$ov_list_to_display .= $key_source.', ';
+//							}
+//						}
+//						if(sizeof($ovaries_already_recorded) == 1) {
+//							$source_already_recorded = $ovaries_already_recorded[0];
+//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [RNA]: Changed the parent defintion for a 'RNA' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
+//							$new_source = $source_already_recorded;
+//						} else if(sizeof($ovaries_already_recorded) > 1) {
+//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [RNA][WARNING]: Unable to define parent for a 'RNA' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
+//						}	
+//					}
 					
 					if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => $m->tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 					if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -716,24 +716,24 @@ function postParticipantWrite(Model $m, $participant_id){
 				
 				if(array_key_exists($new_source, $m->tissueCode2Details)) {
 					// SOURCE = TISSUE
-					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-						// Try to match with existing ovary
-						$ovaries_already_recorded = '';
-						$ov_list_to_display = '';
-						foreach($collections as $key_source => $tmp) {
-							if(in_array($key_source, $m->ovCodes)) {
-								$ovaries_already_recorded[] = $key_source;
-								$ov_list_to_display .= $key_source.', ';
-							}
-						}
-						if(sizeof($ovaries_already_recorded) == 1) {
-							$source_already_recorded = $ovaries_already_recorded[0];
-							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [DNA]: Changed the parent defintion for a 'DNA' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-							$new_source = $source_already_recorded;
-						} else if(sizeof($ovaries_already_recorded) > 1) {
-							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA][WARNING]: Unable to define parent for a 'DNA' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-						}	
-					}
+//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
+//						// Try to match with existing ovary
+//						$ovaries_already_recorded = '';
+//						$ov_list_to_display = '';
+//						foreach($collections as $key_source => $tmp) {
+//							if(in_array($key_source, $m->ovCodes)) {
+//								$ovaries_already_recorded[] = $key_source;
+//								$ov_list_to_display .= $key_source.', ';
+//							}
+//						}
+//						if(sizeof($ovaries_already_recorded) == 1) {
+//							$source_already_recorded = $ovaries_already_recorded[0];
+//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [DNA]: Changed the parent defintion for a 'DNA' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
+//							$new_source = $source_already_recorded;
+//						} else if(sizeof($ovaries_already_recorded) > 1) {
+//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA][WARNING]: Unable to define parent for a 'DNA' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
+//						}	
+//					}
 					
 					if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => $m->tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 					if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -806,7 +806,7 @@ function postParticipantWrite(Model $m, $participant_id){
 					preg_match('/(###.*###)/', $specimen_key, $matches);
 					if(!empty($matches)) {
 						echo("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [WARNING]: The same type of tissue has been created twice (".str_replace($matches[0], '', $specimen_key).").</FONT><br>");
-					} 
+					}
 					
 					$pent_time_message = '';
 					if(isset($spent_time['details'][$data['details']['code']])) {
@@ -823,10 +823,10 @@ function postParticipantWrite(Model $m, $participant_id){
 			}
 						
 			// Display Aliquot
-			manageAliquots($m, $participant_id, $data['aliquots'], $space);
+			displayAliquots($m, $participant_id, $data['aliquots'], $space);
 			
 			// Manage Derivative
-			manageDerivative($m, $participant_id, $data['derivatives'], $space, $space);
+			displayDerivatives($m, $participant_id, $data['derivatives'], $space, $space);
 		}
 	}
 	echo "<br>";
@@ -841,9 +841,10 @@ function postParticipantWrite(Model $m, $participant_id){
 		"modified_by"	=> "1"
 		);
 		
+	// Create Blood Collection
 	if(isset($collections['blood'])) {
 		
-		// Collection
+		// Create collection
 		$insert = array(
 			"acquisition_label" => "'".$ns." Sang (migration)'",
 			"bank_id" => "1", 
@@ -855,7 +856,7 @@ function postParticipantWrite(Model $m, $participant_id){
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$blood_collection_id = mysqli_insert_id($connection);
 
-		// link
+		// Create link
 		$insert = array(
 			"collection_id" => $blood_collection_id,
 			"participant_id" => $participant_id
@@ -864,6 +865,7 @@ function postParticipantWrite(Model $m, $participant_id){
 		$query = "INSERT INTO clinical_collection_links (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
+		// Create sample
 		$insert = array(
 			"sample_code" 					=> "'tmp_tissue'", 
 			"sample_category"				=> "'specimen'", 
@@ -896,15 +898,16 @@ function postParticipantWrite(Model $m, $participant_id){
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 		
-		// Manage Derivative
-		createDerivative($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $sample_master_id, 'blood', $collections['blood']['derivatives']);
+		// Create Derivative
+		createDerivative($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $sample_master_id, 'blood', $collections['blood']['derivatives'], 'Sang');
 	
-		// Manage Aliquot
-		createAliquot($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $collections['blood']['aliquots']);
+		// Create Aliquot
+		createAliquot($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $collections['blood']['aliquots'], 'Sang');
 		
 		unset($collections['blood']);
 	}
 	
+	// Create Tissue Collection
 	$tissue_collection_id = null;
 	if(!empty($collections)) {
 		$insert = array(
@@ -932,8 +935,9 @@ function postParticipantWrite(Model $m, $participant_id){
 		if(empty($tissue_collection_id)) die ('cascasc');
 		
 		$sample_master_id = null;
+		$specimen_code = null;
 		
-		// Manage Specimen
+		// Create Specimen
 		switch($specimen_key) {
 			case 'blood':
 				die('23234234');
@@ -977,11 +981,9 @@ function postParticipantWrite(Model $m, $participant_id){
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
+				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
 
-				// Manage Derivative
-				createDerivative($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, 'ascite', $sample_master_id, 'ascite', $data['derivatives']);
-				
+				$specimen_code = 'ASC';
 				break;
 			
 			default:
@@ -1033,52 +1035,18 @@ function postParticipantWrite(Model $m, $participant_id){
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-							
-				createDerivative($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, 'tissue', $sample_master_id, 'tissue', $data['derivatives']);
 				
+				$specimen_code = $data['details']['code'];
 				break;				
 		}
-					
-		// Display Aliquot
-//		manageAliquots($m, $participant_id, $data['aliquots'], $space);
 		
-		// Manage Derivative
-//		manageDerivative($m, $participant_id, $data['derivatives'], $space, $space);
-	}	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//		global $connection;
-//	$created = array(
-//		"created"		=> "NOW()", 
-//		"created_by"	=> "1", 
-//		"modified"		=> "NOW()",
-//		"modified_by"	=> "1"
-//		);
-//	if($m->values['Collected Specimen Type'] == 'tissue'){
-//		$insert = array(
-//			"sample_code" 					=> "'tmp_tissue'", 
-//			"sample_category"				=> "'specimen'", 
-//			"sample_control_id"				=> "3", 
-//			"sample_type"					=> "'tissue'", 
-//			"initial_specimen_sample_id"	=> "NULL", 
-//			"initial_specimen_sample_type"	=> "'tissue'", 
-//			"collection_id"					=> "'".$collection_id."'", 
-//			"parent_id"						=> "NULL" 
-//		);
-//		$insert = array_merge($insert, $created);
-//		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-//		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		$sample_master_id = mysqli_insert_id($connection);
-//		$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-//		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
+		// Create Derivative
+		createDerivative($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $sample_master_id, $specimen_key, $data['derivatives'], $specimen_code);
+		
+		// Create Aliquot
+		createAliquot($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $data['aliquots'], $specimen_code);
+				
+	}
 }
 
 //=========================================================================================================
@@ -1191,7 +1159,7 @@ function setDataForpostParticipantWrite(Model &$m) {
 	
 	$m->boxesData = getBoxesDataFromFile();
 	
-	$m->Storages = array('next_left' => 1);
+	$m->storages = array('storages' => array(), 'next_left' => 1);
 }
 
 function getBoxesDataFromFile() {
@@ -1355,19 +1323,19 @@ function getBoxesDataFromFile() {
 	return $boxes_data;	
 }
 
-function manageAliquots(Model $m, $participant_id, $aliquot_data, $space_to_use){
+function displayAliquots(&$m, $participant_id, $aliquot_data, $space_to_use){
 	foreach($aliquot_data as $new_aliquot) {
 		echo $space_to_use."|==> @ 1 ".$new_aliquot['type']." (Box: ".(empty($new_aliquot['storage'])? '-': $new_aliquot['storage']).")<br>";
 	}
 }
 
-function manageDerivative(Model $m, $participant_id, $derivative_data, $space_to_use, $space){
+function displayDerivatives(&$m, $participant_id, $derivative_data, $space_to_use, $space){
 	
 	if(!empty($derivative_data['details']))die('ERR: 98736621cacacsasccsa');
 		foreach($derivative_data as $new_derivative) {
 			echo $space_to_use.'|==> <FONT COLOR=\"red\" >* '.strtoupper($new_derivative['type']).' </FONT><br>';
-			manageAliquots($m, $participant_id, $new_derivative['aliquots'], $space.$space_to_use);
-			manageDerivative($m, $participant_id, $new_derivative['derivatives'], $space.$space_to_use,$space);
+			displayAliquots($m, $participant_id, $new_derivative['aliquots'], $space.$space_to_use);
+			displayDerivatives($m, $participant_id, $new_derivative['derivatives'], $space.$space_to_use,$space);
 	}
 }
 
@@ -1376,7 +1344,7 @@ function pr($arr) {
 	print_r($arr);
 }
 
-function createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data) {
+function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data, $specimen_code = null) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
@@ -1423,7 +1391,8 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-						
+
+				// Manage Derivative
 				if(!empty($derivative_data['derivatives'])) die('ascasc');
 				break;
 
@@ -1462,7 +1431,9 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
+				// Manage Derivative
 				if(!empty($new_derivative['derivatives'])) die('ascasc');
+				
 				break;	
 
 				
@@ -1500,7 +1471,6 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
-				createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, 'pbmc', $new_derivative['derivatives']);
 				break;	
 				
 				
@@ -1538,7 +1508,9 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
+				// Manage Derivative
 				if(!empty($new_derivative['derivatives'])) die('ascasc');
+				
 				break;						
 					
 
@@ -1576,7 +1548,9 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
+				// Manage Derivative
 				if(!empty($new_derivative['derivatives'])) die('ascasc');
+				
 				break;						
 	
 	
@@ -1614,7 +1588,9 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
+				// Manage Derivative
 				if(!empty($new_derivative['derivatives'])) die('ascasc');
+				
 				break;
 				
 				
@@ -1652,7 +1628,6 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
-				createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, 'ascite cell', $new_derivative['derivatives']);
 				break;		
 						
 
@@ -1680,7 +1655,7 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 					"sample_master_id"	=> $sample_master_id
 				);
 				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO 	sd_der_cell_cultures (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				$query = "INSERT INTO sd_der_cell_cultures (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
 				$insert = array(
@@ -1690,16 +1665,21 @@ function createDerivative($m, $ns, $participant_id, $collection_id, $initial_spe
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 				
-				createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, 'cell culture', $new_derivative['derivatives']);
 				break;		
 				
 			default:
 				die('to support'.$der_type);
 		}
+		
+		// Create Derivative
+		createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $der_type, $new_derivative['derivatives'], $specimen_code);
+		
+		// Create Aliquot
+		createAliquot($m, $ns, $participant_id, $collection_id, $sample_master_id, $der_type, $new_derivative['aliquots'], $specimen_code);
 	}
 }
 	
-function createAliquot($m, $ns, $participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data) {
+function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data, $specimen_code) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
@@ -1711,83 +1691,164 @@ function createAliquot($m, $ns, $participant_id, $collection_id, $sample_master_
 	if(empty($aliquot_data)) return;
 	
 	foreach($aliquot_data as $new_aliquot) {
-		switch($sample_type) {
-			case 'blood':
+		
+		// MANAGE STORAGE
+		
+		//get storage prefix
+		$box_number = null;
+		if(!empty($new_aliquot['storage'])) {
+			switch($sample_type.'-'.$new_aliquot['type']) {
+				case 'blood-tube':
+				case 'plasma-tube':
+				case 'buffy coat-tube':
+					$box_number = 'Sang '.$new_aliquot['storage'];
+					break;
+				case 'dna-tube':
+					$box_number = 'DNA '.$new_aliquot['storage'];
+					break;
+				case 'rna-tube':
+					$box_number = 'RNA '.$new_aliquot['storage'];
+					break;
+				case 'cell culture-tube':
+					$box_number = 'VC '.$new_aliquot['storage'];
+					break;
+				case 'tissue-oct block':
+					$box_number = 'OCT '.$new_aliquot['storage'];
+					break;
+				case 'tissue-frozen tube':
+					$box_number = 'Tissu '.$new_aliquot['storage'];
+					break;
+				case 'tissue-paraffin block':
+					$box_number = 'FFPE '.$new_aliquot['storage'];
+					break;
+				case 'ascite supernatant-tube':
+				case 'ascite cells-tube':
+					$box_number = 'ASC '.$new_aliquot['storage'];
+					break;
+				default:
+					die ('ERR_9849983 '.$sample_type.'-'.$new_aliquot['type']);
+			}
+		}
+				
+		//get storage master id
+		$storage_master_id = null;
+		if(!empty($box_number)) {
+			if(isset($m->storages['storages'][$box_number])) {
+				$storage_master_id = $m->storages['storages'][$box_number]['id'];
+			} else {
+			
 				$insert = array(
-					"aliquot_type" => "'tube'",
-					"aliquot_control_id" => "16",
-					"collection_id" => $collection_id,
-					"sample_master_id" => $sample_master_id,
-					"aliquot_label" => "'".(($new_aliquot['type'] == 'RNALater tube')? 'RL ' : 'Sang ').$ns.' 0000-00-00'."'"
+					"code" => "'-1'",
+					"storage_type"			=> "'box'",
+					"storage_control_id"	=> "8",
+					"short_label"			=> "'".$box_number."'",
+					"selection_label"		=> "'".$box_number."'",
+					"lft"		=> "'".($m->storages['next_left'])."'",
+					"rght"		=> "'".($m->storages['next_left'] + 1)."'",
+					"set_temperature"	=> "'FALSE'"
 				);
-//				$storage_master_id = getStorageId($m, 'blood aliquot', $$new_aliquot['storage']);
-				if(!empty($storage_master_id)) $insert['storage_master_id'] = $storage_master_id;
-					
 				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				$query = "INSERT INTO storage_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE aliquot_masters SET barcode= CONCAT('tmp_','".$sample_master_id."','_','".$aliquot_master_id."') WHERE id=".$aliquot_master_id;
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$storage_master_id = mysqli_insert_id($connection);
+				$query = "UPDATE storage_masters SET code=CONCAT('B - ', id) WHERE id=".$storage_master_id;
+				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				
 				$insert = array(
-					"aliquot_master_id"		=> $aliquot_master_id,
+					"storage_master_id"	=> $storage_master_id,
 				);
-				if($new_aliquot['type'] == 'RNALater tube') $insert['chuq_blood_solution'] = 'RNA later';
 				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				$query = "INSERT INTO std_boxs (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			
-			break;
-			
-			
-			
-			
+						
+				$m->storages['next_left'] = $m->storages['next_left'] + 2;
+				$m->storages['storages'][$box_number] = array('id' => $storage_master_id);
+			} 
+		}		
+		
+		// CREATE ALIQUOT
+		
+		$master_insert = array(
+			"aliquot_type" => null,
+			"aliquot_control_id" => null,
+			"in_stock" => "'yes - available'",
+			"collection_id" => $collection_id,
+			"sample_master_id" => $sample_master_id,
+			"aliquot_label" => null
+		);
+		if(!empty($storage_master_id)) $insert['storage_master_id'] = $storage_master_id;
+
+		$detail_insert = array();
+		$detail_table = 'ad_tubes';
+		
+		$prefix = '';
+		switch($sample_type.'-'.$new_aliquot['type']) {
+			case 'blood-tube':
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "16";
+				$master_insert['aliquot_label'] = "'".(($new_aliquot['type'] == 'RNALater tube')? 'RL ' : 'Sang ').$ns.' 00-00-0000'."'";				
+				if($new_aliquot['type'] == 'RNALater tube') $detail_insert['chuq_blood_solution'] = "'RNA later'";
+				break;
+				
+			case 'plasma-tube':
+				$prefix = 'P';
+			case 'ascite supernatant-tube':
+				if(empty($prefix)) $prefix = 'SASC';
+			case 'ascite cells-tube':
+				if(empty($prefix)) $prefix = 'NC';
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "8";
+				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";							
+				break;				
+				
+			case 'tissue-frozen tube':
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "1";
+				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
+				break;	
+
+			case 'tissue-paraffin block':
+				$prefix = 'FFPE';
+			case 'tissue-oct block':
+				if(empty($prefix)) $prefix = 'OCT';
+				$master_insert['aliquot_type'] = "'block'";
+				$master_insert['aliquot_control_id'] = "4";
+				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";	
+				$detail_insert['block_type'] = ($prefix == 'OCT')? "'OCT'" : "'paraffin'";		
+				$detail_table = 'ad_blocks';			
+				break;	
+
+			case 'dna-tube':
+			case 'rna-tube':
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "11";
+				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";					
+				break;	
+
+			case 'buffy coat-tube':
+				$prefix = 'BC';
+			case 'cell culture-tube':
+				if(empty($prefix)) $prefix = 'VC';
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "15";
+				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";				
+				break;	
 			
 			default:
+				die('ERR 99628');
 		}
 		
-	}
-}
+		$master_insert = array_merge($master_insert, $created);
+		$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($master_insert)).") VALUES (".implode(", ", array_values($master_insert)).")";
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$aliquot_master_id = mysqli_insert_id($connection);
+		$query = "UPDATE aliquot_masters SET barcode= CONCAT('tmp_','".$sample_master_id."','_','".$aliquot_master_id."') WHERE id=".$aliquot_master_id;
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
+		$detail_insert = array_merge($detail_insert, $created);
+		$query = "INSERT INTO $detail_table (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
-function getStorageId($m, $aliquot_class, $box_number) {
-	global $connection;
-	$created = array(
-		"created"		=> "NOW()", 
-		"created_by"	=> "1", 
-		"modified"		=> "NOW()",
-		"modified_by"	=> "1"
-		);
-		
-	$storage_master_id = '';
-	if(!empty($box_number)) {
-		if(!isset($m->Storages[$aliquot_class][$box_number])) {	
-			$insert = array(
-				"storage_type"			=> "'box'",
-				"storage_control_id"	=> "8",
-				"short_label"			=> "'".$box_number."'",
-				"selection_label"		=> "'".$box_number."'",
-				"lft"		=> "'".($m->Storages['next_left'] + 1)."'",
-				"rght"		=> "'".($m->Storages['next_left'] + 2)."'",
-				"set_temperature"	=> "'FALSE'"
-			);
-			$insert = array_merge($insert, $created);
-			$query = "INSERT INTO storage_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$storage_master_id = mysqli_insert_id($connection);
-			
-			$insert = array(
-				"storage_master_id"	=> $storage_master_id,
-			);
-			$insert = array_merge($insert, $created);
-			$query = "INSERT INTO std_boxs (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-					
-			$m->Storages['next_left'] = $m->Storages['next_left'] + 2;
-			$m->Storages[$aliquot_class][$box_number] = array('id' => $storage_master_id);
-		} else {
-			$storage_master_id = $m->Storages[$aliquot_class][$box_number]['id'];
-		}
 	}
-	return $storage_master_id;
 }
