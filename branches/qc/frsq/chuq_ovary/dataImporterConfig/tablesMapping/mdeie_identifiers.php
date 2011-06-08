@@ -14,6 +14,13 @@ $model = new Model(0, $pkey, $child, true, "participant_id", 'misc_identifiers',
 
 //we can then attach post read/write functions
 $model->custom_data = array();
+$model->post_write_function = 'postMedieWrite';
 
 //adding this model to the config
 Config::$models['MdeieMiscIdentfier'] = $model;
+
+function postMedieWrite(Model $m, $participant_id){
+	global $connection;
+	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
+	mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+}
