@@ -53,7 +53,13 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("this aliquot has no recorded volume", "This aliquot has no recorded volume", "Cet aliquot n'a aucun volume enregistré"), 
 ("the inputed volume was automatically removed", "The inputed volume was automatically removed", "La valeur de volume entrée a été automatiquement retirée"),
 ("quality control creation process", "Quality control creation process", "Processus de création de contrôle de qualité"),
-("used aliquot", "Used aliquot", "Aliquot utilisé");
+("used aliquot", "Used aliquot", "Aliquot utilisé"),
+("aliquot(s) without a proper consent",
+ "Aliquot(s) without a proper consent",
+ "Aliquot(s) sans consentement approprié"),
+("this list contains aliquot(s) without a proper consent",
+ "This list contains aliquot(s) without a proper consent",
+ "Cette liste contient un ou des aliquots sans consentement approprié");
 
 
 DROP TABLE datamart_batch_processes;

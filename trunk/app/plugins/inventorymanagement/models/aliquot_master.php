@@ -23,6 +23,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 			 	'dependent' => true)
 	);
 	
+	private static $warning_field = "barcode";//can be overriden into a custom model
+	
 	public static $aliquot_type_dropdown = array();
 	public static $storage = null;
 	
@@ -55,7 +57,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 				LEFT JOIN  aliquot_masters_revs AS amn ON amn.version_id=(SELECT version_id FROM aliquot_masters_revs WHERE id=am.id AND version_id > am.version_id ORDER BY version_id ASC LIMIT 1)
 				LEFT JOIN storage_masters_revs AS sm ON am.storage_master_id=sm.id
 				LEFT JOIN storage_masters_revs AS smn ON smn.version_id=(SELECT version_id FROM storage_masters_revs WHERE id=sm.id AND version_id > sm.version_id ORDER BY version_id ASC LIMIT 1)
-				WHERE am.id='".$aliquot_master_id."' AND ((am.modified >= sm.modified AND (am.modified < smn.modified OR smn.modified IS NULL)) OR (sm.modified > am.modified AND (sm.modified <= amn.modified OR amn.modified IS NULL)) OR am.storage_master_id IS NULL)";
+				WHERE am.id='".$aliquot_master_id."' AND (
+					(am.version_created >= sm.version_created AND 
+					(am.version_created < smn.version_created OR smn.version_created IS NULL)) OR 
+					(sm.version_created > am.version_created AND (sm.version_created <= amn.version_created OR amn.version_created IS NULL)) 
+					OR am.storage_master_id IS NULL)";
 		$storage_data_tmp = $this->query($qry);
 		
 		$previous = array_shift($storage_data_tmp);
@@ -63,7 +69,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 			if($previous['sm']['id'] != $current['sm']['id']){
 				//filter 1 - new storage
 				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
+					'date' => $current['am']['version_created'], 
 					'event' => __('new storage', true)." "
 						.__('from', true).": [".(strlen($previous['sm']['selection_label']) > 0 ? $previous['sm']['selection_label'].", ".__('position', true).": (".$previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y']."), ".__('temperature', true).": ".$previous['sm']['temperature'].__($previous['sm']['temp_unit'], true) : __('no storage', true))."] "
 						.__('to', true).": [".(strlen($current['sm']['selection_label']) > 0 ? $current['sm']['selection_label'].", ".__('position', true).": (".$current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y']."), ".__('temperature', true).": ".$current['sm']['temperature'].__($current['sm']['temp_unit'], true) : __('no storage', true))."]");
@@ -79,14 +85,14 @@ class AliquotMaster extends InventoryManagementAppModel {
 					$event .= __("selection label updated", true).". ".__("from", true).": ".$previous['sm']['selection_label']." ".__("to", true).": ".$current['sm']['selection_label'].". ";
 				}
 				$storage_data[]['custom'] = array(
-					'date' => $current['sm']['modified'], 
+					'date' => $current['sm']['version_created'], 
 					'event' => $event);
 			}else if($previous['am']['storage_coord_x'] != $current['am']['storage_coord_x'] || $previous['am']['storage_coord_y'] != $current['am']['storage_coord_y']){
 				//filter 3, aliquot position change
 				$coord_from = $previous['am']['storage_coord_x'].", ".$previous['am']['storage_coord_y'];
 				$coord_to = $current['am']['storage_coord_x'].", ".$current['am']['storage_coord_y'];
 				$storage_data[]['custom'] = array(
-					'date' => $current['am']['modified'], 
+					'date' => $current['am']['version_created'], 
 					'event' => __('moved within storage', true)." ".__('from', true).": [".$coord_from."] ".__('to', true).": [".$coord_to."]. ");
 			}
 			
@@ -496,6 +502,56 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 
 		return date('Y-m-d G:i');
+	}
+	
+	
+	/**
+	 * @param array $aliquot with either a key 'id' referring to an array
+	 * of ids, or a key 'data' referring to AliquotMaster.
+	 * @param $model_name If the aliquot array contains data, the model name
+	 * to use.
+	 * @return an array having unconsented aliquot as key and their consent 
+	 * status as value. This function refers to 
+	 * ViewCollection->getUnconsentedCollections.
+	 */
+	function getUnconsentedAliquots(array $aliquot, $model_name = 'AliquotMaster'){
+		$data = null;
+		$key_name = null;
+		//preping to fetch the collection ids
+		if(array_key_exists('id', $aliquot)){
+			$data = $this->find('all', array(
+				'fields' => array('AliquotMaster.id', 'AliquotMaster.collection_id'),
+				'conditions' => array('AliquotMaster.id' => $aliquot['id']),
+				'recursive' => -1
+			));
+			$model_name = 'AliquotMaster';
+			$key_name = 'id';
+		}else{
+			$data = array_key_exists($model_name, $aliquot) ? array($aliquot) : $aliquot;
+			if($model_name == 'ViewAliquot'){
+				$key_name = $model_name == 'AliquotMaster' ? 'id' : 'aliquot_master_id'; 
+			}
+		}
+		
+		//collections ids and collection/aliquot assocs
+		$collection_aliquot_assoc = array();
+		$collection_ids = array();
+		foreach($data as &$data_unit){
+			$collection_aliquot_assoc[$data_unit[$model_name]['collection_id']][] = $data_unit[$model_name][$key_name];
+			$collection_ids[] = $data_unit[$model_name]['collection_id']; 
+		}
+		
+		//getting unconsented collections
+		$collection_model = AppModel::getInstance("Inventorymanagement", "ViewCollection", true);
+		$unconsented_collections = $collection_model->getUnconsentedParticipantCollections(array('id' => $collection_ids));
+		
+		//building the result array
+		$results = array();
+		foreach($unconsented_collections as $collection_id => $status){
+			$results += array_fill_keys($collection_aliquot_assoc[$collection_id], $status);
+		}
+		
+		return $results;
 	}
 }
 

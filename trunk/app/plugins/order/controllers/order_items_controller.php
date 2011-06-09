@@ -281,6 +281,12 @@ class OrderItemsController extends OrderAppController {
 		// Get data of aliquots to add
 		$aliquots_data = $this->paginate($this->ViewAliquot, array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add));
 		$this->set('aliquots_data' , $aliquots_data);	
+		
+		//warn unconsented aliquots
+		$unconsented_aliquots = $this->AliquotMaster->getUnconsentedAliquots(array('id' => $aliquot_ids_to_add));
+		if(!empty($unconsented_aliquots)){
+			AppController::addWarningMsg(__('this list contains aliquot(s) without a proper consent', true)." (".count($unconsented_aliquots).")"); 
+		}
 				
 		// Build data for order line selection
 		$this->OrderLine->unbindModel(array('hasMany' => array('OrderItem')));		
