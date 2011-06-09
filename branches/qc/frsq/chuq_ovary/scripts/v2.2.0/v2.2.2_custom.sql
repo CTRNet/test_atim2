@@ -762,5 +762,178 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chuq_blood_tube_solution'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='chuq_blood_solution'), 
 '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
 
-INSERT into i18n (id,en,fr) VALUES ('storage solution', 'Storage Solution', 'Solution d''entreposage');
+INSERT into i18n (id,en,fr) VALUES ('storage solution', 'Storage Solution', 'Solution d''entreposage'), ('RNA later', 'RNA Later', 'RNA Later');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(3);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(4);
+
+UPDATE structure_fields 
+SET model = 'AliquotDetail',
+language_label = language_tag,
+language_tag = ''
+WHERE field = 'chuq_blood_solution';
+
+UPDATE structure_formats sfo, structure_fields sfi, structures st
+SET flag_edit='1', flag_edit_readonly = '0'
+WHERE st.id = sfo.structure_id AND sfi.id = sfo.structure_field_id
+AND sfi.field = 'aliquot_label' AND st.alias = 'aliquot_masters';
+
+
+
+
+
+
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+col.collection_datetime, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+tiss.chuq_tissue_code,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+samp.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
+WHERE samp.deleted != 1;
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+tiss.chuq_tissue_code,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
+WHERE al.deleted != 1;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'ViewSample', '', 'chuq_tissue_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_code') , '0', '', '', '', '', ''),
+('Inventorymanagement', 'ViewAliquot', '', 'chuq_tissue_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chuq_tissue_code') , '0', '', '', '', '', '');
+
+UPDATE structure_formats sfo, structures st
+SET sfo.display_order = (sfo.display_order -1)
+WHERE st.id = sfo.structure_id 
+AND sfo.display_order <= 3
+AND st.alias IN ('view_sample_joined_to_collection','view_aliquot_joined_to_sample','view_sample_joined_to_parent','view_aliquot_joined_to_sample_and_collection');
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewSample' AND field = 'chuq_tissue_code');
+DELETE FROM structure_formats WHERE structure_field_id = @structure_field_id;
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, `type`, flag_override_setting, `setting`, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+(SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', '', '', '', '', '', '', '', '', '', '', '', '', 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+WHERE  bc_field.model = 'ViewSample' AND bc_field.field = 'initial_specimen_sample_type');
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewAliquot' AND field = 'chuq_tissue_code');
+DELETE FROM structure_formats WHERE structure_field_id = @structure_field_id;
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, `type`, flag_override_setting, `setting`, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+(SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', '', '', '', '', '', '', '', '', '', '', '', '', 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+WHERE  bc_field.model = 'ViewAliquot' AND bc_field.field = 'initial_specimen_sample_type');
+
+UPDATE structure_formats sfo, structure_fields sfi, structures st
+SET flag_search='1'
+WHERE st.id = sfo.structure_id AND sfi.id = sfo.structure_field_id
+AND sfi.field = 'chuq_tissue_code' AND st.alias = 'view_sample_joined_to_collection';
+
+UPDATE structure_formats sfo, structure_fields sfi, structures st
+SET flag_search='1'
+WHERE st.id = sfo.structure_id AND sfi.id = sfo.structure_field_id
+AND sfi.field = 'chuq_tissue_code' AND st.alias = 'view_aliquot_joined_to_sample_and_collection';
+
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'SampleDetail' AND field = 'chuq_tissue_code');
+INSERT INTO structure_formats(structure_id, structure_field_id, display_column, display_order, language_heading, flag_override_label, language_label, flag_override_tag, language_tag, flag_override_help, language_help, flag_override_type, `type`, flag_override_setting, `setting`, flag_override_default, `default`, flag_add, flag_add_readonly, flag_edit, flag_edit_readonly, flag_search, flag_search_readonly, flag_addgrid, flag_addgrid_readonly, flag_editgrid, flag_editgrid_readonly, flag_batchedit, flag_batchedit_readonly, flag_index, flag_detail, flag_summary) 
+(SELECT 
+sf.structure_id, @structure_field_id, sf.display_column, (sf.display_order +1), '', '', '', '', '', '', '', '', '', '', '', '', '', 
+sf.flag_add, sf.flag_add_readonly, sf.flag_edit, sf.flag_edit_readonly, sf.flag_search, sf.flag_search_readonly, sf.flag_addgrid, sf.flag_addgrid_readonly, sf.flag_editgrid, sf.flag_editgrid_readonly, sf.flag_batchedit, sf.flag_batchedit_readonly, sf.flag_index, sf.flag_detail, sf.flag_summary
+FROM structure_formats AS sf 
+INNER JOIN structure_fields AS bc_field ON bc_field.id = sf.structure_field_id 
+INNER JOIN structures AS st on st.id = sf.structure_id
+WHERE  st.alias = 'sample_masters_for_collection_tree_view' AND bc_field.field = 'blood_type');
+
+UPDATE structure_formats sfo, structure_fields sfi, structures st
+SET flag_index=flag_search
+WHERE st.id = sfo.structure_id AND flag_search = '1'
+AND st.alias LIKE 'sd_%';
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='process_status' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='date_first_contact' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
 

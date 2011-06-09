@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'ctrnet_trunk',
+		'database' => 'chuq_ovary',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
