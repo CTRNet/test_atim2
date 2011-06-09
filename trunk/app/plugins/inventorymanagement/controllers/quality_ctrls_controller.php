@@ -203,11 +203,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					}
 				}
 				
-				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { 
-					require($hook_link); 
-				}
-				
 				$target = null;
 				$sample_id = null;
 				$sample_id = $qc_data_to_save[0]['QualityCtrl']['sample_master_id'];
