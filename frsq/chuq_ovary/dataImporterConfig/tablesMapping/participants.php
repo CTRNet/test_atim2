@@ -1176,7 +1176,8 @@ function getBoxesDataFromFile() {
 	$boxes_data = array();
 	
 	$xls_reader_boxes = new Spreadsheet_Excel_Reader();
-	$xls_reader_boxes->read( "/Documents and Settings/u703617/Desktop/chuq_boites_small_20110606_17h10.xls");
+//	$xls_reader_boxes->read( "/Documents and Settings/u703617/Desktop/chuq_boites_small_20110606_17h10.xls");
+	$xls_reader_boxes->read( "/Documents and Settings/u703617/Desktop/chuq_boites_20110606_17h10.xls");
 	
 	$sheets_nbr = array();
 	foreach($xls_reader_boxes->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
