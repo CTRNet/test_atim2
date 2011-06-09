@@ -846,7 +846,7 @@ function postParticipantWrite(Model $m, $participant_id){
 		
 		// Create collection
 		$insert = array(
-			"acquisition_label" => "'".$ns." Sang (migration)'",
+			"acquisition_label" => "'".$ns." Sang (00-00-0000)'",
 			"bank_id" => "1", 
 			"collection_notes" => "'".$collection_notes."'",
 			"collection_property" => "'participant collection'"
@@ -910,8 +910,18 @@ function postParticipantWrite(Model $m, $participant_id){
 	// Create Tissue Collection
 	$tissue_collection_id = null;
 	if(!empty($collections)) {
+		
+		$collection_type = '';
+		if((sizeof($collections) == 1) && (array_key_exists('ascite', $collections)))  {
+			$collection_type = 'ASC';
+		} else if((sizeof($collections) > 1) && (array_key_exists('ascite', $collections)))  {
+			$collection_type = 'Tissu/ASC';
+		} else {
+			$collection_type = 'Tissu';
+		}
+		
 		$insert = array(
-			"acquisition_label" => "'".$ns." Tissue & autre (migration)'",
+			"acquisition_label" => "'".$ns." $collection_type 00-00-0000'",
 			"bank_id" => "1", 
 			"collection_notes" => "'".$collection_notes."'",
 			"collection_property" => "'participant collection'"
@@ -1441,8 +1451,8 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
 					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> "8", 
-					"sample_type"					=> "'pbmc'", 
+					"sample_control_id"				=> "7", 
+					"sample_type"					=> "'blood cell'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1454,14 +1464,14 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('PBMC - ', id) WHERE id=".$sample_master_id;
+				$query = "UPDATE sample_masters SET sample_code=CONCAT('BLD-C - ', id) WHERE id=".$sample_master_id;
 				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
 				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO 	sd_der_pbmcs (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				$query = "INSERT INTO 	sd_der_blood_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
 				$insert = array(
@@ -1699,7 +1709,9 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 		if(!empty($new_aliquot['storage'])) {
 			switch($sample_type.'-'.$new_aliquot['type']) {
 				case 'blood-tube':
+				case 'blood-RNALater tube':	
 				case 'plasma-tube':
+				case 'serum-tube':
 				case 'buffy coat-tube':
 					$box_number = 'Sang '.$new_aliquot['storage'];
 					break;
@@ -1721,6 +1733,7 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 				case 'tissue-paraffin block':
 					$box_number = 'FFPE '.$new_aliquot['storage'];
 					break;
+				case 'ascite-tube':
 				case 'ascite supernatant-tube':
 				case 'ascite cells-tube':
 					$box_number = 'ASC '.$new_aliquot['storage'];
@@ -1776,7 +1789,7 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 			"sample_master_id" => $sample_master_id,
 			"aliquot_label" => null
 		);
-		if(!empty($storage_master_id)) $insert['storage_master_id'] = $storage_master_id;
+		if(!empty($storage_master_id)) $master_insert['storage_master_id'] = $storage_master_id;
 
 		$detail_insert = array();
 		$detail_table = 'ad_tubes';
@@ -1784,16 +1797,23 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 		$prefix = '';
 		switch($sample_type.'-'.$new_aliquot['type']) {
 			case 'blood-tube':
+				$prefix = "'Sang $ns 00-00-0000'";
+			case 'blood-RNALater tube':	
+				if(empty($prefix)) {
+					$prefix = "'RL $ns 00-00-0000'";
+					$detail_insert['chuq_blood_solution'] = "'RNA later'";
+				}
 				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = "16";
-				$master_insert['aliquot_label'] = "'".(($new_aliquot['type'] == 'RNALater tube')? 'RL ' : 'Sang ').$ns.' 00-00-0000'."'";				
-				if($new_aliquot['type'] == 'RNALater tube') $detail_insert['chuq_blood_solution'] = "'RNA later'";
+				$master_insert['aliquot_label'] = $prefix;				
 				break;
 				
 			case 'plasma-tube':
 				$prefix = 'P';
 			case 'ascite supernatant-tube':
 				if(empty($prefix)) $prefix = 'SASC';
+			case 'serum-tube':
+				if(empty($prefix)) $prefix = 'SE';
 			case 'ascite cells-tube':
 				if(empty($prefix)) $prefix = 'NC';
 				$master_insert['aliquot_type'] = "'tube'";
@@ -1828,12 +1848,18 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 			case 'buffy coat-tube':
 				$prefix = 'BC';
 			case 'cell culture-tube':
-				if(empty($prefix)) $prefix = 'VC';
+				if(empty($prefix)) $prefix = 'VC '.$specimen_code;
 				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = "15";
-				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";				
+				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";				
 				break;	
-			
+				
+			case 'ascite-tube':
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = "2";
+				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
+				break;
+				
 			default:
 				die('ERR 99628');
 		}

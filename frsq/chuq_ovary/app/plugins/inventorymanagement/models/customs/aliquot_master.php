@@ -5,6 +5,26 @@ class AliquotMasterCustom extends AliquotMaster {
 	var $useTable = 'aliquot_masters';	
 	var $name = 'AliquotMaster';	
 	
+	function summary($variables=array()) {
+		$return = false;
+		
+		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
+			
+			$result = $this->find('first', array('conditions'=>array('AliquotMaster.collection_id'=>$variables['Collection.id'], 'AliquotMaster.sample_master_id'=>$variables['SampleMaster.id'], 'AliquotMaster.id'=>$variables['AliquotMaster.id'])));
+			if(!isset($result['AliquotMaster']['storage_coord_y'])){
+				$result['AliquotMaster']['storage_coord_y'] = "";
+			}
+			$return = array(
+					'menu'	        	=> array(null, $result['AliquotMaster']['aliquot_label']),
+					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'data'				=> $result,
+					'structure alias'	=> 'aliquotmasters'
+			);
+		}
+		
+		return $return;
+	}
+	
 	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
 
 		// Parameters check: Verify parameters have been set
@@ -19,14 +39,13 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'ASC';
 				break;
 			case 'ascite cell':
-				$prefix = 'ASC NC';
+				$prefix = 'NC';
 				break;	
 			case 'ascite supernatant':
 				$prefix = 'SASC';
 				break;	
-	
 			case 'blood':
-				$prefix = '?';	//C
+				$prefix = 'RL/Sang?';
 				break;	
 			case 'plasma':
 				$prefix = 'P';
@@ -34,30 +53,38 @@ class AliquotMasterCustom extends AliquotMaster {
 			case 'serum':
 				$prefix = 'SE';
 				break;					
-			case 'pbmc':
-				$prefix = 'C';
+			case 'blood cell':
+				$prefix = 'BC';
 				break;	
 			case 'peritoneal wash':
 			case 'peritoneal wash cell ':
 			case 'peritoneal wash supernatant':
-				$prefix = '?';
+				$prefix = 'PW';
 				break;	
-				
+			
 			case 'tissue':	
-				if(!isset($this->SampleMaster)) $this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
-				$tissue_detail = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
-				if(empty($tissue_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				$prefix = $tissue_detail['SampleDetail']['chuq_tissue_code'];
-				break;
-				
-			case 'cell culture ':
+				if($aliquot_control_data['AliquotControl']['aliquot_type'] == 'block') $prefix = 'OCT/FFPE?';	
+			case 'cell culture':				
+				if(empty($prefix)) $prefix = 'VC';
 			case 'dna':
 			case 'rna':
-				if(!isset($this->SampleMaster)) $this->SampleMaster = AppModel::atimNew('Clinicalannotation', 'SampleMaster', true);
-				$tissue_detail = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['initial_specimen_sample_id']), 'recursive' => '0'));
-				if(empty($tissue_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				$prefix = $tissue_detail['SampleDetail']['chuq_tissue_code'];				
+				if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'ascite') {
+					$prefix .= ' ASC';
+				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'blood') {
+					$prefix .= ' Sang';
+				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'peritoneal wash') {
+					$prefix .= ' PW';
+				} else {
+					//tissue
+					if($view_sample['ViewSample']['initial_specimen_sample_type'] != 'tissue') AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					
+					if(!isset($this->SampleMaster)) $this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
+					$tissue_detail = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
+					if(empty($tissue_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					$prefix .= ' '.$tissue_detail['SampleDetail']['chuq_tissue_code'];					
+				}
 				break;
+				
 			default:
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
