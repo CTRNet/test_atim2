@@ -845,7 +845,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else{
 			$atim_menu_link = '/inventorymanagement/';
 			$this->set('cancel_button', '/menus/');
-			$this->AliquotMaster->getUnconsentedAliquots(array('id' => $aliquot_ids)); 
+			$unconsented_aliquots = $this->AliquotMaster->getUnconsentedAliquots(array('id' => $aliquot_ids));
+			if(!empty($unconsented_aliquots)){
+				AppController::addWarningMsg(__('aliquot(s) without a proper consent', true).": ".count($unconsented_aliquots));
+			} 
 		}
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 
