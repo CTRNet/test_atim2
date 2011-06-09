@@ -204,8 +204,9 @@ class Browser extends DatamartAppModel {
 				array_intersect($ids_filter, $tmp_ids);
 			}
 		}
-		$ids_filter[] = 0;
+		
 		if($ids_filter != null){
+			$ids_filter[] = 0;
 			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
 		}
 		if(isset($control_model->_schema['flag_active'])){
