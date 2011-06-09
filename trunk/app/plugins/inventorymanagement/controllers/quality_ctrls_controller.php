@@ -58,7 +58,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
 			$collection_id = null;
 			$sample_id = null;
-			if(isset($this->data[0]['parent']['ViewSample'])){
+			if($sample_master_id != null){
+				$sample_data = $this->SampleMaster->find('first', array(
+					'conditions' => array('SampleMaster.id' => $sample_master_id),
+					'recursive' => -1
+				));
+				$collection_id = $sample_data['SampleMaster']['collection_id'];
+				$sample_id = $sample_master_id;
+			}else if(isset($this->data[0]['parent']['ViewSample'])){
 				$collection_id = $this->data[0]['parent']['ViewSample']['collection_id'];
 				$sample_id = $this->data[0]['parent']['ViewSample']['sample_master_id'];
 			}else{
