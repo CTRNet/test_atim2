@@ -585,6 +585,17 @@ function uncheckAll( $div ) {
 				return false;
 			});
 		});
+		
+		$(scope).find(".addLineCount").keydown(function(e){
+			if(e.keyCode == 13){
+				return false;
+			}
+		}).keyup(function(e){
+			if(e.keyCode == 13){
+				$(this).siblings(".addLineLink").click();
+				return false;
+			}
+		});
 	}
 	
 	function initRemoveLine(scope){
