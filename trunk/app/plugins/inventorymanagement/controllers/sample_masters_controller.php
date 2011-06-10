@@ -1045,9 +1045,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		);
 		
 		if(isset($this->data['SampleMaster']['ids'])){
-
 			//1- INITIAL DISPLAY
-			if(isset($this->data['AliquotMaster']['ids'])){
+			if(!empty($this->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
 					'conditions'	=> array('AliquotMaster.id' => explode(",", $this->data['AliquotMaster']['ids'])),
