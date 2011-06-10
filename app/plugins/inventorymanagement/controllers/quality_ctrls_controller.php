@@ -50,12 +50,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	function add($sample_master_id = null){
 		$this->Structures->set('view_sample_joined_to_collection', "samples_structure");
 		$this->Structures->set('sourcealiquots', "aliquots_structure");
-		$this->Structures->set('sourcealiquots_volume', 'aliquots_volume_structure');
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
 		$this->Structures->set('qualityctrls', 'qc_structure');
 		$this->Structures->set('qualityctrls,qualityctrls_volume', 'qc_volume_structure');
 		
 		if(count($this->data) == 1){
-			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
 			$collection_id = null;
 			$sample_id = null;
 			if($sample_master_id != null){
@@ -68,14 +67,22 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}else if(isset($this->data[0]['parent']['ViewSample'])){
 				$collection_id = $this->data[0]['parent']['ViewSample']['collection_id'];
 				$sample_id = $this->data[0]['parent']['ViewSample']['sample_master_id'];
-			}else{
-				$collection_id = $this->data[0]['parent']['SampleMaster']['collection_id'];
-				$sample_id = $this->data[0]['parent']['SampleMaster']['id'];
 			}
 			$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_id));
+			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
+			$this->set('cancel_button', '/inventorymanagement/sample_masters/detail/'.$collection_id.'/'.$sample_id);
 		}else{
 			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+			$this->set('cancel_button', '/menus/');
 		}
+		
+		$joins = array(array(
+				'table' => 'view_samples',
+				'alias' => 'ViewSample',
+				'type' => 'INNER',
+				'conditions' => array('AliquotMaster.sample_master_id = ViewSample.sample_master_id')
+			)
+		);
 
 		if(isset($this->data['ViewAliquot']) || isset($this->data['ViewSample'])){
 			if(empty($this->data['ViewAliquot']['aliquot_master_id']) && $sample_master_id != null){
@@ -89,9 +96,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$this->data['ViewAliquot']['aliquot_master_id'] = array($this->data['ViewAliquot']['aliquot_master_id']);
 				}
 				$aliquot_ids = array_filter($this->data['ViewAliquot']['aliquot_master_id']);
+				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$data = $this->AliquotMaster->find('all', array(
+					'fields'		=> array('*'),
 					'conditions'	=> array('AliquotMaster.id' => $aliquot_ids),
-					'recursive'		=> 0)
+					'recursive'		=> 0,
+					'joins'			=> $joins)
 				);
 			}else{
 				if(!is_array($this->data['ViewSample']['sample_master_id'])){
@@ -134,6 +144,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$aliquot_data['AliquotMaster'] = $data_unit['AliquotMaster'];
 					$remove_from_storage = $data_unit['FunctionManagement']['remove_from_storage'];
 					unset($data_unit['AliquotMaster']);
+					unset($data_unit['AliquotControl']);
 					unset($data_unit['FunctionManagement']);
 				}
 				
@@ -149,7 +160,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 							$errors[$field] = $error_msg;
 						}
 					}
-					$aliquot_data2 = $this->AliquotMaster->read();
+					
+					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
+					$aliquot_data2 = $this->AliquotMaster->find('first', array(
+						'fields'		=> array('*'),
+						'conditions'	=> array('AliquotMaster.id' => $key),
+						'recursive'		=> 0,
+						'joins'			=> $joins)
+					);
 					$aliquot_data['AliquotMaster'] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
 					$display_data[] = array('parent' => $aliquot_data2, 'children' => $data_unit);
 					$sample_master_id = $aliquot_data2['AliquotMaster']['sample_master_id'];
@@ -181,7 +199,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					}
 				}
 			}
-			
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
