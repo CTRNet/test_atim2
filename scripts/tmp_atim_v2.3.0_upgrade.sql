@@ -60,7 +60,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("this list contains aliquot(s) without a proper consent",
  "This list contains aliquot(s) without a proper consent",
  "Cette liste contient un ou des aliquots sans consentement approprié"),
-("create internal uses", "Create internal uses", "Créer des utilisations internes");
+("create internal uses", "Create internal uses", "Créer des utilisations internes"),
+("next", "Next", "Suivant");
 
 
 DROP TABLE datamart_batch_processes;
