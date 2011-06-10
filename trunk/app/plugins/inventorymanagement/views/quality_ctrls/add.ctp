@@ -1,53 +1,40 @@
 <?php 
+function updateHeading(array &$sfs_array, $heading){
+	foreach($sfs_array as &$sfs){
+		if($sfs['flag_edit']){
+			$sfs['language_heading'] = $heading;
+			break;
+		}
+	}
+}
+
 //preparing structures
 $parent_structure = $samples_structure;
-$parent_w_vol_structure = null;
+$parent_structure_w_vol = null;
 $children_structure = $qc_structure;
 $children_structure_w_vol = $qc_volume_structure;
 
 if(isset($this->data[0]['parent']['AliquotMaster'])){
-	//we've got aliquots
-	$max_col = max(1, $aliquots_structure['Sfs'][0]['display_column']);
-	foreach($aliquots_structure['Sfs'] as $sfs){
-		$max_col = max($max_col, $sfs['display_column']);
-	}
-	foreach($aliquots_structure['Sfs'] as &$sfs){
-		$sfs['display_column'] += $max_col;
+	//we've got aliquots, prep parent with and w/o vol
+	foreach($parent_structure['Sfs'] as &$sfs){
+		$sfs['display_column'] -= 10;
 	}
 	
 	//updating headings
-	foreach($parent_structure['Sfs'] as &$sfs){
-		if($sfs['flag_edit']){
-			$sfs['language_heading'] = 'parent sample';
-			break;
-		}
-	}
-	foreach($aliquots_structure['Sfs'] as &$sfs){
-		if($sfs['flag_edit']){
-			$sfs['language_heading'] = 'used aliquot';
-			break;
-		}
-	}
-	
+	updateHeading($parent_structure['Sfs'], 'parent sample');
+	updateHeading($aliquots_structure['Sfs'], 'used aliquot');
+	updateHeading($aliquots_volume_structure['Sfs'], 'used aliquot');
+
+	$parent_structure_w_vol['Structure'] = array_merge(array($parent_structure['Structure']), $aliquots_volume_structure['Structure']);
+	$parent_structure_w_vol['Sfs'] = array_merge($parent_structure['Sfs'], $aliquots_volume_structure['Sfs']);
+
 	$parent_structure['Structure'] = array($parent_structure['Structure'], $aliquots_structure['Structure']);
 	$parent_structure['Sfs'] = array_merge($parent_structure['Sfs'], $aliquots_structure['Sfs']);
-	
-	//create volume structures
-	$parent_structure_w_vol = $parent_structure;
-	$parent_structure_w_vol['Structure'][] = $aliquots_volume_structure['Structure'];
-	$last_sfs_index = count($parent_structure_w_vol['Sfs']) - 1;
-	array_shift($aliquots_volume_structure['Sfs']);//dumping non wanted field
-	$aliquots_volume_structure['Sfs'][0]['display_column'] = $parent_structure_w_vol['Sfs'][$last_sfs_index]['display_column'];
-	$aliquots_volume_structure['Sfs'][0]['display_order'] = $parent_structure_w_vol['Sfs'][$last_sfs_index]['display_order'] + 1;
-	$aliquots_volume_structure['Sfs'][1]['display_column'] = $parent_structure_w_vol['Sfs'][$last_sfs_index]['display_column'];
-	$aliquots_volume_structure['Sfs'][1]['display_order'] = $parent_structure_w_vol['Sfs'][$last_sfs_index]['display_order'] + 2;
-	$parent_structure_w_vol['Sfs'][] = array_shift($aliquots_volume_structure['Sfs']);
-	$parent_structure_w_vol['Sfs'][] = array_shift($aliquots_volume_structure['Sfs']);
 }
 
 $links = array(
 	'top' 		=> '/inventorymanagement/quality_ctrls/add/',
-	'bottom'	=> array('cancel' => 'todo')
+	'bottom'	=> array('cancel' => $cancel_button)
 );
 
 $options_parent = array(
@@ -105,6 +92,7 @@ while($data = array_shift($this->data)){
 	}
 	
 	$final_options_parent['data'] = $parent;
+	
 	$final_options_parent['settings']['header'] .= ++ $counter;
 	$final_options_parent['settings']['name_prefix'] = $prefix;
 	
@@ -122,6 +110,7 @@ while($data = array_shift($this->data)){
 	if( $hook_link ) {
 		require($hook_link);
 	}
+	
 	
 	$structures->build($final_structure_parent, $final_options_parent);
 	$structures->build($final_structure_children, $final_options_children);

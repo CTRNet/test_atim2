@@ -978,8 +978,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function batchDerivative(){
-		//TODO merge with Add() function to do one
-		
 		if(!isset($this->data['SampleMaster']['sample_control_id'])
 		|| !isset($this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])){
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
@@ -1023,9 +1021,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		$children_control_data = $this->SampleControl->findById($this->data['SampleMaster']['sample_control_id']);
 		
 		$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
-		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']));
+		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']), 'derivative_structure');
+		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']).",source_aliquots_volume", 'derivative_volume_structure');
 		$this->Structures->set('sourcealiquots', 'sourcealiquots');
-		$this->Structures->set('sourcealiquots_volume', 'sourcealiquots_volume');
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
 
 		$this->set('children_sample_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('created_sample_override_data', array(
@@ -1037,15 +1036,27 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
 		unset($this->data['url_to_cancel']);
 		
+		$joins = array(array(
+				'table' => 'view_samples',
+				'alias' => 'ViewSample',
+				'type' => 'INNER',
+				'conditions' => array('AliquotMaster.sample_master_id = ViewSample.sample_master_id')
+			)
+		);
+		
 		if(isset($this->data['SampleMaster']['ids'])){
 
 			//1- INITIAL DISPLAY
 			if(isset($this->data['AliquotMaster']['ids'])){
-				$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => explode(",", $this->data['AliquotMaster']['ids'])), 'recursive' => -1));
+				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
+				$aliquots = $this->AliquotMaster->find('all', array(
+					'conditions'	=> array('AliquotMaster.id' => explode(",", $this->data['AliquotMaster']['ids'])),
+					'fields'		=> array('*'), 
+					'recursive'		=> 0,
+					'joins'			=> $joins)
+				);
 				$this->data = array();
 				foreach($aliquots as $aliquot){
-					$sample = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $aliquot['AliquotMaster']['sample_master_id']), 'recursive' => -1));
-					$aliquot += $sample;
 					$this->data[] = array('parent' => $aliquot, 'children' => array());
 				}
 			}else{
@@ -1073,24 +1084,32 @@ class SampleMastersController extends InventorymanagementAppController {
 			$record_counter = 0;
 			$aliquots_data = array();
 			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
+			$tmp = current($prev_data);
+			$is_aliquot = isset($tmp['AliquotMaster']);
 			foreach($prev_data as $parent_id => &$children){
-				$aliquot_curr_data = null;
+				$parent = null;
 				$record_counter++;
 				if(isset($children['AliquotMaster'])){
-					$parent = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $parent_id), 'recursive' => -1));
-					$parent += $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent['AliquotMaster']['sample_master_id']), 'recursive' => -1));
-					$aliquot_curr_data = array("AliquotMaster" => $children['AliquotMaster'], "FunctionManagement" => $children['FunctionManagement']);
-					$aliquot_curr_data['AliquotMaster']['id'] = $parent_id;
-					$aliquots_data[] = $aliquot_curr_data;
+					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
+					$parent = $this->AliquotMaster->find('first', array(
+						'conditions'	=> array('AliquotMaster.id' => $parent_id),
+						'fields'		=> array('*'), 
+						'recursive'		=> 0,
+						'joins'			=> $joins)
+					);
+					$parent['AliquotMaster'] = array_merge($parent['AliquotMaster'], $children['AliquotMaster']);
+					$parent['FunctionManagement'] = $children['FunctionManagement'];
+					$children['AliquotMaster']['id'] = $parent_id;
+					$aliquots_data[] = array('AliquotMaster' => $children['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
 					$this->AliquotMaster->data = array();
-					$this->AliquotMaster->set($aliquot_curr_data);
+					$this->AliquotMaster->set($children['AliquotMaster']);
 					$this->AliquotMaster->validates();
 					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
 						$errors[$field][$msg][] = $record_counter;
 					}
 					
 					
-					unset($children['AliquotMaster'], $children['FunctionManagement']);
+					unset($children['AliquotMaster'], $children['FunctionManagement'], $children['AliquotControl']);
 				}else{
 					$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));
 				}
@@ -1110,7 +1129,7 @@ class SampleMastersController extends InventorymanagementAppController {
 					$child['DerivativeDetail']['sync_with_lab_book'] = $sync_with_lab_book;
 					$child['DerivativeDetail']['lab_book_master_id'] = $lab_book_id;
 					
-					$child['AliquotMaster']['id'] = $aliquot_curr_data == null ? null : $parent_id;
+					$child['AliquotMaster']['id'] = $is_aliquot ? null : $parent_id;
 					
 					foreach($validation_iterations as $validation_model_name){
 						$validation_model = $this->{$validation_model_name}; 
@@ -1161,7 +1180,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						$this->SampleMaster->id = $child_id;
 						if(!$this->SampleMaster->save($child, false)){ 
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						} 		
+						}
 
 						// Save derivative detail
 						$this->DerivativeDetail->id = null;
@@ -1170,12 +1189,12 @@ class SampleMastersController extends InventorymanagementAppController {
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 
-						if(isset($child['AliquotMaster']['id'])){
+						if(array_key_exists('AliquotMaster', $child)){
 							//record aliquot use -> source_aliquots
 							$this->SourceAliquot->data = array();
 							$this->SourceAliquot->save(array('SourceAliquot' => array(
 								'sample_master_id'	=> $child_id,
-								'aliquot_master_id'	=> $child['AliquotMaster']['id'],
+								'aliquot_master_id'	=> $parent_id,
 								'used_volume'		=> isset($child['SourceAliquot']['used_volume']) ? $child['SourceAliquot']['used_volume'] : null,
 							)));
 						}
