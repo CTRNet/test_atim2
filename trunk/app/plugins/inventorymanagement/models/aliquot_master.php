@@ -293,7 +293,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				}
 				
 				if(empty($this->validationErrors['storage_coord_x']) 
-					&& empty($this->validationErrors['storage_coord_y']) 
+					&& empty($this->validationErrors['storage_coord_y'])
+					&& array_key_exists('StorageControl', $arr_storage_selection_results['storage_data']) 
 					&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
 					&& (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)
 				){
