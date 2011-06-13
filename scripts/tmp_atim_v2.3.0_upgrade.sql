@@ -1445,3 +1445,236 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='source_aliquots_volume'), (SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0');
 
+-- Build new invetory types + relationships
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'ascite cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'cystic fluid cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'pericardial fluid cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'peritoneal wash cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'pleural fluid cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'pbmc');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_type_code`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'bone marrow', 'BM', 'specimen', 'sample_masters,specimens', 'sd_spe_bone_marrows', 0, 'bone marrow'),
+(null, 'bone marrow suspension', 'BM-SUSP', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivative_lab_book,derivatives', 'sd_der_bone_marrow_susps', 0, 'bone marrow suspension'),
+(null, 'no-b cell', 'No-BC', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivative_lab_book,derivatives', 'sd_der_no_b_cells', 0, 'no-b cell');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow suspension');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow suspension');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'dna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'no-b cell');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'b cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'dna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'no-b cell');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell lysate');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'dna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'no-b cell'), 'tube', '', 'aliquot_masters,ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'tube');
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow suspension'), 'tube', '', 'aliquot_masters,ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'tube');
+
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow'), 'tube', '(ml)', 'aliquot_masters,ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Specimen tube requiring volume in ml', 0, 'tube');
+
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (null, @children_id, '0');
+
+CREATE TABLE IF NOT EXISTS `sd_der_no_b_cells` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_no_b_cells_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_no_b_cells_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_bone_marrow_susps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_bone_marrow_susps_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_bone_marrow_susps_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+CREATE TABLE IF NOT EXISTS `sd_spe_bone_marrows` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `collected_volume` decimal(10,5) DEFAULT NULL,
+  `collected_volume_unit` varchar(20) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_spe_bone_marrows_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `sd_spe_bone_marrows_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `collected_volume` decimal(10,5) DEFAULT NULL,
+  `collected_volume_unit` varchar(20) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `sd_der_no_b_cells`
+  ADD CONSTRAINT `FK_sd_der_no_b_cells_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_der_bone_marrow_susps`
+  ADD CONSTRAINT `FK_sd_der_bone_marrow_susps_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+ALTER TABLE `sd_spe_bone_marrows`
+  ADD CONSTRAINT `FK_sd_spe_bone_marrows_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('sd_spe_bone_marrows');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='collected volume' AND `language_tag`=''), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unit'), '1', '443', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue suspension');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'no-b cell');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue suspension');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'b cell');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+SET @parent_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue');
+SET @children_id = (SELECT id FROM sample_controls WHERE sample_type = 'protein');
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active)
+VALUES (@parent_id, @children_id, '0');
+
+SET @id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'no-b cell'));
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(@id, @id, 0, NULL);
+
+SET @id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow'));
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(@id, @id, 0, NULL);
+SET @id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'bone marrow suspension'));
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) VALUES
+(@id, @id, 0, NULL);
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('no-b cell', 'No-B Cells', 'Cellules non-B'),
+('bone marrow','Bone Marrow','Moelle osseuse'),
+('bone marrow suspension','Bone Marrow Suspension','Suspension de moelle osseuse');
+
+
