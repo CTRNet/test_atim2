@@ -734,20 +734,6 @@ function uncheckAll( $div ) {
 	}
 	
 	function initAccuracy(scope){
-		$(scope).find(".accuracy_target_blue").each(function(){
-			if($(this).siblings().find(".labBook").length > 0){
-				$(this).hide();
-			}else{
-				var current_accuracy_btn = this;
-				$(this).parent().find("input, select").each(function(){
-					if($(this).attr("name").indexOf("year") != -1 && $(this).val().indexOf('±') == 0){
-						$(this).val($(this).val().substr(1));
-						$(current_accuracy_btn).click();
-					}
-				});
-			}
-		});
-		
 		$(scope).find(".accuracy_target_blue").click(function(){
 			if($(this).find("input").length == 0){
 				//accuracy going to year
@@ -764,6 +750,20 @@ function uncheckAll( $div ) {
 				$(this).parent().find("input, select").show();
 			}
 			return false;
+		});
+		
+		$(scope).find(".accuracy_target_blue").each(function(){
+			if($(this).siblings().find(".labBook").length > 0){
+				$(this).hide();
+			}else{
+				var current_accuracy_btn = this;
+				$(this).parent().find("input, select").each(function(){
+					if($(this).attr("name").indexOf("year") != -1 && $(this).hasClass('year_accuracy')){
+						$(this).removeClass('year_accuracy');
+						$(current_accuracy_btn).click();
+					}
+				});
+			}
 		});
 	}
 	

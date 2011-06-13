@@ -2144,10 +2144,16 @@ class StructuresHelper extends Helper {
 		}
 		$result = "";
 		unset($attributes['options']);//fixes an IE js bug where $(select).val() returns an error if "options" is present as an attribute
+		$year_attributes = $attributes; 
+		if(strpos($year, "±") === 0){
+			$year_attributes['class'] .= " year_accuracy ";
+			$year = substr($year, 2);
+		}
+		
 		if(datetime_input_type == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= $this->Form->year($name, 1900, 2100, $year, $attributes);
+					$result .= $this->Form->year($name, 1900, 2100, $year, $year_attributes);
 				}else if($part == "M"){
 					$result .= $this->Form->month($name, $month, $attributes);
 				}else{
@@ -2157,7 +2163,7 @@ class StructuresHelper extends Helper {
 		}else{
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($attributes, array('value' => $year, 'size' => 4)))."<div>".__('year', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('value' => $year, 'size' => 4)))."<div>".__('year', true)."</div></span>";
 				}else if($part == "M"){
 					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('value' => $month, 'size' => 2)))."<div>".__('month', true)."</div></span>";
 				}else{
