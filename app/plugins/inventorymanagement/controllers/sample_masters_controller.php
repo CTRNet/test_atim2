@@ -138,7 +138,8 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function listAll($collection_id, $initial_specimen_sample_id, $filter_option = null) {
-		if((!$collection_id) || (!$initial_specimen_sample_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if((!$collection_id) || (!$initial_specimen_sample_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE FILTER OPTION
 		
@@ -177,7 +178,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			} else  {
 				// Get filter options
 				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(sizeof($option_for_list_all) != 2)  { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 	
 				switch($option_for_list_all[0]) {
 					case 'CATEGORY':
@@ -198,7 +200,9 @@ class SampleMastersController extends InventorymanagementAppController {
 						$sample_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id; 
 						
 						$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-						if(empty($sample_control_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+						if(empty($sample_control_data)) { 
+							$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}	
 										
 						$form_alias = $sample_control_data['SampleControl']['form_alias'];
 						$filter_value = $sample_control_data['SampleControl']['sample_type'];
@@ -218,7 +222,9 @@ class SampleMastersController extends InventorymanagementAppController {
 			//---------------------------------------------------
 			
 			$is_existing_specimen = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.initial_specimen_sample_id' => $initial_specimen_sample_id)));
-			if(!$is_existing_specimen) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+			if(!$is_existing_specimen) { 
+				$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}
 			
 			$menu_variables['SampleMaster.id'] = $initial_specimen_sample_id;
 			$menu_variables['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id;
@@ -260,7 +266,9 @@ class SampleMastersController extends InventorymanagementAppController {
 				$sample_search_criteria['SampleMaster.sample_category'] = 'derivative'; 
 			
 				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(sizeof($option_for_list_all) != 2)  { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
 	
 				switch($option_for_list_all[0]) {
 					case 'SAMP_CONT_ID':
