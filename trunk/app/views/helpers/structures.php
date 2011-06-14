@@ -2236,14 +2236,14 @@ class StructuresHelper extends Helper {
 	}
 
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
-		$action = $table_row_part['field'] == 'volume_unit';
+		$warning = false;
 		if(is_array($data_unit) 
 		&& array_key_exists($table_row_part['model'], $data_unit) 
 		&& is_array($data_unit[$table_row_part['model']])
 		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
-		}else if($options['type'] != 'index' && $options['type'] != 'detail' && !$table_row_part['readonly']){
+		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
 				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
@@ -2253,17 +2253,22 @@ class StructuresHelper extends Helper {
 					}
 					$current_value = "";
 				}
-			}else{
+			}else if(!empty($table_row_part['default'])){
 				//priority 3, default
 				$current_value = $table_row_part['default']; 
+			}else{
+				$current_value = "";
+				if($table_row_part['readonly'] && $table_row_part['field'] != 'CopyCtrl'){
+					$warning = true;
+				}
 			}
-		}else if($table_row_part['field'] == 'CopyCtrl'){
-			$current_value = "";
 		}else{
-			if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
-				AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
-			}
+			$warning = true;
 			$current_value = "-";
+		}
+		
+		if($warning && Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
+			AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
 		}
 		
 		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail')){
