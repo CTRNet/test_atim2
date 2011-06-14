@@ -1275,7 +1275,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			background: url(../img/icons/accepted_16x16.png) no-repeat 4px 2px;
 		}
 		ul.warning{
-			background-image: #fff29c url(../img/warning_bg.gif);
+			background-image: url(../img/warning_bg.gif);
 		}
 		ul.warning li {
 			border-color: #EB0;
