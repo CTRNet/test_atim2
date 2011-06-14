@@ -1677,4 +1677,17 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('bone marrow','Bone Marrow','Moelle osseuse'),
 ('bone marrow suspension','Bone Marrow Suspension','Suspension de moelle osseuse');
 
+ALTER TABLE ad_tubes
+ ADD COLUMN cell_viability DECIMAL(6,2) DEFAULT NULL AFTER cell_count_unit;
+ALTER TABLE ad_tubes_revs
+ ADD COLUMN cell_viability DECIMAL(6,2) DEFAULT NULL AFTER cell_count_unit; 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'cell_viability', 'float_positive',  NULL , '0', 'size=5', '', '', 'viability (%)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cell_viability' AND `type`='float_positive' AND `structure_value_domain`  IS NULL ), '1', '79', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('viability (%)','Viability (%)','Viabilité (%)');
+
 
