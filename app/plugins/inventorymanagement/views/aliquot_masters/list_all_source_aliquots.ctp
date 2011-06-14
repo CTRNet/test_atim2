@@ -9,7 +9,7 @@
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links);
+	$final_options = array('type'=>'index','links'=>$structure_links, 'settings' => array('pagination' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

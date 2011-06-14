@@ -1159,7 +1159,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
 		unset($criteria['OR']);
 		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
-		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
 		if(empty($available_sample_aliquots_w_volme) && empty($available_sample_aliquots_wo_volume)){
 			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
@@ -1315,15 +1315,30 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function listAllSourceAliquots($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if((!$collection_id) || (!$sample_master_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// MANAGE DATA
 
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
-		$this->data = $this->paginate($this->SourceAliquot, array('SourceAliquot.sample_master_id'=>$sample_master_id, 'SampleMaster.collection_id'=>$collection_id));
-
+		$joins = array(array(
+				'table' => 'source_aliquots',
+				'alias' => 'SourceAliquot',
+				'type' => 'INNER',
+				'conditions' => array('AliquotMaster.id = SourceAliquot.aliquot_master_id', 'SourceAliquot.sample_master_id' => $sample_master_id)
+			)
+		);
+		
+		$this->data = $this->AliquotMaster->find('all', array(
+			'conditions' => array('AliquotMaster.collection_id'=>$collection_id),
+			'joins'	=> $joins)
+		);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.

@@ -441,10 +441,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$atim_menu_link = '/inventorymanagement/sample_masters/detail/%%Collection.id%%/';
-		$atim_menu = $is_specimen?  $this->Menus->get($atim_menu_link . '%%SampleMaster.initial_specimen_sample_id%%') : $this->Menus->get($atim_menu_link . '%%SampleMaster.id%%');
-		$this->set('atim_menu', $atim_menu);
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
+		$this->setSampleDetailMenu($sample_data);
 		
 		// Set structure
 		$structure_name = $sample_data['SampleControl']['form_alias'];
@@ -759,10 +756,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on sample category
-		$atim_menu_link = '/inventorymanagement/sample_masters/detail/%%Collection.id%%/';
-		$atim_menu = $is_specimen?  $this->Menus->get($atim_menu_link . '%%SampleMaster.initial_specimen_sample_id%%') : $this->Menus->get($atim_menu_link . '%%SampleMaster.id%%');
-		$this->set('atim_menu', $atim_menu);
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']));
+		$this->setSampleDetailMenu($sample_data);
 		
 		// Set structure
 		$structure_name = $sample_data['SampleControl']['form_alias'];

@@ -68,8 +68,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$collection_id = $this->data[0]['parent']['ViewSample']['collection_id'];
 				$sample_id = $this->data[0]['parent']['ViewSample']['sample_master_id'];
 			}
-			$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_id));
-			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
+			$this->setSampleDetailMenu(array('SampleMaster' => $sample_id));
 			$this->set('cancel_button', '/inventorymanagement/sample_masters/detail/'.$collection_id.'/'.$sample_id);
 		}else{
 			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
@@ -436,12 +435,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
-		}	
+		}
 	}
 	
 	function addInit($collection_id, $sample_master_id){
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id));
+		$this->setSampleDetailMenu(array('SampleMaster' => $sample_master_id));
 		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
 		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
 		$this->Structures->set('empty', 'empty_structure');
