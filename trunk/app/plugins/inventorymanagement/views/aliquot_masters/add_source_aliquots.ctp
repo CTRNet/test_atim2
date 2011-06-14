@@ -39,8 +39,6 @@
 	$structures->build( $final_atim_structure, $final_options );
 	//----------------
 
-	
-	
 	//volume
 	$final_atim_structure = $sourcealiquots_volume; 
 	$final_options = array(

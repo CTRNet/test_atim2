@@ -137,6 +137,31 @@ class InventorymanagementAppController extends AppController {
 		}
 		return AppModel::translateDateValueAndUnit($spent_time_data, $time_unit);
 	}
+	
+	function setSampleDetailMenu(array $data){
+		if(array_key_exists('SampleMaster', $data) && !empty($data['SampleMaster'])){
+			$id = null;
+			if(is_string($data['SampleMaster'])){
+				$id = $data['SampleMaster'];
+			}else if(!array_key_exists('initial_specimen_sample_id', $data['SampleMaster'])){
+				$id = $data['SampleMaster']['id'];
+			}
+			if($id != null){				
+				$data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $id), 'recursive' => -1));
+			}
+			
+			if($data['SampleMaster']['initial_specimen_sample_id'] == $data['SampleMaster']['id']){
+				$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));
+			}else{
+				$this->set('atim_menu', $this->Menus->get('/inventorymanagement/sample_masters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
+			}
+			$this->set('atim_menu_variables', array(
+				'Collection.id' => $data['SampleMaster']['collection_id'], 
+				'SampleMaster.id' => $data['SampleMaster']['id'],
+				'SampleMaster.initial_specimen_sample_id' => $data['SampleMaster']['initial_specimen_sample_id'])
+			);
+		}
+	}
 }
 
 ?>
