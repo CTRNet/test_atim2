@@ -2236,13 +2236,14 @@ class StructuresHelper extends Helper {
 	}
 
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
+		$action = $table_row_part['field'] == 'volume_unit';
 		if(is_array($data_unit) 
 		&& array_key_exists($table_row_part['model'], $data_unit) 
 		&& is_array($data_unit[$table_row_part['model']])
 		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
-		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
+		}else if($options['type'] != 'index' && $options['type'] != 'detail' && !$table_row_part['readonly']){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
 				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
