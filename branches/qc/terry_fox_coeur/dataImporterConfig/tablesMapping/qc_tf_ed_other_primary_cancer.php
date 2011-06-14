@@ -24,8 +24,8 @@ $detail_fields = array(
 
 $model = new MasterDetailModel(4, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_other_primary_cancers', 'event_master_id', $detail_fields);
 $model->custom_data = array("date_fields" => array(
-	$fields["event_date"]		=> $detail_fields["date_accuracy"], 
-	$detail_fields["end_date"]	=> $detail_fields["end_date_accuracy"]));
+	$fields["event_date"]		=> current(array_keys($detail_fields["date_accuracy"])), 
+	$detail_fields["end_date"]	=> current(array_keys($detail_fields["end_date_accuracy"]))));
 $model->post_read_function = 'excelDateFix';
 
 Config::$models['qc_tf_ed_other_primary_cancers'] = $model;

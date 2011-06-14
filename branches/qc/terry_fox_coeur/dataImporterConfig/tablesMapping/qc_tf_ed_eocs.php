@@ -25,8 +25,8 @@ $detail_fields = array(
 
 $model = new MasterDetailModel(2, $pkey, array(), false, "participant_id", 'event_masters', $fields, 'qc_tf_ed_eocs', 'event_master_id', $detail_fields);
 $model->custom_data = array("date_fields" => array(
-	$fields["event_date"]				=> $detail_fields["date_accuracy"], 
-	$detail_fields["event_date_end"]	=> $detail_fields["event_date_end_accuracy"]));
+	$fields["event_date"]				=> current(array_keys($detail_fields["date_accuracy"])), 
+	$detail_fields["event_date_end"]	=> current(array_keys($detail_fields["event_date_end_accuracy"]))));
 $model->post_read_function = 'edEocsAfterRead';
 
 Config::$models['qc_tf_ed_eocs'] = $model;

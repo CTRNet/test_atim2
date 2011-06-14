@@ -31,9 +31,9 @@ $detail_fields = array(
 
 $model = new MasterDetailModel(1, $pkey, array(), false, "participant_id", 'diagnosis_masters', $fields, 'qc_tf_dxd_eocs', 'diagnosis_master_id', $detail_fields);
 $model->custom_data = array("date_fields" => array(
-	$fields["dx_date"]									=> $fields["dx_date_accuracy"], 
-	$detail_fields["date_of_progression_recurrence"]	=> $detail_fields["date_of_progression_recurrence_accuracy"], 
-	$detail_fields["date_of_ca125_progression"]			=> $detail_fields["date_of_ca125_progression_accu"]));
+	$fields["dx_date"]									=> current(array_keys($fields["dx_date_accuracy"])), 
+	$detail_fields["date_of_progression_recurrence"]	=> current(array_keys($detail_fields["date_of_progression_recurrence_accuracy"])), 
+	$detail_fields["date_of_ca125_progression"]			=> current(array_keys($detail_fields["date_of_ca125_progression_accu"]))));
 $model->post_read_function = 'excelDateFix';
 
 Config::$models['qc_tf_dxd_eocs'] = $model;

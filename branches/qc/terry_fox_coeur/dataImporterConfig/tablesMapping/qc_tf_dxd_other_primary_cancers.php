@@ -12,7 +12,7 @@ $fields = array(
 );
 
 $detail_fields = array(
-	"date_of_progression_recurrence" => "Date of Progression/Recurrence	Date",
+	"date_of_progression_recurrence" => "Date of Progression/Recurrence Date",
 	"date_of_progression_recurrence_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"tumor_site" => array("Tumor Site" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"laterality" => array("Laterality" => new ValueDomain('qc_tf_laterality', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
@@ -24,8 +24,8 @@ $detail_fields = array(
 
 $model = new MasterDetailModel(3, $pkey, array(), false, "participant_id", 'diagnosis_masters', $fields, 'qc_tf_dxd_other_primary_cancers', 'diagnosis_master_id', $detail_fields);
 $model->custom_data = array("date_fields" => array(
-	$fields["dx_date"]									=> $fields["dx_date_accuracy"], 
-	$detail_fields["date_of_progression_recurrence"]	=> $detail_fields["date_of_progression_recurrence_accuracy"]));
+	$fields["dx_date"]									=> current(array_keys($fields["dx_date_accuracy"])), 
+	$detail_fields["date_of_progression_recurrence"]	=> current(array_keys($detail_fields["date_of_progression_recurrence_accuracy"]))));
 $model->post_read_function = 'excelDateFix';
 
 Config::$models['qc_tf_dxd_other_primary_cancers'] = $model;

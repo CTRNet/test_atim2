@@ -5,7 +5,7 @@ $pkey = "Patient Biobank Number
 $fields = array(
 	"bank_id" 						=> "bank_id",
 	"collection_datetime" 			=> "Date of Specimen Collection Date",
-	"collection_datetime_accuracy"	=> "Date of Specimen Collection Accuracy"
+	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );
 
 
@@ -213,7 +213,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			$serum_sample_master_id = mysqli_insert_id($connection);
-			$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$sample_master_id;
+			$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$serum_sample_master_id;
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			$insert = array(
@@ -412,7 +412,7 @@ function postCollectionWrite(Model $m, $collection_id){
 
 $model = new Model(5, $pkey, array(), true, NULL, 'collections', $fields);
 $model->custom_data = array("date_fields" => array(
-	$fields["collection_datetime"] => $fields["collection_datetime_accuracy"]
+	$fields["collection_datetime"] => current(array_keys($fields["collection_datetime_accuracy"]))
 )); 
 $model->post_read_function = 'excelDateFix';
 $model->post_write_function = 'postCollectionWrite';

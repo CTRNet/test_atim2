@@ -28,7 +28,8 @@ $fields = array(
 	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_last_contact" => "Date of Last Contact Date",
 	"qc_tf_last_contact_acc" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_bank_id"				=> "identifier_id"
+	"qc_tf_bank_id"				=> "identifier_id",
+	"notes" => "notes"
 );
 
 function postParticipantWrite(Model $m, $participant_id){
@@ -54,10 +55,10 @@ function postParticipantWrite(Model $m, $participant_id){
 $model = new Model(0, $pkey, $child, true, NULL, 'participants', $fields);
 $model->custom_data = array(
 	"date_fields" => array(
-		$fields["date_of_birth"]					=> $fields["dob_date_accuracy"], 
-		$fields["date_of_death"]					=> $fields["dod_date_accuracy"], 
-		$fields["qc_tf_suspected_date_of_death"]	=> $fields["qc_tf_sdod_accuracy"], 
-		$fields["qc_tf_last_contact"]				=> $fields["qc_tf_last_contact_acc"])
+		$fields["date_of_birth"]					=> current(array_keys($fields["dob_date_accuracy"])), 
+		$fields["date_of_death"]					=> current(array_keys($fields["dod_date_accuracy"])), 
+		$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_sdod_accuracy"])), 
+		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_acc"])))
 );
 $model->post_read_function = 'excelDateFix';
 $model->post_write_function = 'postParticipantWrite';
