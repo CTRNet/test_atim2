@@ -1844,11 +1844,6 @@ input.datepicker[type=button]{
 	position: relative;
 }
 
-ul.error{
-	border: solid black;
-	border-width: 0 1px 0 1px;
-}
-
 .popup_container div.frame{
 	max-height: 500px;
 	overflow: auto;
