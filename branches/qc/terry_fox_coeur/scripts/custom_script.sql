@@ -25,3 +25,8 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("yes unknown", "yes unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_residual_disease"),  (SELECT id FROM structure_permissible_values WHERE value="yes unknown" AND language_alias="yes unknown"), "0", "1");
+
+UPDATE structure_permissible_values SET value='Female Genital-Peritoneal Pelvis Abdomen', language_alias='Female Genital-Peritoneal Pelvis Abdomen' WHERE value='Female Genital-Peritoneal';
