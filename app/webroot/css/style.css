@@ -1251,22 +1251,36 @@ div.wrapper table.structure table.columns td a.not_allowed {
 	}
 	
 		ul.error li, ul.warning li, ul.confirm li {
-			padding: 0.5em 1em;
+			padding: 3px 25px;
 			-moz-border-radius: 5px; 
-			border-radius: 5px; 
-			color: #fff;
+			border-radius: 5px;
+			border-width: 3px;
+			border-style: solid; 
+			/*color: #fff;*/
 		}
 		
+		ul.error{
+			background-image: url(../img/error_bg.gif);
+		}
 		ul.error li {
-			background-color: #933;
+			border-color: #933;
+			background: url(../img/icons/Close_16x16.png) no-repeat 4px 2px;
 		}
 	
-		ul.confirm li {
-			background-color: #393;
+		ul.confirm{
+			background-image: url(../img/confirm_bg.gif);
 		}
-		
+		ul.confirm li {
+			border-color: #393;
+			background: url(../img/icons/accepted_16x16.png) no-repeat 4px 2px;
+		}
+		ul.warning{
+			background-image: #fff29c url(../img/warning_bg.gif);
+		}
 		ul.warning li {
-			background-color: #EB0;
+			border-color: #EB0;
+			background: url(../img/icons/Warning_16x16.png) no-repeat 4px 2px;
+			
 		}
 	
 		
