@@ -61,7 +61,13 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "This list contains aliquot(s) without a proper consent",
  "Cette liste contient un ou des aliquots sans consentement approprié"),
 ("create internal uses", "Create internal uses", "Créer des utilisations internes"),
-("next", "Next", "Suivant");
+("next", "Next", "Suivant"),
+("use as input", "Use as input", "Utiliser comme entrée"),
+("you cannot realiquot those elements",
+ "You cannot realiquot those elements",
+ "Vous ne pouvez pas réaliquoter ces éléments"),
+("add lab book", "Add lab book", "Ajouter un cahier de laboratoire"),
+("health insurance card", "Health insurance card", "Cate d'assurance maladie");
 
 
 DROP TABLE datamart_batch_processes;
@@ -198,6 +204,9 @@ UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND 
 UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND tablename='participants' AND field='date_of_birth' AND `type`='date' AND structure_value_domain  IS NULL ;
 
 ALTER TABLE participants
+ CHANGE dod_date_accuracy date_of_death_accuracy CHAR(1) NOT NULL DEFAULT '',
+ CHANGE dob_date_accuracy date_of_birth_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs
  CHANGE dod_date_accuracy date_of_death_accuracy CHAR(1) NOT NULL DEFAULT '',
  CHANGE dob_date_accuracy date_of_birth_accuracy CHAR(1) NOT NULL DEFAULT '';
  
@@ -1691,3 +1700,31 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('viability (%)','Viability (%)','Viabilité (%)');
 
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'translator_indicator', 'yes_no',  NULL , '0', '', '', 'help_translator_indicator', 'translator used', ''), 
+('Clinicalannotation', 'ConsentMaster', 'consent_masters', 'translator_signature', 'yes_no',  NULL , '0', '', '', 'help_translator_signature', '', 'translator signature captured');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `type`='yes_no' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_indicator' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='access_medical_information') AND `flag_confidential`='0');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `type`='yes_no' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_nationals') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='translator_signature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+
+UPDATE consent_masters SET translator_signature='n' WHERE translator_signature='no';
+UPDATE consent_masters SET translator_signature='y' WHERE translator_signature='yes';
+UPDATE consent_masters SET translator_indicator='n' WHERE translator_indicator='no'; 
+UPDATE consent_masters SET translator_indicator='y' WHERE translator_indicator='yes';
+
+UPDATE sample_controls SET form_alias=REPLACE(form_alias, ',derivative_lab_book', '');
+
+INSERT INTO structures(`alias`) VALUES ('in_stock_detail_volume');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='in_stock_detail_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='in_stock_detail_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '1', '12', '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_fields SET  `language_label`='' WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='sample_master_id' AND `type`='hidden' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='' WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='collection_id' AND `type`='hidden' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+DROP TABLE sidebars;
+
+UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='AliquotReviewMaster' AND tablename='aliquot_review_masters' AND field='basis_of_specimen_review' AND `type`='yes_no' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox');
+
+ALTER TABLE user_login_attempts
+ ADD COLUMN http_user_agent VARCHAR(255) DEFAULT '';
