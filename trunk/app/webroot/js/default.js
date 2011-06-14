@@ -865,7 +865,7 @@ function uncheckAll( $div ) {
 		
 		//fly over submit button, always in the screen
 		flyOverSubmit();
-		$(document).scroll(flyOverSubmit);
+		$(window).scroll(flyOverSubmit);
 		$(window).resize(flyOverSubmit);
 	}
 	
