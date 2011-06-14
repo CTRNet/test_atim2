@@ -444,11 +444,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// set data for initial data to allow bank to override data
-		$this->set('override_data', array(
-				'AliquotMaster.aliquot_type' => $aliquot_control['AliquotControl']['aliquot_type'],
-				'AliquotMaster.aliquot_volume_unit' => $aliquot_control['AliquotControl']['volume_unit'],
-				'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->AliquotMaster->getDefaultStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
-				'AliquotMaster.in_stock' => 'yes - available'));
+		$override_data = array(
+			'AliquotMaster.aliquot_type' => $aliquot_control['AliquotControl']['aliquot_type'],
+			'AliquotMaster.storage_datetime' => ($is_batch_process? date('Y-m-d G:i'): $this->AliquotMaster->getDefaultStorageDate($this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id))))),
+			'AliquotMaster.in_stock' => 'yes - available'
+		);
+		if(!empty($aliquot_control['AliquotControl']['volume_unit'])){
+			$override_data['AliquotMaster.aliquot_volume_unit'] = $aliquot_control['AliquotControl']['volume_unit'];
+		}
+		$this->set('override_data', $override_data);
 		
 		// Set url to cancel
 		if(!empty($aliquot_control_id)) {
@@ -1588,7 +1592,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
 		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
 		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
-		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { 
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// lab book management
 		$lab_book = null;//lab book object
@@ -1642,33 +1648,45 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);
 		
 		$this->Structures->set('in_stock_detail', 'in_stock_detail');
+		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail_volume');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
 		
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// set data for initial data to allow bank to override data
-		$this->set('created_aliquot_override_data', array(
+		$created_aliquot_override_data = array(
 			'AliquotMaster.aliquot_type' => $child_aliquot_ctrl['AliquotControl']['aliquot_type'],
-			'AliquotMaster.aliquot_volume_unit' => $child_aliquot_ctrl['AliquotControl']['volume_unit'],
 			'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),
 			'AliquotMaster.in_stock' => 'yes - available',
 	
-			'Realiquoting.realiquoting_datetime' => date('Y-m-d G:i'),
-		
-			'GeneratedParentAliquot.aliquot_volume_unit' => $parent_aliquot_ctrl['AliquotControl']['volume_unit']));
+			'Realiquoting.realiquoting_datetime' => date('Y-m-d G:i')
+		);
+		if(!empty($child_aliquot_ctrl['AliquotControl']['volume_unit'])){
+			$created_aliquot_override_data['AliquotMaster.aliquot_volume_unit'] = $child_aliquot_ctrl['AliquotControl']['volume_unit'];
+		}
+		if(!empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])){
+			$created_aliquot_override_data['GeneratedParentAliquot.aliquot_volume_unit'] = $parent_aliquot_ctrl['AliquotControl']['volume_unit'];
+		}
+		$this->set('created_aliquot_override_data', $created_aliquot_override_data);
 		
 		if($initial_display){
 			
 			//1- INITIAL DISPLAY
-			
-			$parent_aliquots = $this->AliquotMaster->findAllById(explode(",", $parent_aliquots_ids), null, null, null, null, '-1');
-			if(empty($parent_aliquots)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+			$parent_aliquots = $this->AliquotMaster->find('all', array(
+				'conditions' => array('AliquotMaster.id' => explode(",", $parent_aliquots_ids)),
+				'recursive' => 0
+			));
+			if(empty($parent_aliquots)) { 
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}
 			
 			//build data array
 			$this->data = array();
 			foreach($parent_aliquots as $parent_aliquot){
-				if($parent_aliquot_ctrl_id != $parent_aliquot['AliquotMaster']['aliquot_control_id']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if($parent_aliquot_ctrl_id != $parent_aliquot['AliquotMaster']['aliquot_control_id']) { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
 				$this->data[] = array('parent' => $parent_aliquot, 'children' => array());
 			}
 						

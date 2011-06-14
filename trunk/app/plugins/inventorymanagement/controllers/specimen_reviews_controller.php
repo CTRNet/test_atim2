@@ -486,7 +486,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		$aliquot_review_data_list = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->SpecimenReview->allowDeletion($collection_id);
+		$arr_allow_deletion = $this->SpecimenReviewMaster->allowDeletion($collection_id);
 		
 		// CUSTOM CODE
 				

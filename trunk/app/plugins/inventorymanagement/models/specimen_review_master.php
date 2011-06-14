@@ -5,6 +5,10 @@ class SpecimenReviewMaster extends InventoryManagementAppModel {
 		'SpecimenReviewControl' => array(            
 			'className'    => 'Inventorymanagement.SpecimenReviewControl',            
 			'foreignKey'    => 'specimen_review_control_id'));
+	
+	function allowSpecimeReviewDeletion($specimen_review_id){
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>
