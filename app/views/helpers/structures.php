@@ -248,7 +248,7 @@ class StructuresHelper extends Helper {
 			}else if(isset($atim_structure['Structure'])){
 				$tmp[] = $atim_structure['Structure']['alias'];
 			}
-			//echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
+			echo "<code>Structure alias: ", implode(", ", $tmp), "</code>";
 		}
 		
 		// DEFAULT set of options, overridden by PASSED options
@@ -684,7 +684,11 @@ class StructuresHelper extends Helper {
 				}
 		}else if($options['links']['top'] && $options['settings']['form_inputs'] && !$table_row_part['readonly']){
 			if($table_row_part['type'] == "date"){
-				$display = self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
+				$display = "";
+				if($options['type'] != "search" && strpos($table_row_part['setting'], 'accuracy') !== false){
+					$display = "<div class='accuracy_target_blue'></div>";
+				}
+				$display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "datetime"){
 				$date = $time = null;
 				if(is_array($current_value)){
@@ -1738,7 +1742,7 @@ class StructuresHelper extends Helper {
 					AppController::addWarningMsg(__("you should not define overrides for index and detail views", true));
 				}else{
 					foreach($override as $key => $foo){
-						AppController::addWarningMsg(sprintf(__("the override for [%s] couldn't be applied because the field was not foud", true), $key));
+						AppController::addWarningMsg(sprintf(__("the override for [%s] couldn't be applied because the field was not found", true), $key));
 					}
 				}
 			}
@@ -2131,6 +2135,9 @@ class StructuresHelper extends Helper {
 			$year = $date['year'];
 			$month = $date['month'];
 			$day = $date['day'];
+			if(isset($date['year_accuracy'])){
+				$year = '±'.$year;
+			}
 		}else if(strlen($date) > 0 && $date != "NULL"){
 			$date = explode("-", $date);
 			$year = $date[0];
