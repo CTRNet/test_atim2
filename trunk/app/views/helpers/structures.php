@@ -2257,6 +2257,8 @@ class StructuresHelper extends Helper {
 				//priority 3, default
 				$current_value = $table_row_part['default']; 
 			}
+		}else if($table_row_part['field'] == 'CopyCtrl'){
+			$current_value = "";
 		}else{
 			if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
 				AppController::addWarningMsg(sprintf(__("no data for [%s.%s]", true), $table_row_part['model'], $table_row_part['field']));
