@@ -1335,6 +1335,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		);
 		
 		$this->data = $this->AliquotMaster->find('all', array(
+			'fields' => '*',
 			'conditions' => array('AliquotMaster.collection_id'=>$collection_id),
 			'joins'	=> $joins)
 		);
