@@ -106,8 +106,9 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-
-				$id_csv = implode(",", array_unique($ids));
+				$ids = array_unique($ids);
+				sort($ids);
+				$id_csv = implode(",",  $ids);
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_node_id'])));
