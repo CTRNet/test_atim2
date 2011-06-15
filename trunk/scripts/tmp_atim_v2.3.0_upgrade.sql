@@ -67,7 +67,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "You cannot realiquot those elements",
  "Vous ne pouvez pas réaliquoter ces éléments"),
 ("add lab book", "Add lab book", "Ajouter un cahier de laboratoire"),
-("health insurance card", "Health insurance card", "Cate d'assurance maladie");
+("health insurance card", "Health insurance card", "Cate d'assurance maladie"),
+("no period has been defined", "No period has been defined", "Aucune période n'a été définie");
+
+DELETE FROM i18n WHERE id='no perido has been defined';
 
 
 DROP TABLE datamart_batch_processes;
@@ -1728,3 +1731,7 @@ UPDATE structure_fields SET  `structure_value_domain`= NULL  WHERE model='Aliquo
 
 ALTER TABLE user_login_attempts
  ADD COLUMN http_user_agent VARCHAR(255) DEFAULT '';
+ 
+UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sourcealiquots_volume'), (SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1');
