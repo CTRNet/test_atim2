@@ -53,27 +53,43 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
 		$this->Structures->set('qualityctrls', 'qc_structure');
 		$this->Structures->set('qualityctrls,qualityctrls_volume', 'qc_volume_structure');
-		
-		if(count($this->data) == 1){
-			$collection_id = null;
-			$sample_id = null;
-			if($sample_master_id != null){
-				$sample_data = $this->SampleMaster->find('first', array(
-					'conditions' => array('SampleMaster.id' => $sample_master_id),
-					'recursive' => -1
-				));
-				$collection_id = $sample_data['SampleMaster']['collection_id'];
-				$sample_id = $sample_master_id;
-			}else if(isset($this->data[0]['parent']['ViewSample'])){
-				$collection_id = $this->data[0]['parent']['ViewSample']['collection_id'];
-				$sample_id = $this->data[0]['parent']['ViewSample']['sample_master_id'];
-			}
-			$this->setSampleDetailMenu(array('SampleMaster' => $sample_id));
-			$this->set('cancel_button', '/inventorymanagement/sample_masters/detail/'.$collection_id.'/'.$sample_id);
+			
+		$menu_data = null;
+		if($sample_master_id != null){
+			$menu_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
+			$menu_data = $menu_data['SampleMaster'];
+			$this->set('cancel_button', '/inventorymanagement/sample_masters/detail/'.$menu_data['collection_id'].'/'.$sample_master_id);
+		}else if(array_key_exists('ViewAliquot', $this->data)){
+				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+					'conditions'	=> array('AliquotMaster.id' => $this->data['ViewAliquot']['aliquot_master_id']),
+					'fields'		=> array('AliquotMaster.sample_master_id'),
+					'recursive'		=> -1)
+				);
+				$menu_data = array();
+				foreach($aliquot_sample_ids as $aliquot_sample_id){
+					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+				}
+		}else if(array_key_exists('ViewSample', $this->data)){
+			$menu_data = $this->data['ViewSample']['sample_master_id']; 
 		}else{
-			$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
-			$this->set('cancel_button', '/menus/');
+			//submitted data
+			$tmp_data = current($this->data);
+			$model = array_key_exists('AliquotMaster', $tmp_data) ? 'AliquotMaster' : 'SampleMaster';
+			$menu_data = array_keys($this->data);
+			if($model == 'AliquotMaster'){
+				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+					'conditions'	=> array('AliquotMaster.id' => $menu_data),
+					'fields'		=> array('AliquotMaster.sample_master_id'),
+					'recursive'		=> -1)
+				);
+				$menu_data = array();
+				foreach($aliquot_sample_ids as $aliquot_sample_id){
+					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+				}
+			}
 		}
+		$this->setBatchMenu(array('SampleMaster' => $menu_data));
+		$this->set('cancel_button', '/menus/');
 		
 		$joins = array(array(
 				'table' => 'view_samples',
@@ -178,6 +194,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$aliquot_data_to_save[] = $aliquot_data2['AliquotMaster'];
 				}else{
 					$sample_master_id = $key;
+					$sample_data['sample_master_id'] = $key;
+					$display_data[] = array('parent' => array('ViewSample' => $sample_data), 'children' => $data_unit);
 				}
 				
 				if(empty($data_unit)){
@@ -439,7 +457,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function addInit($collection_id, $sample_master_id){
-		$this->setSampleDetailMenu(array('SampleMaster' => $sample_master_id));
+		$this->setBatchMenu(array('SampleMaster' => $sample_master_id));
 		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
 		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
 		$this->Structures->set('empty', 'empty_structure');

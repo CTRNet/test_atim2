@@ -441,7 +441,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$this->setSampleDetailMenu($sample_data);
+		$this->setBatchMenu($sample_data);
 		
 		// Set structure
 		$structure_name = $sample_data['SampleControl']['form_alias'];
@@ -756,7 +756,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on sample category
-		$this->setSampleDetailMenu($sample_data);
+		$this->setBatchMenu($sample_data);
 		
 		// Set structure
 		$structure_name = $sample_data['SampleControl']['form_alias'];
@@ -965,7 +965,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('ids', $init_data['ids']);
 		
 		$this->Structures->set('derivative_init');
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$this->setBatchMenu(array(($model == 'ViewSample' ? 'SampleMaster' : 'AliquotMaster') => $init_data['ids']));
 		$this->set('parent_sample_control_id', $init_data['control_id']);
 		
 		$this->set('skip_lab_book_selection_step', false);
@@ -985,8 +985,8 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);
 			return;
 		}
-		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$model = empty($this->data['SampleMaster']['ids']) ? 'AliquotMaster' : 'SampleMaster';
+		$this->setBatchMenu(array($model => $this->data[$model]['ids']));
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
@@ -1056,8 +1056,19 @@ class SampleMastersController extends InventorymanagementAppController {
 		unset($this->data['DerivativeDetail']);
 		
 		// Set structures and menu
-		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$model = null;
+		$ids = null;
+		if(array_key_exists('ids', $this->data['SampleMaster'])){
+			//initial display
+			$model = empty($this->data['SampleMaster']['ids']) ? 'AliquotMaster' : 'SampleMaster';
+			$ids = $this->data[$model]['ids'];
+		}else{
+			//working display
+			$tmp_data = current($this->data);
+			$model = array_key_exists('AliquotMaster', $tmp_data) ? 'AliquotMaster' : 'SampleMaster';
+			$ids = array_keys($this->data);
+		}
+		$this->setBatchMenu(array($model => $ids));
 		
 		$children_control_data = $this->SampleControl->findById($this->data['SampleMaster']['sample_control_id']);
 		
