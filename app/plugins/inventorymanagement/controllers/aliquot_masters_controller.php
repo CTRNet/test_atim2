@@ -335,7 +335,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('ids', $init_data['ids']);
 		
 		$this->Structures->set('aliquot_type_selection');
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/'));
+		$this->setBatchMenu(array('SampleMaster' => $init_data['ids']));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){ 
@@ -352,7 +352,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->data = array();
 			$this->data[0]['ids'] = $sample_master_id;
 			$this->data[0]['realiquot_into'] = $aliquot_control_id;
-		} else if(empty($this->data)){ $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		} else if(empty($this->data)){ 
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		$is_intial_display = isset($this->data[0]['ids'])? true : false;
 		$is_batch_process = empty($sample_master_id)? true : false;
@@ -390,7 +392,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$sample_master_ids = array_keys($this->data);
 			} else {
 				// User don't work in batch mode and deleted all aliquot rows
-				if(empty($sample_master_id)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				if(empty($sample_master_id)){
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
 				$sample_master_ids = array($sample_master_id);
 			}
 		}
@@ -400,7 +404,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$is_specimen = (strcmp($samples[0]['ViewSample']['sample_category'], 'specimen') ==0)? true: false;
 				
 		// Sample checks
-		if(sizeof($samples) != sizeof($sample_master_ids)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(sizeof($samples) != sizeof($sample_master_ids)) {
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
 		
 		$sample_control_id = null;
 		foreach($samples as $sample_master_data) {
@@ -425,12 +431,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// Set menu
 		$atim_menu_link = '/inventorymanagement/';
-		if(!$is_batch_process) {
+		if($is_batch_process) {
+			$this->setBatchMenu(array('SampleMaster' => $sample_master_ids));
+		}else{
 			$atim_menu_link = '/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/' . ($is_specimen? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%');
-		}
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
-		
-		if(!$is_batch_process) {
+			$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 			$this->set('atim_menu_variables', array(
 				'Collection.id' => $samples[0]['ViewSample']['collection_id'], 
 				'SampleMaster.id' => $sample_master_id, 
@@ -633,8 +638,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 		//storage history
-		
-		$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
 		$storage_data = $this->AliquotMaster->getStorageHistory($aliquot_master_id);
 		$this->set('storage_data', $storage_data);
 				
