@@ -72,7 +72,7 @@ class StructuresComponent extends Object {
 				
 				if($tablename == null){
 					if(Configure::read('debug') > 0){
-						AppController::addWarningMsg('cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
+						AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
 					}
 				}else{ 
 					if(!array_key_exists($tablename, AppModel::$accuracy_config)){

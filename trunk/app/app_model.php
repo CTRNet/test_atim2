@@ -468,7 +468,11 @@ class AppModel extends Model {
 		if($plugin_name != null && strlen($plugin_name) > 0){
 			$plugin_name .= ".";
 		}
-		$instance = ClassRegistry::init($plugin_name.$class_name, 'Model');
+		
+		$import_name = (strlen($plugin_name) > 0 ? $plugin_name : "").$class_name;
+		if(class_exists($class_name, false) || App::import('Model', $import_name)){
+			$instance = ClassRegistry::init($plugin_name.$class_name, 'Model');
+		}
 		if($instance === false && $error_view_on_null){
 			AppController::getInstance()->redirect( '/pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
 		}
