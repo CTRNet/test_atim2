@@ -73,6 +73,7 @@ class StorageMaster extends StoragelayoutAppModel {
 			if(empty($this->validationErrors['recorded_storage_selection_label'])
 				&& empty($this->validationErrors['parent_storage_coord_x'])
 				&& empty($this->validationErrors['parent_storage_coord_y'])
+				&& isset($parent_storage_selection_results['storage_data']['StorageControl'])
 				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conficts']
 				&& (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)
 			){
