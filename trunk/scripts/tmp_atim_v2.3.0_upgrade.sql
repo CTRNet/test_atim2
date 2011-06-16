@@ -191,14 +191,14 @@ ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT
 ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 
 CREATE TABLE tmp_accuracy_fields (SELECT substr(field, 1, length(field) - 9) AS field, tablename FROM structure_fields WHERE field LIKE '%_accuracy');
-UPDATE structure_fields AS sf  
+/*UPDATE structure_fields AS sf  
  INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
  SET sf.setting=CONCAT(setting, ',accuracy') 
  WHERE setting!=''; 
 UPDATE structure_fields AS sf
  INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
  SET setting='accuracy' 
- WHERE setting=''; 
+ WHERE setting='';*/ 
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%_accuracy%');
 DELETE FROM structure_fields WHERE field LIKE '%_accuracy%';
 DROP TABLE tmp_accuracy_fields;
@@ -1735,3 +1735,6 @@ ALTER TABLE user_login_attempts
 UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='sourcealiquots_volume'), (SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1');
+
+UPDATE structure_fields SET  `tablename`='sd_spe_tissues' WHERE model='SampleDetail' AND tablename='' AND field='pathology_reception_datetime' AND `type`='datetime' AND structure_value_domain  IS NULL ;
+

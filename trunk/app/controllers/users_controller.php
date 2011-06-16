@@ -28,9 +28,10 @@ class UsersController extends AppController {
 			if(!empty($this->data)){
 				//successfulll login
 				$login_data = array(
-						"username" => $this->data['User']['username'],
-						"ip_addr" => $_SERVER['REMOTE_ADDR'],
-						"succeed" => true
+						"username"			=> $this->data['User']['username'],
+						"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
+						"succeed"			=> true,
+						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT']
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_msg'] = array();//init

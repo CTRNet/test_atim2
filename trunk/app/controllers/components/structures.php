@@ -30,6 +30,7 @@ class StructuresComponent extends Object {
 				//reset validate for newly loaded structure models
 				$this->controller->{ $model }->validate = array();
 			}
+
 			if(isset($struct_unit['structure']['Sfs'])){
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
@@ -52,7 +53,6 @@ class StructuresComponent extends Object {
 		
 		$this->controller->set($structure_name, $structure);
 	}
-	
 	/**
 	 * Stores data into model accuracy_config. Will be used for validation. Stores the same data into the structure.
 	 * @param array $structure
@@ -60,9 +60,28 @@ class StructuresComponent extends Object {
 	private function updateAccuracyChecks(&$structure){
 		$structure['Accuracy'] = array();
 		foreach($structure['Sfs'] as &$field){
-			if(($field['type'] == 'date' || $field['type'] == 'datetime') && in_array("accuracy", explode(",", $field['setting']))){
-				$this->controller->{ $field['model'] }->accuracy_config[$field['field']] = $field['field']."_accuracy";
-				$structure['Accuracy'][$field['model']][$field['field']] = $field['field']."_accuracy";
+			if(($field['type'] == 'date' || $field['type'] == 'datetime')){
+				$tablename = null;
+				$model = AppModel::getInstance($field['plugin'], $field['model'], false);
+				if($model !== false && !empty($model->_schema) && ($field['tablename'] == $model->table || empty($field['tablename']))){
+					$tablename = $model->table;
+				}else if(!empty($field['tablename'])){
+					$model = new AppModel(array('table' => $field['tablename'], 'name' => $field['model'], 'alias' => $field['model']));
+					$tablename = $field['tablename'];
+				}
+				
+				if($tablename == null){
+					if(Configure::read('debug') > 0){
+						AppController::addWarningMsg('cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
+					}
+				}else{ 
+					if(!array_key_exists($tablename, AppModel::$accuracy_config)){
+						$model->buildAccuracyConfig();
+					}
+					if(isset(AppModel::$accuracy_config[$tablename][$field['field']])){
+						$structure['Accuracy'][$field['model']][$field['field']] = $field['field'].'_accuracy';
+					}
+				}
 			}
 		}
 	}
@@ -89,7 +108,7 @@ class StructuresComponent extends Object {
 		}else if($mode == 'form'){
 			$result = $result['structure'];
 		}
-		
+
 		$this->updateAccuracyChecks($result);
 		return $result;
 	}
@@ -201,7 +220,7 @@ class StructuresComponent extends Object {
 					$form_fields[$key_end]['field']			= $value['field'];
 					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
 					
-					if(strpos($value['setting'], 'accuracy') !== false){
+					if(isset($atim_structure['Accuracy'][$value['model']][$value['field']])){
 						$accuracy_fields[] = $key_start;
 						$accuracy_fields[] = $key_end;
 						$form_fields[$key_start.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
