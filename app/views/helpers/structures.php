@@ -215,7 +215,7 @@ class StructuresHelper extends Helper {
 								}else if($accuracy == 'y'){
 									$data_line[$model][$date_field] = '±'.substr($data_line[$model][$date_field], 0, 4);
 								}else if($accuracy == 'h'){
-									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 11);
+									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 10);
 								}else if($accuracy == 'i'){
 									$data_line[$model][$date_field] = substr($data_line[$model][$date_field], 0, 13);
 								}
@@ -685,7 +685,7 @@ class StructuresHelper extends Helper {
 		}else if($options['links']['top'] && $options['settings']['form_inputs'] && !$table_row_part['readonly']){
 			if($table_row_part['type'] == "date"){
 				$display = "";
-				if($options['type'] != "search" && strpos($table_row_part['setting'], 'accuracy') !== false){
+				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
 				$display .= self::getDateInputs($field_name, $current_value, $table_row_part['settings']);
@@ -703,7 +703,7 @@ class StructuresHelper extends Helper {
 				}
 				
 				$display = "";
-				if($options['type'] != "search" && strpos($table_row_part['setting'], 'accuracy') !== false){
+				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
 				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings'])
@@ -1500,6 +1500,7 @@ class StructuresHelper extends Helper {
 					$current = array(
 						"name" 				=> "",
 						"model" 			=> $sfs['model'],
+						"tablename"			=> $sfs['tablename'],
 						"field" 			=> $sfs['field'],
 						"heading" 			=> __($sfs['language_heading'], true),
 						"label" 			=> __($sfs['language_label'], true),
@@ -2207,7 +2208,11 @@ class StructuresHelper extends Helper {
 				$meridian = $time['meridian'];
 			}
 		}else if(strlen($time) > 0){
-			list($hour, $minutes, ) = explode(":", $time);
+			if(strpos($time, ":") === false){
+				$hour = $time;
+			}else{
+				list($hour, $minutes, ) = explode(":", $time);
+			}
 			if(time_format == 12){
 				if($hour >= 12){
 					$meridian = 'pm';

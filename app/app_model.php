@@ -5,7 +5,7 @@ class AppModel extends Model {
 	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
 	private $validation_in_progress = false;
 	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
-	public $accuracy_config = array();
+	static public $accuracy_config = array();//tablename -> accuracy fields
 
 	//The values in this array can trigger magic actions when applied to a field settings
 	private static $magic_coding_icd_trigger_array = array(
@@ -275,6 +275,7 @@ class AppModel extends Model {
 			}
 			return "";
 		}
+
 		return $data;
 	}
 	
@@ -300,9 +301,23 @@ class AppModel extends Model {
 		return self::$magic_coding_icd_trigger_array;
 	}
 	
-	function validates($options = array()){
-		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
-		foreach($this->accuracy_config as $date_field => $accuracy_field){
+	public function buildAccuracyConfig(){
+		$tmp_acc = array();
+		foreach($this->_schema as $field_name => $foo){
+			if(strpos($field_name, "_accuracy") === strlen($field_name) - 9){
+				$tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+			}
+		}
+		self::$accuracy_config[$this->table] = $tmp_acc;
+	}
+	
+	private function setDataAccuracy(){
+		if(!array_key_exists($this->table, self::$accuracy_config)){
+			//build accuracy settings for that table
+			$this->buildAccuracyConfig();
+		}
+		
+		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
 			$current = &$this->data[$this->name][$date_field];
 			if(!empty($current)){
 				list($year, $month, $day) = explode("-", trim($current));
@@ -349,6 +364,11 @@ class AppModel extends Model {
 				}
 			}
 		}
+	}
+	
+	function validates($options = array()){
+		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+		$this->setDataAccuracy();
 		
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
