@@ -460,6 +460,11 @@ class BrowserController extends DatamartAppController {
 							$model_name = isset($this->data[0][$previous_browsing['DatamartStructure']['model']]) ? $previous_browsing['DatamartStructure']['model'] : $previous_browsing['DatamartStructure']['control_master_model'];
 							list($data_model, $id_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
 							
+							if(!isset($this->data[0][$data_model])){
+								//alternate
+								$data_model = $datamart_structures_cache[$latest_struct_id]['control_master_model'];
+							}
+							
 							//only going to load required ids rather than the entire set
 							$this->Browser->applyFilterOnParent($browsing, $this->data, $data_model, $id_field);
 							
@@ -468,11 +473,6 @@ class BrowserController extends DatamartAppController {
 								break;
 							}
 							
-							if(!isset($this->data[0][$data_model])){
-								//alternate
-								$data_model = $datamart_structures_cache[$latest_struct_id]['control_master_model'];
-							}
-	
 							$control_structure = $datamart_structures_cache[$browsing['BrowsingResult']['browsing_structures_id']];
 							if(isset($this->Browser->checklist_data[0][$control_structure['model']])){
 								$checklist_model = $control_structure['model'];
