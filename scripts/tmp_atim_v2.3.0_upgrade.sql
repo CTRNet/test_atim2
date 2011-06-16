@@ -1738,3 +1738,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_fields SET  `tablename`='sd_spe_tissues' WHERE model='SampleDetail' AND tablename='' AND field='pathology_reception_datetime' AND `type`='datetime' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_fields SET  `tablename`='' WHERE model='custom' AND tablename='custom' AND field='date' AND `type`='datetime' AND structure_value_domain  IS NULL ;
+
