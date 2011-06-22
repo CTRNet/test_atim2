@@ -1740,3 +1740,4 @@ UPDATE structure_fields SET  `tablename`='sd_spe_tissues' WHERE model='SampleDet
 
 UPDATE structure_fields SET  `tablename`='' WHERE model='custom' AND tablename='custom' AND field='date' AND `type`='datetime' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
