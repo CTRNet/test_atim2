@@ -235,7 +235,7 @@ class DropdownsController extends AdministrateAppController {
 			}else{
 				$order = 1;
 				foreach($this->data as $unit){
-					$data[] = array("id" => $unit['option_id'], "display_order" => $order ++, "use_as_input" => $unit['StructurePermissibleValuesCustom']['use_as_input']);
+					$data[] = array("id" => $unit['StructurePermissibleValuesCustom']['id'], "display_order" => $order ++, "use_as_input" => $unit['StructurePermissibleValuesCustom']['use_as_input']);
 				}
 			}
 			if($this->StructurePermissibleValuesCustom->saveAll($data)){
