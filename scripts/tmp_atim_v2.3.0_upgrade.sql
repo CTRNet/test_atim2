@@ -1417,6 +1417,16 @@ SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
 WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
 DROP TABLE tmp;
 
+UPDATE ad_tubes SET hemolysis_signs='y' WHERE hemolysis_signs='yes';
+UPDATE ad_tubes_revs SET hemolysis_signs='y' WHERE hemolysis_signs='yes';
+UPDATE ad_tubes SET hemolysis_signs='n' WHERE hemolysis_signs='no';
+UPDATE ad_tubes_revs SET hemolysis_signs='n' WHERE hemolysis_signs='no';
+
+ALTER TABLE sd_der_plasmas DROP COLUMN hemolysis_signs;
+ALTER TABLE sd_der_plasmas_revs DROP COLUMN hemolysis_signs;
+ALTER TABLE sd_der_serums DROP COLUMN hemolysis_signs;
+ALTER TABLE sd_der_serums_revs DROP COLUMN hemolysis_signs;
+
 INSERT INTO structures(`alias`) VALUES ('ad_hemolysis');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'hemolysis_signs', 'yes_no',  NULL , '0', '', '', '', 'hemolysis signs', '');
