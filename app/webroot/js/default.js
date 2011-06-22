@@ -5,7 +5,6 @@ function initSummary(){
 	var open = function(){
 		var summary_hover = $(this);
 		var summary_popup = summary_hover.find('ul');
-		var summary_label = summary_hover.find('span');
 		if ( summary_popup.length>0 ) {
 			summary_popup.stop(true, true).slideDown(100);
 		}
@@ -13,7 +12,6 @@ function initSummary(){
 	var close = function(){
 		var summary_hover = $(this);
 		var summary_popup = summary_hover.find('ul');
-		var summary_label = summary_hover.find('span');
 		if ( summary_popup.length>0 ) {
 			summary_popup.delay(101).slideUp(100);
 		}
@@ -532,10 +530,10 @@ function uncheckAll( $div ) {
 //			}
 			var parent_elem = $(this).parent().children();
 			toolTarget = null;
-			for(i = 0; i < parent_elem.length; i ++){
+			for(var i = 0; i < parent_elem.length; i ++){
 				//find the current element
 				if(parent_elem[i] == this){
-					for(j = i - 1; j >= 0; j --){
+					for(var j = i - 1; j >= 0; j --){
 						//find the previous input
 						if(parent_elem[j].nodeName == "INPUT"){
 							toolTarget = parent_elem[j];
@@ -632,7 +630,7 @@ function uncheckAll( $div ) {
 					var parentTd = getParentElement(this, "TD");
 					if($(parentTd).find(".labBook").length == 0){
 						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
-						$(parentTd).find(".datepicker").hide();
+						fields.push($(parentTd).find(".datepicker"));
 					}
 				}
 			}
@@ -642,6 +640,7 @@ function uncheckAll( $div ) {
 				codeInputField = $(this);
 			}
 		});
+		
 		if(checkbox != null){
 			$(checkbox).click(function(){
 				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
@@ -753,7 +752,7 @@ function uncheckAll( $div ) {
 		});
 		
 		$(scope).find(".accuracy_target_blue").each(function(){
-			if($(this).siblings().find(".labBook").length > 0){
+			if($(this).siblings().find(".labBook:visible").length > 0){
 				$(this).hide();
 			}else{
 				var current_accuracy_btn = this;
