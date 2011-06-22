@@ -962,6 +962,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 					//batch
 					$last_id = $this->AliquotInternalUse->getLastInsertId();
 					$_SESSION['tmp_batch_set']['BatchId'] = range($last_id - count($uses_to_save) + 1, $last_id);
+					foreach($_SESSION['tmp_batch_set']['BatchId'] as &$batch_id){
+						//add the "6" suffix to work with the view
+						$batch_id = $batch_id."6";
+					}
 					
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquotUse');
