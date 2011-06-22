@@ -29,6 +29,13 @@ $children_settings = array(
 	)
 );
 	
+$hook_link = $structures->hook();
+if($hook_link){
+	require($hook_link); 
+}
+
+$hook_link = $structures->hook('loop');
+	
 $first = true;
 $creation = 0;
 
@@ -59,6 +66,10 @@ while($data_unit = array_shift($this->data)){
 	}else{
 		$final_structure_parent = $aliquots_volume_structure;
 		$final_structure_children = $aliquotinternaluses_volume_structure;
+	}
+		
+	if( $hook_link ) { 
+		require($hook_link); 
 	}
 	
 	$structures->build($final_structure_parent, $final_options_parent);
