@@ -598,9 +598,44 @@ ALTER TABLE quality_ctrls_revs
  ADD COLUMN aliquot_master_id INT DEFAULT NULL AFTER notes,
  ADD COLUMN used_volume DECIMAL(10,5) DEFAULT NULL AFTER aliquot_master_id;
 
+-- delete deleted tested aliquots
+DELETE FROM quality_ctrl_tested_aliquots WHERE deleted=1;
+
+-- join update qc_controls
 UPDATE quality_ctrls AS qc
 INNER JOIN quality_ctrl_tested_aliquots AS qcta ON qcta.quality_ctrl_id=qc.id
-SET qc.aliquot_master_id=qcta.aliquot_master_id, qc.used_volume=qcta.used_volume;
+SET qc.aliquot_master_id=qcta.aliquot_master_id, qc.used_volume=qcta.used_volume, qc.modified=NOW(), qc.modified_by=1;
+
+-- delete already joined qc_tested_aliquots
+CREATE TABLE tmp(
+SELECT quality_ctrl_tested_aliquots.id FROM quality_ctrl_tested_aliquots
+INNER JOIN quality_ctrls ON quality_ctrls.id= quality_ctrl_tested_aliquots.quality_ctrl_id
+GROUP BY quality_ctrl_tested_aliquots.quality_ctrl_id);
+DELETE FROM quality_ctrl_tested_aliquots WHERE id IN(SELECT id FROM tmp);
+DROP TABLE tmp;
+
+-- create tmp table with remaining entries to create
+CREATE TABLE tmp(SELECT quality_ctrls.qc_code, quality_ctrls.sample_master_id, quality_ctrls.type, quality_ctrls.qc_type_precision, quality_ctrls.tool, 
+quality_ctrls.run_id, quality_ctrls.run_by, quality_ctrls.date, quality_ctrls.score, quality_ctrls.unit, quality_ctrls.conclusion, quality_ctrls.notes, 
+quality_ctrl_tested_aliquots.created, quality_ctrl_tested_aliquots.created_by, quality_ctrl_tested_aliquots.modified, quality_ctrl_tested_aliquots.modified_by, quality_ctrl_tested_aliquots.deleted,
+quality_ctrl_tested_aliquots.aliquot_master_id, quality_ctrl_tested_aliquots.used_volume FROM quality_ctrl_tested_aliquots INNER JOIN quality_ctrls ON quality_ctrls.id= quality_ctrl_tested_aliquots.quality_ctrl_id);
+
+-- insert remaining entries
+INSERT INTO quality_ctrls(qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
+aliquot_master_id, used_volume, created, created_by, modified, modified_by, deleted)
+(SELECT NULL, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
+aliquot_master_id, used_volume, created, created_by, NOW(), 1, deleted FROM tmp);
+DROP TABLE tmp;
+
+-- update qc_code with default formulae
+UPDATE quality_ctrls SET qc_code=CONCAT('QC - ', id) WHERE qc_code IS NULL;
+
+-- create revs for modified/new entries
+INSERT INTO quality_ctrls_revs(id, qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
+aliquot_master_id, used_volume, created, created_by, modified, modified_by, deleted, version_created)
+(SELECT id, qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
+aliquot_master_id, used_volume, created, created_by, modified, modified_by, deleted, modified FROM quality_ctrls WHERE aliquot_master_id IS NOT NULL);
+
 
 INSERT INTO quality_ctrls_revs(id, qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, score, unit, conclusion, notes,
 aliquot_master_id, used_volume, created, created_by, modified, modified_by, deleted, version_created)
