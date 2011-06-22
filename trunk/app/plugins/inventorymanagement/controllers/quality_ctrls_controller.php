@@ -461,6 +461,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
 		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
 		$this->Structures->set('empty', 'empty_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
 	}
 }
 ?>
