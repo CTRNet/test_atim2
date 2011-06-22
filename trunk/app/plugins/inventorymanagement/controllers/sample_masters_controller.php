@@ -1243,6 +1243,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 						if(array_key_exists('AliquotMaster', $child)){
 							//record aliquot use -> source_aliquots
+							$this->SourceAliquot->id = null;
 							$this->SourceAliquot->data = array();
 							$this->SourceAliquot->save(array('SourceAliquot' => array(
 								'sample_master_id'	=> $child_id,
