@@ -113,6 +113,7 @@ while($data = array_shift($this->data)){
 	
 	
 	$structures->build($final_structure_parent, $final_options_parent);
+	$structures->printLightHeader(__('quality controls', true));
 	$structures->build($final_structure_children, $final_options_children);
 }
 

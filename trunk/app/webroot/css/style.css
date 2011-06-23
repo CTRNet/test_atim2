@@ -907,13 +907,17 @@ span.help {
 			border-top: 0;
 			border-bottom: 2px solid #eaedf2; 
 		}
-			div.wrapper table.structure table td.heading h4 { 
-				font-weight: normal; 
-				font-size: 13px;
-				line-height: 16px;
-				color: #5081a5; 
-				margin: 0; 
-			}
+		div.wrapper table.structure table td.heading h4, div.heading_mimic h4{ 
+			font-weight: normal; 
+			font-size: 13px;
+			line-height: 16px;
+			color: #5081a5; 
+			margin: 0; 
+		}
+		div.heading_mimic{
+			padding-left: 1em;
+			border-bottom: 3px solid #eaedf2;
+		}
 		div.wrapper table.structure td.this_column_2,
 		div.wrapper table.structure td.this_column_3,
 		div.wrapper table.structure td.this_column_4,

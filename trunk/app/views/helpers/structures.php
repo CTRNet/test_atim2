@@ -1594,7 +1594,25 @@ class StructuresHelper extends Helper {
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => "text"), $settings));
 						}else if($sfs['type'] == "textarea"){
 							//notice this is Form->input and not Form->text
-							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "textarea"), $settings));
+							$tmp_settings = array();
+							if($options['type'] == 'add' || $options['type'] == 'edit' || $options == 'search'){
+								//default textarea size in add/edit/search
+								if(!array_key_exists('rows', $settings)){
+									$settings['rows'] = 3;
+								}
+								if(!array_key_exists('cols', $settings)){
+									$settings['cols'] = 30;
+								}
+							}else if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
+								//default textarea size in grids
+								if(!array_key_exists('rows', $settings)){
+									$settings['rows'] = 2;
+								}
+								if(!array_key_exists('cols', $settings)){
+									$settings['cols'] = 15;
+								}
+							}
+							$current["format"] = $this->Form->input($field_name, array_merge(array("type" => "textarea"), array_merge($settings, $tmp_settings)));
 						}else if($sfs['type'] == "autocomplete"
 						|| $sfs['type'] == "hidden"
 						|| $sfs['type'] == "file"
@@ -2285,6 +2303,10 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $current_value;
+	}
+	
+	public function printLightHeader($text){
+		echo '<div class="heading_mimic"><h4>'.$text.'</h4></div>';
 	}
 }
 	
