@@ -575,21 +575,28 @@ class BrowserController extends DatamartAppController {
 	 * @param String $model
 	 */
 	function batchToDatabrowser($model){
-		$ids = isset($this->data[$model]) && isset($this->data[$model]['id']) ? $this->data[$model]['id'] : array();
-		$ids = array_filter($ids);
-		if(empty($ids)){
-			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
+		$dm_structure = $this->DatamartStructure->find('first', array(
+			'conditions' => array('OR' => array('DatamartStructure.model' => $model, 'DatamartStructure.control_master_model' => $model)),
+			'recursive' => -1)
+		);
+		
+		if($dm_structure == null){
+			$this->redirect( '/pages/err_internal?p[]=model+not+found', NULL, TRUE );
 		}
 		
-		$dm_structure_id = $this->DatamartStructure->getIdByModelName($model);
-		if($dm_structure_id == null){
-			$this->redirect( '/pages/err_internal?p[]=model+not+found', NULL, TRUE );
+		$use_key = $model == $dm_structure['DatamartStructure']['model'] ? $dm_structure['DatamartStructure']['use_key'] : 'id';
+
+		$ids = isset($this->data[$model]) && isset($this->data[$model][$use_key]) ? $this->data[$model][$use_key] : array();
+		$ids = array_filter($ids);
+		
+		if(empty($ids)){
+			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
 		}
 		
 		$save = array('BrowsingResult' => array(
 			"user_id" => $_SESSION['Auth']['User']['id'],
 			"parent_node_id" => 0,
-			"browsing_structures_id" => $dm_structure_id,
+			"browsing_structures_id" => $dm_structure['DatamartStructure']['id'],
 			"browsing_structures_sub_id" => 0,
 			"id_csv" => implode(",", $ids),
 			"raw" => true
