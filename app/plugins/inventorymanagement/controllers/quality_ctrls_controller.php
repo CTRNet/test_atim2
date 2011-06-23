@@ -187,11 +187,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$display_data[] = array('parent' => $aliquot_data2, 'children' => $data_unit);
 					$sample_master_id = $aliquot_data2['AliquotMaster']['sample_master_id'];
 					if($remove_from_storage){
-						$aliquot_data2['AliquotMaster']['storage_master_id'] = null;
-						$aliquot_data2['AliquotMaster']['storage_coord_x'] = null;
-						$aliquot_data2['AliquotMaster']['storage_coord_y'] = null;
+						$aliquot_data['AliquotMaster']['storage_master_id'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
 					}
-					$aliquot_data_to_save[] = $aliquot_data2['AliquotMaster'];
+					$aliquot_data_to_save[] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
 				}else{
 					$sample_master_id = $key;
 					$sample_data['sample_master_id'] = $key;
