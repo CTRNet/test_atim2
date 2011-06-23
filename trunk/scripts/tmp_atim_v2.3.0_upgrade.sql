@@ -69,7 +69,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("add lab book", "Add lab book", "Ajouter un cahier de laboratoire"),
 ("health insurance card", "Health insurance card", "Cate d'assurance maladie"),
 ("no period has been defined", "No period has been defined", "Aucune période n'a été définie"),
-("aliquot barcode", "Aliquot barcode", "Code à barres de l'aliquot");
+("aliquot barcode", "Aliquot barcode", "Code à barres de l'aliquot"),
+("you have set more than one element in storage [%s] at position [%s, %s]",
+ "You have set more than one element in storage [%s] at position [%s, %s]",
+ "Vous avez défini plus d'un élément dans l'entreposage [%s] à la position [%s, %s]");
 
 UPDATE i18n SET fr='Code à barres' WHERE id='barcode';
 UPDATE i18n SET fr='Le code à barres est requis' WHERE id='barcode is required';
@@ -1800,3 +1803,23 @@ UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FR
 
 UPDATE structure_formats SET `flag_index`='1', `flag_override_label`='1', `language_label`='aliquot barcode' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type='autocomplete');
 
+ALTER TABLE tma_slides
+ MODIFY storage_coord_x VARCHAR(11) NOT NULL DEFAULT '',
+ MODIFY storage_coord_y VARCHAR(11) NOT NULL DEFAULT '';
+ALTER TABLE tma_slides_revs
+ MODIFY storage_coord_x VARCHAR(11) NOT NULL DEFAULT '',
+ MODIFY storage_coord_y VARCHAR(11) NOT NULL DEFAULT '';
+ 
+ALTER TABLE aliquot_masters
+ MODIFY storage_coord_x VARCHAR(11) NOT NULL DEFAULT '',
+ MODIFY storage_coord_y VARCHAR(11) NOT NULL DEFAULT '';
+ALTER TABLE aliquot_masters_revs
+ MODIFY storage_coord_x VARCHAR(11) NOT NULL DEFAULT '',
+ MODIFY storage_coord_y VARCHAR(11) NOT NULL DEFAULT '';
+ 
+ALTER TABLE storage_masters
+ MODIFY parent_storage_coord_x VARCHAR(50) NOT NULL DEFAULT '',
+ MODIFY parent_storage_coord_y VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE storage_masters_revs
+ MODIFY parent_storage_coord_x VARCHAR(50) NOT NULL DEFAULT '',
+ MODIFY parent_storage_coord_y VARCHAR(50) NOT NULL DEFAULT '';

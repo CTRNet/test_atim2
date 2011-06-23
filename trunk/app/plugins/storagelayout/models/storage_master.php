@@ -11,6 +11,11 @@ class StorageMaster extends StoragelayoutAppModel {
 	
 	var $actsAs = array('Tree');
 	
+	var $used_storage_pos = array();
+	const POSITION_FREE = 1;//the position is free
+	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)
+	const POSITION_DOUBLE_SET = 3;//the position is being defined more than once
+	
 	function summary($variables = array()) {
 		$return = false;
 		
@@ -78,16 +83,23 @@ class StorageMaster extends StoragelayoutAppModel {
 				&& (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)
 			){
 				$exception = $this->id ? array("StorageMaster" => $this->id) : array();
-				if(!$this->isPositionAvailableQuick(
-						$parent_storage_selection_results['storage_data']['StorageMaster']['id'], 
-						array(
-							'x' => $this->data['StorageMaster']['parent_storage_coord_x'], 
-							'y' => $this->data['StorageMaster']['parent_storage_coord_y']
-						), $exception
-					)
-				){
-					$msg = sprintf(
-						__('the storage [%s] already contained something at position [%s, %s]', true),
+				$position_status = $this->positionStatusQuick(
+					$parent_storage_selection_results['storage_data']['StorageMaster']['id'], 
+					array(
+						'x' => $this->data['StorageMaster']['parent_storage_coord_x'], 
+						'y' => $this->data['StorageMaster']['parent_storage_coord_y']
+					), $exception
+				);
+				
+				$msg = null;
+				if($position_status == StorageMaster::POSITION_OCCUPIED){
+					$msg = __('the storage [%s] already contained something at position [%s, %s]', true);
+				}else if($position_status == StorageMaster::POSITION_DOUBLE_SET){
+					$msg = __('you have set more than one element in storage [%s] at position [%s, %s]', true);
+				}
+				
+				if($msg != null){
+					$msg = sprintf($msg, 
 						$parent_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']
@@ -761,11 +773,11 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * @param array $position ("x" => int [, "y" => int])
 	 * @param array $exception (model name => id). An exception to ommit when
 	 * checking availability. Usefull when editing something.
-	 * @return true if no aliquot with an "in_stock" flag other than "no" is
-	 * found in the position, false otherwise.
+	 * @return const POSITION_*
 	 */
-	function isPositionAvailableQuick($storage_master_id, array $position, array $exception = array()){
-		//check if an aliquot occupied the position
+	function positionStatusQuick($storage_master_id, array $position, array $exception = array()){
+		
+		//check if an aliquot occupies the position
 		$conditions = array(
 			'AliquotMaster.storage_master_id' => $storage_master_id,
 			'AliquotMaster.in_stock !='	=> "no"
@@ -779,9 +791,9 @@ class StorageMaster extends StoragelayoutAppModel {
 		$aliquot_master_model = ClassRegistry::getObject('AliquotMaster');
 		$tmp = $aliquot_master_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
-			return false;
+			return StorageMaster::POSITION_OCCUPIED;
 		}
-
+		
 		
 		//check if a storage occupies the position
 		$conditions = array(
@@ -793,9 +805,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		if(array_key_exists("StorageMaster", $exception)){
 			$conditions['StorageMaster.id !='] = $exception['StorageMaster'];
 		}
+		
 		$tmp = $this->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
-			return false;
+			return StorageMaster::POSITION_OCCUPIED;
 		}
 		
 		
@@ -814,10 +827,23 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 		$tmp = $tma_slide_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
-			return false;
+			return StorageMaster::POSITION_OCCUPIED;
 		}
 		
-		return true;
+		
+		//check if a current check occupies the position
+		if(array_key_exists('y', $position) && !empty($position['y'])){
+			if(isset($this->used_storage_pos[$storage_master_id][$position['x']][$position['y']])){
+				return StorageMaster::POSITION_DOUBLE_SET;
+			}
+		}else if(isset($this->used_storage_pos[$storage_master_id][$position['x']])){
+			return StorageMaster::POSITION_DOUBLE_SET;
+		} 
+		$this->used_storage_pos[$storage_master_id][$position['x']] = array_key_exists('y', $position) ? array($position['y']) : null;
+
+		
+		
+		return StorageMaster::POSITION_FREE;
 	}
 }
 

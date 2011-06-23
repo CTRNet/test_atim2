@@ -69,17 +69,23 @@ class TmaSlide extends StoragelayoutAppModel {
 				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
 				&& (strlen($tma_slide_data['TmaSlide']['storage_coord_x']) > 0 || strlen($tma_slide_data['TmaSlide']['storage_coord_y']) > 0)
 			){
-				$exception = $this->id ? array('TmaSlide' => $this->id) : array();
-				if(!$this->isPositionAvailableQuick(
-						$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
-						array(
-							'x' => $tma_slide_data['TmaSlide']['storage_coord_x'], 
-							'y' => $tma_slide_data['TmaSlide']['storage_coord_y']
-						), $exception
-					)
-				){
+				$position_status = $this->StorageMaster->positionStatusQuick(
+					$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
+					array(
+						'x' => $tma_slide_data['TmaSlide']['storage_coord_x'], 
+						'y' => $tma_slide_data['TmaSlide']['storage_coord_y']
+					), $exception
+				);
+				$msg = null;
+				if($position_status == StorageMaster::POSITION_OCCUPIED){
+					$msg = __('the storage [%s] already contained something at position [%s, %s]', true);
+				}else if($position_status == StorageMaster::POSITION_DOUBLE_SET){
+					$msg = __('you have set more than one element in storage [%s] at position [%s, %s]', true);
+				}
+
+				if($msg != null){
 					$msg = sprintf(
-						__('the storage [%s] already contained something at position [%s, %s]', true),
+						$msg,
 						$arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']

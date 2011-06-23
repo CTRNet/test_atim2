@@ -299,16 +299,22 @@ class AliquotMaster extends InventoryManagementAppModel {
 					&& (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)
 				){
 					$exception = $this->id ? array('AliquotMaster' => $this->id) : array();
-					if(!$this->StorageMaster->isPositionAvailableQuick(
-							$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
-							array(
-								'x' => $aliquot_data['AliquotMaster']['storage_coord_x'], 
-								'y' => $aliquot_data['AliquotMaster']['storage_coord_y']
-							), $exception
-						)
-					){
-						$msg = sprintf(
-							__('the storage [%s] already contained something at position [%s, %s]', true),
+					$position_status = $this->StorageMaster->positionStatusQuick(
+						$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
+						array(
+							'x' => $aliquot_data['AliquotMaster']['storage_coord_x'], 
+							'y' => $aliquot_data['AliquotMaster']['storage_coord_y']
+						), $exception
+					);
+
+					$msg = null;
+					if($position_status == StorageMaster::POSITION_OCCUPIED){
+						$msg = __('the storage [%s] already contained something at position [%s, %s]', true);
+					}else if($position_status == StorageMaster::POSITION_DOUBLE_SET){
+						$msg = __('you have set more than one element in storage [%s] at position [%s, %s]', true);
+					}
+					if($msg != null){
+						$msg = sprintf($msg, 
 							$arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
 							$aliquot_data['AliquotMaster']['storage_coord_x'],
 							$aliquot_data['AliquotMaster']['storage_coord_y']
