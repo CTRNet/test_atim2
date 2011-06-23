@@ -339,10 +339,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function edit($collection_id, $sample_master_id, $quality_ctrl_id) {
+		
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
-
+ 
 		// MANAGE DATA
 		
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
@@ -362,7 +363,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'QualityCtrl.id' => $quality_ctrl_id) );
 
 		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
-		
+	
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link);
@@ -386,13 +387,15 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 			$update_new_aliquot_id = null;
 			$update_old_aliquot_id = null;
-			if(!empty($this->data['QualityCtrl']['aliquot_master_id'])){
+			if(is_numeric($this->data['QualityCtrl']['aliquot_master_id'])){
 				$update_new_aliquot_id = $this->data['QualityCtrl']['aliquot_master_id'];
 				$aliquot_data = $this->AliquotMaster->findById($this->data['QualityCtrl']['aliquot_master_id']);
 				if((empty($aliquot_data) || empty($aliquot_data['AliquotControl']['volume_unit'])) && !empty($this->data['QualityCtrl']['used_volume'])){
 					$this->data['QualityCtrl']['used_volume'] = null;
 					AppController::addWarningMsg(__('this aliquot has no recorded volume', true).". ".__('the inputed volume was automatically removed', true).".");
 				}
+			}else{
+				$this->data['QualityCtrl']['aliquot_master_id'] = null;
 			}
 			
 			if(!empty($qc_data['QualityCtrl']['aliquot_master_id']) && $qc_data['QualityCtrl']['aliquot_master_id'] != $this->data['QualityCtrl']['aliquot_master_id']){
@@ -400,9 +403,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$update_old_aliquot_id = $qc_data['QualityCtrl']['aliquot_master_id'];
 			}
 			
+			if(!array_key_exists('used_volume', $this->data['QualityCtrl'])){
+				$this->data['QualityCtrl']['used_volume'] = null;
+			}
 			
 			// Save data
-			$this->QualityCtrl->id = $quality_ctrl_id;	
+			$this->QualityCtrl->id = $quality_ctrl_id;
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
 				if($update_new_aliquot_id != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($update_new_aliquot_id, true, true, false);
@@ -418,7 +424,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 		}
 		
-		$this->set('aliquot_data', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id))));
+		$aliquot_vol_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => '')));
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, $aliquot_vol_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => $aliquot_vol_condition))));
 	}
 	
 	function delete($collection_id, $sample_master_id, $quality_ctrl_id) {
