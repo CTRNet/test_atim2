@@ -72,7 +72,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("aliquot barcode", "Aliquot barcode", "Code à barres de l'aliquot"),
 ("you have set more than one element in storage [%s] at position [%s, %s]",
  "You have set more than one element in storage [%s] at position [%s, %s]",
- "Vous avez défini plus d'un élément dans l'entreposage [%s] à la position [%s, %s]");
+ "Vous avez défini plus d'un élément dans l'entreposage [%s] à la position [%s, %s]"),
+("aliquot used volume", "Aliquot used volume", "Volume utilisé de l'aliquot");
 
 UPDATE i18n SET fr='Code à barres' WHERE id='barcode';
 UPDATE i18n SET fr='Le code à barres est requis' WHERE id='barcode is required';
@@ -1823,3 +1824,11 @@ ALTER TABLE storage_masters
 ALTER TABLE storage_masters_revs
  MODIFY parent_storage_coord_x VARCHAR(50) NOT NULL DEFAULT '',
  MODIFY parent_storage_coord_y VARCHAR(50) NOT NULL DEFAULT '';
+ 
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `setting`='' WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');	
+
+UPDATE structure_fields SET  `setting`='' WHERE model='AliquotInternalUse' AND tablename='aliquot_internal_uses' AND field='use_details' AND `type`='textarea' AND structure_value_domain  IS NULL ;
