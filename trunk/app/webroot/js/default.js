@@ -770,6 +770,17 @@ function uncheckAll( $div ) {
 		$(".flyOverSubmit").css("right", (Math.max($(document).width() - $(window).width() - $(document).scrollLeft(), 0)) + "px");
 	}
 	
+	function initAutoHideVolume(){
+		$("input[type=radio]").click(function(){
+			if(jQuery.inArray($(this).val(), volumeIds) > -1){
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
+			}else{
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", true).val("");
+			}
+		});
+		$("input[type=radio]:checked").click();
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -806,6 +817,9 @@ function uncheckAll( $div ) {
 		}
 		if(window.dropdownConfig){
 			initDropdownConfig();
+		}
+		if(window.volumeIds){
+			initAutoHideVolume();
 		}
 		
 		if(window.realiquotInit){
