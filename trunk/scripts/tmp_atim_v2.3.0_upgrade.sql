@@ -68,7 +68,18 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Vous ne pouvez pas réaliquoter ces éléments"),
 ("add lab book", "Add lab book", "Ajouter un cahier de laboratoire"),
 ("health insurance card", "Health insurance card", "Cate d'assurance maladie"),
-("no period has been defined", "No period has been defined", "Aucune période n'a été définie");
+("no period has been defined", "No period has been defined", "Aucune période n'a été définie"),
+("aliquot barcode", "Aliquot barcode", "Code à barres de l'aliquot");
+
+UPDATE i18n SET fr='Code à barres' WHERE id='barcode';
+UPDATE i18n SET fr='Le code à barres est requis' WHERE id='barcode is required';
+UPDATE i18n SET fr='Le code à barres est requis et doit exister!' WHERE id='barcode is required and should exist';
+UPDATE i18n SET fr='Le code à barres doit être unique!' WHERE id='barcode must be unique';
+UPDATE i18n SET fr='La taille du code à barres est limitée!' WHERE id='barcode size is limited';
+UPDATE i18n SET fr='Veuillez contrôler les code à barres suivants:' WHERE id='please check following barcodes';
+UPDATE i18n SET fr="L'aliquot avec le code à barres [%s] a atteint un volume inférieur à 0." WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
+UPDATE i18n SET fr='Le code à barres [%s] a déjà été enregistré!' WHERE id='the barcode [%s] has already been recorded';
+UPDATE i18n SET fr='Vous ne pouvez enregistrer le code à barres [%s] deux fois!' WHERE id='you can not record barcode [%s] twice';
 
 DELETE FROM i18n WHERE id='no perido has been defined';
 
@@ -1786,3 +1797,6 @@ UPDATE structure_fields SET  `tablename`='sd_spe_tissues' WHERE model='SampleDet
 UPDATE structure_fields SET  `tablename`='' WHERE model='custom' AND tablename='custom' AND field='date' AND `type`='datetime' AND structure_value_domain  IS NULL ;
 
 UPDATE structure_formats SET `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1', `flag_override_label`='1', `language_label`='aliquot barcode' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND type='autocomplete');
+
