@@ -9,7 +9,7 @@ $fields = array(
 );
 
 
-function postCollectionWrite(Model $m, $collection_id){
+function postCollectionWrite(Model $m){
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
@@ -25,7 +25,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			"sample_type"					=> "'tissue'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'tissue'", 
-			"collection_id"					=> "'".$collection_id."'", 
+			"collection_id"					=> "'".$m->last_id."'", 
 			"parent_id"						=> "NULL" 
 		);
 		$insert = array_merge($insert, $created);
@@ -54,7 +54,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'block'",
 				"aliquot_control_id"	=> "4",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $sample_master_id,
 				"initial_volume"		=> $volume,
 				"current_volume"		=> $volume,
@@ -78,7 +78,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'block'",
 				"aliquot_control_id"	=> "4",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $sample_master_id,
 				"initial_volume"		=> $volume,
 				"current_volume"		=> $volume,
@@ -102,7 +102,7 @@ function postCollectionWrite(Model $m, $collection_id){
 				$insert = array(
 					"aliquot_type"			=> "'block'",
 					"aliquot_control_id"	=> "4",
-					"collection_id"			=> $collection_id,
+					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $sample_master_id,
 				);
 				$insert = array_merge($insert, $created);
@@ -127,7 +127,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			"sample_type"					=> "'ascite'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'ascite'", 
-			"collection_id"					=> "'".$collection_id."'", 
+			"collection_id"					=> "'".$m->last_id."'", 
 			"parent_id"						=> "NULL" 
 		);
 		$insert = array_merge($insert, $created);
@@ -150,7 +150,7 @@ function postCollectionWrite(Model $m, $collection_id){
 		$insert = array(
 			"aliquot_type"			=> "'tube'",
 			"aliquot_control_id"	=> "2",
-			"collection_id"			=> $collection_id,
+			"collection_id"			=> $m->last_id,
 			"sample_master_id"		=> $sample_master_id,
 			"initial_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
 			"current_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
@@ -179,7 +179,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			"sample_type"					=> "'blood'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'blood'", 
-			"collection_id"					=> "'".$collection_id."'", 
+			"collection_id"					=> "'".$m->last_id."'", 
 			"parent_id"						=> "NULL", 
 		);
 		$insert = array_merge($insert, $created);
@@ -206,7 +206,7 @@ function postCollectionWrite(Model $m, $collection_id){
 				"sample_type"					=> "'serum'", 
 				"initial_specimen_sample_id"	=> $sample_master_id, 
 				"initial_specimen_sample_type"	=> "'blood'", 
-				"collection_id"					=> "'".$collection_id."'", 
+				"collection_id"					=> "'".$m->last_id."'", 
 				"parent_id"						=> $sample_master_id, 
 			);
 			$insert = array_merge($insert, $created);
@@ -228,7 +228,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> "8",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $serum_sample_master_id,
 				"initial_volume"		=> "'".$m->values['Blood Precision Frozen Serum Volume (ml)']."'",
 				"current_volume"		=> "'".$m->values['Blood Precision Frozen Serum Volume (ml)']."'",
@@ -257,7 +257,7 @@ function postCollectionWrite(Model $m, $collection_id){
 				"sample_type"					=> "'plasma'", 
 				"initial_specimen_sample_id"	=> $sample_master_id, 
 				"initial_specimen_sample_type"	=> "'blood'", 
-				"collection_id"					=> "'".$collection_id."'", 
+				"collection_id"					=> "'".$m->last_id."'", 
 				"parent_id"						=> $sample_master_id, 
 			);
 			$insert = array_merge($insert, $created);
@@ -279,7 +279,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> "8",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $plasma_sample_master_id,
 				"initial_volume"		=> "'".$m->values['Blood Precision Frozen Plasma Volume (ml)']."'",
 				"current_volume"		=> "'".$m->values['Blood Precision Frozen Plasma Volume (ml)']."'",
@@ -308,7 +308,7 @@ function postCollectionWrite(Model $m, $collection_id){
 				"sample_type"					=> "'dna'", 
 				"initial_specimen_sample_id"	=> $sample_master_id, 
 				"initial_specimen_sample_type"	=> "'blood'", 
-				"collection_id"					=> "'".$collection_id."'", 
+				"collection_id"					=> "'".$m->last_id."'", 
 				"parent_id"						=> $sample_master_id, 
 			);
 			$insert = array_merge($insert, $created);
@@ -330,7 +330,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> "8",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $dna_sample_master_id,
 				"initial_volume"		=> "'".$m->values['Blood Precision Blood DNA Volume (ug)']."'",
 				"current_volume"		=> "'".$m->values['Blood Precision Blood DNA Volume (ug)']."'",
@@ -360,7 +360,7 @@ function postCollectionWrite(Model $m, $collection_id){
 				"sample_type"					=> "'blood cell'", 
 				"initial_specimen_sample_id"	=> $sample_master_id, 
 				"initial_specimen_sample_type"	=> "'blood'", 
-				"collection_id"					=> "'".$collection_id."'", 
+				"collection_id"					=> "'".$m->last_id."'", 
 				"parent_id"						=> $sample_master_id, 
 			);
 			$insert = array_merge($insert, $created);
@@ -382,7 +382,7 @@ function postCollectionWrite(Model $m, $collection_id){
 			$insert = array(
 				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> "8",
-				"collection_id"			=> $collection_id,
+				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $bc_sample_master_id,
 				"initial_volume"		=> "'".$m->values['Blood Precision Buffy coat (ul)']."'",
 				"current_volume"		=> "'".$m->values['Blood Precision Buffy coat (ul)']."'",
@@ -410,7 +410,7 @@ function postCollectionWrite(Model $m, $collection_id){
 }
 
 
-$model = new Model(5, $pkey, array(), true, NULL, 'collections', $fields);
+$model = new Model(5, $pkey, array(), true, NULL, NULL, 'collections', $fields);
 $model->custom_data = array("date_fields" => array(
 	$fields["collection_datetime"] => current(array_keys($fields["collection_datetime_accuracy"]))
 )); 
