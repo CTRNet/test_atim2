@@ -1,7 +1,12 @@
 <?php
 
 $pkey = "Patient Biobank Number (required & unique)";
-$child = array("qc_tf_dxd_eocs", "qc_tf_dxd_other_primary_cancers", "qc_tf_ed_eocs", "qc_tf_ed_other_primary_cancers");
+$child = array(
+	//"qc_tf_dxd_eocs", 
+	"qc_tf_dxd_other_primary_cancers"/*, 
+	"qc_tf_ed_eocs", 
+	"qc_tf_ed_other_primary_cancers"*/
+);
 $fields = array(
 	"title" => "",
 	"first_name" => "",
@@ -32,17 +37,17 @@ $fields = array(
 	"notes" => "notes"
 );
 
-function postParticipantWrite(Model $m, $participant_id){
+function postParticipantWrite(Model $m){
 	global $connection;
-	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$participant_id;
+	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id;
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	if(!isset($m->values['identifier_id'])){
 		die("Participant identifier_id is required");
 	}
 	$insert = array(
-		"identifier_value"				=> "'".$m->values[$m->pkey]."'",
+		"identifier_value"				=> "'".$m->values[$m->csv_pkey]."'",
 		"misc_identifier_control_id"	=> $m->values['identifier_id'],
-		"participant_id"				=> $participant_id,
+		"participant_id"				=> $m->last_id,
 		"created"						=> "NOW()", 
 		"created_by"					=> "1", 
 		"modified"						=> "NOW()",
@@ -52,7 +57,7 @@ function postParticipantWrite(Model $m, $participant_id){
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 }
 
-$model = new Model(0, $pkey, $child, true, NULL, 'participants', $fields);
+$model = new Model(0, $pkey, $child, true, NULL, NULL, 'participants', $fields);
 $model->custom_data = array(
 	"date_fields" => array(
 		$fields["date_of_birth"]					=> current(array_keys($fields["dob_date_accuracy"])), 
@@ -64,7 +69,4 @@ $model->post_read_function = 'excelDateFix';
 $model->post_write_function = 'postParticipantWrite';
 
 Config::$models['participants'] = $model;
-?>
-
-
 
