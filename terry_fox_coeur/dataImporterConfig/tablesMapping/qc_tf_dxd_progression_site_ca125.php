@@ -24,7 +24,7 @@ $model->custom_data = array("date_fields" => array(
 $model->post_read_function = 'progressionSiteCa125PostRead';
 $model->insert_condition_function = 'progressionSiteInsertNow';
 
-Config::$models['qc_tf_dxd_progression_site_ca125'] = $model;
+Config::addModel($model, 'qc_tf_dxd_progression_site_ca125');
 
 function progressionSiteCa125PostRead(Model $m){
 	if(empty($m->values['Date of Progression of CA125 Date'])){

@@ -20,7 +20,7 @@ $model->custom_data = array("date_fields" => array(
 	'Date of Diagnosis Date'							=> 'Date of Diagnosis Accuracy')
 ); 
 				 
-Config::$models['qc_tf_dxd_other_progression_site'] = $model;
+Config::addModel($model, 'qc_tf_dxd_other_progression_site');
 
 
 function otherProgressionPostRead(Model $m){
