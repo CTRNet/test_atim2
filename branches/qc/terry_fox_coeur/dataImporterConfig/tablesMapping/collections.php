@@ -13,9 +13,9 @@ function postCollectionWrite(Model $m){
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
-		"created_by"	=> "1", 
+		"created_by"	=> Config::$db_created_id, 
 		"modified"		=> "NOW()",
-		"modified_by"	=> "1"
+		"modified_by"	=> Config::$db_created_id
 		);
 	if($m->values['Collected Specimen Type'] == 'tissue'){
 		$insert = array(

@@ -2,10 +2,12 @@
 
 $pkey = "Patient Biobank Number (required & unique)";
 $child = array(
-	//"qc_tf_dxd_eocs", 
-	"qc_tf_dxd_other_primary_cancers"/*, 
-	"qc_tf_ed_eocs", 
-	"qc_tf_ed_other_primary_cancers"*/
+	"qc_tf_dxd_eocs", 
+	"qc_tf_dxd_other_primary_cancers", 
+	"qc_tf_ed_eocs",
+	"qc_tf_tx_eocs",
+	"qc_tf_ed_other",
+	"qc_tf_tx_other"
 );
 $fields = array(
 	"title" => "",
