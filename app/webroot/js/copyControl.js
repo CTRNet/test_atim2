@@ -32,7 +32,9 @@ function initCopyControl(){
 		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
 		$("#pasteAllOfAll").click(function(){
 			$("table.structure tbody tr").each(function(){
-				pasteLine(this);
+				if($(this).find("input.addLineCount").length == 0){
+					pasteLine(this);
+				}
 			});
 			return false;
 		});
