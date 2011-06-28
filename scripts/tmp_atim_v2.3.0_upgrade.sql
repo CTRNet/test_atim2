@@ -1832,3 +1832,8 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquo
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');	
 
 UPDATE structure_fields SET  `setting`='' WHERE model='AliquotInternalUse' AND tablename='aliquot_internal_uses' AND field='use_details' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generated' AND tablename='generated' AND field='time' AND `type`='time' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generated' AND tablename='generated' AND field='event' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generated' AND tablename='generated' AND field='date' AND `type`='date' AND structure_value_domain  IS NULL ;
+
