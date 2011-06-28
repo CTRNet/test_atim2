@@ -572,6 +572,7 @@ function uncheckAll( $div ) {
 				initDatepicker(newLines);
 				initToolPopup(newLines);
 				initTooltips(document);
+				initCheckboxes(newLines);
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
