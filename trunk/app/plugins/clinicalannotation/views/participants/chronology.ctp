@@ -1,8 +1,10 @@
 <?php 
+	$chronology['Accuracy']['custom']['date'] = 'date_accuracy';
+
 	$final_atim_structure = $chronology;
 	
 	$links['index'] = array(array(
-			'link' => '%%Generated.link%%',
+			'link' => '%%custom.link%%',
 			'icon' => 'detail'
 		)
 	);
