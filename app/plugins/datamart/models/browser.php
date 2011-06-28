@@ -629,7 +629,7 @@ class Browser extends DatamartAppModel {
 					}
 				}
 			}
-			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".implode(", ", $values)."</td>\n";
+			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".stripslashes(implode(", ", $values))."</td>\n";
 		}
 		$result .= "<tr><th>".__("exact search", true)."</th><td>".($search_params['exact_search'] ? __("yes", true) : __('no', true))."</td>\n";
 		$result .= "</table>";
