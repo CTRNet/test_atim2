@@ -424,9 +424,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 		}
 		
-		$aliquot_vol_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => '')));
-		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, $aliquot_vol_condition))));
-		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => $aliquot_vol_condition))));
+		
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
 	}
 	
 	function delete($collection_id, $sample_master_id, $quality_ctrl_id) {
@@ -466,8 +466,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	
 	function addInit($collection_id, $sample_master_id){
 		$this->setBatchMenu(array('SampleMaster' => $sample_master_id));
-		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
-		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
+		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure_vol');
+		$this->Structures->set('aliquotmasters', 'aliquot_structure_no_vol');
 		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');

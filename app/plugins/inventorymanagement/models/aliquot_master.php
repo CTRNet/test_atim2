@@ -28,7 +28,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 	public static $aliquot_type_dropdown = array();
 	public static $storage = null;
 	
-	private $barcodes = array();//barcode validation, key = barcode, value = id	
+	private $barcodes = array();//barcode validation, key = barcode, value = id
+
+	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => ''))); 
 		
 	function summary($variables=array()) {
 		$return = false;

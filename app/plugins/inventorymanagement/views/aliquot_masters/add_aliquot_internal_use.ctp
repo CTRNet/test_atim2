@@ -24,7 +24,8 @@ $children_settings = array(
 		'form_top' => false,
 		'form_bottom' => false,
 		"add_fields"	=> true, 
-		"del_fields"	=> true
+		"del_fields"	=> true,
+		"language_heading" => __('internal use', true)
 	)
 );
 	
@@ -72,7 +73,6 @@ while($data_unit = array_shift($this->data)){
 	}
 	
 	$structures->build($final_structure_parent, $final_options_parent);
-	$structures->printLightHeader(__('internal use', true));
 	$structures->build($final_structure_children, $final_options_children);
 }				
 ?>
