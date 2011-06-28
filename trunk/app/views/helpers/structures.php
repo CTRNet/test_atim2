@@ -26,6 +26,7 @@ class StructuresHelper extends Helper {
 				// show/hide various structure elements, useful for STACKING multiple structures (for example, to make one BIG form out of multiple smaller forms)
 				'actions'		=> true, 
 				'header'		=> '',
+				'language_heading' => null,
 				'form_top'		=> true, 
 				'tabindex'		=> 0, // when setting TAB indexes, add this value to the number, useful for stacked forms
 				'form_inputs'	=> true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
@@ -333,6 +334,10 @@ class StructuresHelper extends Helper {
 					<p>'.$options['settings']['header']['description'].'</p>
 				</div>
 			');
+		}
+		
+		if($options['settings']['language_heading']){
+			echo '<div class="heading_mimic"><h4>'.$options['settings']['language_heading'].'</h4></div>';
 		}
 		
 		if(isset($options['extras']['start'])){
@@ -2303,10 +2308,6 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $current_value;
-	}
-	
-	public function printLightHeader($text){
-		echo '<div class="heading_mimic"><h4>'.$text.'</h4></div>';
 	}
 }
 	

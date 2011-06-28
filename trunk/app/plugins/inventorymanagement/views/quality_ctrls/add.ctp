@@ -57,7 +57,8 @@ $options_children = array(
 		'actions'		=> false,
 		'form_bottom'	=> false,
 		"add_fields"	=> true, 
-		"del_fields"	=> true
+		"del_fields"	=> true,
+		"language_heading" => __('quality controls', true)
 	)
 );
 
@@ -113,7 +114,6 @@ while($data = array_shift($this->data)){
 	
 	
 	$structures->build($final_structure_parent, $final_options_parent);
-	$structures->printLightHeader(__('quality controls', true));
 	$structures->build($final_structure_children, $final_options_children);
 }
 

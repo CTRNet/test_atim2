@@ -37,20 +37,47 @@
 			array('value' => '')
 	), "</div>";
 	
-	$final_atim_structure = $aliquot_structure;
+	$final_atim_structure = $aliquot_structure_vol;
 	$final_options = array(
 		'type' 	=> 'index',
 		'links'	=> $links,
-		'data'	=> $this->data,
+		'data'	=> $aliquot_data_vol,
 		'settings' => array(
 			'pagination'	=> false,
 			'form_inputs'	=> false,
-			'form_top'		=> false
+			'form_top'		=> false,
+			'form_bottom'	=> false,
+			'actions'		=> false,
+			'language_heading' => __('aliquots with volume', true)
 		)
 	);
 	
-	$hook_link = $structures->hook('aliquot');
+	$hook_link = $structures->hook('aliquot_vol');
 	if( $hook_link ) { 
 		require($hook_link); 
+	}
+	$structures->build( $final_atim_structure, $final_options );
+	
+	
+	
+	
+	
+	
+	$final_atim_structure = $aliquot_structure_no_vol;
+	$final_options = array(
+			'type' 	=> 'index',
+			'links'	=> $links,
+			'data'	=> $aliquot_data_no_vol,
+			'settings' => array(
+				'pagination'	=> false,
+				'form_inputs'	=> false,
+				'form_top'		=> false,
+				'language_heading' => __('aliquots without volume', true)
+	)
+	);
+	
+	$hook_link = $structures->hook('aliquot_no_vol');
+	if( $hook_link ) {
+		require($hook_link);
 	}
 	$structures->build( $final_atim_structure, $final_options );
