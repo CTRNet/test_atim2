@@ -70,17 +70,15 @@ class StructuresComponent extends Object {
 					$tablename = $field['tablename'];
 				}
 				
-				if($tablename == null){
-					if(Configure::read('debug') > 0){
-						AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
-					}
-				}else{ 
+				if($tablename != null){
 					if(!array_key_exists($tablename, AppModel::$accuracy_config)){
 						$model->buildAccuracyConfig();
 					}
 					if(isset(AppModel::$accuracy_config[$tablename][$field['field']])){
 						$structure['Accuracy'][$field['model']][$field['field']] = $field['field'].'_accuracy';
 					}
+				}else if($field['model'] != 'custom' && Configure::read('debug') > 0){
+						AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
 				}
 			}
 		}
