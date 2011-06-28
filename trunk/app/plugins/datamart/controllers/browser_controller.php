@@ -584,11 +584,17 @@ class BrowserController extends DatamartAppController {
 			$this->redirect( '/pages/err_internal?p[]=model+not+found', NULL, TRUE );
 		}
 		
-		$use_key = $model == $dm_structure['DatamartStructure']['model'] ? $dm_structure['DatamartStructure']['use_key'] : 'id';
-
-		$ids = isset($this->data[$model]) && isset($this->data[$model][$use_key]) ? $this->data[$model][$use_key] : array();
-		$ids = array_filter($ids);
+		$ids = array();
+		if(array_key_exists($dm_structure['DatamartStructure']['model'], $this->data)){
+			$ids = $this->data[$dm_structure['DatamartStructure']['model']][$dm_structure['DatamartStructure']['use_key']];
+		}else if(array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->data)){
+			$ids = $this->data[$dm_structure['DatamartStructure']['control_master_model']]['id'];
+		}else{
+			$this->redirect( '/pages/err_internal?p[]=invalid+data', NULL, TRUE );
+		}
 		
+		$ids = array_filter($ids);
+
 		if(empty($ids)){
 			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
 		}
