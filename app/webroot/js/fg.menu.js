@@ -513,9 +513,10 @@ Menu.prototype.setPosition = function(widget, caller, options) {
 	} 
 	else {
 		el.css({ bottom: 'auto', top: yVal });
-		if (options.positionOpts.detectV && !fitVertical(el)) {
-			el.css({ top: 'auto', bottom: yVal });
-		}
+//		ATiM edit - Down is down, don't allow it to go up
+//		if (options.positionOpts.detectV && !fitVertical(el)) {
+//			el.css({ top: 'auto', bottom: yVal });
+//		}
 	};
 	
 	// and horizontally
