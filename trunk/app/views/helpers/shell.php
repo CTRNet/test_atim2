@@ -134,7 +134,10 @@ class ShellHelper extends Helper {
 		
 		if(isset($_SESSION['ctrapp_core']['warning_msg']) && count($_SESSION['ctrapp_core']['warning_msg']) > 0){
 			$confirm_msg_html .= '<ul class="warning">';
-			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg){
+			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg => $count){
+				if($count > 1){
+					$warning_msg .= " (".$count.")";
+				}
 				$confirm_msg_html .= "<li>".$warning_msg."</li>";
 			}
 			$confirm_msg_html .= '</ul>';
