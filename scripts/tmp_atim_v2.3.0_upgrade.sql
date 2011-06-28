@@ -205,18 +205,8 @@ ALTER TABLE banks_revs
 ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 
-CREATE TABLE tmp_accuracy_fields (SELECT substr(field, 1, length(field) - 9) AS field, tablename FROM structure_fields WHERE field LIKE '%_accuracy');
-/*UPDATE structure_fields AS sf  
- INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
- SET sf.setting=CONCAT(setting, ',accuracy') 
- WHERE setting!=''; 
-UPDATE structure_fields AS sf
- INNER JOIN tmp_accuracy_fields AS taf ON taf.field=sf.field AND taf.tablename=sf.tablename
- SET setting='accuracy' 
- WHERE setting='';*/ 
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%_accuracy%');
-DELETE FROM structure_fields WHERE field LIKE '%_accuracy%';
-DROP TABLE tmp_accuracy_fields;
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE '%_accuracy%' AND structure_value_domain != (SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy'));
+DELETE FROM structure_fields WHERE field LIKE '%_accuracy%' AND structure_value_domain != (SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy');
 
 UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND tablename='participants' AND field='date_of_death' AND `type`='date' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `setting`='accuracy' WHERE model='Participant' AND tablename='participants' AND field='date_of_birth' AND `type`='date' AND structure_value_domain  IS NULL ;
@@ -664,139 +654,6 @@ WHERE qc2.id IS NULL);
 
 DROP TABLE quality_ctrl_tested_aliquots;
 DROP TABLE quality_ctrl_tested_aliquots_revs;
-
-DROP VIEW view_aliquot_uses;
-
-CREATE VIEW view_aliquot_uses AS 
-
-SELECT 
-CONCAT(source.id, 1) AS id,
-aliq.id AS aliquot_master_id,
-'sample derivative creation' AS use_definition, 
-samp.sample_code AS use_code,
-'' AS use_details,
-source.used_volume,
-aliq.aliquot_volume_unit,
-der.creation_datetime AS use_datetime,
-der.creation_by AS used_by,
-source.created,
-CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
-samp2.id AS sample_master_id,
-samp2.collection_id AS collection_id
-FROM source_aliquots AS source
-INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
-INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
-INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
-INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE source.deleted != 1
-
-UNION ALL
-
-SELECT 
-CONCAT(realiq.id, 2) AS id,
-aliq.id AS aliquot_master_id,
-'realiquoted to' AS use_definition, 
-child.barcode AS use_code,
-'' AS use_details,
-realiq.parent_used_volume AS used_volume,
-aliq.aliquot_volume_unit,
-realiq.realiquoting_datetime AS use_datetime,
-realiq.realiquoted_by AS used_by,
-realiq.created,
-CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
-samp.id AS sample_master_id,
-samp.collection_id AS collection_id
-FROM realiquotings AS realiq
-INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
-INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE realiq.deleted != 1
-
-UNION ALL
-
-SELECT 
-CONCAT(qc.id, 3) AS id,
-aliq.id AS aliquot_master_id,
-'quality control' AS use_definition, 
-qc.qc_code AS use_code,
-'' AS use_details,
-qc.used_volume,
-aliq.aliquot_volume_unit,
-qc.date AS use_datetime,
-qc.run_by AS used_by,
-qc.created,
-CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
-samp.id AS sample_master_id,
-samp.collection_id AS collection_id
-FROM quality_ctrls AS qc
-INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE qc.deleted != 1
-
-UNION ALL
-
-SELECT 
-CONCAT(item.id, 4) AS id,
-aliq.id AS aliquot_master_id,
-'aliquot shipment' AS use_definition, 
-sh.shipment_code AS use_code,
-'' AS use_details,
-'' AS used_volume,
-'' AS aliquot_volume_unit,
-sh.datetime_shipped AS use_datetime,
-sh.shipped_by AS used_by,
-sh.created,
-CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
-samp.id AS sample_master_id,
-samp.collection_id AS collection_id
-FROM order_items AS item
-INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
-INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE item.deleted != 1
-
-UNION ALL
-
-SELECT 
-CONCAT(alr.id, 5) AS id,
-aliq.id AS aliquot_master_id,
-'specimen review' AS use_definition, 
-spr.review_code AS use_code,
-'' AS use_details,
-'' AS used_volume,
-'' AS aliquot_volume_unit,
-spr.review_date AS use_datetime,
-'' AS used_by,
-alr.created,
-CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
-samp.id AS sample_master_id,
-samp.collection_id AS collection_id
-FROM aliquot_review_masters AS alr
-INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
-INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE alr.deleted != 1
-
-UNION ALL
-
-SELECT 
-CONCAT(aluse.id, 6) AS id,
-aliq.id AS aliquot_master_id,
-'internal use' AS use_definition, 
-aluse.use_code,
-aluse.use_details,
-aluse.used_volume,
-aliq.aliquot_volume_unit,
-aluse.use_datetime,
-aluse.used_by,
-aluse.created,
-CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
-samp.id AS sample_master_id,
-samp.collection_id AS collection_id
-FROM aliquot_internal_uses AS aluse
-INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
-INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-WHERE aluse.deleted != 1;
 
 INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
 (1, 'create quality control', '/inventorymanagement/quality_ctrls/add/', 1),
@@ -1837,3 +1694,206 @@ UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generat
 UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generated' AND tablename='generated' AND field='event' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `tablename`='', model='custom' WHERE model='Generated' AND tablename='generated' AND field='date' AND `type`='date' AND structure_value_domain  IS NULL ;
 
+ALTER TABLE aliquot_internal_uses ADD COLUMN use_datetime_accuracy CHAR(1) DEFAULT '' AFTER use_datetime;
+ALTER TABLE aliquot_masters ADD COLUMN storage_datetime_accuracy CHAR(1) DEFAULT '' AFTER storage_datetime;
+ALTER TABLE announcements 
+ ADD COLUMN date_accuracy CHAR(1) DEFAULT '' AFTER date,
+ ADD COLUMN date_start_accuracy CHAR(1) DEFAULT '' AFTER date_start,
+ ADD COLUMN date_end_accuracy CHAR(1) DEFAULT '' AFTER date_end;
+ALTER TABLE consent_masters 
+ ADD COLUMN date_of_referral_accuracy CHAR(1) DEFAULT '' AFTER date_of_referral,
+ ADD COLUMN date_first_contact_accuracy CHAR(1) DEFAULT '' AFTER date_first_contact,
+ ADD COLUMN consent_signed_date_accuracy CHAR(1) DEFAULT '' AFTER consent_signed_date,
+ ADD COLUMN status_date_accuracy CHAR(1) DEFAULT '' AFTER status_date,
+ ADD COLUMN operation_date_accuracy CHAR(1) DEFAULT '' AFTER operation_date;
+ALTER TABLE event_masters 
+ ADD COLUMN event_date_accuracy CHAR(1) DEFAULT '' AFTER event_date,
+ ADD COLUMN date_required_accuracy CHAR(1) DEFAULT '' AFTER date_required,
+ ADD COLUMN date_requested_accuracy CHAR(1) DEFAULT '' AFTER date_requested;
+ALTER TABLE lbd_dna_extractions ADD COLUMN creation_datetime_accuracy CHAR(1) DEFAULT '' AFTER creation_datetime;
+ALTER TABLE lbd_slide_creations ADD COLUMN realiquoting_datetime_accuracy CHAR(1) DEFAULT '' AFTER realiquoting_datetime;
+ALTER TABLE misc_identifiers 
+ ADD COLUMN effective_date_accuracy CHAR(1) DEFAULT '' AFTER effective_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) DEFAULT '' AFTER expiry_date;
+ALTER TABLE order_items ADD COLUMN date_added_accuracy CHAR(1) DEFAULT '' AFTER date_added;
+ALTER TABLE order_lines ADD COLUMN date_required_accuracy CHAR(1) DEFAULT '' AFTER date_required;
+ALTER TABLE orders 
+ ADD COLUMN date_order_placed_accuracy CHAR(1) DEFAULT '' AFTER date_order_placed,
+ ADD COLUMN date_order_completed_accuracy CHAR(1) DEFAULT '' AFTER date_order_completed;
+ALTER TABLE participant_contacts 
+ ADD COLUMN effective_date_accuracy CHAR(1) DEFAULT '' AFTER effective_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) DEFAULT '' AFTER expiry_date;
+ALTER TABLE participant_messages 
+ ADD COLUMN date_requested_accuracy CHAR(1) DEFAULT '' AFTER date_requested,
+ ADD COLUMN due_date_accuracy CHAR(1) DEFAULT '' AFTER due_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) DEFAULT '' AFTER expiry_date;
+ALTER TABLE participants ADD COLUMN last_chart_checked_date_accuracy CHAR(1) DEFAULT '' AFTER last_chart_checked_date;
+ALTER TABLE protocol_masters 
+ ADD COLUMN expiry_accuracy CHAR(1) DEFAULT '' AFTER expiry,
+ ADD COLUMN activated_accuracy CHAR(1) DEFAULT '' AFTER activated;
+ALTER TABLE quality_ctrls ADD COLUMN date_accuracy CHAR(1) DEFAULT '' AFTER date;
+ALTER TABLE realiquotings ADD COLUMN realiquoting_datetime_accuracy CHAR(1) DEFAULT '' AFTER realiquoting_datetime;
+ALTER TABLE reproductive_histories 
+ ADD COLUMN date_captured_accuracy CHAR(1) DEFAULT '' AFTER date_captured,
+ ADD COLUMN lnmp_date_accuracy CHAR(1) DEFAULT '' AFTER lnmp_date;
+ALTER TABLE rtbforms ADD COLUMN frmCreated_accuracy CHAR(1) DEFAULT '' AFTER frmCreated;
+ALTER TABLE sd_spe_tissues ADD COLUMN pathology_reception_datetime_accuracy CHAR(1) DEFAULT '' AFTER pathology_reception_datetime;
+ALTER TABLE shipments 
+ ADD COLUMN datetime_shipped_accuracy CHAR(1) DEFAULT '' AFTER datetime_shipped,
+ ADD COLUMN datetime_received_accuracy CHAR(1) DEFAULT '' AFTER datetime_received;
+ALTER TABLE sop_masters 
+ ADD COLUMN expiry_date_accuracy CHAR(1) DEFAULT '' AFTER expiry_date,
+ ADD COLUMN activated_date_accuracy CHAR(1) DEFAULT '' AFTER activated_date;
+ALTER TABLE specimen_review_masters ADD COLUMN review_date_accuracy CHAR(1) DEFAULT '' AFTER review_date;
+ALTER TABLE std_tma_blocks ADD COLUMN creation_datetime_accuracy CHAR(1) DEFAULT '' AFTER creation_datetime;
+ALTER TABLE study_ethics_boards ADD COLUMN date_accuracy CHAR(1) DEFAULT '' AFTER date;
+ALTER TABLE study_fundings ADD COLUMN date_accuracy CHAR(1) DEFAULT '' AFTER date;
+ALTER TABLE study_investigators 
+ ADD COLUMN participation_start_date_accuracy CHAR(1) DEFAULT '' AFTER participation_start_date,
+ ADD COLUMN participation_end_date_accuracy CHAR(1) DEFAULT '' AFTER participation_end_date;
+ALTER TABLE study_related ADD COLUMN date_posted_accuracy CHAR(1) DEFAULT '' AFTER date_posted;
+ALTER TABLE study_results ADD COLUMN result_date_accuracy CHAR(1) DEFAULT '' AFTER result_date;
+ALTER TABLE study_reviews ADD COLUMN date_accuracy CHAR(1) DEFAULT '' AFTER date;
+ALTER TABLE study_summaries 
+ ADD COLUMN start_date_accuracy CHAR(1) DEFAULT '' AFTER start_date,
+ ADD COLUMN end_date_accuracy CHAR(1) DEFAULT '' AFTER end_date;
+ALTER TABLE tma_slides ADD COLUMN storage_datetime_accuracy CHAR(1) DEFAULT '' AFTER storage_datetime;
+
+DROP VIEW view_aliquot_uses;
+
+CREATE VIEW view_aliquot_uses AS 
+
+SELECT 
+CONCAT(source.id, 1) AS id,
+aliq.id AS aliquot_master_id,
+'sample derivative creation' AS use_definition, 
+samp.sample_code AS use_code,
+'' AS use_details,
+source.used_volume,
+aliq.aliquot_volume_unit,
+der.creation_datetime AS use_datetime,
+der.creation_datetime_accuracy AS use_datetime_accuracy,
+der.creation_by AS used_by,
+source.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
+samp2.id AS sample_master_id,
+samp2.collection_id AS collection_id
+FROM source_aliquots AS source
+INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
+INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE source.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(realiq.id, 2) AS id,
+aliq.id AS aliquot_master_id,
+'realiquoted to' AS use_definition, 
+child.barcode AS use_code,
+'' AS use_details,
+realiq.parent_used_volume AS used_volume,
+aliq.aliquot_volume_unit,
+realiq.realiquoting_datetime AS use_datetime,
+realiq.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+realiq.realiquoted_by AS used_by,
+realiq.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM realiquotings AS realiq
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE realiq.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(qc.id, 3) AS id,
+aliq.id AS aliquot_master_id,
+'quality control' AS use_definition, 
+qc.qc_code AS use_code,
+'' AS use_details,
+qc.used_volume,
+aliq.aliquot_volume_unit,
+qc.date AS use_datetime,
+qc.date_accuracy AS use_datetime_accuracy,
+qc.run_by AS used_by,
+qc.created,
+CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM quality_ctrls AS qc
+INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE qc.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(item.id, 4) AS id,
+aliq.id AS aliquot_master_id,
+'aliquot shipment' AS use_definition, 
+sh.shipment_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+sh.datetime_shipped AS use_datetime,
+sh.datetime_shipped_accuracy AS use_datetime_accuracy,
+sh.shipped_by AS used_by,
+sh.created,
+CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM order_items AS item
+INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE item.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(alr.id, 5) AS id,
+aliq.id AS aliquot_master_id,
+'specimen review' AS use_definition, 
+spr.review_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+spr.review_date AS use_datetime,
+spr.review_date_accuracy AS use_datetime_accuracy,
+'' AS used_by,
+alr.created,
+CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_review_masters AS alr
+INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE alr.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(aluse.id, 6) AS id,
+aliq.id AS aliquot_master_id,
+'internal use' AS use_definition, 
+aluse.use_code,
+aluse.use_details,
+aluse.used_volume,
+aliq.aliquot_volume_unit,
+aluse.use_datetime,
+aluse.use_datetime_accuracy,
+aluse.used_by,
+aluse.created,
+CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_internal_uses AS aluse
+INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE aluse.deleted != 1;
