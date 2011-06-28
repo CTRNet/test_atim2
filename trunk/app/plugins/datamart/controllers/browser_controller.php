@@ -593,6 +593,8 @@ class BrowserController extends DatamartAppController {
 			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
 		}
 		
+		sort($ids);
+		
 		$save = array('BrowsingResult' => array(
 			"user_id" => $_SESSION['Auth']['User']['id'],
 			"parent_node_id" => 0,
