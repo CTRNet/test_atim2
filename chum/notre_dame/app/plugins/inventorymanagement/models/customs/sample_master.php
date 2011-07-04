@@ -164,20 +164,35 @@ class SampleMasterCustom extends SampleMaster {
     			break;
     							
     		case 'cell culture':
-    			if(!array_key_exists('qc_culture_population', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+    			if(!array_key_exists('qc_culture_population', $sample_data['SampleDetail'])) { 
+    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    			}
+    			
 				if(!empty($sample_data['SampleDetail']['qc_culture_population'])) {	
 					$initial_specimen_label = str_replace((' - ' . $bank_participant_identifier),(' - ' . $bank_participant_identifier.'.'.$sample_data['SampleDetail']['qc_culture_population']),$initial_specimen_label);
 				}
-    			if(!array_key_exists('cell_passage_number', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+    			if(!array_key_exists('cell_passage_number', $sample_data['SampleDetail'])) { 
+    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    			}
+    			
 				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label.
 					((empty($sample_data['SampleDetail']['cell_passage_number']) && (strcmp($sample_data['SampleDetail']['cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['cell_passage_number']);
     			break;	
     					
     		case 'dna': 			
     		case 'rna':		 
-    			if(!array_key_exists('source_cell_passage_number', $sample_data['SampleDetail'])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+    			if(!array_key_exists('source_cell_passage_number', $sample_data['SampleDetail'])) { 
+    				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+    			}
 				$new_sample_label = $sample_type_code . ' ' . $initial_specimen_label.
 					((empty($sample_data['SampleDetail']['source_cell_passage_number']) && (strcmp($sample_data['SampleDetail']['source_cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['source_cell_passage_number']);
+				
+				if(is_numeric($sample_data['SampleMaster']['parent_id'])){
+					$parent_element = $this->findById($sample_data['SampleMaster']['parent_id']);
+					if(isset($parent_element['SampleDetail']['qc_culture_population']) && is_numeric($parent_element['SampleDetail']['qc_culture_population'])){
+						$new_sample_label .= ".".$parent_element['SampleDetail']['qc_culture_population'];
+					}
+				}
     			break;
     		
     		default :
