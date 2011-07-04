@@ -1070,7 +1070,7 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap lung histologic grade', 1, 50);
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_lung_histologic_type','','', NULL);
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_lung_lymph_vasc_inv','','', NULL);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_not_id_pres_indet','','', NULL);
 
 INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_lungs');
 
@@ -1086,7 +1086,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','histologic_type','select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_type') ,'0','','','','histologic type',''), 
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','histologic_type_precision','input',  NULL ,'0','','','','precision (if any)',''), 
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','histologic_grade','select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_grade') ,'0','','','','histologic grade',''), 
-('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','lymph_vascular_invasion','select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_lymph_vasc_inv') ,'0','','','','lymph vascular invasion',''), 
+('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','lymph_vascular_invasion','select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') ,'0','','','','lymph vascular invasion',''), 
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','ptmn_m','checkbox',  NULL ,'0','','','','m (multiple primary tumors)',''), 
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','ptmn_r','checkbox',  NULL ,'0','','','','r (recurrent)',''), 
 ('Clinicalannotation','DiagnosisDetail','qc_gastro_dxd_cap_lungs','ptmn_y','checkbox',  NULL ,'0','','','','y (post-treatment)','');
@@ -1103,7 +1103,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='histologic_type'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_type')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='histologic type'AND `language_tag`=''),'2','1','histology','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='histologic_type_precision'AND `type`='input'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='precision (if any)'AND `language_tag`=''),'2','2','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='histologic_grade'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_grade')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='histologic grade'AND `language_tag`=''),'2','3','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='lymph_vascular_invasion'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_lymph_vasc_inv')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='lymph vascular invasion'AND `language_tag`=''),'2','4','lymph','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='lymph_vascular_invasion'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='lymph vascular invasion'AND `language_tag`=''),'2','4','lymph','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_m'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='m (multiple primary tumors)'AND `language_tag`=''),'2','5','pTNM','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_r'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='r (recurrent)'AND `language_tag`=''),'2','6','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_y'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='y (post-treatment)'AND `language_tag`=''),'2','7','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1');
@@ -1215,9 +1215,9 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
 ('Indeterminate', 'Indeterminate');
 
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_lymph_vasc_inv'), (SELECT id FROM structure_permissible_values WHERE value='Not identified'),	1	, 0),
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_lymph_vasc_inv'), (SELECT id FROM structure_permissible_values WHERE value='Present'),	1	, 0),
-((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_lymph_vasc_inv'), (SELECT id FROM structure_permissible_values WHERE value='Indeterminate'),	1	, 0);
+((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet'), (SELECT id FROM structure_permissible_values WHERE value='Not identified'),	1	, 0),
+((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet'), (SELECT id FROM structure_permissible_values WHERE value='Present'),	1	, 0),
+((SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet'), (SELECT id FROM structure_permissible_values WHERE value='Indeterminate'),	1	, 0);
 
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung specimen'), 'lung', 'lung', 'poumon'),
@@ -1247,10 +1247,17 @@ CREATE TABLE qc_gastro_dxd_cap_melanomas(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT '',
- m_procedure VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_bio_shave VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_bio_punch VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_bio_incisional VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_excision VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_reexcision VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_lymph_sentinel VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_lymph_regional VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_other VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_not_specified VARCHAR(6) NOT NULL DEFAULT '',
  procedure_precision VARCHAR(50) NOT NULL DEFAULT '',
  laterality VARCHAR(50) NOT NULL DEFAULT '',
- tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
  tumor_site VARCHAR(50) NOT NULL DEFAULT '',
  tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
@@ -1274,10 +1281,17 @@ CREATE TABLE qc_gastro_dxd_cap_melanomas_revs(
  id INT UNSIGNED NOT NULL,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT '',
- m_procedure VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_bio_shave VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_bio_punch VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_bio_incisional VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_excision VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_reexcision VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_lymph_sentinel VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_lymph_regional VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_other VARCHAR(6) NOT NULL DEFAULT '',
+ procedure_not_specified VARCHAR(6) NOT NULL DEFAULT '',
  procedure_precision VARCHAR(50) NOT NULL DEFAULT '',
  laterality VARCHAR(50) NOT NULL DEFAULT '',
- tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
  tumor_site VARCHAR(50) NOT NULL DEFAULT '',
  tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
@@ -1299,3 +1313,520 @@ CREATE TABLE qc_gastro_dxd_cap_melanomas_revs(
  version_created DATETIME NOT NULL
 )Engine=InnoDb;
 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_specimen','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma specimen')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap melanoma specimen', 1, 50);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_laterality','','', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("left", "left");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("right", "right");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("midline", "midline");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="midline" AND language_alias="midline"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not specified", "not specified");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="not specified" AND language_alias="not specified"), "4", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_tumor_site','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma tumor site')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap melanoma tumor site', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'not specified', 'not specified', 'non spécifié');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_histologic_type','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma histologic type')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap melanoma histologic type', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Melanoma, not otherwise classified', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Superficial spreading melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Nodular melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Lentigo maligna melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Acral-lentiginous melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Desmoplastic and/or desmoplastic neurotropic melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Melanoma arising from blue nevus', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Melanoma arising in a giant congenital nevus', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Melanoma of childhood', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Nevoid melanoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Persistent melanoma', '', '');
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_melanomas');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'specimen', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_specimen') , '0', '', '', '', 'specimen', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_precision', 'input',  NULL , '0', '', '', '', 'procedure precision (if any)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_laterality') , '0', '', '', '', 'specimen laterality', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_tumor_site') , '0', '', '', '', 'tumor site', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'tumor_size_cannot_determine', 'checkbox',  NULL , '0', '', '', '', 'cannot determine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'tumor_size_greatest_cm', 'float_positive',  NULL , '0', '', '', '', 'greatest dimension (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'tumor_size_add1_cm', 'float_positive',  NULL , '0', '', '', '', 'add dimmensions (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'tumor_size_add2_cm', 'float_positive',  NULL , '0', '', '', '', '', 'x'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'histologic_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_histologic_type') , '0', '', '', '', 'histologic type', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'lymph_vascular_invasion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'lymph vascular invasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'perineural_invasion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'perineural invasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'ptmn_m', 'checkbox',  NULL , '0', '', '', '', 'm (multiple)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'ptmn_r', 'checkbox',  NULL , '0', '', '', '', 'r (recurrent)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'ptmn_y', 'checkbox',  NULL , '0', '', '', '', 'y (posttreatment)', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_bio_punch', 'checkbox',  NULL , '0', '', '', '', 'biopsy, punch', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_bio_incisional', 'checkbox',  NULL , '0', '', '', '', 'biopsy, incisional', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_excision', 'checkbox',  NULL , '0', '', '', '', 'excision', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_reexcision', 'checkbox',  NULL , '0', '', '', '', 're-excision', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_lymph_sentinel', 'checkbox',  NULL , '0', '', '', '', 'lymphadenectomy, sentinel node(s)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_lymph_regional', 'checkbox',  NULL , '0', '', '', '', 'lymphadenectomy, regional nodes (specify)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_other', 'checkbox',  NULL , '0', '', '', '', 'other (specify)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_not_specified', 'checkbox',  NULL , '0', '', '', '', 'not specified', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_bio_shave', 'checkbox',  NULL , '0', '', '', '', 'biopsy, shave', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='specimen' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_specimen')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure precision (if any)' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen laterality' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='tumor_size_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cannot determine' AND `language_tag`=''), '1', '7', 'tumor size', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='tumor_size_greatest_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest dimension (cm)' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='tumor_size_add1_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='add dimmensions (cm)' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='tumor_size_add2_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='x'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_histologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '2', '11', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '2', '12', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='perineural_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='perineural invasion' AND `language_tag`=''), '2', '13', 'perineural', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '2', '14', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+
+INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('cap report - melanoma of the skin', 1,'qc_gastro_dxd_cap_melanomas','qc_gastro_dxd_cap_melanomas', 0,'cap report - melanoma of the skin'); 
+
+UPDATE structure_formats SET display_order=display_order+15 WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas') AND display_order >= 4;
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_bio_punch' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy, punch' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_bio_incisional' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy, incisional' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_excision' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='excision' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_reexcision' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='re-excision' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_lymph_sentinel' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymphadenectomy, sentinel node(s)' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_lymph_regional' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymphadenectomy, regional nodes (specify)' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other (specify)' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_not_specified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='not specified' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_bio_shave' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy, shave' AND `language_tag`=''), '1', '3', 'procedure', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+
+
+
+
+
+CREATE TABLE qc_gastro_dxd_cap_kidneys(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT '',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT '',
+ laterality VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_site_upper_pole VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_middle VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_lower_pole VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_other VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_precision VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ histologic_type VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ FOREIGN KEY (`diagnosis_master_id`) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_gastro_dxd_cap_kidneys_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT '',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT '',
+ laterality VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_site_upper_pole VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_middle VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_lower_pole VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_other VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
+ tumor_site_precision VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ histologic_type VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ version_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_specimen','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney specimen')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney specimen', 1, 50);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_procedure','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney procedure')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney procedure', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney procedure'), 'Partial nephrectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney procedure'), 'Radical nephrectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney procedure'), 'Not specified', '', '');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_histologic_type','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney histologic type')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic type', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Clear cell renal cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Multilocular clear cell renal cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Papillary renal cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Chromophobe renal cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Carcinoma of the collecting ducts of Bellini', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Renal medullary carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Translocation carcinoma (Xp11 or others)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Carcinoma associated with neuroblastoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Mucinous tubular and spindle cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Tubulocystic renal cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Renal cell carcinoma, unclassified', '', '');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_histologic_grade','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney histologic grade')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic grade', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'Not applicable', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'GX: Cannot be assessed', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'G1: Nuclei round, uniform', 'G1: Nuclei round, uniform, approximately 10 μm; nucleoli inconspicuous or absent', 'G1: Nuclei round, uniform, approximately 10 μm; nucleoli inconspicuous or absent'),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'G2: Nuclei slightly irregular', 'G2: Nuclei slightly irregular, approximately 15 μm; nucleoli evident', 'G2: Nuclei slightly irregular, approximately 15 μm; nucleoli evident'),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'G3: Nuclei very irregular', 'G3: Nuclei very irregular, approximately 20 μm; nucleoli large and prominent', 'G3: Nuclei very irregular, approximately 20 μm; nucleoli large and prominent'),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'G4: Nuclei bizarre and multilobated', 'G4: Nuclei bizarre and multilobated, 20 μm or greater, nucleoli prominent, chromatin clumped', 'G4: Nuclei bizarre and multilobated, 20 μm or greater, nucleoli prominent, chromatin clumped');
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_kidneys');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'specimen', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_specimen') , '0', '', '', '', 'specimen', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'm_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure') , '0', '', '', '', 'm procedure', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', '', 'laterality', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_upper_pole', 'checkbox',  NULL , '0', '', '', '', 'upper pole', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_middle', 'checkbox',  NULL , '0', '', '', '', 'middle', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_lower_pole', 'checkbox',  NULL , '0', '', '', '', 'lower pole', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_other', 'checkbox',  NULL , '0', '', '', '', 'other (specify)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_precision', 'input',  NULL , '0', '', '', '', 'precision (if any)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_cannot_determine', 'checkbox',  NULL , '0', '', '', '', 'cannot determine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_greatest_cm', 'float_positive',  NULL , '0', '', '', '', 'greatest dimension (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_add1_cm', 'float_positive',  NULL , '0', '', '', '', 'additional dimensions (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_add2_cm', 'float_positive',  NULL , '0', '', '', '', '', 'x'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'histologic_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_type') , '0', '', '', '', 'histologic type', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'histologic_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_grade') , '0', '', '', '', 'histologic grade', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'perineural_invasion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'perineural invasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'ptmn_m', 'checkbox',  NULL , '0', '', '', '', 'm (multiple primary tumors)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'ptmn_r', 'checkbox',  NULL , '0', '', '', '', 'r (recurrent)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'ptmn_y', 'checkbox',  NULL , '0', '', '', '', 'y (posttreatment)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='specimen' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_specimen')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='m_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m procedure' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_upper_pole' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='upper pole' AND `language_tag`=''), '1', '5', 'tumor site', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_middle' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='middle' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_lower_pole' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lower pole' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other (specify)' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='precision (if any)' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cannot determine' AND `language_tag`=''), '1', '10', 'tumor size', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_greatest_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest dimension (cm)' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_add1_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='additional dimensions (cm)' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_add2_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='x'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '2', '14', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='histologic_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic grade' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='perineural_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='perineural invasion' AND `language_tag`=''), '2', '16', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '17', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('cap report - kidney: Nephrectomy, Partial, Radical', 1,'qc_gastro_dxd_cap_kidneys','qc_gastro_dxd_cap_kidneys', 0,'cap report - kidney: Nephrectomy, Partial, Radical'); 
+
+
+
+CREATE TABLE qc_gastro_dxd_cap_testis(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT'',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT'',
+ specimen_laterality VARCHAR(20) NOT NULL DEFAULT'',
+ tumor_site VARCHAR(50) NOT NULL DEFAULT'',
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule1_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule2_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule3_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule4_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ ht_intratubular VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_classic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_scar VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_sync_cell VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_precision text NOT NULL DEFAULT '',
+ ht_embryonal VARCHAR(6) NOT NULL DEFAULT '',
+ ht_yolk VARCHAR(6) NOT NULL DEFAULT '',
+ ht_chorio_biphasic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_chorio_monophasic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_plcental_site VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma_w_secondary VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma_w_secondary_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_carcinoid VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_primitive VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_other VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_spermatocytic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_spermatocytic_w_sarcomatous VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_gonadoblastoma VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_others VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_others_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_testicular_scar VARCHAR(6) NOT NULL DEFAULT '',
+ ht_testicular_scar_only VARCHAR(6) NOT NULL DEFAULT '',
+ ht_testicular_scar_w_intratubular VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_leydig VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_classic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_sclerosing VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_large VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa_adult VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa_juvenile VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_mixed VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_mixed_precision text NOT NULL DEFAULT '',
+ ht_sex_cord_unclassified VARCHAR(6) NOT NULL DEFAULT '',
+ ht_malignant VARCHAR(6) NOT NULL DEFAULT '',
+ ht_other VARCHAR(6) NOT NULL DEFAULT '',
+ ht_other_precision VARCHAR(6) NOT NULL DEFAULT '',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ FOREIGN KEY (`diagnosis_master_id`) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_gastro_dxd_cap_testis_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT'',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT'',
+ specimen_laterality VARCHAR(20) NOT NULL DEFAULT'',
+ tumor_site VARCHAR(50) NOT NULL DEFAULT'',
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule1_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule2_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_nodule3_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ turor_nodule4_greatest_dimension_cm FLOAT UNSIGNED DEFAULT NULL,
+ ht_intratubular VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_classic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_scar VARCHAR(6) NOT NULL DEFAULT '',
+ ht_seminoma_sync_cell VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_precision text NOT NULL DEFAULT '',
+ ht_embryonal VARCHAR(6) NOT NULL DEFAULT '',
+ ht_yolk VARCHAR(6) NOT NULL DEFAULT '',
+ ht_chorio_biphasic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_chorio_monophasic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_plcental_site VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma_w_secondary VARCHAR(6) NOT NULL DEFAULT '',
+ ht_teratoma_w_secondary_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_carcinoid VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_primitive VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_other VARCHAR(6) NOT NULL DEFAULT '',
+ ht_monodermal_teratoma_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_spermatocytic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_spermatocytic_w_sarcomatous VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_gonadoblastoma VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_others VARCHAR(6) NOT NULL DEFAULT '',
+ ht_mixed_germ_others_precision VARCHAR(50) NOT NULL DEFAULT '',
+ ht_testicular_scar VARCHAR(6) NOT NULL DEFAULT '',
+ ht_testicular_scar_only VARCHAR(6) NOT NULL DEFAULT '',
+ ht_testicular_scar_w_intratubular VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_leydig VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_classic VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_sclerosing VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_sertoli_large VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa_adult VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_granulosa_juvenile VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_mixed VARCHAR(6) NOT NULL DEFAULT '',
+ ht_sex_cord_mixed_precision text NOT NULL DEFAULT '',
+ ht_sex_cord_unclassified VARCHAR(6) NOT NULL DEFAULT '',
+ ht_malignant VARCHAR(6) NOT NULL DEFAULT '',
+ ht_other VARCHAR(6) NOT NULL DEFAULT '',
+ ht_other_precision VARCHAR(6) NOT NULL DEFAULT '',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ version_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_testis_specimen','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap testis specimen')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap testis specimen', 1, 50);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_testis_procedure','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap testis procedure')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap testis procedure', 1, 50);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_laterality_lrbu', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("left", "left");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbu"),  (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("right", "right");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbu"),  (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("both", "both");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbu"),  (SELECT id FROM structure_permissible_values WHERE value="both" AND language_alias="both"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not specified", "not specified");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbu"),  (SELECT id FROM structure_permissible_values WHERE value="not specified" AND language_alias="not specified"), "0", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_testis_tumor_site','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap testis tumor site')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap testis tumor site', 1, 50);
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_testis');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'specimen', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_specimen') , '0', '', '', '', 'specimen', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'm_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_procedure') , '0', '', '', '', 'procedure', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'specimen_laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbu') , '0', '', '', '', 'specimen laterality', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_tumor_site') , '0', '', '', '', 'tumor site', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_size_cannot_determine', 'checkbox',  NULL , '0', '', '', '', 'tumor size cannot determine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_size_greatest_cm', 'float_positive',  NULL , '0', '', '', '', 'greatest dimension (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_size_add1_cm', 'float_positive',  NULL , '0', '', '', '', 'additional dimensions (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_size_add2_cm', 'float_positive',  NULL , '0', '', '', '', '', 'x'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_nodule1_greatest_dimension_cm', 'float_positive',  NULL , '0', '', '', '', 'nodule 1 greatest dimension (cm)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_nodule2_greatest_dimension_cm', 'float_positive',  NULL , '0', '', '', '', '', 'nodule 2'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_nodule3_greatest_dimension_cm', 'float_positive',  NULL , '0', '', '', '', '', 'nodule 3'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'tumor_nodule4_greatest_dimension_cm', 'float_positive',  NULL , '0', '', '', '', '', 'nodule 4'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_intratubular', 'checkbox',  NULL , '0', '', '', '', 'Intratubular germ cell neoplasia, unclassified only', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_seminoma_classic', 'checkbox',  NULL , '0', '', '', '', 'Seminoma, classic type', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_seminoma_scar', 'checkbox',  NULL , '0', '', '', '', 'Seminoma with associated scar', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_seminoma_sync_cell', 'checkbox',  NULL , '0', '', '', '', 'Seminoma with syncytiotrophoblastic cells', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_embryonal', 'checkbox',  NULL , '0', '', '', '', 'Embryonal carcinoma', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_yolk', 'checkbox',  NULL , '0', '', '', '', 'Yolk sac tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_chorio_biphasic', 'checkbox',  NULL , '0', '', '', '', 'Choriocarcinoma, biphasic', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_chorio_monophasic', 'checkbox',  NULL , '0', '', '', '', 'Choriocarcinoma, monophasic', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_plcental_site', 'checkbox',  NULL , '0', '', '', '', 'Placental site trophoblastic tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_teratoma', 'checkbox',  NULL , '0', '', '', '', 'Teratoma', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_monodermal_teratoma_carcinoid', 'checkbox',  NULL , '0', '', '', '', 'Monodermal teratoma, carcinoid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_monodermal_teratoma_primitive', 'checkbox',  NULL , '0', '', '', '', 'Monodermal teratoma, primitive neuroectodermal tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_monodermal_teratoma_other', 'checkbox',  NULL , '0', '', '', '', 'Monodermal teratoma, other', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_teratoma_w_secondary', 'checkbox',  NULL , '0', '', '', '', 'Teratoma with a secondary somatic-type malignant component', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_teratoma_w_secondary_precision', 'input',  NULL , '0', '', '', '', '', 'specify type'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_mixed_germ', 'checkbox',  NULL , '0', '', '', '', 'Mixed germ cell tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_mixed_germ_precision', 'textarea',  NULL , '0', '', '', '', '', 'specify components and approximate percentages'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_monodermal_teratoma_other_precision', 'input',  NULL , '0', '', '', '', '', 'specify'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_spermatocytic', 'checkbox',  NULL , '0', '', '', '', 'Spermatocytic seminoma', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_spermatocytic_w_sarcomatous', 'checkbox',  NULL , '0', '', '', '', 'Spermatocytic seminoma with a sarcomatous component', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_mixed_germ_gonadoblastoma', 'checkbox',  NULL , '0', '', '', '', 'Mixed germ cell-sex cord-stromal tumor, gonadoblastoma', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_mixed_germ_others', 'checkbox',  NULL , '0', '', '', '', 'Mixed germ cell-sex cord-stromal tumor, others', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_mixed_germ_others_precision', 'input',  NULL , '0', '', '', '', '', 'specify'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_testicular_scar', 'checkbox',  NULL , '0', '', '', '', 'Testicular scar', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_testicular_scar_only', 'checkbox',  NULL , '0', '', '', '', '-Scar only', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_testicular_scar_w_intratubular', 'checkbox',  NULL , '0', '', '', '', '-Scar with intratubular germ cell neoplasia', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord', 'checkbox',  NULL , '0', '', '', '', 'Sex cord-stromal tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_leydig', 'checkbox',  NULL , '0', '', '', '', '-Leydig cell tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_sertoli', 'checkbox',  NULL , '0', '', '', '', '-Sertoli cell tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_sertoli_classic', 'checkbox',  NULL , '0', '', '', '', '--Classic', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_sertoli_sclerosing', 'checkbox',  NULL , '0', '', '', '', '--Sclerosing', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_sertoli_large', 'checkbox',  NULL , '0', '', '', '', '--Large cell calcifying', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_granulosa', 'checkbox',  NULL , '0', '', '', '', '-Granulosa cell tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_granulosa_adult', 'checkbox',  NULL , '0', '', '', '', '--Adult-type', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_granulosa_juvenile', 'checkbox',  NULL , '0', '', '', '', '--Juvenile-type', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_mixed', 'checkbox',  NULL , '0', '', '', '', '-Mixed, with components', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_mixed_precision', 'textarea',  NULL , '0', '', '', '', '', 'specify components and approximate percentages'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_sex_cord_unclassified', 'checkbox',  NULL , '0', '', '', '', '-Unclassified', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_malignant', 'checkbox',  NULL , '0', '', '', '', 'Malignant neoplasm, type cannot be determined', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_other', 'checkbox',  NULL , '0', '', '', '', 'Other', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ht_other_precision', 'input',  NULL , '0', '', '', '', '', 'specify'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'lymph_vascular_invasion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'lymph vascular invasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ptmn_m', 'checkbox',  NULL , '0', '', '', '', 'm (multiple)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ptmn_r', 'checkbox',  NULL , '0', '', '', '', 'r (recurrent)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_testis', 'ptmn_y', 'checkbox',  NULL , '0', '', '', '', 'y (post-treatment)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='specimen' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_specimen')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='m_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_procedure')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='specimen_laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbu')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen laterality' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_testis_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_size_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size cannot determine' AND `language_tag`=''), '1', '6', 'tumor size', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_size_greatest_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest dimension (cm)' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_size_add1_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='additional dimensions (cm)' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_size_add2_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='x'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_nodule1_greatest_dimension_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nodule 1 greatest dimension (cm)' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_nodule2_greatest_dimension_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='nodule 2'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_nodule3_greatest_dimension_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='nodule 3'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='tumor_nodule4_greatest_dimension_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='nodule 4'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_intratubular' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Intratubular germ cell neoplasia, unclassified only' AND `language_tag`=''), '2', '14', 'histologic type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_seminoma_classic' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Seminoma, classic type' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_seminoma_scar' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Seminoma with associated scar' AND `language_tag`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_seminoma_sync_cell' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Seminoma with syncytiotrophoblastic cells' AND `language_tag`=''), '2', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_embryonal' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Embryonal carcinoma' AND `language_tag`=''), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_yolk' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Yolk sac tumor' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_chorio_biphasic' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Choriocarcinoma, biphasic' AND `language_tag`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_chorio_monophasic' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Choriocarcinoma, monophasic' AND `language_tag`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_plcental_site' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Placental site trophoblastic tumor' AND `language_tag`=''), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_teratoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Teratoma' AND `language_tag`=''), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_monodermal_teratoma_carcinoid' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Monodermal teratoma, carcinoid' AND `language_tag`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_monodermal_teratoma_primitive' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Monodermal teratoma, primitive neuroectodermal tumor' AND `language_tag`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_monodermal_teratoma_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Monodermal teratoma, other' AND `language_tag`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_teratoma_w_secondary' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Teratoma with a secondary somatic-type malignant component' AND `language_tag`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_teratoma_w_secondary_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify type'), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_mixed_germ' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Mixed germ cell tumor' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_mixed_germ_precision' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify components and approximate percentages'), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_monodermal_teratoma_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_spermatocytic' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Spermatocytic seminoma' AND `language_tag`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_spermatocytic_w_sarcomatous' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Spermatocytic seminoma with a sarcomatous component' AND `language_tag`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_mixed_germ_gonadoblastoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Mixed germ cell-sex cord-stromal tumor, gonadoblastoma' AND `language_tag`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_mixed_germ_others' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Mixed germ cell-sex cord-stromal tumor, others' AND `language_tag`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_mixed_germ_others_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_testicular_scar' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Testicular scar' AND `language_tag`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_testicular_scar_only' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Scar only' AND `language_tag`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_testicular_scar_w_intratubular' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Scar with intratubular germ cell neoplasia' AND `language_tag`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Sex cord-stromal tumor' AND `language_tag`=''), '2', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_leydig' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Leydig cell tumor' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_sertoli' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Sertoli cell tumor' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_sertoli_classic' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='--Classic' AND `language_tag`=''), '2', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_sertoli_sclerosing' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='--Sclerosing' AND `language_tag`=''), '2', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_sertoli_large' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='--Large cell calcifying' AND `language_tag`=''), '2', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_granulosa' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Granulosa cell tumor' AND `language_tag`=''), '2', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_granulosa_adult' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='--Adult-type' AND `language_tag`=''), '2', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_granulosa_juvenile' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='--Juvenile-type' AND `language_tag`=''), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_mixed' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Mixed, with components' AND `language_tag`=''), '2', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_mixed_precision' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify components and approximate percentages'), '2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_sex_cord_unclassified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='-Unclassified' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_malignant' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Malignant neoplasm, type cannot be determined' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Other' AND `language_tag`=''), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '1', '55', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '1', '56', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (post-treatment)' AND `language_tag`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
