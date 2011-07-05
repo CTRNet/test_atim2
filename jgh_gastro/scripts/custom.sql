@@ -1116,7 +1116,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("cannot be determined", "Cannot be determined", "Ne peut pas être déterminée"), 
 ("greatest dimension (cm)", "Greatest dimension (cm)", "Plus grande dimension (cm)"),
 ("additional dimensions (cm)", "Additional dimensions (cm)", "Dimension additionnelle (cm)"),
-("precision (if any)", "Precision (if any)", "Précision (s'il y en a)"),
+("precision (if any)", "Precision (if any)", "Précision (s'il y en a)");
 
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
@@ -1386,7 +1386,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='perineural_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='perineural invasion' AND `language_tag`=''), '2', '13', 'perineural', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '2', '14', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
 ('cap report - melanoma of the skin', 1,'qc_gastro_dxd_cap_melanomas','qc_gastro_dxd_cap_melanomas', 0,'cap report - melanoma of the skin'); 
@@ -1830,3 +1830,176 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '1', '56', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (post-treatment)' AND `language_tag`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('cap report - testis: radical orchiectomy', 1,'qc_gastro_dxd_cap_testis','qc_gastro_dxd_cap_testis', 0,'cap report - testis: radical orchiectomy');
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE qc_gastro_dxd_cap_bladders(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT'',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT'',
+ tumor_site_trigone BOOLEAN DEFAULT NULL,
+ tumor_site_right_lateral BOOLEAN DEFAULT NULL,
+ tumor_site_left_lateral BOOLEAN DEFAULT NULL,
+ tumor_site_anterior BOOLEAN DEFAULT NULL,
+ tumor_site_posterior BOOLEAN DEFAULT NULL,
+ tumor_site_dome BOOLEAN DEFAULT NULL,
+ tumor_site_other BOOLEAN DEFAULT NULL,
+ tumor_site_other_specify VARCHAR(50) NOT NULL DEFAULT'',
+ tumor_site_not_specified BOOLEAN DEFAULT NULL,
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_type_precision VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ FOREIGN KEY (`diagnosis_master_id`) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_gastro_dxd_cap_bladders_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ specimen VARCHAR(50) NOT NULL DEFAULT'',
+ m_procedure VARCHAR(50) NOT NULL DEFAULT'',
+ specimen_laterality VARCHAR(10) NOT NULL DEFAULT'',
+ tumor_site_trigone BOOLEAN DEFAULT NULL,
+ tumor_site_right_lateral BOOLEAN DEFAULT NULL,
+ tumor_site_left_lateral BOOLEAN DEFAULT NULL,
+ tumor_site_anterior BOOLEAN DEFAULT NULL,
+ tumor_site_posterior BOOLEAN DEFAULT NULL,
+ tumor_site_dome BOOLEAN DEFAULT NULL,
+ tumor_site_other BOOLEAN DEFAULT NULL,
+ tumor_site_other_specify VARCHAR(50) NOT NULL DEFAULT'',
+ tumor_site_not_specified BOOLEAN DEFAULT NULL,
+ tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
+ tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_type_precision VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(250) NOT NULL DEFAULT'',
+ lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
+ ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
+ ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ created DATETIME NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT 0,
+ deleted_date DATETIME DEFAULT NULL,
+ version_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_bladder_specimen','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap bladder specimen')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap bladder specimen', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder specimen'), 'bladder', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder specimen'), 'not specified', '', '');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_bladder_procedure','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap bladder procedure')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap bladder procedure', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Partial cystectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Total cystectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Radical cystectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Radical cystoprostatectomy', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Anterior exenteration', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder procedure'), 'Not specified', '', '');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_bladder_histologic_type','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap bladder histologic type')");
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap bladder histologic type', 1, 50);
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Urothelial (transitional cell) carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Urothelial (transitional cell) carcinoma with squamous differentiation', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Urothelial (transitional cell) carcinoma with glandular differentiation', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Urothelial (transitional cell) carcinoma with variant histology (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Squamous cell carcinoma, typical', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Squamous cell carcinoma, variant histology (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Adenocarcinoma, typical', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Adenocarcinoma, variant histology (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Small cell carcinoma', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Undifferentiated carcinoma (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Mixed cell type (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap bladder histologic type'), 'Carcinoma, type cannot be determined', '', '');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_bladder_histologic_grade', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("not applicable", "not applicable"),
+("cannot be determined", "cannot be determined");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_bladder_histologic_grade"),  (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_bladder_histologic_grade"),  (SELECT id FROM structure_permissible_values WHERE value="cannot be determined" AND language_alias="cannot be determined"), "0", "1");
+
+INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_bladders');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'specimen', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_specimen') , '0', '', '', '', 'specimen', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'm_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_procedure') , '0', '', '', '', 'procedure', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_trigone', 'checkbox',  NULL , '0', '', '', '', 'trigone', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_right_lateral', 'checkbox',  NULL , '0', '', '', '', 'right lateral wall', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_left_lateral', 'checkbox',  NULL , '0', '', '', '', 'left lateral wall', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_anterior', 'checkbox',  NULL , '0', '', '', '', 'anterior wall', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_posterior', 'checkbox',  NULL , '0', '', '', '', 'posterior wall', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_dome', 'checkbox',  NULL , '0', '', '', '', 'dome', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_other', 'checkbox',  NULL , '0', '', '', '', 'other', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_other_specify', 'input',  NULL , '0', '', '', '', '', 'specify'), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_site_not_specified', 'checkbox',  NULL , '0', '', '', '', 'not specified', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_size_cannot_determine', 'checkbox',  NULL , '0', '', '', '', 'cannot determine', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_size_greatest_cm', 'float',  NULL , '0', '', '', '', 'greatest dimension (cm)', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_size_add1_cm', 'float',  NULL , '0', '', '', '', 'additional dimensions (cm)', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'tumor_size_add2_cm', 'float',  NULL , '0', '', '', '', '', 'x'), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'histologic_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_histologic_type') , '0', '', '', '', 'histologic type', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'histologic_type_precision', 'input',  NULL , '0', '', '', '', 'histologic type precision (if any)', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'histologic_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_bladder_histologic_grade') , '0', '', '', '', 'histologic grade', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'lymph_vascular_invasion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'lymph vascular invasion', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'ptmn_m', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'm (multiple primary tumors)', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'ptmn_r', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'r (recurrent)', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'qc_gastro_dxd_cap_bladders', 'ptmn_y', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') , '0', '', '', '', 'y (post-treatment)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='specimen' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_specimen')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='m_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_procedure')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_trigone' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='trigone' AND `language_tag`=''), '1', '4', 'tumor site', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_right_lateral' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='right lateral wall' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_left_lateral' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='left lateral wall' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_anterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='anterior wall' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_posterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='posterior wall' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_dome' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dome' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_other_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_site_not_specified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='not specified' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_size_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cannot determine' AND `language_tag`=''), '1', '13', 'tumor size', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_size_greatest_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest dimension (cm)' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_size_add1_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='additional dimensions (cm)' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='tumor_size_add2_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='x'), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_bladder_histologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '2', '17', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='histologic_type_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type precision (if any)' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='histologic_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_bladder_histologic_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic grade' AND `language_tag`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '2', '20', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '21', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (post-treatment)' AND `language_tag`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('cap report - urinary bladder', 1,'qc_gastro_dxd_cap_bladders','qc_gastro_dxd_cap_bladders', 0,'cap report - urinary bladder');
