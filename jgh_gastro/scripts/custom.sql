@@ -1010,10 +1010,11 @@ CREATE TABLE qc_gastro_dxd_cap_lungs(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT'',
+ specimen_precision VARCHAR(50) NOT NULL DEFAULT'',
  m_procedure VARCHAR(50) NOT NULL DEFAULT'',
  specimen_laterality VARCHAR(10) NOT NULL DEFAULT'',
  tumor_site VARCHAR(50) NOT NULL DEFAULT'',
- tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_size_cannot_determine BOOLEAN DEFAULT NULL, 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
@@ -1021,9 +1022,20 @@ CREATE TABLE qc_gastro_dxd_cap_lungs(
  histologic_type_precision VARCHAR(250) NOT NULL DEFAULT'',
  histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_examined INT UNSIGNED DEFAULT NULL,
+ pn_examined_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_examined_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pn_involved INT UNSIGNED DEFAULT NULL,
+ pn_involved_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_involved_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
+ pm_precision VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1036,6 +1048,7 @@ CREATE TABLE qc_gastro_dxd_cap_lungs_revs(
  id INT UNSIGNED NOT NULL,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT'',
+ specimen_precision VARCHAR(50) NOT NULL DEFAULT'',
  m_procedure VARCHAR(50) NOT NULL DEFAULT'',
  specimen_laterality VARCHAR(10) NOT NULL DEFAULT'',
  tumor_site VARCHAR(50) NOT NULL DEFAULT'',
@@ -1047,9 +1060,20 @@ CREATE TABLE qc_gastro_dxd_cap_lungs_revs(
  histologic_type_precision VARCHAR(250) NOT NULL DEFAULT'',
  histologic_grade VARCHAR(250) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_examined INT UNSIGNED DEFAULT NULL,
+ pn_examined_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_examined_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pn_involved INT UNSIGNED DEFAULT NULL,
+ pn_involved_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_involved_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
+ pm_precision VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1104,7 +1128,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='histologic_type_precision'AND `type`='input'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='precision (if any)'AND `language_tag`=''),'2','2','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='histologic_grade'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_grade')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='histologic grade'AND `language_tag`=''),'2','3','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='lymph_vascular_invasion'AND `type`='select'AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='lymph vascular invasion'AND `language_tag`=''),'2','4','lymph','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_m'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='m (multiple primary tumors)'AND `language_tag`=''),'2','5','pTNM','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_m'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='m (multiple primary tumors)'AND `language_tag`=''),'2','5','pTNM - descriptors','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_r'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='r (recurrent)'AND `language_tag`=''),'2','6','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail'AND `tablename`='qc_gastro_dxd_cap_lungs'AND `field`='ptmn_y'AND `type`='checkbox'AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'AND `setting`=''AND `default`=''AND `language_help`=''AND `language_label`='y (post-treatment)'AND `language_tag`=''),'2','7','','0','','0','','0','','0','','0','','0','','1','0','1','0','0','0','0','0','0','0','0','0','1','1','1');
 
@@ -1222,6 +1246,8 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung specimen'), 'lung', 'lung', 'poumon'),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung specimen'), 'not specified', 'not specified', 'non spécifié'),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung specimen'), 'Lobe(s) of lung (specify)', '', ''),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung specimen'), 'bronchus (specify)', '', ''),
 
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung procedure'), 'Major airway resection', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap lung procedure'), 'Wedge resection', '', ''),
@@ -1247,28 +1273,38 @@ CREATE TABLE qc_gastro_dxd_cap_melanomas(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT '',
- procedure_bio_shave VARCHAR(6) NOT NULL DEFAULT '',
- procedure_bio_punch VARCHAR(6) NOT NULL DEFAULT '',
- procedure_bio_incisional VARCHAR(6) NOT NULL DEFAULT '',
- procedure_excision VARCHAR(6) NOT NULL DEFAULT '',
- procedure_reexcision VARCHAR(6) NOT NULL DEFAULT '',
- procedure_lymph_sentinel VARCHAR(6) NOT NULL DEFAULT '',
- procedure_lymph_regional VARCHAR(6) NOT NULL DEFAULT '',
- procedure_other VARCHAR(6) NOT NULL DEFAULT '',
- procedure_not_specified VARCHAR(6) NOT NULL DEFAULT '',
- procedure_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_bio_shave BOOLEAN DEFAULT NULL,
+ procedure_bio_punch BOOLEAN DEFAULT NULL,
+ procedure_bio_incisional BOOLEAN DEFAULT NULL,
+ procedure_excision BOOLEAN DEFAULT NULL,
+ procedure_reexcision BOOLEAN DEFAULT NULL,
+ procedure_lymph_sentinel BOOLEAN DEFAULT NULL,
+ procedure_lymph_regional BOOLEAN DEFAULT NULL,
+ procedure_lymph_regional_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_other BOOLEAN DEFAULT NULL,
+ procedure_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_not_specified BOOLEAN DEFAULT NULL,
  laterality VARCHAR(50) NOT NULL DEFAULT '',
  tumor_site VARCHAR(50) NOT NULL DEFAULT '',
  tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
- histologic_type VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
  perineural_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_nodes_id INT UNSIGNED DEFAULT NULL,
+ pn_metastases_id_macro INT UNSIGNED DEFAULT NULL,
+ pn_metastases_id_micro INT UNSIGNED DEFAULT NULL,
+ pn_matted_nodes VARCHAR(50) NOT NULL DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
+ pm_precision VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1281,28 +1317,38 @@ CREATE TABLE qc_gastro_dxd_cap_melanomas_revs(
  id INT UNSIGNED NOT NULL,
  diagnosis_master_id INT NOT NULL,
  specimen VARCHAR(50) NOT NULL DEFAULT '',
- procedure_bio_shave VARCHAR(6) NOT NULL DEFAULT '',
- procedure_bio_punch VARCHAR(6) NOT NULL DEFAULT '',
- procedure_bio_incisional VARCHAR(6) NOT NULL DEFAULT '',
- procedure_excision VARCHAR(6) NOT NULL DEFAULT '',
- procedure_reexcision VARCHAR(6) NOT NULL DEFAULT '',
- procedure_lymph_sentinel VARCHAR(6) NOT NULL DEFAULT '',
- procedure_lymph_regional VARCHAR(6) NOT NULL DEFAULT '',
- procedure_other VARCHAR(6) NOT NULL DEFAULT '',
- procedure_not_specified VARCHAR(6) NOT NULL DEFAULT '',
- procedure_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_bio_shave BOOLEAN DEFAULT NULL,
+ procedure_bio_punch BOOLEAN DEFAULT NULL,
+ procedure_bio_incisional BOOLEAN DEFAULT NULL,
+ procedure_excision BOOLEAN DEFAULT NULL,
+ procedure_reexcision BOOLEAN DEFAULT NULL,
+ procedure_lymph_sentinel BOOLEAN DEFAULT NULL,
+ procedure_lymph_regional BOOLEAN DEFAULT NULL,
+ procedure_lymph_regional_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_other BOOLEAN DEFAULT NULL,
+ procedure_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ procedure_not_specified BOOLEAN DEFAULT NULL,
  laterality VARCHAR(50) NOT NULL DEFAULT '',
  tumor_site VARCHAR(50) NOT NULL DEFAULT '',
  tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
- histologic_type VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
  perineural_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_nodes_id INT UNSIGNED DEFAULT NULL,
+ pn_metastases_id_macro INT UNSIGNED DEFAULT NULL,
+ pn_metastases_id_micro INT UNSIGNED DEFAULT NULL,
+ pn_matted_nodes VARCHAR(50) NOT NULL DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
+ pm_precision VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1332,7 +1378,7 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'not specified', 'not specified', 'non spécifié');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_histologic_type','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma histologic type')");
-INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap melanoma histologic type', 1, 50);
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap melanoma histologic type', 1, 250);
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Melanoma, not otherwise classified', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Superficial spreading melanoma', '', ''),
@@ -1384,7 +1430,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_histologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '2', '11', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '2', '12', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='perineural_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='perineural invasion' AND `language_tag`=''), '2', '13', 'perineural', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '2', '14', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '2', '14', 'pTNM - descriptors', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
@@ -1415,22 +1461,32 @@ CREATE TABLE qc_gastro_dxd_cap_kidneys(
  specimen VARCHAR(50) NOT NULL DEFAULT '',
  m_procedure VARCHAR(50) NOT NULL DEFAULT '',
  laterality VARCHAR(50) NOT NULL DEFAULT '',
- tumor_site_upper_pole VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_middle VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_lower_pole VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_other VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_precision VARCHAR(50) NOT NULL DEFAULT '',
- tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_site_upper_pole BOOLEAN DEFAULT NULL,
+ tumor_site_middle BOOLEAN DEFAULT NULL,
+ tumor_site_lower_pole BOOLEAN DEFAULT NULL,
+ tumor_site_other BOOLEAN DEFAULT NULL,
+ tumor_site_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_site_not_specified BOOLEAN DEFAULT NULL,
+ tumor_size_cannot_determine BOOLEAN DEFAULT NULL, 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
- histologic_type VARCHAR(50) NOT NULL DEFAULT'',
- histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(250) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_examined INT UNSIGNED DEFAULT NULL,
+ pn_examined_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_examined_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pn_involved INT UNSIGNED DEFAULT NULL,
+ pn_involved_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_involved_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1445,22 +1501,32 @@ CREATE TABLE qc_gastro_dxd_cap_kidneys_revs(
  specimen VARCHAR(50) NOT NULL DEFAULT '',
  m_procedure VARCHAR(50) NOT NULL DEFAULT '',
  laterality VARCHAR(50) NOT NULL DEFAULT '',
- tumor_site_upper_pole VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_middle VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_lower_pole VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_other VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_not_specified VARCHAR(6) NOT NULL DEFAULT '',
- tumor_site_precision VARCHAR(50) NOT NULL DEFAULT '',
- tumor_size_cannot_determine VARCHAR(6) NOT NULL DEFAULT'', 
+ tumor_site_upper_pole BOOLEAN DEFAULT NULL,
+ tumor_site_middle BOOLEAN DEFAULT NULL,
+ tumor_site_lower_pole BOOLEAN DEFAULT NULL,
+ tumor_site_other BOOLEAN DEFAULT NULL,
+ tumor_site_other_precision VARCHAR(50) NOT NULL DEFAULT '',
+ tumor_site_not_specified BOOLEAN DEFAULT NULL,
+ tumor_size_cannot_determine BOOLEAN DEFAULT NULL, 
  tumor_size_greatest_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add1_cm FLOAT UNSIGNED DEFAULT NULL,
  tumor_size_add2_cm FLOAT UNSIGNED DEFAULT NULL,
- histologic_type VARCHAR(50) NOT NULL DEFAULT'',
- histologic_grade VARCHAR(50) NOT NULL DEFAULT'',
+ histologic_type VARCHAR(250) NOT NULL DEFAULT'',
+ histologic_grade VARCHAR(250) NOT NULL DEFAULT'',
  lymph_vascular_invasion VARCHAR(50) NOT NULL DEFAULT'',
- ptmn_m VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_r VARCHAR(6) NOT NULL DEFAULT'', 
- ptmn_y VARCHAR(6) NOT NULL DEFAULT'',
+ ptmn_m BOOLEAN DEFAULT NULL, 
+ ptmn_r BOOLEAN DEFAULT NULL, 
+ ptmn_y BOOLEAN DEFAULT NULL,
+ pt VARCHAR(50) NOT NULL DEFAULT '',
+ pn VARCHAR(50) NOT NULL DEFAULT '',
+ pn_no_nodes BOOLEAN DEFAULT NULL,
+ pn_examined INT UNSIGNED DEFAULT NULL,
+ pn_examined_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_examined_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pn_involved INT UNSIGNED DEFAULT NULL,
+ pn_involved_cannot_determine BOOLEAN DEFAULT NULL,
+ pn_involved_cannot_determine_precision VARCHAR(50) DEFAULT '',
+ pm VARCHAR(50) NOT NULL DEFAULT '',
  created DATETIME NOT NULL,
  created_by INT UNSIGNED NOT NULL,
  modified DATETIME NOT NULL,
@@ -1482,7 +1548,7 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney procedure'), 'Not specified', '', '');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_histologic_type','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney histologic type')");
-INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic type', 1, 50);
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic type', 1, 250);
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Clear cell renal cell carcinoma', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Multilocular clear cell renal cell carcinoma', '', ''),
@@ -1497,7 +1563,7 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Renal cell carcinoma, unclassified', '', '');
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_histologic_grade','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney histologic grade')");
-INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic grade', 1, 50);
+INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic grade', 1, 250);
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'Not applicable', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic grade'), 'GX: Cannot be assessed', '', ''),
@@ -1510,12 +1576,12 @@ INSERT INTO structures(`alias`) VALUES ('qc_gastro_dxd_cap_kidneys');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'specimen', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_specimen') , '0', '', '', '', 'specimen', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'm_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure') , '0', '', '', '', 'm procedure', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'm_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure') , '0', '', '', '', 'procedure', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', '', 'laterality', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_upper_pole', 'checkbox',  NULL , '0', '', '', '', 'upper pole', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_middle', 'checkbox',  NULL , '0', '', '', '', 'middle', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_lower_pole', 'checkbox',  NULL , '0', '', '', '', 'lower pole', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_other', 'checkbox',  NULL , '0', '', '', '', 'other (specify)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_other', 'checkbox',  NULL , '0', '', '', '', 'other', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_precision', 'input',  NULL , '0', '', '', '', 'precision (if any)', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_cannot_determine', 'checkbox',  NULL , '0', '', '', '', 'cannot determine', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_size_greatest_cm', 'float_positive',  NULL , '0', '', '', '', 'greatest dimension (cm)', ''), 
@@ -1530,12 +1596,12 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'report date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='specimen' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_specimen')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='m_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m procedure' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='m_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_procedure')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_upper_pole' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='upper pole' AND `language_tag`=''), '1', '5', 'tumor site', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_middle' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='middle' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_lower_pole' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lower pole' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other (specify)' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='precision (if any)' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cannot determine' AND `language_tag`=''), '1', '10', 'tumor size', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_size_greatest_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest dimension (cm)' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
@@ -1544,7 +1610,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '2', '14', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='histologic_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_kidney_histologic_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic grade' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='perineural_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='perineural invasion' AND `language_tag`=''), '2', '16', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '17', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '17', 'pTNM - descriptors', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (posttreatment)' AND `language_tag`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
@@ -1827,7 +1893,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='Other' AND `language_tag`=''), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ht_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '1', '55', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '1', '56', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple)' AND `language_tag`=''), '1', '56', 'pTNM - descriptors', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_testis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_testis' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (post-treatment)' AND `language_tag`=''), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
@@ -1997,9 +2063,258 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='histologic_type_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type precision (if any)' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='histologic_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_bladder_histologic_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic grade' AND `language_tag`=''), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='lymph_vascular_invasion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '2', '20', 'lymph', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '21', 'pTNM', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_m' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='m (multiple primary tumors)' AND `language_tag`=''), '2', '21', 'pTNM - descriptors', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_r' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='r (recurrent)' AND `language_tag`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_bladders'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_gastro_dxd_cap_bladders' AND `field`='ptmn_y' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='y (post-treatment)' AND `language_tag`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
 ('cap report - urinary bladder', 1,'qc_gastro_dxd_cap_bladders','qc_gastro_dxd_cap_bladders', 0,'cap report - urinary bladder');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'specimen_precision', 'input',  NULL , '0', '', '', '', 'specimen precision (if any)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='specimen_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen precision (if any)' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='specimen_laterality' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='m_procedure' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_procedure') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='tumor_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_tumor_site') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='tumor_size_cannot_determine' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='tumor_size_greatest_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='tumor_size_add1_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='tumor_size_add2_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='histologic_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='histologic_type_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='histologic_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lung_histologic_grade') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='lymph_vascular_invasion' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_not_id_pres_indet') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='ptmn_m' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='ptmn_r' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='ptmn_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_lymph_regional_precision', 'input',  NULL , '0', '', '', '', '', 'specify'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'procedure_other_precision', 'input',  NULL , '0', '', '', '', '', 'specify');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_lymph_regional_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_fields SET  `language_label`='lymphadenectomy, regional nodes' WHERE model='DiagnosisDetail' AND tablename='qc_gastro_dxd_cap_melanomas' AND field='procedure_lymph_regional' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='other' WHERE model='DiagnosisDetail' AND tablename='qc_gastro_dxd_cap_melanomas' AND field='procedure_other' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='procedure_precision' AND `language_label`='procedure precision (if any)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_other_precision', 'input',  NULL , '0', '', '', '', '', 'specify');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_precision' AND `language_label`='precision (if any)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_lungs_pt', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pTX", "pTX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pTX" AND language_alias="pTX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT0", "pT0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT0" AND language_alias="pT0"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pTis", "pTis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pTis" AND language_alias="pTis"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1a", "pT1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1a" AND language_alias="pT1a"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1b", "pT1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1b" AND language_alias="pT1b"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2a", "pT2a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2a" AND language_alias="pT2a"), "6", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2b", "pT2b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2b" AND language_alias="pT2b"), "7", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3", "pT3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3" AND language_alias="pT3"), "8", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT4", "pT4");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT4" AND language_alias="pT4"), "9", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_lungs_pn', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pNX", "pNX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pNX" AND language_alias="pNX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN0", "pN0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN0" AND language_alias="pN0"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN1", "pN1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN1" AND language_alias="pN1"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN2", "pN2");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN2" AND language_alias="pN2"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN3", "pN3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN3" AND language_alias="pN3"), "4", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_lungs_pm', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not applicable", "not applicable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pm"),  (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1a", "pM1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1a" AND language_alias="pM1a"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1b", "pM1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_lungs_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1b" AND language_alias="pM1b"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pt') , '0', '', '', '', 'primary tumor (pT)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pn') , '0', '', '', '', 'regional lymph nodes (pN)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_examined', 'integer_positive',  NULL , '0', '', '', '', 'number of lymph nodes examined', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_examined_cannot_determine', 'checkbox',  NULL , '0', '', '', '', '', 'number cannot be determined'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_examined_cannot_determine_precision', 'input',  NULL , '0', '', '', '', '', 'explain'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_involved', 'integer_positive',  NULL , '0', '', '', '', 'number of lymph nodes involved', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_involved_cannot_determine', 'checkbox',  NULL , '0', '', '', '', '', 'number cannot be determined'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_involved_cannot_determine_precision', 'input',  NULL , '0', '', '', '', '', 'explain'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pm', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pm') , '0', '', '', '', 'distant metastasis (pM)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary tumor (pT)' AND `language_tag`=''), '2', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='regional lymph nodes (pN)' AND `language_tag`=''), '2', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_examined' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes examined' AND `language_tag`=''), '2', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_examined_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='number cannot be determined'), '2', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_examined_cannot_determine_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='explain'), '2', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_involved' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes involved' AND `language_tag`=''), '2', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_involved_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='number cannot be determined'), '2', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_involved_cannot_determine_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='explain'), '2', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_lungs_pm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='distant metastasis (pM)' AND `language_tag`=''), '2', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_pt', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pTX", "pTX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pTX" AND language_alias="pTX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT0", "pT0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT0" AND language_alias="pT0"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pTis", "pTis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pTis" AND language_alias="pTis"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1a", "pT1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1a" AND language_alias="pT1a"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1b", "pT1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1b" AND language_alias="pT1b"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2a", "pT2a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2a" AND language_alias="pT2a"), "6", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2b", "pT2b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2b" AND language_alias="pT2b"), "7", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3a", "pT3a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3a" AND language_alias="pT3a"), "8", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3b", "pT3b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3b" AND language_alias="pT3b"), "9", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT4a", "pT4a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT4a" AND language_alias="pT4a"), "10", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_pn', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pNX", "pNX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pNX" AND language_alias="pNX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN0", "pN0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN0" AND language_alias="pN0"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN1a", "pN1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN1a" AND language_alias="pN1a"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN1b", "pN1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN1b" AND language_alias="pN1b"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN2a", "pN2a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN2a" AND language_alias="pN2a"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN2b", "pN2b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN2b" AND language_alias="pN2b"), "6", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN2c", "pN2c");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN2c" AND language_alias="pN2c"), "7", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pN3", "pN3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pN3" AND language_alias="pN3"), "8", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_pn_mated_nodes', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("present", "present");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn_mated_nodes"),  (SELECT id FROM structure_permissible_values WHERE value="present" AND language_alias="present"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not identified", "not idenfitied");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pn_mated_nodes"),  (SELECT id FROM structure_permissible_values WHERE value="not identified" AND language_alias="not idenfitied"), "0", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_melanoma_pm', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not applicable", "not applicable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pm"),  (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1", "pM1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1" AND language_alias="pM1"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1a", "pM1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1a" AND language_alias="pM1a"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1b", "pM1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1b" AND language_alias="pM1b"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1c", "pM1c");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_cap_melanoma_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1c" AND language_alias="pM1c"), "5", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pt') , '0', '', '', '', 'primary tumor (pT)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pn') , '0', '', '', '', 'regional lymph nodes (pN)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn_nodes_id', 'integer_positive',  NULL , '0', '', '', '', 'number of lymph nodes identified', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn_metastases_id_macro', 'integer_positive',  NULL , '0', '', '', '', 'number containing metastases identified macroscopically', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn_metastases_id_micro', 'integer_positive',  NULL , '0', '', '', '', 'number containing metastases identified microscopically', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn_matted_nodes', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pn_mated_nodes') , '0', '', '', '', 'matted nodes', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pm', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pm') , '0', '', '', '', 'distant metastasis (pM)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary tumor (pT)' AND `language_tag`=''), '2', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='regional lymph nodes (pN)' AND `language_tag`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn_nodes_id' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes identified' AND `language_tag`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn_metastases_id_macro' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number containing metastases identified macroscopically' AND `language_tag`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn_metastases_id_micro' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number containing metastases identified microscopically' AND `language_tag`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn_matted_nodes' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pn_mated_nodes')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='matted nodes' AND `language_tag`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_cap_melanoma_pm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='distant metastasis (pM)' AND `language_tag`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_dxd_cap_kidney_pt', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pTX", "pTX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pTX" AND language_alias="pTX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT0", "pT0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT0" AND language_alias="pT0"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1", "pT1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1" AND language_alias="pT1"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1a", "pT1a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1a" AND language_alias="pT1a"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT1b", "pT1b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT1b" AND language_alias="pT1b"), "5", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2", "pT2");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2" AND language_alias="pT2"), "6", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2a", "pT2a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2a" AND language_alias="pT2a"), "7", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT2b", "pT2b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT2b" AND language_alias="pT2b"), "8", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3", "pT3");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3" AND language_alias="pT3"), "9", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3a", "pT3a");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3a" AND language_alias="pT3a"), "10", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3b", "pT3b");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3b" AND language_alias="pT3b"), "11", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT3c", "pT3c");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT3c" AND language_alias="pT3c"), "12", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pT4", "pT4");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pt"),  (SELECT id FROM structure_permissible_values WHERE value="pT4" AND language_alias="pT4"), "13", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_dxd_cap_kidney_pn', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pNX", "pNX");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pNX" AND language_alias="pNX"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pNX0", "pN0");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pNX0" AND language_alias="pN0"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pNX1", "pN1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pn"),  (SELECT id FROM structure_permissible_values WHERE value="pNX1" AND language_alias="pN1"), "1", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_dxd_cap_kidney_pm', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not applicable", "not applicable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pm"),  (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pM1", "pM1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_dxd_cap_kidney_pm"),  (SELECT id FROM structure_permissible_values WHERE value="pM1" AND language_alias="pM1"), "1", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pt') , '0', '', '', '', 'primary tumor (pT)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pn') , '0', '', '', '', 'regional lymph nodes (pN)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_no_nodes', 'checkbox',  NULL , '0', '', '', '', 'no nodes submitted or found', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_examined', 'integer_positive',  NULL , '0', '', '', '', 'number of lymph nodes examined', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_examined_cannot_determine', 'checkbox',  NULL , '0', '', '', '', '', 'number cannot be determined'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_examined_cannot_determine_precision', 'input',  NULL , '0', '', '', '', '', 'explain'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_involved', 'integer_positive',  NULL , '0', '', '', '', 'number of lymph nodes involved', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_involved_cannot_determine', 'checkbox',  NULL , '0', '', '', '', '', 'number cannot be determined'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pn_involved_cannot_determine_precision', 'input',  NULL , '0', '', '', '', '', 'explain'), 
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'pm', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pm') , '0', '', '', '', 'distant metastasis (pM)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary tumor (pT)' AND `language_tag`=''), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='regional lymph nodes (pN)' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_no_nodes' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='no nodes submitted or found' AND `language_tag`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_examined' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes examined' AND `language_tag`=''), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_examined_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='number cannot be determined'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_examined_cannot_determine_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='explain'), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_involved' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes involved' AND `language_tag`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_involved_cannot_determine' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='number cannot be determined'), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pn_involved_cannot_determine_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='explain'), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='pm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_dxd_cap_kidney_pm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='distant metastasis (pM)' AND `language_tag`=''), '2', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_lungs', 'pn_no_nodes', 'checkbox',  NULL , '0', '', '', '', 'no nodes submitted or found', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_lungs'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_lungs' AND `field`='pn_no_nodes' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='no nodes submitted or found' AND `language_tag`=''), '2', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_melanomas', 'pn_no_nodes', 'checkbox',  NULL , '0', '', '', '', 'no nodes submitted or found', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='pn_no_nodes' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='no nodes submitted or found' AND `language_tag`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
