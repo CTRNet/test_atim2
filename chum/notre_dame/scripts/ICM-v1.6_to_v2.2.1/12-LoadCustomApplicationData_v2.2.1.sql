@@ -310,3 +310,5 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 
 
+INSERT INTO lab_type_laterality_match (selected_type_code, selected_labo_laterality, sample_type_matching, tissue_source_matching, nature_matching, laterality_matching) VALUES
+('AM', '', 'sample_type_matching', 'tonsil', 'sane', '');
