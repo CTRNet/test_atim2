@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.0 alpha', NOW(), '> 2840');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.0', NOW(), '3245');
 
 ALTER TABLE structure_permissible_values_customs
  ADD COLUMN display_order TINYINT UNSIGNED DEFAULT 0 AFTER fr;
