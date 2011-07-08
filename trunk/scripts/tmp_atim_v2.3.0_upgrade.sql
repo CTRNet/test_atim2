@@ -1903,3 +1903,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sourcealiquots'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '3', '', '0', '', '0', '', '1', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='sourcealiquots'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '1', '', '1', 'position', '0', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='sourcealiquots'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '5', '', '0', '', '1', '-', '0', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0');
+
+-- Disable Materials and Equipment option from Tools Menu. Also disable SOP Extend option (Materials)
+UPDATE `menus` SET `flag_active`=0 WHERE `id`='mat_CAN_01';
+UPDATE `menus` SET `flag_active`=0 WHERE `id`='mat_CAN_02';
+UPDATE `menus` SET `flag_active`=0 WHERE `id`='sop_CAN_04';
