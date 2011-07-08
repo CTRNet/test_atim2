@@ -174,57 +174,92 @@ class ParticipantsController extends ClinicalannotationAppController {
 	}
 
 	function chronology($participant_id){
-		$tmpArray = array();
+		$tmp_array = array();
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->Structures->set('chronology', 'chronology');
 
 		//load every wanted information into the tmpArray
 		$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
-		$tmpArray[$participant['Participant']['date_of_birth']][] = array('event' => __('date of birth', true), 'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/');
+		$tmp_array[$participant['Participant']['date_of_birth']][] = array(
+			'event' => __('date of birth', true), 
+			'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/', 
+			'date_accuracy' => $participant['Participant']['date_of_birth_accuracy']
+		);
 		if(strlen($participant['Participant']['date_of_death']) > 0){
-			$tmpArray[$participant['Participant']['date_of_death']][] = array('event' => __('date of death', true), 'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/');
+			$tmp_array[$participant['Participant']['date_of_death']][] = array(
+				'event' => __('date of death', true), 
+				'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/', 
+				'date_accuracy' => $participant['Participant']['date_of_death_accuracy']
+			);
 		}
 		
 		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
 		foreach($consents as $consent){
-			$tmpArray[$consent['ConsentMaster']['consent_signed_date']][] = array('event' => __('consent', true), 'link' => '/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id']);
+			$tmp_array[$consent['ConsentMaster']['consent_signed_date']][] = array(
+				'event' => __('consent', true), 
+				'link' => '/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id'],
+				'date_accuracy' => isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c'
+			);
 		}
 		
 		$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
 		foreach($dxs as $dx){
-			$tmpArray[$dx['DiagnosisMaster']['dx_date']][] = array('event' => __('diagnosis', true), 'link' => '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id']);
+			$tmp_array[$dx['DiagnosisMaster']['dx_date']][] = array(
+				'event' => __('diagnosis', true), 
+				'link' => '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id'],
+				'date_accuracy' => $dx['DiagnosisMaster']['dx_date_accuracy']
+			);
 		}
 		
 		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
 		foreach($annotations as $annotation){
-			$tmpArray[$annotation['EventMaster']['event_date']][] = array('event' => __($annotation['EventControl']['event_type'], true), 'link' => '/clinicalannotation/event_masters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id']);
+			$tmp_array[$annotation['EventMaster']['event_date']][] = array(
+				'event' => __($annotation['EventControl']['event_type'], true), 
+				'link' => '/clinicalannotation/event_masters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id'],
+				'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c'
+			);
 		}
 		
 		$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
 		foreach($txs as $tx){
-			$tmpArray[$tx['TreatmentMaster']['start_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("start", true).")", 'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']);
-			$tmpArray[$tx['TreatmentMaster']['finish_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id']);
+			$tmp_array[$tx['TreatmentMaster']['start_date']][] = array(
+				'event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("start", true).")", 
+				'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id'],
+				'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy']
+			);
+			if(!empty($tx['TreatmentMaster']['finish_date'])){
+				$tmp_array[$tx['TreatmentMaster']['finish_date']][] = array(
+					'event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 
+					'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id'],
+					'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy']
+				);
+			}
 		}
 		
 		$ccls = $this->ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
 		foreach($ccls as $ccl){
-			$tmpArray[$ccl['Collection']['collection_datetime']][] = array('event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 'link' => '/inventorymanagement/collections/detail/'.$participant_id.'/'.$ccl['Collection']['id']);
+			$tmp_array[$ccl['Collection']['collection_datetime']][] = array(
+				'event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 
+				'link' => '/inventorymanagement/collections/detail/'.$participant_id.'/'.$ccl['Collection']['id'],
+				'date_accuracy' => $ccl['Collection']['collection_datetime_accuracy']	
+			);
 		}
-		
+
 		//sort the tmpArray by key (key = date)
-		ksort($tmpArray);
+		ksort($tmp_array);
 		
 		//transfer the tmpArray into $this->data
 		$this->data = array();
-		foreach($tmpArray as $key => $values){
+		foreach($tmp_array as $key => $values){
 			foreach($values as $value){
 				$date = $key;
 				$time = null;
 				if(strpos($date, " ") > 0){
 					list($date, $time) = explode(" ", $date);
 				}
-				$this->data[] = array('Generated' => array(
+				$this->data[] = array('custom' => array(
 					'date' => $date,
+					'date_accuracy' => $value['date_accuracy'], 
 					'time' => $time,
 					'event' => $value['event'],
 					'link' => isset($value['link']) ? $value['link'] : null));
