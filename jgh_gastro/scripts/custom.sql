@@ -1009,6 +1009,9 @@ SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonl
 ALTER TABLE diagnosis_controls
  MODIFY controls_type VARCHAR(100) NOT NULL DEFAULT '',
  MODIFY databrowser_label VARCHAR(100) NOT NULL DEFAULT '';
+ 
+ALTER TABLE structure_permissible_values_customs
+ MODIFY value VARCHAR(100) NOT NULL DEFAULT '';
 
 CREATE TABLE qc_gastro_dxd_cap_lungs(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -1574,6 +1577,10 @@ INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VAL
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Mucinous tubular and spindle cell carcinoma', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Tubulocystic renal cell carcinoma', '', ''),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap kidney histologic type'), 'Renal cell carcinoma, unclassified', '', '');
+
+ALTER TABLE  `structure_permissible_values_customs` 
+ CHANGE  `en`  `en` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
+ CHANGE  `fr`  `fr` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL;
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_cap_kidney_histologic_grade','','', "StructurePermissibleValuesCustom::getCustomDropdown('cap kidney histologic grade')");
 INSERT INTO structure_permissible_values_custom_controls(name, flag_active, values_max_length) VALUES ('cap kidney histologic grade', 1, 250);
@@ -2865,4 +2872,21 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
 ('cap report - prostate gland: radical prostatectomy', 1,'qc_gastro_dxd_cap_prostate_radicals','qc_gastro_dxd_cap_prostate_radicals', 0,'cap report - prostate gland: radical prostatectomy');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'qc_gastro_dxd_cap_kidneys', 'tumor_site_not_specified', 'checkbox',  NULL , '0', '', '', '', 'not specified', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_kidneys'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_kidneys' AND `field`='tumor_site_not_specified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='not specified' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_gastro_laterality_lrbns', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("left", "left");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbns"),  (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("right", "right");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbns"),  (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("both", "both");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbns"),  (SELECT id FROM structure_permissible_values WHERE value="both" AND language_alias="both"), "0", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not specified", "not specified");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_gastro_laterality_lrbns"),  (SELECT id FROM structure_permissible_values WHERE value="not specified" AND language_alias="not specified"), "0", "1");
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbns')  WHERE model='DiagnosisDetail' AND tablename='qc_gastro_dxd_cap_testis' AND field='specimen_laterality' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbu');
 
