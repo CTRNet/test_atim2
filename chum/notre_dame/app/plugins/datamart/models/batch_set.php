@@ -73,7 +73,7 @@ class BatchSet extends DatamartAppModel {
 	 * @return array Compatible Batch sets
 	 */
 	public function getCompatibleBatchSets($plugin, $model, $datamart_structure_id, $ignore_id = null){
-		$datamart_structure = AppModel::atimNew("datamart", "DatamartStructure", true);
+		$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 		if(is_numeric($datamart_structure_id)){
 			$data = $datamart_structure->findById($datamart_structure_id);
 			if($model == $data['DatamartStructure']['control_master_model']){
@@ -154,7 +154,7 @@ class BatchSet extends DatamartAppModel {
 	 * @return The compatible datamart structure id on success, false otherwise
 	 */
 	function getCompatibleDatamartStructureId($model_name){
-		$datamart_structure_model = AppModel::atimNew("datamart", "DatamartStructure", true);
+		$datamart_structure_model = AppModel::getInstance("datamart", "DatamartStructure", true);
 		$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $model_name, 'DatamartStructure.control_master_model' => $model_name))));
 		return empty($datamart_structure) ? false : $datamart_structure['DatamartStructure']['id'];  
 	}

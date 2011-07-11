@@ -8,8 +8,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		'Inventorymanagement.Collection',
 		'Inventorymanagement.SampleMaster',
 		'Inventorymanagement.AliquotMaster',
-		'Inventorymanagement.QualityCtrl',
-		'Inventorymanagement.QualityCtrlTestedAliquot'
+		'Inventorymanagement.QualityCtrl'
 	);
 	
 	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
@@ -48,73 +47,279 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function add($collection_id, $sample_master_id){
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
+	function add($sample_master_id = null){
+		$this->Structures->set('view_sample_joined_to_collection', "samples_structure");
+		$this->Structures->set('sourcealiquots', "aliquots_structure");
+		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
+		$this->Structures->set('qualityctrls', 'qc_structure');
+		$this->Structures->set('qualityctrls,qualityctrls_volume', 'qc_volume_structure');
+			
+		$menu_data = null;
+		if($sample_master_id != null){
+			$menu_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id)));
+			$menu_data = $menu_data['SampleMaster'];
+			$this->set('cancel_button', '/inventorymanagement/sample_masters/detail/'.$menu_data['collection_id'].'/'.$sample_master_id);
+		}else if(array_key_exists('ViewAliquot', $this->data)){
+				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+					'conditions'	=> array('AliquotMaster.id' => $this->data['ViewAliquot']['aliquot_master_id']),
+					'fields'		=> array('AliquotMaster.sample_master_id'),
+					'recursive'		=> -1)
+				);
+				$menu_data = array();
+				foreach($aliquot_sample_ids as $aliquot_sample_id){
+					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+				}
+		}else if(array_key_exists('ViewSample', $this->data)){
+			$menu_data = $this->data['ViewSample']['sample_master_id']; 
+		}else{
+			//submitted data
+			$tmp_data = current($this->data);
+			$model = array_key_exists('AliquotMaster', $tmp_data) ? 'AliquotMaster' : 'SampleMaster';
+			$menu_data = array_keys($this->data);
+			if($model == 'AliquotMaster'){
+				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+					'conditions'	=> array('AliquotMaster.id' => $menu_data),
+					'fields'		=> array('AliquotMaster.sample_master_id'),
+					'recursive'		=> -1)
+				);
+				$menu_data = array();
+				foreach($aliquot_sample_ids as $aliquot_sample_id){
+					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+				}
+			}
+		}
+		$this->setBatchMenu(array('SampleMaster' => $menu_data));
+		$this->set('cancel_button', '/menus/');
 		
-		// MANAGE DATA
-		
-		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
-		$sample_id_parameter = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/listAll/%%Collection.id%%/' . $sample_id_parameter));		
-		
-		$this->set( 'atim_menu_variables', 
-			array('Collection.id' => $sample_data['SampleMaster']['collection_id'], 
-				'SampleMaster.id' => $sample_master_id,
-				'SampleMaster.initial_specimen_sample_id' => $sample_data['SampleMaster']['initial_specimen_sample_id']) 
+		$joins = array(array(
+				'table' => 'view_samples',
+				'alias' => 'ViewSample',
+				'type' => 'INNER',
+				'conditions' => array('AliquotMaster.sample_master_id = ViewSample.sample_master_id')
+			)
 		);
+
+		if(isset($this->data['ViewAliquot']) || isset($this->data['ViewSample'])){
+			if(empty($this->data['ViewAliquot']['aliquot_master_id']) && $sample_master_id != null){
+				$this->data['ViewSample']['sample_master_id'] = array($sample_master_id);
+				unset($this->data['ViewAliquot']);
+			}
+			//initial access
+			$data = null;
+			if(isset($this->data['ViewAliquot'])){
+				if(!is_array($this->data['ViewAliquot']['aliquot_master_id'])){
+					$this->data['ViewAliquot']['aliquot_master_id'] = array($this->data['ViewAliquot']['aliquot_master_id']);
+				}
+				$aliquot_ids = array_filter($this->data['ViewAliquot']['aliquot_master_id']);
+				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
+				$data = $this->AliquotMaster->find('all', array(
+					'fields'		=> array('*'),
+					'conditions'	=> array('AliquotMaster.id' => $aliquot_ids),
+					'recursive'		=> 0,
+					'joins'			=> $joins)
+				);
+			}else{
+				if(!is_array($this->data['ViewSample']['sample_master_id'])){
+					$this->data['ViewSample']['sample_master_id'] = array($this->data['ViewSample']['sample_master_id']);
+				}
+				$sample_ids = array_filter($this->data['ViewSample']['sample_master_id']);
+				$view_sample_model = AppModel::getInstance("inventorymanagement", "ViewSample", true);
+				$data = $view_sample_model->find('all', array(
+					'conditions'	=> array('ViewSample.sample_master_id' => $sample_ids),
+					'recursive'		=> -1)
+				);
+			}
 			
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}	
-		
-		// MANAGE DATA RECORD
-		
-		if ( !empty($this->data) ) {
 			
-			$this->data['QualityCtrl']['sample_master_id'] = $sample_master_id;
+			$this->data = array();
+			foreach($data as $data_unit){
+				$this->data[] = array('parent' => $data_unit, 'children' => array());
+			}
 			
-			$submitted_data_validates = true;
+			$hook_link = $this->hook('format');
+			if($hook_link){
+				require($hook_link);
+			}
+		}else if(!empty($this->data)){
+			//post
+			$display_data = array();
+			$sample_data = null;
+			$aliquot_data = null;
+			$remove_from_storage = null;
+			$line = 0;
+			$errors = array();
+			$aliquot_data_to_save = array();
+			$qc_data_to_save = array();
+			foreach($this->data as $key => $data_unit){
+				//validate
+				
+				$sample_data = $data_unit['ViewSample'];
+				unset($data_unit['ViewSample']);
+				if(isset($data_unit['AliquotMaster'])){
+					$aliquot_data['AliquotMaster'] = $data_unit['AliquotMaster'];
+					$remove_from_storage = $data_unit['FunctionManagement']['remove_from_storage'];
+					unset($data_unit['AliquotMaster']);
+					unset($data_unit['AliquotControl']);
+					unset($data_unit['FunctionManagement']);
+				}
+				
+				$aliquot_master_id = null;
+				$sample_master_id = null;
+				if($aliquot_data != null){
+					$aliquot_master_id = $key;
+					$this->AliquotMaster->data = null;
+					$aliquot_data['AliquotMaster']['id'] = $key;
+					$this->AliquotMaster->set($aliquot_data);
+					if(!$this->AliquotMaster->validates()){
+						foreach($this->AliquotMaster->validationErrors as $field => $error_msg){
+							$errors[$field] = $error_msg;
+						}
+					}
+					
+					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
+					$aliquot_data2 = $this->AliquotMaster->find('first', array(
+						'fields'		=> array('*'),
+						'conditions'	=> array('AliquotMaster.id' => $key),
+						'recursive'		=> 0,
+						'joins'			=> $joins)
+					);
+					$aliquot_data['AliquotMaster'] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
+					$display_data[] = array('parent' => $aliquot_data2, 'children' => $data_unit);
+					$sample_master_id = $aliquot_data2['AliquotMaster']['sample_master_id'];
+					if($remove_from_storage){
+						$aliquot_data['AliquotMaster']['storage_master_id'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
+						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
+					}
+					$aliquot_data_to_save[] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
+				}else{
+					$sample_master_id = $key;
+					$sample_data['sample_master_id'] = $key;
+					$display_data[] = array('parent' => array('ViewSample' => $sample_data), 'children' => $data_unit);
+				}
+				
+				if(empty($data_unit)){
+					$errors[] = 'at least one quality control has to be created for each item';
+				}else{
+					foreach($data_unit as $quality_control){
+						$this->QualityCtrl->data = null;
+						$this->QualityCtrl->set($quality_control);
+						if(!$this->QualityCtrl->validates()){
+							foreach($this->QualityCtrl->validationErrors as $field => $error_msg){
+								++ $line;
+								$errors[$field] = $error_msg . " ".__('line', true).": ".$line;
+							}
+						}
+						$quality_control['QualityCtrl']['aliquot_master_id'] = $aliquot_master_id;
+						$quality_control['QualityCtrl']['sample_master_id'] = $sample_master_id;
+						$qc_data_to_save[] = $quality_control;
+					}
+				}
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
 			}
+			
+			//save
+			if(empty($errors) && !empty($qc_data_to_save)){
+				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
+				$last_qc_id = $this->QualityCtrl->getLastInsertId();
+				$this->QualityCtrl->updateAll(
+					array('qc_code' => 'CONCAT("QC - ", QualityCtrl.id)'),
+					array('qc_code IS NULL')
+				);
+				if(!empty($aliquot_data_to_save)){
+					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
+					foreach($aliquot_data_to_save as $aliquot_data){
+						$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_data['id'], true, true, false);
+					}
+				}
 				
-			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
-				$qc_id = $this->QualityCtrl->getLastInsertId();
+				$target = null;
+				$sample_id = null;
+				$sample_id = $qc_data_to_save[0]['QualityCtrl']['sample_master_id'];
+				foreach($qc_data_to_save as $qc_data_unit){
+					if($qc_data_unit['QualityCtrl']['sample_master_id'] != $sample_id){
+						$sample_id = null;
+						break;	
+					}
+				}
 				
-				// Record additional qc data
-				$qc_data_to_update = array();
-				$qc_data_to_update['QualityCtrl']['qc_code'] = $this->createQcCode($qc_id, $this->data, $sample_data);
+				if($sample_id != null){
+					//all the same sample, stay under it
+					$sample_data = $this->SampleMaster->find('first', array(
+						'conditions' => array('SampleMaster.id' => $sample_id),
+						'recursive'	=> -1)
+					);
+					if(count($qc_data_to_save) == 1){
+						$target = '/inventorymanagement/quality_ctrls/detail/'.$sample_data['SampleMaster']['collection_id'].'/'.$sample_data['SampleMaster']['id'].'/'.$last_qc_id.'/';
+					}else{
+						$target = '/inventorymanagement/quality_ctrls/listAll/'.$sample_data['SampleMaster']['collection_id'].'/'.$sample_data['SampleMaster']['id'].'/';
+					}
+					
+				}else{
+					//different samples, show the result into a tmp batchset
+					$_SESSION['tmp_batch_set']['BatchId'] = range($last_qc_id - count($qc_data_to_save) + 1, $last_qc_id);
+					
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
+					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('QualityCtrl');
+					$target = '/datamart/batch_sets/listall/0/';
+				}
 				
-				$this->QualityCtrl->id = $qc_id;					
-				if(!$this->QualityCtrl->save($qc_data_to_update, false)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
-				$this->atimFlash('your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$this->QualityCtrl->id.'/' );
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
+				
+				$this->atimFlash( 'your data has been saved', $target);
+				return;
+			}else{
+				$this->QualityCtrl->validationErrors = $errors;
+				$this->data = $display_data;
 			}
+		}else{
+			//probably a direct access, not supposed to do that
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
 	
 	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// MANAGE DATA
 		
 		// Get Quality Control Data
-		$quality_ctrl_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($quality_ctrl_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		$quality_ctrl_data = $this->QualityCtrl->find('first',array(
+			'conditions'=>array(
+				'QualityCtrl.id' => $quality_ctrl_id, 
+				'SampleMaster.collection_id' => $collection_id,
+				'SampleMaster.id' => $sample_master_id
+			)
+		));
+		
+		$structure_to_load = 'qualityctrls';
+		if(isset($quality_ctrl_data['AliquotMaster'])){
+			$aliquot_ctrl_model = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+			$aliquot_ctrl_data = $aliquot_ctrl_model->findById($quality_ctrl_data['AliquotMaster']['aliquot_control_id']);
+			$quality_ctrl_data['AliquotControl'] = $aliquot_ctrl_data['AliquotControl'];
+			if(!empty($aliquot_ctrl_data['AliquotControl']['volume_unit'])){
+				$structure_to_load .= ",qualityctrls_volume_for_detail";
+			}
+		}
+		$this->Structures->set($structure_to_load);
+		
+		if(empty($quality_ctrl_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// Set aliquot data
 		$this->set('quality_ctrl_data', $quality_ctrl_data);
 		$this->data = array();
-		
-		// Get/Set Tested Aliquots Data
-		$this->set('tested_aliquots_data', $this->paginate($this->QualityCtrlTestedAliquot,array('QualityCtrlTestedAliquot.quality_ctrl_id'=>$quality_ctrl_id)));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -127,8 +332,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' => $quality_ctrl_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 					
-		$this->Structures->set('qctestedaliquots', 'structure_for_tested_aliquots');
-		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
@@ -136,12 +339,17 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 	
 	function edit($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-
+		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
+ 
 		// MANAGE DATA
 		
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($qc_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -154,6 +362,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.initial_specimen_sample_id' =>  $qc_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
 
+		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure');
+	
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link);
@@ -175,28 +385,73 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				require($hook_link); 
 			}
 			
+			$update_new_aliquot_id = null;
+			$update_old_aliquot_id = null;
+			if(is_numeric($this->data['QualityCtrl']['aliquot_master_id'])){
+				$update_new_aliquot_id = $this->data['QualityCtrl']['aliquot_master_id'];
+				$aliquot_data = $this->AliquotMaster->findById($this->data['QualityCtrl']['aliquot_master_id']);
+				if((empty($aliquot_data) || empty($aliquot_data['AliquotControl']['volume_unit'])) && !empty($this->data['QualityCtrl']['used_volume'])){
+					$this->data['QualityCtrl']['used_volume'] = null;
+					AppController::addWarningMsg(__('this aliquot has no recorded volume', true).". ".__('the inputed volume was automatically removed', true).".");
+				}
+			}else{
+				$this->data['QualityCtrl']['aliquot_master_id'] = null;
+			}
+			
+			if(!empty($qc_data['QualityCtrl']['aliquot_master_id']) && $qc_data['QualityCtrl']['aliquot_master_id'] != $this->data['QualityCtrl']['aliquot_master_id']){
+				//the aliquot changed, update the old one afterwards
+				$update_old_aliquot_id = $qc_data['QualityCtrl']['aliquot_master_id'];
+			}
+			
+			if(!array_key_exists('used_volume', $this->data['QualityCtrl'])){
+				$this->data['QualityCtrl']['used_volume'] = null;
+			}
+			
 			// Save data
-			$this->QualityCtrl->id = $quality_ctrl_id;	
+			$this->QualityCtrl->id = $quality_ctrl_id;
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->data )) {
+				if($update_new_aliquot_id != null){
+					$this->AliquotMaster->updateAliquotUseAndVolume($update_new_aliquot_id, true, true, false);
+				}
+				if($update_old_aliquot_id != null){
+					$this->AliquotMaster->updateAliquotUseAndVolume($update_old_aliquot_id, true, true, false);
+				}
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/inventorymanagement/quality_ctrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
+		
+		
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
 	}
 	
 	function delete($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 
 		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($qc_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowQcDeletion($quality_ctrl_id);
+		$arr_allow_deletion = $this->QualityCtrl->allowDeletion($quality_ctrl_id);
 			
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
+				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
+					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
+				}
 				$this->atimFlash( 'your data has been deleted', 
 						'/inventorymanagement/quality_ctrls/listAll/'
 						.$qc_data['SampleMaster']['collection_id'].'/'
@@ -206,251 +461,21 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
-		}	
+		}
 	}
 	
-	/* ------------------------------ TESTED ALIQUOTS ------------------------------ */
-	
-	function addTestedAliquots($collection_id, $sample_master_id, $quality_ctrl_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-
-		// MANAGE DATA
+	function addInit($collection_id, $sample_master_id){
+		$this->setBatchMenu(array('SampleMaster' => $sample_master_id));
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
+		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure_vol');
+		$this->Structures->set('aliquotmasters', 'aliquot_structure_no_vol');
+		$this->Structures->set('empty', 'empty_structure');
 		
-		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
-		if(empty($qc_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
-				
-		$already_tested_aliquot_ids = array();
-		if(!empty($qc_data['QualityCtrlTestedAliquot'])) {
-			foreach($qc_data['QualityCtrlTestedAliquot'] as $tested_aliq) {
-				$already_tested_aliquot_ids[] = $tested_aliq['aliquot_master_id'];
-			}
-		}
-			
-		$criteria = array(
-			'AliquotMaster.collection_id' => $collection_id,
-			'AliquotMaster.sample_master_id' => $sample_master_id,
-			'NOT' => array('AliquotMaster.id' => $already_tested_aliquot_ids));
-		$available_sample_aliquots = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
-
-		if(empty($available_sample_aliquots)) {
-			$this->flash('no new sample aliquot could be actually defined as tested aliquot', '/inventorymanagement/quality_ctrls/detail/'. $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
-		}
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
-		$sample_id_parameter = ($qc_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/' . $sample_id_parameter . '/%%QualityCtrl.id%%'));	
-		
-		$this->set( 'atim_menu_variables', 
-			array('Collection.id' => $qc_data['SampleMaster']['collection_id'], 
-			'SampleMaster.id' => $sample_master_id,
-			'SampleMaster.initial_specimen_sample_id' => $qc_data['SampleMaster']['initial_specimen_sample_id'],
-			'QualityCtrl.id' => $quality_ctrl_id) );
-
-		$this->Structures->set('qctestedaliquots');
-
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link);
 		}
-					
-		// MANAGE DATA RECORD
-			
-		if (empty($this->data)) {
-			$this->data = $available_sample_aliquots;
-
-		} else {
-			// Launch validation
-			$submitted_data_validates = true;	
-			
-			$aliquots_defined_as_tested = array();
-			$errors = array();
-			foreach($this->data as $key => $new_studied_aliquot){
-				if($new_studied_aliquot['FunctionManagement']['use']){
-					// New aliquot defined as used
-
-					// Check volume
-					if((!empty($new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'])) && empty($new_studied_aliquot['AliquotMaster']['aliquot_volume_unit'])) {
-						// No volume has to be recored for this aliquot type				
-						$errors['QualityCtrlTestedAliquot']['used_volume']['no volume has to be recorded for this aliquot type'] = '-'; 
-						$new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'] = '#err#';
-						$submitted_data_validates = false;			
-					} else if(empty($new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'])) {
-						// Change '0' to null
-						$new_studied_aliquot['QualityCtrlTestedAliquot']['used_volume'] = null;
-					}
-					
-					// Launch Aliquot Master validation
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->set($new_studied_aliquot);
-					$this->AliquotMaster->id = $new_studied_aliquot['AliquotMaster']['id'];
-					$submitted_data_validates = ($this->AliquotMaster->validates())? $submitted_data_validates: false;
-					foreach($this->AliquotMaster->invalidFields() as $field => $error) { $errors['AliquotMaster'][$field][$error] = '-'; }					
-
-					// Reste data to get position data (not really required for this function)
-					$new_studied_aliquot = $this->AliquotMaster->data;
-					
-					// Launch Aliquot Use validation
-					$this->QualityCtrlTestedAliquot->set($new_studied_aliquot);
-					$submitted_data_validates = ($this->QualityCtrlTestedAliquot->validates())? $submitted_data_validates: false;
-					foreach($this->QualityCtrlTestedAliquot->invalidFields() as $field => $error) { $errors['QualityCtrlTestedAliquot'][$field][$error] = '-'; }					
-					
-					// Add record to array of tested aliquots
-					$aliquots_defined_as_tested[] = $new_studied_aliquot;		
-				}
-				
-				// Reset data
-				$this->data[$key] = $new_studied_aliquot;
-			}
-			
-			if(empty($aliquots_defined_as_tested)) { 
-				$this->QualityCtrlTestedAliquot->validationErrors[] = 'no aliquot has been defined as sample tested aliquot';	
-				$submitted_data_validates = false;			
-			}
-			
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) {
-				require($hook_link);
-			}
-		
-			if (!$submitted_data_validates) {
-				// Set error message
-				foreach($errors as $model => $field_messages) {
-					$this->{$model}->validationErrors = array();
-					foreach($field_messages as $field => $messages) {
-						foreach($messages as $message => $tmp) {
-							if(!array_key_exists($field, $this->{$model}->validationErrors)) {
-								$this->{$model}->validationErrors[$field] = $message;
-							} else {
-								$this->{$model}->validationErrors[] = $message;
-							}
-						}
-					}
-				}
-				
-			} else {
-				// Launch save functions
-	
-				// Parse records to save
-				foreach($aliquots_defined_as_tested as $new_used_aliquot) {
-					// Get Tested Aliquot Master Id
-					$aliquot_master_id = $new_used_aliquot['AliquotMaster']['id'];
-
-					// set aliquot master data					
-					if($new_used_aliquot['FunctionManagement']['remove_from_storage'] || ($new_used_aliquot['AliquotMaster']['in_stock'] == 'no')) {
-						// Delete aliquot storage data
-						$new_used_aliquot['AliquotMaster']['storage_master_id'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_x'] = null;
-						$new_used_aliquot['AliquotMaster']['storage_coord_y'] = null;	
-					}
-									
-					// Save data:
-					// - AliquotMaster
-					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
-					
-					// - QualityCtrlTestedAliquot
-					$this->QualityCtrlTestedAliquot->id = null;
-					$new_used_aliquot['QualityCtrlTestedAliquot']['aliquot_master_id'] = $aliquot_master_id;	
-					$new_used_aliquot['QualityCtrlTestedAliquot']['quality_ctrl_id'] = $quality_ctrl_id;	
-					if(!$this->QualityCtrlTestedAliquot->save($new_used_aliquot, false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
-
-					// - Update aliquot current volume
-					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
-				}
-				$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), 
-					'/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id . '/'); 
-			}
-		}
-	}
-	
-	function deleteTestedAliquot($quality_ctrl_id, $aliquot_master_id, $source) {
-		if((!$quality_ctrl_id) || (!$aliquot_master_id) || (!$source)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
-
- 		// MANAGE DATA
-		
-		// Get the realiquoting data
-		
-		$tested_aliquot_data = $this->QualityCtrlTestedAliquot->find('first', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id, 'QualityCtrlTestedAliquot.aliquot_master_id' => $aliquot_master_id)));
-		if(empty($tested_aliquot_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }				
-	
-		$flash_url = '';
-		switch($source) {
-			case 'aliquot_details':
-				$flash_url = '/inventorymanagement/aliquot_masters/detail/' . $tested_aliquot_data['AliquotMaster']['collection_id'] . '/' . $tested_aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $tested_aliquot_data['AliquotMaster']['id'];
-				break;
-			case 'quality_controls_details':
-				$flash_url = '/inventorymanagement/quality_ctrls/detail/' . $tested_aliquot_data['AliquotMaster']['collection_id'] . '/' . $tested_aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $tested_aliquot_data['QualityCtrl']['id'];
-				break;
-			default:
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}		
-		
-		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
-			
-		// LAUNCH DELETION
-		$deletion_done = true;
-		
-		// -> Delete Realiquoting
-		if(!$this->QualityCtrlTestedAliquot->atim_delete($tested_aliquot_data['QualityCtrlTestedAliquot']['id'])) { $deletion_done = false; }	
-		
-		// -> Update volume
-		if($deletion_done) {
-			if(!$this->AliquotMaster->updateAliquotUseAndVolume($tested_aliquot_data['AliquotMaster']['id'], true, true)) { $deletion_done = false; }
-		}
-		
-		if($deletion_done) {
-			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
-		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
-		}
-		
-	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Check if a quality control can be deleted.
-	 * 
-	 * @param $quality_ctrl_id Id of the studied quality control.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowQcDeletion($quality_ctrl_id){
-		// Check no aliquot has been linked to qc	
-		$returned_nbr = $this->QualityCtrlTestedAliquot->find('count', array('conditions' => array('QualityCtrlTestedAliquot.quality_ctrl_id' => $quality_ctrl_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot has been linked to the deleted qc'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Create code of a new quality control. 
-	 * 
-	 * @param $qc_id ID of the studied quality control.
-	 * @param $qc_data Data of the quality control.
-	 * @param $sample_data Data of the sample linked to this quality control.
-	 * 
-	 * @return The new code.
-	 * 
-	 * @author N. Luc
-	 * @since 2008-01-31
-	 */
-	 
-	function createQcCode($qc_id, $storage_data, $qc_data = null, $sample_data = null) {
-		$qc_code = 'QC - ' . $qc_id;
-		
-		return $qc_code;
 	}
 }
 ?>

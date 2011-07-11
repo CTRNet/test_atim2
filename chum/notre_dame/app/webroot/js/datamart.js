@@ -23,6 +23,7 @@ function initDatamartActions(){
 		content: $('#hierarchy').next().html(),
 		backLink: false,
 		flyOut: true,
+		directionV: 'down',
 		callback: function(item){
 			var json = getJsonFromClass($(item).attr("class"));
 			if(json != null){
@@ -41,7 +42,7 @@ function initDatamartActions(){
 			selectToReplace = this;
 			return;
 		}
-	})
+	});
 	if(selectToReplace != null){
 		var parent = $(selectToReplace).parent();
 		$(selectToReplace).remove();

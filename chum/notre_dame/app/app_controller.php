@@ -17,6 +17,11 @@ class AppController extends Controller {
 	
 	function beforeFilter() {
 		AppController::$me = $this;
+		if(Configure::read('debug') != 0){
+			Cache::clear(false, "structures");
+			Cache::clear(false, "menus");
+		}
+		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language')); 
@@ -292,7 +297,7 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		if($year == 0 && $month == 0 && $day == 0){
+		if(empty($year) && empty($month) && empty($day)){
 			$result = "";
 		}else{
 			$divider = $nbsp_spaces ? "&nbsp;" : " ";
@@ -301,11 +306,11 @@ class AppController extends Controller {
 				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
 			}
 			if(date_format == 'MDY') {
-				$result = $month.$divider.$day.$divider.$year;
+				$result = $month.(empty($month) ? "" : $divider).$day.(empty($day) ? "" : $divider).$year;
 			}else if (date_format == 'YMD') {
-				$result = $year.$divider.$month.$divider.$day;
+				$result = $year.(empty($month) ? "" : $divider).$month.(empty($day) ? "" : $divider).$day;
 			}else { // default of DATE_FORMAT=='DMY'
-				$result = $day.$divider.$month.$divider.$year;
+				$result = $day.(empty($day) ? "" : $divider).$month.(empty($month) ? "" : $divider).$year;
 			}
 		}
 		return $result;
@@ -318,7 +323,9 @@ class AppController extends Controller {
 			if($hour == 0){
 				$hour = 12;
 			}
-			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+			return $hour.(empty($minutes) ? '' : ":".$minutes.($nbsp_spaces ? "&nbsp;" : " ")).$meridiem;
+		}else if(empty($minutes)){
+			return $hour.__('hour_sign', true);
 		}else{
 			return $hour.":".$minutes;
 		}
@@ -327,17 +334,38 @@ class AppController extends Controller {
 	/**
 	 * 
 	 * Enter description here ...
-	 * @param $datetime_string String with format yyyy-MM-dd hh:mm:ss
+	 * @param $datetime_string String with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
 	 * @param boolean $nbsp_spaces True if white spaces must be printed as &nbsp;
 	 * @param boolean $short_months True if months names should be short (used if $month is an int)
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-		list($date, $time) = explode(" ", $datetime_string);
-		list($year, $month, $day) = explode("-", $date);
-		list($hour, $minutes, ) = explode(":", $time);
+		$month = null;
+		$day = null;
+		$hour = null;
+		$minutes = null;
+		if(strpos($datetime_string, ' ') === false){
+			$date = $datetime_string;
+		}else{
+			list($date, $time) = explode(" ", $datetime_string);
+			if(strpos($time, ":") === false){
+				$hour = $time;
+			}else{
+				list($hour, $minutes, ) = explode(":", $time);
+			}
+		}
+		
+		$date = explode("-", $date);
+		$year = $date[0];
+		switch(count($date)){
+			case 3:
+				$day = $date[2];
+			case 2:
+				$month = $date[1];
+				break;
+		}
 		$formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
-		return $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+		return $hour === null ? $formated_date : $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
@@ -442,7 +470,11 @@ class AppController extends Controller {
 	}
 	
 	static function addWarningMsg($msg){
-		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
+		if(array_key_exists($msg, $_SESSION['ctrapp_core']['warning_msg'])){
+			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
+		}else{
+			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
+		}
 	}
 	
 	static function getStackTrace(){

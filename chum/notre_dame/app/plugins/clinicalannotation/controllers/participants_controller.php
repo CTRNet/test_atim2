@@ -1,7 +1,7 @@
 <?php
 
 class ParticipantsController extends ClinicalannotationAppController {
-
+	
 	var $components = array(); 
 		
 	var $uses = array(
@@ -22,7 +22,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	);
 	var $paginate = array(
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
-		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC')); 
+		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC')); 
 	
 	function index() {
 		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
@@ -34,7 +34,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function search() {
 		// if SEARCH form data, parse and create conditions
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		// MANAGE DATA
 		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search']['criteria']);
@@ -61,7 +61,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$this->data = $participant_data;
 		
 		// Set data for identifier list
-		
 		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		$this->set('participant_identifiers_data', $participant_identifiers_data);
 		
@@ -93,13 +92,17 @@ class ParticipantsController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }				
+			if( $hook_link ) { 
+				require($hook_link); 
+			}				
 			
 			if($submitted_data_validates) {
 				if ( $this->Participant->save($this->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash('your data has been saved', '/clinicalannotation/participants/profile/'.$this->Participant->getLastInsertID());
 				}
@@ -128,11 +131,17 @@ class ParticipantsController extends ClinicalannotationAppController {
 			// ... special validations
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
 				$this->Participant->id = $participant_id;
 				if ( $this->Participant->save($this->data) ){
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been updated', '/clinicalannotation/participants/profile/'.$participant_id );		
 				}
 			}
@@ -147,7 +156,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $participant_data;
 
-		$arr_allow_deletion = $this->allowParticipantDeletion($participant_id);
+		$arr_allow_deletion = $this->Participant->allowDeletion($participant_id);
 		
 		// CUSTOM CODE	
 		$hook_link = $this->hook('delete');
@@ -164,143 +173,96 @@ class ParticipantsController extends ClinicalannotationAppController {
 		}
 	}
 
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $participant_id ID of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowParticipantDeletion( $participant_id ) {
-		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
-		
-		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_linked_collection > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_collection';
-		}
-		
-		$nbr_consents = $this->ConsentMaster->find('count', array('conditions'=>array('ConsentMaster.participant_id'=>$participant_id, 'ConsentMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_consents > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_consent';
-		}
-		
-		$nbr_diagnosis = $this->DiagnosisMaster->find('count', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id, 'DiagnosisMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_diagnosis > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_diagnosis';
-		}
-
-		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.participant_id'=>$participant_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_treatment > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_treatment';
-		}	
-		
-		$nbr_familyhistory = $this->FamilyHistory->find('count', array('conditions'=>array('FamilyHistory.participant_id'=>$participant_id, 'FamilyHistory.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_familyhistory > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_familyhistory';
-		}			
-
-		$nbr_reproductive = $this->ReproductiveHistory->find('count', array('conditions'=>array('ReproductiveHistory.participant_id'=>$participant_id, 'ReproductiveHistory.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_reproductive > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_reproductive';
-		}			
-
-		$nbr_contacts = $this->ParticipantContact->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, 'ParticipantContact.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_contacts > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';
-		}
-
-		$nbr_identifiers = $this->MiscIdentifier->find('count', array('conditions'=>array('MiscIdentifier.participant_id'=>$participant_id, 'MiscIdentifier.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_identifiers > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_identifiers';
-		}
-
-		$nbr_messages = $this->ParticipantMessage->find('count', array('conditions'=>array('ParticipantMessage.participant_id'=>$participant_id, 'ParticipantMessage.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_messages > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_messages';
-		}			
-
-		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.participant_id'=>$participant_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_events > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_events';
-		}
-		return $arr_allow_deletion;
-	}
-	
 	function chronology($participant_id){
-		$tmpArray = array();
+		$tmp_array = array();
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		$this->Structures->set('chronology', 'chronology');
 
 		//load every wanted information into the tmpArray
 		$participant = $this->Participant->find('first', array('conditions' => array('Participant.id' => $participant_id)));
-		$tmpArray[$participant['Participant']['date_of_birth']][] = array('event' => __('date of birth', true), 'link' => '');
+		$tmp_array[$participant['Participant']['date_of_birth']][] = array(
+			'event' => __('date of birth', true), 
+			'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/', 
+			'date_accuracy' => $participant['Participant']['date_of_birth_accuracy']
+		);
 		if(strlen($participant['Participant']['date_of_death']) > 0){
-			$tmpArray[$participant['Participant']['date_of_death']][] = array('event' => __('date of death', true), 'link' => '');
+			$tmp_array[$participant['Participant']['date_of_death']][] = array(
+				'event' => __('date of death', true), 
+				'link' => '/clinicalannotation/participants/profile/'.$participant_id.'/', 
+				'date_accuracy' => $participant['Participant']['date_of_death_accuracy']
+			);
 		}
 		
 		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
 		foreach($consents as $consent){
-			$tmpArray[$consent['ConsentMaster']['consent_signed_date']][] = array('event' => __('consent', true), 'link' => $consent['ConsentMaster']['id']);
+			$tmp_array[$consent['ConsentMaster']['consent_signed_date']][] = array(
+				'event' => __('consent', true), 
+				'link' => '/clinicalannotation/consent_masters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id'],
+				'date_accuracy' => isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c'
+			);
 		}
 		
 		$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
 		foreach($dxs as $dx){
-			$tmpArray[$dx['DiagnosisMaster']['dx_date']][] = array('event' => __('diagnosis', true), 'link' => $dx['DiagnosisMaster']['id']);
+			$tmp_array[$dx['DiagnosisMaster']['dx_date']][] = array(
+				'event' => __('diagnosis', true), 
+				'link' => '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id'],
+				'date_accuracy' => $dx['DiagnosisMaster']['dx_date_accuracy']
+			);
 		}
 		
 		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
 		foreach($annotations as $annotation){
-			$tmpArray[$annotation['EventMaster']['event_date']][] = array('event' => __($annotation['EventMaster']['event_type'], true), 'link' => $annotation['EventMaster']['id']);
+			$tmp_array[$annotation['EventMaster']['event_date']][] = array(
+				'event' => __($annotation['EventControl']['event_type'], true), 
+				'link' => '/clinicalannotation/event_masters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id'],
+				'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c'
+			);
 		}
 		
 		$txs = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id)));
 		foreach($txs as $tx){
-			$tmpArray[$tx['TreatmentMaster']['start_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("start", true).")", 'link' => $tx['TreatmentMaster']['id']);
-			$tmpArray[$tx['TreatmentMaster']['finish_date']][] = array('event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 'link' => $tx['TreatmentMaster']['id']);
+			$tmp_array[$tx['TreatmentMaster']['start_date']][] = array(
+				'event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("start", true).")", 
+				'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id'],
+				'date_accuracy' => $tx['TreatmentMaster']['start_date_accuracy']
+			);
+			if(!empty($tx['TreatmentMaster']['finish_date'])){
+				$tmp_array[$tx['TreatmentMaster']['finish_date']][] = array(
+					'event' => __('treatment', true).", ".__($tx['TreatmentControl']['tx_method'], true)." (".__("end", true).")", 
+					'link' => '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx['TreatmentMaster']['id'],
+					'date_accuracy' => $tx['TreatmentMaster']['finish_date_accuracy']
+				);
+			}
 		}
 		
 		$ccls = $this->ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
 		foreach($ccls as $ccl){
-			$tmpArray[$ccl['Collection']['collection_datetime']][] = array('event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 'link' => $ccl['Collection']['id']);
+			$tmp_array[$ccl['Collection']['collection_datetime']][] = array(
+				'event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 
+				'link' => '/inventorymanagement/collections/detail/'.$participant_id.'/'.$ccl['Collection']['id'],
+				'date_accuracy' => $ccl['Collection']['collection_datetime_accuracy']	
+			);
 		}
-		
+
 		//sort the tmpArray by key (key = date)
-		ksort($tmpArray);
+		ksort($tmp_array);
 		
 		//transfer the tmpArray into $this->data
 		$this->data = array();
-		foreach($tmpArray as $key => $values){
+		foreach($tmp_array as $key => $values){
 			foreach($values as $value){
 				$date = $key;
 				$time = null;
 				if(strpos($date, " ") > 0){
 					list($date, $time) = explode(" ", $date);
 				}
-				$this->data[] = array('Generated' => array(
+				$this->data[] = array('custom' => array(
 					'date' => $date,
+					'date_accuracy' => $value['date_accuracy'], 
 					'time' => $time,
-					'event' => $value['event']));
+					'event' => $value['event'],
+					'link' => isset($value['link']) ? $value['link'] : null));
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+		$this->Paginator->options['url'] = array($node_id);
+		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
@@ -16,7 +17,7 @@
 			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = __("select an action", true);
-			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'sorting' => true, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
 		}else{
 			//overflow
 			?>
