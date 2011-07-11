@@ -28,6 +28,18 @@ function initCopyControl(){
 		return false;
 	});
 	
+	if($(".pasteAll").length > 1){
+		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
+		$("#pasteAllOfAll").click(function(){
+			$("table.structure tbody tr").each(function(){
+				if($(this).find("input.addLineCount").length == 0){
+					pasteLine(this);
+				}
+			});
+			return false;
+		});
+	}
+	
 }
 
 /**
@@ -37,7 +49,7 @@ function initCopyControl(){
  */
 function copyLine(line){
 	copyBuffer = new Object();
-	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled)").each(function(){
+	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled), input.accuracy").each(function(){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 		if($(this).attr("type") == "checkbox"){
@@ -64,6 +76,16 @@ function pasteLine(line){
 				}
 			}else if(copyBuffer[name] != undefined){
 				$(this).val(copyBuffer[name]);
+			}
+			
+			if(name.indexOf("][month]") != -1){
+				var accuracyName = name.substr(0, name.length - 6) + "year_accuracy]";
+				if((copyBuffer[accuracyName] != undefined && $(this).is(":visible"))
+					|| (copyBuffer[accuracyName] == undefined && !$(this).is(":visible"))
+				){
+					var cell = getParentElement($(this), "TD");
+					$(cell).find(".accuracy_target_blue").click();
+				}
 			}
 		}
 	});

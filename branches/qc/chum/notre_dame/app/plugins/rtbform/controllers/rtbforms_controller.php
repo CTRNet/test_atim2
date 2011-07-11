@@ -12,7 +12,7 @@ class RtbformsController extends RtbformAppController {
 	function search() {$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		$this->set( 'atim_menu', $this->Menus->get('/rtbform/rtbforms/index') );
 		
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		$this->hook();
 		

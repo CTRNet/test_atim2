@@ -106,8 +106,9 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}
-
-				$id_csv = implode(",", array_unique($ids));
+				$ids = array_unique($ids);
+				sort($ids);
+				$id_csv = implode(",",  $ids);
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_node_id'])));
@@ -171,8 +172,8 @@ class BrowserController extends DatamartAppController {
 					$use_sub_model = false;
 				}
 				
-				$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
-				$search_conditions = $this->Structures->parse_search_conditions($result_structure);
+				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+				$search_conditions = $this->Structures->parseSearchConditions($result_structure);
 				$select_key = $model_to_import.".".$model_key_name;
 				if($use_sub_model){
 					//adding filtering search condition
@@ -186,7 +187,7 @@ class BrowserController extends DatamartAppController {
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
 					if(!empty($control_data)){
 						//retreive the ids in the parent first
-						$this->ParentModel = AppModel::atimNew($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
+						$this->ParentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
 						$parent_data = $this->ParentModel->find('all', array('conditions' => array($parent['DatamartStructure']['model'].".".$parent['DatamartStructure']['use_key']." IN (".$parent['BrowsingResult']['id_csv'].")"), 'recursive' => 0));
 						list($use_model, $use_field) = explode(".", $control_data['BrowsingControl']['use_field']);
 						foreach($parent_data as $data_unit){
@@ -197,7 +198,7 @@ class BrowserController extends DatamartAppController {
 						$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent['DatamartStructure']['id'])));
 						if($use_sub_model){
 							//we need to load the ids from the main model then send them for the sub model
-							$this->MainModel = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+							$this->MainModel = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 							$tmp_data = $this->MainModel->find('all', 
 								array("conditions" => array($control_data['BrowsingControl']['use_field']." IN (".$parent['BrowsingResult']['id_csv'].")"),
 									"fields" => array($browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']),
@@ -323,6 +324,8 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->checklist_result_structure);
 				$this->data = $this->Browser->checklist_data;
 				$this->set("header", $this->Browser->checklist_header);
+				//sort this->data on URL
+				$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
 			}else{
 				//!is_array($this->Browser->checklist_data)
 				//merged display
@@ -457,6 +460,11 @@ class BrowserController extends DatamartAppController {
 							$model_name = isset($this->data[0][$previous_browsing['DatamartStructure']['model']]) ? $previous_browsing['DatamartStructure']['model'] : $previous_browsing['DatamartStructure']['control_master_model'];
 							list($data_model, $id_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
 							
+							if(!isset($this->data[0][$data_model])){
+								//alternate
+								$data_model = $datamart_structures_cache[$latest_struct_id]['control_master_model'];
+							}
+							
 							//only going to load required ids rather than the entire set
 							$this->Browser->applyFilterOnParent($browsing, $this->data, $data_model, $id_field);
 							
@@ -465,11 +473,6 @@ class BrowserController extends DatamartAppController {
 								break;
 							}
 							
-							if(!isset($this->data[0][$data_model])){
-								//alternate
-								$data_model = $datamart_structures_cache[$latest_struct_id]['control_master_model'];
-							}
-	
 							$control_structure = $datamart_structures_cache[$browsing['BrowsingResult']['browsing_structures_id']];
 							if(isset($this->Browser->checklist_data[0][$control_structure['model']])){
 								$checklist_model = $control_structure['model'];
@@ -509,6 +512,8 @@ class BrowserController extends DatamartAppController {
 					//all went well
 					$this->set("header", $header);
 					$this->set("result_structure", $result_structure);
+					//sort this->data on URL
+					$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
 				}else{
 					//we've got an overflow at some point
 					$this->set("result_structure", $overflow_structure);
@@ -516,6 +521,7 @@ class BrowserController extends DatamartAppController {
 					$this->set("header", $overflow_header);
 				}
 			}
+			
 		}else if($browsing != null){
 			//search screen
 			$this->set('type', "search");
@@ -561,5 +567,61 @@ class BrowserController extends DatamartAppController {
 		$this->data = $tmp_data;
 		Configure::write('debug', 0);
 		$this->layout = false;
+	}
+	
+	/**
+	 * If the model is found, creates a batchset based based on it and displays the first node. The ids must be in
+	 * $this->data[$model][id]
+	 * @param String $model
+	 */
+	function batchToDatabrowser($model){
+		$dm_structure = $this->DatamartStructure->find('first', array(
+			'conditions' => array('OR' => array('DatamartStructure.model' => $model, 'DatamartStructure.control_master_model' => $model)),
+			'recursive' => -1)
+		);
+		
+		if($dm_structure == null){
+			$this->redirect( '/pages/err_internal?p[]=model+not+found', NULL, TRUE );
+		}
+		
+		$ids = array();
+		if(array_key_exists($dm_structure['DatamartStructure']['model'], $this->data)){
+			$ids = $this->data[$dm_structure['DatamartStructure']['model']][$dm_structure['DatamartStructure']['use_key']];
+		}else if(array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->data)){
+			$ids = $this->data[$dm_structure['DatamartStructure']['control_master_model']]['id'];
+		}else{
+			$this->redirect( '/pages/err_internal?p[]=invalid+data', NULL, TRUE );
+		}
+		
+		$ids = array_filter($ids);
+
+		if(empty($ids)){
+			$this->redirect( '/pages/err_internal?p[]=no+ids', NULL, TRUE );
+		}
+		
+		sort($ids);
+		
+		$save = array('BrowsingResult' => array(
+			"user_id" => $_SESSION['Auth']['User']['id'],
+			"parent_node_id" => 0,
+			"browsing_structures_id" => $dm_structure['DatamartStructure']['id'],
+			"browsing_structures_sub_id" => 0,
+			"id_csv" => implode(",", $ids),
+			"raw" => true
+		));
+		
+		$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
+		$node_id = null;
+		if(empty($tmp)){
+			$this->BrowsingResult->save($save);
+			$node_id = $this->BrowsingResult->id;
+			$this->BrowsingIndex->save(array("BrowsingIndex" => array('root_node_id' => $node_id)));
+		}else{
+			//current set already exists, use it
+			$node_id = $tmp['BrowsingResult']['id'];
+		}
+		
+		$this->data = array();
+		$this->browse($node_id);
 	}
 }
