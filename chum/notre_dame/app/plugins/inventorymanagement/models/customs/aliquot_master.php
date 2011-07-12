@@ -78,7 +78,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				
 				$criteria = array();
 				$criteria['MiscIdentifier.participant_id'] = $view_sample['ViewSample']['participant_id'];
-				$criteria['MiscIdentifier.identifier_name'] = 'code-barre';
+				$criteria['MiscIdentifierControl.misc_identifier_name'] = 'code-barre';
 				$barcode_data = $misc_identifier->find('first', array('conditions' => $criteria));		
 				
 				$default_sample_label = str_replace('_PROCURE_BC', (empty($barcode_data)? '0' : $barcode_data['MiscIdentifier']['identifier_value']), $default_sample_label);
