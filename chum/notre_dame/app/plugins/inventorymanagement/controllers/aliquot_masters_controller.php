@@ -929,11 +929,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$errors = array_merge($errors, $this->AliquotInternalUse->validationErrors);
 					}
 				}
+				unset($data_unit['StorageMaster']);
 				$uses_to_save = array_merge($uses_to_save, $data_unit);
-				
 				$this->data[] = array('parent' => $parent, 'children' => $data_unit);
 			}
-			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
