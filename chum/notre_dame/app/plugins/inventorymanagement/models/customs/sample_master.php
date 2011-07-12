@@ -100,7 +100,7 @@ class SampleMasterCustom extends SampleMaster {
 	
 		if(is_null($bank_participant_identifier) && ((strcmp($sample_category, 'specimen') == 0) || (strcmp($sample_type, 'cell culture') == 0))) {
 			//Sample is a specimen and $bank_participant_identifier is unknown: Get $bank_participant_identifier	
-			$view_collection = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);	
+			$view_collection = AppModel::getInstance('Inventorymanagement', 'ViewCollection', true);	
 			$view_collection = $view_collection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 			if(empty($view_collection)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			
@@ -208,7 +208,7 @@ class SampleMasterCustom extends SampleMaster {
 		
 		if($data_to_validate['SampleMaster']['sample_category'] === 'specimen') {
 			// Load model to control data
-			$lab_type_laterality_match = AppModel::atimNew('Inventorymanagement', 'LabTypeLateralityMatch', true);		
+			$lab_type_laterality_match = AppModel::getInstance('Inventorymanagement', 'LabTypeLateralityMatch', true);		
 			
 			// Get Data
 			if(!array_key_exists('sample_type', $data_to_validate['SampleMaster'])

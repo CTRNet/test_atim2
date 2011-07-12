@@ -52,7 +52,7 @@ class ReportsControllerCustom extends ReportsController {
 			)
 		);
 		
-		$this->ConsentMaster = AppModel::atimNew('Clinicalannotation', 'ConsentMaster', true);
+		$this->ConsentMaster = AppModel::getInstance('Clinicalannotation', 'ConsentMaster', true);
 		$this->ConsentMaster->unbindModel(array('hasMany' => array('ClinicalCollectionLink')));
 		$tmp_data = $this->ConsentMaster->find('all', array('conditions' => $conditions, 'recursive' => '2', 'fields' => $fields, 'order' => array("ConsentMaster.consent_signed_date")));
 
@@ -123,7 +123,7 @@ class ReportsControllerCustom extends ReportsController {
 			'error_msg' => null);
 			
 		// Get aliquot id
-		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
 		
 		$aliquot_master_ids = array();
 		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
@@ -450,22 +450,22 @@ class ReportsControllerCustom extends ReportsController {
 		$date_to = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
 		
 		$bank_ids = array_filter($parameters[0]['bank_id']);
-		$bank_model = AppModel::atimNew("administrate", "Bank", true);
+		$bank_model = AppModel::getInstance("administrate", "Bank", true);
 		if(empty($bank_ids)){
 			$banks = $bank_model->find('all', array('conditions' => array('Bank.misc_identifier_control_id !=' => '0')));
 		}else{
 			$banks = $bank_model->find('all', array('conditions' => array('Bank.misc_identifier_control_id !=' => '0', "Bank.id" => $bank_ids)));
 		}
 		
-		$participant_model = AppModel::atimNew("clinicalannotation", "Participant", true);
+		$participant_model = AppModel::getInstance("clinicalannotation", "Participant", true);
 		$participant_ids_raw = $participant_model->find('all', array('fields' => ('Participant.id'), 'conditions' => array('Participant.created >=' => $date_from, 'Participant.created <=' => $date_to)));
 		$participant_ids = array();
 		foreach($participant_ids_raw as $participant){
 			$participant_ids[] = $participant['Participant']['id'];
 		}
 		
-		$mi_model = AppModel::atimNew("clinicalannotation", "MiscIdentifier", true);
-		$sample_model = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
+		$mi_model = AppModel::getInstance("clinicalannotation", "MiscIdentifier", true);
+		$sample_model = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
 		
 		$data = array();
 		foreach($banks as $bank){

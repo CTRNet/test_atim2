@@ -887,10 +887,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$aliquot_data_to_save = array();
 			$uses_to_save = array();
 			$line = 0;
+			
 			foreach($previous_data as $aliquot_master_id => $data_unit){
 				$data_unit['AliquotMaster']['id'] = $aliquot_master_id;
 				$aliquot_data['AliquotMaster'] = $data_unit['AliquotMaster'];
 				$this->AliquotMaster->data = null;
+				unset($aliquot_data['AliquotMaster']['storage_coord_x']);
+				unset($aliquot_data['AliquotMaster']['storage_coord_y']);
 				$this->AliquotMaster->set($aliquot_data);
 				if(!$this->AliquotMaster->validates()){
 					$error_msg = array_merge($error_msg, $this->AliquotMaster->validationError);

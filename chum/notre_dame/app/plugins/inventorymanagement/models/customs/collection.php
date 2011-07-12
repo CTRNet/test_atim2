@@ -7,11 +7,11 @@ class CollectionCustom extends Collection{
 	
 	function updateCollectionSampleLabels($collection_id, $bank_participant_identifier = null) {
 		if(!isset($this->SampleMaster)) {
-			$this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
+			$this->SampleMaster = AppModel::getInstance('Inventorymanagement', 'SampleMaster', true);
 		}
 		
 		if(!isset($this->ViewCollection)) {
-			$this->ViewCollection = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);
+			$this->ViewCollection = AppModel::getInstance('Inventorymanagement', 'ViewCollection', true);
 		}
 		
 		// Get bank_participant_identifier

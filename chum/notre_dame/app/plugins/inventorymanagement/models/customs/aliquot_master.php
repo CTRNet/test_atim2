@@ -13,7 +13,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		// Check sample collection is a prostate bank collection
 		$is_prostate_bank_collection = false;	
 		if(!empty($view_sample['ViewSample']['bank_id'])) {
-			$bank_model = AppModel::atimNew('Administrate', 'Bank', true);
+			$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
 			$bank_model->bindModel(array('belongsTo' => array(
 				'MiscIdentifierControl' => array(
 					'className' => 'Clinicalannotation.MiscIdentifierControl',
@@ -74,7 +74,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			
 			if(!empty($default_sample_label) && !empty($view_sample['ViewSample']['participant_id'])) {
 				// Try to add procure barcode to the label
-				$misc_identifier = AppModel::atimNew('Clinicalannotation', 'MiscIdentifier', true);
+				$misc_identifier = AppModel::getInstance('Clinicalannotation', 'MiscIdentifier', true);
 				
 				$criteria = array();
 				$criteria['MiscIdentifier.participant_id'] = $view_sample['ViewSample']['participant_id'];
@@ -93,7 +93,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			$aliquot_creation_date = '';			
 			if($view_sample['ViewSample']['sample_category'] == 'specimen'){
 				// Specimen Aliquot
-				if(!isset($this->SpecimenDetail)) $this->SpecimenDetail = AppModel::atimNew('Clinicalannotation', 'SpecimenDetail', true);
+				if(!isset($this->SpecimenDetail)) $this->SpecimenDetail = AppModel::getInstance('Clinicalannotation', 'SpecimenDetail', true);
 				
 				$specimen_detail = $this->SpecimenDetail->find('first', array('conditions' => array('sample_master_id' => $view_sample['ViewSample']['sample_master_id'])));
 				if(empty($specimen_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -102,7 +102,7 @@ class AliquotMasterCustom extends AliquotMaster {
 
 			}else{
 				// Derviative Aliquot
-				if(!isset($this->DerivativeDetail)) $this->DerivativeDetail = AppModel::atimNew('Clinicalannotation', 'DerivativeDetail', true);
+				if(!isset($this->DerivativeDetail)) $this->DerivativeDetail = AppModel::getInstance('Clinicalannotation', 'DerivativeDetail', true);
 				
 				$derivative_detail = $this->DerivativeDetail->find('first', array('conditions' => array('sample_master_id' => $view_sample['ViewSample']['sample_master_id'])));
 				if(empty($derivative_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 

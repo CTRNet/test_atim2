@@ -10,25 +10,32 @@ class ParticipantCustom extends Participant {
 		if ( isset($variables['Participant.id']) ) {
 			
 			//custom code to add no labo----
-			$has_many_details = array(
-				'hasMany' => array('MiscIdentifier' => array(
-					'className' => 'Clinicalannotation.MiscIdentifier',
-					'foreignKey' => 'participant_id',
-					'conditions' => array("MiscIdentifier.identifier_name LIKE '%no lab'"))));
-			$this->bindModel($has_many_details, false);			
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
+				
+			$identifier_model = AppModel::getInstance('Clinicalannotation', 'MiscIdentifier', true);
+			$identifier_results = $identifier_model->find('all', array('conditions' => array(
+				'MiscIdentifier.participant_id' => $variables['Participant.id'],
+				'MiscIdentifierControl.misc_identifier_name LIKE' => '%no lab'))
+			);
 			
-			
-			$result[0]['identifiers'] = "";
-			$temp_array = array();
-			foreach($result['MiscIdentifier'] as $mi){
-				$temp_array[__($mi['identifier_name'], true)] = $mi['identifier_value'];	
+			$title = null;
+			if(!empty($identifier_results)){
+				$result['Participant'] = $identifier_results[0]['Participant'];
+				$result[0]['identifiers'] = "";
+				$temp_array = array();
+				foreach($identifier_results as $ir){
+					$temp_array[__($ir['MiscIdentifierControl']['misc_identifier_name'], true)] = $ir['MiscIdentifier']['identifier_value'];	
+				}
+				asort($temp_array);
+				foreach($temp_array as $key => $value){
+					$result[0]['identifiers'] .= $key." - ".$value."<br/>";
+				}
+				
+				$title = implode(" ", $temp_array);
+			}else{
+				$result = $this->findById($variables['Participant.id']);
+				$title = __('n/a', true);
 			}
-			asort($temp_array);
-			foreach($temp_array as $key => $value){
-				$result[0]['identifiers'] .= $key." - ".$value."<br/>";
-			}
-			$title = empty($temp_array)? 'n/a' : implode(" ", $temp_array);
 			
 			//------------------------------
 			

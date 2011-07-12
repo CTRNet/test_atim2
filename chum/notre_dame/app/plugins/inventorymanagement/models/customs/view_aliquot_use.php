@@ -48,24 +48,23 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		WHERE realiq.deleted != 1",
 	
 		"SELECT 
-		CONCAT(tested.id, 3) AS id,
+		CONCAT(qc.id, 3) AS id,
 		aliq.id AS aliquot_master_id,
 		'quality control' AS use_definition, 
 		qc.qc_code AS use_code,
 		'' AS use_details,
-		tested.used_volume,
+		qc.used_volume,
 		aliq.aliquot_volume_unit,
 		qc.date AS use_datetime,
 		qc.run_by AS used_by,
-		tested.created,
+		qc.created,
 		CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
 		samp.id AS sample_master_id,
 		samp.collection_id AS collection_id
-		FROM quality_ctrl_tested_aliquots AS tested
-		INNER JOIN aliquot_masters AS aliq ON aliq.id = tested.aliquot_master_id AND aliq.deleted != 1
-		INNER JOIN quality_ctrls AS qc ON qc.id = tested.quality_ctrl_id AND qc.deleted != 1
+		FROM quality_ctrls AS qc
+		INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
 		INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-		WHERE tested.deleted != 1",
+		WHERE qc.deleted != 1",
 	
 		"SELECT 
 		CONCAT(item.id, 4) AS id,
