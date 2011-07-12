@@ -197,10 +197,10 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 
 UPDATE datamart_structures SET index_link='/clinicalannotation/event_masters/detail/%%EventControl.event_group%%/%%EventMaster.participant_id%%/%%EventMaster.id%%/' WHERE id=14;
 
-ALTER TABLE banks
- ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
-ALTER TABLE banks_revs
- ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+#ALTER TABLE banks
+# ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+#ALTER TABLE banks_revs
+# ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
  
 ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
@@ -425,15 +425,15 @@ UPDATE sample_controls SET form_alias=CONCAT(form_alias, ',derivatives') WHERE s
 
 -- Add aliquot_label
 
-ALTER TABLE aliquot_masters
- ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
-ALTER TABLE aliquot_masters_revs
- ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+#ALTER TABLE aliquot_masters
+# ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
+#ALTER TABLE aliquot_masters_revs
+# ADD COLUMN aliquot_label VARCHAR(60) NOT NULL DEFAULT '' AFTER barcode;
 
-INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
-('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
-INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
-('Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+#INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
+#('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
+#INSERT INTO structure_fields(plugin, model, tablename, field, language_label, language_tag, `type`, `setting`, `default`, structure_value_domain, language_help) VALUES
+#('Inventorymanagement', 'ViewAliquot', '', 'aliquot_label', 'aliquot label', '', 'input', '', '',  NULL , '');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot label', 'Label', 'Étiquette');
 
@@ -1318,10 +1318,10 @@ INNER JOIN sd_der_serums ON sample_masters.id=sd_der_serums.sample_master_id
 SET ad_tubes.hemolysis_signs=sd_der_serums.hemolysis_signs;
 
 CREATE TABLE tmp(SELECT max(version_id) FROM ad_tubes_revs GROUP BY id); 
-UPDATE ad_tubes_revs
-INNER JOIN ad_tubes ON ad_tubes_revs.id=ad_tubes.id
-SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
-WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
+#UPDATE ad_tubes_revs
+#INNER JOIN ad_tubes ON ad_tubes_revs.id=ad_tubes.id
+#SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
+#WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
 DROP TABLE tmp;
 
 UPDATE ad_tubes SET hemolysis_signs='y' WHERE hemolysis_signs='yes';
