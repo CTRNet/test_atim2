@@ -7,7 +7,7 @@
 		$specimen_sample_label = $this->data['SampleMaster']['sample_label'];
 				
 		// Get bank_participant_identifier	
-		$view_collection_model = AppModel::atimNew('Inventorymanagement', 'ViewCollection', true);		
+		$view_collection_model = AppModel::getInstance('Inventorymanagement', 'ViewCollection', true);		
 		
 		$view_collection = $view_collection_model->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 		if(empty($view_collection)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
