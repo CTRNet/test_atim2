@@ -1889,6 +1889,10 @@ div.wrapper table.structure td .storageLayout td{
 	padding: 0 0 5px 0;
 }
 
+div.wrapper table.structure td .storageLayout td ul{
+	min-height: 40px;
+}
+
 div.extra{
 	background-color: #FFF;
 	padding: 5px 11px;	
