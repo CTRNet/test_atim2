@@ -324,8 +324,10 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->checklist_result_structure);
 				$this->data = $this->Browser->checklist_data;
 				$this->set("header", $this->Browser->checklist_header);
-				//sort this->data on URL
-				$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
+				if(is_array($this->data)){
+					//sort this->data on URL
+					$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
+				}
 			}else{
 				//!is_array($this->Browser->checklist_data)
 				//merged display
