@@ -1318,10 +1318,10 @@ INNER JOIN sd_der_serums ON sample_masters.id=sd_der_serums.sample_master_id
 SET ad_tubes.hemolysis_signs=sd_der_serums.hemolysis_signs;
 
 CREATE TABLE tmp(SELECT max(version_id) FROM ad_tubes_revs GROUP BY id); 
-#UPDATE ad_tubes_revs
-#INNER JOIN ad_tubes ON ad_tubes_revs.id=ad_tubes.id
-#SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
-#WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
+UPDATE ad_tubes_revs
+INNER JOIN ad_tubes ON ad_tubes_revs.id=ad_tubes.id
+SET ad_tubes_revs.hemolysis_signs=ad_tubes.hemolysis_signs
+WHERE ad_tubes_revs.version_id IN(SELECT * FROM tmp);
 DROP TABLE tmp;
 
 UPDATE ad_tubes SET hemolysis_signs='y' WHERE hemolysis_signs='yes';
