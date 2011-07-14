@@ -184,8 +184,8 @@ class SampleMasterCustom extends SampleMaster {
     			if(!array_key_exists('source_cell_passage_number', $sample_data['SampleDetail'])) { 
     				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
-				$new_sample_label = $sample_type_code . ' ' . $initial_specimen_label.
-					((empty($sample_data['SampleDetail']['source_cell_passage_number']) && (strcmp($sample_data['SampleDetail']['source_cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['source_cell_passage_number']);
+    			
+				$new_sample_label = $sample_type_code . ' ' . $initial_specimen_label;
 				
 				if(is_numeric($sample_data['SampleMaster']['parent_id'])){
 					$parent_element = $this->findById($sample_data['SampleMaster']['parent_id']);
@@ -193,6 +193,11 @@ class SampleMasterCustom extends SampleMaster {
 						$new_sample_label .= ".".$parent_element['SampleDetail']['qc_culture_population'];
 					}
 				}
+				
+				if(is_numeric($sample_data['SampleDetail']['source_cell_passage_number'])){
+					$new_sample_label .= ' P'.$sample_data['SampleDetail']['source_cell_passage_number']; 
+				}
+				
     			break;
     		
     		default :
