@@ -110,7 +110,7 @@ class SampleMaster extends InventorymanagementAppModel {
 		// set lab_book_master_id to null by default to erase previous labbook in edit mode if required
 		$data['DerivativeDetail']['lab_book_master_id'] = '';
 		
-		if(strlen($data['DerivativeDetail']['lab_book_master_code']) > 0){
+		if(array_key_exists('lab_book_master_code', $data['DerivativeDetail']) && strlen($data['DerivativeDetail']['lab_book_master_code']) > 0){
 			$result = $lab_book->syncData($data, $sync ? array('DerivativeDetail') : array(), $data['DerivativeDetail']['lab_book_master_code'], $lab_book_ctrl_id);
 			if(is_numeric($result)){
 				//went well, we have the lab book id as a result
@@ -119,7 +119,7 @@ class SampleMaster extends InventorymanagementAppModel {
 				//error
 				$msg = $result;
 			}
-		}else if($this->data['DerivativeDetail']['sync_with_lab_book'] || (isset($data[0]) && isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])){
+		}else if((array_key_exists('sync_with_lab_book', $data['DerivativeDetail']) && $this->data['DerivativeDetail']['sync_with_lab_book']) || (isset($data[0]['sync_with_lab_book_now']) && $data[0]['sync_with_lab_book_now'])){
 				$msg = __('to synchronize with a lab book, you need to define a lab book to use', true);
 		}
 		
