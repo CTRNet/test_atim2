@@ -1,0 +1,8 @@
+-- was ran on 2011-07-13
+ALTER TABLE ad_tubes
+ MODIFY qc_lady_storage_solution VARCHAR(20) NOT NULL DEFAULT '';
+ALTER TABLE ad_tubes_revs
+ MODIFY qc_lady_storage_solution VARCHAR(20) NOT NULL DEFAULT '';
+
+DROP VIEW view_collections; 
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`mi`.`identifier_value` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created`,`col`.`qc_lady_type` AS `qc_lady_type`,`col`.`qc_lady_follow_up` AS `qc_lady_follow_up`,`sd`.`supplier_dept_grouped` AS `qc_lady_supplier_dept_grouped` from (((((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` `mi` on(((`mi`.`participant_id` = `part`.`id`) and (`mi`.`misc_identifier_control_id` = 9) and (mi.deleted <> 1)))) left join `qc_lady_supplier_depts2` `sd` on((`sd`.`collection_id` = `col`.`id`))) where (`col`.`deleted` <> 1);
