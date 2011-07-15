@@ -46,7 +46,7 @@ class AppController extends Controller {
 			
 			$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
 			$log_activity_data['UserLog']['url']  = $this->here;
-			$log_activity_data['UserLog']['visited'] = date('Y-m-d h:i:s');
+			$log_activity_data['UserLog']['visited'] = now();
 			// $log_activity_data['UserLog']['allowed'] = $this->_othCheckPermission($row) ? '1' : '0';
 			$log_activity_data['UserLog']['allowed'] = 1;
 			
