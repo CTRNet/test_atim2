@@ -169,6 +169,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$aliquot_master_id = $key;
 					$this->AliquotMaster->data = null;
 					$aliquot_data['AliquotMaster']['id'] = $key;
+					$aliquot_data['FunctionManagement']['recorded_storage_selection_label'] = $data_unit['StorageMaster']['selection_label'];
 					$this->AliquotMaster->set($aliquot_data);
 					if(!$this->AliquotMaster->validates()){
 						foreach($this->AliquotMaster->validationErrors as $field => $error_msg){
