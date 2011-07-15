@@ -175,7 +175,7 @@ class StructuresComponent extends Object {
 		}
 	}
 	
-	function parseSearchConditions($atim_structure = NULL){
+	function parseSearchConditions($atim_structure = NULL, $auto_accuracy = true){
 		// conditions to ultimately return
 		$conditions = array();
 		
@@ -322,7 +322,7 @@ class StructuresComponent extends Object {
 								}
 								
 								if(isset($data)){
-									if(in_array($form_fields_key, $accuracy_fields)){
+									if($auto_accuracy && in_array($form_fields_key, $accuracy_fields)){
 										//accuracy treatment
 										if(isset($this->controller->data['exact_search'])){
 											$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
