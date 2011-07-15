@@ -26,6 +26,7 @@
 		'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 	$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/inventorymanagement/sample_masters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
