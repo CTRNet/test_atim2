@@ -1154,6 +1154,8 @@ class SampleMastersController extends InventorymanagementAppController {
 					$children['AliquotMaster']['id'] = $parent_id;
 					$aliquots_data[] = array('AliquotMaster' => $children['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
 					$this->AliquotMaster->data = array();
+					unset($children['AliquotMaster']['storage_coord_x']);
+					unset($children['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($children['AliquotMaster']);
 					$this->AliquotMaster->validates();
 					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
