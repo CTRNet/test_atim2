@@ -768,7 +768,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function flyOverSubmit(){
-		$(".flyOverSubmit").css("right", (Math.max($(document).width() - $(window).width() - $(document).scrollLeft(), 0)) + "px");
+		$(".flyOverSubmit").css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
 	}
 	
 	function initAutoHideVolume(){
