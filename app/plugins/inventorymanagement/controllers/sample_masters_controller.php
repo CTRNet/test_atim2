@@ -686,9 +686,10 @@ class SampleMastersController extends InventorymanagementAppController {
 					
 					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
 				}					
-			}			
+			}
 		}
 		
+		$this->set('is_specimen', $is_specimen);		
 		
 	}
 	
