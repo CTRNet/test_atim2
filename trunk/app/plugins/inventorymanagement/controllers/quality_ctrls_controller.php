@@ -162,7 +162,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					unset($data_unit['AliquotControl']);
 					unset($data_unit['FunctionManagement']);
 				}
-				
 				$aliquot_master_id = null;
 				$sample_master_id = null;
 				if($aliquot_data != null){
@@ -176,6 +175,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 							$errors[$field] = $error_msg;
 						}
 					}
+					unset($data_unit['StorageMaster']);
 					
 					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 					$aliquot_data2 = $this->AliquotMaster->find('first', array(
