@@ -667,6 +667,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('order_id', $order_item['OrderLine']['order_id']);
 		}
 		
+		$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id), 'recursive' => -1));
+		$ptdsc_model = AppModel::getInstance('inventorymanagement', 'ParentToDerivativeSampleControl', true);
+		$ptdsc = $ptdsc_model->find('first', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id' => $sample_master['SampleMaster']['sample_control_id']), 'recursive' => -1));
+		$this->set('can_create_derivative', !empty($ptdsc));
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 

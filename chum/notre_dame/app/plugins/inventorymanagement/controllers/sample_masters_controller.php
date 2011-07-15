@@ -894,17 +894,34 @@ class SampleMastersController extends InventorymanagementAppController {
 		}		
 	}
 	
-	function batchDerivativeInit(){
+	function batchDerivativeInit($aliquot_master_id = null){
 		// Get Data
 		$model = null;
 		$key = null;
-		if(isset($this->data['BatchSet']) || isset($this->data['node'])){
+		$url_to_cancel = null;
+		
+		if(isset($this->data['BatchSet']) || isset($this->data['node']) || $aliquot_master_id != null){
 			if(isset($this->data['SampleMaster'])) {
 				$model = 'SampleMaster';
 				$key = 'id';
+				
 			} else if(isset($this->data['ViewSample'])) {
 				$model = 'ViewSample';
 				$key = 'sample_master_id';
+				
+			} else if($aliquot_master_id != null){
+				$model = 'SampleMaster';
+				$key = 'id';
+				$sample_master = $this->AliquotMaster->findById($aliquot_master_id);
+				
+				if(empty($sample_master)){
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+				
+				$this->data['SampleMaster']['id'] = array($sample_master['SampleMaster']['id']);
+				$this->set("aliquot_ids", $aliquot_master_id);
+				$url_to_cancel = 'inventorymanagement/aliquot_masters/detail/'.$sample_master['SampleMaster']['collection_id'].'/'.$sample_master['SampleMaster']['id'].'/'.$aliquot_master_id;
+				
 			}else if(isset($this->data['ViewAliquot']) || isset($this->data['AliquotMaster'])){
 				//aliquot init case
 				$aliquot_ids = array_filter(isset($this->data['ViewAliquot']) ? $this->data['ViewAliquot']['aliquot_master_id'] : $this->data['AliquotMaster']['id']);
@@ -931,6 +948,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				$model = 'SampleMaster';
 				$key = 'id';
 				$this->set("aliquot_ids", implode(",", $aliquot_ids));
+				
 			} else {
 				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
@@ -939,11 +957,12 @@ class SampleMastersController extends InventorymanagementAppController {
 		}	
 		
 		// Set url to redirect
-		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+		if($url_to_cancel == null){
+			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
-		
 		$init_data = $this->batchInit(
 			$this->SampleMaster, 
 			$model, 
