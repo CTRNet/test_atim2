@@ -1222,6 +1222,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				$child_ids = array();
 				foreach($prev_data as $parent_id => &$children){
 					unset($children['ViewSample']);
+					unset($children['StorageMaster']);
 					foreach($children as &$child){
 						// save sample master
 						$this->SampleMaster->id = null;
