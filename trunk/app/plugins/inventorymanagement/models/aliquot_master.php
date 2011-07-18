@@ -170,7 +170,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$current_volume = round(($initial_volume - $total_used_volume), 5);
 				if($current_volume < 0){
 					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume below 0", true);
 					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 				}
 			}

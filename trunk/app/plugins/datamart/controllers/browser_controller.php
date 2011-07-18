@@ -1,6 +1,8 @@
 <?php
 class BrowserController extends DatamartAppController {
 	
+	static protected $tmp_browsing_limit = 5;
+	
 	var $uses = array(
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
@@ -13,7 +15,20 @@ class BrowserController extends DatamartAppController {
 		
 	function index(){
 		$this->Structures->set("datamart_browsing_indexes");
-		$this->data = $this->paginate($this->BrowsingIndex, array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id']));
+		$tmp_browsing = $this->BrowsingIndex->find('all', array(
+			'conditions' => array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'], 'BrowsingIndex.temporary' => true),
+			'order'	=> array('BrowsingResult.created DESC'))
+		);
+		
+		while(count($tmp_browsing) > self::$tmp_browsing_limit){
+			$unit = array_pop($tmp_browsing);
+			$this->BrowsingIndex->atim_delete($unit['BrowsingIndex']['id']);
+		}
+		
+		$this->set('tmp_browsing', $tmp_browsing);
+		
+		$this->data = $this->paginate($this->BrowsingIndex, 
+			array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'], 'BrowsingIndex.temporary' => false));
 	}
 	
 	function edit($index_id){
@@ -21,9 +36,13 @@ class BrowserController extends DatamartAppController {
 		$this->Structures->set("datamart_browsing_indexes");
 		if(empty($this->data)){
 			$this->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+			if($this->data['BrowsingIndex']['temporary']){
+				AppController::addWarningMsg(__('adding notes to a temporary browsing automatically moves it towards the saved browsing list', true));
+			}
 		}else{
 			$this->BrowsingIndex->id = $index_id;
 			unset($this->data['BrowsingIndex']['created']);
+			$this->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->save($this->data);
 			$this->atimFlash('your data has been updated', "/datamart/browser/index");
 		}
@@ -626,5 +645,16 @@ class BrowserController extends DatamartAppController {
 		
 		$this->data = array();
 		$this->browse($node_id);
+	}
+	
+	function save($index_id){
+		$this->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+		if(empty($this->data)){
+			$this->redirect( '/pages/err_internal?p[]=invalid+data', NULL, TRUE );
+		}else{
+			$this->data['BrowsingIndex']['temporary'] = false;
+			$this->BrowsingIndex->save($this->data);
+			$this->atimFlash('your data has been updated', "/datamart/browser/index");
+		}
 	}
 }
