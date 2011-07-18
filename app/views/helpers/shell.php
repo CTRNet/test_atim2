@@ -448,13 +448,7 @@ class ShellHelper extends Helper {
 				// load MODEL, and override with CUSTOM model if it exists...
 				$summary_model = AppModel::getInstance($plugin, $model, true);
 				$summary_result = $summary_model->{$function}($options['variables']);
-				if(isset($summary_result['Summary'])){
-					if(Configure::read('debug') > 0){
-						AppController::addWarningMsg(sprintf(__("the sumarty for model [%s] function [%s] return array should not contain 'summary' as first key (deprecated)", true), $model, $function));
-					}
-					$summary_result = $summary_result['Summary'];
-				}
-				
+
 				if($summary_result){
 					//short--- 
 					if(isset($summary_result['menu']) && is_array($summary_result['menu'])){
