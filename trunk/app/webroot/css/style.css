@@ -85,7 +85,6 @@ div.outerWrapper div.wrapper {
 	border: 1px solid #243340;
 	border-color: #243340;
 	border-top: none;
-	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding: 0;
 }
@@ -182,14 +181,13 @@ div.actions {
 	line-height: 1.3em;
 	color: #bbf;
 	background: #dde8f2;
-	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding: 6px 0 0 10px;
 }
 
 	div.bottom_button {
 		background: url(../img/btnBack.png);
-		-moz-border-radius: 5px; border-radius: 5px; 
+		border-radius: 5px; 
 		border-color: #999999;
 		border-style: solid;
 		border-width: 1px;
@@ -208,7 +206,6 @@ div.actions {
 		padding: 5px 10px 4px 27px;
 		color: #000;
 		line-height: 15px;
-		-moz-border-radius: 3px; 
 		border-radius: 3px; 
 		
 	}
@@ -256,7 +253,6 @@ div.actions {
 		background: #374d61;
 		text-align: left;
 		
-		-moz-border-radius: 10px;
 		border-radius: 10px;
 		
 		z-index: 1000;
@@ -281,7 +277,6 @@ div.actions {
 	}
 		
 	div.filter_menu div.menuContent{
-		-moz-border-radius: 0; 
 		border-radius: 0; 
 		background: #486680;
 		
@@ -297,7 +292,6 @@ div.actions {
 	}
 	
 	div.filter_menu div ul {
-		-moz-border-radius: 0; 
 		border-radius: 0px; 
 		background: #486680;
 	}
@@ -323,7 +317,6 @@ div.actions {
 		background: rgba(55,77,97,0.8);
 		width: 100%;
 		height: 15px;
-		-moz-border-radius: 10px 10px 0 0; 
 		border-radius: 10px 10px 0 0; 
 	}
 	
@@ -338,7 +331,6 @@ div.actions {
 		background: rgba(55,77,97,0.8);
 		width: 100%;
 		height: 15px;
-		-moz-border-radius: 0 0 10px 10px; 
 		border-radius: 0 0 10px 10px; 
 	}
 		
@@ -393,19 +385,16 @@ div.actions {
 	div.filter_menu div ul li a {
 		color: #fff;
 		display: none;
-		-moz-border-radius: 0; 
 		border-radius: 0; 
 	}
 
 	div.filter_menu div ul li.count_0 {
 		border-top: 1px solid #374d61;
 		margin: 0;
-		-moz-border-radius-topleft: 5px; 
 		border-top-left-radius: 5px; 
 	}
 	div.filter_menu div ul li.count_last_line {
 		margin: 0;
-		-moz-border-radius: 0 0 5px 5px;
 		border-radius: 0 0 5px 5px;
 	}
 
@@ -565,7 +554,6 @@ div.menu ul li.count_0.root {
 	height: 40px;
 	padding: 5px 30px 5px 10px;
 	z-index: 10;
-	-moz-border-radius-topleft: 5px; 
 	border-top-left-radius: 5px; 
 }
 div.menu ul.total_count_0 li.root,
@@ -594,7 +582,6 @@ div.menu.level_1 {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	z-index: 100;
 }
@@ -700,7 +687,6 @@ div.menu ul#summary li ul {
 	margin: 0;
 	padding: 10px;
 	z-index: 1000;
-	-moz-border-radius: 7px 0 7px 7px; 
 	border-radius: 7px 0 7px 7px; 
 	
 	/*
@@ -785,8 +771,6 @@ span.help {
 		font-weight: normal;
 		cursor: default;
 		filter: alpha(opacity=30);
-		-moz-opacity: 0.3;
-		-khtml-opacity: 0.3;
 		opacity: 0.3;
 	}	
 	div.error-message {
@@ -799,7 +783,6 @@ span.help {
 	
 		div.wrapper th span.help.right:hover div{
 			left: 10px;
-			-moz-border-radius: 0 15px 15px 15px;
 			border-radius: 0 15px 15px 15px;
 		}
 		div.wrapper td.help span.help:hover div, div.wrapper th span.help:hover div {
@@ -817,7 +800,6 @@ span.help {
 			text-align: left;
 			line-height: 1.3em;
 			
-			-moz-border-radius: 15px 0 15px 15px;
 			border-radius: 15px 0 15px 15px;
 		
 			z-index: 200;
@@ -828,7 +810,6 @@ span.help {
 		}
 		div.wrapper th.column_1 span.help div {
 			top: 10px; left: 10px;
-			-moz-border-radius: 0 15px 15px 15px;
 			border-radius: 0 15px 15px 15px;
 		}
 
@@ -1071,8 +1052,6 @@ span.help {
 					text-indent: -9999px;
 					
 					filter:alpha(opacity=30);
-					-moz-opacity:0.3;
-					-khtml-opacity: 0.3;
 					opacity: 0.3;
 				}
 				a.form { 
@@ -1256,7 +1235,6 @@ div.wrapper table.structure table.columns td a.not_allowed {
 	
 		ul.error li, ul.warning li, ul.confirm li {
 			padding: 3px 25px;
-			-moz-border-radius: 5px; 
 			border-radius: 5px;
 			border-width: 3px;
 			border-style: solid; 
@@ -1352,7 +1330,6 @@ table.cake-sql-log th {
 
 .button{
 	background: url(../img/btnBack.png);
-	-moz-border-radius: 5px; 
 	border-radius: 5px; 
 	border-color: #999999;
 	border-style: solid;
@@ -1789,14 +1766,12 @@ ul.actionDropdown li a{
 
 .databrowser div.info.left{
 	right: 15px;
-	-moz-border-radius: 10px 0px 10px 10px;
 	border-radius: 10px 0 10px 10px;
 	
 }
 	
 .databrowser div.info.right{
 	left: 15px;
-	-moz-border-radius: 0px 10px 10px 10px;
 	border-radius: 0 10px 10px 10px;
 	
 }
@@ -1825,7 +1800,6 @@ ul.actionDropdown li a{
 
 .std_popup{
 	background : transparent url(jQuery/popup/img/dark.png);
-	-moz-border-radius : 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding : 5px;
 	display: none;
