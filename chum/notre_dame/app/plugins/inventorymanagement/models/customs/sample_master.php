@@ -119,6 +119,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'peritoneal wash':
     		case 'cystic fluid':
     		case 'other fluid':
+    		case 'pleural fluid':
 				$new_sample_label = $specimen_type_code. ' - ' . $bank_participant_identifier . 
 					(empty($specimen_sequence_number)? '' : ' ' . $specimen_sequence_number);
     			break;
@@ -157,6 +158,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'other fluid supernatant':
     		case 'plasma':
 			case 'serum':
+			case 'pleural fluid cell':
 				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label;
     			break;
     							
@@ -199,7 +201,7 @@ class SampleMasterCustom extends SampleMaster {
     		
     		default :
     			// Type is unknown
-				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__.'type='.$sample_type, null, true);
 		}
 		
 		return $new_sample_label;
