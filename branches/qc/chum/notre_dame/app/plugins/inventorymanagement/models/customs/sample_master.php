@@ -155,12 +155,9 @@ class SampleMasterCustom extends SampleMaster {
     		case 'cystic fluid supernatant':
     		case 'other fluid cell':
     		case 'other fluid supernatant':
-				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label;
-    			break;
-    			
     		case 'plasma':
 			case 'serum':
-				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label . (($sample_data['SampleDetail']['hemolysis_signs'] == 'yes')? ' HEMO': '');
+				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label;
     			break;
     							
     		case 'cell culture':
