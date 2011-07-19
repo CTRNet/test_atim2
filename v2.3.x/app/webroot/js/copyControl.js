@@ -53,6 +53,7 @@ function copyLine(line){
 		var nameArray = $(this).attr("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 		if($(this).attr("type") == "checkbox"){
+			name += $(this).val();
 			copyBuffer[name] = $(this).attr("checked");
 		}else{
 			copyBuffer[name] = $(this).val();
@@ -71,6 +72,7 @@ function pasteLine(line){
 			var nameArray = $(this).attr("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 			if($(this).attr("type") == "checkbox"){
+				name += $(this).val(); 
 				if(copyBuffer[name] != undefined){
 					$(this).attr("checked", copyBuffer[name]);
 				}
