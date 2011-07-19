@@ -49,7 +49,9 @@ function initStorageLayout(){
 	
 	//bind preparePost to the submit button
 	$("#submit_button_link").click(function(){
-		return preparePost();
+		window.onbeforeunload = null;
+		preparePost();
+		return false;
 	});
 	
 	$("#RecycleStorage").click(function(){
@@ -67,6 +69,13 @@ function initStorageLayout(){
 	$("#Reset").click(function(){
 		document.location="";
 	});
+	
+	window.onbeforeunload = function(event) {
+		console.log(event.srcElement);
+		if($("#saveWarning:visible").length){
+			return STR_NAVIGATE_UNSAVED_DATA;
+		}
+	};
 }
 
 /**
@@ -158,7 +167,6 @@ function preparePost(){
 	}else{
 		return false;
 	}
-//	return false;
 }
 
 /**
@@ -189,7 +197,7 @@ function moveStorage(recycle){
  * @return
  */
 function moveUlTo(ulId, destinationId){
-	var liArray = $("#" + ulId).children()
+	var liArray = $("#" + ulId).children();
 	for(var j = liArray.length - 1; j >= 0; -- j){
 		if(destinationId == "trash"){
 			deleteItem(liArray[j]);
@@ -203,10 +211,10 @@ function showInPopup(element, json){
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
-	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$("#popup").popup();
+	$("#default_popup").html("<div class='loading'>---" + loadingStr + "---</div>");
+	$("#default_popup").popup();
 	$.get(json.load, {}, function(data){
-		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
-		 $("#popup").popup();
+		 $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
+		 $("#default_popup").popup();
 	});
 }

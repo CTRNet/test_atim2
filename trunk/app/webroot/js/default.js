@@ -493,35 +493,47 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
+	function buildConfirmDialog(id, question, yes_action, no_action){
+		$("body").append('<div id="' + id + '" class="std_popup question">' +
+			'<div style="background: #FFF;">' +
+				'<h4>' + question + '</h4>' +
+				'<span class="button yes">' +
+					'<a class="form detail">' + STR_YES + '</a>' +
+				'</span>' +
+				'<span class="button no">' +
+					'<a class="form delete ignore">' + STR_NO + '</a>' +
+				'</span>' +
+			'</div>' +
+		'</div>');
+		
+		if(yes_action != null){
+			$("#" + id + " .yes").click(yes_action);
+		}
+		if(no_action != null){
+			$("#" + id + " .no .ignore").click(no_action);
+		}
+	}
+	
 	//Delete confirmation dialog
 	function initDeleteConfirm(){
-		if($(".action .form.delete").length > 0){
-			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
-				'<div style="background: #FFF;">' +
-					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
-					'<span class="button deleteConfirm">' +
-						'<a class="form detail">' + STR_YES + '</a>' +
-					'</span>' +
-					'<span class="button deleteClose">' +
-						'<a class="form delete">' + STR_NO + '</a>' +
-					'</span>' +
-				'</div>' +
-				'<input type="hidden" id="deleteLink" value=""/>' +
-			'</div>');
-			
-			$(".form.delete").click(function(){
-				$("#deleteConfirmPopup").popup();
-				$("#deleteLink").val($(this).attr("href"));
-				return false;
-			});
-			$("#deleteConfirmPopup .deleteConfirm").click(function(){
-				document.location = $("#deleteLink").val(); 
-			});
-			$("#deleteConfirmPopup .deleteClose, #deleteConfirmPopup .delete").click(function(){
+		if($(".form.delete").length > 0){
+			var yes_action = function(){
+				document.location = $("#deleteConfirmPopup").data('link'); 
+			};
+			var no_action = function(){
 				$("#deleteConfirmPopup").popup('close');
+			}; 
+			
+			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, yes_action, no_action);
+			
+			$(".form.delete:not(.ignore)").click(function(){
+				$("#deleteConfirmPopup").popup();
+				$("#deleteConfirmPopup").data('link', $(this).attr("href"));
+				return false;
 			});
 		}
 	}
+	
 	//tool_popup
 	function initToolPopup(scope){
 		$(scope).find(".tool_popup").click(function(){

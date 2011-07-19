@@ -1,7 +1,7 @@
 <?php 
 //This is an entire custom page. ATiM forms are immitated
 ?>
-<table class="structure" cellspacing="0">
+<table class="structure">
 	<tbody>
 		<tr>
 			<td class="this_column_1 total_columns_1">
@@ -126,30 +126,31 @@
 			<li class="TmaSlide" style="list-style-type: none;"><?php echo(__("tma slide", true)); ?></li>
 		</ul>
 	</div>
-
-	<div style="margin-top: 10px;">
-		<form method="post">
-			<input type="hidden" id="data" name="data" value="no data" />
-					<div class="bottom_button" style='padding-top: 5px;'>
-						<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
-					</div>
-
-		<div style="display: inline-block;">
-		<div style="display: none; background-color: transparent; font-size: 120%;"
-			id="saveWarning">
-			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
-			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
-		</div>
-		</div>
-		</form>
-	</div>
-	<div id="debug"></div>
 </td></tr></tbody></table>
 
-<div class="actions">
-	
+<div class="submitBar" style="margin-top: 10px;">
+	<form method="post">
+		<input type="hidden" id="data" name="data" value="no data" />
+		<div style="display: inline-block; position: relative; top: 5px;">
+			<div style="display: none; background-color: transparent;" id="saveWarning">
+				<span class="ui-icon ui-icon-alert" style="float: left; position: relative; top: 5px;"></span> 
+				<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
+			</div>
+		</div>
+		<div class="bottom_button" style="vertical-align: top;">
+			<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
+		</div>
+
+		
+	</form>
 </div>
-<div id="popup" class="std_popup"></div>
+<div class="actions">
+</div>
+
+<div class="hidden" id="confirm">
+TEST!
+</div>
+
 <style type="text/css">
 .dragme{
 	list-style-type:none;
@@ -227,4 +228,5 @@ var unclassifyString = "<?php echo(__("unclassify")); ?>";
 var detailString = "<?php echo(__("detail")); ?>";
 var loadingStr = "<?php __("loading"); ?>";
 var storageLayout = true;
+var STR_NAVIGATE_UNSAVED_DATA = "<?php __('STR_NAVIGATE_UNSAVED_DATA') ?>";
 </script>
