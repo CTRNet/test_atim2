@@ -12,7 +12,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ('saved browsing trees', 'Saved browsing trees', 'Arbres de navigation enregistrés'),
 ('adding notes to a temporary browsing automatically moves it towards the saved browsing list',
  'Adding notes to a temporary browsing automatically moves it towards the saved browsing list.',
- "Ajouter des notes à une navigation temporaire la déplace automatiquement vers la liste des navigations enregistrées.");
+ "Ajouter des notes à une navigation temporaire la déplace automatiquement vers la liste des navigations enregistrées."),
+("STR_NAVIGATE_UNSAVED_DATA",
+ "You have unsaved modifications. Are you sure you want to leave this page?",
+ "Vous avez des modifications non enregistrées. Êtes-vous certain de vouloir quitter cette page?"); 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
