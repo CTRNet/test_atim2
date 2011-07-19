@@ -170,7 +170,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('none', 'None', 'Aucun'),
 ('obtained consents', 'Obtained consents', 'Consentements obtenus'),
 ('contact if discovery', 'Contact if discovery', 'Informer des découvertes'),
-('source cell passage number', 'Source Cell Passage Number', 'Nombre de passages cellulaires de la source'); 
+('source cell passage number', 'Source Cell Passage Number', 'Nombre de passages cellulaires de la source'),
+("received - to revise", "Received - To revise", "Reçu - À réviser");
 
 DELETE FROM structure_formats WHERE id=4276;
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
@@ -228,3 +229,7 @@ ALTER TABLE storage_masters
  MODIFY short_label VARCHAR(50) NOT NULL DEFAULT '';
 ALTER TABLE storage_masters_revs
  MODIFY short_label VARCHAR(50) NOT NULL DEFAULT '';
+ 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("received - to revise", "received - to revise");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_procure_lifestyle_status"),  (SELECT id FROM structure_permissible_values WHERE value="received - to revise" AND language_alias="received - to revise"), "4", "1");
+
