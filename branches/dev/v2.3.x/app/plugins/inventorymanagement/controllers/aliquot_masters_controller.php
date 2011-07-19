@@ -1175,7 +1175,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
-		if(empty($available_sample_aliquots_w_volme) && empty($available_sample_aliquots_wo_volume)){
+		if(empty($available_sample_aliquots_w_volume) && empty($available_sample_aliquots_wo_volume)){
 			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
 		$available_sample_aliquots = array(
