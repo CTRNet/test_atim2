@@ -30,6 +30,10 @@ class ClinicalCollectionLink extends ClinicalAnnotationAppModel{
 		return $return;
 	}
 	
+	function allowDeletion($ccl_id) {
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
 }
 
 ?>
