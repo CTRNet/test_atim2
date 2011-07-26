@@ -48,7 +48,9 @@ class ReportsControllerCustom extends ReportsController {
 				"contact_if_discovery" => 0,
 				"study_other_diseases" => 0,
 				"contact_if_disco_other_diseases" => 0,
-				"other_contacts_if_die" => 0//TODO
+				"other_contacts_if_die" => 0,//TODO
+				"stop_followup" => 0,
+				"stop_questionnaire" => 0
 			)
 		);
 		
@@ -71,29 +73,35 @@ class ReportsControllerCustom extends ReportsController {
 				$data[$key][0]["denied"] ++;
 			}
 			$data[$key][0]["participant"] ++;
-			if($data_unit['ConsentDetail']['use_of_blood'] == "yes"){
+			if($data_unit['ConsentDetail']['use_of_blood'] == "y"){
 				$data[$key][0]["blood"] ++;
 			}
-			if($data_unit['ConsentDetail']['use_of_urine'] == "yes"){
+			if($data_unit['ConsentDetail']['use_of_urine'] == "y"){
 				$data[$key][0]["urine"] ++;
 			}
-			if($data_unit['ConsentDetail']['allow_questionnaire'] == "yes"){
+			if($data_unit['ConsentDetail']['allow_questionnaire'] == "y"){
 				$data[$key][0]["questionnaire"] ++;
 			}
-			if($data_unit['ConsentDetail']['urine_blood_use_for_followup'] == 'yes'){
+			if($data_unit['ConsentDetail']['urine_blood_use_for_followup'] == 'y'){
 				$data[$key][0]["annual_followup"] ++;
 			}
-			if($data_unit['ConsentDetail']['contact_for_additional_data'] == 'yes'){
+			if($data_unit['ConsentDetail']['contact_for_additional_data'] == 'y'){
 				$data[$key][0]["contact_if_info_req"] ++;
 			}
-			if($data_unit['ConsentDetail']['inform_significant_discovery'] == 'yes'){
+			if($data_unit['ConsentDetail']['inform_significant_discovery'] == 'y'){
 				$data[$key][0]["contact_if_discovery"] ++;
 			}
-			if($data_unit['ConsentDetail']['research_other_disease'] == 'yes'){
+			if($data_unit['ConsentDetail']['research_other_disease'] == 'y'){
 				$data[$key][0]["study_other_diseases"] ++;
 			}
-			if($data_unit['ConsentDetail']['inform_discovery_on_other_disease'] == 'yes'){
+			if($data_unit['ConsentDetail']['inform_discovery_on_other_disease'] == 'y'){
 				$data[$key][0]["contact_if_disco_other_diseases"] ++;
+			}
+			if($data_unit['ConsentDetail']['stop_followup'] == 'y'){
+				$data[$key][0]["stop_followup"] ++;
+			}
+			if($data_unit['ConsentDetail']['stop_questionnaire'] == 'y'){
+				$data[$key][0]["stop_questionnaire"] ++;
 			}
 		}
 		
@@ -468,6 +476,14 @@ class ReportsControllerCustom extends ReportsController {
 		$sample_model = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
 		
 		$data = array();
+		
+		$consent_clause = "";
+// 		if(!empty($parameters[0]['linked_consent'][0])){
+// 			$consent_clause = 
+// 				"INNER JOIN clinical_collection_links AS ccl ON Collection.id=ccl.collection_id 
+// 				INNER JOIN consent_masters AS ConsentMaster ON ccl.consent_master_id=ConsentMaster.id AND ConsentMaster.consent_control_id IN(".implode(", ", $parameters[0]['linked_consent']).") ";
+// 		}
+		
 		foreach($banks as $bank){
 			$bank_id = $bank['Bank']['id'];
 			
@@ -477,7 +493,8 @@ class ReportsControllerCustom extends ReportsController {
 				SUM(IF(SampleDetail.blood_type = 'EDTA', 1, 0)) AS edta, SUM(IF(SampleDetail.blood_type = 'gel SST', 1, 0)) AS sst,
 				SUM(IF(SampleMaster.sample_control_id IN(11, 12, 13), 1, 0)) AS other 
 				FROM sample_masters AS SampleMaster
-				INNER JOIN collections AS Collection ON SampleMaster.collection_id=Collection.id AND Collection.bank_id='".$bank_id."' 
+				INNER JOIN collections AS Collection ON SampleMaster.collection_id=Collection.id AND Collection.bank_id='".$bank_id."'
+				".$consent_clause." 
 				LEFT JOIN specimen_details AS SpecimenDetail ON SampleMaster.id=SpecimenDetail.sample_master_id
 				LEFT JOIN sd_spe_bloods AS SampleDetail ON SampleMaster.id=SampleDetail.sample_master_id
 				WHERE SampleMaster.created BETWEEN '".$date_from."' AND '".$date_to."'"
