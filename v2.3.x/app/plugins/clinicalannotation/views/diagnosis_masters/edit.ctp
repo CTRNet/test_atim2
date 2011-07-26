@@ -59,12 +59,14 @@
 			
 <?php
 
-	$final_atim_structure = $atim_structure;
+	$final_atim_structure = $diagnosismasters;
 	$final_options = array('data' => $existing_dx[''], 'type' => 'index', 'settings' => $structure_settings);
 	
 	$hook_link = $structures->hook('dx_list');
-	if( $hook_link ) { require($hook_link); }	
-	
+	if( $hook_link ) { 
+		require($hook_link); 
+	}	
+
 	$structures->build($final_atim_structure, $final_options);
 	
 	// 3.2- Groups 1 to n	
@@ -93,7 +95,8 @@
 		$final_options = array('data' => $existing_dx[$key], 'type' => 'list', 'settings' => $structure_settings);
 		
 		$hook_link = $structures->hook('dx_list');
-		if( $hook_link ) { require($hook_link); }	
+		if( $hook_link ) { 
+			require($hook_link); }	
 	
 		$structures->build($final_atim_structure, $final_options);
 		$max_key = $key; 
