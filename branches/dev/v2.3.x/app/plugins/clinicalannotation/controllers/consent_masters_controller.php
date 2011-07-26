@@ -142,7 +142,7 @@ class ConsentMastersController extends ClinicalannotationAppController {
 		$consent_master_data = $this->ConsentMaster->find('first',array('conditions'=>array('ConsentMaster.id'=>$consent_master_id, 'ConsentMaster.participant_id'=>$participant_id)));
 		if(empty($consent_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowDeletion($consent_master_id);
+		$arr_allow_deletion = $this->ConsentMaster->allowDeletion($consent_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
