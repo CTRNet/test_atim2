@@ -13,11 +13,10 @@ function initStorageLayout(){
 			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInPopup\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
-
 		if(jsonOrgItems[i].x.length > 0){
 			debug($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size());
 			if($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
-				$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y[0]).append(appendString);
+				$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).append(appendString);
 			}else{
 				$("#unclassified").append(appendString);
 				debug("Error: [#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y + "] not foud");	
@@ -86,7 +85,7 @@ function initStorageLayout(){
  * @return
  */
 function moveItem(draggable, droparea){
-	if($(draggable).parent().attr("id") != $(droparea).children("ul:first")[0].id){
+	if($(draggable).parent().prop("id") != $(droparea).children("ul:first")[0].id){
 		if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "trash"){
 			deleteItem(draggable);
 		}else if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "unclassified"){
@@ -143,14 +142,14 @@ function preparePost(){
 		var elements = $(".dragme");
 		debug("JOY" + elements.length);
 		for(var i = elements.length - 1; i >= 0; --i){
-			itemData = getJsonFromClass($(elements[i]).attr("class"));
-			if($(elements[i]).parent().attr("id").indexOf("cell_") == 0){
+			itemData = getJsonFromClass($(elements[i]).prop("class"));
+			if($(elements[i]).parent().prop("id").indexOf("cell_") == 0){
 				//normal cell
-				var cellId = $(elements[i]).parent().attr("id");
+				var cellId = $(elements[i]).parent().prop("id");
 				var index1 = cellId.indexOf("_") + 1;
 				var index2 = cellId.lastIndexOf("_");
 				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "' + cellId.substr(index1, index2 - index1) + '", "y" : "' + cellId.substr(index2 + 1) + '"},'; 
-			}else if($(elements[i]).parent().attr("id").indexOf("trash") == 0){
+			}else if($(elements[i]).parent().prop("id").indexOf("trash") == 0){
 				//trash, x and y are set to "t"
 				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "t", "y" : "t"},';
 			}else{
@@ -162,7 +161,6 @@ function preparePost(){
 			cells = cells.substr(0, cells.length - 1);
 		}
 		$("#data").val('[' + cells + ']');
-		debug($("#data").val());
 		$("form").submit();
 	}else{
 		return false;
