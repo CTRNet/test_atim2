@@ -77,7 +77,7 @@ header ('Content-type: text/html; charset=utf-8');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.5.2.min')."\n";
+	echo $javascript->link('jquery-1.6.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";

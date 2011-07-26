@@ -18,10 +18,10 @@ function initCcl(){
 		return false;
 	};
 
-	$("#collection_new").attr("checked", true);
+	$("#collection_new").prop("checked", true);
 	$("#collection_search").click(function(){
-		$("#collection_search").attr("checked", false);
-		$("#collection_new").attr("checked", true);
+		$("#collection_search").prop("checked", false);
+		$("#collection_new").prop("checked", true);
 		if(popupLoaded){
 			$("#popup").popup();
 		}else{
@@ -30,7 +30,7 @@ function initCcl(){
 				initDatepicker("#popup");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
-				$("#popup .form.search").unbind('click').attr("onclick", null).click(popupSearch);
+				$("#popup .form.search").unbind('click').prop("onclick", null).click(popupSearch);
 				$("#popup").popup();
 				popupLoaded = true;
 			});
