@@ -44,9 +44,6 @@ ALTER TABLE ad_blocks_revs
  ADD qc_tf_flash_frozen_volume VARCHAR(50) NOT NULL DEFAULT '',
  ADD qc_tf_flash_frozen_volume_unit enum('','gr','mm3') NOT NULL DEFAULT '';
  
-ALTER TABLE aliquot_review_masters_revs
- CHANGE aliquot_masters_id aliquot_master_id INT DEFAULT NULL;
- 
 ALTER TABLE qc_tf_dxd_eocs_revs
  ADD date_of_ca125_progression DATE DEFAULT NULL,
  ADD date_of_ca125_progression_accu VARCHAR(1) DEFAULT '',
@@ -58,17 +55,6 @@ ALTER TABLE qc_tf_ed_other_primary_cancers_revs
  
 INSERT INTO i18n (id, en, fr) VALUES
 ('core_installname', 'The Terry Fox Research Institute - C.O.E.U.R.', "L'Institut de recherche Terry Fox - C.O.E.U.R.");
-
--- NL revision
-
-UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1', `flag_addgrid`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-UPDATE structure_formats SET `language_heading`='current status' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
-
-INSERT into i18n (id,en) VALUES ('genetics and family data','Genetics and Family Data');
-
-UPDATE structure_fields SET  `language_label`='last chart checked date' WHERE model='Participant' AND tablename='participants' AND field='last_chart_checked_date' AND `type`='date' AND structure_value_domain  IS NULL ;
-
 
 
 
