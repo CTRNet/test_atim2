@@ -160,3 +160,65 @@ ALTER TABLE	 tx_masters                  	MODIFY	 start_date_accuracy           
 		MODIFY	 finish_date_accuracy                  	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 tx_masters_revs             	MODIFY	 start_date_accuracy                   	CHAR(1) NOT NULL DEFAULT '',
 		MODIFY	 finish_date_accuracy                  	CHAR(1) NOT NULL DEFAULT '';
+
+		
+ALTER TABLE aliquot_internal_uses_revs ADD COLUMN use_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER use_datetime;
+ALTER TABLE aliquot_masters_revs ADD COLUMN storage_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER storage_datetime;
+ALTER TABLE consent_masters_revs 
+ ADD COLUMN date_of_referral_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_of_referral,
+ ADD COLUMN date_first_contact_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_first_contact,
+ ADD COLUMN consent_signed_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER consent_signed_date,
+ ADD COLUMN status_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER status_date,
+ ADD COLUMN operation_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER operation_date;
+ALTER TABLE event_masters_revs 
+ ADD COLUMN event_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER event_date,
+ ADD COLUMN date_required_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_required,
+ ADD COLUMN date_requested_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_requested;
+ALTER TABLE lbd_dna_extractions_revs ADD COLUMN creation_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER creation_datetime;
+ALTER TABLE lbd_slide_creations_revs ADD COLUMN realiquoting_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER realiquoting_datetime;
+ALTER TABLE misc_identifiers_revs 
+ ADD COLUMN effective_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER effective_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER expiry_date;
+ALTER TABLE order_items_revs ADD COLUMN date_added_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_added;
+ALTER TABLE order_lines_revs ADD COLUMN date_required_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_required;
+ALTER TABLE orders_revs 
+ ADD COLUMN date_order_placed_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_order_placed,
+ ADD COLUMN date_order_completed_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_order_completed;
+ALTER TABLE participant_contacts_revs 
+ ADD COLUMN effective_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER effective_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER expiry_date;
+ALTER TABLE participant_messages_revs 
+ ADD COLUMN date_requested_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_requested,
+ ADD COLUMN due_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER due_date,
+ ADD COLUMN expiry_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER expiry_date;
+ALTER TABLE participants_revs ADD COLUMN last_chart_checked_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER last_chart_checked_date;
+ALTER TABLE protocol_masters_revs 
+ ADD COLUMN expiry_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER expiry,
+ ADD COLUMN activated_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER activated;
+ALTER TABLE quality_ctrls_revs ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date;
+ALTER TABLE realiquotings_revs ADD COLUMN realiquoting_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER realiquoting_datetime;
+ALTER TABLE reproductive_histories_revs 
+ ADD COLUMN date_captured_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_captured,
+ ADD COLUMN lnmp_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER lnmp_date;
+ALTER TABLE rtbforms_revs ADD COLUMN frmCreated_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER frmCreated;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN pathology_reception_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER pathology_reception_datetime;
+ALTER TABLE shipments_revs 
+ ADD COLUMN datetime_shipped_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER datetime_shipped,
+ ADD COLUMN datetime_received_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER datetime_received;
+ALTER TABLE sop_masters_revs 
+ ADD COLUMN expiry_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER expiry_date,
+ ADD COLUMN activated_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER activated_date;
+ALTER TABLE specimen_review_masters_revs ADD COLUMN review_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER review_date;
+ALTER TABLE std_tma_blocks_revs ADD COLUMN creation_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER creation_datetime;
+ALTER TABLE study_ethics_boards_revs ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date;
+ALTER TABLE study_fundings_revs ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date;
+ALTER TABLE study_investigators_revs 
+ ADD COLUMN participation_start_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER participation_start_date,
+ ADD COLUMN participation_end_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER participation_end_date;
+ALTER TABLE study_related_revs ADD COLUMN date_posted_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_posted;
+ALTER TABLE study_results_revs ADD COLUMN result_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER result_date;
+ALTER TABLE study_reviews_revs ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date;
+ALTER TABLE study_summaries_revs 
+ ADD COLUMN start_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER start_date,
+ ADD COLUMN end_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER end_date;
+ALTER TABLE tma_slides_revs ADD COLUMN storage_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER storage_datetime;
