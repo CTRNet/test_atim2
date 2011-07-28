@@ -9,7 +9,8 @@ $fields = array(
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
 	"tumour_grade" => array("Grade" => new ValueDomain('0_to_3', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_tumor_site" => "@Female Genital-Ovary",
-	"qc_tf_progression_recurrence" => "@primary"
+	"qc_tf_dx_origin" => "@primary",
+	"qc_tf_progression_detection_method" => "@not applicable"
 );
 
 $detail_fields = array(
@@ -54,6 +55,14 @@ function dxdEocsPostRead(Model $m){
 	if($m->custom_data['last_csv_pkey'] == $m->values[$m->csv_pkey] && $m->values['Date of EOC Diagnosis Date'] == $m->custom_data['last_dx_date']){
 		//multiple sites case is already handled in children, skip
 		return false;
+	}
+	
+	if(strtoupper($m->values['Site 1 of Primary Tumor Progression (metastasis)  If Applicable']) == 'CA125'
+		&& strtoupper($m->values['Site 2 of Primary Tumor Progression (metastasis)  If applicable']) == 'CA125'
+	){
+		echo "ERROR: both sites are CA125 in file [",$m->file,"] at line [", $m->line,"]\n";
+		global $insert;
+		$insert = false;
 	}
 	
 	$m->custom_data['last_csv_pkey'] = $m->values[$m->csv_pkey];

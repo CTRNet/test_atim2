@@ -7,8 +7,7 @@ $fields = array(
 	"diagnosis_control_id" => "@16",
 	"dx_date" => "Date of Progression/Recurrence Date",
 	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_tumor_site" => array("Site of Tumor Progression (metastasis)  If Applicable" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	"qc_tf_progression_recurrence" => "#qc_tf_progression_recurrence"
+	"qc_tf_tumor_site" => array("Site of Tumor Progression (metastasis)  If Applicable" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
 );
 
 $model = new MasterDetailModel(3, $pkey, array(), false, null, $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());
@@ -30,10 +29,13 @@ function otherProgressionPostRead(Model $m){
 	}
 	
 	if(empty($m->values['Site of Tumor Progression (metastasis)  If Applicable'])){
-		$m->values['qc_tf_progression_recurrence'] = 'unknown';
 		$m->values['Site of Tumor Progression (metastasis)  If Applicable'] = 'unknown';
 	}else{
-		$m->values['qc_tf_progression_recurrence'] = 'metastasis';
+		if(strtoupper($m->values['Site of Tumor Progression (metastasis)  If Applicable']) == 'CA125'){
+			echo "ERROR: [Site of Tumor Progression (metastasis)  If Applicable] value is [CA125] in file [",$m->file,"] at line [", $m->line,"]\n";
+			global $insert;
+			$insert = false;
+		}
 	}
 	return true;
 }

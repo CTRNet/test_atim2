@@ -8,7 +8,8 @@ $fields = array(
 	"dx_date" => "Date of Progression/Recurrence Date",
 	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_tumor_site" => array("Site 2 of Primary Tumor Progression (metastasis)  If applicable" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	"qc_tf_progression_recurrence" => "@metastasis"
+	"qc_tf_dx_origin" => '@progression',
+	'qc_tf_progression_detection_method' => '#qc_tf_progression_detection_method'
 );
 
 $model = new MasterDetailModel(1, $pkey, array(), false, null, $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());
