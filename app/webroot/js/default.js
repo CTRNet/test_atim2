@@ -494,24 +494,22 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
-	function buildConfirmDialog(id, question, yes_action, no_action){
+	function buildConfirmDialog(id, question, buttons){
+		var buttonsHtml = "";
+		for(i in buttons){
+			buttonsHtml += 
+				'<span id="' + id + i +'" class="button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></span>';
+		}
+		$("#" + id).remove();
 		$("body").append('<div id="' + id + '" class="std_popup question">' +
 			'<div style="background: #FFF;">' +
 				'<h4>' + question + '</h4>' +
-				'<span class="button yes">' +
-					'<a class="form detail">' + STR_YES + '</a>' +
-				'</span>' +
-				'<span class="button no">' +
-					'<a class="form delete ignore">' + STR_NO + '</a>' +
-				'</span>' +
+				buttonsHtml +
 			'</div>' +
 		'</div>');
 		
-		if(yes_action != null){
-			$("#" + id + " .yes").click(yes_action);
-		}
-		if(no_action != null){
-			$("#" + id + " .no .ignore").click(no_action);
+		for(i in buttons){
+			$("#" + id + i).click(buttons[i].action);
 		}
 	}
 	
@@ -525,7 +523,7 @@ function uncheckAll( $div ) {
 				$("#deleteConfirmPopup").popup('close');
 			}; 
 			
-			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, yes_action, no_action);
+			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete ignore"}));
 			
 			$(".form.delete:not(.ignore)").click(function(){
 				$("#deleteConfirmPopup").popup();

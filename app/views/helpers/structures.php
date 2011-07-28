@@ -1815,11 +1815,30 @@ class StructuresHelper extends Helper {
 			
 		return $return_string.$this->generateLinksList(NULL, isset($options['links']) ? $options['links'] : array(), 'bottom');
 	}
+	
+	/**
+	 * @param string $link The link to check
+	 * @return True if the user can access that page, false otherwise
+	 */
+	public function checkLinkPermission($link){
+		$parts = Router::parse($link);
+		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+		
+		if ( !isset($Acl) ) {
+			$Acl = new SessionAclComponent();
+			$Acl->initialize($this);
+		}
+		
+		return strpos($aco_alias,'controllers/Users') !== false
+			|| strpos($aco_alias,'controllers/Pages') !== false
+			|| $aco_alias == "controllers/Menus/index"
+			|| $Acl->check('Group::'.$this->Session->read('Auth.User.group_id'), $aco_alias);
+	}
 
 
 	private function generateLinksList($data, array $option_links, $state = 'index'){
-		$aro_alias = 'Group::'.$this->Session->read('Auth.User.group_id');
-		
 		$return_string = '';
 		
 		$return_urls = array();
@@ -1856,21 +1875,10 @@ class StructuresHelper extends Helper {
 					$link_location = &$link_location['link'];
 				}
 					
-				$parts = Router::parse($link_location);
-				$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-				$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-				$aco_alias .= ($parts['action'] ? $parts['action'] : '');
 				
-				if ( !isset($Acl) ) {
-					$Acl = new SessionAclComponent();
-					$Acl->initialize($this);
-				}
-				
-				// if ACO/ARO permissions check succeeds, create link
-				if (strpos($aco_alias,'controllers/Users') !== false 
-				|| strpos($aco_alias,'controllers/Pages') !== false
-				|| $aco_alias == "controllers/Menus/index"
-				|| $Acl->check($aro_alias, $aco_alias)){
+				// if ACO/ARO permissions check succeeds or if it's a js command, create link
+				if ($this->checkLinkPermission($link_location)
+				|| strpos($link_location, "javascript:") === 0){
 					
 					$display_class_name = $this->generateLinkClass($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
