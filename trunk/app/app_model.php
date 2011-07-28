@@ -667,6 +667,13 @@ class AppModel extends Model {
 	function allowDeletion($id){
 		return array('allow_deletion' => true, 'msg' => '');
 	}
+	
+	function redirectIfNonExistent($id, $method, $line){
+		$this->id = $id;
+		if(!$this->exists()){
+			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
+		}
+	}
 }
 
 ?>
