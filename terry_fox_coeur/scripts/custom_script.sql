@@ -172,7 +172,7 @@ CREATE TABLE qc_tf_dxd_progression_and_recurrences_revs(
 )Engine=InnoDb;
 
 INSERT INTO diagnosis_controls (controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
-('progression an recurrence', 1, 'qc_tf_dxd_progression_recurrence', 'qc_tf_dxd_progression_and_recurrences', 3, 'progression an recurrence');
+('progression and recurrence', 1, 'qc_tf_dxd_progression_recurrence', 'qc_tf_dxd_progression_and_recurrences', 3, 'progression and recurrence');
 
 ALTER TABLE diagnosis_masters
  MODIFY COLUMN path_stage_summary VARCHAR(50) DEFAULT '';
@@ -190,7 +190,7 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_recurrence' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_progression_recurrence') AND `flag_confidential`='0');
 
 INSERT INTO i18n (id, en, fr) VALUES
-('progression an recurrence', 'Progression and recurrence', 'Progression et récurrence'),
+('progression and recurrence', 'Progression and recurrence', 'Progression et récurrence'),
 ('metastasis', 'Metastasis', 'Métastase'),
 ('last contact', 'Last contact', 'Dernier contact'),
 ('demographics', 'Demographics', 'Démographie'),
@@ -335,4 +335,189 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("qc_tf_coeur_awaiting_reception", "awaiting reception");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail"),  (SELECT id FROM structure_permissible_values WHERE value="qc_tf_coeur_awaiting_reception" AND language_alias="awaiting reception"), "0", "1");
+
+
+-- ----------------------------------------------------------------------------------------------------------------------
+-- NL revision 2011-07-26
+-- ----------------------------------------------------------------------------------------------------------------------
+
+-- NL rev: Profile
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1', `flag_addgrid`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='current status' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+
+INSERT into i18n (id,en) VALUES ('genetics and family data','Genetics and Family Data');
+
+UPDATE structure_fields SET  `language_label`='last chart checked date' WHERE model='Participant' AND tablename='participants' AND field='last_chart_checked_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_suspected_date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_sdod_accuracy' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_last_contact_acc' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_last_contact' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- NL rev: Diagnosis
+
+UPDATE structure_formats SET `flag_override_label`='0', language_label = ''
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qc_tf_dx_eoc')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` IN ('dx_date','primary_number'));
+
+UPDATE structure_formats SET `flag_add`='0',`flag_add_readonly`='0', `flag_edit`='0',`flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dx_eoc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_recurrence' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_progression_recurrence') AND `flag_confidential`='0');
+
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_presence_of_precursor_of_benign_lesions")
+AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="Female Genital-Ovary");
+
+INSERT into i18n (id,en) VALUES 
+('a new diagnoses group should be created for a primary diagnosis', 'A new diagnoses group should be created for a primary diagnosis!'),
+('the diagnoses group can not be changed for a primary diagnosis', 'The diagnoses group can not be changed for a primary diagnosis!');
+
+UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='-2'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_recurrence');
+
+UPDATE structure_formats SET `display_order`='-3'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_number');
+
+ALTER TABLE `diagnosis_masters` CHANGE `qc_tf_progression_recurrence` `qc_tf_dx_origin` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `diagnosis_masters_revs` CHANGE `qc_tf_progression_recurrence` `qc_tf_dx_origin` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_tf_dx_origin', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("primary", "primary"),("progression", "progression");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_dx_origin"),  (SELECT id FROM structure_permissible_values WHERE value="primary" AND language_alias="primary"), "0", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_dx_origin"),  (SELECT id FROM structure_permissible_values WHERE value="progression" AND language_alias="progression"), "1", "1");
+
+UPDATE structure_fields SET field = 'qc_tf_dx_origin', language_label = 'origin', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_dx_origin")
+WHERE field = 'qc_tf_progression_recurrence';
+
+ALTER TABLE diagnosis_masters
+ ADD COLUMN qc_tf_progression_detection_method VARCHAR(50) DEFAULT '';
+ALTER TABLE diagnosis_masters_revs
+ ADD COLUMN qc_tf_progression_detection_method VARCHAR(50) DEFAULT '';
+
+SET @value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_progression_recurrence');
+UPDATE structure_value_domains SET domain_name = 'qc_tf_progression_detection_method' WHERE id = @value_domain_id;
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @value_domain_id;
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ca125", "ca125"),("site detection","site detection");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_progression_detection_method'),  (SELECT id FROM structure_permissible_values WHERE value="ca125" AND language_alias="ca125"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_progression_detection_method'),  (SELECT id FROM structure_permissible_values WHERE value="site detection" AND language_alias="site detection"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unknown","unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_progression_detection_method'),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("not applicable","not applicable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_progression_detection_method'),  (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'qc_tf_progression_detection_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_progression_detection_method') , '0', '', '', '', 'origin', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_detection_method'), '1', '-2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_progression_recurrence'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_detection_method'), '1', '-2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE structure_fields SET language_label = 'detection method' WHERE field = 'qc_tf_progression_detection_method';
+
+UPDATE structure_formats SET `display_order`='-1'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='diagnosis_control_id');
+
+UPDATE structure_formats SET `display_order`='0'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_progression_detection_method');
+
+INSERT into i18n (id,en) VALUES ('detection method','Detection Method');
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dx_eoc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dx_origin') AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dx_eoc'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_tumor_site'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+DELETE FROM structure_formats WHERE `structure_field_id`=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='qc_tf_tumor_site');
+DELETE FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='qc_tf_dxd_other_primary_cancers' AND `field`='qc_tf_tumor_site';
+UPDATE structure_formats SET `display_order`='-6'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='primary_number');
+UPDATE structure_formats SET `display_order`='-5'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='qc_tf_dx_origin');
+UPDATE structure_formats SET `display_order`='-4'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_date');
+UPDATE structure_formats SET `display_order`='-4'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_date_accuracy');
+UPDATE structure_formats SET `display_order`='-3'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='diagnosis_control_id');
+UPDATE structure_formats SET `display_order`='-2'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='qc_tf_tumor_site');
+UPDATE structure_formats SET `display_order`='-1'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='qc_tf_progression_detection_method');
+
+UPDATE structure_value_domains_permissible_values SET display_order = 1 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="Ia" AND language_alias="Ia") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 2 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="Ib" AND language_alias="Ib") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 3 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="Ic" AND language_alias="Ic") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+
+UPDATE structure_value_domains_permissible_values SET display_order = 4 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIa" AND language_alias="IIa") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 5 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIb" AND language_alias="IIb") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 6 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIc" AND language_alias="IIc") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+
+UPDATE structure_value_domains_permissible_values SET display_order = 7 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="III" AND language_alias="III") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 8 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 9
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+UPDATE structure_value_domains_permissible_values SET display_order = 10 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IIIc" AND language_alias="IIIc") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+
+UPDATE structure_value_domains_permissible_values SET display_order = 11 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+
+UPDATE structure_value_domains_permissible_values SET display_order = 12 
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_stage');
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='qc_tf_tumor_site'), 'notEmpty', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='qc_tf_progression_detection_method'), 'notEmpty', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="ca125" AND language_alias="ca125") AND structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_tumor_site');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_dx_origin'), '1', '-5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_tumor_site'), '1', '-2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_progression_recurrence') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1', `flag_search`='0', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_progression_recurrence') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dx_origin') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_progression_recurrence') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_progression_recurrence') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_tumor_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tumor_site') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dx_eoc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dx_origin') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_other_primary_cancer') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_tf_dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_dx_origin') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='0', language_label = ''
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` IN ('dx_date','primary_number'));
+
+INSERT into i18n (id,en) VALUES 
+('a progression should be related to an existing diagnoses group', 'A progression should be related to an existing diagnoses group!'),
+('progression are currently linked to this primary','Progression are currently linked to this primary!'),
+('progression','Progression');
+
+
 
