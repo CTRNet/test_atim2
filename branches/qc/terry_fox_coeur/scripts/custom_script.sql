@@ -519,5 +519,9 @@ INSERT into i18n (id,en) VALUES
 ('progression are currently linked to this primary','Progression are currently linked to this primary!'),
 ('progression','Progression');
 
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_tumor_site'),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "0", "1");
 
-
+INSERT into i18n (id,en) VALUES ('ca125','CA125');
