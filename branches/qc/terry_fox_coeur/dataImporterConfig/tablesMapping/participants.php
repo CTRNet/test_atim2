@@ -41,6 +41,8 @@ $fields = array(
 
 function postParticipantWrite(Model $m){
 	global $connection;
+	global $primary_number;
+	$primary_number = 1;
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id;
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	if(!isset($m->values['identifier_id'])){
@@ -57,6 +59,7 @@ function postParticipantWrite(Model $m){
 	);
 	$query = "INSERT INTO misc_identifiers (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
 }
 
 $model = new Model(0, $pkey, $child, true, NULL, NULL, 'participants', $fields);

@@ -11,7 +11,8 @@ $fields = array(
 	"tumour_grade" => array("Grade" => new ValueDomain('0_to_3', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"path_stage_summary" => array("Stage" => new ValueDomain('qc_tf_stage', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_tumor_site" => array("Tumor Site" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	"qc_tf_progression_recurrence" => "@primary"
+	"qc_tf_dx_origin" => "@primary",
+	"qc_tf_progression_detection_method" => "@not applicable"
 );
 
 $detail_fields = array(
