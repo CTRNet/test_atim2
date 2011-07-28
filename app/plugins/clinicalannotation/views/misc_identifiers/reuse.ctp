@@ -6,7 +6,7 @@
 			'pagination' => false,
 			'form_inputs' => false,
 			'header' => array(
-				'title' => $this->data[0]['MiscIdentifierControl']['misc_identifier_name'],
+				'title' => $title,
 				'description' => __('select an identifier to assign to the current participant', true)
 			)
 		), 'links' => array(
@@ -18,5 +18,9 @@
 		)
 	);
 
+	$hook_link = $structures->hook();
+	if($hook_link){
+		require($hook_link);
+	}
 	$structures->build($atim_structure, $final_options);
 ?>

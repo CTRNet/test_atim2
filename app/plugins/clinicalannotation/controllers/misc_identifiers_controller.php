@@ -306,8 +306,15 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->Structures->set('misc_identifier_value');
 		
 		$mi_control = $this->MiscIdentifierControl->findById($misc_identifier_ctrl_id);
+		if($mi_control['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+			AppController::getInstance()->redirect("/pages/err_confidential");
+		}
+		
+		$this->set('title', $mi_control['MiscIdentifierControl']['misc_identifier_name']);
+		$data_to_display = $this->MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifierControl.id' => $misc_identifier_ctrl_id), 'recursive' => 0));
+		
 		//LOCKING TABLE - Make sure to have unlock at all exit points
-		$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE');
+		$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE, misc_identifier_controls AS MiscIdentifierControl WRITE');
 		if($mi_control['MiscIdentifierControl']['flag_once_per_participant']){
 			$count = $this->MiscIdentifier->find('count', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id), 'recursive' => -1));
 			if($count > 0){
@@ -317,31 +324,47 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			}
 		}
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if($submited){
 			if(isset($this->data['MiscIdentifier']['selected_id']) && is_numeric($this->data['MiscIdentifier']['selected_id'])){
-				$this->MiscIdentifier->updateAll(
-					array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.deleted' => 0, 'MiscIdentifier.tmp_deleted' => 0),
-					array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])
-				);
-				$this->MiscIdentifier->query('UNLOCK TABLES');
-				
-				$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])));
-				if(empty($mi)){
-					$this->MiscIdentifier->validationErrors[] = 'by the time you submited your selection, the identifier was either used or removed from the system';
-				}else{
-					$this->atimFlash( 'your data has been saved', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+				$submitted_data_validates = true;
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+					
+				if($submitted_data_validates) {
+					$this->MiscIdentifier->updateAll(
+						array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.deleted' => 0, 'MiscIdentifier.tmp_deleted' => 0),
+						array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])
+					);
+					$this->MiscIdentifier->query('UNLOCK TABLES');
+					
+					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])));
+					if(empty($mi)){
+						$this->MiscIdentifier->validationErrors[] = 'by the time you submited your selection, the identifier was either used or removed from the system';
+					}else{
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
+						$this->atimFlash( 'your data has been saved', '/clinicalannotation/misc_identifiers/listall/'.$participant_id );
+					}
 				}
 			}else{
 				$this->MiscIdentifier->query('UNLOCK TABLES');
 				$this->MiscIdentifier->validationErrors[] = 'you need to select an identifier value';
 			}
-		}else{
-			$this->MiscIdentifier->query('UNLOCK TABLES');
 		}
-		$this->data = $this->MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifierControl.id' => $misc_identifier_ctrl_id), 'recursive' => 0));
+		$this->MiscIdentifier->query('UNLOCK TABLES');
+		$this->data = $data_to_display;
 		
 		if(empty($this->data)){
-			AppController::addWarningMsg('there are no unused identifiers left to reuse. hit cancel to return to the identifiers list.');
+			AppController::addWarningMsg(__('there are no unused identifiers left to reuse. hit cancel to return to the identifiers list.', true));
 		}
 		
 	}
