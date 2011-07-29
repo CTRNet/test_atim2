@@ -5,24 +5,22 @@ class MaterialsController extends MaterialAppController {
 	var $paginate = array('Material'=>array('limit' => pagination_amount,'order'=>'Material.item_name'));
 	
 	function index() {
-		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }		
 	}
 	
-	function search(){
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
+	function search($search_id){
+		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
 		
-		$this->data = $this->paginate($this->Material, $_SESSION['ctrapp_core']['search']['criteria']);
+		$this->data = $this->paginate($this->Material, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/material/materials/index/') );	
 				
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Material']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/material/materials/search';
+		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Material']['count'];
+		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/material/materials/search';
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

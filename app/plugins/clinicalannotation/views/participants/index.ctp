@@ -4,7 +4,7 @@
 	$search_type_links['misc identifiers'] = array('link'=> '/clinicalannotation/misc_identifiers/index/', 'icon' => 'search');
 
 	$structure_links = array(
-		'top'=>'/clinicalannotation/participants/search',
+		'top'=>'/clinicalannotation/participants/search/'.AppController::getNewSearchId(),
 		'bottom'=>array(
 			'add participant'=>'/clinicalannotation/participants/add',
 			'new search' => $search_type_links
