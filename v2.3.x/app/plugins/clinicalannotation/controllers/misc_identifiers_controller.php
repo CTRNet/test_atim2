@@ -123,9 +123,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }	
 				
 		if ( empty($this->data) && $display_add_form) {	
-			$this->data = array();			
-			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
-			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
+			$this->data = $controls;			
 			
 		} else {
 			// Launch Save Process
