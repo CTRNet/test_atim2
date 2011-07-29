@@ -1170,7 +1170,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'OR' => array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL)),
 			'NOT' => array('AliquotMaster.id' => $existing_source_aliquot_ids)
 		);
-		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		unset($criteria['OR']);
 		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
@@ -1182,6 +1182,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'vol' 		=> $available_sample_aliquots_w_volume,
 			'no_vol'	=> $available_sample_aliquots_wo_volume
 		);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
@@ -1237,6 +1238,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					unset($studied_aliquot_pointer['StorageMaster']);
+					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_x']);
+					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($studied_aliquot_pointer);
 					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
