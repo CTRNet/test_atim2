@@ -67,10 +67,13 @@ class MiscIdentifiersController extends AdministrateAppController {
 			}
 			
 			if($submitted_data_validates){
-				$this->MiscIdentifier->updateAll(
-					array('MiscIdentifier.tmp_deleted' => 0),
-					array('MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'], 'MiscIdentifier.misc_identifier_control_id' => $mi_ctrl_id, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.deleted' => 1)
-				);
+				$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE, misc_identifier_controls AS MiscIdentifierControl WRITE, misc_identifiers WRITE, misc_identifiers_revs WRITE');
+				$mis = $this->MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'], 'MiscIdentifier.misc_identifier_control_id' => $mi_ctrl_id, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.deleted' => 1), 'recursive' => -1));
+				foreach($mis as $mi){
+					$mi['MiscIdentifier']['tmp_deleted'] = 0;
+					$this->MiscIdentifier->save($mi, array('fieldList' => array('tmp_deleted')));
+				}
+				$this->MiscIdentifier->query('UNLOCK TABLES');
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
