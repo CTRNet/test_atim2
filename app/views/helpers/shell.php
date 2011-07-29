@@ -204,7 +204,8 @@ class ShellHelper extends Helper {
 						'.$this->Html->link( __('core_footer_about', true), '/pages/about/' ).' | '
 						.$this->Html->link( __('core_footer_installation', true), '/pages/installation/' ).' | ' 
 						.$this->Html->link( __('core_footer_credits', true), '/pages/credits/' ).'<br/>
-						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'
+						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'<br/>
+						'.__('core_app_version', true).'
 			</div>
 			<!-- end #footer -->
 			</fieldset>
