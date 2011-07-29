@@ -2,6 +2,7 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.4.0', NOW(), '> 3250');
 
 REPLACE INTO i18n(id, en, fr) VALUES
+('core_app_version', '2.4.0 dev', '2.4.0 dev'),
 ('previous versions', 'Previous versions', 'Versions précédentes'),
 ('add to order', 'Add To Order', 'Ajouter aux commandes'),
 ('temporary browsing', 'Temporary browsing', 'Navigation temporaire'),
