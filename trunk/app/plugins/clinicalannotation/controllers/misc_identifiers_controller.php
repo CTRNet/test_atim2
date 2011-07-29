@@ -314,7 +314,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$data_to_display = $this->MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifierControl.id' => $misc_identifier_ctrl_id), 'recursive' => 0));
 		
 		//LOCKING TABLE - Make sure to have unlock at all exit points
-		$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE, misc_identifier_controls AS MiscIdentifierControl WRITE');
+		$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE, misc_identifier_controls AS MiscIdentifierControl WRITE, misc_identifiers WRITE, misc_identifiers_revs WRITE');
 		if($mi_control['MiscIdentifierControl']['flag_once_per_participant']){
 			$count = $this->MiscIdentifier->find('count', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id), 'recursive' => -1));
 			if($count > 0){
@@ -338,10 +338,15 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 				}
 					
 				if($submitted_data_validates) {
-					$this->MiscIdentifier->updateAll(
-						array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.deleted' => 0, 'MiscIdentifier.tmp_deleted' => 0),
-						array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])
-					);
+					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id']), 'recursive' => -1));
+					
+					if(!empty($mi)){
+						$mi['MiscIdentifier']['tmp_deleted'] = 0;
+						$mi['MiscIdentifier']['deleted'] = 0;
+						$mi['MiscIdentifier']['participant_id'] = $participant_id;
+						$this->MiscIdentifier->save($mi, array('fieldList' => array('tmp_deleted', 'deleted', 'participant_id')));
+					}
+					
 					$this->MiscIdentifier->query('UNLOCK TABLES');
 					
 					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.id' => $this->data['MiscIdentifier']['selected_id'])));
