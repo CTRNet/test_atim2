@@ -209,7 +209,15 @@ class AliquotMaster extends InventoryManagementAppModel {
 		//---------------------------------------------------------
 		$this->data = array();	//
 		$this->id = $aliquot_master_id;
-		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
+		$this->read();
+		$save_required = false;
+		foreach($aliquot_data_to_save as $key_to_save => $value_to_save){
+			if($this->data['AliquotMaster'][$key_to_save] != $value_to_save){
+				$save_required = true;
+			}
+		}
+		
+		if($save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
 			return false;
 		}
 		return true;

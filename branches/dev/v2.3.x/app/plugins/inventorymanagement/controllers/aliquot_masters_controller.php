@@ -905,12 +905,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 					
 				if($data_unit['FunctionManagement']['remove_from_storage']){
-					$aliquot_data['AliquotMaster']['storage_master_id'] = null;
-					$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
-					$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
+					$aliquot_data_to_save[] = array(
+						'id' => $aliquot_master_id,
+						'aliquot_control_id' => $aliquot_data['AliquotMaster']['aliquot_control_id'],
+						'storage_master_id' => null,
+						'storage_coord_x' => null,
+						'storage_coord_y' => null
+					);
 				}
-				
-				$aliquot_data_to_save[] = $aliquot_data['AliquotMaster'];
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
@@ -947,9 +949,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//saving
 				$this->AliquotInternalUse->saveAll($uses_to_save, array('validate' => false));
 				
-				$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
-				foreach($aliquot_data_to_save as $aliquot_data_unit){
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_data_unit['id'], true, true, false);
+				if(!empty($aliquot_data_to_save)){
+					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
+				}
+				foreach($uses_to_save as $use){
+					$this->AliquotMaster->updateAliquotUseAndVolume($use['AliquotInternalUse']['aliquot_master_id'], true, true, false);
 				}
 				
 				$hook_link = $this->hook('post_process');
@@ -958,7 +962,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				if(count($uses_to_save) == 1){
-					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $aliquot_data_to_save[0]['id'] . '/' . $this->AliquotInternalUse->getLastInsertId() . '/');
+					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $uses_to_save[0]['AliquotInternalUse']['aliquot_master_id'] . '/' . $this->AliquotInternalUse->getLastInsertId() . '/');
 				}else if(count($aliquot_data_to_save) == 1){
 					$aliquot_data = $this->AliquotMaster->find('first', array(
 						'conditions' => array('AliquotMaster.id' => $aliquot_data_to_save[0]['id']),
