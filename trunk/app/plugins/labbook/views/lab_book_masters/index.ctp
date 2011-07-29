@@ -1,7 +1,7 @@
 <?php 
 	$settings = array();
 	$structure_links = array(
-		'top' => array('search' =>'/labbook/lab_book_masters/search/')
+		'top' => array('search' =>'/labbook/lab_book_masters/search/'.AppController::getNewSearchId())
 	);
 	if($is_ajax){
 		$settings['header'] = __('lab book search', true);

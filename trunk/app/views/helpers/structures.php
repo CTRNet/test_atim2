@@ -1999,15 +1999,15 @@ class StructuresHelper extends Helper {
 			';
 			
 			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
-				if (isset($_SESSION['ctrapp_core']['search']) 
-					&& is_array($_SESSION['ctrapp_core']['search']) 
-					&& !empty($_SESSION['ctrapp_core']['search']['results'])
+				$last_search_id = $_SESSION['Auth']['User']['search_id'] - 1;
+				if (isset($_SESSION['ctrapp_core']['search'][$last_search_id]) 
+					&& is_array($_SESSION['ctrapp_core']['search'][$last_search_id]) 
+					&& !empty($_SESSION['ctrapp_core']['search'][$last_search_id]['results'])
 					&& AppController::getInstance()->layout != 'ajax'
 				){
-					//
 					$return_string .= '
-						<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search']['url']).'">
-							'.$_SESSION['ctrapp_core']['search']['results'].'
+						<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($_SESSION['ctrapp_core']['search'][$last_search_id]['url'].'/'.$last_search_id).'">
+							'.$_SESSION['ctrapp_core']['search'][$last_search_id]['results'].'
 						</a></div>
 					';
 				}

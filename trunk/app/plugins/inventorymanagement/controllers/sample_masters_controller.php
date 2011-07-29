@@ -40,7 +40,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	function index() {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 						
-		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 		
 		$this->Structures->set('view_sample_joined_to_collection');
@@ -54,19 +53,19 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function search() {
+	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
 
 		$view_sample = $this->Structures->get('form', 'view_sample_joined_to_collection');
 		$this->set('atim_structure', $view_sample);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_sample);
+		if ($this->data) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($view_sample);
 		
-		$this->set('samples_data', $this->paginate($this->ViewSample, $_SESSION['ctrapp_core']['search']['criteria']));
+		$this->set('samples_data', $this->paginate($this->ViewSample, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']));
 		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewSample']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/sample_masters/search';
+		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['ViewSample']['count'];
+		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/inventorymanagement/sample_masters/search';
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
 		$this->set("help_url", $help_url['ExternalLink']['link']);

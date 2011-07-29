@@ -574,6 +574,10 @@ class AppController extends Controller {
 		}
 		return $out_array;
 	}
+	
+	static function getNewSearchId(){
+		return $_SESSION['Auth']['User']['search_id'] ++;
+	}
 }
 
 	AppController::init();
