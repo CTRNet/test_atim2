@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.2', NOW(), '> 3310');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.2', NOW(), '3335');
 
 UPDATE  collections                 SET collection_datetime_accuracy ='' WHERE collection_datetime_accuracy IS NULL;
 UPDATE  collections_revs            SET collection_datetime_accuracy ='' WHERE collection_datetime_accuracy IS NULL;
