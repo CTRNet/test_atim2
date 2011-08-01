@@ -487,26 +487,6 @@ class AppController extends Controller {
 	}
 	
 	/**
-	 * Builds the value definition array for an updateAll call
-	 * @param array They data array to build the values with
-	 */
-	static function getUpdateAllValues(array $data){
-		$result = array();
-		foreach($data as $model => $fields){
-			foreach($fields as $name => $value){
-				if(is_array($value)){
-					if(strlen($value['year'])){
-						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
-					}
-				}else if(strlen($value)){
-					$result[$model.".".$name] = "'".$value."'";
-				}
-			}
-		}
-		return $result;
-	}
-	
-	/**
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
 	static function atimSetCookie(){
@@ -573,6 +553,17 @@ class AppController extends Controller {
 			}
 		}
 		return $out_array;
+	}
+	
+	static function removeEmptyValues(array &$data){
+		foreach($data as $key => &$val){
+			if(is_array($val)){
+				self::removeEmptyValues($val);
+			}
+			if(empty($val)){
+				unset($data[$key]);
+			}
+		}
 	}
 }
 
