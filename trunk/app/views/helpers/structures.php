@@ -429,8 +429,8 @@ class StructuresHelper extends Helper {
 					<div class="flyOverSubmit">
 						'.$exact_search.'
 						<div class="bottom_button">
-							<input id="submit_button" class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="#n" onclick="$(\'#submit_button\').click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+							<input class="submit" type="submit" value="Submit" style="display: none;"/>
+							<a href="#n" onclick="$($(this).parent().children()[0]).click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</div>
 					</div>
 				</div>
