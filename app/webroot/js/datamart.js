@@ -54,7 +54,7 @@ function initDatamartActions(){
 	$(".button.confirm").click(function(){
 		removeConfirmed = true;
 		$("#popup").popup('close');
-		$("#submit_button").click();
+		$($(this).parent().children[0]).click();
 	});
 	$(".button.close").click(function(){
 		$("#popup").popup('close');

@@ -494,7 +494,7 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
-	function buildConfirmDialog(id, question, buttons){
+	function buildDialog(id, title, content, buttons){
 		var buttonsHtml = "";
 		for(i in buttons){
 			buttonsHtml += 
@@ -502,8 +502,9 @@ function uncheckAll( $div ) {
 		}
 		$("#" + id).remove();
 		$("body").append('<div id="' + id + '" class="std_popup question">' +
-			'<div style="background: #FFF;">' +
-				'<h4>' + question + '</h4>' +
+			'<div class="wrapper">' +
+				'<h4>' + title + '</h4>' +
+				(content == null ? '' : ('<div style="padding: 10px;">' + content + '</div>')) +
 				buttonsHtml +
 			'</div>' +
 		'</div>');
@@ -511,6 +512,10 @@ function uncheckAll( $div ) {
 		for(i in buttons){
 			$("#" + id + i).click(buttons[i].action);
 		}
+	}
+	
+	function buildConfirmDialog(id, question, buttons){
+		buildDialog(id, question, null, buttons);
 	}
 	
 	//Delete confirmation dialog
