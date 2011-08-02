@@ -3,7 +3,9 @@ $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
-	"tx_control_id" => array("Event Type" => array("surgery" => 3, "surgery (ovarectomy)" => 3, "surgery (other)" => 3, "chimiotherapy" => 1, "radiology" => "", "radiotherapy" => 10, "hormonal therapy" => 11)),
+	"tx_control_id" => array("Event Type" => array("surgery" => 16, "chimiotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
+	"tx_method " => array("Event Type" => array("radiotherapy" => 'radiotherapy', "surgery" => 'surgery', "chimiotherapy" => 'chemotherapy', "hormonal therapy" => "hormonal therapy")),
+	"disease_site" => "@other",
 	"start_date" => "Date of event (beginning) Date",
 	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"finish_date" => "Date of event (end) Date",
@@ -18,43 +20,52 @@ $model->custom_data = array("date_fields" => array(
 $model->post_read_function = 'txPostRead';
 $model->post_write_function = 'txPostWrite';
 
+$model->file_event_types = Config::$opc_file_event_types;
+$model->event_types_to_import = array_keys($fields['tx_control_id']['Event Type']);
+
 Config::addModel($model, 'qc_tf_tx_other');
 
 function txPostRead(Model $m){
 	excelDateFix($m);
-	$event_type = strtolower($m->values['Event Type']);
-	if(!in_array($event_type, Config::$event_types)){
+	$m->values['Event Type'] = strtolower($m->values['Event Type']);
+	
+	if(!in_array($m->values['Event Type'], $m->file_event_types)){
 		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 	}
-	return in_array($event_type, array('surgery', 'surgery (other)', 'surgery (ovarectomy)', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy'));
+	
+	if($m->values['Event Type'] != 'chimiotherapy') {
+		if(!empty($m->values['Date of event (end) Date'])) {
+			echo "WARNING, NO END DATE TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+		}
+		$m->values['Date of event (end) Date'] = '';
+		$m->values['Date of event (end) Accuracy'] = '';
+		
+		if(!empty($m->values['Chimiotherapy Precision Drug1'])) {
+			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+		}
+		$m->values['Chimiotherapy Precision Drug1'] = '';
+		$m->values['Chimiotherapy Precision Drug2'] = '';
+		$m->values['Chimiotherapy Precision Drug3'] = '';
+		$m->values['Chimiotherapy Precision Drug4'] = '';
+	}
+		
+	return in_array($m->values['Event Type'], $m->event_types_to_import);
 }
 
 function txPostWrite(Model $m){
 	global $connection;
-	$event_type = strtolower($m->values['Event Type']);
-	switch($event_type){
+	
+	switch($m->values['Event Type']){
 		case 'surgery':
-		case 'surgery (other)':
-		case 'surgery (ovarectomy)':
-			$surgery_domain = Config::$value_domains['qc_tf_surgery_type'];
-			$pos = strpos($event_type, "(");
-			$surgery_type = "";
-			if($pos !== false){
-				$surgery_type_tmp = substr($event_type, $pos + 1);
-				$surgery_type_tmp = substr($surgery_type_tmp, 0, strlen($surgery_type_tmp) - 1);
-				$surgery_type = $surgery_domain->isValidValue($surgery_type_tmp);
-				if($surgery_type == null){
-					echo "WARNING: Invalid surgery type [".$surgery_type_tmp."]\n";
-					$surgery_type = $surgery_type_tmp;
-				}
-			}
-			$query = "INSERT INTO txd_surgeries (tx_master_id, qc_tf_type, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-				."(".$m->last_id.", '".$surgery_type."', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
+		case 'surgery(other)':
+		case 'surgery(ovarectomy)':
+			$query = "INSERT INTO txd_surgeries (tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
+				."(".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
 			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_surgeries_revs (id, tx_master_id, qc_tf_type, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-					."SELECT id, tx_master_id, qc_tf_type, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
+				$query = "INSERT INTO txd_surgeries_revs (id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
+					."SELECT id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
 				mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
@@ -86,25 +97,12 @@ function txPostWrite(Model $m){
 				mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
-			$drug_value_domain = Config::$value_domains['qc_tf_eoc_event_drug'];
 			for($i = 1; $i <= 4; $i ++){
 				$current_drug = $m->values['Chimiotherapy Precision Drug'.$i];
 				if(!empty($current_drug)){
-					switch($current_drug){
-						case 'Carboplatin';
-							$current_drug = 'carboplatinum';
-							break;
-						case 'oxaliplatin':
-							$current_drug = 'oxaliplatinum';
-							break;
-					}
-					if($current_drug == 'Carboplatin'){
-						$current_drug = 'carboplatinum';
-					}
-					$current_drug = $drug_value_domain->isValidValue($current_drug);
-					if($current_drug === null){
-						echo "WARNING: Invalid drug [",$m->values['Chimiotherapy Precision Drug'.$i],"]\n";
-						$current_drug = $m->values['Chimiotherapy Precision Drug'.$i];
+
+					if(!in_array($current_drug,  Config::$drugs)) {
+						echo "<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line [".$m->line."]\n";
 					}
 					
 					$query = "INSERT INTO txe_chemos(tx_master_id, drug_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
