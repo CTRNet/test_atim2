@@ -13,7 +13,7 @@ $fields = array(
 );
 
 $detail_fields = array(
-	'progression_time_in_month' => 'CA125 progression time (months)'
+//	'progression_time_in_month' => 'CA125 progression time (months)'
 );
 
 $model = new MasterDetailModel(1, $pkey, array(), false, null, $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());

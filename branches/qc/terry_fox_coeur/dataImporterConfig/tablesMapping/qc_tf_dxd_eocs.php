@@ -18,7 +18,7 @@ $detail_fields = array(
 	//"date_of_progression_recurrence_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	//"date_of_ca125_progression" => "Date of Progression of CA125 Date",
 	//"date_of_ca125_progression_accu" => array("Date of Progression of CA125 Accuracy"=> array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	//"ca125_progression_time_in_months" => "CA125 progression time (months)",
+	"ca125_progression_time_in_months" => "CA125 progression time (months)",
 	"presence_of_precursor_of_benign_lesions" => array("Presence of precursor of benign lesions" => new ValueDomain('qc_tf_presence_of_precursor_of_benign_lesions', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"fallopian_tube_lesion" => array("fallopian tube lesions" => new ValueDomain('qc_tf_fallopian_tube_lesion', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"laterality" => array("Laterality" => new ValueDomain('qc_tf_laterality', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
@@ -27,7 +27,7 @@ $detail_fields = array(
 	"residual_disease" => array("Residual Disease" => new ValueDomain('qc_tf_residual_disease', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	//"site_1_of_tumor_progression" => array("Site 1 of Primary Tumor Progression (metastasis)  If Applicable" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	//"site_2_of_tumor_progression" => array("Site 2 of Primary Tumor Progression (metastasis)  If applicable" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	//"progression_time_in_months" => "progression time (months)",
+	"progression_time_in_months" => "progression time (months)",
 	"follow_up_from_ovarectomy_in_months" => "Follow-up from ovarectomy (months)",
 	"survival_from_ovarectomy_in_months" => "Survival from diagnosis (months)",
 	"progression_status" => array("Progression status" => new ValueDomain('qc_tf_progression_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
@@ -64,6 +64,12 @@ function dxdEocsPostRead(Model $m){
 		global $insert;
 		$insert = false;
 	}
+	
+	foreach(array('progression time (months)', 'CA125 progression time (months)', 'Follow-up from ovarectomy (months)', 'Survival from diagnosis (months)') as $new_header) {
+		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
+			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
+		}
+	}	
 	
 	$m->custom_data['last_csv_pkey'] = $m->values[$m->csv_pkey];
 	$m->custom_data['last_dx_date'] = $m->values['Date of EOC Diagnosis Date'];

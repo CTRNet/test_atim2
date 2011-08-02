@@ -47,6 +47,12 @@ function otherDxPostRead(Model $m){
 	$m->custom_data['last_csv_key'] = $m->values[$m->csv_pkey]; 
 	$m->custom_data['last_date'] = $m->values['Date of Diagnosis Date'];
 	$m->custom_data['last_site'] = $m->values['Tumor Site'];
+	
+	foreach(array('Age at Time of Diagnosis (yr)', 'Survival (months)') as $new_header) {
+		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
+			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
+		}
+	}	
 		
 	return true;
 }
