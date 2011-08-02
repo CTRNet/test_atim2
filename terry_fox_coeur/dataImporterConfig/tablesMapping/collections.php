@@ -3,11 +3,22 @@ $pkey = "Patient Biobank Number
 (required)";
 
 $fields = array(
-	"bank_id" 						=> "bank_id",
+	"bank_id" 						=> "#bank_id",
 	"collection_datetime" 			=> "Date of Specimen Collection Date",
 	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );
 
+function postCollectionRead(Model $m){
+	excelDateFix($m);
+		
+	if(array_key_exists($m->values['Bank'], Config::$banks)) {
+		$m->values['bank_id'] = Config::$banks[$m->values['Bank']]['id'];
+	} else {
+		die ("ERROR: Bank '".$m->values['Bank']."' is unknown [".$m->file."] at line [". $m->line."]\n");
+	}
+
+	return true;
+}
 
 function postCollectionWrite(Model $m){
 	global $connection;
@@ -35,6 +46,18 @@ function postCollectionWrite(Model $m){
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
+		$lat_domain = Config::$value_domains['tissue_laterality'];
+		$lat_value = $lat_domain->isValidValue($m->values['Tissue Precision Tissue Laterality']);
+		if($lat_value === null){
+			echo "WARNING: Unmatched laterality value [",$m->values['Tissue Precision Tissue Laterality'],"] at line [".$m->line."]\n";
+			$m->values['Tissue Precision Tissue Laterality'] = '';
+		}	
+
+		if(!in_array($m->values['Tissue Precision Tissue Type'],Config::$tissue_source)) {
+			echo "WARNING: Unmatched tissue type [",$m->values['Tissue Precision Tissue Type'],"] at line [".$m->line."]\n";
+			$m->values['Tissue Precision Tissue Type'] = '';
+		}
+
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id,
 			"tissue_source"		=> "'".$m->values['Tissue Precision Tissue Type']."'",
@@ -51,6 +74,14 @@ function postCollectionWrite(Model $m){
 		
 		if(strlen($m->values['Tissue Precision Flash Frozen Tissues  Volume']) > 0){
 			$volume = is_numeric($m->values['Tissue Precision Flash Frozen Tissues  Volume']) ? $m->values['Tissue Precision Flash Frozen Tissues  Volume'] : "NULL";
+
+			$unit_domain = Config::$value_domains['qc_tf_flash_frozen_volume_unit'];
+			$unit_value = $unit_domain->isValidValue($m->values['Tissue Precision Flash Frozen Tissues  Volume Unit']);
+			if($unit_value === null){
+				echo "WARNING: Unmatched unit value [",$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit'],"] at line [".$m->line."]\n";
+				$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit'] = '';
+			}	
+			
 			$insert = array(
 				"aliquot_type"			=> "'block'",
 				"aliquot_control_id"	=> "4",
@@ -59,7 +90,8 @@ function postCollectionWrite(Model $m){
 				"initial_volume"		=> $volume,
 				"current_volume"		=> $volume,
 				"aliquot_volume_unit"	=> "'".$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit']."'"
-			);
+			);			
+			
 			$insert = array_merge($insert, $created);
 			$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
@@ -414,7 +446,7 @@ $model = new Model(5, $pkey, array(), true, NULL, NULL, 'collections', $fields);
 $model->custom_data = array("date_fields" => array(
 	$fields["collection_datetime"] => current(array_keys($fields["collection_datetime_accuracy"]))
 )); 
-$model->post_read_function = 'excelDateFix';
+$model->post_read_function = 'postCollectionRead';
 $model->post_write_function = 'postCollectionWrite';
 
 Config::$models['collections'] = $model;
