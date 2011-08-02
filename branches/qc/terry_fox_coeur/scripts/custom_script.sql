@@ -645,3 +645,6 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_tumor_site'),  
 (SELECT id FROM structure_permissible_values WHERE value="ascite" AND language_alias="ascite"), "0", "1");
+
+UPDATE structure_permissible_values SET value = 'mm3' WHERE language_alias = 'mm³';
+

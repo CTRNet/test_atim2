@@ -36,7 +36,7 @@ $fields = array(
 	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_last_contact" => "Date of Last Contact Date",
 	"qc_tf_last_contact_acc" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_bank_id"				=> "@tmp_id",
+	"qc_tf_bank_id"				=> "#qc_tf_bank_id",
 	"notes" => "notes"
 );
 
