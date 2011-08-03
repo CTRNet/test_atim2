@@ -115,11 +115,12 @@ class ReportsControllerCustom extends ReportsController {
 				"Date of EOC Diagnosis Date",
 				"Date of EOC Diagnosis Accuracy",
 				"Presence of precursor of benign lesions",
-				"fallopian tube lesions	Age at Time of Diagnosis (yr)",
+				"fallopian tube lesions",
+				"Age at Time of Diagnosis (yr)",
 				"Laterality",
 				"Histopathology",
 				"Grade",
-				"FIGO",
+				"FIGO ",
 				"Residual Disease",
 				"Progression status",
 				"Date of Progression/Recurrence Date",
@@ -135,6 +136,15 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
+			
+			$residual_disease_array = array(
+				'1-2cm' 		=> '1-2cm',
+				'< 1cm' 		=> '<1cm',
+				'> 2cm' 		=> '>2cm',
+				'none visible'	=> 'none',
+				'unknown'		=> 'undefined',
+				''				=> ''
+			);
 			$i = 0;
 			do{
 				$data = $this->Report->query("
@@ -147,6 +157,7 @@ class ReportsControllerCustom extends ReportsController {
 //TODO NL_NOTE: Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
 // >>select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
 
+				
 				foreach($data as $unit){
 					
 					$residual_disease = null;
@@ -159,7 +170,7 @@ class ReportsControllerCustom extends ReportsController {
 						WHERE tx_masters.participant_id=".$participant_id, false);
 					}
 					if(count($tx_data) == 1){
-						$residual_disease = $tx_data[0]['TxDetail']['residual_disease'];
+						$residual_disease = $residual_disease_array[$tx_data[0]['TxDetail']['residual_disease']];
 					}else if(count($tx_data) > 1){
 						$residual_disease = "CANNOT FETCH - TOO MANY RELATED TREATMENTS";
 					}else{
@@ -171,7 +182,8 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
 					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
 					$line[] = "";//Presence of precursor of benign lesions
-					$line[] = "";//fallopian tube lesions	Age at Time of Diagnosis (yr)
+					$line[] = "";//fallopian tube lesions	
+					$line[] = $unit['DiagnosisMaster']['age_at_dx'];//Age at Time of Diagnosis (yr)
 					$line[] = $unit['DiagnosisDetail']['laterality'];
 					$line[] = $unit['DiagnosisDetail']['histopathology'];
 					$line[] = $unit['DiagnosisMaster']['tumour_grade'];
@@ -233,6 +245,19 @@ class ReportsControllerCustom extends ReportsController {
 				);
 				
 				foreach($data1 as $index => $unit){
+					$ct_scan_precision = null;
+					if($unit['ed_with_ctscan']['response'] == 'unknown'){
+						$ct_scan_precision = 'unknown'; 
+					}else if($unit['ed_with_ctscan']['response'] == "complete"){
+						$ct_scan_precision = 'negative';
+					}else if(strlen($unit['ed_with_ctscan']['response']) > 0){
+						$ct_scan_precision = 'positive';
+					}else{
+						$ct_scan_precision = '';
+					}
+					//complet = negative
+					// other = positive
+					
 					$data[sprintf("%010s_%s_b", $unit['EventMaster']['participant_id'], $index)] = array(
 						"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
 						"event"						=> 'CT scan',
@@ -245,7 +270,7 @@ class ReportsControllerCustom extends ReportsController {
 						"drug3"						=> "",
 						"drug4"						=> "",
 						"ca125"						=> $unit['ed_with_ca125']['CA125_u_ml'],
-						"ctscan precision"			=> $unit['ed_with_ctscan']['response']
+						"ctscan precision"			=> $ct_scan_precision
 					);
 				}
 				
@@ -275,7 +300,7 @@ class ReportsControllerCustom extends ReportsController {
 					}
 					$data[sprintf("%010s_%s_b", $unit['TxMaster']['participant_id'], $index)] = array(
 						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
-						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery(other)' : 'chimiotheraphy',
+						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery (other)' : 'chimiotherapy',
 						"event_start"				=> $unit['TxMaster']['start_date'],
 						"event_start_accuracy"		=> $unit['TxMaster']['start_date_accuracy'],
 						"event_end"					=> $unit['TxMaster']['finish_date'],
@@ -348,9 +373,8 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//sheet 5 - Other Primary Cancer - Event
 		{
+			//blank sheet, only the header
 			echo "\n\nSHEET 5 - Other Primary Cancer - Event\n";
-			
-			//TODO: $data = $this->Result->query();
 			
 			$title_row = array(
 				"Patient Biobank Number (required)",
@@ -366,9 +390,32 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
+		}
+		
+		//sheet 6 - inventory
+		{
+			//blank sheet, only the header line
+			echo "\n\nSHEET 6 - Inventory\n";
+			$title_row = array(
+				"Patient Biobank Number (required)",
+				"Collected Specimen Type",
+				"Date of Specimen Collection Date",
+				"Date of Specimen Collection Accuracy",
+				"Tissue Precision Tissue Type",
+				"Tissue Precision Tissue Laterality",
+				"Tissue Precision Flash Frozen Tissues  Volume",
+				"Tissue Precision Flash Frozen Tissues  Volume Unit",
+				"Tissue Precision OCT Frozen Tissues Volume (mm3)",
+				"Tissue Precision Formalin Fixed Paraffin Embedded Tissues Volume (nbr blocks)",
+				"Ascite Precision Ascites Fluids Volume (ml)",
+				"Blood Precision Frozen Serum Volume (ml)",
+				"Blood Precision Frozen Plasma Volume (ml)",
+				"Blood Precision Blood DNA Volume (ug)",
+				"Blood Precision Buffy coat"
+			);
 			
-			//TODO: Print data
-		}	
+			echo implode(csv_separator, $title_row),"\n";
+		}
 		
 		exit;
 	}
