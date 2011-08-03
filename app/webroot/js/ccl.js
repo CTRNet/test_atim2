@@ -6,7 +6,7 @@ function initCcl(){
 	var popupSearch = function(){
 		//postData = participant collection + serialized form
 		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection"; 
-		$.post(root_url + "/inventorymanagement/collections/search/true", postData, function(data){
+		$.post(root_url + "/inventorymanagement/collections/search/0/true", postData, function(data){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
 		});
