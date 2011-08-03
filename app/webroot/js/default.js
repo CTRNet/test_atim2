@@ -496,9 +496,12 @@ function uncheckAll( $div ) {
 	
 	function buildDialog(id, title, content, buttons){
 		var buttonsHtml = "";
-		for(i in buttons){
-			buttonsHtml += 
-				'<span id="' + id + i +'" class="button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></span>';
+		if(buttons != null && buttons.length > 0){
+			for(i in buttons){
+				buttonsHtml += 
+					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></div>';
+			}
+			buttonsHtml = '<div class="actions">' + buttonsHtml + '</div>';
 		}
 		$("#" + id).remove();
 		$("body").append('<div id="' + id + '" class="std_popup question">' +
@@ -837,6 +840,9 @@ function uncheckAll( $div ) {
 		}
 		if(window.volumeIds){
 			initAutoHideVolume();
+		}
+		if(window.permissionPreset){
+			loadPresetFrame();
 		}
 		
 		if(window.realiquotInit){
