@@ -83,9 +83,10 @@ Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' 
 Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('AUTOGEN - ', id) WHERE barcode=''";
 //add some value domains names that you want to use in post read/write functions
 //Config::$value_domains[] = "...";
-Config::$value_domains[] = "qc_tf_eoc_event_drug";
-Config::$value_domains[] = "qc_tf_surgery_type";
-Config::$value_domains[] = "qc_tf_ct_scan_precision";
+
+Config::$value_domains[] = new ValueDomain("qc_tf_eoc_event_drug", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+Config::$value_domains[] = new ValueDomain("qc_tf_surgery_type", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+Config::$value_domains[] = new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "participants";
