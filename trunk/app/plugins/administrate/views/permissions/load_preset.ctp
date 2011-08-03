@@ -21,7 +21,7 @@ $structures->build($atim_structure, array(
 	'links' => array(
 		'index' => array('detail' => '%%PermissionsPreset.link%%', 'delete' => $can_delete ? '%%PermissionsPreset.delete%%' : '/underdev/'),
 		'bottom' => array(
-			__('save as preset', true) => array('link' => 'javascript:savePresetPopup();', 'icon' => 'submit')
+			__('save preset', true) => array('link' => 'javascript:savePresetPopup();', 'icon' => 'submit')
 		)
 	), 
 	'settings' => array(
@@ -61,6 +61,7 @@ function applyPreset(data){
 					|| html.indexOf("realiquot") > -1
 					|| html.indexOf("remove") > -1
 					|| html.indexOf("save") > -1
+					|| html.indexOf("batch") > -1
 				){
 					$(selectElement).val(-1);
 				}else{
