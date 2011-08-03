@@ -4,6 +4,7 @@
 	// Set Default Aliquot Data
 	// -------------------------------------------------------------------------------- 	
 	
+	$sample_data = $this->SampleMaster->findById($sample_master_id);
 	if(empty($this->data) && in_array($sample_data['SampleMaster']['sample_type'], array('ascite supernatant', 'ascite cell', 'cell culture', 'tissue'))) {
 		
 		// Participant participant_id and Bank Number
@@ -16,10 +17,11 @@
 		$participant_id = empty($tmp_view_sample_data['ViewSample']['participant_id'])? null : $tmp_view_sample_data['ViewSample']['participant_id'];
 
 		// Get aliquot already created
+		$aliquot_control_data = $this->AliquotControl->findById($aliquot_control_id);
 		$criteria = array('ViewAliquot.sample_control_id' => $tmp_view_sample_data['ViewSample']['sample_control_id'], 
 			'ViewAliquot.aliquot_control_id' => $aliquot_control_data['AliquotControl']['id']);
 		if(empty($participant_id)) {
-			$criteria['ViewAliquot.collection_id'] = $collection_id;
+			$criteria['ViewAliquot.collection_id'] = $sample_data['SampleMaster']['collection_id'];
 		} else {
 			$criteria['ViewAliquot.participant_id'] = $participant_id;
 		}
