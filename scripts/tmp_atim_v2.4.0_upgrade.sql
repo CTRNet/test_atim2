@@ -55,7 +55,18 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("ok", "Ok", "Ok"),
 ("unused count", "Unused count", "Nombre d'inutilisés"),
 ("this name already exists", "This name already exists.", "Ce nom existe déjà."),
-("select a new one or check the overwrite option", "Select a new one or check the overwrite option.", "Sélectionnez-en un nouveau ou cochez l'option pour écraser.");
+("select a new one or check the overwrite option", "Select a new one or check the overwrite option.", "Sélectionnez-en un nouveau ou cochez l'option pour écraser."),
+("atim_preset_readonly",
+ "All functions names containing add, batch, edit, define, delete, realiquot, remove, or save will de denied of access.",
+ "Toutes les fonctions dont le nom contient add, batch, edit, define, delete, realiquot, remove, ou save seront refusées d'accès."),
+("atim_preset_reset",
+ "The master node is defined as \"Allow\" and all other nodes are cleared.",
+ "Le noeud principal est défini comme \"Permettre\" et tous les autres noeuds sont effacés."),
+("overwrite if it exists", "Overwrite if it exists", "Écraser s'il existe"),
+("readonly", "Readonly", "Lecture seulement"),
+("save preset", "Save preset", "Enregistrer une configuration prédéfinie"),
+("saved presets", "Saved presets", "Configurations prédéfinies enregistrées"),
+("atim presets", "ATiM presets", "Configurations prédéfinies d'ATiM");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -67,12 +78,13 @@ ALTER TABLE datamart_browsing_indexes_revs
 UPDATE datamart_browsing_indexes SET temporary=false;
 UPDATE datamart_browsing_indexes_revs SET temporary=false;
 
-
 -- Participant contact
 ALTER TABLE participant_contacts
  ADD COLUMN relationship VARCHAR(50) NOT NULL DEFAULT '' AFTER phone_secondary_type;
 ALTER TABLE participant_contacts_revs
  ADD COLUMN relationship VARCHAR(50) NOT NULL DEFAULT '' AFTER phone_secondary_type;
+ 
+ 
  
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('participant_contact_relationship', '', '', null);
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="participant_contact_relationship"),  (SELECT id FROM structure_permissible_values WHERE value="aunt" AND language_alias="aunt"), "2", "1");
