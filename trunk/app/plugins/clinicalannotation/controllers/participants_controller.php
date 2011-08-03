@@ -32,17 +32,17 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function search($search_id = '') {
 		// if SEARCH form data, parse and create conditions
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
 		
 		// MANAGE DATA
-		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search'][$search_id][$search_id]['criteria']);
+		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );		
 				
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id][$search_id]['results'] = $this->params['paging']['Participant']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id][$search_id]['url'] = '/clinicalannotation/participants/search';
+		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Participant']['count'];
+		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/clinicalannotation/participants/search';
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
