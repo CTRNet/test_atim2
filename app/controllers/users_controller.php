@@ -40,6 +40,7 @@ class UsersController extends AppController {
 			$_SESSION['Auth']['User']['flag_show_confidential'] = $group['Group']['flag_show_confidential'];
 			if(!isset($_SESSION['Auth']['User']['search_id'])){
 				$_SESSION['Auth']['User']['search_id'] = 1;
+				$_SESSION['ctrapp_core']['search'] = array();
 			}
 			$this->redirect($this->Auth->redirect());
 		}else if(!empty($this->data)){
