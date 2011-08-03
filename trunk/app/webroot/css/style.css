@@ -1793,7 +1793,7 @@ ul.actionDropdown li a{
 	text-decoration: none;
 }
 
-.popup_container .wrapper, div.actions{
+div.actions{
 	margin: 0px;
 	min-height: 0px;
 	line-height: 25px;	

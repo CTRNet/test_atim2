@@ -47,6 +47,7 @@ header ('Content-type: text/html; charset=utf-8');
 			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
 			var STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS = "<?php echo(__("paste on all lines of all sections")); ?>";
 			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
+			var STR_LOADING = "<?php __('loading'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
