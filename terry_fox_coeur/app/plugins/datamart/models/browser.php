@@ -41,7 +41,7 @@ class Browser extends DatamartAppModel {
 	 */
 	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, $structure_name, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
-		$DatamartStructure = AppModel::atimNew("Datamart", "DatamartStructure", true);
+		$DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
 			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
@@ -192,11 +192,11 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getSubModels(array $main_model_info, $prepend_value, array $ids_filter = null){
 		//we need to fetch the controls
-		$control_model = AppModel::atimNew($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['control_model'], true);
+		$control_model = AppModel::getInstance($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['control_model'], true);
 		$conditions = array();
 		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
 			//hardcoded SampleControl filtering
-			$parentToDerivativeSampleControl = AppModel::atimNew("Inventorymanagement", "ParentToDerivativeSampleControl", true);
+			$parentToDerivativeSampleControl = AppModel::getInstance("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
 			if($ids_filter == null){
 				$ids_filter = $tmp_ids;
@@ -204,8 +204,9 @@ class Browser extends DatamartAppModel {
 				array_intersect($ids_filter, $tmp_ids);
 			}
 		}
-		$ids_filter[] = 0;
+		
 		if($ids_filter != null){
+			$ids_filter[] = 0;
 			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
 		}
 		if(isset($control_model->_schema['flag_active'])){
@@ -424,9 +425,8 @@ class Browser extends DatamartAppModel {
 		do{
 			$prev_node = $tmp_node;
 			$br = $BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $tmp_node)));
-			if(!empty($br)){
-				$tmp_node = $br['BrowsingResult']['parent_node_id'];
-			}
+			assert($br);
+			$tmp_node = $br['BrowsingResult']['parent_node_id'];
 		}while($tmp_node);
 		$fm = Browser::getTree($prev_node, $current_node, $merged_ids);
 		Browser::buildTree($fm, $tree);
@@ -468,7 +468,7 @@ class Browser extends DatamartAppModel {
 								$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	//unset the serialization on the sub model since it's already in the title
 							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
-							 	$tmp_model = AppModel::atimNew($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
+							 	$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
 							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
 							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
 							}else{
@@ -479,6 +479,8 @@ class Browser extends DatamartAppModel {
 							}else{
 								$info .= __("direct access", true)." - ".$search_datetime;
 							}
+						}else if($cell['BrowsingResult']['parent_node_id'] == 0 && empty($cell['BrowsingResult']['serialized_search_params'])){
+							$info .= __("from batchset", true)." - ".$search_datetime;
 						}else{
 							$info .= __("direct access", true)." - ".$search_datetime;
 						}
@@ -522,6 +524,16 @@ class Browser extends DatamartAppModel {
 	 */
 	static function formatSearchToPrint(array $search_params, array $structure){
 		$params = $search_params['search_conditions'];
+		
+		//preprocess to clena datetime accuracy
+		foreach($params as $key => $value){
+			if(is_array($value) && isset($value['OR'][0])){
+				$tmp = current($value['OR'][0]);
+				$params[key($value['OR'][0])] = $tmp;
+				unset($params[$key]);
+			}
+		}
+
 		$keys = array_keys($params);
 		App::import('model', 'StructureFormat');
 		$StructureFormat = new StructureFormat();
@@ -529,7 +541,7 @@ class Browser extends DatamartAppModel {
 		$conditions[] = "false";
 		foreach($keys as $key){
 			if(is_numeric($key)){
-				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...)
+				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...) or an "OR"
 				list($model_field) = explode(" ", $params[$key]);
 				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
@@ -580,42 +592,44 @@ class Browser extends DatamartAppModel {
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
 					$name = __($sf_unit['language_label'], true);
 					
-					if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
-						if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
-							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sf_unit['StructureValueDomain']['source']);
-						}else{
-							if($structure_value_domain_model == null){
-								App::import('model', "StructureValueDomain");
-								$structure_value_domain_model = new StructureValueDomain();
-							}
-							$tmp_dropdown_result = $structure_value_domain_model->find('first', array(
-										'recursive' => 2,
-										'conditions' => 
-											array('StructureValueDomain.id' => $sf_unit['StructureValueDomain']['id'])));
-							$dropdown_values = array();
-							foreach($tmp_dropdown_result['StructurePermissibleValue'] as $value_array){
-								$dropdown_values[$value_array['value']] = $value_array['language_alias'];
-							}
-							$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = $dropdown_values; 
-						}
-					}
-					foreach($values as &$value){//foreach values
-						foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_key => $p_value){//find the match
-							if($p_key == $value){//match found
-								if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
-									//value comes from a source, it's already translated
-									$value = $p_value;
-								}else{
-									$value = __($p_value, true);
+					if(!empty($sf_unit['StructureValueDomain'])){
+						if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
+							if(isset($sf_unit['StructureValueDomain']['source']) && strlen($sf_unit['StructureValueDomain']['source']) > 0){
+								$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = StructuresComponent::getPulldownFromSource($sf_unit['StructureValueDomain']['source']);
+							}else{
+								if($structure_value_domain_model == null){
+									App::import('model', "StructureValueDomain");
+									$structure_value_domain_model = new StructureValueDomain();
 								}
-								break; 
+								$tmp_dropdown_result = $structure_value_domain_model->find('first', array(
+											'recursive' => 2,
+											'conditions' => 
+												array('StructureValueDomain.id' => $sf_unit['StructureValueDomain']['id'])));
+								$dropdown_values = array();
+								foreach($tmp_dropdown_result['StructurePermissibleValue'] as $value_array){
+									$dropdown_values[$value_array['value']] = $value_array['language_alias'];
+								}
+								$sf_unit['StructureValueDomain']['StructurePermissibleValue'] = $dropdown_values; 
 							}
 						}
+						foreach($values as &$value){//foreach values
+							foreach($sf_unit['StructureValueDomain']['StructurePermissibleValue'] as $p_key => $p_value){//find the match
+								if($p_key == $value){//match found
+									if(strlen($sf_unit['StructureValueDomain']['source']) > 0){
+										//value comes from a source, it's already translated
+										$value = $p_value;
+									}else{
+										$value = __($p_value, true);
+									}
+									break; 
+								}
+							}
+						}
+						break;
 					}
-					break;
 				}
 			}
-			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".implode(", ", $values)."</td>\n";
+			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".stripslashes(implode(", ", $values))."</td>\n";
 		}
 		$result .= "<tr><th>".__("exact search", true)."</th><td>".($search_params['exact_search'] ? __("yes", true) : __('no', true))."</td>\n";
 		$result .= "</table>";
@@ -629,7 +643,7 @@ class Browser extends DatamartAppModel {
 	 * @return string The info of the alternate structure
 	 */
 	static function getAlternateStructureInfo($plugin, $control_model, $id){
-		$model_to_use = AppModel::atimNew($plugin, $control_model, true);
+		$model_to_use = AppModel::getInstance($plugin, $control_model, true);
 		$data = $model_to_use->find('first', array('conditions' => array($control_model.".id" => $id)));
 		return $data[$control_model];
 	}
@@ -658,21 +672,21 @@ class Browser extends DatamartAppModel {
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
-			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
+			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+			$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
-				$ids[] = $unit['SampleToAliquotControl']['aliquot_control_id'];
+				$ids[] = $unit['AliquotControl']['id'];
 			}
 			$sub_models_id_filter['AliquotControl'] = $ids;
 		}else if($browsing['DatamartStructure']['id'] == 1){
 			//aliquot->sample hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
-			$stac = AppModel::atimNew("Inventorymanagement", "SampleToAliquotControl", true);
-			$data = $stac->find('all', array('conditions' => array("SampleToAliquotControl.aliquot_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "SampleToAliquotControl.flag_active" => 1), 'recursive' => -1));
+			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+			$data = $ac->find('all', array('conditions' => array("AliquotControl.id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
-				$ids[] = $unit['SampleToAliquotControl']['sample_control_id'];
+				$ids[] = $unit['AliquotControl']['sample_control_id'];
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}
@@ -694,7 +708,7 @@ class Browser extends DatamartAppModel {
 	}
 	
 	private function getActiveStructuresIds(){
-		$BrowsingControl = AppModel::atimNew("Datamart", "BrowsingControl", true);
+		$BrowsingControl = AppModel::getInstance("Datamart", "BrowsingControl", true);
 		$data =  $BrowsingControl->find('all');
 		$result = array();
 		foreach($data as $unit){
@@ -748,7 +762,7 @@ class Browser extends DatamartAppModel {
 			$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
 		}
 		
-		$this->ModelToSearch = AppModel::atimNew($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+		$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
 		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
 			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
 			foreach($additional_conditions as $additional_condition){

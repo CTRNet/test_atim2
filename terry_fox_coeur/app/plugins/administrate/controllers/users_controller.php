@@ -1,7 +1,6 @@
 <?php
 
 class UsersController extends AdministrateAppController {
-	//TODO: add a feature to move a user from a group to another	
 	var $uses = array('User', 'Group');
 	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
 	
@@ -40,11 +39,16 @@ class UsersController extends AdministrateAppController {
 				if(!empty($tmp_data)){
 					$this->User->validationErrors[] = __('this user name is already in use', true);
 				}
+				
+				$hashed_pwd = Security::hash($this->data['Generated']['field1'], null, true);
+				$password_data = array('User' => array('new_password' => $this->data['Generated']['field1'], 'confirm_password' => $this->data['Generated']['field1']));
+				if($this->data['User']['password'] != $hashed_pwd){
+					$password_data['User']['new_password'] .= 'invalid';
+				}
+				$this->User->validatePassword($password_data, '/administrate/users/add/'.$group_id);
+				
 				$this->data['Generated']['field1'] = Security::hash($this->data['Generated']['field1'], null, true);
 				$submitted_data_validates = true;
-				if($this->data['User']['password'] != $this->data['Generated']['field1']){
-					$this->User->validationErrors[] = __('password and password validation do not match', true);
-				}
 				$this->data['User']['group_id'] = $group_id;
 				$this->data['User']['flag_active'] = true;
 				
@@ -55,6 +59,10 @@ class UsersController extends AdministrateAppController {
 				
 				if($submitted_data_validates) {
 					if($this->User->save($this->data)){
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
@@ -89,6 +97,10 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}

@@ -114,6 +114,10 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			}
 			
 			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->data ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
@@ -155,10 +159,16 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($submitted_data_validates && $this->TreatmentExtend->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 			}
 		}
@@ -185,7 +195,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
 		
-		$arr_allow_deletion = $this->allowTrtExtDeletion($tx_extend_id, $tx_master_data['TreatmentControl']['extend_tablename']);
+		$arr_allow_deletion = $this->TreatmentExtendallowDeletion($tx_extend_id);
 			
 		// CUSTOM CODE
 		
@@ -202,28 +212,6 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_extends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
 		}
 	}
-	
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $tx_extend_id Id of the studied record.
-	 * @param $extend_tablename
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	function allowTrtExtDeletion($tx_extend_id, $extend_tablename){
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
 	
 	function importDrugFromChemoProtocol($participant_id, $tx_master_id){
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
