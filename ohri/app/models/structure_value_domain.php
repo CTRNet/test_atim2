@@ -30,7 +30,9 @@ class StructureValueDomain extends AppModel {
 							"id"				=> $svdpv['id'],
 							"value"				=> $svdpv['StructurePermissibleValue']['value'],
 							"language_alias"	=> $svdpv['StructurePermissibleValue']['language_alias'],
-							"display_order"		=> $svdpv['display_order']
+							"display_order"		=> $svdpv['display_order'],
+							"flag_active"		=> $svdpv['flag_active'],
+							"use_as_input"		=> $svdpv['use_as_input'],
 						);
 					}
 					$sub_result['StructurePermissibleValue'] = $permissible_values;

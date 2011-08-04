@@ -46,7 +46,7 @@ class LabBookMastersController extends LabBookAppController {
 		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/index/'));
 		
 		if(!empty($this->data)){
-			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		}
 		
 		$this->data = $this->paginate($this->LabBookMaster, $_SESSION['ctrapp_core']['search']['criteria']);
@@ -171,6 +171,10 @@ class LabBookMastersController extends LabBookAppController {
 
 				$this->LabBookMaster->id = null;
 				if($this->LabBookMaster->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					$url_to_redirect = '/labbook/lab_book_masters/detail/' . $this->LabBookMaster->id;
 					if(isset($_SESSION['batch_process_data']['lab_book_next_step'])) {
 						$url_to_redirect = $_SESSION['batch_process_data']['lab_book_next_step'];
@@ -225,11 +229,17 @@ class LabBookMastersController extends LabBookAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				$this->LabBookMaster->id = $lab_book_master_id;		
-				if($this->LabBookMaster->save($this->data)) { 
+				if($this->LabBookMaster->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { 
+						require($hook_link); 
+					} 
 					$this->LabBookMaster->synchLabbookRecords($lab_book_master_id, $this->data['LabBookDetail']);
 					$this->atimFlash('your data has been updated', '/labbook/lab_book_masters/detail/' . $lab_book_master_id); 
 				}	
@@ -296,17 +306,29 @@ class LabBookMastersController extends LabBookAppController {
 			}		
 			
 			if($submitted_data_validates) {
-				if(isset($this->data['derivative'])) {				
+				if(isset($this->data['derivative'])) {
+					$hook_link_derivative = $this->hook('postsave_process_derivative');
 					foreach($this->data['derivative'] as $new_record) {
 						$this->DerivativeDetail->id = $new_record['DerivativeDetail']['id'];
-						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $new_record['DerivativeDetail']), false))  $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+						if(!$this->DerivativeDetail->save(array('DerivativeDetail' => $new_record['DerivativeDetail']), false)){
+							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+						}
+						if( $hook_link_derivative ) { 
+							require($hook_link_derivative); 
+						}				
 					}
 				}
 				
 				if(isset($this->data['realiquoting'])) {
+					$hook_link_realiquoting = $this->hook('postsave_process_realiquoting');
 					foreach($this->data['realiquoting'] as $new_record) {
 						$this->Realiquoting->id = $new_record['Realiquoting']['id'];
-						if(!$this->Realiquoting->save(array('Realiquoting' => $new_record['Realiquoting']), false)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+						if(!$this->Realiquoting->save(array('Realiquoting' => $new_record['Realiquoting']), false)){
+							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+						}
+						if( $hook_link_realiquoting ) { 
+							require($hook_link_realiquoting); 
+						}
 					}
 				}
 

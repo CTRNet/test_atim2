@@ -23,7 +23,7 @@
 			'add collection' => '/inventorymanagement/collections/add', 
 			'new search' => $search_type_links)
 		);
-		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => __('search type', null).': '.__('collections', null)));
+		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url))));
 	}
 	
 	$final_atim_structure = $atim_structure;

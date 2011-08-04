@@ -83,17 +83,21 @@ exit;
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
-
 				// 4- SAVE
-
 				if ( $this->StudyContact->save($this->data) ) {
-					$this->atimFlash( 'your data has been saved','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
 					}
+					$this->atimFlash( 'your data has been saved','/study/study_contacts/detail/'.$study_summary_id.'/'.$this->StudyContact->id );
 				}
 			}
+		}
  	}
   
 	function edit( $study_summary_id, $study_contact_id ) {
@@ -131,14 +135,19 @@ exit;
 				// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 
 				$hook_link = $this->hook('presave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 
 				if($submitted_data_validates) {
 
 					// 4- SAVE
-
 					$this->StudyContact->id = $study_contact_id;
 					if ( $this->StudyContact->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been updated','/study/study_contacts/detail/'.$study_summary_id.'/'.$study_contact_id );
 						}
 					}
@@ -158,7 +167,7 @@ exit;
 		$study_contact_data= $this->StudyContact->find('first',array('conditions'=>array('StudyContact.id'=>$study_contact_id, 'StudyContact.study_summary_id'=>$study_summary_id)));
 		if(empty($study_contact_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowStudyContactDeletion($study_contact_id);
+		$arr_allow_deletion = $this->StudyContact->allowDeletion($study_contact_id);
 
 
 		// CUSTOM CODE
@@ -177,31 +186,6 @@ exit;
 			}else {
 					$this->flash($arr_allow_deletion['msg'], '/study/study_contacts/detail/'.$study_summary_id.'/'.$study_contact_id);
 			}
-	}
-
-
-/* --------------------------------------------------------------------------
-* ADDITIONAL FUNCTIONS
-* -------------------------------------------------------------------------- */
-
-/**
- * Check if a record can be deleted.
- *
- * @param $family_history_id Id of the studied record.
- *
- * @return Return results as array:
- * 	['allow_deletion'] = true/false
- * 	['msg'] = message to display when previous field equals false
- *
- * @author N. Luc
- * @since 2007-10-16
- */
-
-	function allowStudyContactDeletion($study_contact_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.study_contact_id' => $study_contact_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted study contact'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

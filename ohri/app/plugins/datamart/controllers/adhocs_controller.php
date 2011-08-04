@@ -8,7 +8,10 @@ class AdhocsController extends DatamartAppController {
 		'Datamart.AdhocSaved', 
 		
 		'Datamart.BatchSet',
-		'Datamart.BatchId'
+		'Datamart.BatchId',
+	
+		'Datamart.DatamartStructure'
+		
 	);
 	
 	var $paginate = array(
@@ -140,7 +143,7 @@ class AdhocsController extends DatamartAppController {
 		// do search for RESULTS, using THIS->DATA if any
 		
 		// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
-		$this->ModelToSearch = AppModel::atimNew($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
+		$this->ModelToSearch = AppModel::getInstance($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
 		$criteria = array();
@@ -149,7 +152,7 @@ class AdhocsController extends DatamartAppController {
 		$sql_query_with_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 		$sql_query_without_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
 		
-		$conditions = $this->Structures->parse_search_conditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']));
+		$conditions = $this->Structures->parseSearchConditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']), false);
 		//rename the keys to make them ready for parse_sql_conditions
 		foreach($conditions as $key => $value){
 			if(strpos($key, " >=") == strlen($key) - 3){
@@ -262,6 +265,14 @@ class AdhocsController extends DatamartAppController {
 		// save for display
 
 		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
+		
+		if($this->DatamartStructure->getIdByModelName($adhoc['Adhoc']['model']) != null){
+			$actions[] = array(
+				"value"		=> 0,
+				"default"	=> __("initiate browsing", true),
+				"action"	=> "datamart/browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
+			);
+		}
 		$this->set( 'save_this_search_data', $save_this_search_data );
 		$this->set('actions', $actions);
 	}
@@ -304,7 +315,7 @@ class AdhocsController extends DatamartAppController {
 		}
 		
 		// do search for RESULTS, using THIS->DATA if any
-		$this->ModelToSearch = AppModel::atimNew($adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'] : '', $adhoc_result['Adhoc']['model'], true);
+		$this->ModelToSearch = AppModel::getInstance($adhoc_result['Adhoc']['plugin'] ? $adhoc_result['Adhoc']['plugin'] : '', $adhoc_result['Adhoc']['model'], true);
 			
 		// parse resulting IDs from the SET to build FINDALL criteria for SET's true MODEL 
 		$criteria = array(0);
