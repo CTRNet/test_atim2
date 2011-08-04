@@ -197,10 +197,10 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 
 UPDATE datamart_structures SET index_link='/clinicalannotation/event_masters/detail/%%EventControl.event_group%%/%%EventMaster.participant_id%%/%%EventMaster.id%%/' WHERE id=14;
 
-ALTER TABLE banks
- ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
-ALTER TABLE banks_revs
- ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+#ALTER TABLE banks
+# ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
+#ALTER TABLE banks_revs
+# ADD COLUMN misc_identifier_control_id INT DEFAULT NULL AFTER description;
  
 ALTER TABLE datamart_browsing_results MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
 ALTER TABLE datamart_browsing_results_revs MODIFY parent_node_id INT UNSIGNED DEFAULT NULL;
@@ -1707,7 +1707,7 @@ ALTER TABLE consent_masters
  ADD COLUMN status_date_accuracy CHAR(1) DEFAULT '' AFTER status_date,
  ADD COLUMN operation_date_accuracy CHAR(1) DEFAULT '' AFTER operation_date;
 ALTER TABLE event_masters 
- ADD COLUMN event_date_accuracy CHAR(1) DEFAULT '' AFTER event_date,
+# ADD COLUMN event_date_accuracy CHAR(1) DEFAULT '' AFTER event_date,
  ADD COLUMN date_required_accuracy CHAR(1) DEFAULT '' AFTER date_required,
  ADD COLUMN date_requested_accuracy CHAR(1) DEFAULT '' AFTER date_requested;
 ALTER TABLE lbd_dna_extractions ADD COLUMN creation_datetime_accuracy CHAR(1) DEFAULT '' AFTER creation_datetime;
