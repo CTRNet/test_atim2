@@ -171,7 +171,7 @@ ALTER TABLE consent_masters_revs
  ADD COLUMN status_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER status_date,
  ADD COLUMN operation_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER operation_date;
 ALTER TABLE event_masters_revs 
- ADD COLUMN event_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER event_date,
+# ADD COLUMN event_date_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER event_date,
  ADD COLUMN date_required_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_required,
  ADD COLUMN date_requested_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER date_requested;
 ALTER TABLE lbd_dna_extractions_revs ADD COLUMN creation_datetime_accuracy CHAR(1) NOT NULL DEFAULT '' AFTER creation_datetime;
