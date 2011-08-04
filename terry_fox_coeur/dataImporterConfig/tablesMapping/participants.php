@@ -62,6 +62,9 @@ function postParticipantWrite(Model $m){
 	if(!isset($m->values['misc_identifier_control_id'])){
 		die("Participant misc_identifier_control_id is required");
 	}
+	
+	checkAndAddIdentifier($m->values[$m->csv_pkey], $m->values['misc_identifier_control_id']);
+	
 	$insert = array(
 		"identifier_value"				=> "'".$m->values[$m->csv_pkey]."'",
 		"misc_identifier_control_id"	=> $m->values['misc_identifier_control_id'],
