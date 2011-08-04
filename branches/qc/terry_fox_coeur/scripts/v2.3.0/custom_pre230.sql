@@ -682,19 +682,14 @@ INSERT INTO drugs (`generic_name`, `trade_name`, `type`) VALUES
 INSERT INTO drugs_revs (`generic_name`, `trade_name`, `type`) VALUES
 ('cyclophosphamide', 'cyclophosphamide', 'chemotherapy');
 
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unkown","unkown");
-
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
-VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_tumor_site'),  
-(SELECT id FROM structure_permissible_values WHERE value="unkown" AND language_alias="unkown"), "-1", "1");
-
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ovarian, endometrial and colon cancer","ovarian, endometrial and colon cancer");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
 VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_fam_hist'),  
 (SELECT id FROM structure_permissible_values WHERE value="ovarian, endometrial and colon cancer" AND language_alias="ovarian, endometrial and colon cancer"), "0", "1");
 
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id'), 'notEmpty', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
 
 
 

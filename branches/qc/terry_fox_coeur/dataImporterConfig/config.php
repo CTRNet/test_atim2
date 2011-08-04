@@ -6,10 +6,17 @@ class Config{
 	//Configure as needed-------------------
 	//db config
 	static $db_ip			= "127.0.0.1";
-	static $db_port 		= "8889";
+	
+//	static $db_port 		= "8889";
+//	static $db_user 		= "root";
+//	static $db_pwd			= "root";
+//	static $db_schema		= "atim_tf_coeur";
+	
+	static $db_port 		= "3306";
 	static $db_user 		= "root";
-	static $db_pwd			= "root";
-	static $db_schema		= "atim_tf_coeur";
+	static $db_pwd			= "";
+	static $db_schema		= "tfri";
+	
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
 	
@@ -19,16 +26,15 @@ class Config{
 	
 	//if reading excel file
 	
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/tp.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/DEMO.xls";
+	static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/test.xls";
 	
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUM-COEUR-clinical data-v0.1.15.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUM-COEUR-clinical data-v0.1.15_reviewed.xls";
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUS-COEUR v1-15.xls";
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/McGill-COEUR- v1-15.xls";
 	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CBCF-1.15.xls";//file to read
 	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CHUQ-clinical data v4-1.15.xls";//file to read
 	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-OVCare v0-1.15.xls";//file to read
-	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15.xls";//file to read
+	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15.xls";//file to read
 	
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/DEMO.xls";
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/CHUM-COEUR-clinical data-v0.1.15.xls";
@@ -71,35 +77,12 @@ class Config{
 		Config::$models[$ref_name] = $m;
 	}
 
-	static $banks = array(
-		'CHUM-COEUR' => array('id' => 1, 'misc_identifier_control_id' => 1),
-		'CHUS-COEUR' => array('id' => 2, 'misc_identifier_control_id' => 2),
-		'TTR-COEUR' => array('id' => 3, 'misc_identifier_control_id' => 3),
-		'McGill-COEUR' => array('id' => 4, 'misc_identifier_control_id' => 4),
-		'OHRI-COEUR' => array('id' => 5, 'misc_identifier_control_id' => 5),
-		'CBCF-COEUR' => array('id' => 6, 'misc_identifier_control_id' => 6),
-		'OVCare' => array('id' => 7, 'misc_identifier_control_id' => 7),
-		'CHUQ-COEUR' => array('id' => 8, 'misc_identifier_control_id' => 8));
-		
 	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chimiotherapy', 'radiotherapy');
 	static $opc_file_event_types	= array('biopsy', 'surgery', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
-	static $drugs	= array(
-		'cisplatinum',
-		'carboplatinum',
-		'oxaliplatinum',
-		'paclitaxel',
-		'topotecan',
-		'ectoposide',
-		'tamoxifen',
-		'doxetaxel',
-		'doxorubicin',
-		'other',
-		'etoposide',
-		'gemcitabine',
-		'procytox',
-		'vinorelbine');
-
-	static $tissue_source = array('omentum','ovary','peritoneum','');
+	
+	static $banks = array();
+	static $drugs	= array();
+	static $tissue_source = array();
 	
 	static $identifiers = array();
 }
@@ -183,6 +166,30 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id']);
 	}
+	
+	// SET banks
+	$query = "SELECT id, name, misc_identifier_control_id FROM banks";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$banks[$row['name']] = array(
+			'id' => $row['id'],
+			'misc_identifier_control_id' => $row['misc_identifier_control_id']);
+	}	
+	
+	$query = "SELECT generic_name FROM drugs";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$drugs[] = $row['generic_name'];
+	}	
+
+	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
+		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
+		."WHERE name LIKE 'tissue source'";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$tissue_source[] = $row['value'];
+	}
+	Config::$tissue_source[] = '';	
 }
 
 function checkAndAddIdentifier($identifier_value, $identifier_control_id){
@@ -260,16 +267,7 @@ function addonFunctionEnd(){
 	echo "----------------------------------------------------\n";
 	echo " !!!!!!!!!!!! translation to do\n";
 	echo " !!!!!!!!!!!! allow search on diagnosis detail into databrowser to do\n";	
-	echo " !!!!!!!!!!!! Fichier CBCF manque les Flash Frozen Tissues  Volume Unit\n";	
-	echo " !!!!!!!!!!!! Faut il ajouter drug cyclophosphamide\n";	
-	echo " !!!!!!!!!!!! Date EOC diag pour ovcare\n";	
-	echo " !!!!!!!!!!!! tumor site Female Genital-Peritoneal Pelvix Abdomen pour ovcare\n";	
-	echo " !!!!!!!!!!!! Fichier ovcare Flash Frozen Tissues  Volume Unit == tube a traiter\n";	
-	echo " !!!!!!!!!!!! tumor site Female Genital-Peritoneal/omental pour ttr\n";	
-	echo " !!!!!!!!!!!! Fichier ttr manque les Flash Frozen Tissues  Volume Unit\n";	
-	echo " !!!!!!!!!!!! Fichier ttr manque les Flash Frozen Tissues  Volume Unit\n";	
-	echo " !!!!!!!!!!!! tissue type other metastasis pour ovcare\n";	
-	echo " !!!!!!!!!!!! tissue type vide autorisé?\n";	
+
 	
 	
 	

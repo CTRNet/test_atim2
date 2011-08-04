@@ -5,7 +5,8 @@ $pkey = "Patient Biobank Number
 $fields = array(
 	"bank_id" 						=> "#bank_id",
 	"collection_datetime" 			=> "Date of Specimen Collection Date",
-	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
+	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"collection_notes"				=> "notes"
 );
 
 function postCollectionRead(Model $m){
