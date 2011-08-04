@@ -676,3 +676,25 @@ INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `de
 SET @last_id=(SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE "tissue source");
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
 (@last_id, 'omentum', 'Omentum', '');
+
+INSERT INTO drugs (`generic_name`, `trade_name`, `type`) VALUES
+('cyclophosphamide', 'cyclophosphamide', 'chemotherapy');
+INSERT INTO drugs_revs (`generic_name`, `trade_name`, `type`) VALUES
+('cyclophosphamide', 'cyclophosphamide', 'chemotherapy');
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unkown","unkown");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_tumor_site'),  
+(SELECT id FROM structure_permissible_values WHERE value="unkown" AND language_alias="unkown"), "-1", "1");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ovarian, endometrial and colon cancer","ovarian, endometrial and colon cancer");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name = 'qc_tf_fam_hist'),  
+(SELECT id FROM structure_permissible_values WHERE value="ovarian, endometrial and colon cancer" AND language_alias="ovarian, endometrial and colon cancer"), "0", "1");
+
+
+
+
