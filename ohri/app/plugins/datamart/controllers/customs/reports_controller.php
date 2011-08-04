@@ -1,6 +1,15 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 	
+	function manageReport($report_id, $csv_creation = false) {
+		if($report_id == 7){
+			$report = $this->Report->find('first',array('conditions' => array('Report.id' => $report_id, 'Report.flag_active' => '1')));
+			$this->flash($report['Report']['description'], '/datamart/reports/index');
+		}else{
+			parent::manageReport($report_id, $csv_creation);
+		}
+	}
+	
 	function terryFox(array $parameters){
 		header ( "Content-Type: application/force-download" ); 
 		header ( "Content-Type: application/octet-stream" ); 
@@ -84,10 +93,10 @@ class ReportsControllerCustom extends ReportsController {
 					$line = array();
 					$line[] = $unit['MiscIdentifier']['identifier_value'];
 					$line[] = $unit['Participant']['date_of_birth'];
-					$line[] = $unit['Participant']['dob_date_accuracy'];
+					$line[] = $unit['Participant']['date_of_birth_accuracy'];
 					$line[] = $unit['Participant']['vital_status'];
 					$line[] = $unit['Participant']['date_of_death'];
-					$line[] = $unit['Participant']['dod_date_accuracy'];
+					$line[] = $unit['Participant']['date_of_death_accuracy'];
 					$line[] = "";//suspected dod
 //NL_NOTE: A confirmer avec OHRI => $unit['Participant']['date_of_death']; 
 					$line[] = "";//Suspected Date of Death date accuracy
