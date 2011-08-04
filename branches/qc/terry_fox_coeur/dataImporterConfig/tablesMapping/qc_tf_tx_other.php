@@ -33,13 +33,15 @@ function txPostRead(Model $m){
 		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 	}
 	
-	if($m->values['Event Type'] != 'chimiotherapy') {
-		if(!empty($m->values['Date of event (end) Date'])) {
-			echo "WARNING, NO END DATE TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+	if(!in_array($m->values['Event Type'], array('chimiotherapy','radiotherapy'))) {
+		if(!empty($m->values['Date of event (end) Date']) && ($m->values['Date of event (beginning) Date'] != $m->values['Date of event (end) Date'])) {
+			echo "WARNING, START DATE AND END DATE ARE DIFFERENT FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 		}
-		$m->values['Date of event (end) Date'] = '';
-		$m->values['Date of event (end) Accuracy'] = '';
-		
+		$m->values['Date of event (end) Date'] = null;
+		$m->values['Date of event (end) Accuracy'] = null;	
+	}	
+	
+	if($m->values['Event Type'] != 'chimiotherapy') {
 		if(!empty($m->values['Chimiotherapy Precision Drug1'])) {
 			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 		}
