@@ -1,4 +1,4 @@
--- run after v2.2.2
+-- run before v2.3.0
 INSERT INTO banks(`name`, `description`, `created_by`, `created`, `modified_by`, `modified`) VALUES
 ('OHRI-COEUR', '', 1, NOW(), 1, NOW()),
 ('CBCF-COEUR', '', 1, NOW(), 1, NOW()),
