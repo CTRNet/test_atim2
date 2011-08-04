@@ -2,7 +2,7 @@
 
 	// Build Link
 	$add_identifiers_link = array();
-	$link_availability = $structures->checkLinkPermission('/clinicalannotation/misc_identifiers/add/');
+	$link_availability = AppController::checkLinkPermission('/clinicalannotation/misc_identifiers/add/');
 	foreach($identifier_controls_list as $option){
 		$add_identifiers_link[__($option['MiscIdentifierControl']['misc_identifier_name'], true)] = 
 			isset($option['reusable']) && $link_availability ? 

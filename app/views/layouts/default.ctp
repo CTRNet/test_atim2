@@ -9,7 +9,12 @@ header ('Content-type: text/html; charset=utf-8');
 
 	<?php
 		$session_delay_sec = AppController::atimSetCookie();
-		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
+		$header = $shell->header(array(
+			'atim_menu_for_header' => $atim_menu_for_header,
+			'atim_sub_menu_for_header' => $atim_sub_menu_for_header,
+			'atim_menu' => $atim_menu,
+			'atim_menu_variables' => $atim_menu_variables) 
+		);
 		$title = $this->loaded['shell']->pageTitle;
 	?>
 	

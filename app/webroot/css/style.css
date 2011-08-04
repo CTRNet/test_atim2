@@ -444,14 +444,34 @@ ul#root_menu_for_header li,
 ul#root_menu_for_header li a,
 ul#main_menu_for_header li,
 ul#main_menu_for_header li a {
-	display: block; 
-	float: left;
+	display: inline-block; 
 	width: 40px;
 	height: 40px;
-	margin-right: 5px;
-	text-indent: -10000px;
 	text-decoration: none;
 }
+.sub_menu_for_header li{
+	margin: 0 3px 0 3px;
+}
+.sub_menu_for_header{
+	position: absolute;
+	border-radius: 10px;
+	border-style: solid;
+	border-color: black;
+	border-width: 1px;
+	z-index: 1;
+	display: none;
+	background-color: #628cae;
+	width: 190px;
+	top: 40px;
+	right: 0px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#628cae), color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #628cae,  #7aaed8, #628cae); /* for firefox 3.6+ */
+}
+li.qry-CAN-1:hover .sub_menu_for_header.qry-CAN-1,
+li.core_CAN_33:hover .sub_menu_for_header.core_CAN_33{
+	display: block;
+}
+
 
 #root_menu_for_header li:hover{
 	background-image: url("../img/icons/toolbox_top_bk01.png");
@@ -1110,7 +1130,7 @@ a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left
 a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 
-li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
+li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x32.png") no-repeat 4px center; }
 
 
 /* -=toolbox*/
@@ -1133,7 +1153,7 @@ a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-r
 a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
 a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
-a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
+a.plugin.menu.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
 a.plugin.labbook {background: url("../img/icons/book_opened_32x32.png") no-repeat center center;}
 a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
 a.plugin.underdev {background: url("../img/icons/under_dev_32x32.png") no-repeat center center;}
