@@ -25,6 +25,8 @@
 	$hook_link = $structures->hook('loop');
 
 	$counter = 0;
+	$final_parent_structure = null;
+	$final_children_structure = null;
 	while($data = array_shift($this->data)){
 		$counter++;
 		$parent = $data['parent'];
@@ -54,11 +56,17 @@
 		$final_options_children['override']= $created_aliquot_override_data;
 		$final_options_children['data'] = $data['children'];
 		
+		if(empty($parent['AliquotControl']['volume_unit'])){
+			$final_parent_structure = $in_stock_detail;
+		}else{
+			$final_parent_structure = $in_stock_detail_volume;
+		}
+		
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		
-		$structures->build($in_stock_detail, $final_options_parent);
+		$structures->build($final_parent_structure, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
 	}
 ?>
