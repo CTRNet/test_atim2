@@ -6,10 +6,10 @@ class Config{
 	//Configure as needed-------------------
 	//db config
 	static $db_ip			= "127.0.0.1";
-	static $db_port 		= "3306";//"8889";
+	static $db_port 		= "8889";
 	static $db_user 		= "root";
-	static $db_pwd			= "";
-	static $db_schema		= "tfri";
+	static $db_pwd			= "root";
+	static $db_schema		= "atim_tf_coeur";
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
 	
@@ -38,14 +38,14 @@ class Config{
 	//header row =1 -> static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/OHRI-COEUR.xls";//file to read
 // 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-CBCF-1.15.xls";//file to read
 // 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-OVCare v0-1.15.xls";//file to read
-//	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-CHUQ-clinical data v4-1.15.xls";//file to read
+// 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-CHUQ-clinical data v4-1.15.xls";//file to read
 
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= false;//wheter to insert generated queries data in revs as well
 	
-	static $addon_function_start= null;//function to run at the end of the import process
+	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
 	//--------------------------------------
 	
@@ -100,6 +100,8 @@ class Config{
 		'vinorelbine');
 
 	static $tissue_source = array('omentum','ovary','peritoneum','');
+	
+	static $identifiers = array();
 }
 
 //add you start queries here
@@ -149,7 +151,22 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dat
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_eocs.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_other.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_other.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM//terry_fox_coeur/dataImporterConfig/tablesMapping/collections.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM//terry_fox_coeur/dataImporterConfig/tablesMapping/collections.php';
+
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/participants.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_eocs.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_no_site.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site1.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site2.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site_ca125.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_primary_cancers.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_progression.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_eocs.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_eocs.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_other.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_other.php';
+// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/collections.php';
+
 
 function mainDxCondition(Model $m){
 	//used as pre insert, not a real test
@@ -158,6 +175,25 @@ function mainDxCondition(Model $m){
 	
 	$m->custom_data['last_participant_id'] = $m->parent_model->last_id;
 	return true;
+}
+
+function addonFunctionStart(){
+	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id']);
+	}
+}
+
+function checkAndAddIdentifier($identifier_value, $identifier_control_id){
+	$key = sprintf("%s-%d", $identifier_value, $identifier_control_id);
+	if(array_key_exists($key, Config::$identifiers)){
+		global $insert;
+		$insert = false;
+		echo "ERROR: identifier value [",$identifier_value,"] already exists for control id [",$identifier_control_id,"]\n";
+	}else{
+		Config::$identifiers[$key] = null;
+	}
 }
 
 function addonFunctionEnd(){
