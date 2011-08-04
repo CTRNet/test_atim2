@@ -31,22 +31,6 @@ function edAfterRead(Model $m){
 		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 	}
 
-	if($m->values['Event Type'] != 'chimiotherapy') {
-		if(!empty($m->values['Date of event (end) Date'])) {
-			echo "WARNING, NO END DATE TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
-		}
-		$m->values['Date of event (end) Date'] = '';
-		$m->values['Date of event (end) Accuracy'] = '';
-		
-		if(!empty($m->values['Chimiotherapy Precision Drug1'])) {
-			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
-		}
-		$m->values['Chimiotherapy Precision Drug1'] = '';
-		$m->values['Chimiotherapy Precision Drug2'] = '';
-		$m->values['Chimiotherapy Precision Drug3'] = '';
-		$m->values['Chimiotherapy Precision Drug4'] = '';
-	}
-	
 	$m->values['event group'] = $m->values['Event Type'] == 'ca125' ? 'lab' : 'clinical'; 
 
 	return in_array($m->values['Event Type'], $m->event_types_to_import);
