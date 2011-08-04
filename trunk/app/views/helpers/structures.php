@@ -1816,28 +1816,6 @@ class StructuresHelper extends Helper {
 		return $return_string.$this->generateLinksList(NULL, isset($options['links']) ? $options['links'] : array(), 'bottom');
 	}
 	
-	/**
-	 * @param string $link The link to check
-	 * @return True if the user can access that page, false otherwise
-	 */
-	public function checkLinkPermission($link){
-		$parts = Router::parse($link);
-		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-		
-		if ( !isset($Acl) ) {
-			$Acl = new SessionAclComponent();
-			$Acl->initialize($this);
-		}
-		
-		return strpos($aco_alias,'controllers/Users') !== false
-			|| strpos($aco_alias,'controllers/Pages') !== false
-			|| $aco_alias == "controllers/Menus/index"
-			|| $Acl->check('Group::'.$this->Session->read('Auth.User.group_id'), $aco_alias);
-	}
-
-
 	private function generateLinksList($data, array $option_links, $state = 'index'){
 		$return_string = '';
 		
@@ -1877,7 +1855,7 @@ class StructuresHelper extends Helper {
 					
 				
 				// if ACO/ARO permissions check succeeds or if it's a js command, create link
-				if ($this->checkLinkPermission($link_location)
+				if (AppController::checkLinkPermission($link_location)
 				|| strpos($link_location, "javascript:") === 0){
 					
 					$display_class_name = $this->generateLinkClass($link_name, $link_location);

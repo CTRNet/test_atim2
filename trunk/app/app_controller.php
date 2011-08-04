@@ -4,6 +4,7 @@ class AppController extends Controller {
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
 	private static $me = NULL;
+	private static $acl = null;
 	public static $beignFlash = false;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
@@ -60,7 +61,13 @@ class AppController extends Controller {
 			$log_activity_model->save($log_activity_data);
 			
 		// menu grabbed for HEADER
-			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
+			$atim_sub_menu_for_header = array();
+			$menu_model = AppModel::getInstance("", "Menu", true);
+			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
+			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
+		
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
+			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
 			
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
@@ -577,6 +584,29 @@ class AppController extends Controller {
 	
 	static function getNewSearchId(){
 		return $_SESSION['Auth']['User']['search_id'] ++;
+	}
+	
+	/**
+	* @param string $link The link to check
+	* @return True if the user can access that page, false otherwise
+	*/
+	static function checkLinkPermission($link){
+		$parts = Router::parse($link);
+		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+	
+		if (self::$acl == null) {
+			self::$acl = new SessionAclComponent();
+			self::$acl->initialize($this);
+		}
+		
+		$instance = AppController::getInstance();
+	
+		return strpos($aco_alias,'controllers/Users') !== false
+		|| strpos($aco_alias,'controllers/Pages') !== false
+		|| $aco_alias == "controllers/Menus/index"
+		|| self::$acl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
 	}
 }
 
