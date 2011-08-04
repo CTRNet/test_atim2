@@ -102,13 +102,13 @@ class LabBookMaster extends LabBookAppModel {
 	}
 	
 	function allowLabBookDeletion($lab_book_master_id) {	
-		$derivative_detail_model = AppModel::atimNew("inventorymanagement", "DerivativeDetail", true);
+		$derivative_detail_model = AppModel::getInstance("inventorymanagement", "DerivativeDetail", true);
 		$nbr_derivatives = $derivative_detail_model->find('count', array('conditions' => array('DerivativeDetail.lab_book_master_id' => $lab_book_master_id)));
 		if($nbr_derivatives > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a derivative'); 
 		}		
 		
-		$realiquoting_model = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
+		$realiquoting_model = AppModel::getInstance("inventorymanagement", "Realiquoting", true);
 		$nbr_realiquotings = $realiquoting_model->find('count', array('conditions' => array('Realiquoting.lab_book_master_id' => $lab_book_master_id)));
 		if($nbr_realiquotings > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'deleted lab book is linked to a realiquoted aliquot'); 
@@ -118,7 +118,7 @@ class LabBookMaster extends LabBookAppModel {
 	}
 	
 	function getLabBookDerivativesList($lab_book_master_id) {
-		$sample_master_model = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
+		$sample_master_model = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
 		
 		$sample_master_model->unbindModel(array(
 				'hasMany' => array('AliquotMaster'), 
@@ -133,8 +133,8 @@ class LabBookMaster extends LabBookAppModel {
 	}
 
 	function getLabBookRealiquotingsList($lab_book_master_id) {
-		$sample_master_model = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
-		$realiquoting_model = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
+		$sample_master_model = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
+		$realiquoting_model = AppModel::getInstance("inventorymanagement", "Realiquoting", true);
 		
 		$sample_master_ids_data = $realiquoting_model->find('all', array(
 			'conditions'	=> array('Realiquoting.lab_book_master_id' => $lab_book_master_id),
@@ -162,9 +162,9 @@ class LabBookMaster extends LabBookAppModel {
 	}
 	
 	function synchLabbookRecords($lab_book_master_id, $lab_book_detail = null ) {
-		$sample_master_model = AppModel::atimNew("inventorymanagement", "SampleMaster", true);
-		$realiquoting_model = AppModel::atimNew("inventorymanagement", "Realiquoting", true);
-		$derivative_detail_model = AppModel::atimNew("inventorymanagement", "DerivativeDetail", true);
+		$sample_master_model = AppModel::getInstance("inventorymanagement", "SampleMaster", true);
+		$realiquoting_model = AppModel::getInstance("inventorymanagement", "Realiquoting", true);
+		$derivative_detail_model = AppModel::getInstance("inventorymanagement", "DerivativeDetail", true);
 		
 		if(empty($lab_book_detail)) {
 			$lab_book = $this->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));

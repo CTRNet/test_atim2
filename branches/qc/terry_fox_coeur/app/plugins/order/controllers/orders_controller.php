@@ -28,7 +28,7 @@ class OrdersController extends OrderAppController {
 	function search() {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
 			
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 			
 		$this->data = $this->paginate($this->Order, $_SESSION['ctrapp_core']['search']['criteria']);
 		
@@ -65,6 +65,10 @@ class OrdersController extends OrderAppController {
 			}
 
 			if ($submitted_data_validates && $this->Order->save($this->data) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved','/order/orders/detail/'.$this->Order->id );
 			}
 		} 
@@ -131,6 +135,10 @@ class OrdersController extends OrderAppController {
 			if($submitted_data_validates) {
 				$this->Order->id = $order_id;
 				if ($this->Order->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/order/orders/detail/'.$order_id );
 				}							
 			}
@@ -146,7 +154,7 @@ class OrdersController extends OrderAppController {
 		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowOrderDeletion($order_id);
+		$arr_allow_deletion = $this->Order->allowDeletion($order_id);
 			
 		// CUSTOM CODE
 				
@@ -163,35 +171,5 @@ class OrdersController extends OrderAppController {
 			$this->flash($arr_allow_deletion['msg'], '/order/orders/detail/' . $order_id);
 		}
   }
-  	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Check if an order can be deleted.
-	 * 
-	 * @param $order_id Id of the studied order.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowOrderDeletion($order_id){
-		// Check no order line exists
-		$returned_nbr = $this->OrderLine->find('count', array('conditions' => array('OrderLine.order_id' => $order_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'order line exists for the deleted order'); }
-	
-		// Check no order line exists
-		$returned_nbr = $this->Shipment->find('count', array('conditions' => array('Shipment.order_id' => $order_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'shipment exists for the deleted order'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-  
 }
 ?>

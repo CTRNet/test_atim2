@@ -19,7 +19,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 		
 		if(!empty($sample_master_id)) {
 			if(!isset($this->AliquotMaster)) {
-				$this->AliquotMaster = AppModel::atimNew("Inventorymanagement", "AliquotMaster", true);
+				$this->AliquotMaster = AppModel::getInstance("Inventorymanagement", "AliquotMaster", true);
 			}
 			
 			$conditions = array('AliquotMaster.sample_master_id' => $sample_master_id);

@@ -3,7 +3,7 @@
 class UsersController extends AppController {
 
 	var $helpers = array('Html', 'Form');
-	var $uses = array('User', 'UserLoginAttempt', 'Group');
+	var $uses = array('User', 'UserLoginAttempt', 'Group', 'Version');
 	
 	function beforeFilter() {
 		parent::beforeFilter();
@@ -14,13 +14,24 @@ class UsersController extends AppController {
 	}
 	
 	function login() {
+		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
+		$this->Version->id = $version_data[0]['id'];
+		$this->Version->read();
+		if($this->Version->data['Version']['permissions_regenerated'] == 0){
+			$this->PermissionManager->buildAcl();
+			AppController::addWarningMsg(__('permissions have been regenerated', true));
+			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
+			$this->Version->save();
+		}
+		
 		if($this->Auth->user()){
 			if(!empty($this->data)){
 				//successfulll login
 				$login_data = array(
-						"username" => $this->data['User']['username'],
-						"ip_addr" => $_SERVER['REMOTE_ADDR'],
-						"succeed" => true
+						"username"			=> $this->data['User']['username'],
+						"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
+						"succeed"			=> true,
+						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT']
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_msg'] = array();//init

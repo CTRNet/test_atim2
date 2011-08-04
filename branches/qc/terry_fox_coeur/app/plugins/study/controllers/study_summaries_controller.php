@@ -45,10 +45,16 @@ class StudySummariesController extends StudyAppController {
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }				
+			if( $hook_link ) { 
+				require($hook_link); 
+			}				
 		
 			if($submitted_data_validates) {
 				if ( $this->StudySummary->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/study/study_summaries/detail/'.$this->StudySummary->id );
 				}
 			}
@@ -78,11 +84,17 @@ class StudySummariesController extends StudyAppController {
 			
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {	
 				$this->StudySummary->id = $study_summary_id;
 				if ( $this->StudySummary->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/study/study_summaries/detail/'.$study_summary_id );
 				}		
 			}
@@ -96,7 +108,7 @@ class StudySummariesController extends StudyAppController {
 		$study_summary_data = $this->StudySummary->find('first',array('conditions'=>array('StudySummary.id'=>$study_summary_id)));
 		if(empty($study_summary_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
-		$arr_allow_deletion = $this->allowStudySummaryDeletion($study_summary_id);
+		$arr_allow_deletion = $this->StudySummary->allowDeletion($study_summary_id);
 		
 		// CUSTOM CODE
 		$hook_link = $this->hook('delete');
@@ -113,31 +125,6 @@ class StudySummariesController extends StudyAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/study_summaries/detail/'.$study_summary_id);
 		}	
   	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $study_summary_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowStudySummaryDeletion($study_summary_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.study_summary_id' => $study_summary_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted study summary'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
- 
 }
 
 ?>
