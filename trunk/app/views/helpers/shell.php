@@ -73,11 +73,6 @@ class ShellHelper extends Helper {
 							$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
 							if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
 								$root_menu_for_header .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
-							}else{
-								$root_menu_for_header .= 
-								'<li class="sub_menu not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($sub_menu_item['Menu']['language_title'], true).'"></a>
-								</li>';
 							}
 						}
 						$root_menu_for_header .= '</ul>';
