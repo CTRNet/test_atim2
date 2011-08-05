@@ -66,7 +66,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("readonly", "Readonly", "Lecture seulement"),
 ("save preset", "Save preset", "Enregistrer une configuration prédéfinie"),
 ("saved presets", "Saved presets", "Configurations prédéfinies enregistrées"),
-("atim presets", "ATiM presets", "Configurations prédéfinies d'ATiM");
+("atim presets", "ATiM presets", "Configurations prédéfinies d'ATiM"),
+("search for users", "Search for users", "Chercher des utilisateurs");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -514,3 +515,5 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='email' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='department' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_params, use_summary, flag_active, created, created_by, modified, modified_by) VALUES
+('core_CAN_41_5', 'core_CAN_41', 0, 4, 'search for users', '', '/administrate/users/search/', '', '', 1, NOW(), 1, NOW(), 1); 
