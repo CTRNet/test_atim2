@@ -203,3 +203,308 @@ CREATE TABLE permissions_presets_revs(
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 )Engine=InnoDb;
+
+
+ALTER TABLE aliquot_masters
+ DROP COLUMN aliquot_type,
+ DROP COLUMN aliquot_volume_unit;
+ALTER TABLE aliquot_masters_revs
+ DROP COLUMN aliquot_type,
+ DROP COLUMN aliquot_volume_unit;
+
+UPDATE structure_fields SET model='AliquotControl', tablename='aliquot_controls' WHERE model='AliquotMaster' AND field='aliquot_type';
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model='AliquotControl' AND field='volume_unit') WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='aliquot_volume_unit');
+
+ALTER TABLE protocol_masters
+ DROP COLUMN tumour_group;
+ALTER TABLE protocol_masters_revs
+ DROP COLUMN tumour_group;
+
+UPDATE structure_fields SET model='ProtocolControl', tablename='protocol_controls' WHERE model='ProtocolMaster' AND field='tumour_group';
+
+ALTER TABLE sample_masters
+ DROP COLUMN sample_type,
+ DROP COLUMN sample_category; 
+ALTER TABLE sample_masters_revs
+ DROP COLUMN sample_type,
+ DROP COLUMN sample_category;
+ 
+UPDATE structure_fields SET model='SampleControl', tablename='sample_controls' WHERE field='sample_type' AND model='SampleMaster'; 
+UPDATE structure_fields SET model='SampleControl', tablename='sample_controls' WHERE field='sample_category' AND model='SampleMaster'; 
+ 
+ALTER TABLE sop_masters
+ DROP COLUMN sop_group,
+ DROP COLUMN type; 
+ALTER TABLE sop_masters_revs
+ DROP COLUMN sop_group,
+ DROP COLUMN type; 
+ 
+UPDATE structure_fields SET model='SopControl', tablename='sop_controls' WHERE field='sop_group' AND model='SopMaster';
+UPDATE structure_fields SET model='SopControl', tablename='sop_controls' WHERE field='type' AND model='SopMaster';
+
+ALTER TABLE specimen_review_masters
+ DROP COLUMN specimen_sample_type,
+ DROP COLUMN review_type; 
+ALTER TABLE specimen_review_masters_revs
+ DROP COLUMN specimen_sample_type,
+ DROP COLUMN review_type; 
+ 
+UPDATE structure_fields SET model='SpecimenReviewControl', tablename='specimen_review_controls' WHERE field='specimen_sample_type' AND model='SpecimenReviewMaster';
+UPDATE structure_fields SET model='SpecimenReviewControl', tablename='specimen_review_controls' WHERE field='review_type' AND model='SpecimenReviewMaster';
+
+ALTER TABLE storage_masters
+ DROP COLUMN storage_type,
+ DROP COLUMN set_temperature;
+ALTER TABLE storage_masters_revs
+ DROP COLUMN storage_type,
+ DROP COLUMN set_temperature;
+
+ALTER TABLE tx_masters
+ DROP COLUMN tx_method,
+ DROP COLUMN disease_site;
+ALTER TABLE tx_masters_revs
+ DROP COLUMN tx_method,
+ DROP COLUMN disease_site;
+ 
+UPDATE structure_fields SET model='TreatmentControl', tablename='tx_controls' WHERE field='tx_method' AND model='TreatmentMaster';
+UPDATE structure_fields SET model='TreatmentControl', tablename='tx_controls' WHERE field='disease_site' AND model='TreatmentMaster';
+ 
+DELETE FROM structure_validations WHERE structure_field_id NOT IN (SELECT structure_field_id FROM structure_formats);
+DELETE FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM structure_formats);
+ 
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+alc.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted
+
+FROM aliquot_masters AS al
+INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
+INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN sample_controls AS sampc ON samp.sample_control_id = sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id=parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+sampc.sample_category,
+samp.deleted
+
+FROM sample_masters as samp
+INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+
+DROP VIEW view_aliquot_uses;
+CREATE VIEW view_aliquot_uses AS 
+
+SELECT 
+CONCAT(source.id, 1) AS id,
+aliq.id AS aliquot_master_id,
+'sample derivative creation' AS use_definition, 
+samp.sample_code AS use_code,
+'' AS use_details,
+source.used_volume,
+aliqc.volume_unit AS aliquot_volume_unit,
+der.creation_datetime AS use_datetime,
+der.creation_datetime_accuracy AS use_datetime_accuracy,
+der.creation_by AS used_by,
+source.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllSourceAliquots|',samp.collection_id ,'|',samp.id) AS detail_url,
+samp2.id AS sample_master_id,
+samp2.collection_id AS collection_id
+FROM source_aliquots AS source
+INNER JOIN sample_masters AS samp ON samp.id = source.sample_master_id  AND samp.deleted != 1
+INNER JOIN derivative_details AS der ON samp.id = der.sample_master_id  AND der.deleted != 1
+INNER JOIN aliquot_masters AS aliq ON aliq.id = source.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_controls AS aliqc ON aliq.aliquot_control_id = aliqc.id
+INNER JOIN sample_masters AS samp2 ON samp2.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE source.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(realiq.id, 2) AS id,
+aliq.id AS aliquot_master_id,
+'realiquoted to' AS use_definition, 
+child.barcode AS use_code,
+'' AS use_details,
+realiq.parent_used_volume AS used_volume,
+aliqc.volume_unit AS aliquot_volume_unit,
+realiq.realiquoting_datetime AS use_datetime,
+realiq.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+realiq.realiquoted_by AS used_by,
+realiq.created,
+CONCAT('|inventorymanagement|aliquot_masters|listAllRealiquotedParents|',child.collection_id,'|',child.sample_master_id,'|',child.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM realiquotings AS realiq
+INNER JOIN aliquot_masters AS aliq ON aliq.id = realiq.parent_aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_controls AS aliqc ON aliq.aliquot_control_id = aliqc.id
+INNER JOIN aliquot_masters AS child ON child.id = realiq.child_aliquot_master_id AND child.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE realiq.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(qc.id, 3) AS id,
+aliq.id AS aliquot_master_id,
+'quality control' AS use_definition, 
+qc.qc_code AS use_code,
+'' AS use_details,
+qc.used_volume,
+aliqc.volume_unit AS aliquot_volume_unit,
+qc.date AS use_datetime,
+qc.date_accuracy AS use_datetime_accuracy,
+qc.run_by AS used_by,
+qc.created,
+CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM quality_ctrls AS qc
+INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_controls AS aliqc ON aliq.aliquot_control_id = aliqc.id
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE qc.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(item.id, 4) AS id,
+aliq.id AS aliquot_master_id,
+'aliquot shipment' AS use_definition, 
+sh.shipment_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+sh.datetime_shipped AS use_datetime,
+sh.datetime_shipped_accuracy AS use_datetime_accuracy,
+sh.shipped_by AS used_by,
+sh.created,
+CONCAT('|order|shipments|detail|',sh.order_id,'|',sh.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM order_items AS item
+INNER JOIN aliquot_masters AS aliq ON aliq.id = item.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN shipments AS sh ON sh.id = item.shipment_id AND sh.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE item.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(alr.id, 5) AS id,
+aliq.id AS aliquot_master_id,
+'specimen review' AS use_definition, 
+spr.review_code AS use_code,
+'' AS use_details,
+'' AS used_volume,
+'' AS aliquot_volume_unit,
+spr.review_date AS use_datetime,
+spr.review_date_accuracy AS use_datetime_accuracy,
+'' AS used_by,
+alr.created,
+CONCAT('|inventorymanagement|specimen_reviews|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',spr.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_review_masters AS alr
+INNER JOIN aliquot_masters AS aliq ON aliq.id = alr.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN specimen_review_masters AS spr ON spr.id = alr.specimen_review_master_id AND spr.deleted != 1
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE alr.deleted != 1
+
+UNION ALL
+
+SELECT 
+CONCAT(aluse.id, 6) AS id,
+aliq.id AS aliquot_master_id,
+'internal use' AS use_definition, 
+aluse.use_code,
+aluse.use_details,
+aluse.used_volume,
+aliqc.volume_unit AS aliquot_volume_unit,
+aluse.use_datetime,
+aluse.use_datetime_accuracy,
+aluse.used_by,
+aluse.created,
+CONCAT('|inventorymanagement|aliquot_masters|detailAliquotInternalUse|',aliq.id,'|',aluse.id) AS detail_url,
+samp.id AS sample_master_id,
+samp.collection_id AS collection_id
+FROM aliquot_internal_uses AS aluse
+INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
+INNER JOIN aliquot_controls AS aliqc ON aliq.aliquot_control_id = aliqc.id
+INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
+WHERE aluse.deleted != 1;
