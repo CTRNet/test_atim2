@@ -135,6 +135,26 @@ class UsersController extends AdministrateAppController {
 			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
 		}
 	}
+	
+	function search($search_id = 0){
+		$this->set( 'atim_menu', $this->Menus->get('/administrate/groups') );
+		$this->Structures->set('users');
+		
+		if(!empty($this->data)){
+			//new search
+			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
+			$this->data = $this->paginate($this->User, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['User']['count'];
+			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/administrate/users/search';
+		}else if($search_id != 0){
+			//load search
+			$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+		}
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
 }
 
-?>
