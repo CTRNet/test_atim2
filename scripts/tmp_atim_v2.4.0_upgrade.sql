@@ -67,7 +67,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("save preset", "Save preset", "Enregistrer une configuration prédéfinie"),
 ("saved presets", "Saved presets", "Configurations prédéfinies enregistrées"),
 ("atim presets", "ATiM presets", "Configurations prédéfinies d'ATiM"),
-("search for users", "Search for users", "Chercher des utilisateurs");
+("search for users", "Search for users", "Chercher des utilisateurs"),
+("not done participant messages having reached their due date"
+ "Not done participant message(s) having reached their due date.",
+ "Message(s) des participants pas faits ayant atteint leur date d'échéance.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -517,3 +520,14 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 
 INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_params, use_summary, flag_active, created, created_by, modified, modified_by) VALUES
 ('core_CAN_41_5', 'core_CAN_41', 0, 4, 'search for users', '', '/administrate/users/search/', '', '', 1, NOW(), 1, NOW(), 1); 
+
+ALTER TABLE participant_messages
+ ADD COLUMN done TINYINT UNSIGNED DEFAULT 0 AFTER `participant_id`;
+ALTER TABLE participant_messages_revs
+ ADD COLUMN done TINYINT UNSIGNED DEFAULT 0 AFTER `participant_id`;
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ParticipantMessage', 'participant_messages', 'done', 'checkbox',  NULL , '0', '', '', '', 'done', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='participantmessages'), (SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='done' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='done' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantmessages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
