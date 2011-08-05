@@ -72,6 +72,19 @@ class InventorymanagementAppController extends AppController {
 			}
 		}
 	}
+	
+	function setAliquotMenu($data){
+		$atim_menu_link = ($data['SampleControl']['sample_category'] == 'specimen')?
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+		$this->set('atim_menu_variables', array(
+			'Collection.id' => $data['AliquotMaster']['collection_id'], 
+			'SampleMaster.id' => $data['AliquotMaster']['sample_master_id'], 
+			'SampleMaster.initial_specimen_sample_id' => $data['SampleMaster']['initial_specimen_sample_id'], 
+			'AliquotMaster.id' => $data['AliquotMaster']['id'])
+		);
+	}
 }
 
 ?>

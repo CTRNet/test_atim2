@@ -30,7 +30,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
-	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => ''))); 
+	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => '')));
+
+	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 		
 	function summary($variables=array()) {
 		$return = false;
@@ -42,8 +44,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$result['AliquotMaster']['storage_coord_y'] = "";
 			}
 			$return = array(
-					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
-					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'data'				=> $result,
 					'structure alias'	=> 'aliquotmasters'
 			);
@@ -562,6 +564,28 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		return $results;
 	}
+	
+	function beforeFind($queryData){
+		$queryData['joins'][] = array(
+			'table' => 'sample_masters',
+			'alias'	=> 'sample_master_dup',
+			'type'	=> 'INNER',
+			'conditions' => array('AliquotMaster.sample_master_id = sample_master_dup.id')
+		);
+		$queryData['joins'][] = array(
+			'table' => 'sample_controls',
+			'alias'	=> 'SampleControl',
+			'type'	=> 'INNER',
+			'conditions' => array('sample_master_dup.sample_control_id = SampleControl.id')
+		);
+		if(empty($queryData['fields'])){
+			$queryData['fields'] = array('*');
+		}
+		
+		return $queryData;
+	}
+	
+	static function joinOnAliquotDup($on_field){
+		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'INNER', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
+	}
 }
-
-?>
