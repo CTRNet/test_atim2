@@ -464,6 +464,7 @@ ul#main_menu_for_header li a {
 	width: 190px;
 	top: 40px;
 	right: 0px;
+	padding-top: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, from(#628cae), color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
 	background: -moz-linear-gradient(top,  #628cae,  #7aaed8, #628cae); /* for firefox 3.6+ */
 }
@@ -1149,7 +1150,7 @@ a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center 
 a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
 a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
 a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
-a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat;}
+a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat 3px center; }
 a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
 a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
