@@ -2361,6 +2361,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $ids, 'AliquotMaster.collection_id' => $collection_id)));
 		foreach($this->data as &$aliquot){
 			$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
+			$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 		}
 	}
 }

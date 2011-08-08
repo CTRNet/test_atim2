@@ -1076,6 +1076,9 @@ span.help {
 				div.nodeBlock .rightPart{
 					margin-left: 33px;
 				}
+				div.nodeBlock .rightPart.disabled{
+					color: grey;
+				}
 				ul#tree_root li.at { background-color: #ffc; }
 				ul#tree_root li a.reveal {
 					display: inline-block;
