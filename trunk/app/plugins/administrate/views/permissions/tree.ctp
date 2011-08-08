@@ -39,22 +39,4 @@
 			$("#frame").html(data);
 		});
 	}
-	/*function loadPreset(){
-		if($("#loadPresetPopup").length == 0){
-			buildDialog("loadPresetPopup", null, null, null);
-			$("#loadPresetPopup").find("div").first().html("<div class='loading'>--- loading ---</div>");
-			$.get(root_url + "administrate/permissions/loadPreset/", null, function(data){
-				var isVisible = $("#loadPresetPopup:visible").length;
-				$("#loadPresetPopup").find("div").first().html(data);
-				if(isVisible){
-					$("#loadPresetPopup:visible").popup();
-				}
-			});
-		}
-		$("#loadPresetPopup").popup();
-	}
-*/
-	
-
-	
 </script>

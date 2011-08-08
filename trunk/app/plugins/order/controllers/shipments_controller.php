@@ -8,7 +8,7 @@ class ShipmentsController extends OrderAppController {
 		'Order.Shipment', 
 		'Order.Order', 
 		'Order.OrderItem', 
-		'Order.OrderLine', 
+		'Order.OrderLine',
 		
 		'Inventorymanagement.AliquotMaster');
 		
@@ -394,6 +394,40 @@ class ShipmentsController extends OrderAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
+	}
+	
+	function manageContact(){
+		$this->Structures->set('shipment_recipients');
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+		$this->data = $contacts_model->find('all');
+	}
+	
+	function saveContact(){
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		
+		if(!empty($this->data) && isset($this->data['Shipment'])){
+			$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country"), null);
+			$shipment_data = array_intersect_key($this->data['Shipment'], $shipment_contact_keys);
+			
+			$contacts_model->save($shipment_data);
+			
+			__('your data has been saved');
+			exit;
+		} 
+	}
+	
+	function deleteContact($contact_id){
+		$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+		$contacts_model->atim_delete($contact_id);
+		exit;
 	}
 }
 
