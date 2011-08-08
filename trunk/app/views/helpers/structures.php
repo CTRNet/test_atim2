@@ -1217,8 +1217,8 @@ class StructuresHelper extends Helper {
 			// reveal sub ULs if sub ULs exist
 			$links = "";
 			$expand_key = "";
+			echo '<div class="nodeBlock"><div class="leftPart">- ';	
 			if(count($options['links']['tree'])){
-				echo '<div><span class="divider">|</span> ';	
 				$i = 0;
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
@@ -1232,20 +1232,20 @@ class StructuresHelper extends Helper {
 				}
 			}else if (count($options['links']['index'])){
 				//apply prebuilt links
-				$links = '<div><span class="divider">|</span> '.$this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
+				$links = $this->strReplaceLink($options['links']['tree'][$expand_key], $data_val);
 			}
 			if(is_array($children)){
 				if(empty($children)){
-					echo '<a class="reveal not_allowed href="#" onclick="return false;">+</a> ';
+					echo '<a class="reveal not_allowed href="#" onclick="return false;">+</a> | ';
 				}else{
-					echo '<a class="reveal activate" href="#" onclick="return false;">+</a> ';
+					echo '<a class="reveal activate" href="#" onclick="return false;">+</a> | ';
 				}
 			}else if($children){
-				echo '<a class="reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> ';
+				echo '<a class="reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> | ';
 			}else{
-				echo '<a class="reveal not_allowed" href="#" onclick="return false;">+</a> ';
+				echo '<a class="reveal not_allowed" href="#" onclick="return false;">+</a> | ';
 			}
-			echo $links;
+			echo '</div><div class="rightPart"><span class="nowrap">',$links,'</span>';
 		
 			if(count($options['settings']['tree'])){
 				foreach($data_val as $model_name => $model_array){
@@ -1293,7 +1293,7 @@ class StructuresHelper extends Helper {
 				}
 			}
 				
-			echo('</div>');
+			echo '</div></div>';
 			
 			// create sub-UL, calling this NODE function again, if model has any CHILDREN
 			if(is_array($children) && !empty($children)){

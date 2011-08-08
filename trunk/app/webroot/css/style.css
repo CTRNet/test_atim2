@@ -1059,21 +1059,36 @@ span.help {
 					font-size: 120%;
 					font-weight: bolder;
 				}
-				ul#tree_root li { background-color: #fff; }
+				ul#tree_root ul{
+					border-left: dotted 1px black;
+				}
+				ul#tree_root:first-child li { 
+					background-color: #fff; 
+				}
+				div.nodeBlock{
+					margin-left: -5px;
+					vertical-align: top;
+					position: relative;
+				}
+				div.nodeBlock .leftPart{
+					float: left;
+				}
+				div.nodeBlock .rightPart{
+					margin-left: 33px;
+				}
 				ul#tree_root li.at { background-color: #ffc; }
 				ul#tree_root li a.reveal {
-					display: block;
-					float: left;
+					display: inline-block;
 					width: 20px;
 					text-indent: -9999px;
+					vertical-align: top;
 				}
 				ul#tree_root li a.reveal.not_allowed {
-					display: block;
-					float: left;
-					text-indent: -9999px;
-					
 					filter:alpha(opacity=30);
 					opacity: 0.3;
+				}
+				.floatLeft{
+					float: left;
 				}
 				a.form { 
 					padding: 1px 0px 1px 16px;
@@ -1188,7 +1203,6 @@ div.wrapper table.structure table.columns.tree ul ul {
 	margin-left: 1em;
 	margin-bottom: 2em;
 	border: 3px solid #cacdf2;
-	border-left: 1px dotted #ddf;
 	border-right: none;
 }
 div.wrapper table.structure table.extra td {
