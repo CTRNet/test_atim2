@@ -122,6 +122,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 			foreach($aliquots as &$aliquot){
 				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
+				$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 			}
 			$this->data = array_merge($this->data, $aliquots);
 		}
@@ -133,7 +134,6 @@ class SampleMastersController extends InventorymanagementAppController {
 		if($hook_link){
 			require($hook_link); 
 		}
-		
 	}
 	
 	function listAll($collection_id, $initial_specimen_sample_id, $filter_option = null) {

@@ -1207,7 +1207,6 @@ class StructuresHelper extends Helper {
 				$children = $data_val['children'];
 				unset($data_val['children']);
 			}
-			
 			echo'
 				<li>
 			';
@@ -1245,7 +1244,9 @@ class StructuresHelper extends Helper {
 			}else{
 				echo '<a class="reveal not_allowed" href="#" onclick="return false;">+</a> | ';
 			}
-			echo '</div><div class="rightPart"><span class="nowrap">',$links,'</span>';
+			
+			$data_val['css'][] = 'rightPart';
+			echo '</div><div class="'.implode(' ', $data_val['css']).'"><span class="nowrap">',$links,'</span>';
 		
 			if(count($options['settings']['tree'])){
 				foreach($data_val as $model_name => $model_array){
