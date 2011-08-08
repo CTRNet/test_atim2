@@ -61,14 +61,14 @@ function txPostWrite(Model $m){
 		case 'surgery':
 		case 'surgery(other)':
 		case 'surgery(ovarectomy)':
-			$query = "INSERT INTO txd_surgeries (tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-				."(".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "INSERT INTO txd_surgeries (tx_master_id, deleted) VALUES "
+				."(".$m->last_id.", 0)";
+			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_surgeries_revs (id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-					."SELECT id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
-				mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$query = "INSERT INTO txd_surgeries_revs (id, tx_master_id,  version_created)  "
+					."SELECT id, tx_master_id,NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
+				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
 			break;
@@ -76,27 +76,27 @@ function txPostWrite(Model $m){
 		case 'radiology':
 		case 'radiotherapy':
 		case 'hormonal therapy':
-			$query = "INSERT INTO qc_tf_tx_empty (tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-				."(".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "INSERT INTO qc_tf_tx_empty (tx_master_id, deleted) VALUES "
+				."(".$m->last_id.", 0)";
+			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO qc_tf_tx_empty_revs (id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-					."SELECT id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
-				mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$query = "INSERT INTO qc_tf_tx_empty_revs (id, tx_master_id, version_created)  "
+					."SELECT id, tx_master_id,  NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
+				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				
 			}
 			break;
 			
 		case 'chimiotherapy':
-			$query = "INSERT INTO txd_chemos (tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-				."(".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "INSERT INTO txd_chemos (tx_master_id, deleted) VALUES "
+				."(".$m->last_id.", 0)";
+			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_chemos_revs (id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-				."SELECT id, tx_master_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
-				mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$query = "INSERT INTO txd_chemos_revs (id, tx_master_id,  version_created)  "
+				."SELECT id, tx_master_id,  NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
+				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
 			for($i = 1; $i <= 4; $i ++){
@@ -107,14 +107,14 @@ function txPostWrite(Model $m){
 						echo "<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line [".$m->line."]\n";
 					}
 					
-					$query = "INSERT INTO txe_chemos(tx_master_id, drug_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-						."(".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'), NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
-					mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+					$query = "INSERT INTO txe_chemos(tx_master_id, drug_id, deleted) VALUES "
+						."(".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'), 0)";
+					mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 					
 					if(Config::$insert_revs){
-						$query = "INSERT INTO txe_chemos_revs(id, tx_master_id, drug_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-						."SELECT id, tx_master_id, drug_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM txe_chemos WHERE id='".mysqli_insert_id($connection)."'";
-						mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+						$query = "INSERT INTO txe_chemos_revs(id, tx_master_id, drug_id,  version_created)  "
+						."SELECT id, tx_master_id, drug_id,  NOW() FROM txe_chemos WHERE id='".mysqli_insert_id($connection)."'";
+						mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 					}
 				}
 			}

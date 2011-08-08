@@ -15,27 +15,27 @@ $fields = array(
 //	"middle_name" => "",
 //	"last_name" => "",
 	"date_of_birth" => "Date of Birth Date",
-	"dob_date_accuracy" => array("Date of Birth date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"date_of_birth_accuracy" => array("Date of Birth date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 //	"marital_status" => "",
 //	"language_preferred" => "",
 //	"sex" => "",
 //	"race" => "",
 	"vital_status" => array("Death Death" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
 	"date_of_death" => "Registered Date of Death Date",
-	"dod_date_accuracy" => array("Registered Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"date_of_death_accuracy" => array("Registered Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 //	"cod_icd10_code" => "",
 //	"secondary_cod_icd10_code" => "",
 //	"cod_confirmation_source" => "",
 	"participant_identifier" => "@tmp_id",
 //	"last_chart_checked_date" => "",
 	"qc_tf_suspected_date_of_death" => "Suspected Date of Death Date",
-	"qc_tf_sdod_accuracy" => array("Suspected Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_suspected_date_of_death_accuracy" => array("Suspected Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_family_history" => array("family history" => new ValueDomain("qc_tf_fam_hist", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 
 
 	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_last_contact" => "Date of Last Contact Date",
-	"qc_tf_last_contact_acc" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_last_contact_accuracy" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_bank_id"				=> "#qc_tf_bank_id",
 	"notes" => "notes"
 );
@@ -78,8 +78,8 @@ function postParticipantWrite(Model $m){
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 	if(Config::$insert_revs){
-		$query = "INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control_id, identifier_name, identifier_abrv, effective_date, expiry_date, participant_id, notes, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-			."SELECT id, identifier_value, misc_identifier_control_id, identifier_name, identifier_abrv, effective_date, expiry_date, participant_id, notes, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM misc_identifiers WHERE id='".mysqli_insert_id($connection)."'";
+		$query = "INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control_id, effective_date, expiry_date, participant_id, notes, modified_by, version_created) "
+			."(SELECT id, identifier_value, misc_identifier_control_id, effective_date, expiry_date, participant_id, notes, modified_by, NOW() FROM misc_identifiers WHERE id='".mysqli_insert_id($connection)."')";
 		mysqli_query($connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	}
 }
@@ -87,10 +87,10 @@ function postParticipantWrite(Model $m){
 $model = new Model(0, $pkey, $child, true, NULL, NULL, 'participants', $fields);
 $model->custom_data = array(
 	"date_fields" => array(
-		$fields["date_of_birth"]					=> current(array_keys($fields["dob_date_accuracy"])), 
-		$fields["date_of_death"]					=> current(array_keys($fields["dod_date_accuracy"])), 
-		$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_sdod_accuracy"])), 
-		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_acc"])))
+		$fields["date_of_birth"]					=> current(array_keys($fields["date_of_birth_accuracy"])), 
+		$fields["date_of_death"]					=> current(array_keys($fields["date_of_death_accuracy"])), 
+		$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_suspected_date_of_death_accuracy"])), 
+		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_accuracy"])))
 );
 
 $model->post_read_function = 'postParticipantRead';
