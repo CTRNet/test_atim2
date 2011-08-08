@@ -68,9 +68,11 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("saved presets", "Saved presets", "Configurations prédéfinies enregistrées"),
 ("atim presets", "ATiM presets", "Configurations prédéfinies d'ATiM"),
 ("search for users", "Search for users", "Chercher des utilisateurs"),
-("not done participant messages having reached their due date"
+("not done participant messages having reached their due date",
  "Not done participant message(s) having reached their due date.",
- "Message(s) des participants pas faits ayant atteint leur date d'échéance.");
+ "Message(s) des participants pas faits ayant atteint leur date d'échéance."),
+("manage contacts", "Manage contacts", "Gérer les contacts"),
+("save contact", "Save contact", "Enregistrer un contact");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -531,3 +533,56 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='participantmessages'), (SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='done' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='done' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantmessages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+CREATE TABLE shipment_contacts(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ recipient VARCHAR(60) NOT NULL DEFAULT '',
+ facility VARCHAR(60) NOT NULL DEFAULT '',
+ delivery_street_address VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_city VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_province VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_postal_code VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_country VARCHAR(2550) NOT NULL DEFAULT '',
+ `created` datetime NOT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime NOT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0'
+)Engine=InnoDb;
+CREATE TABLE shipment_contacts_revs(
+ id INT UNSIGNED NOT NULL,
+ recipient VARCHAR(60) NOT NULL DEFAULT '',
+ facility VARCHAR(60) NOT NULL DEFAULT '',
+ delivery_street_address VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_city VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_province VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_postal_code VARCHAR(2550) NOT NULL DEFAULT '',
+ delivery_country VARCHAR(2550) NOT NULL DEFAULT '',
+`modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+)Engine=InnoDb;
+
+INSERT INTO structures(`alias`) VALUES ('shipment_recipients');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'ShipmentContact', 'shipments_contacts', 'recipient', 'input',  NULL , '0', '', '', '', 'recipient', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'facility', 'input',  NULL , '0', '', '', '', 'facility', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'delivery_street_address', 'input',  NULL , '0', '', '', '', 'delivery street address', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'delivery_city', 'input',  NULL , '0', '', '', '', 'delivery city', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'delivery_province', 'input',  NULL , '0', '', '', '', 'delivery province', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'delivery_postal_code', 'input',  NULL , '0', '', '', '', 'delivery postal code', ''), 
+('Order', 'ShipmentContact', 'shipments_contacts', 'delivery_country', 'input',  NULL , '0', '', '', '', 'delivery country', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='recipient' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='recipient' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='facility' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='facility' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='delivery_street_address' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery street address' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='delivery_city' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery city' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='delivery_province' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery province' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='delivery_postal_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery postal code' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipments_contacts' AND `field`='delivery_country' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery country' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+
+
+
+
