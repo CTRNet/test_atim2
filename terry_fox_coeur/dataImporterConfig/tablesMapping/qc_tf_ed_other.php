@@ -5,10 +5,10 @@ $fields = array(
 	"participant_id" => $pkey,
 	"event_control_id" => array("Event Type" => array("radiology" => 40, "biopsy" => 41)),
 	"event_date" => "Date of event (beginning) Date",
-	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"event_type" => array("Event Type" => array("radiology" => 'radiology', "biopsy" => 'biopsy')),
-	"event_group" => "#event group",
-	"disease_site" => "@other"
+	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
+//	"event_type" => array("Event Type" => array("radiology" => 'radiology', "biopsy" => 'biopsy')),
+//	"event_group" => "#event group",
+//	"disease_site" => "@other"
 );
 
 $model = new Model(4, $pkey, array(), false, "participant_id", $pkey, 'event_masters', $fields);

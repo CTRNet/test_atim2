@@ -49,7 +49,7 @@ class Config{
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
-	static $insert_revs		= false;//wheter to insert generated queries data in revs as well
+	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
 	
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
@@ -80,6 +80,7 @@ class Config{
 	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chimiotherapy', 'radiotherapy');
 	static $opc_file_event_types	= array('biopsy', 'surgery', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	
+	static $sample_aliquot_controls = array();
 	static $banks = array();
 	static $drugs	= array();
 	static $tissue_source = array();
@@ -101,9 +102,6 @@ Config::$addon_queries_end[] = "UPDATE collections AS c
 	SET c.acquisition_label=CONCAT(ccl.participant_id, '-', c.id)
 	WHERE c.id IN(SELECT mysql_id FROM id_linking AS l WHERE l.csv_reference='collections')";
 Config::$addon_queries_end[] = "TRUNCATE id_linking";
-Config::$addon_queries_end[] = "UPDATE misc_identifiers AS i
-INNER JOIN misc_identifier_controls AS c ON i.misc_identifier_control_id=c.id
-SET i.identifier_name=c.misc_identifier_name, i.identifier_abrv=c.misc_identifier_name_abbrev";
 Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
 Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('AUTOGEN - ', id) WHERE barcode=''";
 //add some value domains names that you want to use in post read/write functions
@@ -115,7 +113,6 @@ Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('AUTOG
 
 Config::$value_domains['qc_tf_ct_scan_precision']= new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 Config::$value_domains['tissue_laterality']= new ValueDomain("tissue_laterality", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-Config::$value_domains['qc_tf_flash_frozen_volume_unit']= new ValueDomain("qc_tf_flash_frozen_volume_unit", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "participants";
@@ -181,6 +178,21 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$drugs[] = $row['generic_name'];
 	}	
+	
+	$query = "select id,sample_type from sample_controls where sample_type in ('tissue','blood', 'ascite', 'serum', 'plasma', 'dna', 'blood cell')";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'aliquots' => array());
+	}	
+	if(sizeof(Config::$sample_aliquot_controls) != 7) die("get sample controls failed");
+	
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'volume_unit' => $row['volume_unit']);
+		}	
+	}
 
 	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
 		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
@@ -204,6 +216,9 @@ function checkAndAddIdentifier($identifier_value, $identifier_control_id){
 }
 
 function addonFunctionEnd(){
+	
+	// COLLECTION LINK CREATION
+	
 	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) GROUP BY participant_id HAVING c > 1";
 	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
 	$ids = array();
@@ -239,7 +254,7 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
 	}	
 	
-	"UPDATE xxx SET = null WHERE xxxx LIKE '0000-00-00%'";
+	// EMPTY DATES CLEAN UP
 	
 	$date_times_to_check = array(
 		'collections.collection_datetime',
@@ -263,13 +278,5 @@ function addonFunctionEnd(){
 			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");			
 		}
 	}
-	
-	echo "----------------------------------------------------\n";
-	echo " !!!!!!!!!!!! translation to do\n";
-	echo " !!!!!!!!!!!! allow search on diagnosis detail into databrowser to do\n";	
-
-	
-	
-	
 	
 }

@@ -4,9 +4,9 @@ $pkey = "Patient Biobank Number (required)";
 $fields = array(
 	"participant_id" => $pkey,
 	"event_control_id" => array("Event Type" => array("ct scan" => 38, "ca125" => 37, "biopsy" => 39)),
-	"disease_site" => "@EOC",
-	"event_group" => "#event group",
-	"event_type" => array("Event Type" => array("ct scan" => 'ct scan', "ca125" => 'ca125', "biopsy" => 'biopsy')),
+//	"disease_site" => "@EOC",
+//	"event_group" => "#event group",
+//	"event_type" => array("Event Type" => array("ct scan" => 'ct scan', "ca125" => 'ca125', "biopsy" => 'biopsy')),
 	"event_date" => "Date of event (beginning) Date",
 	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );
@@ -44,13 +44,13 @@ function edPostWrite(Model $m){
 			echo "ERROR: 'CA125  Precision (U)' should be numeric [",$m->file,"] at line [", $m->line,"]\n";
 		}
 		
-		$query = "INSERT INTO qc_tf_ed_ca125s (event_master_id, precision_u, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-			."(".$m->last_id.", '".$m->values['CA125  Precision (U)']."', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
+		$query = "INSERT INTO qc_tf_ed_ca125s (event_master_id, precision_u, deleted) VALUES "
+			."(".$m->last_id.", '".$m->values['CA125  Precision (U)']."', 0)";
 		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		if(Config::$insert_revs){
-			$query = "INSERT INTO qc_tf_ed_ca125s_revs (id, event_master_id, precision_u, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES"
-				."SELECT id, event_master_id, precision_u, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM qc_tf_ed_ca125s WHERE id='".mysqli_insert_id($connection)."'";
+			$query = "INSERT INTO qc_tf_ed_ca125s_revs (id, event_master_id, precision_u, version_created) "
+				."SELECT id, event_master_id, precision_u, NOW() FROM qc_tf_ed_ca125s WHERE id='".mysqli_insert_id($connection)."'";
 			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
 		
@@ -61,24 +61,24 @@ function edPostWrite(Model $m){
 			echo "WARNING: Unmatched ct scan value [",$m->values['CT Scan Precision'],"] at line [".$m->line."]\n";
 			$ct_scan_value = $m->values['CT Scan Precision'];
 		}
-		$query = "INSERT INTO qc_tf_ed_ct_scans (event_master_id, scan_precision, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-			."(".$m->last_id.", '".$ct_scan_value."', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
+		$query = "INSERT INTO qc_tf_ed_ct_scans (event_master_id, scan_precision, deleted) VALUES "
+			."(".$m->last_id.", '".$ct_scan_value."', 0)";
 		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		if(Config::$insert_revs){
-			$query = "INSERT INTO qc_tf_ed_ct_scans_revs (id, event_master_id, scan_precision, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-				." SELECT id, event_master_id, scan_precision, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM qc_tf_ed_ct_scans WHERE id='".mysqli_insert_id($connection)."'";
+			$query = "INSERT INTO qc_tf_ed_ct_scans_revs (id, event_master_id, scan_precision, version_created)  "
+				." SELECT id, event_master_id, scan_precision, NOW() FROM qc_tf_ed_ct_scans WHERE id='".mysqli_insert_id($connection)."'";
 			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
 		
 	}else if(($m->values['Event Type'] == 'biopsy') || ($m->values['Event Type'] == 'radiology')){
-		$query = "INSERT INTO qc_tf_ed_no_details (event_master_id, created, created_by, modified, modified_by, deleted, deleted_date) VALUES "
-			."(".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.", 0, NULL)";
+		$query = "INSERT INTO qc_tf_ed_no_details (event_master_id, deleted) VALUES "
+			."(".$m->last_id.", 0)";
 		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		if(Config::$insert_revs){
-			$query = "INSERT INTO qc_tf_ed_no_details_revs (id, event_master_id, created, created_by, modified, modified_by, deleted, deleted_date, version_created) VALUES "
-				."SELECT id, event_master_id, created, created_by, modified, modified_by, deleted, deleted_date, NOW() FROM qc_tf_ed_no_details WHERE id='".mysqli_insert_id($connection)."'";
+			$query = "INSERT INTO qc_tf_ed_no_details_revs (id, event_master_id, version_created)  "
+				."SELECT id, event_master_id, NOW() FROM qc_tf_ed_no_details WHERE id='".mysqli_insert_id($connection)."'";
 			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
 	}else{
