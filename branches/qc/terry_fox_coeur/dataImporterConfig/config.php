@@ -29,12 +29,12 @@ class Config{
 	static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/test.xls";
 	
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUM-COEUR-clinical data-v0.1.15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUS-COEUR v1-15.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/McGill-COEUR- v1-15.xls";
-	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CBCF-1.15.xls";//file to read
-	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CHUQ-clinical data v4-1.15.xls";//file to read
-	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-OVCare v0-1.15.xls";//file to read
-	//static $xls_file_path	= "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15.xls";//file to read
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUS-COEUR v1-15_reviewed.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/McGill-COEUR- v1-15_reviewed.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CBCF-1.15_reviewed.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CHUQ-clinical data v4-1.15_reviewed.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-OVCare v0-1.15_reviewed.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15_reviewed.xls";
 	
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/DEMO.xls";
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/CHUM-COEUR-clinical data-v0.1.15.xls";
@@ -77,6 +77,8 @@ class Config{
 		Config::$models[$ref_name] = $m;
 	}
 
+	static $eoc_primary_dx_file_fields = array('', '', '', '', '', '');
+	
 	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chimiotherapy', 'radiotherapy');
 	static $opc_file_event_types	= array('biopsy', 'surgery', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	
@@ -93,17 +95,13 @@ Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
 Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
 
 //add your end queries here
-Config::$addon_queries_end[] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
-	(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
-	FROM id_linking AS p 
-	INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
-Config::$addon_queries_end[] = "UPDATE collections AS c 
-	INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
-	SET c.acquisition_label=CONCAT(ccl.participant_id, '-', c.id)
-	WHERE c.id IN(SELECT mysql_id FROM id_linking AS l WHERE l.csv_reference='collections')";
-Config::$addon_queries_end[] = "TRUNCATE id_linking";
-Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
-Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('AUTOGEN - ', id) WHERE barcode=''";
+//Config::$addon_queries_end[] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
+//	(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
+//	FROM id_linking AS p 
+//	INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
+//Config::$addon_queries_end[] = "TRUNCATE id_linking";
+//Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
+//Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
 //add some value domains names that you want to use in post read/write functions
 //Config::$value_domains[] = "...";
 
@@ -217,7 +215,7 @@ function checkAndAddIdentifier($identifier_value, $identifier_control_id){
 
 function addonFunctionEnd(){
 	
-	// COLLECTION LINK CREATION
+	// DIAGNOSIS / TRT / EVENT LINKS CREATION
 	
 	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) GROUP BY participant_id HAVING c > 1";
 	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
@@ -254,6 +252,23 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
 	}	
 	
+	// COLLECTION / PARTICIPANTS LINKS CREATION
+	
+	$query = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
+		(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
+		FROM id_linking AS p 
+		INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
+	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	
+	if(Config::$insert_revs){
+		$query = "INSERT INTO clinical_collection_links_revs (id, participant_id, collection_id, modified_by, version_created) "
+			."(SELECT id, participant_id, collection_id, modified_by, NOW() FROM clinical_collection_links WHERE collection_id IN (SELECT c.mysql_id FROM id_linking AS c WHERE c.csv_reference='collections'))";
+		mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
+	
+	$query = "TRUNCATE id_linking";
+	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	
 	// EMPTY DATES CLEAN UP
 	
 	$date_times_to_check = array(
@@ -279,4 +294,19 @@ function addonFunctionEnd(){
 		}
 	}
 	
+	// LAST DATA UPDATE
+	
+	$query = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	if(Config::$insert_revs){
+		$query = "UPDATE participants_revs SET vital_status='deceased' WHERE vital_status='dead'";
+		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	}
+	
+	$query = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	if(Config::$insert_revs){
+		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
+		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	}
 }

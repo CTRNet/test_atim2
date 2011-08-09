@@ -30,7 +30,7 @@ function progressionSiteNumPostRead(Model $m){
 	
 	if(strtoupper($m->values[$m->custom_data['site_label']]) == 'CA125'){
 		//forcing values for CA125
-		$m->values[$m->custom_data['site_label']] = 'not applicable';
+		$m->values[$m->custom_data['site_label']] = 'unknown';
 		$m->values['qc_tf_progression_detection_method'] = 'ca125';
 	}else{
 		//forcing other values
