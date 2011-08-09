@@ -318,6 +318,9 @@ class AppModel extends Model {
 		}
 		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
+			if(empty($this->data[$this->name][$date_field])){
+				continue;
+			}
 			$current = &$this->data[$this->name][$date_field];
 			if(!empty($current)){
 				list($year, $month, $day) = explode("-", trim($current));

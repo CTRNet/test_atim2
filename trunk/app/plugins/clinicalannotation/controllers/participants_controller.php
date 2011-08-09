@@ -279,13 +279,14 @@ class ParticipantsController extends ClinicalannotationAppController {
 			$participants = $this->Participant->find('all', array('conditions' => array('Participant.id' => explode(",", $this->data[0]['ids']))));
 			$this->Structures->set('participants');
 			//fake participant to validate
+			AppController::removeEmptyValues($this->data['Participant']);
 			$this->Participant->set($this->data);
 			if($this->Participant->validates()){
 				$ids = explode(",", $this->data[0]['ids']);
-				$this->Participant->updateAll(
-					AppController::getUpdateAllValues(array("Participant" => $this->data['Participant'])),
-					array('Participant.id' => $ids)
-				);
+				foreach($ids as $id){
+					$this->Participant->id = $id;
+					$this->Participant->save($this->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->data['Participant'])));
+				}
 				
 				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = array("Participant.id" => $ids);
 				$this->atimFlash('your data has been updated', '/clinicalannotation/Participants/search/');

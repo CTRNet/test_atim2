@@ -904,12 +904,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 					
 				if($data_unit['FunctionManagement']['remove_from_storage']){
-					$aliquot_data['AliquotMaster']['storage_master_id'] = null;
-					$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
-					$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
+					$aliquot_data_to_save[] = array(
+						'id' => $aliquot_master_id,
+						'aliquot_control_id' => $aliquot_data['AliquotMaster']['aliquot_control_id'],
+						'storage_master_id' => null,
+						'storage_coord_x' => null,
+						'storage_coord_y' => null
+					);
 				}
-				
-				$aliquot_data_to_save[] = $aliquot_data['AliquotMaster'];
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
@@ -946,9 +948,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//saving
 				$this->AliquotInternalUse->saveAll($uses_to_save, array('validate' => false));
 				
-				$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
-				foreach($aliquot_data_to_save as $aliquot_data_unit){
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_data_unit['id'], true, true, false);
+				if(!empty($aliquot_data_to_save)){
+					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
+				}
+				foreach($uses_to_save as $use){
+					$this->AliquotMaster->updateAliquotUseAndVolume($use['AliquotInternalUse']['aliquot_master_id'], true, true, false);
 				}
 				
 				$hook_link = $this->hook('post_process');
@@ -957,7 +961,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				if(count($uses_to_save) == 1){
-					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $aliquot_data_to_save[0]['id'] . '/' . $this->AliquotInternalUse->getLastInsertId() . '/');
+					$this->atimFlash('your data has been saved', '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $uses_to_save[0]['AliquotInternalUse']['aliquot_master_id'] . '/' . $this->AliquotInternalUse->getLastInsertId() . '/');
 				}else if(count($aliquot_data_to_save) == 1){
 					$aliquot_data = $this->AliquotMaster->find('first', array(
 						'conditions' => array('AliquotMaster.id' => $aliquot_data_to_save[0]['id']),
@@ -1173,18 +1177,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'OR' => array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL)),
 			'NOT' => array('AliquotMaster.id' => $existing_source_aliquot_ids)
 		);
-		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1'));
+		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		unset($criteria['OR']);
 		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
-		if(empty($available_sample_aliquots_w_volme) && empty($available_sample_aliquots_wo_volume)){
+		if(empty($available_sample_aliquots_w_volume) && empty($available_sample_aliquots_wo_volume)){
 			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/inventorymanagement/aliquot_masters/listAllSourceAliquots/' . $collection_id . '/' . $sample_master_id);
 		}
 		$available_sample_aliquots = array(
 			'vol' 		=> $available_sample_aliquots_w_volume,
 			'no_vol'	=> $available_sample_aliquots_wo_volume
 		);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/aliquot_masters/listAllSourceAliquots/%%Collection.id%%/%%SampleMaster.id%%'));	
@@ -1240,6 +1245,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					unset($studied_aliquot_pointer['StorageMaster']);
+					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_x']);
+					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($studied_aliquot_pointer);
 					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
 					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
