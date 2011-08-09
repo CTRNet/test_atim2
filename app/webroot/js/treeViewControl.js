@@ -10,7 +10,7 @@ function set_at_state_in_tree_root(new_at_li, json){
 	$li = getParentElement(new_at_li, "LI");
 	$($li).addClass("at");
 	$("#frame").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$.get($(this).prop("href"), {}, function(data){
+	$.get($(this).attr("href"), {}, function(data){
 		$("#frame").html(data);
 		initActions();
 	});
@@ -23,7 +23,7 @@ function set_at_state_in_tree_root(new_at_li, json){
 function initAjaxTreeView(scope){
 	$(scope).find(".reveal.notFetched").click(function(){
 		$(this).removeClass("notFetched").unbind('click');
-		var json = getJsonFromClass($(this).prop("class"));
+		var json = getJsonFromClass($(this).attr("class"));
 		var expandButton = $(this);
 		if(json.url != undefined && json.url.length > 0){
 			$(this).addClass("fetching");

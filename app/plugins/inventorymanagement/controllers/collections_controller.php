@@ -33,6 +33,7 @@ class CollectionsController extends InventorymanagementAppController {
 			Configure::write('debug', 0);
 			$this->set("is_ccl_ajax", $is_ccl_ajax);
 		}
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
 		$this->unsetInventorySessionData();
 				
 		$this->Structures->set('view_collection');
@@ -45,7 +46,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if( $hook_link ) { require($hook_link); }			
 	}
 	
-	function search($search_id, $is_ccl_ajax = false) {
+	function search($is_ccl_ajax = false) {
 		if($is_ccl_ajax){
 			//layout = ajax to avoid printing layout
 			$this->layout = 'ajax';
@@ -58,25 +59,25 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$view_collection = $this->Structures->get('form', 'view_collection');
 		$this->set('atim_structure', $view_collection);
-		if ($this->data) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($view_collection);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_collection);
 		
 		if($is_ccl_ajax){
 			$limit = 20;
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'][] = "ViewCollection.participant_id IS NULL";
-			$this->data = $this->ViewCollection->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit + 1));
+			$_SESSION['ctrapp_core']['search']['criteria'][] = "ViewCollection.participant_id IS NULL";
+			$this->data = $this->ViewCollection->find('all', array('conditions' => $_SESSION['ctrapp_core']['search']['criteria'], 'limit' => $limit + 1));
 			if(count($this->data) > $limit){
 				unset($this->data[$limit]);
 				$this->set("overflow", true);
 			}
 			$this->set('collections_data', $this->data);
 		}else{
-			$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']));
+			$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search']['criteria']));
 		}
 		$this->data = array();
 		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['ViewCollection']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/inventorymanagement/collections/search';
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewCollection']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
 		$this->set("help_url", $help_url['ExternalLink']['link']);

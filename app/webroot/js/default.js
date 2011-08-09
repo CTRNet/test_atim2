@@ -200,7 +200,7 @@ function uncheckAll( $div ) {
 			var dayField = null;
 			var date = null;
 			for(var i = 0; i < dateFields.length; i ++){
-				var tmpStr = $(dateFields[i]).prop("name");
+				var tmpStr = $(dateFields[i]).attr("name");
 				var tmpLen = tmpStr.length;
 				if(dateFields[i].nodeName != "SPAN"){
 					if(tmpStr.substr(tmpLen - 7) == "][year]"){
@@ -266,14 +266,14 @@ function uncheckAll( $div ) {
 		$(clickedButton).parent().children("span").hide().each(function(){
 			//store all active field names into their data and remove the name
 			$(this).find("input, select").each(function(){
-				if($(this).prop('name').length > 0){
-					$(this).data('name', $(this).prop('name')).prop('name', ''); 
+				if($(this).attr('name').length > 0){
+					$(this).data('name', $(this).attr('name')).attr('name', ''); 
 				}
 			});
 		});
 		$(clickedButton).parent().find("span." + spanClassToDisplay).show().find('input, select').each(function(){
 			//activate names of displayed fields
-			$(this).prop('name', $(this).data('name'));
+			$(this).attr('name', $(this).data('name'));
 		});
 	}
 	
@@ -285,9 +285,9 @@ function uncheckAll( $div ) {
 		$(scope).find(".btn_add_or").each(function(){
 			var $field = $(this).prev();
 			//non range value, the OR is made to allow fields with CSV to be renamed but not cloned
-			if($($field).find("input, select").length == 1 || ($($field).find("input").length == 2 && $($($field).find("input")[1]).prop("type") == "file")){
+			if($($field).find("input, select").length == 1 || ($($field).find("input").length == 2 && $($($field).find("input")[1]).attr("type") == "file")){
 				$($field).find("input, select").first().each(function(){
-					$(this).prop("name", $(this).prop("name") + "[]");
+					$(this).attr("name", $(this).attr("name") + "[]");
 				});
 				
 				if($($field).find("input").length == 2){
@@ -301,7 +301,7 @@ function uncheckAll( $div ) {
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
@@ -337,9 +337,9 @@ function uncheckAll( $div ) {
 						"<a href='#' class='specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
 				$(cell).find("span:first").addClass("specific_span");
 				
-				var baseName = $(cell).find("input").prop("name");
+				var baseName = $(cell).find("input").attr("name");
 				baseName = baseName.substr(0, baseName.length - 3);
-				tabindex = $(cell).find("input").prop("tabindex");
+				tabindex = $(cell).find("input").attr("tabindex");
 				$(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> " 
 						+ STR_TO 
 						+ " <input type='text' tabindex='" + tabindex + "' name='" + baseName + "_end]'/></span>");					
@@ -352,15 +352,15 @@ function uncheckAll( $div ) {
 				if($(cell).find(".specific_btn").length == 0){
 					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
 					$(cell).find("span:first").addClass("specific_span");
-					tabindex = $(cell).find("input").prop("tabindex");
+					tabindex = $(cell).find("input").attr("tabindex");
 				}
-				var name = $(cell).find("input:last").prop("name");
+				var name = $(cell).find("input:last").attr("name");
 				name = name.substr(0, name.length -3) + "_with_file_upload]";
 				$(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 			});
 			//store hidden field names into their data
 			$(scope).find("span.range_span input, span.file_span input").each(function(){
-				$(this).data('name', $(this).prop('name')).prop('name', "");
+				$(this).data('name', $(this).attr('name')).attr('name', "");
 			});
 			
 			//trigger buttons
@@ -414,14 +414,13 @@ function uncheckAll( $div ) {
 	
 	function initAutocomplete(scope){
 		$(scope).find(".jqueryAutocomplete").each(function(){
-//			var element = $(this);
 			$(this).autocomplete({
 				//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
 				source: (root_url == "/" ? "" : root_url + "/") + $(this).attr("url")
 				//alternate source for debugging
 //				source: function(request, response) {
 //					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
-//						console.log(data);
+//						alert(data);
 //					});
 //				}
 			});
@@ -443,7 +442,7 @@ function uncheckAll( $div ) {
 		};
 		
 		$("form").submit(checkFct);
-		$(".form.submit").unbind('click').prop("onclick", "return false;");
+		$(".form.submit").unbind('click').attr("onclick", "return false;");
 		$(".form.submit").click(checkFct);
 
 		$(".button.confirm").click(function(){
@@ -456,7 +455,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function refreshTopBaseOnAction(){
-		$("form").prop("action", root_url + actionControl + $("#0Action").val());
+		$("form").attr("action", root_url + actionControl + $("#0Action").val());
 	}
 	
 	function initActionControl(actionControl){
@@ -476,11 +475,11 @@ function uncheckAll( $div ) {
 		if(elem.length > 0){
 			parent = getParentElement(elem, "TBODY");
 			$(elem).click(function(){
-				$(parent).find('input[type=checkbox]').prop("checked", true);
+				$(parent).find('input[type=checkbox]').attr("checked", true);
 				return false;
 			});
 			$(scope).find(".uncheckAll").click(function(){
-				$(parent).find('input[type=checkbox]').prop("checked", false);
+				$(parent).find('input[type=checkbox]').attr("checked", false);
 				return false;
 			});
 		}
@@ -494,53 +493,35 @@ function uncheckAll( $div ) {
 		return currElement;
 	}
 	
-	function buildDialog(id, title, content, buttons){
-		var buttonsHtml = "";
-		if(buttons != null && buttons.length > 0){
-			for(i in buttons){
-				buttonsHtml += 
-					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></div>';
-			}
-			buttonsHtml = '<div class="actions">' + buttonsHtml + '</div>';
-		}
-		$("#" + id).remove();
-		$("body").append('<div id="' + id + '" class="std_popup question">' +
-			'<div class="wrapper">' +
-				'<h4>' + title + '</h4>' +
-				(content == null ? '' : ('<div style="padding: 10px;">' + content + '</div>')) +
-				buttonsHtml +
-			'</div>' +
-		'</div>');
-		
-		for(i in buttons){
-			$("#" + id + i).click(buttons[i].action);
-		}
-	}
-	
-	function buildConfirmDialog(id, question, buttons){
-		buildDialog(id, question, null, buttons);
-	}
-	
 	//Delete confirmation dialog
 	function initDeleteConfirm(){
-		if($(".form.delete").length > 0){
-			var yes_action = function(){
-				document.location = $("#deleteConfirmPopup").data('link'); 
-			};
-			var no_action = function(){
-				$("#deleteConfirmPopup").popup('close');
-			}; 
+		if($(".action .form.delete").length > 0){
+			$("body").append('<div id="deleteConfirmPopup" class="std_popup question">' +
+				'<div style="background: #FFF;">' +
+					'<h4>' + STR_DELETE_CONFIRM + '</h4>' +
+					'<span class="button deleteConfirm">' +
+						'<a class="form detail">' + STR_YES + '</a>' +
+					'</span>' +
+					'<span class="button deleteClose">' +
+						'<a class="form delete">' + STR_NO + '</a>' +
+					'</span>' +
+				'</div>' +
+				'<input type="hidden" id="deleteLink" value=""/>' +
+			'</div>');
 			
-			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete ignore"}));
-			
-			$(".form.delete:not(.ignore)").click(function(){
+			$(".form.delete").click(function(){
 				$("#deleteConfirmPopup").popup();
-				$("#deleteConfirmPopup").data('link', $(this).prop("href"));
+				$("#deleteLink").val($(this).attr("href"));
 				return false;
+			});
+			$("#deleteConfirmPopup .deleteConfirm").click(function(){
+				document.location = $("#deleteLink").val(); 
+			});
+			$("#deleteConfirmPopup .deleteClose, #deleteConfirmPopup .delete").click(function(){
+				$("#deleteConfirmPopup").popup('close');
 			});
 		}
 	}
-	
 	//tool_popup
 	function initToolPopup(scope){
 		$(scope).find(".tool_popup").click(function(){
@@ -562,7 +543,7 @@ function uncheckAll( $div ) {
 					break;
 				}
 			}
-			$.get($(this).prop("href"), null, function(data){
+			$.get($(this).attr("href"), null, function(data){
 				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 				$("#default_popup input[type=text]").first().focus();
 			});
@@ -628,7 +609,7 @@ function uncheckAll( $div ) {
 		//evals the json within the class of the element and calls the method defined in callback
 		//the callback method needs to take this and json as parameters
 		$(scope).find(".ajax").click(function(){
-			var json = getJsonFromClass($(this).prop("class"));
+			var json = getJsonFromClass($(this).attr("class"));
 			var fct = eval("(" + json.callback + ")");
 			fct.apply(this, [this, json]);
 			return false;
@@ -639,8 +620,9 @@ function uncheckAll( $div ) {
 		var fields = new Array();
 		var checkbox = null;
 		var codeInputField = null;
+		
 		$(scope).find("input, select, textarea").each(function(){
-			var currName = $(this).prop("name");
+			var currName = $(this).attr("name");
 			for(var i in labBookFields){
 				if(labBookFields[i].length == 0){
 					continue;
@@ -650,8 +632,8 @@ function uncheckAll( $div ) {
 					var parentTd = getParentElement(this, "TD");
 					if($(parentTd).find(".labBook").length == 0){
 						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
-						fields.push($(parentTd).find(".datepicker"));
 					}
+					fields.push($(parentTd).find(".datepicker, .accuracy_target_blue"));
 				}
 			}
 			if(currName.indexOf("[sync_with_lab_book]") > 0){
@@ -661,22 +643,22 @@ function uncheckAll( $div ) {
 			}
 		});
 		
+		var tmpFunc = function(){
+			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+		}; 
+		
 		if(checkbox != null){
-			$(checkbox).click(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(checkbox).click(tmpFunc);
 		}
 		if(codeInputField != null){
-			$(codeInputField).change(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(codeInputField).change(tmpFunc).keyup(tmpFunc).blur(tmpFunc);
 		}
 		
 		if(window.labBookHideOnLoad){
 			$(fields).toggle();
-			$(scope).find(".labBook").toggle();
+			$(scope).find(".labBook").show();
 		}else{
-			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			tmpFunc();
 		}
 	}
 	
@@ -684,12 +666,12 @@ function uncheckAll( $div ) {
 		var toggle = false;
 		if($(scope).find(".labBook:visible").length == 0){
 			//current input are visible, see if we need to hide
-			if((checkbox != null && $(checkbox).prop("checked")) || (codeInputField != null && $(codeInputField).val().length > 0)){
+			if((checkbox != null && $(checkbox).attr("checked")) || (codeInputField != null && $(codeInputField).val().length > 0)){
 				toggle = true;
 			}
 		}else{
 			//current input are hidden, see if we need to display
-			if((checkbox == null || !$(checkbox).prop("checked")) && (codeInputField == null || $(codeInputField).val().length == 0)){
+			if((checkbox == null || !$(checkbox).attr("checked")) && (codeInputField == null || $(codeInputField).val().length == 0)){
 				toggle = true;
 			}
 		}
@@ -701,7 +683,7 @@ function uncheckAll( $div ) {
 	
 	function initLabBookPopup(){
 		$("div.bottom_button a:not(.not_allowed).add").first().click(function(){
-			$.get($(this).prop("href"), labBookPopupAddForm);
+			$.get($(this).attr("href"), labBookPopupAddForm);
 			return false;
 		});
 	}
@@ -711,14 +693,14 @@ function uncheckAll( $div ) {
 		initDatepicker("#default_popup");
 		initTooltips("#default_popup");
 		initAccuracy("#default_popup");
-		$("#default_popup a.form.submit").unbind('click').prop('onclick', '').click(function(){
+		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
 			$(this).hide();
-			$.post($("#default_popup form").prop("action"), $("#default_popup form").serialize(), function(data2){
+			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
 				if(data2.length < 100){
 					//saved
 					$("#default_popup").popup('close');
 					$("input, select").each(function(){
-						if($(this).prop("name").indexOf('lab_book_master_code') != -1){
+						if($(this).attr("name").indexOf('lab_book_master_code') != -1){
 							$(this).val(data2);
 						}
 					});
@@ -744,9 +726,9 @@ function uncheckAll( $div ) {
 					$(this).data("exclusive", true);
 				});
 				$(checkboxes).click(function(){
-					var checked = $(this).prop("checked"); 
-					$(checkboxes).prop("checked", false);
-					$(this).prop("checked", checked);
+					var checked = $(this).attr("checked"); 
+					$(checkboxes).attr("checked", false);
+					$(this).attr("checked", checked);
 				});
 			}
 		});
@@ -757,11 +739,11 @@ function uncheckAll( $div ) {
 			if($(this).find("input").length == 0){
 				//accuracy going to year
 				$(this).parent().find("input, select").each(function(){
-					if($(this).prop("name").indexOf("year") == -1){
+					if($(this).attr("name").indexOf("year") == -1){
 						$(this).hide();
 					}
 				});
-				var name = $(this).parent().find("input, select").first().prop("name");
+				var name = $(this).parent().find("input, select").first().attr("name");
 				$(this).html("<input type='hidden' class='accuracy' name='" + name.substr(0, name.lastIndexOf("[")) + "[year_accuracy]' value='1'/>");
 			}else{
 				//accuracy going to manual
@@ -777,7 +759,7 @@ function uncheckAll( $div ) {
 			}else{
 				var current_accuracy_btn = this;
 				$(this).parent().find("input, select").each(function(){
-					if($(this).prop("name").indexOf("year") != -1 && $(this).hasClass('year_accuracy')){
+					if($(this).attr("name").indexOf("year") != -1 && $(this).hasClass('year_accuracy')){
 						$(this).removeClass('year_accuracy');
 						$(current_accuracy_btn).click();
 					}
@@ -793,9 +775,9 @@ function uncheckAll( $div ) {
 	function initAutoHideVolume(){
 		$("input[type=radio]").click(function(){
 			if(jQuery.inArray($(this).val(), volumeIds) > -1){
-				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").prop("disabled", false);
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
 			}else{
-				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").prop("disabled", true).val("");
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", true).val("");
 			}
 		});
 		$("input[type=radio]:checked").click();
@@ -841,12 +823,9 @@ function uncheckAll( $div ) {
 		if(window.volumeIds){
 			initAutoHideVolume();
 		}
-		if(window.permissionPreset){
-			loadPresetFrame();
-		}
 		
 		if(window.realiquotInit){
-			$("a.submit").prop("onclick", "").unbind('unclick').click(function(){
+			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
 				if($("select").val().length > 0){
 					$("form").submit();
 				}

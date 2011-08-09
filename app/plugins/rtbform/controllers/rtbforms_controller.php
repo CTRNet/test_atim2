@@ -5,23 +5,22 @@ class RtbformsController extends RtbformAppController {
 	var $uses = array('Rtbform.Rtbform');
 	var $paginate = array('Rtbform'=>array('limit' => pagination_amount,'order'=>'Rtbform.frmTitle'));
   
-	function index() {
-		$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+	function index() {$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
 	}
   
-	function search($search_id) {
-		$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+	function search() {$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		$this->set( 'atim_menu', $this->Menus->get('/rtbform/rtbforms/index') );
 		
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		$this->hook();
 		
-		$this->data = $this->paginate($this->Rtbform, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+		$this->data = $this->paginate($this->Rtbform, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Rtbform']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/rtbform/rtbforms/search';
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Rtbform']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/rtbform/rtbforms/search';
 	}
 	
 	function profile( $rtbform_id=null ) {$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );

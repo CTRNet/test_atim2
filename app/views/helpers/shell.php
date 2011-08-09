@@ -6,92 +6,80 @@ class ShellHelper extends Helper {
 	
 	function header($options=array()){
 		$return = '';
+		
 		// get/set menu for menu BAR
 		$menu_array					= $this->menu( $options['atim_menu'], array('variables'=>$options['atim_menu_variables']) );
 		$menu_for_wrapper			= $menu_array[0];
 		
 		// get/set menu for header
-		$main_menu = array();
 		$menu_array					= $this->menu( $options['atim_menu_for_header'], array('variables'=>$options['atim_menu_variables']) );
+		
 		$user_for_header			= '';
 		$root_menu_for_header		= '';
+		
 		if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
 			$logged_in = true;
 			// set HEADER root menu links
+			if(isset($menu_array[1]) && count($menu_array[1])){
 				
-			$root_menu_for_header .= '<ul id="root_menu_for_header" class="header_menu">';
-			$online_wiki_str = __('online wiki', true);
-			$root_menu_for_header .= '
-				<li>
-					'.$this->Html->link( "", "http://ctrnet.ca/mediawiki/index.php/", array("target" => "blank", "class" => "menu help", "title" => $online_wiki_str) ).'
-				</li>';
-			
-			foreach( $menu_array[1] as $key => $menu_item){
-				$html_attributes = array();
-				$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-				$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
-						
-				if($menu_item['Menu']['allowed']){
-					$root_menu_for_header .= '
-							<!-- '.$menu_item['Menu']['id'].' -->
-							<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'">
-								'.$this->Html->link( "", $menu_item['Menu']['use_link'], $html_attributes ).'
-							</li>
-					';
-				}else{
-					$root_menu_for_header .= '
-							<!-- '.$menu_item['Menu']['id'].' -->
-							<li class="not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
-							</li>
-					';
-					
+				$root_menu_for_header .= '<ul id="root_menu_for_header" class="header_menu">';
+				$online_wiki_str = __('online wiki', true);
+				$root_menu_for_header .= '
+					<li>
+						'.$this->Html->link( $online_wiki_str, "http://ctrnet.ca/mediawiki/index.php/", array("target" => "blank", "class" => "menu help", "title" => $online_wiki_str) ).'
+					</li>';
+				
+				foreach( $menu_array[1] as $key => $menu_item){
+					$html_attributes = array();
+					$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+					$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+							
+					if(!$menu_item['Menu']['allowed']){
+						$root_menu_for_header .= '
+								<!-- '.$menu_item['Menu']['id'].' -->
+								<li class="not_allowed count_'.$key.'">
+									<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+								</li>
+						';
+					}else{
+						$root_menu_for_header .= '
+								<!-- '.$menu_item['Menu']['id'].' -->
+								<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
+									'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+								</li>
+						';
+					}
 				}
+				$root_menu_for_header .= '</ul>';
 			}
-			$root_menu_for_header .= '</ul>';
 				
 			// set HEADER main menu links
-			$root_menu_for_header .= '<ul id="main_menu_for_header" class="header_menu">';
-			
-			foreach($menu_array[2] as $key => $menu_item){
-				$html_attributes = array();
-				$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-				$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
+			if(isset($menu_array[2]) && count($menu_array[2])){
+				$root_menu_for_header .= '<ul id="main_menu_for_header" class="header_menu">';
 				
-				if($menu_item['Menu']['allowed']){
-					$root_menu_for_header .= '
-							<!-- '.$menu_item['Menu']['id'].' -->
-							<li class="'.$menu_item['Menu']['id'].'">
-								'.$this->Html->link( "", $menu_item['Menu']['use_link'], $html_attributes );
+				foreach($menu_array[2] as $key => $menu_item){
+					$html_attributes = array();
+					$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+					$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 					
-					if(array_key_exists($menu_item['Menu']['id'], $options['atim_sub_menu_for_header'])){
-						//sub items (level 3)
-						$root_menu_for_header .= '<ul class="sub_menu_for_header '.$menu_item['Menu']['id'].'">';
-						foreach($options['atim_sub_menu_for_header'][$menu_item['Menu']['id']] as $sub_menu_item){
-							$html_attributes = array();
-							$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
-							$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
-							if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
-								$root_menu_for_header .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
-							}
-						}
-						$root_menu_for_header .= '</ul>';
+					if(!$menu_item['Menu']['allowed']){
+						$root_menu_for_header .= '
+								<!-- '.$menu_item['Menu']['id'].' -->
+								<li class="not_allowed count_'.$key.'">
+									<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+								</li>
+						';
+					}else{
+						$root_menu_for_header .= '
+								<!-- '.$menu_item['Menu']['id'].' -->
+								<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$key.'">
+									'.$this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ).'
+								</li>
+						';
 					}
-					
-					$root_menu_for_header .= '		
-						</li>
-					';
-	
-				}else{
-					$root_menu_for_header .= '
-							<!-- '.$menu_item['Menu']['id'].' -->
-							<li class="not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
-							</li>
-					';
 				}
+				$root_menu_for_header .= '</ul>';
 			}
-			$root_menu_for_header .= '</ul>';
 		}else{
 			$logged_in = false;
 		}
@@ -216,8 +204,7 @@ class ShellHelper extends Helper {
 						'.$this->Html->link( __('core_footer_about', true), '/pages/about/' ).' | '
 						.$this->Html->link( __('core_footer_installation', true), '/pages/installation/' ).' | ' 
 						.$this->Html->link( __('core_footer_credits', true), '/pages/credits/' ).'<br/>
-						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'<br/>
-						'.__('core_app_version', true).'
+						'.__('core_copyright', true).' &copy; '.date('Y').' '.$this->Html->link( __('core_ctrnet', true), 'https://www.ctrnet.ca/' ).'
 			</div>
 			<!-- end #footer -->
 			</fieldset>
@@ -329,20 +316,20 @@ class ShellHelper extends Helper {
 							$html_attributes = array();
 							$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
 							
-							if($menu_item['Menu']['allowed']){
+							if(!$menu_item['Menu']['allowed']){
+								$append_menu .= '
+										<!-- '.$menu_item['Menu']['id'].' -->
+										<li class="not_allowed count_'.$sub_count.'">
+											<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+										</li>
+								';
+							}else{
 								$append_menu .= '
 										<!-- '.$menu_item['Menu']['id'].' -->
 										<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
 											'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
 										</li>
 								';
-							}else{
-								$append_menu .= '
-										<!-- '.$menu_item['Menu']['id'].' -->
-										<li class="not_allowed count_'.$sub_count.'">
-											<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
-										</li>
-														';
 							}
 							$sub_count++;
 						}
@@ -461,7 +448,13 @@ class ShellHelper extends Helper {
 				// load MODEL, and override with CUSTOM model if it exists...
 				$summary_model = AppModel::getInstance($plugin, $model, true);
 				$summary_result = $summary_model->{$function}($options['variables']);
-
+				if(isset($summary_result['Summary'])){
+					if(Configure::read('debug') > 0){
+						AppController::addWarningMsg(sprintf(__("the sumarty for model [%s] function [%s] return array should not contain 'summary' as first key (deprecated)", true), $model, $function));
+					}
+					$summary_result = $summary_result['Summary'];
+				}
+				
 				if($summary_result){
 					//short--- 
 					if(isset($summary_result['menu']) && is_array($summary_result['menu'])){

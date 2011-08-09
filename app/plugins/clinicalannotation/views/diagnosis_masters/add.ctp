@@ -59,7 +59,7 @@
 			
 <?php
 	
-	$final_atim_structure = $atim_structure;
+	$final_atim_structure = $diagnosismasters;
 	$final_options = array('data' => $existing_dx[''], 'type' => 'index', 'settings' => $structure_settings);
 
 	$hook_link = $structures->hook('dx_list');

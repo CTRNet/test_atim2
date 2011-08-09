@@ -6,7 +6,7 @@
 	$search_type_links['shipment'] = array('link'=> '/order/shipments/index/', 'icon' => 'search');
 		
 	$structure_links = array(
-		'top' => '/order/order_items/search/'.AppController::getNewSearchId(),
+		'top' => '/order/order_items/search',
 		'bottom' => array('add order' => '/order/orders/add/', 'new search' => $search_type_links)
 	);
 

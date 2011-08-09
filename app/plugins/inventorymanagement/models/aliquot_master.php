@@ -30,9 +30,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
-	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => '')));
-
-	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
+	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => ''))); 
 		
 	function summary($variables=array()) {
 		$return = false;
@@ -44,8 +42,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$result['AliquotMaster']['storage_coord_y'] = "";
 			}
 			$return = array(
-					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
-					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'data'				=> $result,
 					'structure alias'	=> 'aliquotmasters'
 			);
@@ -172,7 +170,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$current_volume = round(($initial_volume - $total_used_volume), 5);
 				if($current_volume < 0){
 					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume below 0", true);
+					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
 					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 				}
 			}
@@ -211,7 +209,15 @@ class AliquotMaster extends InventoryManagementAppModel {
 		//---------------------------------------------------------
 		$this->data = array();	//
 		$this->id = $aliquot_master_id;
-		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save))){
+		$this->read();
+		$save_required = false;
+		foreach($aliquot_data_to_save as $key_to_save => $value_to_save){
+			if($this->data['AliquotMaster'][$key_to_save] != $value_to_save){
+				$save_required = true;
+			}
+		}
+		
+		if($save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
 			return false;
 		}
 		return true;
@@ -332,7 +338,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 				}
 			}
 
-		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
+		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_x'])) 
+			|| (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_y'])) 
+		){
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
@@ -564,28 +572,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		return $results;
 	}
-	
-	function beforeFind($queryData){
-		$queryData['joins'][] = array(
-			'table' => 'sample_masters',
-			'alias'	=> 'sample_master_dup',
-			'type'	=> 'INNER',
-			'conditions' => array('AliquotMaster.sample_master_id = sample_master_dup.id')
-		);
-		$queryData['joins'][] = array(
-			'table' => 'sample_controls',
-			'alias'	=> 'SampleControl',
-			'type'	=> 'INNER',
-			'conditions' => array('sample_master_dup.sample_control_id = SampleControl.id')
-		);
-		if(empty($queryData['fields'])){
-			$queryData['fields'] = array('*');
-		}
-		
-		return $queryData;
-	}
-	
-	static function joinOnAliquotDup($on_field){
-		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'INNER', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
-	}
 }
+
+?>
