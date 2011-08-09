@@ -154,4 +154,152 @@ ALTER TABLE qc_tf_ed_ct_scans_revs DROP COLUMN deleted;
 ALTER TABLE qc_tf_ed_no_details_revs DROP COLUMN deleted;
 ALTER TABLE qc_tf_tx_empty_revs DROP COLUMN deleted;
 
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tumor_site")
+AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable");
+
+insert INTO i18n (id,en) VALUES
+('bank is required','Bank is required!'),
+('BRCA mutation known but not identified','BRCA mutation known but not identified'),
+('BRCA1 mutated','BRCA1 mutated'),
+('BRCA1/2 mutated','BRCA1/2 mutated'),
+('BRCA2 mutated','BRCA2 mutated'),
+('breast cancer','Breast Cancer'),
+('Breast-Breast','Breast-Breast'),
+('CBCF-COEUR','CBCF-COEUR'),
+('Central Nervous System-Brain','Central Nervous System-Brain'),
+('Central Nervous System-Other Central Nervous Syste...','Central Nervous System-Other Central Nervous Syste...'),
+('Central Nervous System-Spinal Cord','Central Nervous System-Spinal Cord'),
+('CHUM-COEUR','CHUM-COEUR'),
+('CHUQ-COEUR','CHUQ-COEUR'),
+('CHUS-COEUR','CHUS-COEUR'),
+('clear cells','Clear Cells'),
+('colon and breast cancer','Colon and Breast Cancer'),
+('colon and endometrial cancer','Colon and Endometrial Cancer'),
+('colon cancer','Colon Cancer'),
+('Consent status field is required.','Consent status field is required.'),
+('Digestive-Anal','Digestive-Anal'),
+('Digestive-Appendix','Digestive-Appendix'),
+('Digestive-Bile Ducts','Digestive-Bile Ducts'),
+('Digestive-Colonic','Digestive-Colonic'),
+('Digestive-Esophageal','Digestive-Esophageal'),
+('Digestive-Gallbladder','Digestive-Gallbladder'),
+('Digestive-Liver','Digestive-Liver'),
+('Digestive-Other Digestive','Digestive-Other Digestive'),
+('Digestive-Pancreas','Digestive-Pancreas'),
+('Digestive-Rectal','Digestive-Rectal'),
+('Digestive-Small Intestine','Digestive-Small Intestine'),
+('Digestive-Stomach','Digestive-Stomach'),
+('endometrial cancer','Endometrial Cancer'),
+('EOC','EOC'),
+('Female Genital-Cervical','Female Genital-Cervical'),
+('Female Genital-Endometrium','Female Genital-Endometrium'),
+('Female Genital-Fallopian Tube','Female Genital-Fallopian Tube'),
+('Female Genital-Gestational Trophoblastic Neoplasia','Female Genital-Gestational Trophoblastic Neoplasia'),
+('Female Genital-Other Female Genital','Female Genital-Other Female Genital'),
+('Female Genital-Ovary','Female Genital-Ovary'),
+('Female Genital-Peritoneal','Female Genital-Peritoneal'),
+('Female Genital-Peritoneal Pelvis Abdomen','Female Genital-Peritoneal Pelvis Abdomen'),
+('Female Genital-Uterine','Female Genital-Uterine'),
+('Female Genital-Vagina','Female Genital-Vagina'),
+('Female Genital-Vulva','Female Genital-Vulva'),
+("Haematological-Hodgkin's Disease","Haematological-Hodgkin's Disease"),
+('Haematological-Leukemia','Haematological-Leukemia'),
+('Haematological-Lymphoma','Haematological-Lymphoma'),
+("Haematological-Non-Hodgkin's Lymphomas","Haematological-Non-Hodgkin's Lymphomas"),
+('Haematological-Other Haematological','Haematological-Other Haematological'),
+('Head & Neck-Larynx','Head & Neck-Larynx'),
+('Head & Neck-Lip and Oral Cavity','Head & Neck-Lip and Oral Cavity'),
+('Head & Neck-Nasal Cavity and Sinuses','Head & Neck-Nasal Cavity and Sinuses'),
+('Head & Neck-Other Head & Neck','Head & Neck-Other Head & Neck'),
+('Head & Neck-Pharynx','Head & Neck-Pharynx'),
+('Head & Neck-Salivary Glands','Head & Neck-Salivary Glands'),
+('Head & Neck-Thyroid','Head & Neck-Thyroid'),
+('high grade serous','High Grade Serous'),
+('Ia','Ia'),
+('Ib','Ib'),
+('Ic','Ic'),
+('IIa','IIa'),
+('IIb','IIb'),
+('IIc','IIc'),
+('III','III'),
+('IIIa','IIIa'),
+('IIIb','IIIb'),
+('IIIc','IIIc'),
+('IV','IV'),
+('low grade serous','Low Grade Serous'),
+('McGill-COEUR','McGill-COEUR'),
+('Musculoskeletal Sites-Bone','Musculoskeletal Sites-Bone'),
+('Musculoskeletal Sites-Other Bone','Musculoskeletal Sites-Other Bone'),
+('Musculoskeletal Sites-Soft Tissue Sarcoma','Musculoskeletal Sites-Soft Tissue Sarcoma'),
+('non applicable','Non Applicable'),
+('OHRI-COEUR','OHRI-COEUR'),
+('Ophthalmic-Eye','Ophthalmic-Eye'),
+('Ophthalmic-Other Eye','Ophthalmic-Other Eye'),
+('Other-Gross Metastatic Disease','Other-Gross Metastatic Disease'),
+('Other-Primary Unknown','Other-Primary Unknown'),
+('ovarian and breast cancer','Ovarian and Breast Cancer'),
+('ovarian and colon cancer','Cvarian and Colon Cancer'),
+('ovarian and endometrial cancer','Ovarian and Endometrial Cancer'),
+('ovarian cancer','Ovarian Cancer'),
+('ovarian, endometrial and colon cancer','Ovarian, Endometrial and Colon Cancer'),
+('OVCare','OVCare'),
+('precursor of benign ovarian lesions','Precursor of Benign Ovarian Lesions'),
+('site detection','Site Detection'),
+('Skin-Melanoma','Skin-Melanoma'),
+('Skin-Non Melanomas','Skin-Non Melanomas'),
+('Skin-Other Skin','Skin-Other Skin'),
+('supported value','Supported Value'),
+('Thoracic-Lung','Thoracic-Lung'),
+('Thoracic-Mesothelioma','Thoracic-Mesothelioma'),
+('Thoracic-Other Thoracic','Thoracic-Other Thoracic'),
+('TTR-COEUR','TTR-COEUR'),
+('unmatched value','Unmatched Value'),
+('Urinary Tract-Bladder','Urinary Tract-Bladder'),
+('Urinary Tract-Kidney','Urinary Tract-Kidney'),
+('Urinary Tract-Other Urinary Tract','Urinary Tract-Other Urinary Tract'),
+('Urinary Tract-Renal Pelvis and Ureter','Urinary Tract-Renal Pelvis and Ureter'),
+('Urinary Tract-Urethra','Urinary Tract-Urethra'),
+('Central Nervous System-Other Central Nervous System', 'Central Nervous System-Other Central Nervous System'),
+('histopathology','Histopathology'),
+('wild type','Wild Type');
+
+ALTER TABLE diagnosis_masters
+ DROP COLUMN qc_tf_tumor_site;
+ALTER TABLE diagnosis_masters_revs
+ DROP COLUMN qc_tf_tumor_site;
+
+ALTER TABLE diagnosis_masters
+ ADD COLUMN qc_tf_tumor_site VARCHAR(150) DEFAULT '';
+ALTER TABLE diagnosis_masters_revs
+ ADD COLUMN qc_tf_tumor_site VARCHAR(150) DEFAULT '';
+
+UPDATE structure_formats
+SET structure_field_id = (SELECT id FROM structure_fields WHERE field = 'age_at_dx' AND language_label = 'age_at_dx')
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('qc_tf_dx_eoc','qc_tf_dxd_other_primary_cancer'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'age_at_dx');
+
+DELETE FROM structure_fields WHERE field = 'age_at_dx' AND setting = 'size=3';
+
+insert INTO i18n (id,en) VALUES
+('benign  or borderline tumours','Benign or Borderline Tumours'),
+('benign tumors','Benign Tumors'),
+('bouncer','Bouncer'),
+('ca125 progression time in months','CA125 progression time in months'),
+('endometriosis','Endometriosis'),
+('endosalpingiosis','Endosalpingiosis'),
+('fallopian tube lesion','Fallopian tube lesion'),
+('figo','Figo'),
+('follow up from ovarectomy (months)','Follow up from ovarectomy (months)'),
+('malignant tumors','Malignant Tumors'),
+('miliary','Miliary'),
+('mixed','Mixed'),
+('ovarian cysts','Ovarian Cysts'),
+('progression status','Progression Status'),
+('progression time (months)','Progression Time (months)'),
+('salpingitis','Salpingitis'),
+('suboptimal','Suboptimal'),
+('survival from ovarectomy (months)','Survival from Ovarectomy (months)'),
+('undifferentiated','Undifferentiated'),
+('yes unknown','Yes Unknown');
 

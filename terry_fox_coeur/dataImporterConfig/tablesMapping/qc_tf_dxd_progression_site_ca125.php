@@ -7,7 +7,7 @@ $fields = array(
 	"diagnosis_control_id" => "@16",
 	"dx_date" => "Date of Progression of CA125 Date",
 	"dx_date_accuracy" => array("Date of Progression of CA125 Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_tumor_site" => "@not applicable",
+	"qc_tf_tumor_site" => "@unknown",
 	"qc_tf_dx_origin" => "@progression",
 	"qc_tf_progression_detection_method" => "@ca125"
 );

@@ -29,12 +29,16 @@ function postCollectionWrite(Model $m){
 		"modified"		=> "NOW()",
 		"modified_by"	=> Config::$db_created_id
 		);
-		
+	
+	$collection_type = '';
+	
 	//===================================================================================
 	//	TISSUE
 	//===================================================================================
 	
 	if($m->values['Collected Specimen Type'] == 'tissue'){
+		$collection_type = 'Tissue';
+		
 		$insert = array(
 			"sample_code" 					=> "'tmp_tissue'", 
 			"sample_category"				=> "'specimen'", 
@@ -121,7 +125,7 @@ function postCollectionWrite(Model $m){
 					$detail_insert['qc_tf_size_mm3'] = $volume;
 					break;
 				case 'gr':
-					$detail_insert['qc_tf_weight_mg'] = $volume/1000;
+					$detail_insert['qc_tf_weight_mg'] = $volume*1000;
 					break;
 				default:	
 					echo "WARNING: Unmatched unit value [",$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit'],"] at line [".$m->line."]\n";
@@ -166,7 +170,7 @@ function postCollectionWrite(Model $m){
 		
 			$insert = array(
 				"aliquot_master_id"	=> $aliquot_master_id,
-				"qc_tf_storage_method"		=> "'oct'",
+				"qc_tf_storage_solution"		=> "'OCT'",
 				"qc_tf_size_mm3"		=> $volume
 			);
 			$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
@@ -212,6 +216,8 @@ function postCollectionWrite(Model $m){
 	//===================================================================================
 	
 	}else if($m->values['Collected Specimen Type'] == 'ascite'){
+		$collection_type = 'Ascite';
+		
 		$insert = array(
 			"sample_code" 					=> "'tmp_ascite'", 
 			"sample_category"				=> "'specimen'", 
@@ -243,36 +249,43 @@ function postCollectionWrite(Model $m){
 		inventoryRevsTableCompletion('specimen_details', $sample_master_id);
 		
 		//	*** ASCITE : tube ***
+		
+		if(strlen($m->values['Ascite Precision Ascites Fluids Volume (ml)']) > 0){		
+			if(is_numeric($m->values['Ascite Precision Ascites Fluids Volume (ml)'])){
+				$insert = array(
+					"aliquot_type"			=> "'tube'",
+					"aliquot_control_id"	=> Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['aliquot_control_id'],
+					"collection_id"			=> $m->last_id,
+					"sample_master_id"		=> $sample_master_id,
+					"in_stock"				=> "'yes - available'",
+					"initial_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
+					"current_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
+					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['volume_unit']."'"
+				);
+				$insert = array_merge($insert, $created);
+				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$aliquot_master_id = mysqli_insert_id($connection);
+				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				
+				$insert = array(
+					"aliquot_master_id"		=> $aliquot_master_id,
+				);
+				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+			} else {
+				echo "WARNING: Wrong numeric value for volume [",$m->values['Ascite Precision Ascites Fluids Volume (ml)'],"] at line [".$m->line."]\n";
+			}
+		}
 	
-		$insert = array(
-			"aliquot_type"			=> "'tube'",
-			"aliquot_control_id"	=> Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['aliquot_control_id'],
-			"collection_id"			=> $m->last_id,
-			"sample_master_id"		=> $sample_master_id,
-			"in_stock"				=> "'yes - available'",
-			"initial_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
-			"current_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
-			"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['volume_unit']."'"
-		);
-		$insert = array_merge($insert, $created);
-		$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$aliquot_master_id = mysqli_insert_id($connection);
-		inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
-		
-		$insert = array(
-			"aliquot_master_id"		=> $aliquot_master_id,
-		);
-		$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
-		
 	//===================================================================================
 	//	BLOOD
 	//===================================================================================
 	
 	}else if($m->values['Collected Specimen Type'] == 'blood'){
-		//blood
+		$collection_type = 'Blood';
+		
 		$insert = array(
 			"sample_code" 					=> "'tmp_blood'", 
 			"sample_category"				=> "'specimen'", 
@@ -550,10 +563,20 @@ function postCollectionWrite(Model $m){
 			}
 		}
 		
-		
 	}else{
 		die("Invalid collected specimen type");
 	}
+	
+	// Update acquisition_label
+	
+	$label = $collection_type.' ('.$m->last_id.')';
+	$query = "UPDATE collections SET acquisition_label = '$label' WHERE id = ".$m->last_id;
+	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				
+	if(Config::$insert_revs){
+		$query = "UPDATE collections_revs SET acquisition_label = '$label' WHERE id = ".$m->last_id;
+		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
+	}	
 }
 
 function inventoryRevsTableCompletion($table_name, $id) {

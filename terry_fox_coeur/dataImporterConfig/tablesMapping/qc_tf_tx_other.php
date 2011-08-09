@@ -95,7 +95,7 @@ function txPostWrite(Model $m){
 			
 			if(Config::$insert_revs){
 				$query = "INSERT INTO txd_chemos_revs (id, tx_master_id,  version_created)  "
-				."SELECT id, tx_master_id,  NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
+				."SELECT id, tx_master_id,  NOW() FROM txd_chemos WHERE id='".mysqli_insert_id($connection)."'";
 				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
