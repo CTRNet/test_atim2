@@ -639,6 +639,7 @@ function uncheckAll( $div ) {
 		var fields = new Array();
 		var checkbox = null;
 		var codeInputField = null;
+		
 		$(scope).find("input, select, textarea").each(function(){
 			var currName = $(this).prop("name");
 			for(var i in labBookFields){
@@ -650,8 +651,8 @@ function uncheckAll( $div ) {
 					var parentTd = getParentElement(this, "TD");
 					if($(parentTd).find(".labBook").length == 0){
 						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
-						fields.push($(parentTd).find(".datepicker"));
 					}
+					fields.push($(parentTd).find(".datepicker, .accuracy_target_blue"));
 				}
 			}
 			if(currName.indexOf("[sync_with_lab_book]") > 0){
@@ -661,22 +662,22 @@ function uncheckAll( $div ) {
 			}
 		});
 		
+		var tmpFunc = function(){
+			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+		}; 
+		
 		if(checkbox != null){
-			$(checkbox).click(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(checkbox).click(tmpFunc);
 		}
 		if(codeInputField != null){
-			$(codeInputField).change(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(codeInputField).change(tmpFunc).keyup(tmpFunc).blur(tmpFunc);
 		}
 		
 		if(window.labBookHideOnLoad){
 			$(fields).toggle();
-			$(scope).find(".labBook").toggle();
+			$(scope).find(".labBook").show();
 		}else{
-			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			tmpFunc();
 		}
 	}
 	

@@ -582,6 +582,17 @@ class AppController extends Controller {
 		return $out_array;
 	}
 	
+	static function removeEmptyValues(array &$data){
+		foreach($data as $key => &$val){
+			if(is_array($val)){
+				self::removeEmptyValues($val);
+			}
+			if(empty($val)){
+				unset($data[$key]);
+			}
+		}
+	}
+	
 	static function getNewSearchId(){
 		return $_SESSION['Auth']['User']['search_id'] ++;
 	}

@@ -54,11 +54,15 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function add( $participant_id=null, $dx_control_id=null ) {
-		if (( !$participant_id ) && ( !$dx_control_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$dx_control_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		}
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($participant_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		$this->set('existing_dx', $this->DiagnosisMaster->getExistingDx($participant_id));
 		
@@ -69,13 +73,16 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+		$this->Structures->set('diagnosismasters', 'diagnosismasters');
 		$this->Structures->set('empty', 'empty_structure');
 
 		$this->set( 'dx_type', $dx_control_data['DiagnosisControl']['controls_type']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ( !empty($this->data) ) {
 			$this->DiagnosisMaster->patchIcd10NullValues($this->data);
@@ -103,11 +110,15 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		}	
 
 		// MANAGE DATA
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($dx_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($dx_master_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		$this->set('existing_dx', $this->DiagnosisMaster->getExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']));
 
@@ -117,10 +128,13 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		
 		$this->Structures->set('empty', 'empty_structure');
+		$this->Structures->set('diagnosismasters', 'diagnosismasters');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if(empty($this->data)) {
 			$this->data = $dx_master_data;
