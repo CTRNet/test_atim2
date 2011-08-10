@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.2', NOW(), '3335');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.2.1', NOW(), '3370');
 
 UPDATE  collections                 SET collection_datetime_accuracy ='' WHERE collection_datetime_accuracy IS NULL;
 UPDATE  collections_revs            SET collection_datetime_accuracy ='' WHERE collection_datetime_accuracy IS NULL;
@@ -95,15 +95,11 @@ ALTER TABLE	 consent_masters             	MODIFY	 date_of_referral_accuracy     
 		MODIFY	 operation_date_accuracy               	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 derivative_details          	MODIFY	 creation_datetime_accuracy            	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 derivative_details_revs     	MODIFY	 creation_datetime_accuracy            	CHAR(1) NOT NULL DEFAULT '';
-ALTER TABLE	 diagnosis_masters           	MODIFY	 dx_date_accuracy                      	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 age_at_dx_accuracy                    	CHAR(1) NOT NULL DEFAULT '';
-ALTER TABLE	 diagnosis_masters_revs      	MODIFY	 dx_date_accuracy                      	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 age_at_dx_accuracy                    	CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE	 diagnosis_masters           	MODIFY	 dx_date_accuracy                      	CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE	 diagnosis_masters_revs      	MODIFY	 dx_date_accuracy                      	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 event_masters               	MODIFY	 event_date_accuracy                   	CHAR(1) NOT NULL DEFAULT '',
 		MODIFY	 date_required_accuracy                	CHAR(1) NOT NULL DEFAULT '',
 		MODIFY	 date_requested_accuracy               	CHAR(1) NOT NULL DEFAULT '';
-ALTER TABLE	 family_histories            	MODIFY	 age_at_dx_accuracy                    	CHAR(1) NOT NULL DEFAULT '';
-ALTER TABLE	 family_histories_revs       	MODIFY	 age_at_dx_accuracy                    	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 lbd_dna_extractions         	MODIFY	 creation_datetime_accuracy            	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 lbd_slide_creations         	MODIFY	 realiquoting_datetime_accuracy        	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 misc_identifiers            	MODIFY	 effective_date_accuracy               	CHAR(1) NOT NULL DEFAULT '',
@@ -123,19 +119,9 @@ ALTER TABLE	 protocol_masters            	MODIFY	 expiry_accuracy               
 ALTER TABLE	 quality_ctrls               	MODIFY	 date_accuracy                         	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 realiquotings               	MODIFY	 realiquoting_datetime_accuracy        	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 reproductive_histories      	MODIFY	 date_captured_accuracy                	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 menopause_age_accuracy                	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 age_at_menarche_accuracy              	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 hysterectomy_age_accuracy             	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 first_parturition_accuracy            	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 last_parturition_accuracy             	CHAR(1) NOT NULL DEFAULT '',
 		MODIFY	 lnmp_date_accuracy                    	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 lnmp_accuracy                         	CHAR(1) NOT NULL DEFAULT '';
-ALTER TABLE	 reproductive_histories_revs 	MODIFY	 menopause_age_accuracy                	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 age_at_menarche_accuracy              	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 hysterectomy_age_accuracy             	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 first_parturition_accuracy            	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 last_parturition_accuracy             	CHAR(1) NOT NULL DEFAULT '',
-		MODIFY	 lnmp_accuracy                         	CHAR(1) NOT NULL DEFAULT '';
+		DROP	 lnmp_accuracy;
+ALTER TABLE	 reproductive_histories_revs	DROP	 lnmp_accuracy;
 ALTER TABLE	 rtbforms                    	MODIFY	 frmCreated_accuracy                   	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 sd_spe_tissues              	MODIFY	 pathology_reception_datetime_accuracy 	CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE	 shipments                   	MODIFY	 datetime_shipped_accuracy             	CHAR(1) NOT NULL DEFAULT '',
