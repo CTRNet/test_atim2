@@ -477,7 +477,7 @@ class AppController extends Controller {
 	}
 	
 	static function addWarningMsg($msg){
-		if(array_key_exists($msg, $_SESSION['ctrapp_core']['warning_msg'])){
+		if(isset($_SESSION['ctrapp_core']['warning_msg'][$msg])){
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
 		}else{
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
