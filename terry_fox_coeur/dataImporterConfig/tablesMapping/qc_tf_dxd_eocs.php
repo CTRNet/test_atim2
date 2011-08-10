@@ -44,7 +44,8 @@ $model->custom_data = array("date_fields" => array(
 	$fields["dx_date"]									=> current(array_keys($fields["dx_date_accuracy"])))
 ); 
 $model->custom_data['last_csv_pkey'] = null;
-$model->custom_data['last_dx_date'] = null;
+$model->custom_data['last_dx_values'] = null;
+
 $model->post_read_function = 'dxdEocsPostRead';
 $model->insert_condition_function = 'mainDxCondition';
 
@@ -52,7 +53,8 @@ Config::$models['qc_tf_dxd_eocs'] = $model;
 
 function dxdEocsPostRead(Model $m){
 	excelDateFix($m);
-	if($m->custom_data['last_csv_pkey'] == $m->values[$m->csv_pkey] && $m->values['Date of EOC Diagnosis Date'] == $m->custom_data['last_dx_date']){
+	
+	if($m->custom_data['last_csv_pkey'] == $m->values[$m->csv_pkey] && isSameEocDxData($m->values, $m->custom_data['last_dx_values'], $m)){
 		//multiple sites case is already handled in children, skip
 		return false;
 	}
@@ -72,13 +74,51 @@ function dxdEocsPostRead(Model $m){
 	}	
 	
 	$m->custom_data['last_csv_pkey'] = $m->values[$m->csv_pkey];
-	$m->custom_data['last_dx_date'] = $m->values['Date of EOC Diagnosis Date'];
+	$m->custom_data['last_dx_values'] = $m->values;
+	
 	return true;
 }
 
 function progressionSiteInsertNow(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
 	$m->values['primary_number'] = $m->parent_model->values['primary_number'];
-		
-	return $m->parent_model->values['Date of EOC Diagnosis Date'] == $m->values['Date of EOC Diagnosis Date'];
+
+	return isSameEocDxData($m->values, $m->parent_model->values, $m);
+}
+
+function isSameEocDxData($m_current, $m_reference, $m) {
+	if(empty($m_reference) || empty($m_current)) {
+		echo "ERROR: Wrong call to isSameEocDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]\n";
+		exit;
+	}	
+	$eoc_fields = array(
+		'Date of EOC Diagnosis Date',
+		'Date of EOC Diagnosis Accuracy',
+		'Presence of precursor of benign lesions',
+		'fallopian tube lesions',
+		'Age at Time of Diagnosis (yr)',
+		'Laterality',
+		'Histopathology',
+		'Grade',
+		'FIGO ',
+		'Residual Disease',
+		'Progression status',
+		'progression time (months)',
+		'CA125 progression time (months)',
+		'Follow-up from ovarectomy (months)',
+		'Survival from diagnosis (months)');
+	
+	$diff_nbr = 0;
+	$diff_field = '';
+	$all_current_fields_empty = true;
+	foreach($eoc_fields as $field) {
+		if(!array_key_exists($field, $m_current) || !array_key_exists($field, $m_reference)) die ("ERROR: isSameEocDxData() file [".$m->file."] at line [".$m->line."]\n");
+		if($m_current[$field] != $m_reference[$field])  { $diff_nbr++; $diff_field = $field; }
+		$tmp_current_field = str_replace(' ', '', $m_current[$field]);
+		if(!empty($tmp_current_field) && $field!= 'Progression status') $all_current_fields_empty = false;
+	}
+	if($all_current_fields_empty) return true;
+	if($diff_nbr == 1) echo "WARNING: 2 EOC dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]\n";
+	
+	return ($diff_nbr == 0)? true : false;
 }

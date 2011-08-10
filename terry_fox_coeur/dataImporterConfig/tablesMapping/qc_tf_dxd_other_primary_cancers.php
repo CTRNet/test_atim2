@@ -30,23 +30,20 @@ $model->post_read_function = 'otherDxPostRead';
 $model->insert_condition_function = 'mainDxCondition';
 
 $model->custom_data['last_csv_key'] = null;
-$model->custom_data['last_date'] = null;
-$model->custom_data['last_site'] = null;
+$model->custom_data['last_other_dx_values'] = null;
 
 Config::$models['qc_tf_dxd_other_primary_cancers'] = $model;
 
 function otherDxPostRead(Model $m){
 	excelDateFix($m);
-	if($m->custom_data['last_csv_key'] == $m->values[$m->csv_pkey] 
-		&& $m->custom_data['last_date'] == $m->values['Date of Diagnosis Date']
-		&& $m->custom_data['last_site'] == $m->values['Tumor Site']
+	if($m->custom_data['last_csv_key'] == $m->values[$m->csv_pkey] && isSameOtherDxData($m->values, $m->custom_data['last_other_dx_values'], $m)
 	){
 		//ignore main insert, it's a child reinsertion
 		return false;
 	}
+	
 	$m->custom_data['last_csv_key'] = $m->values[$m->csv_pkey]; 
-	$m->custom_data['last_date'] = $m->values['Date of Diagnosis Date'];
-	$m->custom_data['last_site'] = $m->values['Tumor Site'];
+	$m->custom_data['last_other_dx_values'] = $m->values;
 	
 	foreach(array('Age at Time of Diagnosis (yr)', 'Survival (months)') as $new_header) {
 		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
@@ -55,4 +52,49 @@ function otherDxPostRead(Model $m){
 	}	
 		
 	return true;
+}
+
+function otherProgressionSiteInsertNow(Model $m){
+	if(!isSameOtherDxData($m->values, $m->parent_model->values, $m)) {
+		//different date OR different site -> whole new entry	
+		return false;
+	}
+	
+	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
+	$m->values['primary_number'] = $m->parent_model->values['primary_number'];
+		
+	return true;
+}
+
+function isSameOtherDxData($m_current, $m_reference, $m) {
+	if(empty($m_reference) || empty($m_current)) {
+		echo "ERROR: Wrong call to isSameOtherDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]\n";
+		exit;
+	}
+
+	$other_dx_fields = array(
+		'Date of Diagnosis Date',
+		'Date of Diagnosis Accuracy',	
+		'Tumor Site',	
+		'Age at Time of Diagnosis (yr)',	
+		'Laterality',	
+		'Histopathology',		
+		'Grade',	
+		'Stage',	
+		'Survival (months)');
+	
+	$diff_nbr = 0;
+	$diff_field = '';
+	$all_current_fields_empty = true;
+	foreach($other_dx_fields as $field) {
+		if(!array_key_exists($field, $m_current) || !array_key_exists($field, $m_reference)) die ("ERROR: isSameOtherDxData() file [".$m->file."] at line [".$m->line."]\n");
+		if($m_current[$field] != $m_reference[$field])  { $diff_nbr++; $diff_field = $field; }
+		$tmp_current_field = str_replace(' ', '', $m_current[$field]);
+		if(!empty($tmp_current_field)) $all_current_fields_empty = false;
+	}
+
+	if($all_current_fields_empty) return true;
+	if($diff_nbr == 1) echo "WARNING: 2 Other dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]\n";
+	
+	return ($diff_nbr == 0)? true : false;
 }
