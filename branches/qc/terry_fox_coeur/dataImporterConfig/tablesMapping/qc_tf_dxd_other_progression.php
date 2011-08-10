@@ -41,17 +41,3 @@ function otherProgressionPostRead(Model $m){
 	}
 	return true;
 }
-
-function otherProgressionSiteInsertNow(Model $m){
-	if($m->values['Date of Diagnosis Date'] != $m->parent_model->values['Date of Diagnosis Date']
-		|| $m->values['Tumor Site'] != $m->parent_model->values['Tumor Site']
-	){
-		//different date OR different site -> whole new entry	
-		return false;
-	}
-	
-	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['primary_number'] = $m->parent_model->values['primary_number'];
-		
-	return true;
-}
