@@ -26,7 +26,7 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/test.xls";
+	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/test.xls";
 	
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUM-COEUR-clinical data-v0.1.15_reviewed.xls";
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUS-COEUR v1-15_reviewed.xls";
@@ -34,7 +34,7 @@ class Config{
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CBCF-1.15_reviewed.xls";
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CHUQ-clinical data v4-1.15_reviewed.xls";
 	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-OVCare v0-1.15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15_reviewed.xls";
+	static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15_reviewed.xls";
 	
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/DEMO.xls";
 // 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/CHUM-COEUR-clinical data-v0.1.15.xls";
@@ -77,8 +77,6 @@ class Config{
 		Config::$models[$ref_name] = $m;
 	}
 
-	static $eoc_primary_dx_file_fields = array('', '', '', '', '', '');
-	
 	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chimiotherapy', 'radiotherapy');
 	static $opc_file_event_types	= array('biopsy', 'surgery', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	

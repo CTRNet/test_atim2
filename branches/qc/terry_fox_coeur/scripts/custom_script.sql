@@ -303,3 +303,10 @@ insert INTO i18n (id,en) VALUES
 ('undifferentiated','Undifferentiated'),
 ('yes unknown','Yes Unknown');
 
+UPDATE datamart_browsing_controls SET flag_active_2_to_1 = 0, flag_active_1_to_2 = 0
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster'));
+UPDATE datamart_browsing_controls SET flag_active_2_to_1 = 0, flag_active_1_to_2 = 0
+WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster'));
+
+UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE databrowser_label LIKE '';
+
