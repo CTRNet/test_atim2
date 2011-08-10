@@ -233,6 +233,12 @@ div.actions {
 		top: 0px;
 	}
 	
+	a.not_allowed.treeButton{
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin: 0 2px 0 2px;
+	}
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
@@ -1111,6 +1117,7 @@ a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat le
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
 a.copy  { background: url("../img/icons/copy-icon16x16.png") no-repeat left center; }
 a.create_shipment  { background: url("../img/icons/truck_add_16x16.png") no-repeat left center; }
+a.diagnosis { background: url(../img/icons/dx_16x16.png) no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
@@ -1146,6 +1153,7 @@ a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left cent
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
+a.treatments { background: url(../img/icons/seringue_16x16.png) no-repeat left center; }
 a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 

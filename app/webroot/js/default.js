@@ -507,7 +507,7 @@ function uncheckAll( $div ) {
 		$("body").append('<div id="' + id + '" class="std_popup question">' +
 			'<div class="wrapper">' +
 				'<h4>' + title + '</h4>' +
-				(content == null ? '' : ('<div style="padding: 10px;">' + content + '</div>')) +
+				(content == null ? '' : ('<div style="padding: 10px; background-color: #fff;">' + content + '</div>')) +
 				buttonsHtml +
 			'</div>' +
 		'</div>');
