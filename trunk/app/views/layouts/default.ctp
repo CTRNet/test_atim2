@@ -54,6 +54,7 @@ header ('Content-type: text/html; charset=utf-8');
 			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
 			var STR_LOADING = "<?php __('loading'); ?>";
 			var STR_OK = "<?php __('ok'); ?>";
+			var STR_CANCEL = "<?php __('cancel'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
