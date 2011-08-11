@@ -9,7 +9,7 @@
 		// --------------------------------------------------------------------------------
 		// Set default stored_by value
 		// -------------------------------------------------------------------------------- 	
-		$this->set("default_stored_by", "Urszula Krzemien");
+		$this->set("default_stored_by", "louise rousseau");
 	}
 	
 ?>

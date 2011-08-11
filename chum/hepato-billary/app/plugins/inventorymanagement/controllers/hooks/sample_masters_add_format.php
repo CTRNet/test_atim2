@@ -18,7 +18,7 @@ if(empty($this->data)) {
 		$preset = array();
 		$preset['SpecimenDetail']['qc_hb_sample_code'] = 'S';	
 		if(empty($data)) {
-			$preset['SpecimenDetail']['reception_by'] = 'urszula krzemien';			
+			$preset['SpecimenDetail']['reception_by'] = 'louise rousseau';			
 			
 		} else  {
 			$preset['SampleMaster']['sop_master_id'] = $data['SampleMaster']['sop_master_id'];
@@ -46,7 +46,7 @@ if(empty($this->data)) {
 		$preset = array();
 		if(empty($data)) {
 			$preset['SpecimenDetail']['supplier_dept'] = "pathology";
-			$preset['SpecimenDetail']['reception_by'] = 'urszula krzemien';
+			$preset['SpecimenDetail']['reception_by'] = 'louise rousseau';
 			$preset['SpecimenDetail']['qc_hb_sample_code'] = 'T';	
 			
 		} else  {
@@ -66,7 +66,7 @@ if(empty($this->data)) {
 			} else {
 				// Default existing sample was a blood
 				$preset['SpecimenDetail']['supplier_dept'] = "pathology";
-				$preset['SpecimenDetail']['reception_by'] = 'urszula krzemien';
+				$preset['SpecimenDetail']['reception_by'] = 'louise rousseau';
 				$preset['SpecimenDetail']['qc_hb_sample_code'] = 'T';	
 			}
 		}
@@ -89,7 +89,7 @@ if(empty($this->data)) {
 		$preset = array();
 		if(empty($data)) {
 			$preset['DerivativeDetail']['creation_site'] = "ICM";
-			$preset['DerivativeDetail']['creation_by'] = 'urszula krzemien';
+			$preset['DerivativeDetail']['creation_by'] = 'louise rousseau';
 			
 		} else  {
 			$preset['SampleMaster']['sop_master_id'] = $data['SampleMaster']['sop_master_id'];
