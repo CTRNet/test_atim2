@@ -27,6 +27,10 @@ class GroupsController extends AdministrateAppController {
 			if(empty($group_data)){
 				$this->Group->create();
 				if ($this->Group->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					
 					$group_id = $this->Group->id;
 					
@@ -58,6 +62,10 @@ class GroupsController extends AdministrateAppController {
 		if (!empty($this->data)) {
 			$this->Group->id = $group_id;
 			if ($this->Group->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash('your data has been updated', '/administrate/groups/detail/'.$group_id);
 			} else {
 				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/edit/'.$group_id);

@@ -5,7 +5,6 @@ function initSummary(){
 	var open = function(){
 		var summary_hover = $(this);
 		var summary_popup = summary_hover.find('ul');
-		var summary_label = summary_hover.find('span');
 		if ( summary_popup.length>0 ) {
 			summary_popup.stop(true, true).slideDown(100);
 		}
@@ -13,7 +12,6 @@ function initSummary(){
 	var close = function(){
 		var summary_hover = $(this);
 		var summary_popup = summary_hover.find('ul');
-		var summary_label = summary_hover.find('span');
 		if ( summary_popup.length>0 ) {
 			summary_popup.delay(101).slideUp(100);
 		}
@@ -88,12 +86,31 @@ var actionClickDown = function() {
 };
 
 /**
+ * Handling mouse scroll on action menus. Sending up/down commands if there is
+ * no ongoing animations
+ * @param event
+ * @param delta
+ * @returns false so that the page never scrolls
+ */
+function actionMouseweelHandler(event, delta){
+	if($(event.currentTarget).find("ul:animated").length == 0){
+		if(delta > 0){
+			$(event.currentTarget).find(".up").click();
+		}else{
+			$(event.currentTarget).find(".down").click();
+		}
+	}
+	return false;
+}
+
+/**
  * Inits actions bars (main one and ajax loaded ones). Unbind the actions before rebinding them to avoid duplicate bindings
  */
 function initActions(){
 	$('div.actions div.bottom_button').unbind('mouseenter', actionMenuShow).unbind('mouseleave', actionMenuHide).bind('mouseenter', actionMenuShow).bind('mouseleave', actionMenuHide);
 	$('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
 	$('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
+	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
 }
 
 function checkAll( $div ) {
@@ -175,8 +192,8 @@ function uncheckAll( $div ) {
 		return null;
 	}
 
-	function initDatepicker(elements){
-		$(elements).each(function(){
+	function initDatepicker(scope){
+		$(scope).find(".datepicker").each(function(){
 			var dateFields = $(this).parent().parent().find('input, select');
 			var yearField = null;
 			var monthField = null;
@@ -235,18 +252,29 @@ function uncheckAll( $div ) {
 					}
 			    }
 			});
-
-			//activate fake_datepicker in case there is a problem with z-index
-			$(this).parent().children("img").click(function(){
-				$(this).datepicker('show');
-			});
-
+			
 			//bug fix for Safari and Chrome
 			$(this).click(function(){
 				$(this).datepicker('show');
 			});
 		});
-		
+	}
+	
+	function setFieldSpan(clickedButton, spanClassToDisplay){
+		$(clickedButton).parent().find("a").show();
+		$(clickedButton).hide();
+		$(clickedButton).parent().children("span").hide().each(function(){
+			//store all active field names into their data and remove the name
+			$(this).find("input, select").each(function(){
+				if($(this).attr('name').length > 0){
+					$(this).data('name', $(this).attr('name')).attr('name', ''); 
+				}
+			});
+		});
+		$(clickedButton).parent().find("span." + spanClassToDisplay).show().find('input, select').each(function(){
+			//activate names of displayed fields
+			$(this).attr('name', $(this).data('name'));
+		});
 	}
 	
 	/**
@@ -273,11 +301,11 @@ function uncheckAll( $div ) {
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or'>(-)</a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).attr("class") + "' style='" + $($field).attr("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
-					initDatepicker($($newField).find(".datepicker"));
+					initDatepicker($newField);
 					
 					initAutocomplete($newField);
 					initToolPopup($newField);
@@ -300,50 +328,59 @@ function uncheckAll( $div ) {
 			}
 		});
 		
-		$(scope).find(".range").each(function(){
-			//uses .btn_add_or to know if this is a search form and if advanced controls are on
-			$(this).parent().parent().parent().append(" <a href='#' class='range_btn'>(" + STR_RANGE + ")</a>");
-		});
-		$(scope).find(".range_btn").toggle(function(){
-			var cell = getParentElement(this, "TD");
-			$(cell).find("input").val("");
-			if($(cell).find(".range_span").length == 0){
+		if($(scope).find(".btn_add_or:first").length == 1){
+			var tabIndex = null;
+			$(scope).find(".range").each(function(){
+				//uses .btn_add_or to know if this is a search form and if advanced controls are on
+				var cell = $(this).parent().parent().parent(); 
+				$(cell).append(" <a href='#' class='range_btn' title='" + STR_RANGE + "'></a> " +
+						"<a href='#' class='specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
+				$(cell).find("span:first").addClass("specific_span");
+				
 				var baseName = $(cell).find("input").attr("name");
 				baseName = baseName.substr(0, baseName.length - 3);
-				$(cell).find("span:first").addClass("adv_ctrl");
-				$(cell).prepend("<span class='range_span'><input type='text' name='" + baseName + "_start]'/> " + STR_TO + " <input type='text' name='" + baseName + "_end]'/></span>");
-			}else{
-				$(cell).find(".range_span").show();
-				//restore names
-				$(cell).find(".range_span input").each(function(){
-					$(this).attr("name", $(this).attr("name").substr(1));
-				});
-			}
-			$(this).html("(" + STR_SPECIFIC + ")");
-			$(cell).find(".adv_ctrl").hide();
-			//obfuscate names
-			$(cell).find(".adv_ctrl input").each(function(){
-				$(this).attr("name", "x" + $(this).attr("name"));
+				tabindex = $(cell).find("input").attr("tabindex");
+				$(cell).prepend("<span class='range_span hidden'><input type='text' tabindex='" + tabindex + "' name='" + baseName + "_start]'/> " 
+						+ STR_TO 
+						+ " <input type='text' tabindex='" + tabindex + "' name='" + baseName + "_end]'/></span>");					
 			});
-		}, function(){
-			var cell = getParentElement(this, "TD");
-			$(cell).find("input").val("");
-			$(this).html("(" + STR_RANGE + ")");
-			$(cell).find(".range_span").hide();
-			$(cell).find(".adv_ctrl").show();
-			//restore input names
-			$(cell).find(".adv_ctrl input").each(function(){
-				$(this).attr("name", $(this).attr("name").substr(1));
+			
+			$(scope).find(".file").each(function(){
+				var cell = $(this).parent().parent().parent();
+				$(cell).append(" <a href='#' class='file_btn'></a>").data('mode', 'specific');
+				
+				if($(cell).find(".specific_btn").length == 0){
+					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
+					$(cell).find("span:first").addClass("specific_span");
+					tabindex = $(cell).find("input").attr("tabindex");
+				}
+				var name = $(cell).find("input:last").attr("name");
+				name = name.substr(0, name.length -3) + "_with_file_upload]";
+				$(cell).prepend("<span class='file_span hidden'><input type='file' tabindex='" + tabindex + "' name='" + name + "'/></span>");
 			});
-			//obfuscate input names
-			$(cell).find(".range_span input").each(function(){
-				$(this).attr("name", "x" + $(this).attr("name"));
+			//store hidden field names into their data
+			$(scope).find("span.range_span input, span.file_span input").each(function(){
+				$(this).data('name', $(this).attr('name')).attr('name', "");
 			});
-		});
+			
+			//trigger buttons
+			$(scope).find(".range_btn").click(function(){
+				setFieldSpan(this, "range_span");
+				return false;
+			});
+			$(scope).find(".specific_btn").click(function(){
+				setFieldSpan(this, "specific_span");
+				return false;
+			});
+			$(scope).find(".file_btn").click(function(){
+				setFieldSpan(this, "file_span");
+				return false;
+			});
+		}
 	}
 	
-	function initTooltips(){
-		$(".tooltip").each(function() {
+	function initTooltips(scope){
+		$(scope).find(".tooltip").each(function() {
 			$(this).find("input").each(function(){
 				$(this).focus(function(){
 					//fixes a datepicker issue where the calendar stays open
@@ -355,7 +392,7 @@ function uncheckAll( $div ) {
 					$(this).parent().find("div").css("display", "none");
 				});
 			});
-			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"})
+			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"});
 		});	
 	}
 	
@@ -392,7 +429,7 @@ function uncheckAll( $div ) {
 	
 	function initAliquotVolumeCheck(){
 		var checkFct = function(){
-			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")) };
+			var fctMod = function(param){ return parseFloat(param.replace(/,/g, ".")); };
 			var denom = fctMod($("#AliquotMasterCurrentVolume").val());
 			var nom = fctMod($("#AliquotUseUsedVolume").val());
 			if($("#AliquotUseUsedVolume").val().length > 0 && nom > denom){
@@ -493,10 +530,10 @@ function uncheckAll( $div ) {
 //			}
 			var parent_elem = $(this).parent().children();
 			toolTarget = null;
-			for(i = 0; i < parent_elem.length; i ++){
+			for(var i = 0; i < parent_elem.length; i ++){
 				//find the current element
 				if(parent_elem[i] == this){
-					for(j = i - 1; j >= 0; j --){
+					for(var j = i - 1; j >= 0; j --){
 						//find the previous input
 						if(parent_elem[j].nodeName == "INPUT"){
 							toolTarget = parent_elem[j];
@@ -532,16 +569,31 @@ function uncheckAll( $div ) {
 				var newLines = $(tableBody).find("tr.newLine");
 				initRemoveLine(newLines);
 				initAutocomplete(newLines);
+				initDatepicker(newLines);
 				initToolPopup(newLines);
+				initTooltips(document);
+				initCheckboxes(newLines);
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
 				if(window.labBookFields){
 					initLabBook(newLines);
 				}
+				initAccuracy(newLines);
 				$(newLines).removeClass("newLine");
 				return false;
 			});
+		});
+		
+		$(scope).find(".addLineCount").keydown(function(e){
+			if(e.keyCode == 13){
+				return false;
+			}
+		}).keyup(function(e){
+			if(e.keyCode == 13){
+				$(this).siblings(".addLineLink").click();
+				return false;
+			}
 		});
 	}
 	
@@ -568,6 +620,7 @@ function uncheckAll( $div ) {
 		var fields = new Array();
 		var checkbox = null;
 		var codeInputField = null;
+		
 		$(scope).find("input, select, textarea").each(function(){
 			var currName = $(this).attr("name");
 			for(var i in labBookFields){
@@ -576,7 +629,11 @@ function uncheckAll( $div ) {
 				}
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
-					$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+					var parentTd = getParentElement(this, "TD");
+					if($(parentTd).find(".labBook").length == 0){
+						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
+					}
+					fields.push($(parentTd).find(".datepicker, .accuracy_target_blue"));
 				}
 			}
 			if(currName.indexOf("[sync_with_lab_book]") > 0){
@@ -585,22 +642,23 @@ function uncheckAll( $div ) {
 				codeInputField = $(this);
 			}
 		});
+		
+		var tmpFunc = function(){
+			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+		}; 
+		
 		if(checkbox != null){
-			$(checkbox).click(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(checkbox).click(tmpFunc);
 		}
 		if(codeInputField != null){
-			$(codeInputField).change(function(){
-				labBookFieldsToggle(scope, fields, codeInputField, checkbox);
-			});
+			$(codeInputField).change(tmpFunc).keyup(tmpFunc).blur(tmpFunc);
 		}
 		
 		if(window.labBookHideOnLoad){
 			$(fields).toggle();
-			$(scope).find(".labBook").toggle();
+			$(scope).find(".labBook").show();
 		}else{
-			labBookFieldsToggle(scope, fields, codeInputField, checkbox);
+			tmpFunc();
 		}
 	}
 	
@@ -624,7 +682,7 @@ function uncheckAll( $div ) {
 	}
 	
 	function initLabBookPopup(){
-		$("div.rightCell a:not(.not_allowed).add").last().click(function(){
+		$("div.bottom_button a:not(.not_allowed).add").first().click(function(){
 			$.get($(this).attr("href"), labBookPopupAddForm);
 			return false;
 		});
@@ -632,7 +690,9 @@ function uncheckAll( $div ) {
 	
 	function labBookPopupAddForm(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
-		initDatepicker("#default_popup .datepicker");
+		initDatepicker("#default_popup");
+		initTooltips("#default_popup");
+		initAccuracy("#default_popup");
 		$("#default_popup a.form.submit").unbind('click').attr('onclick', '').click(function(){
 			$(this).hide();
 			$.post($("#default_popup form").attr("action"), $("#default_popup form").serialize(), function(data2){
@@ -656,6 +716,71 @@ function uncheckAll( $div ) {
 			return false;
 		});
 		$("#default_popup input[type=text]").first().focus();
+	}
+	
+	function initCheckboxes(scope){
+		$(scope).find("input[type=checkbox]").each(function(){
+			if(!$(this).data("exclusive")){
+				var checkboxes = $(this).parent().find("input[type=checkbox]");
+				$(checkboxes).each(function(){
+					$(this).data("exclusive", true);
+				});
+				$(checkboxes).click(function(){
+					var checked = $(this).attr("checked"); 
+					$(checkboxes).attr("checked", false);
+					$(this).attr("checked", checked);
+				});
+			}
+		});
+	}
+	
+	function initAccuracy(scope){
+		$(scope).find(".accuracy_target_blue").click(function(){
+			if($(this).find("input").length == 0){
+				//accuracy going to year
+				$(this).parent().find("input, select").each(function(){
+					if($(this).attr("name").indexOf("year") == -1){
+						$(this).hide();
+					}
+				});
+				var name = $(this).parent().find("input, select").first().attr("name");
+				$(this).html("<input type='hidden' class='accuracy' name='" + name.substr(0, name.lastIndexOf("[")) + "[year_accuracy]' value='1'/>");
+			}else{
+				//accuracy going to manual
+				$(this).html("");
+				$(this).parent().find("input, select").show();
+			}
+			return false;
+		});
+		
+		$(scope).find(".accuracy_target_blue").each(function(){
+			if($(this).siblings().find(".labBook:visible").length > 0){
+				$(this).hide();
+			}else{
+				var current_accuracy_btn = this;
+				$(this).parent().find("input, select").each(function(){
+					if($(this).attr("name").indexOf("year") != -1 && $(this).hasClass('year_accuracy')){
+						$(this).removeClass('year_accuracy');
+						$(current_accuracy_btn).click();
+					}
+				});
+			}
+		});
+	}
+	
+	function flyOverSubmit(){
+		$(".flyOverSubmit").css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
+	}
+	
+	function initAutoHideVolume(){
+		$("input[type=radio]").click(function(){
+			if(jQuery.inArray($(this).val(), volumeIds) > -1){
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
+			}else{
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", true).val("");
+			}
+		});
+		$("input[type=radio]:checked").click();
 	}
 	
 	function initJsControls(){
@@ -692,6 +817,12 @@ function uncheckAll( $div ) {
 		if(window.labBookPopup){
 			initLabBookPopup();
 		}
+		if(window.dropdownConfig){
+			initDropdownConfig();
+		}
+		if(window.volumeIds){
+			initAutoHideVolume();
+		}
 		
 		if(window.realiquotInit){
 			$("a.submit").attr("onclick", "").unbind('unclick').click(function(){
@@ -704,31 +835,23 @@ function uncheckAll( $div ) {
 		
 		initDeleteConfirm();
 		
-		if(useHighlighting){
-			//field highlighting
-			if($("#table1row0").length == 1){
-				//gridview
-				$('form').highlight('td');
-			}else{
-				$('form').highlight('tr');
-			}
-		}
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
-		initTooltips();
 		initActions();
 		initSummary();
 		initAjaxClass(document);
+		initAccuracy(document);
+		initAddLine(document);//must be before datepicker
 		
 		//calendar controls
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
-		initDatepicker(".datepicker");
+		initDatepicker(document);
 		
+		initTooltips(document);
 		initCheckAll(document);
-		
-		initAddLine(document);
 		initRemoveLine(document);
+		initCheckboxes(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
@@ -739,7 +862,28 @@ function uncheckAll( $div ) {
 		
 		//focus on first field
 		$("input, select, textarea").first().focus();
+		
+		//on login page, displays a warning if the server is more than ~2 min late compared to the client
+		if(window.serverClientTimeDiff && window.serverClientTimeDiff < -120){
+			$("#timeErr").show();
+		}
+		
+		if(useHighlighting){
+			//field highlighting
+			if($("#table1row0").length == 1){
+				//gridview
+				$('form').highlight('td');
+			}else{
+				$('form').highlight('tr');
+			}
+		}
+		
+		//fly over submit button, always in the screen
+		flyOverSubmit();
+		$(window).scroll(flyOverSubmit);
+		$(window).resize(flyOverSubmit);
 	}
+	
 
 	function debug(str){
 //		$("#debug").append(str + "<br/>");

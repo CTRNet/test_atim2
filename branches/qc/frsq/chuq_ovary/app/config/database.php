@@ -80,11 +80,11 @@ class DATABASE_CONFIG {
 
 	var $default = array(
 		'driver' => 'mysql',
-		'persistent' => false,
+		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'chuq_ovary',
+		'database' => 'chuq',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

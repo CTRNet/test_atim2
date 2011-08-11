@@ -54,13 +54,17 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function add( $participant_id=null, $dx_control_id=null ) {
-		if (( !$participant_id ) && ( !$dx_control_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$dx_control_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		}
 
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($participant_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
-		$this->buildAndSetExistingDx($participant_id);
+		$this->set('existing_dx', $this->DiagnosisMaster->getExistingDx($participant_id));
 		
 		$this->set('initial_display', (empty($this->data)? true : false));
 		
@@ -69,13 +73,16 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+		$this->Structures->set('diagnosismasters', 'diagnosismasters');
 		$this->Structures->set('empty', 'empty_structure');
 
 		$this->set( 'dx_type', $dx_control_data['DiagnosisControl']['controls_type']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ( !empty($this->data) ) {
 			$this->DiagnosisMaster->patchIcd10NullValues($this->data);
@@ -92,6 +99,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {
 				if ( $this->DiagnosisMaster->save( $this->data )) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
 				}
 			}
@@ -99,13 +110,17 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	}
 
 	function edit( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
+		if (( !$participant_id ) && ( !$diagnosis_master_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		}	
 
 		// MANAGE DATA
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($dx_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($dx_master_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
-		$this->buildAndSetExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']);
+		$this->set('existing_dx', $this->DiagnosisMaster->getExistingDx($participant_id, $diagnosis_master_id, $dx_master_data['DiagnosisMaster']['primary_number']));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']));
@@ -113,10 +128,13 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		
 		$this->Structures->set('empty', 'empty_structure');
+		$this->Structures->set('diagnosismasters', 'diagnosismasters');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if(empty($this->data)) {
 			$this->data = $dx_master_data;
@@ -132,6 +150,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			if($submitted_data_validates) {
 				$this->DiagnosisMaster->id = $diagnosis_master_id;
 				if ( $this->DiagnosisMaster->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}
@@ -146,7 +168,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if (empty($diagnosis_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowDiagnosisDeletion($diagnosis_master_id);
+		$arr_allow_deletion = $this->allowDeletion($diagnosis_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -161,71 +183,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id);
 		}		
-	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $diagnosis_master_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowDiagnosisDeletion($diagnosis_master_id) {
-		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
-		
-		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$nbr_linked_collection = $this->ClinicalCollectionLink->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $diagnosis_master_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_linked_collection > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_collection';
-		}
-		
-		$nbr_events = $this->EventMaster->find('count', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_events > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_events';
-		}
-
-		$nbr_treatment = $this->TreatmentMaster->find('count', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
-		if ($nbr_treatment > 0) {
-			$arr_allow_deletion['allow_deletion'] = false;
-			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_treatment';
-		}		
-		return $arr_allow_deletion;
-	}	
-	
-	function buildAndSetExistingDx($participant_id, $current_dx_id = '0', $current_dx_primary_number = '') {
-		$existing_dx = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.id != '.$current_dx_id)));
-		//sort by dx number
-		if(empty($existing_dx)){
-			$sorted_dx[''] = array();
-		}else{
-			foreach($existing_dx as $dx){
-				if(isset($sorted_dx[$dx['DiagnosisMaster']['primary_number']])){
-					array_push($sorted_dx[$dx['DiagnosisMaster']['primary_number']], $dx);
-				}else{
-					$sorted_dx[$dx['DiagnosisMaster']['primary_number']][0] = $dx;
-				}
-			}
-			if(!isset($sorted_dx[''])){
-				$sorted_dx[''] = array();
-			}
-			if(!isset($sorted_dx[$current_dx_primary_number])){
-				$sorted_dx[$current_dx_primary_number] = array();			
-			}
-		}
-		ksort($sorted_dx);
-		$this->set('existing_dx', $sorted_dx);	
 	}
 }
 

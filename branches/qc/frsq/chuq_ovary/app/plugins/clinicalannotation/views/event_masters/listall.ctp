@@ -12,7 +12,9 @@
 	
 	$structure_links = array(
 		'index' => array( 
-			'detail' => '/clinicalannotation/event_masters/detail/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%'
+			'detail' => array(
+				'link' => '/clinicalannotation/event_masters/detail/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
+				'icon' => 'detail')
 		),
 		'bottom' => array(
 			'filter' => $filter_links,
