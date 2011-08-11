@@ -6,7 +6,7 @@
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'datagrid', 'links'=>$structure_links, 'settings'=> array('pagination' => false));
+	$final_options = array('type' => 'editgrid', 'links'=>$structure_links, 'settings'=> array('pagination' => false));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

@@ -12,7 +12,7 @@ class CsvController extends AppController {
 	 * @param string $data_pkey The pkey to look for in the data array
 	 */
 	function csv($plugin, $model_name, $model_pkey, $structure_alias, $data_model = null, $data_pkey = null){
-		$this->ModelToSearch = AppModel::atimNew($plugin, $model_name, true);
+		$this->ModelToSearch = AppModel::getInstance($plugin, $model_name, true);
 		
 		if($data_pkey == null){
 			$data_pkey = $model_pkey;

@@ -17,7 +17,7 @@
 		$filter_links['specimen'] = $main_link . '/CATEGORY|specimen';
 		$filter_links_tmp = array();
 		foreach ($existing_specimen_sample_types as $type => $sample_control_id) {
-			$filter_links_tmp[__($type,true)] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
+			$filter_links_tmp[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
 		}
 		ksort($filter_links_tmp);
 		$filter_links = $filter_links + $filter_links_tmp;
@@ -25,7 +25,7 @@
 	}
 	$filter_links_tmp = array();
 	foreach ($existing_derivative_sample_types as $type => $sample_control_id) {
-		$filter_links_tmp[__($type,true)] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
+		$filter_links_tmp[$type] = $main_link . '/SAMP_CONT_ID|' . $sample_control_id;
 	}
 	ksort($filter_links_tmp);
 	$filter_links = $filter_links + $filter_links_tmp;	
