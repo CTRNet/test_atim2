@@ -57,7 +57,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'BC';
 				break;	
 			case 'peritoneal wash':
-			case 'peritoneal wash cell ':
+			case 'peritoneal wash cell':
 			case 'peritoneal wash supernatant':
 				$prefix = 'PW';
 				break;	
