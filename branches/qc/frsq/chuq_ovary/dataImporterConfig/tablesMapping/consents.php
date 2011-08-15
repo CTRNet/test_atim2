@@ -15,8 +15,8 @@ $master_fields = array(
 $detail_fields = array();
 
 //see the Model class definition for more info
-$model = new MasterDetailModel(0, $pkey, $child, true, "participant_id", 'consent_masters', $master_fields, 'cd_nationals', 'consent_master_id', $detail_fields);
-		
+$model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'consent_masters', $master_fields, 'cd_nationals', 'consent_master_id', $detail_fields);
+
 //we can then attach post read/write functions
 $model->post_read_function = 'postConsentRead';
 $model->custom_data = array();

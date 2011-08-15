@@ -42,8 +42,8 @@ $detail_fields = array(
 	);
 
 //see the Model class definition for more info
-$model = new MasterDetailModel(0, $pkey, $child, true, "participant_id", 'diagnosis_masters', $master_fields, 'chuq_dx_all_sites', 'diagnosis_master_id', $detail_fields);
-		
+$model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'diagnosis_masters', $master_fields, 'chuq_dx_all_sites', 'diagnosis_master_id', $detail_fields);
+
 //we can then attach post read/write functions
 $model->custom_data = array();
 $model->post_read_function = 'postDiagnosisRead';
