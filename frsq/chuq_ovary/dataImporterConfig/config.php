@@ -10,7 +10,7 @@ class Config{
 	static $db_port 		= "3306";
 	static $db_user 		= "root";
 	static $db_pwd			= "";
-	static $db_schema		= "chuq_ovary";
+	static $db_schema		= "chuq";
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
 	
@@ -19,16 +19,18 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-//	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/chuq_small_20110606_17h10.xls";//file to read
-	static $xls_file_path	= "/Documents and Settings/u703617/Desktop/chuq_all_20110606_17h10.xls";//file to read
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/scripts/v2.3.0/data/chuq_all_data.xls";
+
 	static $xls_header_rows = 1;
 	
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= false;//wheter to insert generated queries data in revs as well
+
+	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
+	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
+	
 	//--------------------------------------
-	
-	
-	//this shouldn't be edited here
+
 	static $db_connection	= null;
 	
 	static $addon_queries_end	= array();//queries to run at the start of the import process
@@ -50,19 +52,20 @@ class Config{
 //Config::$addon_queries_end[] = "..."
 
 //add some value domains names that you want to use in post read/write functions
-//Config::$value_domains[] = "...";
-Config::$value_domains[] = "marital_status";
+//Config::$value_domains['health_status']= new ValueDomain("health_status", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "Participant";
 
 //add your configs
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/participants.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/dos_identifiers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/patho_identifiers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/mdeie_identifiers.php';
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/dos_identifiers.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/patho_identifiers.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/mdeie_identifiers.php';
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
 
+function addonFunctionStart(){}
+function addonFunctionEnd(){}
 
 ?>

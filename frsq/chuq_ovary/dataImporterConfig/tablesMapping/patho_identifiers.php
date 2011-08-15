@@ -10,7 +10,7 @@ $fields = array(
 	"identifier_value" => "NO PATHO");
 
 //see the Model class definition for more info
-$model = new Model(0, $pkey, $child, true, "participant_id", 'misc_identifiers', $fields);
+$model = new Model(0, $pkey, $child, false, NULL, "participant_id", 'misc_identifiers', $fields);
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postPathoNbrRead';

@@ -1,6 +1,6 @@
 <?php
 $pkey = "NS";
-$child = array('ConsentMaster','DiagnosisMaster','PathoMiscIdentfier','DosMiscIdentfier','MdeieMiscIdentfier');
+$child = array();//'ConsentMaster','DiagnosisMaster','PathoMiscIdentfier','DosMiscIdentfier','MdeieMiscIdentfier'
 $fields = array(
 	"participant_identifier" => "NS", 
 	"date_of_birth" => "DN",
@@ -15,11 +15,11 @@ $fields = array(
 			"O                       O" => "alive")));
 
 //see the Model class definition for more info
-$model = new Model(0, $pkey, $child, true, NULL, 'participants', $fields);
+$model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields);
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postParticipantRead';
-$model->post_write_function = 'postParticipantWrite';
+//$model->post_write_function = 'postParticipantWrite';
 $model->custom_data = array(
 	"date_fields" => array(
 		$fields["date_of_birth"] => null
@@ -35,9 +35,9 @@ function postParticipantRead(Model $m){
 echo"<br>----------------------------------------------------------------------<br>";	
 echo "New Participant : NS = ".$m->values['NS']." (Line: ".$m->line.")";
 echo"<br>----------------------------------------------------------------------<br>";	
-}
 
-setDataForpostParticipantWrite($model);
+	return true;
+}
 
 function postParticipantWrite(Model $m, $participant_id){
 
