@@ -627,7 +627,7 @@ INSERT INTO `consent_masters_revs` (`id`, `date_of_referral`, `route_of_referral
 -- Dumping data for table `datamart_adhoc`
 --
 
-INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `flag_use_control_for_results`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `flag_use_control_for_results`, `created`, `created_by`, `modified`, `modified_by`, `function_for_results`) VALUES
 (1, 'QR_AQ_1_Demo', 'QR_AQ_1_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'QR_AQ_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
  'SELECT 
 AliquotMaster.id,
@@ -651,11 +651,11 @@ LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = 
 WHERE TRUE
 AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
 AND Participant.sex = "@@Participant.sex@@" 
-AND SampleMaster.sample_type = "@@SampleControl.sample_type@@" 
+AND SampleControl.sample_type = "@@SampleControl.sample_type@@" 
 AND AliquotControl.aliquot_type = "@@AliquotControl.aliquot_type@@"  
 AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@"
 ORDER BY Participant.participant_identifier;', 
- 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+ 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, ''),
  
 (2, 'QR_AQ_2_Demo', 'QR_AQ_2_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'aliquot_masters_for_collection_tree_view', 'aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
  'SELECT 
@@ -686,7 +686,7 @@ AND SampleCpontrol.sample_type = "@@SampleControl.sample_type@@"
 AND AliquotControl.aliquot_type = "@@AliquotControl.aliquot_type@@"  
 AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@"
 ORDER BY Participant.participant_identifier;', 
- 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+ 0, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, ''),
 
 (3, 'QR_AQ_3_Demo', 'QR_AQ_3_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe_3', 'QR_AQ_complexe_3', 'storage detail=>/storagelayout/storage_masters/detail/%%StorageMaster.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/', 
  'SELECT 
@@ -730,7 +730,7 @@ AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@"
 AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
 AND StorageMaster.temp_unit = "@@StorageMaster.temp_unit@@" 
 ORDER BY AliquotMaster.barcode;', 
- 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
+ 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, ''),
 
 (4, 'QR_SM_4_Demo', 'QR_SM_4_Demo_Description', 'Inventorymanagement', 'SampleMaster', 'QR_SM_complexe', 'QR_SM_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|sample detail=>/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/', 
  'SELECT 
@@ -751,22 +751,25 @@ AND Participant.participant_identifier = "@@Participant.participant_identifier@@
 AND Participant.sex = "@@Participant.sex@@" 
 AND SampleControl.sample_type = "@@SampleControl.sample_type@@"
 ORDER BY Participant.participant_identifier;', 
- 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0
-);
+ 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0, ''),
+(5, 'QR_PART_5_Demo', 'QR_PART_5_Demo_Description', 'Clinicalannotation', 'Participant', 'participants', 'participants', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/', '', 1, NOW(), 1, NOW(), 1, 'demoFuncParticipant');
 
 INSERT INTO i18n (id, en, fr) VALUES
 ('QR_AQ_1_Demo_Description',
- 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_query_results</b> = 1)',
- 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_query_results</b> = 1)'),
+ 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)'),
 ('QR_AQ_2_Demo_Description',
- 'Search based on Participant + Aliquots criteria & Display Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''aliquot_masters_for_collection_tree_view'', <b>flag_use_query_results</b> = 0)',
- 'Search based on Participant + Aliquots criteria & Display Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''aliquot_masters_for_collection_tree_view'', <b>flag_use_query_results</b> = 0)'),
+ 'Search based on Participant + Aliquots criteria & Display Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''aliquot_masters_for_collection_tree_view'', <b>flag_use_control_for_results</b> = 0)',
+ 'Search based on Participant + Aliquots criteria & Display Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''aliquot_masters_for_collection_tree_view'', <b>flag_use_control_for_results</b> = 0)'),
 ('QR_AQ_3_Demo_Description',
- 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_query_results</b> = 1)',
- 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_query_results</b> = 1)'),
+ 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_control_for_results</b> = 1)'),
 ('QR_SM_4_Demo_Description',
- 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_query_results</b> = 1)',
- 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_query_results</b> = 1)');
+ 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_control_for_results</b> = 1)'),
+('QR_PART_5_Demo_Description',
+ 'Straight participants search using a function instead of a query',
+ 'Straight participants search using a function instead of a query');
 --
 -- Dumping data for table `derivative_details`
 --
