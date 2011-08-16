@@ -72,7 +72,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Not done participant message(s) having reached their due date.",
  "Message(s) des participants pas faits ayant atteint leur date d'échéance."),
 ("manage contacts", "Manage contacts", "Gérer les contacts"),
-("save contact", "Save contact", "Enregistrer un contact");
+("save contact", "Save contact", "Enregistrer un contact"),
+("delete in batch", "Delete in batch", "Supprimer en lot");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -603,7 +604,7 @@ CREATE TABLE tmp_bogus_primary_dx (SELECT participant_id, primary_number, COUNT(
 ALTER TABLE tmp_bogus_primary_dx 
  ADD INDEX (`participant_id`),
  ADD INDEX (`primary_number`);
-SELECT IF(COUNT(*) > 0, 'See table tmp_bogus_primary_dx to manually fix the bogus primary dx and their children', 'All dx are ok. You can flush table tmp_bogus_primary_dx') AS msg FROM tmp_bogus_primary_dx
+SELECT IF(COUNT(*) > 0, 'See table tmp_bogus_primary_dx to manually fix the bogus primary dx and their children', 'All dx are ok. You can drop table tmp_bogus_primary_dx') AS msg FROM tmp_bogus_primary_dx
 UNION
 SELECT 'Once done you may drop diagnosis_masters.primary_number as well as diagnosis_masters_revs.primary_number' AS msg; 
 
@@ -649,7 +650,7 @@ DELETE FROM structure_formats WHERE structure_field_id=(SELECT id FROM structure
 DELETE FROM structure_fields WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_number';
 
 ALTER TABLE datamart_adhoc
- ADD COLUMN funcion_for_results VARCHAR(50) NOT NULL DEFAULT '' AFTER sql_query_for_results,
+ ADD COLUMN function_for_results VARCHAR(50) NOT NULL DEFAULT '' AFTER sql_query_for_results,
  CHANGE flag_use_query_results flag_use_control_for_results TINYINT UNSIGNED NOT NULL DEFAULT 0;
 
 ALTER TABLE datamart_batch_sets

@@ -523,7 +523,7 @@ function uncheckAll( $div ) {
 	
 	//Delete confirmation dialog
 	function initDeleteConfirm(){
-		if($(".form.delete").length > 0){
+		if($(".form.delete:not(.noPrompt)").length > 0){
 			var yes_action = function(){
 				document.location = $("#deleteConfirmPopup").data('link'); 
 			};

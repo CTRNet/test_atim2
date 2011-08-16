@@ -53,7 +53,7 @@ class DatamartAppModel extends AppModel {
 				'children' => $functions_menu
 			);
 		}
-		$csv_action = 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
+		$csv_action = 'datamart/csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
 		if(strlen($data_model)){
 			$csv_action .= $data_model.'/';
 			if(strlen($data_pkey)){

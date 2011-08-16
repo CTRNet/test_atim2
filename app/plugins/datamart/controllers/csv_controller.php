@@ -1,5 +1,5 @@
 <?php
-class CsvController extends AppController {
+class CsvController extends DatamartAppController {
 	var $uses = array();
 
 	/**
@@ -35,16 +35,45 @@ class CsvController extends AppController {
 			}
 		}
 		
-		$use_find = true;
-		if(isset($this->data['Adhoc']) && isset($this->data['Adhoc']['sql_query_for_results'])){
-			if(strpos($this->data['Adhoc']['sql_query_for_results'], "WHERE TRUE") === false){
-				AppController::addWarningMsg(__('unable to use the batch set specified query', true));
-			}else{
-				$this->data = $this->ModelToSearch->query(str_replace("WHERE TRUE", "WHERE ".$model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')", $this->data['Adhoc']['sql_query_for_results']));
-				$use_find = false;
+		
+		//see if we have an adhoc qry to use
+		$adhoc_id = null;
+		if(isset($this->data['Adhoc']['id'])){
+			$adhoc_id = $this->data['Adhoc']['id'];
+		}else if(isset($this->data['BatchSet']['id'])){
+			$batchset_model = AppModel::getInstance("Datamart", "BatchSet", true);
+			$batchset = $batchset_model->findById($this->data['BatchSet']['id']);
+			if($batchset && $batchset['Adhoc']['id']){
+				$adhoc_id = $batchset['Adhoc']['id'];
 			}
 		}
 		
+		$use_find = true;
+		if($adhoc_id){
+			$adhoc_model = AppModel::getInstance("Datamart", "Adhoc", true);
+			$adhoc = $adhoc_model->findById($adhoc_id);
+			if($adhoc){
+				if(strpos($adhoc['Adhoc']['sql_query_for_results'], "WHERE TRUE") !== false){
+					$query = str_replace("WHERE TRUE", "WHERE ".$model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')", $adhoc['Adhoc']['sql_query_for_results']);
+					list( , $query) = $this->Structures->parse_sql_conditions( $query, array() );
+					$this->data = $this->ModelToSearch->query($query);
+					$use_find = false;
+				}else{
+					require_once('customs/custom_adhoc_functions.php');
+					$custom_adhoc_functions = new CustomAdhocFunctions();
+					if(method_exists($custom_adhoc_functions, $adhoc['Adhoc']['function_for_results'])){
+						$function = $adhoc['Adhoc']['function_for_results'];
+						$this->data = $custom_adhoc_functions->$function($this, $ids);
+						$use_find = false;
+					}
+				}
+			}
+			
+			if($use_find){
+				AppController::addWarningMsg(__('unable to use the batch set specified query', true));
+			}
+		}
+
 		if($use_find){
 			$this->data = $this->ModelToSearch->find('all', array('conditions' => $model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')"));
 		}

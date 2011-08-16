@@ -7,7 +7,7 @@
 	$structure_links = array(
 		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['checklist_model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
+			$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	
@@ -27,7 +27,7 @@
 			'list'		=> '/datamart/batch_sets/index/'
 		)
 	);
-	if($data_for_detail['BatchSet']['flag_use_query_results']){
+	if($data_for_detail['Adhoc']['flag_use_control_for_results']){
 		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
 				"cast to a new generic batch set" 	=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
 				"cast into a generic batch set"		=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
