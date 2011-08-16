@@ -647,3 +647,30 @@ INSERT INTO structure_validations (structure_field_id, rule, on_action, language
 
 DELETE FROM structure_formats WHERE structure_field_id=(SELECT id FROM structure_fields WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_number');
 DELETE FROM structure_fields WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_number';
+
+ALTER TABLE datamart_adhoc
+ ADD COLUMN funcion_for_results VARCHAR(50) NOT NULL DEFAULT '' AFTER sql_query_for_results,
+ CHANGE flag_use_query_results flag_use_control_for_results TINYINT UNSIGNED NOT NULL DEFAULT 0;
+
+ALTER TABLE datamart_batch_sets
+ ADD COLUMN datamart_adhoc_id INT DEFAULT NULL AFTER `datamart_structure_id`,
+ DROP COLUMN lookup_key_name,
+ ADD FOREIGN KEY (`datamart_adhoc_id`) REFERENCES `datamart_adhoc`(`id`);
+ 
+UPDATE datamart_batch_sets AS dbs
+LEFT JOIN datamart_adhoc AS da ON dbs.form_alias_for_results=da.form_alias_for_results AND dbs.sql_query_for_results=da.sql_query_for_results 
+ AND dbs.form_links_for_results=da.form_links_for_results AND dbs.flag_use_query_results=da.flag_use_control_for_results
+SET dbs.datamart_adhoc_id=da.id;
+SELECT IF(COUNT(*) > 0, 
+ 'Not all batch set have a datamart_structure_id or a datamart_adhoc_id. Update your batchsets to give them either a datamart_structure_id or a datamart_adhoc_id before running the following update query.', 
+ 'All batchsets have either a datamart_structure_id or a datamart_adhoc_id. You can run the following query.') AS msg FROM datamart_batch_sets WHERE datamart_structure_id IS NULL AND datamart_adhoc_id IS NULL
+UNION
+SELECT 'ALTER TABLE datamart_batch_sets
+ DROP COLUMN form_alias_for_results,
+ DROP COLUMN sql_query_for_results,
+ DROP COLUMN form_links_for_results,
+ DROP COLUMN flag_use_query_results,
+ DROP COLUMN plugin,
+ DROP COLUMN model' AS msg;
+ 
+ 
