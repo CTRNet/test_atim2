@@ -240,14 +240,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get all collection/sample 'sample aliquot type list' to build the filter button
 		$sample_aliquot_types = array();
 		$criteria = array('AliquotMaster.collection_id' => $collection_id);
-		if(!$is_collection_aliquot_list) { $criteria['AliquotMaster.sample_master_id'] = $sample_master_id; }
-		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
+		if(!$is_collection_aliquot_list) { 
+			$criteria['AliquotMaster.sample_master_id'] = $sample_master_id; 
+		}
+		$tmp_sample_aliquot_type_list = $this->AliquotMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id, AliquotMaster.aliquot_type, AliquotMaster.aliquot_control_id', 'conditions' => $criteria, 'order' => 'SampleControl.sample_type ASC, AliquotMaster.aliquot_type ASC', 'recursive' => '0'));
 		foreach($tmp_sample_aliquot_type_list as $new_sample_aliquot_type) {
 			// Should create key because looks like it's not a real distinct: Perhaps exists a better solution
 			$sample_control_id = $new_sample_aliquot_type['SampleMaster']['sample_control_id'];
 			$aliquot_control_id = $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id'];
 			$sample_aliquot_types[$sample_control_id . '|' . $aliquot_control_id] = array(
-				'sample_type' => $new_sample_aliquot_type['SampleMaster']['sample_type'],
+				'sample_type' => $new_sample_aliquot_type['SampleControl']['sample_type'],
 				'sample_control_id' => $new_sample_aliquot_type['SampleMaster']['sample_control_id'],
 				'aliquot_type' => $new_sample_aliquot_type['AliquotMaster']['aliquot_type'],
 				'aliquot_control_id' => $new_sample_aliquot_type['AliquotMaster']['aliquot_control_id']);
