@@ -338,10 +338,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		// Get all collection / derivative sample type list to build the filter button
 		$sample_type_list = array();
 		if($is_collection_sample_list) {
-			$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
+			$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC', 'recursive' => '-1'));
 			foreach($tmp_sample_type_list as $new_sample_type) {
 				$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-				$sample_type = $new_sample_type['SampleMaster']['sample_type'];
+				$sample_type = $new_sample_type['SampleControl']['sample_type'];
 				$sample_type_list[$sample_type] = $sample_control_id;
 			}
 		}
@@ -349,11 +349,13 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		$sample_type_list = array();
 		$criteria = array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'derivative');
-		if(!$is_collection_sample_list) { $criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; }
-		$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleMaster.sample_type, SampleMaster.sample_control_id', 'conditions' => $criteria, 'order' => 'SampleMaster.sample_type ASC', 'recursive' => '-1'));
+		if(!$is_collection_sample_list) { 
+			$criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
+		}
+		$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => $criteria, 'order' => 'SampleControl.sample_type ASC', 'recursive' => '-1'));
 		foreach($tmp_sample_type_list as $new_sample_type) {
 			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-			$sample_type = $new_sample_type['SampleMaster']['sample_type'];
+			$sample_type = $new_sample_type['SampleControl']['sample_type'];
 			$sample_type_list[$sample_type] = $sample_control_id;
 		}
 		$this->set('existing_derivative_sample_types', $sample_type_list);
@@ -571,7 +573,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if(empty($this->data)) {
 			$this->data = array();
-			$this->data['SampleMaster']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];
+			$this->data['SampleControl']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];
 			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
 	
 			//Set default reception date
@@ -595,7 +597,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			// Set additional data
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
-			$this->data['SampleMaster']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];			
+			$this->data['SampleControl']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];			
 			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];	
 			
 			// Set either specimen or derivative additional data
@@ -603,11 +605,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				// The created sample is a specimen
 				if(isset($this->data['SampleMaster']['parent_id'])) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
-				$this->data['SampleMaster']['initial_specimen_sample_type'] = $this->data['SampleMaster']['sample_type'];
+				$this->data['SampleMaster']['initial_specimen_sample_type'] = $this->data['SampleControl']['sample_type'];
 				$this->data['SampleMaster']['initial_specimen_sample_id'] = null; 	// ID will be known after sample creation
 			} else {
 				// The created sample is a derivative
-				$this->data['SampleMaster']['parent_sample_type'] = $parent_sample_data['SampleMaster']['sample_type'];
+				$this->data['SampleMaster']['parent_sample_type'] = $parent_sample_data['SampleControl']['sample_type'];
 				$this->data['SampleMaster']['parent_id'] = $parent_sample_data['SampleMaster']['id'];
 				
 				$this->data['SampleMaster']['initial_specimen_sample_type'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_type'];

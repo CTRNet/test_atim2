@@ -478,3 +478,4 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 }
 ?>
+

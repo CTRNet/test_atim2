@@ -30,7 +30,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
-	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => '')));
+	static public $volume_condition = array('OR' => array(array('AliquotControl.volume_unit' => NULL), array('AliquotControl.volume_unit' => '')));
 
 	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 		

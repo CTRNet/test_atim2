@@ -14,10 +14,12 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 	const USE_DATETIME = 10;
 	const USE_BY = 11;
 	const VOLUME_UNIT = 12;
+	const PLUGIN = 13;
 	
 	function findFastFromAliquotMasterId($aliquot_master_id){
 		$models_details = array(
 			"SourceAliquot" => array(
+				self::PLUGIN			=> "Inventorymanagement",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('SourceAliquot.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
@@ -37,6 +39,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::SAMPLE_MASTER_ID	=> 'sample_source.id',
 				self::COLLECTION_ID		=> 'sample_source.collection_id'
 			), "Realiquoting" => array(
+				self::PLUGIN			=> "Inventorymanagement",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
@@ -54,6 +57,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "QualityCtrl" => array(
+				self::PLUGIN			=> "Inventorymanagement",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('QualityCtrl.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup),
@@ -70,6 +74,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "OrderItem" => array(
+				self::PLUGIN			=> "Order",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('OrderItem.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
@@ -87,6 +92,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "AliquotReviewMaster" => array(
+				self::PLUGIN			=> "Inventorymanagement",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('AliquotReviewMaster.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
@@ -104,6 +110,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "AliquotInternalUse" => array(
+				self::PLUGIN			=> "Inventorymanagement",
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('AliquotInternalUse.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
@@ -124,7 +131,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 		);
 		$data = array();
 		foreach($models_details as $model_name => $model_conf){
-			$model = AppModel::getInstance("Inventorymanagement", $model_name, true);
+			$model = AppModel::getInstance($model_conf[self::PLUGIN], $model_name, true);
 			$tmp_data = $model->find('all', array(
 				'conditions' => array('AliquotMaster.id' => $aliquot_master_id),
 				'joins' => $model_conf[self::JOINS],
