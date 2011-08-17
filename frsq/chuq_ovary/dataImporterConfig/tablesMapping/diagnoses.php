@@ -4,21 +4,25 @@ $child = array();
 $master_fields = array(
 	"diagnosis_control_id" => "@14",
 	"participant_id" => $pkey,
-	
 	"tumour_grade" => array("GR" => array(
+		""=>"",
 		"X"=>"",
 		"2/3"=>"2",
 		"3/3"=>"3",
 		"1/3"=>"1",
+		"1 à 2"=>"1-2",
 		"1-2/3"=>"1-2",
 		"H"=>"",
 		"2"=>"2",
 		"1"=>"1",
+		"2 à 3"=>"2-3",
 		"2-3/3"=>"2-3",
 		"3"=>"3")));
+
 $detail_fields = array(
 	"pathology_diagnosis" => "Diagnostic",
 	"figo" => array("FIGO" => array(
+		""=>"",
 		"IA"=>"Ia",
 		"IC"=>"Ic",
 		"IIIC"=>"IIIc",
@@ -50,10 +54,12 @@ $model->post_read_function = 'postDiagnosisRead';
 
 //adding this model to the config
 Config::$models['DiagnosisMaster'] = $model;
-
-		
+	
 function postDiagnosisRead(Model $m){
 	$m->values['Diagnostic'] = utf8_encode($m->values['Diagnostic']);
+	$m->values['GR'] = utf8_encode($m->values['GR']);
+	
+	return true;
 }
 
 

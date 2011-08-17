@@ -4,13 +4,10 @@ $child = array();
 $fields = array(
 	"misc_identifier_control_id" => "@3",
 	"participant_id" => $pkey,
-
-	"identifier_name" => "@NO PATHO",
-	"identifier_abrv" => "@NO PATHO",
 	"identifier_value" => "NO PATHO");
 
 //see the Model class definition for more info
-$model = new Model(0, $pkey, $child, false, NULL, "participant_id", 'misc_identifiers', $fields);
+$model = new Model(0, $pkey, $child, false, "participant_id", $pkey, 'misc_identifiers', $fields);
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postPathoNbrRead';
@@ -23,4 +20,6 @@ function postPathoNbrRead(Model $m){
 	if(empty($m->values['NO PATHO'])) {
 		echo "<br><FONT COLOR=\"red\" >Line ".$m->line.": NO PATHO is empty!</FONT><br>";
 	}
+	
+	return true;
 }

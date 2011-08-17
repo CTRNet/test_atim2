@@ -43,6 +43,15 @@ class Config{
 	static $value_domains	= array();
 	
 	static $config_files	= array();
+	
+	//--------------------------------------
+
+	static $blood_boxes_data = array();
+	static $tissueCode2Details = array();
+	static $tissueCodeSynonimous = array();
+	static $ovCodes = array();
+	static $bloodBoxesData = array();
+	static $storages = array();	
 }
 
 //add you start queries here
@@ -59,13 +68,229 @@ Config::$parent_models[] = "Participant";
 
 //add your configs
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/participants.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/dos_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/patho_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/mdeie_identifiers.php';
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/dos_identifiers.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/patho_identifiers.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/mdeie_identifiers.php';
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/consents.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
 
-function addonFunctionStart(){}
-function addonFunctionEnd(){}
+function addonFunctionStart(){
+	setStaticDataForCollection();
+	
+echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : Config::tissueCodeSynonimous</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : Blood CE and Blood ARLT : which product into atim</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : NO BÔITE ASC,S, RNALATER contains Serum and blood rnalater box found into column 'ASCITE' or 'SANG-PLAS...'?</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : S value into 'ASCITE' = SERUM?</FONT><br>";
+
+
+}
+
+function addonFunctionEnd(){
+	if(!empty(Config::$bloodBoxesData)) {
+		die("<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet : ".implode(" ,",array_keys(Config::$bloodBoxesData))."</FONT><br>");
+	}
+}
+
+//=========================================================================================================
+// Additional functions
+//=========================================================================================================
+
+function setStaticDataForCollection() {
+	// Load tissues types defintion
+	Config::$tissueCode2Details = array(
+		//OV:ovary
+		'OV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => ''),
+		'OVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => ''),
+		'OVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => ''),
+	
+		'BOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'benin'),
+		'BOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'benin'),
+		'BOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'benin'),
+		
+		'KOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'cyst'),
+		'KOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'cyst'),
+		'KOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'cyst'),
+		
+		'NOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'normal'),
+		'NOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'normal'),
+		'NOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TOV' => array('code' => '', 'source' => 'ovary', 'laterality' => '', 'type' => 'tumoral'),
+		'TOVD' => array('code' => '', 'source' => 'ovary', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TOVG' => array('code' => '', 'source' => 'ovary', 'laterality' => 'left', 'type' => 'tumoral'),
+		
+		//AP: other
+		'AP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => ''),
+		'APD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => ''),
+		'APG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => ''),
+	
+		'NAP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => 'normal'),
+		'NAPD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => 'normal'),
+		'NAPG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TAP' => array('code' => '', 'source' => 'other', 'laterality' => '', 'type' => 'tumoral'),
+		'TAPD' => array('code' => '', 'source' => 'other', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TAPG' => array('code' => '', 'source' => 'other', 'laterality' => 'left', 'type' => 'tumoral'),
+	
+		//EP: epiplon
+		'EP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => ''),
+		'EPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => ''),
+		'EPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => ''),
+
+		'NEP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => 'normal'),
+		'NEPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => 'normal'),
+		'NEPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TEP' => array('code' => '', 'source' => 'epiplon', 'laterality' => '', 'type' => 'tumoral'),
+		'TEPD' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TEPG' => array('code' => '', 'source' => 'epiplon', 'laterality' => 'left', 'type' => 'tumoral'),
+	
+		//IP: peritoneal implant
+		'IP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => ''),
+		'IPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => ''),
+		'IPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => ''),
+		
+		'NIP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => 'normal'),
+		'NIPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => 'normal'),
+		'NIPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TIP' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => '', 'type' => 'tumoral'),
+		'TIPD' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TIPG' => array('code' => '', 'source' => 'peritoneal implant', 'laterality' => 'left', 'type' => 'tumoral'),
+
+		//MP: pelvic mass
+		'MP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => ''),
+		'MPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => ''),
+		'MPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => ''),
+		
+		'NMP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => 'normal'),
+		'NMPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => 'normal'),
+		'NMPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => 'normal'),
+		
+		'TMP' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => '', 'type' => 'tumoral'),
+		'TMPD' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'right', 'type' => 'tumoral'),
+		'TMPG' => array('code' => '', 'source' => 'pelvic mass', 'laterality' => 'left', 'type' => 'tumoral')
+	);
+	foreach(Config::$tissueCode2Details as $key => $detail) { Config::$tissueCode2Details[$key]['code'] = $key; }
+	
+	Config::$tissueCodeSynonimous = array(
+		'E' => 'EP',
+		'EPPD' => 'EPD', 
+		'EPN' => 'NEP',
+	
+		'?' => 'AP',
+		'A' => 'AP',
+		'AS' => 'AP',
+		
+		'O' => 'OV',
+		'MT' => 'OV',
+		'ANXG' => 'OVG',
+		'OD' => 'OVD',
+		'OVGT' => 'TOVG',
+		'OVVD' => 'OVD',
+		'KYSTE' => 'KOV',
+		'OVDN' => 'NOVD',
+		'OVGN' => 'NOVG',
+		'OVDT' => 'TOVD',
+		'OVGT' => 'TOVG',
+		'OG' => 'OVG',
+		'VG' => 'OVG',
+		'VOG' => 'OVG',
+		
+		'M.P' => 'MP');
+
+	Config::$ovCodes = array();
+	foreach(Config::$tissueCode2Details as $code => $data) {
+		if($data['source'] == 'ovary') Config::$ovCodes[] = $code;
+	}
+	
+	// Load blood boxes
+	Config::$bloodBoxesData = getBloodBoxesDataFromFile();
+	
+	// Set storages
+	Config::$storages = array('storages' => array(), 'next_left' => 1);
+}
+
+function getBloodBoxesDataFromFile() {
+	$boxes_data = array();
+	
+	$xls_reader_boxes = new Spreadsheet_Excel_Reader();
+	$xls_reader_boxes->read( Config::$xls_file_path);
+	
+	$sheets_nbr = array();
+	foreach($xls_reader_boxes->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+
+	if(!array_key_exists('BLOOD_BOXES', $sheets_nbr)) die("ERROR: Worksheet BLOOD_BOXES is missing!\n");
+
+	$headers = array('1' => 'NS',
+		'2' => 'SANG',
+		'3' => 'BOX SANG',
+		'4' => 'DERIVE1',
+		'5' => 'BOX DERIVE1',
+		'6' => 'DERIVE2',
+		'7' => 'BOX DERIVE2');
+	
+	$line_counter = 0;
+	foreach($xls_reader_boxes->sheets[$sheets_nbr['BLOOD_BOXES']]['cells'] as $line => $new_line) {
+		$line_counter++;
+		
+		if($line_counter == 1) {
+			$check = array_diff_assoc($headers, $new_line);
+			if(!empty($check)) die("ERROR: Wrong headers in worksheet BLOOD_BOXES!\n");
+		
+		} else {
+			$ns = $new_line['1'];
+			if(!empty($ns)) {
+				if(array_key_exists($ns, $boxes_data)) die("ERROR: NS recorded twice into the worksheet BLOOD_BOXES!");
+				$tmp_box = array();
+				
+				parseAndAddBoxData((isset($new_line['2'])? $new_line['2'] : null), (isset($new_line['3'])? $new_line['3'] : null), $tmp_box, $line_counter);
+				parseAndAddBoxData((isset($new_line['4'])? $new_line['4'] : null), (isset($new_line['5'])? $new_line['5'] : null), $tmp_box, $line_counter);
+				parseAndAddBoxData((isset($new_line['6'])? $new_line['6'] : null), (isset($new_line['7'])? $new_line['7'] : null), $tmp_box, $line_counter);
+				
+				$boxes_data[$ns] = $tmp_box;
+			}
+		}
+	}
+
+	return $boxes_data;	
+}	
+
+function parseAndAddBoxData($content, $box, &$boxes_data, $line_counter) {				
+	if(!empty($content) && !empty($box)) {
+		// *1* Get box
+		$box_code = '';
+		preg_match('/^BT#([0-9A-Z]+)$/',  strtoupper($box), $matches);
+		if(isset($matches[1])) $box_code = $matches[1];
+		if(empty($box_code)) {
+			echo("WARNING: Wrong box value [$box] at line $line_counter (worksheet BLOOD_BOXES)!\n");
+
+		} else {
+			// *2* Get content
+			$contents = explode('/', $content);
+			foreach($contents as $new_product) {
+				// Get nbr of tubes
+				$nbr_tubes = 1;
+				preg_match('/^([0-9]+)/',  strtoupper($new_product), $matches);
+				if(isset($matches[1])) {
+					$nbr_tubes = $matches[1];
+					$new_product = str_replace($nbr_tubes,'', $new_product);
+				}
+				
+				// *3* Record
+				if(!in_array($new_product,array('Sang', 'P', 'CE', 'S', 'RL', 'ARLT'))) {
+					echo("WARNING: Wrong blood product type [$new_product] at line $line_counter (worksheet BLOOD_BOXES)!\n");
+				} else {	
+					while($nbr_tubes) {
+						$boxes_data[$new_product][] = array('box' => $box_code);
+						$nbr_tubes--;
+					}
+				}	
+			}
+		}
+	} else if(!empty($content) || !empty($box)) {	
+		echo("WARNING: Data not complete at line $line_counter (worksheet BLOOD_BOXES)!\n");
+	}
+}
 
 ?>
