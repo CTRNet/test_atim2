@@ -46,6 +46,7 @@ class Config{
 	
 	//--------------------------------------
 
+	static $sample_aliquot_controls = array();
 	static $blood_boxes_data = array();
 	static $tissueCode2Details = array();
 	static $tissueCodeSynonimous = array();
@@ -76,16 +77,18 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImpo
 
 function addonFunctionStart(){
 	setStaticDataForCollection();
-	
-echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : Config::tissueCodeSynonimous</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : Blood CE and Blood ARLT : which product into atim</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : NO BÔITE ASC,S, RNALATER contains Serum and blood rnalater box found into column 'ASCITE' or 'SANG-PLAS...'?</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER with user : S value into 'ASCITE' = SERUM?</FONT><br>";
 
+echo "<br><FONT COLOR=\"red\" >CLEAN UP FILE with user</FONT><br>";
 
+echo "<br><FONT COLOR=\"red\" >TO CONFIRM WITH USER : Synonimous into Config::tissueCodeSynonimous</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >TO CONFIRM WITH USER : Blood type CE = blood cell and ARLT = blood cell with flag Erythrocyte?</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : Does [NO BÔITE ASC,S, RNALATER] mean ascite, serum and blood RNAlater?</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : S value into 'ASCITE' = SERUM?</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : No box for PC aliquots?</FONT><br>";
 }
 
 function addonFunctionEnd(){
+die("<br><FONT COLOR=\"red\" >COMPLETE all revs table.</FONT><br>");
 	if(!empty(Config::$bloodBoxesData)) {
 		die("<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet : ".implode(" ,",array_keys(Config::$bloodBoxesData))."</FONT><br>");
 	}
@@ -96,6 +99,8 @@ function addonFunctionEnd(){
 //=========================================================================================================
 
 function setStaticDataForCollection() {
+	global $connection;
+	
 	// Load tissues types defintion
 	Config::$tissueCode2Details = array(
 		//OV:ovary
@@ -209,6 +214,23 @@ function setStaticDataForCollection() {
 	
 	// Set storages
 	Config::$storages = array('storages' => array(), 'next_left' => 1);
+	
+	// Set sample aliquot controls
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue','blood', 'ascite', 'peritoneal wash', 'ascite cell', 'ascite supernatant', 'cell culture', 'serum', 'plasma', 'dna', 'rna', 'blood cell')";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
+	}	
+	if(sizeof(Config::$sample_aliquot_controls) != 12) die("get sample controls failed");
+	
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
+		}	
+	}
+pr(Config::$sample_aliquot_controls);exit;
 }
 
 function getBloodBoxesDataFromFile() {
