@@ -354,7 +354,6 @@ class BrowserController extends DatamartAppController {
 		$this->layout = false;
 		Configure::write('debug', 0);
 		$this->set('csv_header', true);
-		echo "<br/>",(memory_get_usage() / 1024),"<br/>";
 		while($this->data = $this->Browser->getDataChunk(100)){
 			$this->render();
 			ob_flush();
