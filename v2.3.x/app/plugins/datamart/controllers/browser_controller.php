@@ -353,13 +353,12 @@ class BrowserController extends DatamartAppController {
 		$this->set("result_structure", $this->Browser->result_structure);
 		$this->layout = false;
 		Configure::write('debug', 0);
-		$this->set('csv_header', false);
+		$this->set('csv_header', true);
 		echo "<br/>",(memory_get_usage() / 1024),"<br/>";
 		while($this->data = $this->Browser->getDataChunk(100)){
 			$this->render();
 			ob_flush();
 			ob_clean();
-			echo "<br/>",(memory_get_usage() / 1024),"<br/>";
 			$this->set('csv_header', false);
 		}
 	}
