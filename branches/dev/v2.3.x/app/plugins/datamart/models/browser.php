@@ -2,12 +2,31 @@
 class Browser extends DatamartAppModel {
 	var $useTable = false;
 	
-	public $checklist_data = array();
 	public $checklist_header = array();
 	public $checklist_model_name_to_search = null;
 	public $checklist_use_key = null;
-	public $checklist_result_structure = null;
 	public $checklist_sub_models_id_filter = null;
+	public $result_structure = null;
+	public $count = null;
+	public $merged_ids = null;
+	
+	static private $browsing_control_model = null;
+	static private $browsing_result_model = null;
+	private $browsing_cache = array();
+	private $merge_data = array();
+	private $nodes = array();
+	private $node_current_index = 0;
+	private $rows_buffer = array();
+	private $models_buffer = array();
+	private $search_parameters = null;
+	private $offset = 0;
+	
+	const NODE_ID = 0;
+	const MODEL = 1;
+	const IDS = 2;
+	const USE_KEY = 3;
+	const ANCESTOR_IS_CHILD = 4;
+	const JOIN_FIELD = 5;
 
 	/**
 	 * The action dropdown under browse will be hierarchical or not
@@ -35,15 +54,14 @@ class Browser extends DatamartAppModel {
 	 * @param string $data_model
 	 * @param string $model_pkey
 	 * @param string $data_pkey
-	 * @param string $structure_name The name of the structure to use in export to csv link
 	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, $structure_name, array $sub_models_id_filter = null){
+	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, array $sub_models_id_filter = null){
 		$app_controller = AppController::getInstance();
 		$DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
-			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null || $structure_name == null){
+			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null){
 				$app_controller->redirect( '/pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
 			}
 			//the query contains a useless CONCAT to counter a cakephp behavior
@@ -90,7 +108,8 @@ class Browser extends DatamartAppModel {
 				'children' => $sorted_rez
 			);
 			
-			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey));
+			//TODO: remove "foo" in 2.4.0
+			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, "foo", $data_model, $data_pkey));
 			
 		}else{
 			
@@ -724,112 +743,278 @@ class Browser extends DatamartAppModel {
 	}
 	
 	/**
-	 * Fetches all checklist related data and stores it in the object
-	 * @param array $browsing
-	 * @param int $display_limit If the limit is -1 then there is no limit
-	 * @param array $additional_conditions An additional condition array 
-	 * containing arrays with "field" and "ids" keys. The field must only be
-	 * the field and not model dot field.
+	 * Builds an ordered array of the nodes to merge
+	 * @param array $browsing The browsing data of the first node
+	 * @param int $merge_to The id of the final node
+	 * @return An array of the nodes to merge
 	 */
-	public function fetchCheckList(array $browsing, $display_limit, array $additional_conditions = array()){
-		$model_to_import = null;
-		$this->checklist_model_name_to_search = null;
-		$this->checklist_use_key = null;
-		$this->checklist_result_structure = null;
-		//check for detailed structure
-		$this->checklist_sub_models_id_filter = array();
-		App::import("Model", "StructuresComponent", true);
-		$structures = new StructuresComponent();
-		if(strlen($browsing['DatamartStructure']['control_model']) > 0 && $browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
-			$alternate_info = Browser::getAlternateStructureInfo(
-				$browsing['DatamartStructure']['plugin'], 
-				$browsing['DatamartStructure']['control_model'], 
-				$browsing['BrowsingResult']['browsing_structures_sub_id']);
-			$alternate_alias = $alternate_info['form_alias'];
-			$this->checklist_result_structure = $structures->get('form', $alternate_alias);
-			$model_to_import = $browsing['DatamartStructure']['control_master_model'];
-			$this->checklist_model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
-			$this->checklist_use_key = "id";
-			$this->checklist_header = array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label']));
-			$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($browsing);
-			$browsing['DatamartStructure']['index_link'] = Browser::updateIndexLink($browsing['DatamartStructure']['index_link'], $browsing['DatamartStructure']['model'], $browsing['DatamartStructure']['control_master_model'], $browsing['DatamartStructure']['use_key'], "id");
+	private function getNodesToMerge($browsing, $merge_to){
+		$nodes_to_fetch = array();
+		$start_id = null;
+		$end_id = null;
+		$descending = null;
+		$node_id = $browsing['BrowsingResult']['id'];
+		$previous_browsing = $browsing;
+		if($merge_to > $node_id){
+			$start_id = $merge_to;
+			$end_id = $node_id;
+			$descending = false;
 		}else{
-			$this->checklist_result_structure = $structures->getFormById($browsing['DatamartStructure']['structure_id']);
-			$model_to_import = $browsing['DatamartStructure']['model'];
-			$this->checklist_model_name_to_search = $browsing['DatamartStructure']['model'];
-			$this->checklist_use_key = $browsing['DatamartStructure']['use_key'];
-			$this->checklist_header = array("title" => __("result", true), "description" => __($browsing['DatamartStructure']['display_name'], true));
-			$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+			$start_id = $node_id;
+			$end_id = $merge_to;
+			$descending = true;
+		}
+		//fetch from highest id to lowest id
+		while($start_id != $end_id){
+			$nodes_to_fetch[] = $start_id;
+			$browsing = self::$browsing_result_model->cacheAndGet($start_id, $this->browsing_cache);
+			$start_id = $browsing['BrowsingResult']['parent_node_id'];
+		}
+			
+		if($descending){
+			array_shift($nodes_to_fetch);
+			$nodes_to_fetch[] = $end_id;
+			self::$browsing_result_model->cacheAndGet($end_id, $this->browsing_cache);
+		}
+		$this->merged_ids = $nodes_to_fetch;
+		
+		if($descending){
+			//clear drilldown parents
+			$remove = $previous_browsing['BrowsingResult']['raw'] == 0;
+			foreach($nodes_to_fetch as $index => $node_to_fetch){
+				if($remove){
+					unset($nodes_to_fetch[$index]);
+					$remove = false;
+				}else{
+					$remove = $this->browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0;
+				}
+			}
+		}else{
+			$nodes_to_fetch = array_reverse($nodes_to_fetch);
+			//clear drilldowns
+			foreach($nodes_to_fetch as $index => $node_to_fetch){
+				if($this->browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0){
+					unset($nodes_to_fetch[$index]);
+				}
+			}
 		}
 		
-		$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
-		if(strlen($browsing['BrowsingResult']['id_csv']) > 0){
-			$conditions[$this->checklist_model_name_to_search.".".$this->checklist_use_key] = explode(",", $browsing['BrowsingResult']['id_csv']);
-			foreach($additional_conditions as $additional_condition){
-				$conditions[$this->checklist_model_name_to_search.".".$additional_condition['field']] = $additional_condition['ids'];
+		return $nodes_to_fetch;
+	}
+	
+	/**
+	 * Builds the search parameters array
+	 */
+	private function buildBufferedSearchParameters(){
+		$joins = array();
+		$fields = array();
+		$order = array();
+		for($i = 1; $i < count($this->nodes); ++ $i){
+			$node = $this->nodes[$i];
+			$ancestor_node = $this->nodes[$i - 1];
+			$condition = null;
+			if($node[self::ANCESTOR_IS_CHILD]){
+				$condition = $node[self::MODEL]->name.".".$node[self::USE_KEY]." = ".$ancestor_node[self::MODEL]->name.".".$node[self::JOIN_FIELD];
+			}else{
+				$condition = $node[self::MODEL]->name.".".$node[self::JOIN_FIELD]." = ".$ancestor_node[self::MODEL]->name.".".$ancestor_node[self::USE_KEY];
+			}
+			$fields[] = 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name;
+			$order[] = $node[self::MODEL]->name;
+			$joins[] = array(
+				'table' => $node[self::MODEL]->table,
+				'alias'	=> $node[self::MODEL]->name,
+				'type'	=> 'LEFT',
+				'conditions' => array(
+					$condition,
+					$node[self::MODEL]->name.".".$node[self::USE_KEY] => $node[self::IDS]
+				)
+			);
+		}
+		$node = $this->nodes[0];
+		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name);
+		array_unshift($order, $node[self::MODEL]->name);
+		$this->search_parameters = array(
+			'fields'		=> $fields,
+			'joins'			=> $joins, 
+			'conditions'	=> array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $node[self::IDS]),
+			'order'			=> $order,
+			'recursive'		=> -1
+		);
+	}
+	
+	/**
+	 * Init the browser model on the current required data display
+	 * @param array $browsing Browsing data of the first node
+	 * @param int $merge_to Node id of the target node to merge with
+	 */
+	public function initDataLoad($browsing, $merge_to){
+		$result = array();
+		$start_id = NULL;
+		$end_id = null;
+		$node_id = $browsing['BrowsingResult']['id'];
+		$main_data = array();//$this->checklist_data;
+		$descending = null;
+		$result_structure = array();
+		$header = array();
+		$checklist_model_name = null;
+		unset($result_structure['Structure']);
+		self::$browsing_control_model = AppModel::getInstance("Datamart", "BrowsingControl", true);
+		self::$browsing_result_model = AppModel::getInstance("Datamart", "BrowsingResult", true);
+		$nodes_to_fetch = array();
+		
+		if($merge_to != 0){
+			$nodes_to_fetch = $this->getNodesToMerge($browsing, $merge_to);
+		}
+		
+		//prepare nodes_to_fetch_stack
+		array_unshift($nodes_to_fetch, $node_id);
+		$last_browsing = null;
+		$iteration_count = 1;
+		$structures_component = new StructuresComponent();
+		
+		//building the relationship logic between nodes
+		foreach($nodes_to_fetch as $node){
+			$current_browsing = self::$browsing_result_model->findById($node);
+			$this->browsing_cache[$node_id] = $current_browsing;
+			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);
+			$ids = explode(",", $current_browsing['BrowsingResult']['id_csv']);
+			$ids[] = 0;
+			$use_key = null;
+			
+			$control_id = empty($current_browsing['DatamartStructure']['control_master_model']) ? false : $current_model->find('all', array(
+				'fields' => array($current_browsing['DatamartStructure']['control_field']),
+				'conditions' => array($current_browsing['DatamartStructure']['model'].".".$current_browsing['DatamartStructure']['use_key'] => $ids),
+				'group' => array($current_browsing['DatamartStructure']['control_field']), 
+				'limit' => 2));
+			
+			$structure = null;
+			$header_sub_type = " ";
+			if($control_id && count($control_id) == 1){
+				//we can use the specific structure
+				$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_master_model'], true);
+				$use_key = 'id';
+				
+				//load the structure
+				$control_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_model'], true);
+				$control_model_data = $control_model->find('first', array(
+					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'), 
+					'conditions' => array($current_browsing['DatamartStructure']['control_model'].".id" => $control_id[0][$current_browsing['DatamartStructure']['model']][$current_browsing['DatamartStructure']['control_field']]))
+				);
+				$structure = $structures_component->get('form', $control_model_data[$current_browsing['DatamartStructure']['control_model']]['form_alias']);
+				$header_sub_type = " > ".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
+				
+				if($checklist_model_name == null){
+					$this->checklist_model_name_to_search = $current_browsing['DatamartStructure']['control_master_model'];
+					$this->checklist_use_key = $use_key;
+					$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
+				}
+			}else{
+				//must use the generic structure (or its empty...)
+				$use_key = $current_browsing['DatamartStructure']['use_key'];
+				$structure = $structures_component->getFormById($current_browsing['DatamartStructure']['structure_id']);
+				if($checklist_model_name == null){
+					$this->checklist_model_name_to_search = $current_browsing['DatamartStructure']['model'];
+					$this->checklist_use_key = $use_key;
+					$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+				}
+			}
+
+			//structure merge, add 100 * iteration count to display column
+			foreach($structure['Sfs'] as $sfs){
+				$sfs['display_column'] += 100 * $iteration_count;
+				$result_structure['Sfs'][] = $sfs;
 			}
 			
-			//fetch the count since deletions might make the set smaller than the count of ids
-			$count = $this->ModelToSearch->find('count', array('conditions' => $conditions));
-			if($display_limit != -1 && $count > $display_limit){
-				$data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'fields' => array("CONCAT('', ".$this->checklist_model_name_to_search.".".$this->checklist_use_key.") AS ids"), 'recursive' => -1));
-				$this->checklist_data = implode(",", array_map(create_function('$val', 'return $val[0]["ids"];'), $data));
-			}else{
-				if($browsing['BrowsingResult']['browsing_structures_sub_id'] > 0){
-					//add the control_id to the search conditions to benefit from direct inner join on detail
-					$conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $browsing['BrowsingResult']['browsing_structures_sub_id'];
+			$ancestor_is_child = false;
+			$join_field = null;
+			if($last_browsing != null){
+				//determine wheter the current item is a parent or child of the previous one
+				$browsing_control = self::$browsing_control_model->find('first', array('conditions' => array('id1' => $last_browsing['DatamartStructure']['id'], 'id2' => $current_browsing['DatamartStructure']['id'])));
+				if(empty($browsing_control)){
+					//direction parent -> child
+					$browsing_control = self::$browsing_control_model->find('first', array('conditions' => array('id2' => $last_browsing['DatamartStructure']['id'], 'id1' => $current_browsing['DatamartStructure']['id'])));
+					assert(!empty($browsing_control));
+				}else{
+					//direction child -> parent
+					$ancestor_is_child = true;
 				}
-				$this->checklist_data = $this->ModelToSearch->find('all', array('conditions' => $conditions, 'recursive' => 0));
+				list( , $join_field) = explode(".", $browsing_control['BrowsingControl']['use_field']);
 			}
-		}else{
-			$this->data = array();
+			
+			//update header
+			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$use_key => $ids)));
+			$header[] = __($current_browsing['DatamartStructure']['display_name'], true).$header_sub_type."(".$count.")";
+
+			$this->nodes[] = array(
+				self::NODE_ID => $node, 
+				self::IDS => $ids, 
+				self::MODEL => $current_model, 
+				self::USE_KEY => $use_key,
+				self::ANCESTOR_IS_CHILD => $ancestor_is_child,
+				self::JOIN_FIELD => $join_field
+			);
+			$last_browsing = $current_browsing;
+			++ $iteration_count;
+		}
+		
+		
+		//prepare buffer conditions
+		$this->buildBufferedSearchParameters();
+
+		$this->count = $this->nodes[0][self::MODEL]->find('count', array('joins' => $this->search_parameters['joins'], 'conditions' => $this->search_parameters['conditions'], 'recursive' => 0));
+		$this->checklist_header = implode(" - ", $header); 
+		$this->result_structure = $result_structure;
+	}
+	
+	private function fillBuffer($chunk_size){
+		$this->search_parameters['limit'] = $chunk_size;
+		$this->search_parameters['offset'] = $this->offset;
+		
+		$lines = $this->nodes[0][self::MODEL]->find('all', $this->search_parameters);
+		$this->offset += $chunk_size;
+		
+		$this->rows_buffer = array();
+		$this->models_buffer = array();
+		foreach($lines as $line){
+			$this->rows_buffer[] = array_values($line[0]);
+			$i = 0;
+			foreach($line[0] as $model_id){
+				$this->models_buffer[$i ++][$model_id] = null; 
+			}
+		}
+		
+		foreach($this->models_buffer as &$models){
+			$models = array_keys($models);
 		}
 	}
 	
 	/**
-	 * Used in merges, gets the parent id to search a child on 
-	 * (Example: AliquotMaster.sample_master_id)
-	 * @param array $data The data array
-	 * @param array $previous_browsing The node that was browsed before the 
-	 * current node (Must be a parent. example: The current node is 
-	 * AliquotMaster and the previous node is SampleMaster)
-	 * @return array The ids to filter on
+	 * @param unknown_type $chunk_size
+	 * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
 	 */
-	public function getFilterIdChildCondition(array $data, array $previous_browsing){
-		$model = null;
-		$id_field = null;
-		if(isset($data[0][$previous_browsing['DatamartStructure']['control_master_model']])){
-			$model = $previous_browsing['DatamartStructure']['control_master_model'];
-			$id_field = "id";
+	public function getDataChunk($chunk_size){
+		$this->fillBuffer($chunk_size);
+		if(empty($this->rows_buffer)){
+			$chunk = array();
 		}else{
-			$model = $previous_browsing['DatamartStructure']['model'];
-			$id_field = $previous_browsing['DatamartStructure']['use_key'];
+			$chunk = array_fill(0, count($this->rows_buffer), array());
+			$node = null;
+			foreach($this->models_buffer as $model_index => $model_ids){
+				$node = $this->nodes[$model_index];
+				$model_data = $node[self::MODEL]->find('all', array('conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 'recursive' => 0));
+				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
+				foreach($this->rows_buffer as $row_index => $row_data){
+					if(empty($row_data[$model_index])){
+						//line with missing joins
+						break;
+					}else{
+						$chunk[$row_index] = array_merge($model_data[$row_data[$model_index]][0], $chunk[$row_index]);
+					}
+				}
+			}
 		}
 		
-		$filter_ids = array();
-		foreach($data as $unit){
-			$filter_ids[] = $unit[$model][$id_field];
-		}
-		
-		return $filter_ids;
+		return $chunk;
 	}
-	
-	/**
-	 * Used in merges, filters the ids of a parent node based on the children
-	 * subset. Updates $browsing[BrowsingResult][id_csv].
-	 * @param array $browsing The currently seeked node (Example: SampleMaster)
-	 * @param array $data The current data set
-	 * @param string $model_name The children model (Example: AliquotMaster)
-	 * @param string $id_field The children id field (Example: id)
-	 */
-	public function applyFilterOnParent(array &$browsing, array $data, $model_name, $id_field){
-		$filter_ids = array();
-		foreach($data as $data_unit){
-			$filter_ids[] = $data_unit[$model_name][$id_field];
-		}
-		$filter_ids = array_unique($filter_ids);
-		$org_filter_ids = explode(",", $browsing['BrowsingResult']['id_csv']);
-		$browsing['BrowsingResult']['id_csv'] = implode(", ", array_intersect($filter_ids, $org_filter_ids));
-	}
-	
 }
+
