@@ -21,7 +21,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 	}
 	
 	//updating headings
-	updateHeading($parent_structure['Sfs'], 'parent sample');
+	updateHeading($parent_structure['Sfs'], 'sample');
 	updateHeading($aliquots_structure['Sfs'], 'used aliquot');
 	updateHeading($aliquots_volume_structure['Sfs'], 'used aliquot');
 
