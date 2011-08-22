@@ -317,7 +317,6 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->result_structure);
 				$this->data = $this->Browser->getDataChunk(self::$display_limit);
 				$this->set("header", array('title' => __('result', true), 'description' => $this->Browser->checklist_header));
-				$this->set('merged_ids', $this->Browser->merged_ids);
 				if(is_array($this->data)){
 					//sort this->data on URL
 					$this->data = AppModel::sortWithUrl($this->data, $this->passedArgs);
@@ -326,6 +325,7 @@ class BrowserController extends DatamartAppController {
 				//overflow
 				$this->data = $browsing['BrowsingResult']['id_csv'];
 			}
+			$this->set('merged_ids', $this->Browser->merged_ids);
 			
 		}else if($browsing != null){
 			//search screen
