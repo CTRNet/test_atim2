@@ -140,7 +140,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE sample_controls SET form_alias = CONCAT(form_alias,',chuq_sd_der_blood_cells') WHERE sample_type = 'blood cell';
 
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('chuq is erythrocyte','Erythrocyte','Érythrocyte');
 
