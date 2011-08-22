@@ -53,6 +53,8 @@ class BrowserController extends DatamartAppController {
 		$browsing = null;
 		$check_list = false;
 		$last_control_id = 0;
+		$this->set('control_id', $control_id);
+		$this->set('merge_to', $merge_to);
 		if(empty($this->data)){
 			if($node_id == 0){
 				//new access
@@ -63,8 +65,6 @@ class BrowserController extends DatamartAppController {
 			}else{
 				//direct node access
 				$this->set('node_id', $node_id);
-				$this->set('control_id', $control_id);
-				$this->set('merge_to', $merge_to);
 				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 				$check_list = true;
 			}

@@ -730,6 +730,9 @@ class Browser extends DatamartAppModel {
 				$ids[] = $unit['AliquotControl']['sample_control_id'];
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
+		}else{
+			//only sub filter aliquots if the user is on a sample node
+			$sub_models_id_filter['AliquotControl'][] = 0;
 		}
 		
 		return $sub_models_id_filter;
