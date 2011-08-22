@@ -35,7 +35,7 @@ function postParticipantRead(Model $m){
 	excelDateFix($m);
 	
 //echo "** New Participant : NS = ".$m->values['NS']." (Line: ".$m->line.")";
-
+	
 	return true;
 }
 
@@ -332,7 +332,7 @@ $new_source = 'AP';
 		//Set Product
 		foreach($merged_blood_data as $product_type => $aliquots) {
 			// Build aliquot array
-			$aliquot_type = ($product_type == 'RL')? 'RNALater tube': (($product_type == 'ARLT')? 'Erythrocytes tube': 'tube');
+			$aliquot_type = ($product_type == 'RL')? 'RNALater tube': 'tube';
 			$aliquots_array = array();
 			foreach ($aliquots as $new_aliquot) {
 				$aliquots_array[] = array('type' =>$aliquot_type,'storage' => $new_aliquot['box']);
@@ -355,11 +355,13 @@ $new_source = 'AP';
 					$collections['blood']['derivatives']['serum']['aliquots'] = array_merge($collections['blood']['derivatives']['serum']['aliquots'], $aliquots_array);						
 					break;
 				case 'CE':
-				case 'ARLT':
-if($product_type == 'ARLT') die('manage ARLT at the sample level.');
-//TODO	to confirm CE = blood cell and ARLT = blood cell with flag Erythrocyte
 					if(!isset($collections['blood']['derivatives']['blood cell'])) $collections['blood']['derivatives']['blood cell'] = array('type' => 'blood cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());						
 					$collections['blood']['derivatives']['blood cell']['aliquots'] = array_merge($collections['blood']['derivatives']['blood cell']['aliquots'], $aliquots_array);						
+					break;
+				case 'ARLT':
+//TODO confirm ARLT management
+					if(!isset($collections['blood']['derivatives']['blood cell (arlt)'])) $collections['blood']['derivatives']['blood cell (arlt)'] = array('type' => 'blood cell (arlt)', 'details' => null, 'aliquots' => array(), 'derivatives' => array());						
+					$collections['blood']['derivatives']['blood cell (arlt)']['aliquots'] = array_merge($collections['blood']['derivatives']['blood cell (arlt)']['aliquots'], $aliquots_array);						
 					break;							
 				default:
 					die("<br><FONT COLOR=\"red\" >Line ".$m->line." [blood_file][ERROR]: blood sample '$product_type' is not supported. </FONT><br>");		
@@ -397,10 +399,10 @@ if($product_type == 'ARLT') die('manage ARLT at the sample level.');
 			$nc_box = $nc_boxes_cell_data;
 
 			if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-			if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+			if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 			
 			while($nc_tubes_nbrs) { 
-				$collections['ascite']['derivatives']['ascite cells']['aliquots'][] = array('type' =>'tube', 'storage' => $nc_box); 
+				$collections['ascite']['derivatives']['ascite cell']['aliquots'][] = array('type' =>'tube', 'storage' => $nc_box); 
 				$nc_tubes_nbrs--;
 			}
 		}
@@ -527,9 +529,9 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 					// SOURCE = ASCITE
 				
 					if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-					if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-					if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-					$collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['aliquots'], $aliquots);
+					if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+					if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+					$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'], $aliquots);
 								
 				} else {
 					die("<br><FONT COLOR=\"red\" >Line ".$m->line." [PC][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['PC']."].</FONT><br>");
@@ -594,9 +596,9 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				// SOURCE = ASCITE
 			
 				if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-				$collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['aliquots'], $aliquots);
+				if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'], $aliquots);
 							
 			} else {
 				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['VC']."].</FONT><br>");
@@ -665,10 +667,10 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				// SOURCE = ASCITE
 			
 				if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-				if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['rna'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['rna'] = array('type' => 'rna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-				$collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['rna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['rna']['aliquots'], $aliquots);
+				if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna'] = array('type' => 'rna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna']['aliquots'], $aliquots);
 				
 			} else {
 				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [RNA][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['RNA (PC)']."].</FONT><br>");
@@ -735,10 +737,10 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				// SOURCE = ASCITE
 			
 				if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells'])) $collections['ascite']['derivatives']['ascite cells'] = array('type' => 'ascite cells', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
-				if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-				if(!isset($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['dna'])) $collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['dna'] = array('type' => 'dna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
-				$collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['dna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cells']['derivatives']['cell culture']['derivatives']['dna']['aliquots'], $aliquots);
+				if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
+				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna'] = array('type' => 'dna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
+				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna']['aliquots'], $aliquots);
 				
 			} else {
 				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['DNA']."].</FONT><br>");
@@ -747,15 +749,15 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 	}
 
 	// Display data for check
-//	displayCollection($ns, $m, $participant_id, $collections, $spent_time);
+	displayCollection($ns, $m, $participant_id, $collections, $spent_time);
 	
 	// Add collection notes
 	$collections['NOTES'] = $invantory_data_from_file['REMARQUE'];
 	$collection_notes = $collections['NOTES'];
 	
-//	//INSERT PROCESS
+	//INSERT PROCESS
 
-	createCollectionAndSpecimen($ns, $m, $participant_id, $collections, $spent_time);
+	createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_time);
 
 }
 
@@ -868,16 +870,19 @@ function pr($arr) {
 // Insert functions
 //=========================================================================================================
 
-function createCollectionAndSpecimen($ns, &$m, $participant_id, $collections, $spent_time) {
-die('FUNCTION IN REVIEW PROCESS')
+function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_time) {
+
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
-		"created_by"	=> "1", 
+		"created_by"	=> Config::$db_created_id, 
 		"modified"		=> "NOW()",
-		"modified_by"	=> "1"
+		"modified_by"	=> Config::$db_created_id
 		);
 		
+	$collection_notes = $collections['NOTES'];
+	unset($collections['NOTES']);
+	
 	// Create Blood Collection
 	if(isset($collections['blood'])) {
 		
@@ -923,8 +928,6 @@ die('FUNCTION IN REVIEW PROCESS')
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
-		
-		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sd_spe_bloods (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -936,10 +939,10 @@ die('FUNCTION IN REVIEW PROCESS')
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 		
 		// Create Derivative
-		createDerivative($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $sample_master_id, 'blood', $collections['blood']['derivatives'], 'Sang');
+		createDerivative($ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $sample_master_id, 'blood', $collections['blood']['derivatives'], 'Sang');
 	
 		// Create Aliquot
-		createAliquot($m, $ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $collections['blood']['aliquots'], 'Sang');
+		createAliquot($ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $collections['blood']['aliquots'], 'Sang');
 		
 		unset($collections['blood']);
 	}
@@ -1011,7 +1014,6 @@ die('FUNCTION IN REVIEW PROCESS')
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sd_spe_ascites (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1054,7 +1056,6 @@ die('FUNCTION IN REVIEW PROCESS')
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sd_spe_peritoneal_washes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1108,7 +1109,6 @@ die('FUNCTION IN REVIEW PROCESS')
 					"tissue_laterality" => "'".$data['details']['laterality']."'"
 				);
 				
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sd_spe_tissues (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1131,20 +1131,20 @@ die('FUNCTION IN REVIEW PROCESS')
 		}
 		
 		// Create Derivative
-		createDerivative($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $sample_master_id, $specimen_key, $data['derivatives'], $specimen_code);
+		createDerivative($ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $sample_master_id, $specimen_key, $data['derivatives'], $specimen_code);
 		
 		// Create Aliquot
-		createAliquot($m, $ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $data['aliquots'], $specimen_code);
+		createAliquot($ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $data['aliquots'], $specimen_code);
 				
 	}
 }
-function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data, $specimen_code = null) {
+function createDerivative($ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data, $specimen_code = null) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
-		"created_by"	=> "1", 
+		"created_by"	=> Config::$db_created_id, 
 		"modified"		=> "NOW()",
-		"modified_by"	=> "1"
+		"modified_by"	=> Config::$db_created_id
 		);
 	
 	if(empty($derivative_data)) return;
@@ -1175,7 +1175,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sd_der_plasmas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1214,7 +1213,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO 	sd_der_serums (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1229,9 +1227,9 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				if(!empty($new_derivative['derivatives'])) die('ascasc');
 				
 				break;	
-
-				
-			case 'buffy coat':
+	
+			case 'blood cell':
+			case 'blood cell (arlt)':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
 					"sample_category"				=> "'derivative'", 
@@ -1254,7 +1252,7 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
+				if($der_type == 'blood cell (arlt)') $insert['chuq_is_erythrocyte'] = "'y'";
 				$query = "INSERT INTO 	sd_der_blood_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1291,7 +1289,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO 	sd_der_dnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1331,7 +1328,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO 	sd_der_rnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1371,7 +1367,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO 	sd_der_ascite_sups (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1388,7 +1383,7 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				break;
 				
 				
-			case 'ascite cells':
+			case 'ascite cell':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
 					"sample_category"				=> "'derivative'", 
@@ -1411,7 +1406,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO 	sd_der_ascite_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1448,7 +1442,6 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sd_der_cell_cultures (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
@@ -1462,24 +1455,24 @@ function createDerivative(&$m, $ns, $participant_id, $collection_id, $initial_sp
 				break;		
 				
 			default:
-				die('to support'.$der_type);
+				die('ERR 9998377 : '.$der_type);
 		}
 		
 		// Create Derivative
-		createDerivative($m, $ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $der_type, $new_derivative['derivatives'], $specimen_code);
+		createDerivative($ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $der_type, $new_derivative['derivatives'], $specimen_code);
 		
 		// Create Aliquot
-		createAliquot($m, $ns, $participant_id, $collection_id, $sample_master_id, $der_type, $new_derivative['aliquots'], $specimen_code);
+		createAliquot($ns, $participant_id, $collection_id, $sample_master_id, $der_type, $new_derivative['aliquots'], $specimen_code);
 	}
 }
 	
-function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data, $specimen_code) {
+function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data, $specimen_code) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
-		"created_by"	=> "1", 
+		"created_by"	=> Config::$db_created_id, 
 		"modified"		=> "NOW()",
-		"modified_by"	=> "1"
+		"modified_by"	=> Config::$db_created_id
 		);
 	
 	if(empty($aliquot_data)) return;
@@ -1496,7 +1489,8 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 				case 'blood-RNALater tube':	
 				case 'plasma-tube':
 				case 'serum-tube':
-				case 'buffy coat-tube':
+				case 'blood cell-tube':
+				case 'blood cell (arlt)-tube':
 					$box_number = 'Sang '.$new_aliquot['storage'];
 					break;
 				case 'dna-tube':
@@ -1519,8 +1513,11 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 					break;
 				case 'ascite-tube':
 				case 'ascite supernatant-tube':
-				case 'ascite cells-tube':
+				case 'ascite cell-tube':
 					$box_number = 'ASC '.$new_aliquot['storage'];
+					break;
+				case 'peritoneal wash-tube':
+					$box_number = 'PW '.$new_aliquot['storage'];
 					break;
 				default:
 					die ('ERR_9849983 '.$sample_type.'-'.$new_aliquot['type']);
@@ -1530,8 +1527,8 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 		//get storage master id
 		$storage_master_id = null;
 		if(!empty($box_number)) {
-			if(isset($m->storages['storages'][$box_number])) {
-				$storage_master_id = $m->storages['storages'][$box_number]['id'];
+			if(isset(Config::$storages['storages'][$box_number])) {
+				$storage_master_id = Config::$storages['storages'][$box_number]['id'];
 			} else {
 			
 				$insert = array(
@@ -1540,8 +1537,8 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 					"storage_control_id"	=> "8",
 					"short_label"			=> "'".$box_number."'",
 					"selection_label"		=> "'".$box_number."'",
-					"lft"		=> "'".($m->storages['next_left'])."'",
-					"rght"		=> "'".($m->storages['next_left'] + 1)."'",
+					"lft"		=> "'".(Config::$storages['next_left'])."'",
+					"rght"		=> "'".(Config::$storages['next_left'] + 1)."'",
 					"set_temperature"	=> "'FALSE'"
 				);
 				$insert = array_merge($insert, $created);
@@ -1554,12 +1551,11 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 				$insert = array(
 					"storage_master_id"	=> $storage_master_id,
 				);
-				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO std_boxs (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 						
-				$m->storages['next_left'] = $m->storages['next_left'] + 2;
-				$m->storages['storages'][$box_number] = array('id' => $storage_master_id);
+				Config::$storages['next_left'] = Config::$storages['next_left'] + 2;
+				Config::$storages['storages'][$box_number] = array('id' => $storage_master_id);
 			} 
 		}		
 		
@@ -1578,6 +1574,14 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 		$detail_insert = array();
 		$detail_table = 'ad_tubes';
 		
+		$real_aliquot_type = str_replace(array('oct ','RNALater ','paraffin ', 'frozen '), array('','','', ''), $new_aliquot['type']);
+		$real_sample_type = str_replace(array(' (arlt)'), array(''), $sample_type);
+		if(!isset(Config::$sample_aliquot_controls[$real_sample_type]) 
+		&& !isset(Config::$sample_aliquot_controls[$real_sample_type]['aliquots'][$real_aliquot_type])) {
+			die('ERR 993883 : '.$sample_type.'-'.$new_aliquot['type']);
+		}
+		$aliquot_control_id = Config::$sample_aliquot_controls[$real_sample_type]['aliquots'][$real_aliquot_type]['aliquot_control_id'];
+
 		$prefix = '';
 		switch($sample_type.'-'.$new_aliquot['type']) {
 			case 'blood-tube':
@@ -1588,7 +1592,7 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 					$detail_insert['chuq_blood_solution'] = "'RNA later'";
 				}
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "16";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = $prefix;				
 				break;
 				
@@ -1598,16 +1602,16 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 				if(empty($prefix)) $prefix = 'SASC';
 			case 'serum-tube':
 				if(empty($prefix)) $prefix = 'SE';
-			case 'ascite cells-tube':
+			case 'ascite cell-tube':
 				if(empty($prefix)) $prefix = 'NC';
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "8";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";							
 				break;				
 				
 			case 'tissue-frozen tube':
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "1";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
 				break;	
 
@@ -1616,7 +1620,7 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 			case 'tissue-oct block':
 				if(empty($prefix)) $prefix = 'OCT';
 				$master_insert['aliquot_type'] = "'block'";
-				$master_insert['aliquot_control_id'] = "4";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";	
 				$detail_insert['block_type'] = ($prefix == 'OCT')? "'OCT'" : "'paraffin'";		
 				$detail_table = 'ad_blocks';			
@@ -1625,25 +1629,33 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 			case 'dna-tube':
 			case 'rna-tube':
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "11";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";					
 				break;	
 
-			case 'buffy coat-tube':
+			case 'blood cell-tube':
 				$prefix = 'BC';
+			case 'blood cell (arlt)-tube':
+				if(empty($prefix)) $prefix = 'ARLT';
 			case 'cell culture-tube':
 				if(empty($prefix)) $prefix = 'VC '.$specimen_code;
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "15";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";				
 				break;	
 				
 			case 'ascite-tube':
 				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = "2";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
 				break;
-				
+
+			case 'peritoneal wash-tube':
+				$master_insert['aliquot_type'] = "'tube'";
+				$master_insert['aliquot_control_id'] = $aliquot_control_id;
+				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
+				break;
+					
 			default:
 				die('ERR 99628');
 		}
@@ -1656,7 +1668,6 @@ function createAliquot(&$m, $ns, $participant_id, $collection_id, $sample_master
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
-		$detail_insert = array_merge($detail_insert, $created);
 		$query = "INSERT INTO $detail_table (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 

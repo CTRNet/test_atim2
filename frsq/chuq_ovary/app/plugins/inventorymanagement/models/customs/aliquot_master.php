@@ -54,7 +54,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'SE';
 				break;					
 			case 'blood cell':
-				$prefix = 'BC';
+				$prefix = 'BC/ARLT?';
 				break;	
 			case 'peritoneal wash':
 			case 'peritoneal wash cell':
