@@ -326,7 +326,7 @@ class BrowserController extends DatamartAppController {
 				$this->data = $browsing['BrowsingResult']['id_csv'];
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
-			
+
 		}else if($browsing != null){
 			//search screen
 			$this->set('type', "search");
@@ -351,18 +351,20 @@ class BrowserController extends DatamartAppController {
 	 * @param int $merge_to
 	 */
 	function csv($node_id, $merge_to){
-		$browsing = $this->BrowsingResult->findById($node_id);
+	$browsing = $this->BrowsingResult->findById($node_id);
 		$this->Browser->InitDataLoad($browsing, $merge_to);
 		$this->set("result_structure", $this->Browser->result_structure);
 		$this->layout = false;
+		
+		
 		Configure::write('debug', 0);
 		$this->set('csv_header', true);
-		while($this->data = $this->Browser->getDataChunk(100)){
+		while($this->data = $this->Browser->getDataChunk(300)){
 			$this->render();
-			ob_flush();
-			ob_clean();
 			$this->set('csv_header', false);
 		}
+		
+		$this->render(false);
 	}
 	
 		
