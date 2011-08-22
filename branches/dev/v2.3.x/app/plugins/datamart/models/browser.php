@@ -691,24 +691,47 @@ class Browser extends DatamartAppModel {
 		if($browsing['DatamartStructure']['id'] == 5){
 			//sample->aliquot hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "SampleMaster");//will print a warning if the id and field dont match anymore
-			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
-			$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
-			$ids = array();
-			foreach($data as $unit){
-				$ids[] = $unit['AliquotControl']['id'];
+			$sm = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
+			$sm_data = $sm->find('all', array(
+				'fields'		=> array('SampleMaster.sample_control_id'),
+				'conditions'	=> array("SampleMaster.id" => explode(",", $browsing['BrowsingResult']['id_csv'])),
+				'group'			=> array('SampleMaster.sample_control_id'),
+				'recursive'		=> -1)
+			);
+			if(count($sm_data) == 1){
+				$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
+				$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $sm_data[0]['SampleMaster']['sample_control_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
+				$ids = array();
+				foreach($data as $unit){
+					$ids[] = $unit['AliquotControl']['id'];
+				}
+				$sub_models_id_filter['AliquotControl'] = $ids;
+			}else{
+				$sub_models_id_filter['AliquotControl'][] = 0;
 			}
-			$sub_models_id_filter['AliquotControl'] = $ids;
 		}else if($browsing['DatamartStructure']['id'] == 1){
 			//aliquot->sample hardcoded part
 			assert($browsing['DatamartStructure']['control_master_model'] == "AliquotMaster");//will print a warning if the id and field doesnt match anymore
+			$am = AppModel::getInstance("Inventorymanagement", "AliquotMaster", true);
+			$am_data = $am->find('all', array(
+				'fields'		=> array('AliquotMaster.aliquot_control_id'),
+				'conditions'	=> array('AliquotMaster.id' => explode(",", $browsing['BrowsingResult']['id_csv'])),
+				'group'			=> array('AliquotMaster.aliquot_control_id'),
+				'recursive'		=> -1)
+			);
+			$ctrl_ids = array();
+			foreach($am_data as $data_part){
+				$ctrl_ids[] = $data_part['AliquotMaster']['aliquot_control_id'];
+			}
 			$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
-			$data = $ac->find('all', array('conditions' => array("AliquotControl.id" => $browsing['BrowsingResult']['browsing_structures_sub_id'], "AliquotControl.flag_active" => 1), 'recursive' => -1));
+			$data = $ac->find('all', array('conditions' => array("AliquotControl.id" => $ctrl_ids, "AliquotControl.flag_active" => 1), 'recursive' => -1));
 			$ids = array();
 			foreach($data as $unit){
 				$ids[] = $unit['AliquotControl']['sample_control_id'];
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}
+		
 		return $sub_models_id_filter;
 	}
 	
@@ -813,20 +836,23 @@ class Browser extends DatamartAppModel {
 			$node = $this->nodes[$i];
 			$ancestor_node = $this->nodes[$i - 1];
 			$condition = null;
+			$alias = $node[self::MODEL]->name."Browser";
+			$ancestor_alias = $i > 1 ? $ancestor_node[self::MODEL]->name."Browser" : $ancestor_node[self::MODEL]->name;
 			if($node[self::ANCESTOR_IS_CHILD]){
-				$condition = $node[self::MODEL]->name.".".$node[self::USE_KEY]." = ".$ancestor_node[self::MODEL]->name.".".$node[self::JOIN_FIELD];
+				$condition = $alias.".".$node[self::USE_KEY]." = ".$ancestor_alias.".".$node[self::JOIN_FIELD];
 			}else{
-				$condition = $node[self::MODEL]->name.".".$node[self::JOIN_FIELD]." = ".$ancestor_node[self::MODEL]->name.".".$ancestor_node[self::USE_KEY];
+				$condition = $alias.".".$node[self::JOIN_FIELD]." = ".$ancestor_alias.".".$ancestor_node[self::USE_KEY];
 			}
-			$fields[] = 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name;
-			$order[] = $node[self::MODEL]->name;
+			$fields[] = 'CONCAT("", '.$alias.".".$node[self::USE_KEY].') AS '.$alias;
+			$order[] = $alias;
+			
 			$joins[] = array(
 				'table' => $node[self::MODEL]->table,
-				'alias'	=> $node[self::MODEL]->name,
+				'alias'	=> $alias,
 				'type'	=> 'LEFT',
 				'conditions' => array(
 					$condition,
-					$node[self::MODEL]->name.".".$node[self::USE_KEY] => $node[self::IDS]
+					$alias.".".$node[self::USE_KEY] => $node[self::IDS]
 				)
 			);
 		}
@@ -915,7 +941,8 @@ class Browser extends DatamartAppModel {
 				if($checklist_model_name == null){
 					$this->checklist_model_name_to_search = $current_browsing['DatamartStructure']['model'];
 					$this->checklist_use_key = $use_key;
-					$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+					//$this->checklist_sub_models_id_filter = array("AliquotControl" => array(0));//by default, no aliquot sub type
+					$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
 				}
 			}
 

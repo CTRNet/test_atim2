@@ -63,6 +63,8 @@ class BrowserController extends DatamartAppController {
 			}else{
 				//direct node access
 				$this->set('node_id', $node_id);
+				$this->set('control_id', $control_id);
+				$this->set('merge_to', $merge_to);
 				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 				$check_list = true;
 			}
@@ -278,6 +280,7 @@ class BrowserController extends DatamartAppController {
 			$this->set('type', "checklist");
 			$this->set('checklist_key', $this->Browser->checklist_model_name_to_search.".".$this->Browser->checklist_use_key);
 			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
+			
 			$dropdown_options = $this->Browser->getDropdownOptions(
 				$browsing['DatamartStructure']['id'], 
 				$node_id, 
