@@ -1,7 +1,13 @@
 <?php 
 
 	$structure_links = array();
-	if($is_inventory_plugin_form){
+	$settings = array();
+		
+	if($is_from_tree_view){
+		// Detail form displayed in tree view
+		$settings = array('header' => __('collection', true));
+		
+	}else{
 		$add_links = array();
 		foreach ($specimen_sample_controls_list as $sample_control) {
 			$add_links[__($sample_control['SampleControl']['sample_type'], true)] = '/inventorymanagement/sample_masters/add/' . $atim_menu_variables['Collection.id'] . '/' . $sample_control['SampleControl']['id'];
@@ -24,11 +30,7 @@
 		$bottom_links['add specimen'] = $add_links;
 		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
 		$structure_links['bottom'] = $bottom_links;
-	}
 		
-	if($is_tree_view_detail_form){
-		// Detail form displayed in tree view
-	}else{
 		// General detail form display
 		$search_type_links = array();
 		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
@@ -41,11 +43,13 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override);
+	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'settings' => $settings);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );	
