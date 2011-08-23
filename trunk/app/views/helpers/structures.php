@@ -1207,7 +1207,7 @@ class StructuresHelper extends Helper {
 				$children = $data_val['children'];
 				unset($data_val['children']);
 			}
-			echo'
+			echo '
 				<li>
 			';
 				
@@ -1294,7 +1294,10 @@ class StructuresHelper extends Helper {
 				}
 			}
 				
-			echo '</div></div>';
+			echo '</div>
+				<div class="treeArrow">
+				</div>
+			</div>';
 			
 			// create sub-UL, calling this NODE function again, if model has any CHILDREN
 			if(is_array($children) && !empty($children)){
