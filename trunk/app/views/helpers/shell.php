@@ -63,19 +63,20 @@ class ShellHelper extends Helper {
 							<!-- '.$menu_item['Menu']['id'].' -->
 							<li class="'.$menu_item['Menu']['id'].'">
 								'.$this->Html->link( "", $menu_item['Menu']['use_link'], $html_attributes );
-					
 					if(array_key_exists($menu_item['Menu']['id'], $options['atim_sub_menu_for_header'])){
 						//sub items (level 3)
-						$root_menu_for_header .= '<ul class="sub_menu_for_header '.$menu_item['Menu']['id'].'">';
+						$sub_menu = '';
 						foreach($options['atim_sub_menu_for_header'][$menu_item['Menu']['id']] as $sub_menu_item){
 							$html_attributes = array();
 							$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
 							$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
 							if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
-								$root_menu_for_header .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
+								$sub_menu .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
 							}
 						}
-						$root_menu_for_header .= '</ul>';
+						if(!empty($sub_menu)){
+							$root_menu_for_header .= '<ul class="sub_menu_for_header '.$menu_item['Menu']['id'].'">'.$sub_menu.'</ul>';
+						}
 					}
 					
 					$root_menu_for_header .= '		
@@ -86,7 +87,7 @@ class ShellHelper extends Helper {
 					$root_menu_for_header .= '
 							<!-- '.$menu_item['Menu']['id'].' -->
 							<li class="not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
 							</li>
 					';
 				}
