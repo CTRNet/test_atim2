@@ -830,6 +830,7 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * Builds the search parameters array
+	 * @note: Hardcoded for collections
 	 */
 	private function buildBufferedSearchParameters(){
 		$joins = array();
@@ -859,6 +860,59 @@ class Browser extends DatamartAppModel {
 				)
 			);
 		}
+		
+		//HARDCODED PART FOR COLLECTIONS
+		//when going through participants to reach view_collections, sql is slow. Override to go through ccl
+		//the other direction (collections to participant) is not affected
+		foreach($this->nodes as $index => $node){
+			if($index > 0 && $node[self::MODEL]->name == 'ViewCollection' && $this->nodes[$index - 1][self::MODEL]->name == 'Participant'){
+				//participant -> collection nodes. Alter it to become participant -> ccl -> collection. Update collection.
+				//split the array
+				$second_part = array_slice($joins, $index - 1);
+				$collection_join = array_shift($second_part);
+				$joins = array_slice($joins, 0, $index - 1);
+				
+				//insert ccls
+				$joins[] = array(
+					'table' => 'clinical_collection_links',
+					'alias'	=> 'ClinicalCollectionLink',
+					'type'	=> 'LEFT',
+					'conditions' => array(
+						($index == 1 ? 'Participant' : 'ParticipantBrowser').'.id = ClinicalCollectionLink.participant_id',
+						'ClinicalCollectionLink.collection_id' => $collection_join['conditions']['ViewCollectionBrowser.collection_id'])
+				);
+				
+				//update collection and put it back in the join array
+				$collection_join['table'] = 'collections';
+				$collection_join['alias'] = 'Collection';
+				$new_conditions = array();
+				$new_conditions[0] = 'Collection.id = ClinicalCollectionLink.collection_id';
+				$new_conditions['Collection.id'] = $collection_join['conditions']['ViewCollectionBrowser.collection_id'];
+				$collection_join['conditions'] = $new_conditions;
+				$joins[] = $collection_join;
+				$fields[$index - 1] = 'CONCAT("", Collection.id) AS Collection';
+				$order[$index - 1] = 'Collection';
+				
+				if(!empty($second_part)){
+					//update the next node to use the right collection key
+					$next_node = array_shift($second_part);
+					$new_conditions = array();
+					foreach($next_node['conditions'] as $key => $condition){
+						$key = str_replace('ViewCollectionBrowser.collection_id', 'Collection.id', $key);
+						$condition = str_replace('ViewCollectionBrowser.collection_id', 'Collection.id', $condition);
+						$new_conditions[$key] = $condition;
+					}
+					$next_node['conditions'] = $new_conditions;
+					array_push($joins, $next_node);
+					if(!empty($second_part)){
+						$joins = array_merge($joins, $second_part);
+					}
+				}
+				break;
+			}
+		}
+		//END OF COLLECTION HARDCODED PART
+		
 		$node = $this->nodes[0];
 		array_unshift($fields, 'CONCAT("", '.$node[self::MODEL]->name.".".$node[self::USE_KEY].') AS '.$node[self::MODEL]->name);
 		array_unshift($order, $node[self::MODEL]->name);

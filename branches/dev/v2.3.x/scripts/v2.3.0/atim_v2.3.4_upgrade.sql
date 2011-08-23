@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.4', NOW(), '3402');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.4 pre', NOW(), '3412');
 
 
 UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoting_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
