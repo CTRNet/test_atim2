@@ -18,7 +18,7 @@ class DrugsController extends DrugAppController {
 	}
 	
 	function search() {
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		$this->data = $this->paginate($this->Drug, $_SESSION['ctrapp_core']['search']['criteria']);
 
