@@ -1034,10 +1034,7 @@ class Browser extends DatamartAppModel {
 				$model_data = $node[self::MODEL]->find('all', array('conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 'recursive' => 0));
 				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
-					if(empty($row_data[$model_index])){
-						//line with missing joins
-						break;
-					}else{
+					if(!empty($row_data[$model_index])){
 						$chunk[$row_index] = array_merge($model_data[$row_data[$model_index]][0], $chunk[$row_index]);
 					}
 				}
