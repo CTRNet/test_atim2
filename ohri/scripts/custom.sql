@@ -30,9 +30,8 @@ FROM collections col
 LEFT JOIN clinical_collection_links link on col.id = link.collection_id and link.deleted != 1
 LEFT JOIN participants part on link.participant_id = part.id and part.deleted != 1
 LEFT JOIN banks on col.bank_id = banks.id and banks.deleted != 1 
-LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1
-LEFT JOIN misc_identifier_controls AS idents_controls ON idents.misc_identifier_control_id=idents_controls.id 
-WHERE col.deleted != 1 AND (idents_controls.misc_identifier_name='ohri_bank_participant_id' OR idents_controls.misc_identifier_name IS NULL);
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.misc_identifier_control_id=2
+WHERE col.deleted != 1;
 
 DROP TABLE IF EXISTS view_samples;
 DROP VIEW IF EXISTS view_samples;
@@ -71,9 +70,8 @@ LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specim
 LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
 LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
-LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1
-INNER JOIN misc_identifier_controls AS idents_controls ON idents.misc_identifier_control_id=idents_controls.id
-WHERE samp.deleted != 1 AND (idents_controls.misc_identifier_name='ohri_bank_participant_id' OR idents_controls.misc_identifier_name IS NULL);
+LEFT JOIN misc_identifiers AS idents ON idents.participant_id=link.participant_id AND idents.deleted != 1 AND idents.misc_identifier_control_id=2
+WHERE samp.deleted != 1;
 
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='consent_status'), 'notEmpty', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
@@ -197,4 +195,55 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') 
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(30, 28, 31);
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('creation_site','creation_by'));
+
+UPDATE structure_formats SET `display_order`='501'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('culture_status'));
+UPDATE structure_formats SET `display_order`='502'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('culture_status_reason'));
+UPDATE structure_formats SET `display_order`='503'
+WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('cell_passage_number'));
+
+UPDATE structure_formats SET `display_order`='200'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('ad_spec_tubes_incl_ml_vol','ad_spec_tiss_blocks', 'ad_spec_tiss_slides', 'ad_spec_tubes')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+ 	
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' ,`display_order`='200'
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('ad_der_tubes_incl_ml_vol','ohri_ad_der_ascite_cells', 'ad_der_cell_tubes_incl_ml_vol')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'));
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('ohri_ad_der_ascite_cells'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('created'));
+
+SET @source_id = (SELECT id FROM structures WHERE alias = 'ad_der_tubes_incl_ml_vol');
+SET @dest_id = (SELECT id FROM structures WHERE alias = 'ohri_ad_der_ascite_cells');
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`)
+(SELECT @dest_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `created`, `created_by`, `modified`, `modified_by`
+FROM structure_formats WHERE structure_id = @source_id AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id')));
+
+DELETE FROM structure_formats
+WHERE display_column = 0
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('study_summary_id'))
+AND structure_id = (SELECT id FROM structures WHERE alias = 'ohri_ad_der_ascite_cells');
+
 

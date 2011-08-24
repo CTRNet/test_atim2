@@ -591,6 +591,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
 				$this->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
 			}
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}	
 		
 		} else {
 			// Set additional data
@@ -775,6 +780,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if(empty($this->data)) {
 			$this->data = $sample_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {
 			//Update data	
@@ -1116,6 +1126,11 @@ class SampleMastersController extends InventorymanagementAppController {
 			)
 		);
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if(isset($this->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			if(!empty($this->data['AliquotMaster']['ids'])){
@@ -1138,7 +1153,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				}
 			}
 						
-			$hook_link = $this->hook('format');
+			$hook_link = $this->hook('initial_display');
 			if($hook_link){
 				require($hook_link);
 			}
