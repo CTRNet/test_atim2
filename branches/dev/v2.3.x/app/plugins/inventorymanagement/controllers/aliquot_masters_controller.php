@@ -481,6 +481,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->data[] = array('parent' => $sample, 'children' => array());
 			}
 			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		}else{
 					
 			// 2- VALIDATE PROCESS
@@ -714,6 +719,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)){
 			$aliquot_data['FunctionManagement']['recorded_storage_selection_label'] = $this->StorageMaster->getStorageLabelAndCodeForDisplay(array('StorageMaster' => $aliquot_data['StorageMaster']));
 			$this->data = $aliquot_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 			
 		}else{
 			//Update data
@@ -1074,6 +1084,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($this->data)) {
 			$this->data = $use_data;
 			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 		} else {
 			
 			// Launch validations		
@@ -1210,6 +1225,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 		if (empty($this->data)) {
 			$this->data = $available_sample_aliquots;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {
 			// Launch validation
@@ -1708,6 +1728,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		$this->set('created_aliquot_override_data', $created_aliquot_override_data);
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if($initial_display){
 			
 			//1- INITIAL DISPLAY
@@ -1727,8 +1752,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				$this->data[] = array('parent' => $parent_aliquot, 'children' => array());
 			}
-						
-			$hook_link = $this->hook('format');
+			
+			$hook_link = $this->hook('initial_display');
 			if($hook_link){
 				require($hook_link);
 			}	
@@ -2022,6 +2047,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
 		$this->set('url_to_cancel', $url_to_cancel);
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+			
 		if($initial_display){
 			
 			// BUILD DATA FOR INTIAL DISPLAY
@@ -2101,7 +2131,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 			}
 
-			$hook_link = $this->hook('format');
+			$hook_link = $this->hook('initial_display');
 			if($hook_link){
 				require($hook_link);
 			}
