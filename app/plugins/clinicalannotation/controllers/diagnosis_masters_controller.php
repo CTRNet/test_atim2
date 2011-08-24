@@ -30,12 +30,16 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 		
 		$tx_model = AppModel::getInstance("clinicalannotation", "TreatmentMaster", true);
+		$event_master_model = AppModel::getInstance("clinicalannotation", "EventMaster", true);
 		$this->data = array_merge($this->DiagnosisMaster->find('all', array(
 				'conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.parent_id' => $parent_dx_id ),
-				'order' => array('DiagnosisMaster.dx_date'))
-			), $tx_model->find('all', array(
+				'order' => array('DiagnosisMaster.dx_date')
+			)), $tx_model->find('all', array(
 				'conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id ),
 				'order' => array('TreatmentMaster.start_date')
+			)), $event_master_model->find('all', array(
+				'conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id),
+				'order' => array('EventMaster.event_date')
 			))
 		);
 		
@@ -59,6 +63,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('is_ajax', $is_ajax);
 		$atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'diagnosismasters'); 
 		$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters'); 
+		$atim_structure['EventMaster'] = $this->Structures->get('form', 'eventmasters'); 
 		$this->set('atim_structure', $atim_structure);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
