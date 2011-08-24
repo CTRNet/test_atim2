@@ -12,13 +12,21 @@
  				)
 			), 'TreatmentMaster' => array(
 				'detail' => array(
-					'link' => '/clinicalannotation/treatment_masters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/',
+					'link' => '/clinicalannotation/treatment_masters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/1',
 					'icon' => 'treatments'
 				), 'access to all data' => array(
 					'link' => '/clinicalannotation/treatment_masters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/',
 					'icon' => 'access_to_data'
  				)
 			
+			), 'EventMaster' => array(
+				'detail' => array(
+					'link' => '/clinicalannotation/event_masters/detail/clinical/%%EventMaster.participant_id%%/%%EventMaster.id%%/1',
+					'icon' => 'annotation'
+				), 'access to all data' => array(
+					'link' => '/clinicalannotation/event_masters/detail/clinical/%%EventMaster.participant_id%%/%%EventMaster.id%%/',
+					'icon' => 'access_to_data'
+				)
 			)
 		),'ajax' => array(
 			'index' => array(
@@ -59,6 +67,7 @@
 			'tree'=>array(
 				'DiagnosisMaster' => 'DiagnosisMaster',
 				'TreatmentMaster' => 'TreatmentMaster',
+				'EventMaster' => 'EventMaster',
 			)
 		)
 	);

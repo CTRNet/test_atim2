@@ -14,10 +14,10 @@
 	// 1- TRT DATA
 	
 	$structure_settings = array(
-		'actions'=>false, 
+		'actions'=> $is_ajax, 
 		
 		'header' => '1- ' . __('data', null),
-		'form_bottom'=>false 
+		'form_bottom'=> !$is_ajax 
 	);
 	
 	$structure_override = array();
@@ -26,27 +26,33 @@
 	$final_atim_structure = $atim_structure; 
 	
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 	
 	$structures->build( $final_atim_structure, $final_options );	
 	
 	
-	// 2- DIAGNOSTICS
-	
-	$structure_settings = array(
-		'form_inputs'=>false,
-		'pagination'=>false,
-			
-		'header' => '2- ' . __('related diagnosis', null), 
-		'form_top' => false
-	);
-	
-	$final_options = array('data' => $diagnosis_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
-	$final_atim_structure = $diagnosis_structure;
-	
-	$hook_link = $structures->hook('dx_list');
-	if( $hook_link ) { require($hook_link); }
-	 
-	$structures->build( $final_atim_structure,  $final_options);	
+	if(!$is_ajax){
+
+		// 2- DIAGNOSTICS
+		$structure_settings = array(
+			'form_inputs'=>false,
+			'pagination'=>false,
+				
+			'header' => '2- ' . __('related diagnosis', null), 
+			'form_top' => false
+		);
+		
+		$final_options = array('data' => $diagnosis_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
+		$final_atim_structure = $diagnosis_structure;
+		
+		$hook_link = $structures->hook('dx_list');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		 
+		$structures->build( $final_atim_structure,  $final_options);
+	}	
 	
 ?>

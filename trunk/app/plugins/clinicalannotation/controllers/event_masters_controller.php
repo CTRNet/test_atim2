@@ -59,7 +59,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		}
 	}
 	
-	function detail( $event_group, $participant_id, $event_master_id ) {
+	function detail( $event_group, $participant_id, $event_master_id, $is_ajax = 0 ) {
 		if ( (!$participant_id) && (!$event_group) && (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
@@ -75,6 +75,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this->data['EventControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->set('is_ajax', $is_ajax);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
