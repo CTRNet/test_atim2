@@ -73,7 +73,9 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Message(s) des participants pas faits ayant atteint leur date d'échéance."),
 ("manage contacts", "Manage contacts", "Gérer les contacts"),
 ("save contact", "Save contact", "Enregistrer un contact"),
-("delete in batch", "Delete in batch", "Supprimer en lot");
+("delete in batch", "Delete in batch", "Supprimer en lot"),
+("primary phone number", "Primary phone number", "Numéro de téléphone primaire"),
+("secondary phone number", "Secondary phone number", "Numéro de téléphone secondaire");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -674,4 +676,11 @@ SELECT 'ALTER TABLE datamart_batch_sets
  DROP COLUMN plugin,
  DROP COLUMN model' AS msg;
  
- 
+UPDATE structure_fields SET  `language_label`='primary phone number',  `language_tag`='' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='phone' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='secondary phone number',  `language_tag`='' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='phone_secondary' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') ,  `language_help`='',  `language_label`='',  `language_tag`='type' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='phone_secondary_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') ,  `language_help`='',  `language_label`='',  `language_tag`='type' WHERE model='ParticipantContact' AND tablename='participant_contacts' AND field='phone_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type');
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='23' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
