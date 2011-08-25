@@ -1100,7 +1100,11 @@ class StructuresHelper extends Helper {
 				foreach($table_structure as $table_column){
 					foreach ( $table_column as $fm => $table_row){
 						foreach($table_row as $table_row_part){
-							$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+							if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+								$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+							}else{
+								$line[] = "";
+							}
 						}
 					}
 				}
