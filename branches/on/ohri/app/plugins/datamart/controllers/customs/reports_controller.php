@@ -3,8 +3,12 @@ class ReportsControllerCustom extends ReportsController {
 	
 	function manageReport($report_id, $csv_creation = false) {
 		if($report_id == 7){
-			$report = $this->Report->find('first',array('conditions' => array('Report.id' => $report_id, 'Report.flag_active' => '1')));
-			$this->flash($report['Report']['description'], '/datamart/reports/index');
+			if(isset($this->data['Participant']['id'])){
+				$this->terryFox($this->data);
+			}else{
+				$report = $this->Report->find('first',array('conditions' => array('Report.id' => $report_id, 'Report.flag_active' => '1')));
+				$this->flash($report['Report']['description'], '/datamart/reports/index');
+			}
 		}else{
 			parent::manageReport($report_id, $csv_creation);
 		}
