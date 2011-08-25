@@ -67,11 +67,13 @@ class ShellHelper extends Helper {
 						//sub items (level 3)
 						$sub_menu = '';
 						foreach($options['atim_sub_menu_for_header'][$menu_item['Menu']['id']] as $sub_menu_item){
-							$html_attributes = array();
-							$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
-							$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
-							if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
-								$sub_menu .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
+							if($sub_menu_item['Menu']['flag_active']){
+								$html_attributes = array();
+								$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
+								$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
+								if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
+									$sub_menu .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
+								}
 							}
 						}
 						if(!empty($sub_menu)){
