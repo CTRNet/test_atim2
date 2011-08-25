@@ -1913,7 +1913,11 @@ class StructuresHelper extends Helper {
 				}else{
 					// if ACO/ARO permission check fails, display NOt ALLOWED type link
 					$return_urls[]		= $this->Html->url( '/menus' );
-					$link_results[$link_label]	= '<a class="not_allowed treeButton"></a>';
+					if($state == 'index'){
+						$link_results[$link_label]	= '<a class="not_allowed treeButton"></a>';
+					}else{
+						$link_results[$link_label]	= '<a class="not_allowed">'.__($link_label, true).'</a>';
+					}
 				} // end CHECKMENUPERMISSIONS
 				
 			}
