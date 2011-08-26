@@ -684,3 +684,19 @@ UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='23' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
+
+CREATE TABLE wizards(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ description text
+)Engine=InnoDb;
+
+CREATE TABLE wizard_nodes(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ parent_id INT UNSIGNED DEFAULT NULL,
+ wizard_id INT UNSIGNED NOT NULL,
+ datamart_structure_id INT UNSIGNED NOT NULL,
+ control_id TINYINT UNSIGNED DEFAULT 0,
+ FOREIGN KEY (`parent_id`) REFERENCES wizard_nodes(`id`),
+ FOREIGN KEY (`wizard_id`) REFERENCES wizards(id),
+ FOREIGN KEY (datamart_structure_id) REFERENCES datamart_structures(id)
+)Engine=InnoDb;

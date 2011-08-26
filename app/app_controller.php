@@ -567,17 +567,25 @@ class AppController extends Controller {
 	 * @param array $in_array
 	 * @param string $model The model ($in_array[$model])
 	 * @param string $field The field (new key = $in_array[$model][$field])
+	 * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
 	 * @return array
 	 */
-	static function defineArrayKey($in_array, $model, $field){
+	static function defineArrayKey($in_array, $model, $field, $unique = false){
 		$out_array = array();
-		foreach($in_array as $val){
-			if(isset($val[$model])){
-				$out_array[$val[$model][$field]][] = $val;
-			}else{
-				//the key cannot be foud
-				$out_array[-1][] = $val;
+		if($unique){
+			foreach($in_array as $val){
+				$out_array[$val[$model][$field]] = $val;
 			}
+		}else{
+			foreach($in_array as $val){
+				if(isset($val[$model])){
+					$out_array[$val[$model][$field]][] = $val;
+				}else{
+					//the key cannot be foud
+					$out_array[-1][] = $val;
+				}
+			}
+			
 		}
 		return $out_array;
 	}
