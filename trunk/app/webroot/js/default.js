@@ -845,6 +845,9 @@ function uncheckAll( $div ) {
 		if(window.permissionPreset){
 			loadPresetFrame();
 		}
+		if(window.wizardTreeData){
+			drawTree($.parseJSON(window.wizardTreeData));
+		}
 		
 		if(window.realiquotInit){
 			$("a.submit").prop("onclick", "").unbind('unclick').click(function(){
