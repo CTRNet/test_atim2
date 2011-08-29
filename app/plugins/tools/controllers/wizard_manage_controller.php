@@ -10,6 +10,8 @@ class WizardManageController extends AppController {
 	
 	function index(){
 		$this->set( 'atim_menu', $this->Menus->get('/menus/tools/') );
+		$this->data = $this->Wizard->find('all');
+		$this->Structures->set('wizard');
 	}
 	
 	//produces the original display and then gets the save requests in ajax
@@ -50,8 +52,13 @@ class WizardManageController extends AppController {
 			//record the tree
 			if($wizard_id == 0){
 				//new tree
-				$data = $this->Wizard->save(array('Wizard' => array('description' => 'mich')));
+				$this->Wizard->save(array('Wizard' => array('description' => $this->data['description'])));
 				$wizard_id = $this->Wizard->id;
+			}else{
+				$this->Wizard->save(array('Wizard' => array(
+					'id' => $wizard_id,
+					'description' => $this->data['description']))
+				);
 			}
 			$tree = json_decode('['.$this->data['tree'].']');
 			array_shift($tree);//remove root
@@ -83,32 +90,27 @@ class WizardManageController extends AppController {
 				'fields'		=> array('WizardNode.id'),
 				'conditions'	=> array('WizardNode.wizard_id' => $wizard_id, 'NOT' => array('WizardNode.id' => $found_nodes))
 			));
+			$nodes_to_delete = array_reverse($nodes_to_delete);
 			foreach($nodes_to_delete as $node_to_delete){
 				$this->WizardNode->delete($node_to_delete);
 			}
 		}
 		
 		$tree = $this->WizardNode->find('all', array('conditions' => array('WizardNode.wizard_id' => $wizard_id)));
-		$tree = AppController::defineArrayKey($tree, "WizardNode", "id", true);
-		foreach($tree as &$node){
-			$node = $node['WizardNode'];
-			if(is_numeric($node['parent_id'])){
-				$tree[$node['parent_id']]['children'][] = &$node;
-				unset($tree[$node['id']]);
-				if($node['datamart_structure_id'] == 1){
-					$node['control_id'] *= -1;
-				}
-			} 
-		}
-		$tree = array(
+		$result[''] = array(
 			'id' => 0,
 			'parent_id' => null,
 			'control_id' => '0',
 			'datamart_structure_id' => 2,
-			'children' => $tree
-		);
-		
-		$this->set('tree_data', $tree);
+			'children' => array()
+		); 
+		foreach($tree as &$node){
+			$node = $node['WizardNode'];
+			$result[$node['id']] = $node;
+			$result[$node['parent_id']]['children'][] = &$result[$node['id']];
+		}
+
+		$this->set('tree_data', $result['']);
 		$this->Structures->set('empty');
 		$this->set('wizard_id', $wizard_id);
 		$this->set('atim_menu', $this->Menus->get('/menus/tools/'));
@@ -119,5 +121,14 @@ class WizardManageController extends AppController {
 			'aliquot_relations' => AppController::defineArrayKey($aliquot_controls, "AliquotControl", "sample_control_id")
 		);
 		$this->set('js_data', $js_data);
+		$description = null;
+		if($wizard_id != 0){
+			$wizard = $this->Wizard->findById($wizard_id);
+			$description = $wizard['Wizard']['description'];
+		}else{
+			$description = '';
+		}
+		$this->set('wizard_id', $wizard_id);
+		$this->set('description', $description);
 	}
 }
