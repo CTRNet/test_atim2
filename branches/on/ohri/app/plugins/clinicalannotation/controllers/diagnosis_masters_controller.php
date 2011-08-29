@@ -168,7 +168,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if (empty($diagnosis_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowDeletion($diagnosis_master_id);
+		$arr_allow_deletion = $this->DiagnosisMaster->allowDeletion($diagnosis_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
