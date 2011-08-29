@@ -206,7 +206,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 
-		$arr_allow_deletion = $this->allowDeletion($diagnosis_master_id);
+		$arr_allow_deletion = $this->DiagnosisMaster->allowDeletion($diagnosis_master_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
