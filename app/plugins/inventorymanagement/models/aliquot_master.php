@@ -421,7 +421,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$collection_model = AppModel::getInstance("Inventorymanagement", "Collection", true);
 		$sample_master_model = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
 		$derivative_detail_model = AppModel::getInstance("Inventorymanagement", "DerivativeDetail", true);
-		switch($sample_master_data['SampleMaster']['sample_category']) {
+		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
 				$collection_data = $collection_model->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
