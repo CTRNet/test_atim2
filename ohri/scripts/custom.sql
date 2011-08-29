@@ -469,3 +469,158 @@ INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.d
 WHERE aluse.deleted != 1;
 
 UPDATE menus SET flag_active = '0' WHERE use_link like '/labbook%';
+
+INSERT INTO i18n (id,en,fr) VALUES ('terry fox export','TFRI-COEUR Export','TFRI-COEUR Export');
+
+-- -----------------------------------------------------------------
+-- TODO: CONFIRM DIAGNOSES DATA CLEAN UP
+
+SELECT 'TODO: CONFIRM DIAGNOSES DATA CLEAN UP' FROM drugs;
+
+UPDATE diagnosis_masters SET dx_origin = 'primary' WHERE dx_origin = 'synchronous';
+
+UPDATE diagnosis_masters 
+SET primary_number = '1'
+WHERE participant_id IN (
+SELECT res.participant_id
+FROM (
+SELECT count( * ) AS nbr, participant_id
+FROM `diagnosis_masters`
+WHERE deleted !=1
+GROUP BY participant_id
+) AS res
+WHERE res.nbr = 1)
+AND dx_origin = 'primary' AND deleted !=1;
+
+CREATE TABLE  `tmp_dx_p` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	
+	`participant_id` int(11) DEFAULT NULL,  
+	`diagnosis_id` int(11) DEFAULT NULL,  
+
+	PRIMARY KEY (`id`)
+) AUTO_INCREMENT=1 ; 
+
+INSERT INTO tmp_dx_p (diagnosis_id, participant_id)
+(SELECT id, participant_id 
+FROM diagnosis_masters 
+WHERE primary_number IS NULL AND dx_origin = 'primary' AND deleted !=1 );
+
+UPDATE diagnosis_masters dx, tmp_dx_p tmp
+SET dx.primary_number = tmp.id
+WHERE tmp.diagnosis_id = dx.id AND  tmp.participant_id = dx.participant_id
+AND dx.deleted !=1 AND dx.dx_origin = 'primary' AND dx.primary_number IS NULL;
+
+DROP TABLE tmp_dx_p;
+
+UPDATE diagnosis_masters 
+SET primary_number = '-999'
+WHERE participant_id IN (
+SELECT res.participant_id
+FROM (
+SELECT count( * ) AS nbr, participant_id
+FROM `diagnosis_masters`
+WHERE deleted !=1
+GROUP BY participant_id
+) AS res
+WHERE res.nbr = 1)
+AND dx_origin = 'secondary' AND deleted !=1;
+
+INSERT INTO `diagnosis_masters` 
+(`ohri_tumor_site`, `dx_origin`, `primary_number`, `participant_id`, `diagnosis_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT 'other-primary unknown', 'primary', '-999', participant_id, '15', NOW(), NOW(), '4', '4' FROM diagnosis_masters WHERE primary_number = '-999' AND dx_origin = 'secondary' AND deleted !=1);
+
+INSERT INTO `diagnosis_masters_revs` ( `diagnosis_control_id`, `participant_id`, `ohri_tumor_site`,  `dx_origin`, `primary_number`, `modified_by`, `id`, `version_created`) 
+(SELECT `diagnosis_control_id`, `participant_id`, `ohri_tumor_site`,  `dx_origin`, `primary_number`, `modified_by`, `id`, `created` FROM diagnosis_masters WHERE `primary_number` = '-999'  AND `diagnosis_control_id` = '15' AND `dx_origin` = 'primary');
+
+INSERT INTO `ohri_dx_others` (`diagnosis_master_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT id, NOW(), NOW(), '4', '4' FROM diagnosis_masters WHERE `ohri_tumor_site` = 'other-primary unknown' AND `primary_number` = '-999' AND `diagnosis_control_id` = '15' AND `dx_origin` = 'primary');
+
+INSERT INTO `ohri_dx_others_revs` (`diagnosis_master_id`, `created`, `modified`, `deleted`, `created_by`, `modified_by`, `id`, `version_created`) 
+(SELECT other.`diagnosis_master_id`, other.`created`, other.`modified`, other.`deleted`, other.`created_by`, other.`modified_by`, other.`id`, other.`modified` FROM ohri_dx_others AS other
+INNER JOIN diagnosis_masters AS dxm ON dxm.id = other.diagnosis_master_id WHERE dxm.`ohri_tumor_site` = 'other-primary unknown' AND dxm.`primary_number` = '-999' AND dxm.`diagnosis_control_id` = '15' AND dxm.`dx_origin` = 'primary');
+
+UPDATE diagnosis_masters SET `primary_number` = 1 WHERE `primary_number` = '-999';
+
+UPDATE diagnosis_masters_revs revs, diagnosis_masters dx
+SET revs.dx_origin = dx.dx_origin, revs.primary_number = dx.primary_number
+WHERE dx.id = revs.id;
+
+SELECT 'TODO: CHECK PRIMARY NUMBER = NULL' FROM drugs;
+SELECT id, `dx_origin`, `primary_number`, `participant_id` FROM diagnosis_masters WHERE primary_number IS NULL AND deleted != 1;
+
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="origin")
+AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="synchronous" AND language_alias="synchronous");
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_origin'), 'notEmpty', '', 'value is required', '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('ohri_dx_ovaries','ohri_dx_others')) 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_origin');
+
+INSERT IGNORE INTO i18n (id,en) VALUES 
+("a primary diagnosis should be linked to a new diagnoses group", "A 'primary' diagnosis should be linked to a new diagnoses group!"),
+("a diagnosis with an origin equals to unknown should not be linked to a diagnoses group","A diagnosis with an origin equals to 'unknown' should not be linked to a diagnoses group!"),
+("a secondary diagnosis should be linked to an existing diagnoses group","A 'secondary' diagnosis should be linked to an existing diagnoses group!"),
+("the origin of this diagnosis can not be changed","The origin of this diagnosis can not be changed!"),
+("the diagnoses group of a primary diagnosis can not be changed","The diagnoses group of a 'primary' diagnosis can not be changed!"),
+('all secondary of the group should be deleted frist','All secondary of the group should be deleted frist!');
+
+-- END: CONFIRM DIAGNOSES DATA CLEAN UP
+-- -----------------------------------------------------------------
+
+ALTER TABLE ohri_cd_ovaries
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_cd_ovaries_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+	
+ALTER TABLE ohri_dx_others
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_dx_others_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_dx_ovaries
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_dx_ovaries_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_ed_clinical_ctscans
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_ed_clinical_ctscans_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_ed_clinical_followups
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_ed_clinical_followups_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_ed_lab_chemistries
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_ed_lab_chemistries_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_ed_lab_markers
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_ed_lab_markers_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_ed_lab_pathologies
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_ed_lab_pathologies_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE ohri_txd_surgeries
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted_date;
+ALTER TABLE ohri_txd_surgeries_revs
+	DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted, DROP COLUMN deleted_date;
+
+ALTER TABLE `txd_chemos_revs`
+  ADD COLUMN `ohri_line_of_chemo` varchar(20) DEFAULT NULL;
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin') AND `flag_confidential`='0');
+
+
+
+
