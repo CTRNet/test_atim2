@@ -7,7 +7,7 @@ $fields = array(
 	"dx_date" => "Date of EOC Diagnosis Date",
 	"dx_date_accuracy" => array("Date of EOC Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
-	"tumour_grade" => array("Grade" => new ValueDomain('0_to_3', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"tumour_grade" => array("Grade" => new ValueDomain('qc_tf_grade', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_tumor_site" => "@Female Genital-Ovary",
 	"qc_tf_dx_origin" => "@primary",
 	"qc_tf_progression_detection_method" => "@not applicable"

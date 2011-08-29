@@ -3,8 +3,8 @@ $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
-	"tx_control_id" => array("Event Type" => array("surgery" => 16, "chimiotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
-	"tx_method " => array("Event Type" => array("radiotherapy" => 'radiotherapy', "surgery" => 'surgery', "chimiotherapy" => 'chemotherapy', "hormonal therapy" => "hormonal therapy")),
+	"tx_control_id" => array("Event Type" => array("surgery" => 16, "chemotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
+	"tx_method " => array("Event Type" => array("radiotherapy" => 'radiotherapy', "surgery" => 'surgery', "chemotherapy" => 'chemotherapy', "hormonal therapy" => "hormonal therapy")),
 	"disease_site" => "@other",
 	"start_date" => "Date of event (beginning) Date",
 	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
@@ -33,7 +33,7 @@ function txPostRead(Model $m){
 		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 	}
 	
-	if(!in_array($m->values['Event Type'], array('chimiotherapy','radiotherapy'))) {
+	if(!in_array($m->values['Event Type'], array('chemotherapy','radiotherapy'))) {
 		if(!empty($m->values['Date of event (end) Date']) && ($m->values['Date of event (beginning) Date'] != $m->values['Date of event (end) Date'])) {
 			echo "WARNING, START DATE AND END DATE ARE DIFFERENT FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 		}
@@ -41,14 +41,14 @@ function txPostRead(Model $m){
 		$m->values['Date of event (end) Accuracy'] = null;	
 	}	
 	
-	if($m->values['Event Type'] != 'chimiotherapy') {
-		if(!empty($m->values['Chimiotherapy Precision Drug1'])) {
+	if($m->values['Event Type'] != 'chemotherapy') {
+		if(!empty($m->values['Chemotherapy Precision Drug1'])) {
 			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 		}
-		$m->values['Chimiotherapy Precision Drug1'] = '';
-		$m->values['Chimiotherapy Precision Drug2'] = '';
-		$m->values['Chimiotherapy Precision Drug3'] = '';
-		$m->values['Chimiotherapy Precision Drug4'] = '';
+		$m->values['Chemotherapy Precision Drug1'] = '';
+		$m->values['Chemotherapy Precision Drug2'] = '';
+		$m->values['Chemotherapy Precision Drug3'] = '';
+		$m->values['Chemotherapy Precision Drug4'] = '';
 	}
 		
 	return in_array($m->values['Event Type'], $m->event_types_to_import);
@@ -88,7 +88,7 @@ function txPostWrite(Model $m){
 			}
 			break;
 			
-		case 'chimiotherapy':
+		case 'chemotherapy':
 			$query = "INSERT INTO txd_chemos (tx_master_id, deleted) VALUES "
 				."(".$m->last_id.", 0)";
 			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
@@ -100,7 +100,7 @@ function txPostWrite(Model $m){
 			}
 			
 			for($i = 1; $i <= 4; $i ++){
-				$current_drug = $m->values['Chimiotherapy Precision Drug'.$i];
+				$current_drug = $m->values['Chemotherapy Precision Drug'.$i];
 				if(!empty($current_drug)){
 
 					if(!in_array($current_drug,  Config::$drugs)) {

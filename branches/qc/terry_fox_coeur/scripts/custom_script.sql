@@ -310,3 +310,46 @@ WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster'
 
 UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE databrowser_label LIKE '';
 
+DELETE FROM structure_value_domains_permissible_values
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tumor_site")
+AND structure_permissible_value_id = (SELECT id FROM structure_permissible_values WHERE value="Female Genital-Peritoneal" AND language_alias="Female Genital-Peritoneal");
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_figo"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "99", "1");
+
+INSERT INTO structure_value_domains(`domain_name`) VALUES ('qc_tf_grade');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="0"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
+
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_grade")
+WHERE structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="0_to_3");
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="0_to_3");
+DELETE FROM structure_value_domains WHERE domain_name="0_to_3";
+
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology")
+WHERE structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology_opc");
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology_opc");
+DELETE FROM structure_value_domains WHERE domain_name="qc_tf_histopathology_opc";
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology"),  
+(SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "100", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology"),  
+(SELECT id FROM structure_permissible_values WHERE value="non applicable" AND language_alias="non applicable"), "101", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "102", "1");
+
+
+

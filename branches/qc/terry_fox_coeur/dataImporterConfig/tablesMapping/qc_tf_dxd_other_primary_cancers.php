@@ -8,7 +8,7 @@ $fields = array(
 	"dx_date" => "Date of Diagnosis Date",
 	"dx_date_accuracy" => array("Date of Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
-	"tumour_grade" => array("Grade" => new ValueDomain('0_to_3', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"tumour_grade" => array("Grade" => new ValueDomain('qc_tf_grade', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"path_stage_summary" => array("Stage" => new ValueDomain('qc_tf_stage', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_tumor_site" => array("Tumor Site" => new ValueDomain('qc_tf_tumor_site', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_dx_origin" => "@primary",
@@ -17,7 +17,7 @@ $fields = array(
 
 $detail_fields = array(
 	"laterality" => array("Laterality" => new ValueDomain('qc_tf_laterality', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	"histopathology" => array("Histopathology" => new ValueDomain('qc_tf_histopathology_opc', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"histopathology" => array("Histopathology" => new ValueDomain('qc_tf_histopathology', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"survival_in_months" => "Survival (months)"
 );
 
