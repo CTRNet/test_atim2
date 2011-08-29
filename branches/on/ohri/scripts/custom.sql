@@ -621,6 +621,19 @@ ALTER TABLE `txd_chemos_revs`
 
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin') AND `flag_confidential`='0');
 
+INSERT IGNORE INTO i18n (id,en) VALUES 
+('terryFox_report_no_participant',
+'Report should be launched from either participants batch set or participants set defined by databrowser tool!'); 
 
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_grade"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("non applicable","non applicable");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  
+(SELECT id FROM structure_permissible_values WHERE value="non applicable" AND language_alias="non applicable"), "12", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "13", "1");
 
 

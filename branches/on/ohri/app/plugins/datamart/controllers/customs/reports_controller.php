@@ -7,7 +7,7 @@ class ReportsControllerCustom extends ReportsController {
 				$this->terryFox($this->data);
 			}else{
 				$report = $this->Report->find('first',array('conditions' => array('Report.id' => $report_id, 'Report.flag_active' => '1')));
-				$this->flash($report['Report']['description'], '/datamart/reports/index');
+				$this->flash(__($report['Report']['description'],true) .'!<br> '. __('terryFox_report_no_participant',true), '/datamart/reports/index');
 			}
 		}else{
 			parent::manageReport($report_id, $csv_creation);
@@ -20,7 +20,7 @@ class ReportsControllerCustom extends ReportsController {
 		header ( "Content-Type: application/download" ); 
 		header ( "Content-Type: text/csv" ); 
 		header("Content-disposition:attachment;filename=terry_fox_".date('YMd_Hi').'.csv');
-		
+			
 		App::import('model', 'Clinicalannotation.MiscIdentifier');
 		$misc_identifier_model = new MiscIdentifier();
 		
@@ -62,8 +62,9 @@ class ReportsControllerCustom extends ReportsController {
 				foreach($data as $unit){
 					$participant_id = $unit['Participant']['id'];
 					$pid_bid_assoc[$participant_id] = $unit['MiscIdentifier']['identifier_value'];
+//TODO validate with user we should take in consideration the last date of event, dx, trt...
 					$tmp_data = $this->Report->query("SELECT MAX(last_chart_checked_date) AS last_chart_checked_date FROM
-						(SELECT MAX(last_chart_checked_date) AS last_chart_checked_date FROM participants WHERE id=".$participant_id."
+						(SELECT MAX(consent_signed_date) AS last_chart_checked_date FROM consent_masters WHERE id=".$participant_id."
 						UNION
 						SELECT MAX(start_date) AS last_chart_checked_date FROM tx_masters WHERE participant_id=".$participant_id."
 						UNION
@@ -102,9 +103,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['Participant']['date_of_death'];
 					$line[] = $unit['Participant']['date_of_death_accuracy'];
 					$line[] = "";//suspected dod
-//NL_NOTE: A confirmer avec OHRI => $unit['Participant']['date_of_death']; 
 					$line[] = "";//Suspected Date of Death date accuracy
-//NL_NOTE: A confirmer avec OHRI => $unit['Participant']['dod_date_accuracy'];
 					$line[] = $tmp_data[0][0]['last_chart_checked_date'];
 					$line[] = "";//last contact date acc
 					$line[] = $family_history;
@@ -160,6 +159,10 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			$i = 0;
 			do{
+//TODO definir au user que le diag. ovaire doit être defini comme primaire... pour être EOC
+//TODO NL_NOTE: Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
+//TODO >>select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
+
 				$data = $this->Report->query("
 					SELECT * FROM diagnosis_masters AS DiagnosisMaster
 					INNER JOIN ohri_dx_ovaries AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
@@ -167,9 +170,6 @@ class ReportsControllerCustom extends ReportsController {
 					AND DiagnosisMaster.dx_origin='primary' AND DiagnosisMaster.diagnosis_control_id=14
 					ORDER BY DiagnosisMaster.participant_id LIMIT 10 OFFSET ".($i * 10), false
 				);
-//TODO NL_NOTE: Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
-// >>select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
-
 				
 				foreach($data as $unit){
 					
