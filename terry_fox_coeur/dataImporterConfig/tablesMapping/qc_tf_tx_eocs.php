@@ -3,8 +3,8 @@ $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
-	"tx_control_id" => array("Event Type" => array("surgery(ovarectomy)" => 20, "surgery(other)" => 15, "chimiotherapy" => 14, "radiotherapy" => 21)),
-	"tx_method " => array("Event Type" => array("surgery(ovarectomy)" => 'ovarectomy', "surgery(other)" => 'surgery', "chimiotherapy" => 'chemotherapy', "radiotherapy" => 'radiotherapy')),
+	"tx_control_id" => array("Event Type" => array("surgery(ovarectomy)" => 20, "surgery(other)" => 15, "chemotherapy" => 14, "radiotherapy" => 21)),
+	"tx_method " => array("Event Type" => array("surgery(ovarectomy)" => 'ovarectomy', "surgery(other)" => 'surgery', "chemotherapy" => 'chemotherapy', "radiotherapy" => 'radiotherapy')),
 	"disease_site" => "@EOC",
 	"start_date" => "Date of event (beginning) Date",
 	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
