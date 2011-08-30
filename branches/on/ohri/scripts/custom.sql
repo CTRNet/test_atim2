@@ -475,7 +475,10 @@ INSERT INTO i18n (id,en,fr) VALUES ('terry fox export','TFRI-COEUR Export','TFRI
 -- -----------------------------------------------------------------
 -- TODO: CONFIRM DIAGNOSES DATA CLEAN UP
 
-SELECT 'TODO: CONFIRM DIAGNOSES DATA CLEAN UP' FROM drugs;
+-- CHECK TO DELETE
+SELECT 'TODO: CONFIRM DIAGNOSES DATA CLEAN UP' FROM drugs LIMIT 0,1;
+SELECT '' FROM drugs LIMIT 0,1;
+-- End check
 
 UPDATE diagnosis_masters SET dx_origin = 'primary' WHERE dx_origin = 'synchronous';
 
@@ -546,8 +549,14 @@ UPDATE diagnosis_masters_revs revs, diagnosis_masters dx
 SET revs.dx_origin = dx.dx_origin, revs.primary_number = dx.primary_number
 WHERE dx.id = revs.id;
 
-SELECT 'TODO: CHECK PRIMARY NUMBER = NULL' FROM drugs;
+-- CHECK TO DELETE
+-- No swcondary should be linked to a NULL primary_number
+SELECT 'TODO: CHECK PRIMARY NUMBER = NULL' FROM drugs LIMIT 0,1;
+SELECT 'No swcondary should be linked to a NULL primary_number' FROM drugs LIMIT 0,1;
+SELECT '' FROM drugs LIMIT 0,1;
 SELECT id, `dx_origin`, `primary_number`, `participant_id` FROM diagnosis_masters WHERE primary_number IS NULL AND deleted != 1;
+SELECT '' FROM drugs LIMIT 0,1;
+-- End check
 
 DELETE FROM structure_value_domains_permissible_values
 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="origin")
@@ -567,6 +576,15 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ("the origin of this diagnosis can not be changed","The origin of this diagnosis can not be changed!"),
 ("the diagnoses group of a primary diagnosis can not be changed","The diagnoses group of a 'primary' diagnosis can not be changed!"),
 ('all secondary of the group should be deleted frist','All secondary of the group should be deleted frist!');
+
+-- CHECK TO DELETE
+-- No ovarian tumor recorded as other diagnosis
+SELECT 'TODO: CHECK NO ovarian tumor created with other diagnosis control' FROM drugs LIMIT 0,1;
+SELECT 'Empty result expected' FROM drugs LIMIT 0,1;
+SELECT '' FROM drugs LIMIT 0,1;
+SELECT id, diagnosis_control_id FROM diagnosis_masters WHERE ohri_tumor_site = 'Female Genital-Ovary' AND diagnosis_control_id != 14 AND deleted = 0;
+SELECT '' FROM drugs LIMIT 0,1;
+-- End check
 
 -- END: CONFIRM DIAGNOSES DATA CLEAN UP
 -- -----------------------------------------------------------------
@@ -635,5 +653,46 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 (SELECT id FROM structure_permissible_values WHERE value="non applicable" AND language_alias="non applicable"), "12", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_histopathology"),  
 (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "13", "1");
+
+UPDATE structure_permissible_values val, structure_value_domains_permissible_values link, i18n
+SET val.language_alias = REPLACE(i18n.en,' - ', '-')
+WHERE link.structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site")
+AND link.structure_permissible_value_id = val.id
+AND val.language_alias = i18n.id;
+
+UPDATE diagnosis_masters dm, structure_permissible_values val, structure_value_domains_permissible_values link
+SET dm.ohri_tumor_site = val.language_alias
+WHERE link.structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site")
+AND link.structure_permissible_value_id = val.id
+AND val.value = dm.ohri_tumor_site;
+
+UPDATE structure_permissible_values val, structure_value_domains_permissible_values link
+SET val.value = val.language_alias
+WHERE link.structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site")
+AND link.structure_permissible_value_id = val.id;
+
+UPDATE structure_permissible_values val, structure_value_domains_permissible_values link
+SET val.value = "Female Genital-Peritoneal Pelvis Abdomen",
+val.language_alias = "Female Genital-Peritoneal Pelvis Abdomen"
+WHERE link.structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site")
+AND link.structure_permissible_value_id = val.id
+AND val.value = "Female Genital-Peritoneal";
+
+UPDATE diagnosis_masters dm
+SET dm.ohri_tumor_site = "Female Genital-Peritoneal Pelvis Abdomen"
+WHERE dm.ohri_tumor_site = "Female Genital-Peritoneal";
+
+INSERT IGNORE INTO i18n (id,en)
+(SELECT val.language_alias,val.language_alias 
+FROM structure_permissible_values AS val
+INNER JOIN structure_value_domains_permissible_values AS link ON link.structure_permissible_value_id = val.id
+WHERE link.structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site"));
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ohri_tumour_site"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "100", "1");
+
+INSERT INTO i18n (id,en) VALUES ("use diagnosis ohri - ovary diagnosis type to record ovarian tumor","Use 'Diagnosis OHRI - Ovary' diagnosis type to record a new ovarian tumor!");
+
 
 

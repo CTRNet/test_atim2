@@ -36,6 +36,7 @@ class ReportsControllerCustom extends ReportsController {
 				)));
 			
 			$title_row = array(
+				"Bank",
 				"Patient Biobank Number (required & unique)", 
 				"Date of Birth Date", 
 				"Date of Birth date accuracy",
@@ -62,18 +63,20 @@ class ReportsControllerCustom extends ReportsController {
 				foreach($data as $unit){
 					$participant_id = $unit['Participant']['id'];
 					$pid_bid_assoc[$participant_id] = $unit['MiscIdentifier']['identifier_value'];
-//TODO validate with user we should take in consideration the last date of event, dx, trt...
-					$tmp_data = $this->Report->query("SELECT MAX(last_chart_checked_date) AS last_chart_checked_date FROM
-						(SELECT MAX(consent_signed_date) AS last_chart_checked_date FROM consent_masters WHERE id=".$participant_id."
+					
+//TODO validate with user we should take in consideration the last date of event, dx, trt as it's done below...
+
+					$tmp_data = $this->Report->query("SELECT MAX(last_contact_date) AS last_contact_date FROM
+						(SELECT MAX(consent_signed_date) AS last_contact_date FROM consent_masters WHERE id=".$participant_id." AND deleted != 1
 						UNION
-						SELECT MAX(start_date) AS last_chart_checked_date FROM tx_masters WHERE participant_id=".$participant_id."
+						SELECT MAX(start_date) AS last_contact_date FROM tx_masters WHERE participant_id=".$participant_id." AND deleted != 1
 						UNION
-						SELECT MAX(dx_date) AS last_chart_checked_date FROM diagnosis_masters WHERE participant_id=".$participant_id."
+						SELECT MAX(dx_date) AS last_contact_date FROM diagnosis_masters WHERE participant_id=".$participant_id." AND deleted != 1
 						UNION
-						SELECT MAX(event_date) AS last_chart_checked_date FROM event_masters WHERE participant_id=".$participant_id.") AS tmp"
+						SELECT MAX(event_date) AS last_contact_date FROM event_masters WHERE participant_id=".$participant_id." AND deleted != 1) AS tmp"
 					, false);
 					
-					$fam_history_data = $this->Report->query("SELECT ohri_disease_site FROM family_histories AS FamilyHistory WHERE participant_id=".$participant_id, false);
+					$fam_history_data = $this->Report->query("SELECT ohri_disease_site FROM family_histories AS FamilyHistory WHERE deleted != 1 AND participant_id=".$participant_id, false);
 					$fam_history_data_count = array_fill_keys(array('other', 'breast', 'ovary'), 0);
 					foreach($fam_history_data as $ohri_disease_site){
 						$fam_history_data_count[$ohri_disease_site['FamilyHistory']['ohri_disease_site']] ++; 
@@ -93,9 +96,10 @@ class ReportsControllerCustom extends ReportsController {
 					
 					$brca_data = $this->Report->query("SELECT brca FROM ohri_ed_lab_markers AS EventDetail
 						INNER JOIN event_masters ON EventDetail.event_master_id=event_masters.id
-						WHERE event_masters.participant_id=".$participant_id."
+						WHERE event_masters.participant_id=".$participant_id." AND deleted != 1
 						ORDER BY event_masters.event_date DESC");
 					$line = array();
+					$line[] = "OHRI-COEUR";
 					$line[] = $unit['MiscIdentifier']['identifier_value'];
 					$line[] = $unit['Participant']['date_of_birth'];
 					$line[] = $unit['Participant']['date_of_birth_accuracy'];
@@ -104,7 +108,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['Participant']['date_of_death_accuracy'];
 					$line[] = "";//suspected dod
 					$line[] = "";//Suspected Date of Death date accuracy
-					$line[] = $tmp_data[0][0]['last_chart_checked_date'];
+					$line[] = $tmp_data[0][0]['last_contact_date'];
 					$line[] = "";//last contact date acc
 					$line[] = $family_history;
 					$line[] = isset($brca_data[0]['EventDetail']['brca']) ? $brca_data[0]['EventDetail']['brca'] : ""; 
@@ -115,8 +119,25 @@ class ReportsControllerCustom extends ReportsController {
 			}while(!empty($data));
 		}
 		
+		$submitted_participant_ids = array_filter($parameters['Participant']['id']);
 		$participant_ids = array_keys($pid_bid_assoc);
+		if(empty($submitted_participant_ids)) {
+			echo "\n", implode(csv_separator, array("CANNOT FETCH PARTICIPANTS - NO PARTICIPANT SELECTED")), "\n";
+		} else if(sizeof($participant_ids) != sizeof($submitted_participant_ids)) {
+			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL PARTICIPANTS - CHECK ALL HAVE A BANK NUMBER")), "\n";
+		}
 		$participant_ids[] = 0;
+				
+		//get nbre of diagnosis per particiapnt for dx, event, trt analysis
+		
+		$more_than_one_primary = array();
+		$tmp_data = $this->Report->query("SELECT res.participant_id
+			FROM (
+				SELECT count( * ) AS nbr, participant_id FROM `diagnosis_masters` 
+				WHERE deleted !=1 AND dx_origin IN ('primary','unknown') 
+				AND participant_id IN(".implode(", ", $participant_ids).") GROUP BY participant_id
+			) AS res WHERE res.nbr > 1", false);
+		foreach($tmp_data as $res) $more_than_one_primary[] = $res['res']['participant_id'];
 		
 		//sheet 2 - EOC dx
 		{
@@ -159,10 +180,11 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			$i = 0;
 			do{
-//TODO definir au user que le diag. ovaire doit être defini comme primaire... pour être EOC
-//TODO NL_NOTE: Il faudra leur notfier que qq patient n'ont pas de primary 'diagnosis ohri - ovary' et donc n'auront pas de EOC dans atim terrifox ce qui est surprenant....
-//TODO >>select id, participant_id, dx_origin, diagnosis_control_id from diagnosis_masters where participant_id in (  select participant_id from diagnosis_masters where id not in (select id FROM diagnosis_masters where dx_origin = 'primary' AND diagnosis_control_id = 14)) order by participant_id;
-
+				
+//TODO Validate the change we did on diagnosis data (see custom sql file) with user to create primary for all scondary...
+//TODO Some ovarian cancer are secondary... check with user it's true because they will be linked to other primary.			
+//TODO When only one dx is recorded for one participant, should we link all trt, event to this dx when trt or event dx.id is null.			
+				
 				$data = $this->Report->query("
 					SELECT * FROM diagnosis_masters AS DiagnosisMaster
 					INNER JOIN ohri_dx_ovaries AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
@@ -170,19 +192,28 @@ class ReportsControllerCustom extends ReportsController {
 					AND DiagnosisMaster.dx_origin='primary' AND DiagnosisMaster.diagnosis_control_id=14
 					ORDER BY DiagnosisMaster.participant_id LIMIT 10 OFFSET ".($i * 10), false
 				);
-				
+								
 				foreach($data as $unit){
 					
+					// Get residual disease
+					
+					$warning = '';
 					$residual_disease = null;
 					$tx_data = $this->Report->query("SELECT residual_disease FROM ohri_txd_surgeries AS TxDetail
 					INNER JOIN tx_masters ON TxDetail.tx_master_id=tx_masters.id
-					WHERE tx_masters.diagnosis_master_id=".$unit['DiagnosisMaster']['id'], false);
+					WHERE tx_masters.deleted = 0 AND tx_masters.diagnosis_master_id=".$unit['DiagnosisMaster']['id'], false);
 					if(empty($tx_data)){
 						$tx_data = $this->Report->query("SELECT residual_disease FROM ohri_txd_surgeries AS TxDetail
 						INNER JOIN tx_masters ON TxDetail.tx_master_id=tx_masters.id
-						WHERE tx_masters.participant_id=".$participant_id, false);
+						WHERE tx_masters.deleted = 0 AND tx_masters.participant_id=".$participant_id, false);
+						if(!empty($tx_data) && in_array($participant_id, $more_than_one_primary)) {
+							$warning = "CANNOT FETCH - TOO MANY UNLINKED PRIMARY DIAGNOSES";
+						}
 					}
-					if(count($tx_data) == 1){
+					
+					if(!empty($warning)) {
+						$residual_disease = $warning;
+					}else if(count($tx_data) == 1){
 						$residual_disease = $residual_disease_array[$tx_data[0]['TxDetail']['residual_disease']];
 					}else if(count($tx_data) > 1){
 						$residual_disease = "CANNOT FETCH - TOO MANY RELATED TREATMENTS";
@@ -190,8 +221,50 @@ class ReportsControllerCustom extends ReportsController {
 						$residual_disease = 0;
 					}
 					
+					// Get progression
+					
+					$secondary_tumors = $this->Report->query("SELECT * FROM diagnosis_masters AS DiagnosisMaster
+						WHERE DiagnosisMaster.deleted=0 
+						AND DiagnosisMaster.primary_number = ".$unit['DiagnosisMaster']['primary_number']."
+						AND DiagnosisMaster.participant_id = ".$participant_id."
+						AND DiagnosisMaster.dx_origin='secondary' ORDER BY DiagnosisMaster.dx_date ASC", false
+					);
+					
+					$secondary_tumors_tmp = array();
+					foreach($secondary_tumors as $new_secondary) {
+						$key = $new_secondary['DiagnosisMaster']['dx_date'].'#'.$new_secondary['DiagnosisMaster']['dx_date_accuracy'];
+						if(!array_key_exists($key, $secondary_tumors_tmp)) $secondary_tumors_tmp[$key] = array();
+						
+						$sub_key = sizeof($secondary_tumors_tmp[$key]);
+						if(!empty($sub_key)) $sub_key--;					
+						if(sizeof($secondary_tumors_tmp[$key][$sub_key]) == 2) $sub_key++;
+						$secondary_tumors_tmp[$key][$sub_key][] = $new_secondary['DiagnosisMaster']['ohri_tumor_site'];	
+					}
+					$secondary_tumors=array();
+					foreach($secondary_tumors_tmp as $key => $sub_array) {
+						foreach($sub_array as $sub_key => $sub_sub_array) {
+							$secondary_tumors[$key.'#'.$sub_key] = $sub_sub_array;
+						}
+					}
+						
+					$progression_date = '';
+					$progression_date_acc = '';
+					$progression_site_1 = '';
+					$progression_site_2 = '';
+					if(!empty($secondary_tumors)) {
+						$key_to_split = key($secondary_tumors);
+						$key_data = explode('#',$key_to_split);
+						$progression_date = $key_data[0];
+						$progression_date_acc = $key_data[1];
+						$progression_site_1 = $secondary_tumors[$key_to_split][0];
+						$progression_site_2 = (isset($secondary_tumors[$key_to_split][1]))? $secondary_tumors[$key_to_split][1] : '';
+						next($secondary_tumors);
+					}
+					
+					// Records first diagnosis line data
+					
 					$line = array();
-					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
+					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']]; //Patient Biobank Number (required)
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
 					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
 					$line[] = "";//Presence of precursor of benign lesions
@@ -203,18 +276,55 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['DiagnosisDetail']['figo'];
 					$line[] = $residual_disease;
 					$line[] = "";//Progression status
-					$line[] = "";//Date of Progression/Recurrence Date
-					$line[] = "";//Date of Progression/Recurrence Accuracy
-					$line[] = "";
-					$line[] = "";//Only one site
+					$line[] = $progression_date;//Date of Progression/Recurrence Date
+					$line[] = $progression_date_acc;//Date of Progression/Recurrence Accuracy
+					$line[] = $progression_site_1;//Site 1 of Primary Tumor Progression (metastasis)  If Applicable
+					$line[] = $progression_site_2;//Site 2 of Primary Tumor Progression (metastasis)  If applicable
 					$line[] = "";//progression time (months)
 					$line[] = "";//Date of Progression of CA125 Date
 					$line[] = "";//Date of Progression of CA125 Accuracy
 					$line[] = "";//CA125 progression time (months)
 					$line[] = "";//Follow-up from ovarectomy (months)
 					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
-					
+				
 					echo implode(csv_separator, $line), "\n";
+					
+					// Records other progressions
+					while($key_to_split = key($secondary_tumors)) {
+						$key_data = explode('#',$key_to_split);
+						$progression_date = $key_data[0];
+						$progression_date_acc = $key_data[1];
+						$progression_site_1 = $secondary_tumors[$key_to_split][0];
+						$progression_site_2 = (isset($secondary_tumors[$key_to_split][1]))? $secondary_tumors[$key_to_split][1] : '';
+						
+						$line = array();
+						$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']]; //Patient Biobank Number (required)
+						$line[] = $unit['DiagnosisMaster']['dx_date'];
+						$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+						$line[] = "";//Presence of precursor of benign lesions
+						$line[] = "";//fallopian tube lesions	
+						$line[] = "";//$unit['DiagnosisMaster']['age_at_dx'];//Age at Time of Diagnosis (yr)
+						$line[] = "";//$unit['DiagnosisDetail']['laterality'];
+						$line[] = "";//$unit['DiagnosisDetail']['histopathology'];
+						$line[] = "";//$unit['DiagnosisMaster']['tumour_grade'];
+						$line[] = "";//$unit['DiagnosisDetail']['figo'];
+						$line[] = "";//$residual_disease;
+						$line[] = "";//Progression status
+						$line[] = $progression_date;//Date of Progression/Recurrence Date
+						$line[] = $progression_date_acc;//Date of Progression/Recurrence Accuracy
+						$line[] = $progression_site_1;//Site 1 of Primary Tumor Progression (metastasis)  If Applicable
+						$line[] = $progression_site_2;//Site 2 of Primary Tumor Progression (metastasis)  If applicable
+						$line[] = "";//progression time (months)
+						$line[] = "";//Date of Progression of CA125 Date
+						$line[] = "";//Date of Progression of CA125 Accuracy
+						$line[] = "";//CA125 progression time (months)
+						$line[] = "";//Follow-up from ovarectomy (months)
+						$line[] = "";//$unit['DiagnosisMaster']['survival_time_months'];
+					
+						echo implode(csv_separator, $line), "\n";
+					
+						next($secondary_tumors);
+					}
 				}
 				++ $i;
 			}while(!empty($data));

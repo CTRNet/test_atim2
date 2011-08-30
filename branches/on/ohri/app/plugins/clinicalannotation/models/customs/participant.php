@@ -10,7 +10,7 @@ class ParticipantCustom extends Participant {
 		
 		if ( isset($variables['Participant.id']) ) {
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
-						
+							
 			$identifier_model = AppModel::getInstance('Clinicalannotation', 'MiscIdentifier', true);
 			$identifier_results = $identifier_model->find('first', array('conditions' => array(
 				'MiscIdentifier.participant_id' => $variables['Participant.id'],

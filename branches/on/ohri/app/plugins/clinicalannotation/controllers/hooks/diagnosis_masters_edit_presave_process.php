@@ -46,4 +46,9 @@
 		}
 	}
 	
+	if(($this->data['DiagnosisMaster']['ohri_tumor_site'] == "Female Genital-Ovary") && ($dx_control_data['DiagnosisControl']['controls_type'] != 'diagnosis ohri - ovary')) {
+		$this->DiagnosisMaster->validationErrors['dx_origin'][] = "use diagnosis ohri - ovary diagnosis type to record ovarian tumor";
+		$submitted_data_validates = false;	
+	}
+	
 ?>
