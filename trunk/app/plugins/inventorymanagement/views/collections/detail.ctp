@@ -29,6 +29,16 @@
 		}
 		$bottom_links['add specimen'] = $add_links;
 		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
+		
+		if(!empty($templates)){
+			$bottom_links['template'] = array();
+			foreach($templates as $template){
+				$bottom_links['template'][$template['Template']['name']] = array(
+					'icon' => 'template',
+					'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
+				);
+			}
+		}
 		$structure_links['bottom'] = $bottom_links;
 		
 		// General detail form display

@@ -1,7 +1,7 @@
 <?php
-class WizardManageController extends AppController {
+class TemplateController extends AppController {
 
-	var $uses = array('Wizard', 'WizardNode');
+	var $uses = array('Tools.Template', 'Tools.TemplateNode');
 
 	function beforeFilter() {
 		parent::beforeFilter();
@@ -10,12 +10,12 @@ class WizardManageController extends AppController {
 	
 	function index(){
 		$this->set( 'atim_menu', $this->Menus->get('/menus/tools/') );
-		$this->data = $this->Wizard->find('all');
-		$this->Structures->set('wizard');
+		$this->data = $this->Template->find('all', array('conditions' => array('flag_system' => false)));
+		$this->Structures->set('template');
 	}
-	
+
 	//produces the original display and then gets the save requests in ajax
-	function edit($wizard_id){
+	function edit($template_id){
 		//the following business rules apply to received data
 		//controlId	= 0 -> collection root
 		//			> 0 -> sample
@@ -24,13 +24,20 @@ class WizardManageController extends AppController {
 		//nodeId	= 0 -> collection root node
 		//			< 0 -> node not in database
 		//			> 0 -> node in database
+		
+		//validate access
+		if($template_id != 0){
+			if($this->Template->find('first', array('conditions' => array('Template.id' => $template_id, 'Template.flag_system' => 1)))){
+				$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			$this->Template->redirectIfNonExistent($template_id, __METHOD__, __LINE__);
+		}
+		
 		$sample_control_model = AppModel::getInstance("Inventorymanagement", "SampleControl", true);
 		$parent_to_derivative_sample_control_model = AppModel::getInstance("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$sample_controls = $sample_control_model->find('all', array('fields' => array('id', 'sample_type'), 'recursive' => -1));
 		$samples_relations = $parent_to_derivative_sample_control_model->find('all', array('conditions' => array('flag_active' => 1), 'recusrive' => -1));
-		foreach($sample_controls as &$sample_control){
-			$sample_control['SampleControl']['sample_type'] = __($sample_control['SampleControl']['sample_type'], true);
-		}
+		AppController::applyTranslation($sample_controls, 'SampleControl', 'sample_type');
 		unset($sample_control);
 		foreach($samples_relations as &$sample_relation){
 			unset($sample_relation['ParentSampleControl']);
@@ -43,21 +50,27 @@ class WizardManageController extends AppController {
 		
 		$aliquot_control_model = AppModel::getInstance("Inventorymanagement", "AliquotControl", 1);
 		$aliquot_controls = $aliquot_control_model->find('all', array('fields' => array('id', 'sample_control_id', 'aliquot_type'), 'conditions' => array('flag_active' => 1), 'recursive' => -1));
-		foreach($aliquot_controls as &$aliquot_control){
-			$aliquot_control['AliquotControl']['aliquot_type'] = __($aliquot_control['AliquotControl']['aliquot_type'], true);
-		} 
+		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type'); 
 		unset($aliquot_control);
 		
 		if(!empty($this->data)){
+			$this->Structures->set('template');//for validation
 			//record the tree
-			if($wizard_id == 0){
+			if($template_id == 0){
 				//new tree
-				$this->Wizard->save(array('Wizard' => array('description' => $this->data['description'])));
-				$wizard_id = $this->Wizard->id;
+				if($this->Template->save(array('Template' => array('name' => $this->data['description'])))){
+					$template_id = $this->Template->id;
+				}else{
+					//non unique or empty name, give a temp one or we will lose the tree
+					$errors = $this->Template->validationErrors; 
+					$this->Template->save(array('Template' => array('name' => 'tmp '.now())));
+					$template_id = $this->Template->id;
+					$this->Template->validationErrors = $errors;
+				}
 			}else{
-				$this->Wizard->save(array('Wizard' => array(
-					'id' => $wizard_id,
-					'description' => $this->data['description']))
+				$this->Template->save(array('Template' => array(
+					'id' => $template_id,
+					'name' => $this->data['description']))
 				);
 			}
 			$tree = json_decode('['.$this->data['tree'].']');
@@ -69,50 +82,39 @@ class WizardManageController extends AppController {
 					//create the node in Db
 					$parent_id = null;
 					if($node->parent_id < 0){
-						$parent_id = $nodes_mapping[$node->parent_id];
+						$parent_id = $nodes_mapping[$node->parent_id]; 
+					}else if($node->parent_id > 0){
+						$parent_id = $node->parent_id;
 					}
-					$this->WizardNode->data = array();
-					$this->WizardNode->id = null;
-					$this->WizardNode->save(array('WizardNode' => array(
-						'wizard_id'				=> $wizard_id,
+					$this->TemplateNode->data = array();
+					$this->TemplateNode->id = null;
+					$this->TemplateNode->save(array('TemplateNode' => array(
+						'template_id'				=> $template_id,
 						'parent_id'				=> $parent_id,
 						'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
 						'control_id'			=> abs($node->controlId)
 					)));
-					$nodes_mapping[$node->nodeId] = $this->WizardNode->id;
-					$found_nodes[] = $this->WizardNode->id;
+					$nodes_mapping[$node->nodeId] = $this->TemplateNode->id;
+					$found_nodes[] = $this->TemplateNode->id;
 				}else{
 					$found_nodes[] = $node->nodeId;
 				}
 			}
 			
-			$nodes_to_delete = $this->WizardNode->find('list', array(
-				'fields'		=> array('WizardNode.id'),
-				'conditions'	=> array('WizardNode.wizard_id' => $wizard_id, 'NOT' => array('WizardNode.id' => $found_nodes))
+			$nodes_to_delete = $this->TemplateNode->find('list', array(
+				'fields'		=> array('TemplateNode.id'),
+				'conditions'	=> array('TemplateNode.template_id' => $template_id, 'NOT' => array('TemplateNode.id' => $found_nodes))
 			));
 			$nodes_to_delete = array_reverse($nodes_to_delete);
 			foreach($nodes_to_delete as $node_to_delete){
-				$this->WizardNode->delete($node_to_delete);
+				$this->TemplateNode->delete($node_to_delete);
 			}
 		}
 		
-		$tree = $this->WizardNode->find('all', array('conditions' => array('WizardNode.wizard_id' => $wizard_id)));
-		$result[''] = array(
-			'id' => 0,
-			'parent_id' => null,
-			'control_id' => '0',
-			'datamart_structure_id' => 2,
-			'children' => array()
-		); 
-		foreach($tree as &$node){
-			$node = $node['WizardNode'];
-			$result[$node['id']] = $node;
-			$result[$node['parent_id']]['children'][] = &$result[$node['id']];
-		}
-
-		$this->set('tree_data', $result['']);
+		$tree = $this->Template->init($template_id);
+		$this->set('tree_data', $tree['']);
 		$this->Structures->set('empty');
-		$this->set('wizard_id', $wizard_id);
+		$this->set('template_id', $template_id);
 		$this->set('atim_menu', $this->Menus->get('/menus/tools/'));
 		$js_data = array(
 			'sample_controls' => $sample_controls, 
@@ -122,13 +124,18 @@ class WizardManageController extends AppController {
 		);
 		$this->set('js_data', $js_data);
 		$description = null;
-		if($wizard_id != 0){
-			$wizard = $this->Wizard->findById($wizard_id);
-			$description = $wizard['Wizard']['description'];
+		if($template_id != 0){
+			$template = $this->Template->findById($template_id);
+			$description = $template['Template']['name'];
 		}else{
 			$description = '';
 		}
-		$this->set('wizard_id', $wizard_id);
+		$this->set('template_id', $template_id);
 		$this->set('description', $description);
+		$this->set('controls', 1);
+		$this->set('collection_id', 0);
+		
+		$this->render('tree');
+		$this->render(false);
 	}
 }

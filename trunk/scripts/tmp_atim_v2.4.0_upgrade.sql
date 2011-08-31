@@ -75,7 +75,12 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("save contact", "Save contact", "Enregistrer un contact"),
 ("delete in batch", "Delete in batch", "Supprimer en lot"),
 ("primary phone number", "Primary phone number", "Numéro de téléphone primaire"),
-("secondary phone number", "Secondary phone number", "Numéro de téléphone secondaire");
+("secondary phone number", "Secondary phone number", "Numéro de téléphone secondaire"),
+("collection template", "Collection template", "Modèle de collection"),
+("collection_template_description", 
+ "Collections templates allow to quickly create collection content without the need to browse the menus after the creation of each element.",
+ "Les modèles de collections permettent de créer rapidement le contenu d'une collection sans devoir naviguer les menus après la création de chaque élément."),
+("this field must be unique", "This field must be unique", "Ce champ doit être unique");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -685,25 +690,32 @@ UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='23' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='0');
 
-CREATE TABLE wizards(
+CREATE TABLE templates(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- description text
+ flag_system BOOLEAN DEFAULT false COMMENT 'if true, cannot be edited in ATiM',
+ name VARCHAR(50) NOT NULL DEFAULT '',
+ UNIQUE(name)
 )Engine=InnoDb;
 
-CREATE TABLE wizard_nodes(
+CREATE TABLE template_nodes(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  parent_id INT UNSIGNED DEFAULT NULL,
- wizard_id INT UNSIGNED NOT NULL,
+ template_id INT UNSIGNED NOT NULL,
  datamart_structure_id INT UNSIGNED NOT NULL,
  control_id TINYINT UNSIGNED DEFAULT 0,
- FOREIGN KEY (`parent_id`) REFERENCES wizard_nodes(`id`),
- FOREIGN KEY (`wizard_id`) REFERENCES wizards(id),
+ FOREIGN KEY (`parent_id`) REFERENCES template_nodes(`id`),
+ FOREIGN KEY (`template_id`) REFERENCES templates(id),
  FOREIGN KEY (datamart_structure_id) REFERENCES datamart_structures(id)
 )Engine=InnoDb;
 
-INSERT INTO structures(`alias`) VALUES ('wizard');
+INSERT INTO structures(`alias`) VALUES ('template');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Tool', 'Wizard', 'wizards', 'description', 'input',  NULL , '0', '', '', '', 'description', '');
+('Tool', 'Template', 'templates', 'name', 'input',  NULL , '0', '', '', '', 'name', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='wizard'), (SELECT id FROM structure_fields WHERE `model`='Wizard' AND `tablename`='wizards' AND `field`='description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='description' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), 'isUnique', ''), 
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), 'notEmpty', ''); 
 
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link) VALUES
+('collection_template', 'core_CAN_33', 1, 10, 'collection template', 'collection_template_description', '/tools/Template/index');

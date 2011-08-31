@@ -627,6 +627,12 @@ class AppController extends Controller {
 		|| $aco_alias == "controllers/Menus/index"
 		|| self::$acl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
 	}
+	
+	static function applyTranslation(&$in_array, $model, $field){
+		foreach($in_array as &$part){
+			$part[$model][$field] = __($part[$model][$field], true); 
+		}
+	}
 }
 
 	AppController::init();
