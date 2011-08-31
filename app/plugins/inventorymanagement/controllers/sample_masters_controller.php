@@ -480,13 +480,15 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function add($collection_id, $sample_control_id, $parent_sample_master_id = null) {
+	function add($collection_id, $sample_control_id, $parent_sample_master_id = 0, $is_ajax = false) {
 		if((!$collection_id) || (!$sample_control_id)){
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
-		// MANAGE DATA
+		}
+		if($is_ajax){
+			$this->layout = 'ajax';
+		}
 		
-		$is_specimen = null;
+		// MANAGE DATA
 		$sample_control_data = array();
 		$parent_sample_data = array();
 		$parent_to_derivative_sample_control = null;
@@ -495,7 +497,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$lab_book_ctrl_id = 0;
 		$lab_book_fields = array();
 		
-		if(empty($parent_sample_master_id)) {
+		if($parent_sample_master_id == 0){
 			// Created sample is a specimen
 			$is_specimen = true;
 			
@@ -516,7 +518,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			$is_specimen = false;
 			
 			// Get parent data
-			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
+			$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => 0));
 			if(empty($parent_sample_data)) { 
 				$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
@@ -685,13 +687,18 @@ class SampleMastersController extends InventorymanagementAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);	
+					if($is_ajax){
+						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => $sample_master_id));
+						exit;
+					}else{
+						$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);
+					}	
 				}					
 			}
 		}
 		
 		$this->set('is_specimen', $is_specimen);		
-		
+		$this->set('is_ajax', $is_ajax);
 	}
 	
 	function edit($collection_id, $sample_master_id) {

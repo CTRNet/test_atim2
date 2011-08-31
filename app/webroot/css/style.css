@@ -1161,6 +1161,7 @@ a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center;
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
 a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left center; }
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
+a.template { background: url("../img/icons/blueprint_16x16.png") no-repeat left center; }
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
 a.treatments { background: url(../img/icons/seringue_16x16.png) no-repeat left center; }
@@ -1198,6 +1199,7 @@ a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") n
 a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
 a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
 a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
+a.tools.template {background: url("../img/icons/blueprint_32x32.png") no-repeat center center;}
 a.menu.help{background: url("../img/icons/help_32x32.png") no-repeat center center;}
 td.id a,
 td.id a:hover,
@@ -1290,7 +1292,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		ul.error li, ul.warning li, ul.confirm li {
+		ul.error li, ul.warning li, ul.confirm li, ul.batchCreate li {
 			padding: 3px 25px;
 			border-radius: 5px;
 			border-width: 3px;
@@ -1320,7 +1322,12 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			border-color: #EB0;
 			background: url(../img/icons/Warning_16x16.png) no-repeat 4px 2px;
 		}
-	
+		ul.batchCreate{
+			background-image: url(../img/batch_bg.gif);
+		}
+		ul.batchCreate li{
+			border-color: #00009b;
+		}
 		
 div#footer {
 	margin: 20px 0 0 0;

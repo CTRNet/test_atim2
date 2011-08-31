@@ -908,7 +908,25 @@ function uncheckAll( $div ) {
 		$(window).scroll(flyOverSubmit);
 		$(window).resize(flyOverSubmit);
 	}
-	
+
+	function globalInit(scope){
+		if(window.copyControl){
+			initCopyControl();
+		}
+		initAddLine(scope);
+		initDatepicker(scope);
+		initTooltips(scope);
+		initAutocomplete(scope);
+		initCheckAll(scope);
+		initRemoveLine(scope);
+		initCheckboxes(scope);
+		initAccuracy(scope);
+
+		if(window.labBookFields){
+			initLabBook(scope);
+		}
+		
+	}
 
 	function debug(str){
 //		$("#debug").append(str + "<br/>");

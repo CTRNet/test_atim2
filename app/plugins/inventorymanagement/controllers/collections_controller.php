@@ -120,6 +120,10 @@ class CollectionsController extends InventorymanagementAppController {
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_from_tree_view', $is_from_tree_view);
 		
+		$template_model = AppModel::getInstance("Tools", "Template", true);
+		$templates = $template_model->find('all');
+		$this->set('templates', $templates);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
@@ -205,7 +209,9 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function edit($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// MANAGE DATA
 		
@@ -266,13 +272,17 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id) {
-		if(!$collection_id) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$collection_id) { 
+			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 
 		// MANAGE DATA
 				
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($collection_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->Collection->allowDeletion($collection_id);
@@ -280,7 +290,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// CUSTOM CODE
 				
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
@@ -293,6 +305,63 @@ class CollectionsController extends InventorymanagementAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/collections/detail/' . $collection_id);
 		}		
+	}
+	
+	function template($collection_id, $template_id){
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
+		$template_model = AppModel::getInstance("Tools", "Template", true);
+		$template = $template_model->findById($template_id);
+		$tree = $template_model->init($template_id);
+		$this->set('tree_data', $tree['']);
+		
+		$sample_controls = $this->SampleControl->find('all');
+		$sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
+		AppController::applyTranslation($sample_controls, 'SampleControl', 'sample_type');
+		
+		$aliquot_control_model = AppModel::getInstance('inventorymanagement', 'AliquotControl', true);
+		$aliquot_controls = $aliquot_control_model->find('all');
+		$aliquot_controls = AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true);
+		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
+		
+		$parent_to_derivative_sample_control_model = AppModel::getInstance("Inventorymanagement", "ParentToDerivativeSampleControl", true);
+		$samples_relations = $parent_to_derivative_sample_control_model->find('all', array('conditions' => array('flag_active' => 1), 'recusrive' => -1));
+		foreach($samples_relations as &$sample_relation){
+			unset($sample_relation['ParentSampleControl']);
+			unset($sample_relation['DerivativeControl']);
+		}
+		unset($sample_relation);
+		$samples_relations = AppController::defineArrayKey($samples_relations, 'ParentToDerivativeSampleControl', 'parent_sample_control_id');
+		
+		
+		$js_data = array(
+			'sample_controls' => $sample_controls,
+			'samples_relations' => $samples_relations,
+			'aliquot_controls' => AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true),
+			'aliquot_relations' => AppController::defineArrayKey($aliquot_controls, "AliquotControl", "sample_control_id")
+		);
+		$this->set('js_data', $js_data);
+		$this->set('template_id', $template['Template']['id']);
+		$this->set('controls', 0);
+		$this->set('collection_id', $collection_id);
+		$this->set('description', $template['Template']['name']);
+		$this->set('flag_system', $template['Template']['flag_system']);
+		$this->render('/../../tools/views/template/tree');
+	}
+	
+	function templateInit($template_id){
+		$template_model = AppModel::getInstance("Tools", "Template", true);
+		$template = $template_model->findById($template_id);
+		$template_model->init($template_id);
+		$this->set('template', $template);
+		$this->Structures->set('empty');
+		if(!empty($this->data)){
+			//validate and stuff
+			$data_validates = true;
+			//hook
+			if($data_validates){
+				$this->set('goToNext', true);
+			}
+		}
 	}
 }
 

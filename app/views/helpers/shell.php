@@ -147,6 +147,11 @@ class ShellHelper extends Helper {
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
 		
+		if(isset($_SESSION['ctrapp_core']['batch_create_msg'])){
+			$confirm_msg_html = '<ul class="batchCreate"><li>'.$_SESSION['ctrapp_core']['batch_create_msg'].'</li></ul>';
+			unset($_SESSION['ctrapp_core']['batch_create_msg']);
+		}
+		
 		if(isset($_SESSION['ctrapp_core']['warning_msg']) && count($_SESSION['ctrapp_core']['warning_msg']) > 0){
 			$confirm_msg_html .= '<ul class="warning">';
 			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg => $count){

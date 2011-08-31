@@ -344,7 +344,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function add($sample_master_id=null, $aliquot_control_id=null){
+	function add($sample_master_id=null, $aliquot_control_id=null, $is_ajax = false){
+		if($is_ajax){
+			$this->layout = 'ajax';
+			ob_start();
+		}
 					
 		// CHECK PARAMETERS
 			
@@ -575,7 +579,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					if($is_ajax){
+						ob_end_clean();
+						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => -1));
+						exit;
+					}else{
+						$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+					}
 				}
 				
 			}else{
@@ -593,6 +603,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
+		$this->set('is_ajax', $is_ajax);
 	}
 	
 	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
