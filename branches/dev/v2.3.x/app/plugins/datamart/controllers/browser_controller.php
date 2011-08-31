@@ -273,7 +273,7 @@ class BrowserController extends DatamartAppController {
 		
 		//handle display data
 		if($check_list){
-			$result = $this->Browser->InitDataLoad($browsing, $merge_to);
+			$result = $this->Browser->InitDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
 			
 			$this->set('top', "/datamart/browser/browse/".$node_id."/");
 			$this->set('node_id', $node_id);
@@ -351,8 +351,12 @@ class BrowserController extends DatamartAppController {
 	 * @param int $merge_to
 	 */
 	function csv($node_id, $merge_to){
-	$browsing = $this->BrowsingResult->findById($node_id);
-		$this->Browser->InitDataLoad($browsing, $merge_to);
+		$browsing = $this->BrowsingResult->findById($node_id);
+		$ids = current(current($this->data));
+		if(is_string($ids)){
+			$ids = explode(",", $ids);
+		}
+		$this->Browser->InitDataLoad($browsing, $merge_to, $ids);
 		$this->set("result_structure", $this->Browser->result_structure);
 		$this->layout = false;
 		
