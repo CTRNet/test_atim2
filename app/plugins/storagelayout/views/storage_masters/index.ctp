@@ -7,7 +7,7 @@
 	ksort($add_links);
 
 	$structure_links = array(
-		'top' => array('search' =>'/storagelayout/storage_masters/search/'.AppController::getNewSearchId()),
+		'top' => array('search' =>'/storagelayout/storage_masters/search/'),
 		'bottom' => array('tree view' => '/storagelayout/storage_masters/contentTreeView', 'add' => $add_links)
 	);
 

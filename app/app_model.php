@@ -318,11 +318,11 @@ class AppModel extends Model {
 		}
 		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
-			if(empty($this->data[$this->name][$date_field])){
-				continue;
-			}
 			$current = &$this->data[$this->name][$date_field];
-			if(!empty($current)){
+			if(empty($current)){
+				$this->data[$this->name][$accuracy_field] = '';
+				$current = null;
+			}else{
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
@@ -372,7 +372,7 @@ class AppModel extends Model {
 	function validates($options = array()){
 		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 		$this->setDataAccuracy();
-		
+
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
 			$master_class		= $settings['master_class'];
@@ -428,6 +428,38 @@ class AppModel extends Model {
 		}
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
+	}
+	
+	/**
+	 * Use this function to build an ATiM model. It ensures that custom models are loaded properly.
+	 * @param string $plugin_name
+	 * @param string $class_name
+	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
+	 * @return An ATiM model 
+	 * 
+	 * @deprecated use AppModel::getInstance to get an instance. One will be created if none exists. If you
+	 * want a new one, use ClassRegistry::init.
+	 * TODO: delete for ATiM 2.4
+	 */
+	static function atimNew($plugin_name, $class_name, $error_view_on_null){
+		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
+		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
+			if($error_view_on_null){
+				$app = AppController::getInstance();
+				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
+				exit;
+			}else{
+				return NULL;
+			}
+		}
+		$custom_class_name = $class_name."Custom";
+		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
+		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
+		
+		if(Configure::read('debug') > 0){
+			AppController::addWarningMsg("AppModel::atimNew is deprecated. ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance.");
+		}
+		return $loaded_class;
 	}
 	
 	static function getInstance($plugin_name, $class_name, $error_view_on_null){
@@ -669,13 +701,6 @@ class AppModel extends Model {
 	 */
 	function allowDeletion($id){
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	function redirectIfNonExistent($id, $method, $line){
-		$this->id = $id;
-		if(!$this->exists()){
-			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
-		}
 	}
 }
 

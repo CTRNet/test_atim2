@@ -25,24 +25,26 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC')); 
 	
 	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }	
 	}
 	
-	function search($search_id = '') {
+	function search() {
 		// if SEARCH form data, parse and create conditions
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
 		// MANAGE DATA
-		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search']['criteria']);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );		
 				
 		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Participant']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/clinicalannotation/participants/search';
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Participant']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/participants/search';
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -288,7 +290,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 					$this->Participant->save($this->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->data['Participant'])));
 				}
 				
-				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = array("Participant.id" => $ids);
+				$_SESSION['ctrapp_core']['search']['criteria'] = array("Participant.id" => $ids);
 				$this->atimFlash('your data has been updated', '/clinicalannotation/Participants/search/');
 			}
 			

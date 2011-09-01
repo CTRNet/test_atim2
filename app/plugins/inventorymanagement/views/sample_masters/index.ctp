@@ -6,7 +6,7 @@
 	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 		
 	$structure_links = array(
-		'top' => '/inventorymanagement/sample_masters/search/'.AppController::getNewSearchId(),
+		'top' => '/inventorymanagement/sample_masters/search',
 		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'new search' => $search_type_links)
 	);
 

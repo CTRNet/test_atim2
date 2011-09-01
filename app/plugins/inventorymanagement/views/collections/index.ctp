@@ -6,7 +6,7 @@
 	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
 
 	$structure_override = array();
-	$structure_links['top'] = '/inventorymanagement/collections/search/'.AppController::getNewSearchId();
+	$structure_links['top'] = '/inventorymanagement/collections/search';
 	$settings = array('header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url)));
 	$dropdown = null;
 	if(!isset($is_ccl_ajax) || !$is_ccl_ajax){

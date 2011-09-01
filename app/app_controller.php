@@ -4,7 +4,6 @@ class AppController extends Controller {
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
 	private static $me = NULL;
-	private static $acl = null;
 	public static $beignFlash = false;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
@@ -61,13 +60,7 @@ class AppController extends Controller {
 			$log_activity_model->save($log_activity_data);
 			
 		// menu grabbed for HEADER
-			$atim_sub_menu_for_header = array();
-			$menu_model = AppModel::getInstance("", "Menu", true);
-			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
-			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
-		
-			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
-			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
 			
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
@@ -477,7 +470,7 @@ class AppController extends Controller {
 	}
 	
 	static function addWarningMsg($msg){
-		if(isset($_SESSION['ctrapp_core']['warning_msg'][$msg])){
+		if(array_key_exists($msg, $_SESSION['ctrapp_core']['warning_msg'])){
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
 		}else{
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
@@ -489,26 +482,6 @@ class AppController extends Controller {
 		$result = array();
 		foreach($bt as $unit){
 			$result[] = $unit['file'].", ".$unit['function']." at line ".$unit['line'];
-		}
-		return $result;
-	}
-	
-	/**
-	 * Builds the value definition array for an updateAll call
-	 * @param array They data array to build the values with
-	 */
-	static function getUpdateAllValues(array $data){
-		$result = array();
-		foreach($data as $model => $fields){
-			foreach($fields as $name => $value){
-				if(is_array($value)){
-					if(strlen($value['year'])){
-						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
-					}
-				}else if(strlen($value)){
-					$result[$model.".".$name] = "'".$value."'";
-				}
-			}
 		}
 		return $result;
 	}
@@ -567,25 +540,17 @@ class AppController extends Controller {
 	 * @param array $in_array
 	 * @param string $model The model ($in_array[$model])
 	 * @param string $field The field (new key = $in_array[$model][$field])
-	 * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
 	 * @return array
 	 */
-	static function defineArrayKey($in_array, $model, $field, $unique = false){
+	static function defineArrayKey($in_array, $model, $field){
 		$out_array = array();
-		if($unique){
-			foreach($in_array as $val){
-				$out_array[$val[$model][$field]] = $val;
+		foreach($in_array as $val){
+			if(isset($val[$model])){
+				$out_array[$val[$model][$field]][] = $val;
+			}else{
+				//the key cannot be foud
+				$out_array[-1][] = $val;
 			}
-		}else{
-			foreach($in_array as $val){
-				if(isset($val[$model])){
-					$out_array[$val[$model][$field]][] = $val;
-				}else{
-					//the key cannot be foud
-					$out_array[-1][] = $val;
-				}
-			}
-			
 		}
 		return $out_array;
 	}
@@ -598,39 +563,6 @@ class AppController extends Controller {
 			if(empty($val)){
 				unset($data[$key]);
 			}
-		}
-	}
-	
-	static function getNewSearchId(){
-		return $_SESSION['Auth']['User']['search_id'] ++;
-	}
-	
-	/**
-	* @param string $link The link to check
-	* @return True if the user can access that page, false otherwise
-	*/
-	static function checkLinkPermission($link){
-		$parts = Router::parse($link);
-		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-	
-		if (self::$acl == null) {
-			self::$acl = new SessionAclComponent();
-			self::$acl->initialize($this);
-		}
-		
-		$instance = AppController::getInstance();
-	
-		return strpos($aco_alias,'controllers/Users') !== false
-		|| strpos($aco_alias,'controllers/Pages') !== false
-		|| $aco_alias == "controllers/Menus/index"
-		|| self::$acl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
-	}
-	
-	static function applyTranslation(&$in_array, $model, $field){
-		foreach($in_array as &$part){
-			$part[$model][$field] = __($part[$model][$field], true); 
 		}
 	}
 }

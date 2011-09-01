@@ -1,6 +1,6 @@
 <?php
 	$structure_links = array(
-		'top'=>array('search'=>'/rtbform/rtbforms/search/'.AppController::getNewSearchId()),
+		'top'=>array('search'=>'/rtbform/rtbforms/search/'),
 		'bottom'=>array(
 			'add'=>'/rtbform/rtbforms/add/'
 		)

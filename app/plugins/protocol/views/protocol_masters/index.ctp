@@ -7,7 +7,7 @@
 	ksort($add_links);
 	
 	$structure_links = array(
-		'top'=>array('search'=>'/protocol/protocol_masters/search/'.AppController::getNewSearchId()),
+		'top'=>array('search'=>'/protocol/protocol_masters/search/'),
 		'bottom'=>array(
 			'add'=>$add_links
 		)

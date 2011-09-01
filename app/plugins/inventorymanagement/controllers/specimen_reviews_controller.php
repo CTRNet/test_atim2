@@ -37,7 +37,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		$this->data = $this->paginate($this->SpecimenReviewMaster, array('SpecimenReviewMaster.sample_master_id'=>$sample_master_id));
 		
 		// Set list of available review
-		$review_controls = $this->SpecimenReviewControl->find('all', array('conditions'=>array('SpecimenReviewControl.specimen_sample_type' => $sample_data['SampleControl']['sample_type'], 'SpecimenReviewControl.flag_active' => '1' )));
+		$review_controls = $this->SpecimenReviewControl->find('all', array('conditions'=>array('SpecimenReviewControl.specimen_sample_type' => $sample_data['SampleMaster']['sample_type'], 'SpecimenReviewControl.flag_active' => '1' )));
 		$this->set( 'review_controls', $review_controls );
 		if(empty($review_controls)) { $this->SpecimenReviewControl->validationErrors[]	= 'no path review exists for this type of sample'; }
 		
@@ -111,6 +111,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->data = NULL;
 			$this->set('specimen_review_data', array());
 			$this->set('aliquot_review_data', array());
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {	
 			// reset array
@@ -322,6 +327,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->data = NULL;
 			$this->set('specimen_review_data', $initial_specimen_review_data);
 			$this->set('aliquot_review_data', $initial_aliquot_review_data_list);
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 			
 		} else {
 			// reset array
