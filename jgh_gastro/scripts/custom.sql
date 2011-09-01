@@ -2890,3 +2890,17 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbns')  WHERE model='DiagnosisDetail' AND tablename='qc_gastro_dxd_cap_testis' AND field='specimen_laterality' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_laterality_lrbu');
 
+ALTER TABLE txd_surgeries
+ ADD COLUMN qc_ld_gastro_surgeon VARCHAR(50) NOT NULL DEFAULT '' AFTER tx_master_id;
+ALTER TABLE txd_surgeries_revs
+ ADD COLUMN qc_ld_gastro_surgeon VARCHAR(50) NOT NULL DEFAULT '' AFTER tx_master_id;
+
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('qc_gastro surgeons', 1, 50);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('qc_gastro surgeons','','', "StructurePermissibleValuesCustom::getCustomDropdown('qc_gastro surgeons')");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_ld_gastro_surgeon', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro surgeons') , '0', '', '', '', 'surgeon', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_ld_gastro_surgeon' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro surgeons')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgeon' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
