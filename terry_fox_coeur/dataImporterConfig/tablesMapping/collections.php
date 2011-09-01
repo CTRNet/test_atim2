@@ -64,14 +64,22 @@ function postCollectionWrite(Model $m){
 			$m->values['Tissue Precision Tissue Laterality'] = '';
 		}	
 
-		if(!in_array($m->values['Tissue Precision Tissue Type'],Config::$tissue_source)) {
-			echo "WARNING: Unmatched tissue type [",$m->values['Tissue Precision Tissue Type'],"] at line [".$m->line."]\n";
+		if(!in_array($m->values['Tissue Precision Tissue Source'],Config::$tissue_source)) {
+			echo "WARNING: Unmatched tissue source [",$m->values['Tissue Precision Tissue Source'],"] at line [".$m->line."]\n";
+			$m->values['Tissue Precision Tissue Source'] = '';
+		}
+		
+		$tissue_type_domain = Config::$value_domains['qc_tf_tissue_type'];
+		$tissue_type_value = $tissue_type_domain->isValidValue($m->values['Tissue Precision Tissue Type']);
+		if($tissue_type_value === null){
+			echo "WARNING: Unmatched tissue type value [",$m->values['Tissue Precision Tissue Type'],"] at line [".$m->line."]\n";
 			$m->values['Tissue Precision Tissue Type'] = '';
 		}
-
+		
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id,
-			"tissue_source"		=> "'".$m->values['Tissue Precision Tissue Type']."'",
+			"tissue_source"		=> "'".$m->values['Tissue Precision Tissue Source']."'",
+			"qc_tf_tissue_type"	=> "'".$m->values['Tissue Precision Tissue Type']."'",
 			"tissue_laterality"	=> "'".$m->values['Tissue Precision Tissue Laterality']."'"
 		);
 		//$insert = array_merge($insert, $created);
@@ -603,8 +611,8 @@ function inventoryRevsTableCompletion($table_name, $id) {
 				break;					
 			
 			case 'sd_spe_tissues':			
-				$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, tissue_source, tissue_laterality, version_created) "
-					."SELECT id, sample_master_id, tissue_source, tissue_laterality, NOW() FROM ".$table_name." WHERE sample_master_id = ".$id;
+				$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, tissue_source, qc_tf_tissue_type, tissue_laterality, version_created) "
+					."SELECT id, sample_master_id, tissue_source, qc_tf_tissue_type, tissue_laterality, NOW() FROM ".$table_name." WHERE sample_master_id = ".$id;
 				break;						
 			
 			case 'aliquot_masters':

@@ -1,3 +1,6 @@
+-- run after atim_v2.3.3_upgrade.sql
+-- or run after custom_script_v2.3.3_full_installation.sql
+
 ALTER TABLE `participants` CHANGE `qc_tf_sdod_accuracy` `qc_tf_suspected_date_of_death_accuracy` CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE `participants` CHANGE `qc_tf_last_contact_acc` `qc_tf_last_contact_accuracy` CHAR(1) NOT NULL DEFAULT '';
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'qc_tf_last_contact_acc');
@@ -351,5 +354,50 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_histopathology"),  
 (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "102", "1");
 
+INSERT INTO banks(`name`, `description`, `created_by`, `created`, `modified_by`, `modified`) VALUES
+('OTB-COEUR', '', 1, NOW(), 1, NOW()),
+('UHN-COEUR', '', 1, NOW(), 1, NOW());
+
+INSERT INTO misc_identifier_controls (misc_identifier_name, misc_identifier_name_abbrev, flag_once_per_participant) VALUES
+('OTB-COEUR', 'OTB-COEUR', 1),
+('UHN-COEUR', 'UHN-COEUR', 1);
+
+UPDATE banks SET `name` = 'OVCare-COEUR' WHERE `name` = 'OVCare';
+UPDATE misc_identifier_controls SET `misc_identifier_name` = 'OVCare-COEUR',`misc_identifier_name_abbrev` = 'OVCare-COEUR' WHERE `misc_identifier_name` = 'OVCare';
+
+insert INTO i18n (id,en) VALUES
+('OTB-COEUR', 'OTB-COEUR'),
+('OVCare-COEUR','OVCare-COEUR'),
+('UHN-COEUR', 'UHN-COEUR');
+
+SET @last_id=(SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE "tissue source");
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) VALUES
+(@last_id, 'endometrium', 'Endometrium', ''),(@last_id, 'fallopian tub', 'Fallopian Tub', '');
+
+ALTER TABLE sd_spe_tissues
+ ADD COLUMN qc_tf_tissue_type varchar(50) DEFAULT NULL AFTER tissue_source;
+ALTER TABLE sd_spe_tissues_revs
+ ADD COLUMN qc_tf_tissue_type varchar(50) DEFAULT NULL AFTER tissue_source; 
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES 
+('qc_tf_tissue_type', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES("benign", "benign"),("malignant","malignant");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="malignant" AND language_alias="malignant"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="benign" AND language_alias="benign"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'qc_tf_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tissue_type') , '0', '', '', '', 'tissue type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_tf_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue type' AND `language_tag`=''), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
+
+insert INTO i18n (id,en) VALUES ('tissue type', 'Tissue Type');
 
 

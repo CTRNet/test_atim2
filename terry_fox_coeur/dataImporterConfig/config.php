@@ -77,8 +77,8 @@ class Config{
 		Config::$models[$ref_name] = $m;
 	}
 
-	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chimiotherapy', 'radiotherapy');
-	static $opc_file_event_types	= array('biopsy', 'surgery', 'chimiotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
+	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
+	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	
 	static $sample_aliquot_controls = array();
 	static $banks = array();
@@ -109,6 +109,7 @@ Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start
 
 Config::$value_domains['qc_tf_ct_scan_precision']= new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 Config::$value_domains['tissue_laterality']= new ValueDomain("tissue_laterality", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+Config::$value_domains['qc_tf_tissue_type']= new ValueDomain("qc_tf_tissue_type", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "participants";
