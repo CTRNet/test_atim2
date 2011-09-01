@@ -7,7 +7,7 @@
 
 	$structure_override = array();
 	$structure_links['top'] = '/inventorymanagement/collections/search';
-	$settings = array('header' => __('search type', null).': '.__('collections', null));
+	$settings = array('header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url)));
 	$dropdown = null;
 	if(!isset($is_ccl_ajax) || !$is_ccl_ajax){
 		$structure_links['bottom'] = array('add collection' => '/inventorymanagement/collections/add', 'new search' => $search_type_links);

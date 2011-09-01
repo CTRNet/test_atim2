@@ -119,11 +119,17 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 						
 			if($submitted_data_validates) {
 				$this->TreatmentMaster->id = $tx_master_id;
 				if ($this->TreatmentMaster->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 				}
 			}
@@ -190,10 +196,16 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
 				if ( $this->TreatmentMaster->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
@@ -207,7 +219,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
-		$arr_allow_deletion = $this->allowTrtDeletion($tx_master_id, $treatment_master_data['TreatmentControl']['extend_tablename']);
+		$this->TreatmentMaster->set($treatment_master_data);
+		$arr_allow_deletion = $this->TreatmentMaster->allowDeletion($tx_master_id);
 						
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -223,35 +236,6 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/treatment_masters/detail/'.$participant_id.'/'.$tx_master_id);
 		}
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $tx_master_id Id of the studied record.
-	 * @param $tx_extend_tablename
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2010-04-18
-	 */
-	 
-	function allowTrtDeletion($tx_master_id, $tx_extend_tablename){
-		if(!empty($tx_extend_tablename)) {
-			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_extend_tablename);
-			$nbr_extends = $this->TreatmentExtend->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
-			if ($nbr_extends > 0) { return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); }
-		}
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
 }
 
 ?>
