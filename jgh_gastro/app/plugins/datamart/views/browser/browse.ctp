@@ -1,6 +1,7 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+		$this->Paginator->options['url'] = array($node_id.'/'.$control_id.'/'.$merge_to);
+		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
@@ -16,7 +17,7 @@
 			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = __("select an action", true);
-			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'sorting' => true, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
 		}else{
 			//overflow
 			?>
@@ -25,7 +26,7 @@
 				.sprintf(__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", true), __('browse', true), __('batchset', true))); ?>.</li>
 			</ul>
 			<?php
-			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
+			$structures->build($empty, array('data' => array(), 'type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
 			$key_parts = explode(".", $checklist_key);
 			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".$this->data."'/>\n");
 		}

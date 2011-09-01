@@ -13,7 +13,9 @@ class CollectionsController extends InventorymanagementAppController {
 		'Inventorymanagement.SpecimenReviewMaster',
 		'Inventorymanagement.ParentToDerivativeSampleControl',
 		
-		'Clinicalannotation.ClinicalCollectionLink');
+		'Clinicalannotation.ClinicalCollectionLink',
+	
+		'ExternalLink');
 	
 	var $paginate = array(
 		'Collection' => array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
@@ -36,6 +38,9 @@ class CollectionsController extends InventorymanagementAppController {
 				
 		$this->Structures->set('view_collection');
 		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }			
@@ -54,7 +59,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$view_collection = $this->Structures->get('form', 'view_collection');
 		$this->set('atim_structure', $view_collection);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($view_collection);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($view_collection);
 		
 		if($is_ccl_ajax){
 			$limit = 20;
@@ -73,6 +78,9 @@ class CollectionsController extends InventorymanagementAppController {
 		// if SEARCH form data, save number of RESULTS and URL
 		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ViewCollection']['count'];
 		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/collections/search';
+		
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
@@ -164,7 +172,9 @@ class CollectionsController extends InventorymanagementAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 
@@ -172,6 +182,11 @@ class CollectionsController extends InventorymanagementAppController {
 				
 				$collection_id = null;
 				if($this->Collection->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					
 					$collection_id = $this->Collection->getLastInsertId();
 					
 					// Create clinical collection link
@@ -241,7 +256,9 @@ class CollectionsController extends InventorymanagementAppController {
 				if ($this->Collection->save($this->data)) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}
@@ -259,7 +276,7 @@ class CollectionsController extends InventorymanagementAppController {
 		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowCollectionDeletion($collection_id);
+		$arr_allow_deletion = $this->Collection->allowDeletion($collection_id);
 		
 		// CUSTOM CODE
 				
@@ -277,45 +294,6 @@ class CollectionsController extends InventorymanagementAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/collections/detail/' . $collection_id);
 		}		
-	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-	
-	/**
-	 * Check if a collection can be deleted.
-	 * 
-	 * @param $collection_id Id of the studied collection.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowCollectionDeletion($collection_id){
-		// Check collection has no sample	
-		$returned_nbr = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'sample exists within the deleted collection'); }
-		
-		// Check collection has no aliquot	
-		$returned_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted collection'); }
-
-		// Check collection has not been linked to review	
-		$returned_nbr = $this->SpecimenReviewMaster->find('count', array('conditions' => array('SpecimenReviewMaster.collection_id' => $collection_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'review exists for the deleted collection'); }
-
-		// Check Collection has not been linked to a participant, consent or diagnosis
-		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
-		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';		
-		$returned_nbr = $this->ClinicalCollectionLink->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

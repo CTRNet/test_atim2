@@ -94,7 +94,7 @@ class PermissionsController extends AdministrateAppController {
 				intval($aco['Aco']['state']) );
 			}
 			
-			MenusComponent::clearCache();
+			Cache::clear(false, "menus");
 			$this->redirect('/administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
