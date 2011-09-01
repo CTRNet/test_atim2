@@ -48,7 +48,8 @@ class ReportsControllerCustom extends ReportsController {
 				"Date of Last Contact Date",
 				"Date of Last Contact date accuracy",
 				"family history",
-				"BRCA status"
+				"BRCA status",
+				"notes"
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
@@ -64,8 +65,6 @@ class ReportsControllerCustom extends ReportsController {
 					$participant_id = $unit['Participant']['id'];
 					$pid_bid_assoc[$participant_id] = $unit['MiscIdentifier']['identifier_value'];
 					
-//TODO validate with user we should take in consideration the last date of event, dx, trt as it's done below...
-
 					$tmp_data = $this->Report->query("SELECT MAX(last_contact_date) AS last_contact_date FROM
 						(SELECT MAX(consent_signed_date) AS last_contact_date FROM consent_masters WHERE id=".$participant_id." AND deleted != 1
 						UNION
@@ -96,7 +95,7 @@ class ReportsControllerCustom extends ReportsController {
 					
 					$brca_data = $this->Report->query("SELECT brca FROM ohri_ed_lab_markers AS EventDetail
 						INNER JOIN event_masters ON EventDetail.event_master_id=event_masters.id
-						WHERE event_masters.participant_id=".$participant_id." AND deleted != 1
+						WHERE event_masters.participant_id=".$participant_id." AND event_masters.deleted != 1
 						ORDER BY event_masters.event_date DESC");
 					$line = array();
 					$line[] = "OHRI-COEUR";
@@ -112,6 +111,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = "";//last contact date acc
 					$line[] = $family_history;
 					$line[] = isset($brca_data[0]['EventDetail']['brca']) ? $brca_data[0]['EventDetail']['brca'] : ""; 
+					$line[] = "";//notes
 					
 					echo implode(csv_separator, $line), "\n";
 				}
@@ -124,20 +124,60 @@ class ReportsControllerCustom extends ReportsController {
 		if(empty($submitted_participant_ids)) {
 			echo "\n", implode(csv_separator, array("CANNOT FETCH PARTICIPANTS - NO PARTICIPANT SELECTED")), "\n";
 		} else if(sizeof($participant_ids) != sizeof($submitted_participant_ids)) {
-			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL PARTICIPANTS - CHECK ALL HAVE A BANK NUMBER")), "\n";
+			$tmp_ids = array_diff($submitted_participant_ids, $participant_ids);
+			$tmp_ids[] = 0;
+			$missing_participants = $this->Report->query("SELECT participant_identifier FROM participants WHERE deleted != 1 AND id IN (".implode(", ", $tmp_ids).")", false);
+			$echo_string = '';
+			foreach($missing_participants as $tmp) {
+				$echo_string .= ' ['.$tmp['participants']['participant_identifier'].'] ';
+			}
+			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL PARTICIPANTS - CHECK BANK NUMBER EXISTS FOR FOLLOWING PARTICIPANT SYSTEM CODES : ".$echo_string)), "\n";
 		}
 		$participant_ids[] = 0;
-				
-		//get nbre of diagnosis per particiapnt for dx, event, trt analysis
-		
-		$more_than_one_primary = array();
-		$tmp_data = $this->Report->query("SELECT res.participant_id
-			FROM (
+
+		//Get statistics on dx_origin to allow following data extraction
+		$paticipants_multi_primary = array();
+		$tmp_data = $this->Report->query("SELECT res.participant_id FROM ( 
 				SELECT count( * ) AS nbr, participant_id FROM `diagnosis_masters` 
-				WHERE deleted !=1 AND dx_origin IN ('primary','unknown') 
-				AND participant_id IN(".implode(", ", $participant_ids).") GROUP BY participant_id
+				WHERE deleted !=1 AND dx_origin IN ('primary','unknown') AND participant_id IN(".implode(", ", $participant_ids).") GROUP BY participant_id
 			) AS res WHERE res.nbr > 1", false);
-		foreach($tmp_data as $res) $more_than_one_primary[] = $res['res']['participant_id'];
+		foreach($tmp_data as $res) $paticipants_multi_primary[] = $res['res']['participant_id'];
+		$paticipants_multi_primary[] = 0;
+		
+		$paticipants_only_eoc_primary = array();
+		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
+		WHERE participant_id NOT IN (
+			SELECT participant_id FROM diagnosis_masters WHERE dx_origin = 'unknown' OR (dx_origin = 'primary' AND ohri_tumor_site != 'Female Genital-Ovary') AND deleted != 1
+		) AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
+		foreach($tmp_data as $res) $paticipants_only_eoc_primary[] = $res['diagnosis_masters']['participant_id'];		
+		$paticipants_only_eoc_primary[] = 0;
+		
+		$paticipants_only_other_primary = array();
+		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
+			WHERE participant_id NOT IN (
+				SELECT participant_id FROM diagnosis_masters WHERE dx_origin = 'unknown' OR (dx_origin = 'primary' AND ohri_tumor_site = 'Female Genital-Ovary') AND deleted != 1
+			) AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
+		foreach($tmp_data as $res) $paticipants_only_other_primary[] = $res['diagnosis_masters']['participant_id'];		
+		$paticipants_only_other_primary[] = 0;
+		
+		$paticipants_unknown_eoc_other_primary = array();
+		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
+			WHERE participant_id NOT IN (".implode(", ", $paticipants_only_eoc_primary).") AND participant_id NOT IN (".implode(", ", $paticipants_only_other_primary).") 
+			AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
+		foreach($tmp_data as $res) $paticipants_unknown_eoc_other_primary[] = $res['diagnosis_masters']['participant_id'];
+		$paticipants_unknown_eoc_other_primary[] = 0;
+		
+		$eoc_diagnosis_master_ids = array('primary'=>array('0'), 'secondary' => array('0'));
+		$other_diagnosis_master_ids = array('primary'=>array('0'), 'secondary' => array('0'));
+		
+		if(!empty($paticipants_unknown_eoc_other_primary)) {
+			$participants = $this->Report->query("SELECT participant_identifier FROM participants WHERE deleted != 1 AND id IN (".implode(", ", $paticipants_unknown_eoc_other_primary).")", false);
+			$echo_string = '';
+			foreach($participants as $tmp) {
+				$echo_string .= ' ['.$tmp['participants']['participant_identifier'].']';
+			}
+			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL EOC/OTHER EVENT CORRECTLY (PROBABLY) - CHECK MORE IN DEEP PARTICIPANTS HAVING FOLLOWING SYSTEM CODES : $echo_string")), "\n";
+		}
 		
 		//sheet 2 - EOC dx
 		{
@@ -175,16 +215,11 @@ class ReportsControllerCustom extends ReportsController {
 				'< 1cm' 		=> '<1cm',
 				'> 2cm' 		=> '>2cm',
 				'none visible'	=> 'none',
-				'unknown'		=> 'undefined',
+				'undefined'		=> 'unknown',
 				''				=> ''
 			);
 			$i = 0;
-			do{
-				
-//TODO Validate the change we did on diagnosis data (see custom sql file) with user to create primary for all scondary...
-//TODO Some ovarian cancer are secondary... check with user it's true because they will be linked to other primary.			
-//TODO When only one dx is recorded for one participant, should we link all trt, event to this dx when trt or event dx.id is null.			
-				
+			do{				
 				$data = $this->Report->query("
 					SELECT * FROM diagnosis_masters AS DiagnosisMaster
 					INNER JOIN ohri_dx_ovaries AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
@@ -194,6 +229,16 @@ class ReportsControllerCustom extends ReportsController {
 				);
 								
 				foreach($data as $unit){
+					
+					// Set eoc diagnosis master ids
+					
+					$eoc_diagnosis_master_ids['primary'][] = $unit['DiagnosisMaster']['id'];
+					$secondary_data = $this->Report->query("SELECT * FROM diagnosis_masters AS DiagnosisMaster
+						WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id = ".$unit['DiagnosisMaster']['participant_id']."
+						AND DiagnosisMaster.dx_origin='secondary' AND DiagnosisMaster.primary_number =".$unit['DiagnosisMaster']['primary_number'], false);					
+					foreach($secondary_data as $tmp) {
+						$eoc_diagnosis_master_ids['secondary'][] = $tmp['DiagnosisMaster']['id'];
+					}					
 					
 					// Get residual disease
 					
@@ -205,8 +250,8 @@ class ReportsControllerCustom extends ReportsController {
 					if(empty($tx_data)){
 						$tx_data = $this->Report->query("SELECT residual_disease FROM ohri_txd_surgeries AS TxDetail
 						INNER JOIN tx_masters ON TxDetail.tx_master_id=tx_masters.id
-						WHERE tx_masters.deleted = 0 AND tx_masters.participant_id=".$participant_id, false);
-						if(!empty($tx_data) && in_array($participant_id, $more_than_one_primary)) {
+						WHERE tx_masters.deleted = 0 AND tx_masters.participant_id=".$unit['DiagnosisMaster']['participant_id'], false);
+						if(!empty($tx_data) && in_array($unit['DiagnosisMaster']['participant_id'], $paticipants_multi_primary)) {
 							$warning = "CANNOT FETCH - TOO MANY UNLINKED PRIMARY DIAGNOSES";
 						}
 					}
@@ -214,7 +259,7 @@ class ReportsControllerCustom extends ReportsController {
 					if(!empty($warning)) {
 						$residual_disease = $warning;
 					}else if(count($tx_data) == 1){
-						$residual_disease = $residual_disease_array[$tx_data[0]['TxDetail']['residual_disease']];
+						$residual_disease = array_key_exists($tx_data[0]['TxDetail']['residual_disease'], $residual_disease_array)? $residual_disease_array[$tx_data[0]['TxDetail']['residual_disease']] : '';
 					}else if(count($tx_data) > 1){
 						$residual_disease = "CANNOT FETCH - TOO MANY RELATED TREATMENTS";
 					}else{
@@ -223,42 +268,25 @@ class ReportsControllerCustom extends ReportsController {
 					
 					// Get progression
 					
-					$secondary_tumors = $this->Report->query("SELECT * FROM diagnosis_masters AS DiagnosisMaster
-						WHERE DiagnosisMaster.deleted=0 
-						AND DiagnosisMaster.primary_number = ".$unit['DiagnosisMaster']['primary_number']."
-						AND DiagnosisMaster.participant_id = ".$participant_id."
-						AND DiagnosisMaster.dx_origin='secondary' ORDER BY DiagnosisMaster.dx_date ASC", false
-					);
-					
-					$secondary_tumors_tmp = array();
-					foreach($secondary_tumors as $new_secondary) {
+					$secondary_tumors = array();
+					foreach($secondary_data as $new_secondary) {
 						$key = $new_secondary['DiagnosisMaster']['dx_date'].'#'.$new_secondary['DiagnosisMaster']['dx_date_accuracy'];
-						if(!array_key_exists($key, $secondary_tumors_tmp)) $secondary_tumors_tmp[$key] = array();
-						
-						$sub_key = sizeof($secondary_tumors_tmp[$key]);
-						if(!empty($sub_key)) $sub_key--;					
-						if(sizeof($secondary_tumors_tmp[$key][$sub_key]) == 2) $sub_key++;
-						$secondary_tumors_tmp[$key][$sub_key][] = $new_secondary['DiagnosisMaster']['ohri_tumor_site'];	
+						$secondary_tumors[$key][] = $new_secondary['DiagnosisMaster']['ohri_tumor_site'];
 					}
-					$secondary_tumors=array();
-					foreach($secondary_tumors_tmp as $key => $sub_array) {
-						foreach($sub_array as $sub_key => $sub_sub_array) {
-							$secondary_tumors[$key.'#'.$sub_key] = $sub_sub_array;
-						}
-					}
-						
+					
 					$progression_date = '';
 					$progression_date_acc = '';
 					$progression_site_1 = '';
 					$progression_site_2 = '';
 					if(!empty($secondary_tumors)) {
-						$key_to_split = key($secondary_tumors);
-						$key_data = explode('#',$key_to_split);
+						$date_and_acc_key = key($secondary_tumors);
+						$key_data = explode('#',$date_and_acc_key);					
 						$progression_date = $key_data[0];
 						$progression_date_acc = $key_data[1];
-						$progression_site_1 = $secondary_tumors[$key_to_split][0];
-						$progression_site_2 = (isset($secondary_tumors[$key_to_split][1]))? $secondary_tumors[$key_to_split][1] : '';
-						next($secondary_tumors);
+						$progression_site_1 = array_shift($secondary_tumors[$date_and_acc_key]);
+						$progression_site_2 = array_shift($secondary_tumors[$date_and_acc_key]);	
+										
+						if(empty($secondary_tumors[$date_and_acc_key])) unset($secondary_tumors[$date_and_acc_key]);
 					}
 					
 					// Records first diagnosis line data
@@ -290,12 +318,17 @@ class ReportsControllerCustom extends ReportsController {
 					echo implode(csv_separator, $line), "\n";
 					
 					// Records other progressions
-					while($key_to_split = key($secondary_tumors)) {
-						$key_data = explode('#',$key_to_split);
+					while(!empty($secondary_tumors)) {
+						reset($secondary_tumors);
+						$date_and_acc_key = key($secondary_tumors);
+						$key_data = explode('#',$date_and_acc_key);
+						
 						$progression_date = $key_data[0];
 						$progression_date_acc = $key_data[1];
-						$progression_site_1 = $secondary_tumors[$key_to_split][0];
-						$progression_site_2 = (isset($secondary_tumors[$key_to_split][1]))? $secondary_tumors[$key_to_split][1] : '';
+						$progression_site_1 = array_shift($secondary_tumors[$date_and_acc_key]);
+						$progression_site_2 = array_shift($secondary_tumors[$date_and_acc_key]);
+						
+						if(empty($secondary_tumors[$date_and_acc_key])) unset($secondary_tumors[$date_and_acc_key]);
 						
 						$line = array();
 						$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']]; //Patient Biobank Number (required)
@@ -322,15 +355,14 @@ class ReportsControllerCustom extends ReportsController {
 						$line[] = "";//$unit['DiagnosisMaster']['survival_time_months'];
 					
 						echo implode(csv_separator, $line), "\n";
-					
-						next($secondary_tumors);
 					}
 				}
 				++ $i;
 			}while(!empty($data));
-		}
+		}	
 		
 		//sheet 3 - EOC Event
+		
 		{
 			echo "\n\nSHEET 3 - EOC\n";
 			
@@ -341,33 +373,32 @@ class ReportsControllerCustom extends ReportsController {
 				"Date of event (beginning) Accuracy",
 				"Date of event (end) Date",
 				"Date of event (end) Accuracy",
-				"Chimiotherapy Precision Drug1",
-				"Chimiotherapy Precision Drug2",
-				"Chimiotherapy Precision Drug3",
-				"Chimiotherapy Precision Drug4",
+				"Chemotherapy Precision Drug1",
+				"Chemotherapy Precision Drug2",
+				"Chemotherapy Precision Drug3",
+				"Chemotherapy Precision Drug4",
 				"CA125  Precision (U)",
 				"CT Scan Precision"
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
-			
+
 			$i = 0;
 			$data = array();
 			do{
-				$data1 = $this->Report->query("
-					SELECT * FROM event_masters AS EventMaster 
-					LEFT JOIN ohri_ed_lab_chemistries AS ed_with_ca125 ON ed_with_ca125.event_master_id=EventMaster.id
-					LEFT JOIN ohri_ed_clinical_ctscans AS ed_with_ctscan ON ed_with_ctscan.event_master_id=EventMaster.id
-					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(37, 39) AND EventMaster.participant_id IN(".implode(", ", $participant_ids).")
-					LIMIT 10 OFFSET ".$i * 10, false
-				);
-				$data2 = $this->Report->query("
-					SELECT * FROM tx_masters AS TxMaster 
-					WHERE TxMaster.deleted=0 AND TxMaster.tx_control_id IN(5, 7) AND TxMaster.participant_id IN(".implode(", ", $participant_ids).")
-					LIMIT 10 OFFSET ".$i * 10, false
-				);
+				// CT-Scan
 				
-				foreach($data1 as $index => $unit){
+				$ct_scan_data = $this->Report->query("
+					SELECT * FROM event_masters AS EventMaster 
+					INNER JOIN ohri_ed_clinical_ctscans AS ed_with_ctscan ON ed_with_ctscan.event_master_id=EventMaster.id
+					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(39) 
+					AND (EventMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).") 
+					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
+					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
+					LIMIT 10 OFFSET ".$i * 10, false
+				);
+						
+				foreach($ct_scan_data as $index => $unit){
 					$ct_scan_precision = null;
 					if($unit['ed_with_ctscan']['response'] == 'unknown'){
 						$ct_scan_precision = 'unknown'; 
@@ -381,7 +412,7 @@ class ReportsControllerCustom extends ReportsController {
 					//complet = negative
 					// other = positive
 					
-					$data[sprintf("%010s_%s_b", $unit['EventMaster']['participant_id'], $index)] = array(
+					$data[sprintf("%010s_%s_%s_%s_ct_scan", $unit['EventMaster']['participant_id'], $unit['EventMaster']['event_date'], $i, $index)] = array(
 						"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
 						"event"						=> 'CT scan',
 						"event_start"				=> $unit['EventMaster']['event_date'],
@@ -392,12 +423,52 @@ class ReportsControllerCustom extends ReportsController {
 						"drug2"						=> "",
 						"drug3"						=> "",
 						"drug4"						=> "",
-						"ca125"						=> $unit['ed_with_ca125']['CA125_u_ml'],
+						"ca125"						=> "",
 						"ctscan precision"			=> $ct_scan_precision
+					);
+				}				
+				
+				// CA 125
+				
+				$ca_125_data = $this->Report->query("
+					SELECT * FROM event_masters AS EventMaster 
+					INNER JOIN ohri_ed_lab_chemistries AS ed_with_ca125 ON ed_with_ca125.event_master_id=EventMaster.id
+					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(37) 
+					AND (EventMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).")
+					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
+					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
+					LIMIT 10 OFFSET ".$i * 10, false
+				);
+				
+				foreach($ca_125_data as $index => $unit){
+					$data[sprintf("%010s_%s_%s_%s_ca125", $unit['EventMaster']['participant_id'], $unit['EventMaster']['event_date'], $i, $index)] = array(
+						"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
+						"event"						=> 'CA125',
+						"event_start"				=> $unit['EventMaster']['event_date'],
+						"event_start_accuracy"		=> "",
+						"event_end"					=> "",
+						"event_end_accuracy"		=> "",
+						"drug1"						=> "",
+						"drug2"						=> "",
+						"drug3"						=> "",
+						"drug4"						=> "",
+						"ca125"						=> $unit['ed_with_ca125']['CA125_u_ml'],
+						"ctscan precision"			=> "",
 					);
 				}
 				
-				foreach($data2 as $index => $unit){
+				// Trt
+				
+				$tx_data = $this->Report->query("
+					SELECT * FROM tx_masters AS TxMaster 
+					WHERE TxMaster.deleted=0 AND TxMaster.tx_control_id IN(5, 7) 
+					AND (TxMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).") 
+					OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
+					OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
+					LIMIT 10 OFFSET ".$i * 10, false
+				);
+								
+				foreach($tx_data as $index => $unit){
 					$drug1 = "";
 					$drug2 = "";
 					$drug3 = "";
@@ -406,8 +477,10 @@ class ReportsControllerCustom extends ReportsController {
 						$tmp_data = $this->Report->query("
 							SELECT * FROM txe_chemos 
 							INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
-							WHERE tx_master_id
-						");
+							WHERE txe_chemos.tx_master_id = ".$unit['TxMaster']['id']."
+							AND txe_chemos.deleted = 0"
+						);						
+
 						if(($tmp_unit = current($tmp_data)) != null){
 							$drug1 = $tmp_unit['drugs']['generic_name'];
 						}
@@ -421,9 +494,10 @@ class ReportsControllerCustom extends ReportsController {
 							$drug4 = $tmp_unit['drugs']['generic_name'];
 						}
 					}
-					$data[sprintf("%010s_%s_b", $unit['TxMaster']['participant_id'], $index)] = array(
+					
+					$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
 						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
-						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery (other)' : 'chimiotherapy',
+						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery (other)' : 'chemotherapy',
 						"event_start"				=> $unit['TxMaster']['start_date'],
 						"event_start_accuracy"		=> $unit['TxMaster']['start_date_accuracy'],
 						"event_end"					=> $unit['TxMaster']['finish_date'],
@@ -433,12 +507,12 @@ class ReportsControllerCustom extends ReportsController {
 						"drug3"						=> $drug3,
 						"drug4"						=> $drug4,
 						"ca125"						=> "",
-						"ctscan precision"			=> ""//TODO
+						"ctscan precision"			=> ""
 					);
 				}
 
 				++ $i;
-			}while(!empty($data1) || !empty($data2));
+			}while(!empty($tx_data) || !empty($ca_125_data) || !empty($ct_scan_data));
 			
 			ksort($data);
 			
@@ -448,13 +522,9 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		//sheet 4 - Other Primary Cancer - Dx
+		
 		{
 			echo "\n\nSHEET 4 - Other Primary Cancer -Diagnosis\n";
-			$data = $this->Report->query("SELECT * FROM diagnosis_masters AS DiagnosisMaster
-				INNER JOIN ohri_dx_others AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
-				WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id IN(".implode(", ", $participant_ids).")
-				ORDER BY DiagnosisMaster.participant_id
-			");
 			
 			$title_row = array(
 				"Patient Biobank Number (required)",
@@ -474,29 +544,105 @@ class ReportsControllerCustom extends ReportsController {
 			
 			echo implode(csv_separator, $title_row),"\n";
 			
-			foreach($data as $unit){
-				$line = array();
-				$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
-				$line[] = $unit['DiagnosisMaster']['dx_date'];
-				$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
-				$line[] = $unit['DiagnosisMaster']['ohri_tumor_site'];
-				$line[] = $unit['DiagnosisMaster']['age_at_dx'];
-				$line[] = $unit['DiagnosisDetail']['laterality'];
-				$line[] = $unit['DiagnosisDetail']['histopathology'];
-				$line[] = $unit['DiagnosisMaster']['tumour_grade'];
-				$line[] = "";//Stage (clinical or pathologic??)
-				$line[] = "";//Date of Progression/Recurrence Date
-				$line[] = "";//Date of Progression/Recurrence Accuracy
-				$line[] = "";//Site of Tumor Progression (metastasis)  If Applicable
-				
-				$line[] = $unit['DiagnosisMaster']['survival_time_months'];
-				echo implode(csv_separator, $line), "\n";
-			}
-		}
+			$i = 0;
+			do{				
+				$data = $this->Report->query("
+					SELECT * FROM diagnosis_masters AS DiagnosisMaster
+					INNER JOIN ohri_dx_others AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
+					WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id IN(".implode(", ", $participant_ids).")
+					AND DiagnosisMaster.dx_origin='primary' AND DiagnosisMaster.diagnosis_control_id=15
+					ORDER BY DiagnosisMaster.participant_id LIMIT 10 OFFSET ".($i * 10), false
+				);				
+								
+				foreach($data as $unit){
+					
+					// Set eoc diagnosis master ids
+					
+					$other_diagnosis_master_ids['primary'][] = $unit['DiagnosisMaster']['id'];
+					$secondary_data = $this->Report->query("SELECT * FROM diagnosis_masters AS DiagnosisMaster
+						WHERE DiagnosisMaster.deleted=0 AND DiagnosisMaster.participant_id = ".$unit['DiagnosisMaster']['participant_id']."
+						AND DiagnosisMaster.dx_origin='secondary' AND DiagnosisMaster.primary_number =".$unit['DiagnosisMaster']['primary_number'], false);					
+					foreach($secondary_data as $tmp) {
+						$other_diagnosis_master_ids['secondary'][] = $tmp['DiagnosisMaster']['id'];
+					}					
+					
+					// Get progression
+					
+					$secondary_tumors = array();
+					foreach($secondary_data as $new_secondary) {
+						$key = $new_secondary['DiagnosisMaster']['dx_date'].'#'.$new_secondary['DiagnosisMaster']['dx_date_accuracy'];
+						$secondary_tumors[$key][] = $new_secondary['DiagnosisMaster']['ohri_tumor_site'];
+					}
+					
+					$progression_date = '';
+					$progression_date_acc = '';
+					$progression_site_1 = '';
+					if(!empty($secondary_tumors)) {
+						$date_and_acc_key = key($secondary_tumors);
+						$key_data = explode('#',$date_and_acc_key);					
+						$progression_date = $key_data[0];
+						$progression_date_acc = $key_data[1];
+						$progression_site_1 = array_shift($secondary_tumors[$date_and_acc_key]);	
+										
+						if(empty($secondary_tumors[$date_and_acc_key])) unset($secondary_tumors[$date_and_acc_key]);
+					}
+					
+					// Records first diagnosis line data
+					
+					$line = array();
+					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
+					$line[] = $unit['DiagnosisMaster']['dx_date'];
+					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+					$line[] = $unit['DiagnosisMaster']['ohri_tumor_site'];
+					$line[] = $unit['DiagnosisMaster']['age_at_dx'];
+					$line[] = $unit['DiagnosisDetail']['laterality'];
+					$line[] = $unit['DiagnosisDetail']['histopathology'];
+					$line[] = $unit['DiagnosisMaster']['tumour_grade'];
+					$line[] = empty($unit['DiagnosisMaster']['path_stage_summary'])? $unit['DiagnosisMaster']['clinical_stage_summary'] : $unit['DiagnosisMaster']['path_stage_summary'];
+					$line[] = $progression_date;
+					$line[] = $progression_date_acc;
+					$line[] = $progression_site_1;
+					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
+					
+					echo implode(csv_separator, $line), "\n";
+					
+					// Records other progressions
+					while(!empty($secondary_tumors)) {
+						reset($secondary_tumors);
+						$date_and_acc_key = key($secondary_tumors);
+						$key_data = explode('#',$date_and_acc_key);
+						
+						$progression_date = $key_data[0];
+						$progression_date_acc = $key_data[1];
+						$progression_site_1 = array_shift($secondary_tumors[$date_and_acc_key]);
+						
+						if(empty($secondary_tumors[$date_and_acc_key])) unset($secondary_tumors[$date_and_acc_key]);
+						
+						$line = array();
+						$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
+						$line[] = $unit['DiagnosisMaster']['dx_date'];
+						$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+						$line[] = "";//$unit['DiagnosisMaster']['ohri_tumor_site'];
+						$line[] = "";//$unit['DiagnosisMaster']['age_at_dx'];
+						$line[] = "";//$unit['DiagnosisDetail']['laterality'];
+						$line[] = "";//$unit['DiagnosisDetail']['histopathology'];
+						$line[] = "";//$unit['DiagnosisMaster']['tumour_grade'];
+						$line[] = "";//empty($unit['DiagnosisMaster']['path_stage_summary'])? $unit['DiagnosisMaster']['clinical_stage_summary'] : $unit['DiagnosisMaster']['path_stage_summary'];
+						$line[] = $progression_date;
+						$line[] = $progression_date_acc;
+						$line[] = $progression_site_1;
+						$line[] = "";//$unit['DiagnosisMaster']['survival_time_months'];
+					
+						echo implode(csv_separator, $line), "\n";
+					}
+				}
+				++ $i;
+			}while(!empty($data));
+		}		
 		
 		//sheet 5 - Other Primary Cancer - Event
+		
 		{
-			//blank sheet, only the header
 			echo "\n\nSHEET 5 - Other Primary Cancer - Event\n";
 			
 			$title_row = array(
@@ -506,24 +652,95 @@ class ReportsControllerCustom extends ReportsController {
 				"Date of event (end) Date",
 				"Date of event (end) Accuracy",
 				"Event Type",
-				"Chimiotherapy Precision Drug1",
-				"Chimiotherapy Precision Drug2",
-				"Chimiotherapy Precision Drug3",
-				"Chimiotherapy Precision Drug4"
+				"Chemotherapy Precision Drug1",
+				"Chemotherapy Precision Drug2",
+				"Chemotherapy Precision Drug3",
+				"Chemotherapy Precision Drug4"
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
+
+			$tx_controls = array('5'=>'surgery', '6'=>'radiology', '7'=>'chemotherapy');
+			
+			$i = 0;
+			$data = array();
+			do{
+
+				// Trt
+				
+				$tx_data = $this->Report->query("
+					SELECT * FROM tx_masters AS TxMaster 
+					WHERE TxMaster.deleted=0 AND TxMaster.tx_control_id IN(5, 7, 6) 
+					AND (TxMaster.participant_id IN(".implode(", ", $paticipants_only_other_primary).") 
+					OR TxMaster.diagnosis_master_id IN (".implode(", ", $other_diagnosis_master_ids['primary']).") 
+					OR TxMaster.diagnosis_master_id IN (".implode(", ", $other_diagnosis_master_ids['secondary'])."))
+					LIMIT 10 OFFSET ".$i * 10, false
+				);
+								
+				foreach($tx_data as $index => $unit){
+					$drug1 = "";
+					$drug2 = "";
+					$drug3 = "";
+					$drug4 = "";
+					if($unit['TxMaster']['tx_control_id'] == 7){
+						$tmp_data = $this->Report->query("
+							SELECT * FROM txe_chemos 
+							INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
+							WHERE txe_chemos.tx_master_id = ".$unit['TxMaster']['id']."
+							AND txe_chemos.deleted = 0"
+						);						
+
+						if(($tmp_unit = current($tmp_data)) != null){
+							$drug1 = $tmp_unit['drugs']['generic_name'];
+						}
+						if(($tmp_unit = next($tmp_data)) != null){
+							$drug2 = $tmp_unit['drugs']['generic_name'];
+						}
+						if(($tmp_unit = next($tmp_data)) != null){
+							$drug3 = $tmp_unit['drugs']['generic_name'];
+						}
+						if(($tmp_unit = next($tmp_data)) != null){
+							$drug4 = $tmp_unit['drugs']['generic_name'];
+						}
+					}
+					
+					$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
+						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
+						"event"						=> $tx_controls[$unit['TxMaster']['tx_control_id']],
+						"event_start"				=> $unit['TxMaster']['start_date'],
+						"event_start_accuracy"		=> $unit['TxMaster']['start_date_accuracy'],
+						"event_end"					=> $unit['TxMaster']['finish_date'],
+						"event_end_accuracy"		=> $unit['TxMaster']['finish_date_accuracy'],
+						"drug1"						=> $drug1,
+						"drug2"						=> $drug2,
+						"drug3"						=> $drug3,
+						"drug4"						=> $drug4
+					);
+				}
+				
+				++ $i;
+			}while(!empty($tx_data));
+			
+			ksort($data);
+			
+			foreach($data as $line){
+				echo implode(csv_separator, $line), "\n";
+			}
 		}
 		
+
 		//sheet 6 - inventory
+		
 		{
 			//blank sheet, only the header line
 			echo "\n\nSHEET 6 - Inventory\n";
 			$title_row = array(
+				"Bank",
 				"Patient Biobank Number (required)",
 				"Collected Specimen Type",
 				"Date of Specimen Collection Date",
 				"Date of Specimen Collection Accuracy",
+				"Tissue Precision Tissue Source",
 				"Tissue Precision Tissue Type",
 				"Tissue Precision Tissue Laterality",
 				"Tissue Precision Flash Frozen Tissues  Volume",
@@ -534,12 +751,13 @@ class ReportsControllerCustom extends ReportsController {
 				"Blood Precision Frozen Serum Volume (ml)",
 				"Blood Precision Frozen Plasma Volume (ml)",
 				"Blood Precision Blood DNA Volume (ug)",
-				"Blood Precision Buffy coat"
+				"Blood Precision Buffy coat (ul)",
+				"notes"
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
 		}
-		
+				
 		exit;
 	}
 	

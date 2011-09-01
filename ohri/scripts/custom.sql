@@ -694,5 +694,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 
 INSERT INTO i18n (id,en) VALUES ("use diagnosis ohri - ovary diagnosis type to record ovarian tumor","Use 'Diagnosis OHRI - Ovary' diagnosis type to record a new ovarian tumor!");
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
