@@ -64,18 +64,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+		
+		$this->searchHandler($search_id, $this->ViewAliquot, 'view_aliquot_joined_to_sample_and_collection', '/inventorymanagement/aliquot_masters/search');
 
-		$view_aliquot = $this->Structures->get('form', 'view_aliquot_joined_to_sample_and_collection');
-		$this->set('atim_structure', $view_aliquot);
-		if ($this->data) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($view_aliquot);
-		
-		$this->set('aliquots_data', $this->paginate($this->ViewAliquot, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']));
-		$this->data = array();
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['ViewAliquot']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/inventorymanagement/aliquot_masters/search';
-		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
 		$this->set("help_url", $help_url['ExternalLink']['link']);
 		

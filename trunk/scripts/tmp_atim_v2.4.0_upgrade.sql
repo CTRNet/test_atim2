@@ -80,7 +80,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("collection_template_description", 
  "Collections templates allow to quickly create collection content without the need to browse the menus after the creation of each element.",
  "Les modèles de collections permettent de créer rapidement le contenu d'une collection sans devoir naviguer les menus après la création de chaque élément."),
-("this field must be unique", "This field must be unique", "Ce champ doit être unique");
+("this field must be unique", "This field must be unique", "Ce champ doit être unique"),
+("you cannot resume a search that was made in a previous session", 
+ "You cannot resume a search that was made in a previous session.",
+ "Vous ne pouvez pas reprendre une recherche qui a été faite dans une session antérieure."); 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 

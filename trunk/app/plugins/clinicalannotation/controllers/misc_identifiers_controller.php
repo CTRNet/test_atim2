@@ -25,16 +25,8 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	
 	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
-		$this->Structures->set('miscidentifiers_for_participant_search');
-			
-		if($this->data) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($this->viewVars['atim_structure']);
-							
-		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['MiscIdentifier']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/clinicalannotation/misc_identifiers/search';
-		
+		$this->searchHandler($search_id, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/clinicalannotation/misc_identifiers/search');
+				
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 

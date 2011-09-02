@@ -11,17 +11,11 @@ class MaterialsController extends MaterialAppController {
 	}
 	
 	function search($search_id){
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
-		
-		$this->data = $this->paginate($this->Material, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/material/materials/index/') );	
+
+		$this->searchHandler($search_id, $this->Material, 'materials', '/material/materials/search');
 				
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Material']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/material/materials/search';
-		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }		
