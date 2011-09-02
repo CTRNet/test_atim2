@@ -318,11 +318,11 @@ class AppModel extends Model {
 		}
 		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
-			if(empty($this->data[$this->name][$date_field])){
-				continue;
-			}
 			$current = &$this->data[$this->name][$date_field];
-			if(!empty($current)){
+			if(empty($current)){
+				$this->data[$this->name][$accuracy_field] = '';
+				$current = null;
+			}else{
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
@@ -372,7 +372,7 @@ class AppModel extends Model {
 	function validates($options = array()){
 		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 		$this->setDataAccuracy();
-		
+
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
 			$master_class		= $settings['master_class'];
