@@ -1,6 +1,6 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		$this->Paginator->options['url'] = array($node_id);
+		$this->Paginator->options['url'] = array($node_id.'/'.$control_id.'/'.$merge_to);
 		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage

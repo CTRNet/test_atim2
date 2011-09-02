@@ -111,6 +111,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->data = NULL;
 			$this->set('specimen_review_data', array());
 			$this->set('aliquot_review_data', array());
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {	
 			// reset array
@@ -322,6 +327,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->data = NULL;
 			$this->set('specimen_review_data', $initial_specimen_review_data);
 			$this->set('aliquot_review_data', $initial_aliquot_review_data_list);
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 			
 		} else {
 			// reset array

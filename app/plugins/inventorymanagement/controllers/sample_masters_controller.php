@@ -584,6 +584,11 @@ class SampleMastersController extends InventorymanagementAppController {
 				$this->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
 				$this->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
 			}
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}	
 		
 		} else {
 			// Set additional data
@@ -620,10 +625,12 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 			if($is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
-				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
+				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false;
+				$this->data['SpecimenDetail'] = $this->SpecimenDetail->data['SpecimenDetail'];
 			} else { 
 				$this->DerivativeDetail->set($this->data);
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
+				$this->data['DerivativeDetail'] = $this->DerivativeDetail->data['DerivativeDetail'];
 
 				//validate and sync lab book
 				$msg = $this->SampleMaster->validateLabBook($this->data, $lab_book, $lab_book_ctrl_id, true);
@@ -773,6 +780,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if(empty($this->data)) {
 			$this->data = $sample_data;
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 
 		} else {
 			//Update data	
@@ -791,16 +803,20 @@ class SampleMastersController extends InventorymanagementAppController {
 			
 			if($is_specimen) { 
 				$this->SpecimenDetail->set($this->data);
-				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false; 
-			}else if(array_key_exists('sync_with_lab_book_now', $this->data)){
+				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false;
+				$this->data['SpecimenDetail'] = $this->SpecimenDetail->data['SpecimenDetail'];
+			}else{
 				$this->DerivativeDetail->set($this->data);
 				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
+				$this->data['DerivativeDetail'] = $this->DerivativeDetail->data['DerivativeDetail'];
 
 				//validate and sync or not lab book
-				$msg = $this->SampleMaster->validateLabBook($this->data, $lab_book, $lab_book_ctrl_id, $this->data[0]['sync_with_lab_book_now']);
-				if(strlen($msg) > 0){
-					$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $msg;
-					$submitted_data_validates = false;
+				if(array_key_exists('sync_with_lab_book_now', $this->data)){
+					$msg = $this->SampleMaster->validateLabBook($this->data, $lab_book, $lab_book_ctrl_id, $this->data[0]['sync_with_lab_book_now']);
+					if(strlen($msg) > 0){
+						$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $msg;
+						$submitted_data_validates = false;
+					}
 				}
 			}
 			
@@ -1114,6 +1130,11 @@ class SampleMastersController extends InventorymanagementAppController {
 			)
 		);
 		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if(isset($this->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			if(!empty($this->data['AliquotMaster']['ids'])){
@@ -1136,7 +1157,7 @@ class SampleMastersController extends InventorymanagementAppController {
 				}
 			}
 						
-			$hook_link = $this->hook('format');
+			$hook_link = $this->hook('initial_display');
 			if($hook_link){
 				require($hook_link);
 			}

@@ -8,14 +8,13 @@ class BrowsingResult extends DatamartAppModel {
 			'foreignKey'    => 'browsing_structures_id')
 	);
 	
-	public function mergeStep($start_id, &$nodes_to_fetch, &$browsing_cache, &$datamart_structures_cache){
+	public function cacheAndGet($start_id, &$browsing_cache){
 		$browsing = $this->find('first', array("conditions" => array('BrowsingResult.id' => $start_id)));
 
 		assert(!empty($browsing)) or die();
 		assert(is_numeric($browsing['BrowsingResult']['parent_node_id'])) or die();
 		
 		$browsing_cache[$start_id] = $browsing;
-		$datamart_structures_cache[$browsing['DatamartStructure']['id']] = $browsing['DatamartStructure'];
 		
 		return $browsing;
 	}
