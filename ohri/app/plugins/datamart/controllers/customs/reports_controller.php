@@ -26,6 +26,28 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$pid_bid_assoc = array();//participant id - biobank id association
 
+		$supported_drugs = array(
+			'cisplatinum' => 'cisplatinum',
+			'carboplatinum' => 'carboplatinum',
+			'oxaliplatinum' => 'oxaliplatinum',
+			'paclitaxel' => 'paclitaxel',
+			'topotecan' => 'topotecan',
+			'ectoposide' => 'ectoposide',
+			'tamoxifen' => 'tamoxifen',
+			'doxetaxel' => 'doxetaxel',
+			'doxorubicin' => 'doxorubicin',
+			'other' => 'other',
+			'etoposide' => 'etoposide',
+			'gemcitabine' => 'gemcitabine',
+			'procytox' => 'procytox',
+			'vinorelbine' => 'vinorelbine',
+			'cyclophosphamide' => 'cyclophosphamide',
+		
+			'carboplatin' => 'carboplatinum',
+			'taxol' => 'paclitaxel');
+		
+		 $unsupported_drugs	= array();
+		
 		//sheet 1 - find all patients within the date range who have the bank id
 		{	
 			echo "SHEET 1 - Patients\n";
@@ -101,10 +123,10 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = "OHRI-COEUR";
 					$line[] = $unit['MiscIdentifier']['identifier_value'];
 					$line[] = $unit['Participant']['date_of_birth'];
-					$line[] = $unit['Participant']['date_of_birth_accuracy'];
+					$line[] = (!empty($unit['Participant']['date_of_birth'])? $unit['Participant']['date_of_birth_accuracy']: '');
 					$line[] = $unit['Participant']['vital_status'];
 					$line[] = $unit['Participant']['date_of_death'];
-					$line[] = $unit['Participant']['date_of_death_accuracy'];
+					$line[] = (!empty($unit['Participant']['date_of_death'])? $unit['Participant']['date_of_death_accuracy']: '');
 					$line[] = "";//suspected dod
 					$line[] = "";//Suspected Date of Death date accuracy
 					$line[] = $tmp_data[0][0]['last_contact_date'];
@@ -263,7 +285,7 @@ class ReportsControllerCustom extends ReportsController {
 					}else if(count($tx_data) > 1){
 						$residual_disease = "CANNOT FETCH - TOO MANY RELATED TREATMENTS";
 					}else{
-						$residual_disease = 0;
+						$residual_disease = '';
 					}
 					
 					// Get progression
@@ -294,7 +316,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line = array();
 					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']]; //Patient Biobank Number (required)
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
-					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+					$line[] = (!empty($unit['DiagnosisMaster']['dx_date'])? $unit['DiagnosisMaster']['dx_date_accuracy']: '');
 					$line[] = "";//Presence of precursor of benign lesions
 					$line[] = "";//fallopian tube lesions	
 					$line[] = $unit['DiagnosisMaster']['age_at_dx'];//Age at Time of Diagnosis (yr)
@@ -305,7 +327,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $residual_disease;
 					$line[] = "";//Progression status
 					$line[] = $progression_date;//Date of Progression/Recurrence Date
-					$line[] = $progression_date_acc;//Date of Progression/Recurrence Accuracy
+					$line[] = (!empty($progression_date)? $progression_date_acc: '');//Date of Progression/Recurrence Accuracy
 					$line[] = $progression_site_1;//Site 1 of Primary Tumor Progression (metastasis)  If Applicable
 					$line[] = $progression_site_2;//Site 2 of Primary Tumor Progression (metastasis)  If applicable
 					$line[] = "";//progression time (months)
@@ -333,7 +355,7 @@ class ReportsControllerCustom extends ReportsController {
 						$line = array();
 						$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']]; //Patient Biobank Number (required)
 						$line[] = $unit['DiagnosisMaster']['dx_date'];
-						$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+						$line[] = (!empty($unit['DiagnosisMaster']['dx_date'])? $unit['DiagnosisMaster']['dx_date_accuracy']: '');
 						$line[] = "";//Presence of precursor of benign lesions
 						$line[] = "";//fallopian tube lesions	
 						$line[] = "";//$unit['DiagnosisMaster']['age_at_dx'];//Age at Time of Diagnosis (yr)
@@ -344,7 +366,7 @@ class ReportsControllerCustom extends ReportsController {
 						$line[] = "";//$residual_disease;
 						$line[] = "";//Progression status
 						$line[] = $progression_date;//Date of Progression/Recurrence Date
-						$line[] = $progression_date_acc;//Date of Progression/Recurrence Accuracy
+						$line[] = (!empty($progression_date)? $progression_date_acc: '');//Date of Progression/Recurrence Accuracy
 						$line[] = $progression_site_1;//Site 1 of Primary Tumor Progression (metastasis)  If Applicable
 						$line[] = $progression_site_2;//Site 2 of Primary Tumor Progression (metastasis)  If applicable
 						$line[] = "";//progression time (months)
@@ -469,43 +491,39 @@ class ReportsControllerCustom extends ReportsController {
 				);
 								
 				foreach($tx_data as $index => $unit){
-					$drug1 = "";
-					$drug2 = "";
-					$drug3 = "";
-					$drug4 = "";
+					$drugs = array();
 					if($unit['TxMaster']['tx_control_id'] == 7){
 						$tmp_data = $this->Report->query("
 							SELECT * FROM txe_chemos 
 							INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
 							WHERE txe_chemos.tx_master_id = ".$unit['TxMaster']['id']."
 							AND txe_chemos.deleted = 0"
-						);						
-
-						if(($tmp_unit = current($tmp_data)) != null){
-							$drug1 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug2 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug3 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug4 = $tmp_unit['drugs']['generic_name'];
+						);											
+						$drug_id = 0;
+						$tmp_unit = current($tmp_data);
+						while(($tmp_unit != null) && ($drug_id < 4)) {
+							$drug = $tmp_unit['drugs']['generic_name'];
+							if(array_key_exists(strtolower($drug), $supported_drugs)) {
+								$drugs[] = $supported_drugs[strtolower($drug)];
+							} else {
+								$unsupported_drugs[$drug] = $drug;
+							}
+							$drug_id++;	
+							$tmp_unit = next($tmp_data);
 						}
 					}
 					
 					$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
 						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
-						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery (other)' : 'chemotherapy',
+						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery(other)' : 'chemotherapy',
 						"event_start"				=> $unit['TxMaster']['start_date'],
-						"event_start_accuracy"		=> $unit['TxMaster']['start_date_accuracy'],
+						"event_start_accuracy"		=> (!empty($unit['TxMaster']['start_date'])? $unit['TxMaster']['start_date_accuracy']: ''),
 						"event_end"					=> $unit['TxMaster']['finish_date'],
-						"event_end_accuracy"		=> $unit['TxMaster']['finish_date_accuracy'],
-						"drug1"						=> $drug1,
-						"drug2"						=> $drug2,
-						"drug3"						=> $drug3,
-						"drug4"						=> $drug4,
+						"event_end_accuracy"		=> (!empty($unit['TxMaster']['finish_date'])? $unit['TxMaster']['finish_date_accuracy']: ''),
+						"drug1"						=> (isset($drugs[0])? $drugs[0] : ''),
+						"drug2"						=> (isset($drugs[1])? $drugs[1] : ''),
+						"drug3"						=> (isset($drugs[2])? $drugs[2] : ''),
+						"drug4"						=> (isset($drugs[3])? $drugs[3] : ''),
 						"ca125"						=> "",
 						"ctscan precision"			=> ""
 					);
@@ -592,7 +610,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line = array();
 					$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
 					$line[] = $unit['DiagnosisMaster']['dx_date'];
-					$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+					$line[] = (!empty($unit['DiagnosisMaster']['dx_date'])? $unit['DiagnosisMaster']['dx_date_accuracy']: '');
 					$line[] = $unit['DiagnosisMaster']['ohri_tumor_site'];
 					$line[] = $unit['DiagnosisMaster']['age_at_dx'];
 					$line[] = $unit['DiagnosisDetail']['laterality'];
@@ -600,7 +618,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = $unit['DiagnosisMaster']['tumour_grade'];
 					$line[] = empty($unit['DiagnosisMaster']['path_stage_summary'])? $unit['DiagnosisMaster']['clinical_stage_summary'] : $unit['DiagnosisMaster']['path_stage_summary'];
 					$line[] = $progression_date;
-					$line[] = $progression_date_acc;
+					$line[] = (!empty($progression_date)?$progression_date_acc : '');
 					$line[] = $progression_site_1;
 					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
 					
@@ -621,7 +639,7 @@ class ReportsControllerCustom extends ReportsController {
 						$line = array();
 						$line[] = $pid_bid_assoc[$unit['DiagnosisMaster']['participant_id']];
 						$line[] = $unit['DiagnosisMaster']['dx_date'];
-						$line[] = $unit['DiagnosisMaster']['dx_date_accuracy'];
+						$line[] = (!empty($unit['DiagnosisMaster']['dx_date'])? $unit['DiagnosisMaster']['dx_date_accuracy']: '');
 						$line[] = "";//$unit['DiagnosisMaster']['ohri_tumor_site'];
 						$line[] = "";//$unit['DiagnosisMaster']['age_at_dx'];
 						$line[] = "";//$unit['DiagnosisDetail']['laterality'];
@@ -629,7 +647,7 @@ class ReportsControllerCustom extends ReportsController {
 						$line[] = "";//$unit['DiagnosisMaster']['tumour_grade'];
 						$line[] = "";//empty($unit['DiagnosisMaster']['path_stage_summary'])? $unit['DiagnosisMaster']['clinical_stage_summary'] : $unit['DiagnosisMaster']['path_stage_summary'];
 						$line[] = $progression_date;
-						$line[] = $progression_date_acc;
+						$line[] = (!empty($progression_date)? $progression_date_acc: '');
 						$line[] = $progression_site_1;
 						$line[] = "";//$unit['DiagnosisMaster']['survival_time_months'];
 					
@@ -678,10 +696,7 @@ class ReportsControllerCustom extends ReportsController {
 				);
 								
 				foreach($tx_data as $index => $unit){
-					$drug1 = "";
-					$drug2 = "";
-					$drug3 = "";
-					$drug4 = "";
+					$drugs = array();
 					if($unit['TxMaster']['tx_control_id'] == 7){
 						$tmp_data = $this->Report->query("
 							SELECT * FROM txe_chemos 
@@ -689,32 +704,31 @@ class ReportsControllerCustom extends ReportsController {
 							WHERE txe_chemos.tx_master_id = ".$unit['TxMaster']['id']."
 							AND txe_chemos.deleted = 0"
 						);						
-
-						if(($tmp_unit = current($tmp_data)) != null){
-							$drug1 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug2 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug3 = $tmp_unit['drugs']['generic_name'];
-						}
-						if(($tmp_unit = next($tmp_data)) != null){
-							$drug4 = $tmp_unit['drugs']['generic_name'];
+						$drug_id = 0;
+						$tmp_unit = current($tmp_data);
+						while(($tmp_unit != null) && ($drug_id < 4)) {
+							$drug = $tmp_unit['drugs']['generic_name'];
+							if(array_key_exists(strtolower($drug), $supported_drugs)) {
+								$drugs[] = $supported_drugs[strtolower($drug)];
+							} else {
+								$unsupported_drugs[$drug] = $drug;
+							}
+							$drug_id++;	
+							$tmp_unit = next($tmp_data);
 						}
 					}
 					
 					$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
 						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
-						"event"						=> $tx_controls[$unit['TxMaster']['tx_control_id']],
 						"event_start"				=> $unit['TxMaster']['start_date'],
-						"event_start_accuracy"		=> $unit['TxMaster']['start_date_accuracy'],
+						"event_start_accuracy"		=> (!empty( $unit['TxMaster']['start_date'])? $unit['TxMaster']['start_date_accuracy']: ''),
 						"event_end"					=> $unit['TxMaster']['finish_date'],
-						"event_end_accuracy"		=> $unit['TxMaster']['finish_date_accuracy'],
-						"drug1"						=> $drug1,
-						"drug2"						=> $drug2,
-						"drug3"						=> $drug3,
-						"drug4"						=> $drug4
+						"event_end_accuracy"		=> (!empty($unit['TxMaster']['finish_date'])? $unit['TxMaster']['finish_date_accuracy']: ''),
+						"event"						=> $tx_controls[$unit['TxMaster']['tx_control_id']],
+						"drug1"						=> (isset($drugs[0])? $drugs[0] : ''),
+						"drug2"						=> (isset($drugs[1])? $drugs[1] : ''),
+						"drug3"						=> (isset($drugs[2])? $drugs[2] : ''),
+						"drug4"						=> (isset($drugs[3])? $drugs[3] : '')
 					);
 				}
 				
@@ -728,7 +742,14 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
-
+		if(!empty($unsupported_drugs)) {
+			$echo_string = '';
+			foreach($unsupported_drugs as $drug) {
+				$echo_string .= ' ['.$drug.'] ';
+			}
+			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL RDUGS - FOLLOWING DRUGS ARE NOT IMPORTED : ".$echo_string)), "\n";
+		}
+		
 		//sheet 6 - inventory
 		
 		{
