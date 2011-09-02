@@ -12,16 +12,12 @@ class RtbformsController extends RtbformAppController {
 	function search($search_id) {
 		$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		$this->set( 'atim_menu', $this->Menus->get('/rtbform/rtbforms/index') );
+		$this->searchHandler($search_id, $this->Rtbform, 'rtbforms', '/rtbform/rtbforms/search');
 		
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
-		
-		$this->hook();
-		
-		$this->data = $this->paginate($this->Rtbform, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Rtbform']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/rtbform/rtbforms/search';
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function profile( $rtbform_id=null ) {$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );

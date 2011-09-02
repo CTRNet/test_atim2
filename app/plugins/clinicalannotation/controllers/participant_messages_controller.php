@@ -140,16 +140,8 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	
 	function search($search_id = 0){
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		$this->searchHandler($search_id, $this->ParticipantMessage, 'participantmessages', '/clinicalannotation/participant_messages/search');
 		$this->Structures->set('participantmessages');
-		
-		if(!empty($this->data)){
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
-			$this->data = $this->paginate($this->ParticipantMessage, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['ParticipantMessage']['count'];
-			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/clinicalannotation/participant_messages/search';
-		}else if($search_id != 0){
-			$this->data = $this->paginate($this->ParticipantMessage, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-		}
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {

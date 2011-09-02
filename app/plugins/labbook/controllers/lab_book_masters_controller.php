@@ -41,22 +41,13 @@ class LabBookMastersController extends LabBookAppController {
 		
 	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/index/'));
-		
-		if(!empty($this->data)){
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
-		}
-		
-		$this->data = $this->paginate($this->LabBookMaster, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-		
+		$this->searchHandler($search_id, $this->LabBookMaster, 'labbookmasters', '/labbook/lab_book_masters/search');
+
 		//find all lab_book data control types to build add button
 		$this->set('lab_book_controls_list', $this->LabBookControl->find('all', array('conditions' => array('LabBookControl.flag_active' => '1'))));
 		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['LabBookMaster']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/labbook/lab_book_masters/search';
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link); 

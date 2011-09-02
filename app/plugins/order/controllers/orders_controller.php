@@ -25,14 +25,7 @@ class OrdersController extends OrderAppController {
   
 	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-			
-		if ( $this->data ) $_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions();
-			
-		$this->data = $this->paginate($this->Order, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['Order']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/order/orders/search';
+		$this->searchHandler($search_id, $this->ORder, 'orders', '/order/orders/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
