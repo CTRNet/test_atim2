@@ -27,7 +27,7 @@ class StructuresHelper extends Helper {
 				'actions'		=> true, 
 				'header'		=> '',
 				'language_heading' => null,
-				'form_top'		=> true, 
+				'form_top'		=> true, //will print the opening form tag
 				'tabindex'		=> 0, // when setting TAB indexes, add this value to the number, useful for stacked forms
 				'form_inputs'	=> true, // if TRUE, use inputs when supposed to, if FALSE use static display values regardless
 				'form_bottom'	=> true,
@@ -44,7 +44,9 @@ class StructuresHelper extends Helper {
 				'tree'			=> array(), // indicates MULTIPLE atim_structures passed to this class, and which ones to use for which MODEL in each tree ROW
 				'data_miss_warn'=> true, //in debug mode, prints a warning if data is not found for a field
 				
-				'paste_disabled_fields' => array()//pasting on those fields will be disabled
+				'paste_disabled_fields' => array(),//pasting on those fields will be disabled
+				
+				'csv_header' => true //in a csv file, if true, will print the header line
 			),
 			
 			'links'		=> array(
@@ -1085,15 +1087,17 @@ class StructuresHelper extends Helper {
 		if(is_array($table_structure) && count($data)){
 			//header line
 			$line = array();
-			foreach($table_structure as $table_column){
-				foreach($table_column as $fm => $table_row){
-					foreach($table_row as $table_row_part){
-						$line[] = $table_row_part['label'];
+			
+			if($options['settings']['csv_header']){
+				foreach($table_structure as $table_column){
+					foreach($table_column as $fm => $table_row){
+						foreach($table_row as $table_row_part){
+							$line[] = $table_row_part['label'];
+						}
 					}
 				}
+				$this->Csv->addRow($line);
 			}
-			
-			$this->Csv->addRow($line);
 
 			//content
 			foreach($data as $data_unit){
@@ -1101,7 +1105,11 @@ class StructuresHelper extends Helper {
 				foreach($table_structure as $table_column){
 					foreach ( $table_column as $fm => $table_row){
 						foreach($table_row as $table_row_part){
-							$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+							if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+								$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+							}else{
+								$line[] = "";
+							}
 						}
 					}
 				}
@@ -1109,7 +1117,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		echo($this->Csv->render());
+		echo $this->Csv->render($options['settings']['csv_header']);
 	}
 
 
@@ -1677,7 +1685,7 @@ class StructuresHelper extends Helper {
 								$dropdown_result["defined"][""] = "";
 							}
 						}
-								
+						
 						if(isset($options['dropdown_options'][$sfs['model'].".".$sfs['field']])){
 							$dropdown_result['defined'] = $options['dropdown_options'][$sfs['model'].".".$sfs['field']]; 
 						}else if(count($sfs['StructureValueDomain']) > 0){
@@ -1693,9 +1701,11 @@ class StructuresHelper extends Helper {
 									$dropdown_result['defined'] += $tmp_dropdown_result;
 								}
 							}else{
+								$this->StructureValueDomain->cacheQueries = true;
 								$tmp_dropdown_result = $this->StructureValueDomain->find('first', array(
-									'recursive' => 2,
+									'recursive' => 2, //cakephp has a memory leak when recursive = 2
 									'conditions' => array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
+
 								if(count($tmp_dropdown_result['StructurePermissibleValue']) > 0){
 									$tmp_result = array('defined' => array(), 'previously_defined' => array());
 									//sort based on flag and on order
@@ -1725,7 +1735,7 @@ class StructuresHelper extends Helper {
 							//provide yes/no/? as default for yes_no
 							$dropdown_result['defined'] = array("" => "", "n" => __("no", true), "y" => __("yes", true));
 						}
-						
+					
 						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
 							//checkbox and radio buttons in search mode are dropdowns 
 							$dropdown_result['defined'] = array_merge(array("" => ""), $dropdown_result['defined']);
@@ -1746,7 +1756,6 @@ class StructuresHelper extends Helper {
 					}
 					$stack[$sfs['display_column']][$sfs['display_order']][] = $current;
 				}
-				
 			}
 			
 			if(Configure::read('debug') > 0){
