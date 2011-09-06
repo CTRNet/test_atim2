@@ -521,24 +521,14 @@ class StructuresComponent extends Object {
 		}
 
 		list($pulldown_model, $pulldown_function) = split('::', $source);
+		$pulldown_plugin = NULL;
+		if (strpos($pulldown_model,'.') !== false){
+			$combined_plugin_model_name = $pulldown_model;
+			list($pulldown_plugin, $pulldown_model) = explode('.',$combined_plugin_model_name);
+		}
+
 		$pulldown_result = array();
-		if ($pulldown_model && App::import('Model',$pulldown_model)){
-
-			// setup VARS for custom model (if any)
-			$custom_pulldown_object = $pulldown_model.'Custom';
-			$custom_pulldown_plugin = NULL;
-			$custom_pulldown_model = NULL;
-
-			// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-			$pulldown_plugin = NULL;
-			if ( strpos($pulldown_model,'.')!==false ) {
-				$combined_plugin_model_name = $pulldown_model;
-				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
-			}
-
-			// load MODEL
-			$pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true);
-
+		if ($pulldown_model && ($pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true))){
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
 		}

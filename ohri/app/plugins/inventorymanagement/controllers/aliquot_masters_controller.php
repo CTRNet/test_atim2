@@ -1986,7 +1986,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$child_aliquot_ctrl_id = isset($this->data[0]['realiquot_into'])? $this->data[0]['realiquot_into'] : (isset($this->data['realiquot_into'])? $this->data['realiquot_into'] : null);		
 		$parent_aliquot_ctrl = $this->AliquotControl->findById($parent_aliquot_ctrl_id);
 		$child_aliquot_ctrl = ($parent_aliquot_ctrl_id == $child_aliquot_ctrl_id)? $parent_aliquot_ctrl : $this->AliquotControl->findById($child_aliquot_ctrl_id);		
-		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($parent_aliquot_ctrl) || empty($child_aliquot_ctrl)) { 
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 	
 		// lab book management
 		$lab_book = null;//lab book object
@@ -2038,8 +2040,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);		
 		
-		$this->Structures->set('children_aliquots_selection', 'atim_structure_for_children_aliquots_selection');
-		$this->Structures->set('in_stock_detail', 'in_stock_detail');
+		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
+		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail');
 		
 		// Set url to cancel
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
@@ -2297,6 +2299,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 					} 
 				}				
 			}
+		}
+		
+		if(empty($this->data[0]['parent']['AliquotControl']['volume_unit'])){
+			//switch to volumeless structures
+			$this->Structures->set('children_aliquots_selection', 'atim_structure_for_children_aliquots_selection');
+			$this->Structures->set('in_stock_detail', 'in_stock_detail');
 		}
 	}
 	

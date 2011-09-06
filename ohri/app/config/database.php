@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'ohri',
+		'password' => 'root',
+		'database' => 'atim_ohri',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

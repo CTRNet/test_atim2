@@ -175,11 +175,8 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 	}
 
 	function delete($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { 
-			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-				
 		// Get treatment data
+		
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
@@ -193,15 +190,19 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		
 		// Get extend data
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
+		if(empty($tx_extend_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}			
 		
-		$arr_allow_deletion = $this->TreatmentExtendallowDeletion($tx_extend_id);
+		$arr_allow_deletion = $this->TreatmentExtend->allowDeletion($tx_extend_id);
 			
 		// CUSTOM CODE
 		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }		
-				
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
+		
 		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/clinicalannotation/treatment_extends/listall/'.$participant_id.'/'.$tx_master_id);
