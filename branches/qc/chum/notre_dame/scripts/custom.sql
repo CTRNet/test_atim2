@@ -17,14 +17,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_nd_is_irrelevant' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='is irrelevant' AND `language_tag`=''), '0', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 
 INSERT INTO i18n (id, en, fr) VALUES
-('is irrelevant', 'Is irrelevant', 'Est inutile');
+('is irrelevant', 'Is irrelevant', 'Est inutile'),
+('immunofluorescence', 'Immunofluorescence', 'Immunofluorescence');
 
 UPDATE structure_fields SET  `type`='yes_no' WHERE model='AliquotDetail' AND tablename='ad_tubes' AND field='mycoplasma_free' AND `type`='checkbox' AND structure_value_domain  IS NULL ;
 ALTER TABLE ad_tubes
  MODIFY mycoplasma_free CHAR(1) NOT NULL DEFAULT '';
 ALTER TABLE ad_tubes_revs
  MODIFY mycoplasma_free CHAR(1) NOT NULL DEFAULT '';
-UPDATE ad_tubes SET mycoplasma_free='y' WHERE mycoplasma_free=1;
-UPDATE ad_tubes SET mycoplasma_free='n' WHERE mycoplasma_free=0;
-UPDATE ad_tubes_revs SET mycoplasma_free='y' WHERE mycoplasma_free=1;
-UPDATE ad_tubes_revs SET mycoplasma_free='n' WHERE mycoplasma_free=0;
+UPDATE ad_tubes SET mycoplasma_free='y' WHERE mycoplasma_free='1';
+UPDATE ad_tubes SET mycoplasma_free='n' WHERE mycoplasma_free='0';
+UPDATE ad_tubes_revs SET mycoplasma_free='y' WHERE mycoplasma_free='1';
+UPDATE ad_tubes_revs SET mycoplasma_free='n' WHERE mycoplasma_free='0';
