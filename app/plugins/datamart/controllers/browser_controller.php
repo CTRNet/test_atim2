@@ -311,7 +311,7 @@ class BrowserController extends DatamartAppController {
 				$this->Browser->checklist_sub_models_id_filter
 			);
 			foreach($dropdown_options as &$option){
-				if(isset($option['action']) && strpos($option['action'], 'csv/csv') === 0){
+				if(isset($option['action']) && strpos($option['action'], 'datamart/csv/csv') === 0){
 					$option['action'] = 'datamart/browser/csv/'.$node_id."/".$merge_to."/";
 					break;
 				}
