@@ -172,10 +172,15 @@ class BrowserController extends DatamartAppController {
 			//direct access, save nodes
 			foreach($direct_id_arr as $control_id){
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $control_id)));
+				if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+					$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+					return;
+				}
+				
 				if(isset($sub_structure_id)//there is a sub id 
-				&& strlen($browsing['DatamartStructure']['control_model']) > 0//a sub model exists
-				&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
-				&& $check_list//this is a checklist
+					&& strlen($browsing['DatamartStructure']['control_model']) > 0//a sub model exists
+					&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
+					&& $check_list//this is a checklist
 				){
 					//sub structure
 					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
@@ -294,6 +299,10 @@ class BrowserController extends DatamartAppController {
 		if($check_list){
 			$result = $this->Browser->InitDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
 			
+			if(!$this->Browser->valid_permission){
+				$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+			}
+			
 			$this->set('top', "/datamart/browser/browse/".$node_id."/");
 			$this->set('node_id', $node_id);
 			$this->set('type', "checklist");
@@ -347,6 +356,9 @@ class BrowserController extends DatamartAppController {
 			$this->set('merged_ids', $this->Browser->merged_ids);
 
 		}else if($browsing != null){
+			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+				$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+			}
 			//search screen
 			$this->set('type', "search");
 			if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
@@ -376,6 +388,12 @@ class BrowserController extends DatamartAppController {
 			$ids = explode(",", $ids);
 		}
 		$this->Browser->InitDataLoad($browsing, $merge_to, $ids);
+		
+		if(!$this->Browser->valid_permission){
+			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+			return;
+		}
+		
 		$this->set("result_structure", $this->Browser->result_structure);
 		$this->layout = false;
 		

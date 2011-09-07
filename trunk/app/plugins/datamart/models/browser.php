@@ -9,6 +9,7 @@ class Browser extends DatamartAppModel {
 	public $result_structure = null;
 	public $count = null;
 	public $merged_ids = null;
+	public $valid_permission = null;//set when initDataLoad is called.
 	
 	static private $browsing_control_model = null;
 	static private $browsing_result_model = null;
@@ -81,7 +82,10 @@ class Browser extends DatamartAppModel {
 			$browsing_structures = $DatamartStructure->find('all', array('conditions' => array('DatamartStructure.id IN (0, '.implode(", ", $active_structures_ids).')')));
 			$tmp_arr = array();
 			foreach($browsing_structures as $unit){
-				$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
+				if(AppController::checkLinkPermission($unit['DatamartStructure']['index_link'])){
+					//keep links without permission
+					$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
+				}
 			}
 			$browsing_structures = $tmp_arr;
 			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures, $sub_models_id_filter);
@@ -154,7 +158,7 @@ class Browser extends DatamartAppModel {
 	 */
 	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures, array $sub_models_id_filter = null){
 		$result = null;
-		if(isset($from_to[$current_id])){
+		if(isset($from_to[$current_id]) && isset($browsing_structures[$current_id])){
 			$result = array();
 			array_push($stack, $current_id);
 			$to_arr = array_diff($from_to[$current_id], $stack);
@@ -794,6 +798,9 @@ class Browser extends DatamartAppModel {
 		while($start_id != $end_id){
 			$nodes_to_fetch[] = $start_id;
 			$browsing = self::$browsing_result_model->cacheAndGet($start_id, $this->browsing_cache);
+			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+				$this->valid_permission = false;
+			}
 			$start_id = $browsing['BrowsingResult']['parent_node_id'];
 		}
 			
@@ -945,8 +952,13 @@ class Browser extends DatamartAppModel {
 		self::$browsing_result_model = AppModel::getInstance("Datamart", "BrowsingResult", true);
 		$nodes_to_fetch = array();
 		
-		if($merge_to != 0){
+		
+		if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+			$this->valid_permission = false;
+		}else if($merge_to != 0){
 			$nodes_to_fetch = $this->getNodesToMerge($browsing, $merge_to);
+		}else{
+			$this->valid_permission = true;
 		}
 		
 		//prepare nodes_to_fetch_stack
