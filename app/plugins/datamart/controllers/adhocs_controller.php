@@ -4,8 +4,6 @@ class AdhocsController extends DatamartAppController {
 	
 	var $uses = array(
 		'Datamart.Adhoc', 
-		'Datamart.AdhocFavourite',
-		'Datamart.AdhocSaved', 
 		
 		'Datamart.BatchSet',
 		'Datamart.BatchId',
@@ -31,6 +29,7 @@ class AdhocsController extends DatamartAppController {
 		} else if ( $type_of_list=='saved' ) {
 			$this->data = $this->paginate($this->AdhocSaved, array('AdhocSaved.user_id'=>$_SESSION['Auth']['User']['id']));
 		}
+		
 		foreach($this->data as &$data_unit){
 			$data_unit['Adhoc']['title'] = __($data_unit['Adhoc']['title'], true);
 			$data_unit['Adhoc']['description'] = __($data_unit['Adhoc']['description'], true);
@@ -72,35 +71,20 @@ class AdhocsController extends DatamartAppController {
 		$this->atimFlash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}
 	
-	function search( $type_of_list='all', $adhoc_id=0  ) {
-		
+	function search($type_of_list, $adhoc_id){
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL;
-		
+
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		
-		// BIND models on the fly...
-		$this->Adhoc->bindModel(
-			  array('hasMany' => array(
-						 'AdhocFavourite'	=> array(
-								'className'  	=> 'AdhocFavourite',
-								'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
-								'foreignKey'	=> 'adhoc_id',
-								'dependent'		=> true
-						 ),
-						 'AdhocSaved'	=> array(
-								'className'  	=> 'AdhocSaved',
-								'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
-								'foreignKey'	=> 'adhoc_id',
-								'dependent'		=> true
-						 )
-					)
-			  )
-		 );
 		
-		$data_for_detail = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id), 'limit'=>4));
-		$this->set( 'data_for_detail', $data_for_detail );
+		$adhoc = $this->Adhoc->findById($adhoc_id);
+		if(empty($adhoc['AdhocPermission'])){
+			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+			return;
+		}
+		$this->set( 'data_for_detail', $adhoc );
 		
-		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $data_for_detail['Adhoc']['form_alias_for_search'] ) );
+		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_search'] ) );
 		
 	}
 	
@@ -108,30 +92,17 @@ class AdhocsController extends DatamartAppController {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		if(empty($this->data)){
 			//cannot reach that page without data
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
 		}
 		
-		// BIND models on the fly...
-		$this->Adhoc->bindModel(
-			array('hasMany' => array(
-				'AdhocFavourite'	=> array(
-					'className'  	=> 'AdhocFavourite',
-					'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
-					'foreignKey'	=> 'adhoc_id',
-					'dependent'		=> true
-				),'AdhocSaved'	=> array(
-					'className'  	=> 'AdhocSaved',
-					'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
-					'foreignKey'	=> 'adhoc_id',
-					'dependent'		=> true
-				)
-			)
-		));
-			
 		if(!is_numeric($adhoc_id)){
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id)));
+		$adhoc = $this->Adhoc->findById($adhoc_id);
+		if(empty($adhoc['AdhocPermission'])){
+			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+			return;
+		}
 	   	$this->set( 'data_for_detail', $adhoc );
 		$this->Structures->set('datamart_browser_start', 'atim_structure_for_add');
 		$this->Structures->set($adhoc['Adhoc']['form_alias_for_results'], 'atim_structure_for_results');

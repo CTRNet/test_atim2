@@ -83,7 +83,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("this field must be unique", "This field must be unique", "Ce champ doit être unique"),
 ("you cannot resume a search that was made in a previous session", 
  "You cannot resume a search that was made in a previous session.",
- "Vous ne pouvez pas reprendre une recherche qui a été faite dans une session antérieure."); 
+ "Vous ne pouvez pas reprendre une recherche qui a été faite dans une session antérieure."),
+("you are not allowed to use the generic version of that batch set.",
+ "You are not allowed to use the generic version of that batch set.",
+ "Vous n'êtes pas autorisés à utiliser la version générique de cet ensemble de données."); 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -722,3 +725,14 @@ INSERT INTO structure_validations (structure_field_id, rule, language_message) V
 
 INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link) VALUES
 ('collection_template', 'core_CAN_33', 1, 10, 'collection template', 'collection_template_description', '/tools/Template/index');
+
+CREATE TABLE datamart_adhoc_permissions(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ group_id INT NOT NULL,
+ datamart_adhoc_id INT NOT NULL,
+ FOREIGN KEY (group_id) REFERENCES groups(id),
+ FOREIGN KEY (datamart_adhoc_id) REFERENCES datamart_adhoc(id)
+)Engine=InnoDb;
+
+INSERT INTO datamart_adhoc_permissions (group_id, datamart_adhoc_id) 
+(SELECT groups.id, datamart_adhoc.id FROM groups INNER JOIN datamart_adhoc);

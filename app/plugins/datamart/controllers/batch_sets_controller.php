@@ -73,6 +73,21 @@ class BatchSetsController extends DatamartAppController {
 		
 		if($batch_set_id > 0){
 			$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+			
+			//check permissions
+			if($batch_set['BatchSet']['datamart_adhoc_id']){
+				$adhoc_data = $this->Adhoc->findById($batch_set['BatchSet']['datamart_adhoc_id']);
+				if(empty($adhoc_data['AdhocPermission'])){
+					$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+					return;
+				}
+			}else if($batch_set['BatchSet']['datamart_structure_id']){
+				$datamart_structure_data = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
+				if(!AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])){
+					$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+					return;
+				}
+			}
 			if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
 				return;
 			}
@@ -541,6 +556,11 @@ class BatchSetsController extends DatamartAppController {
 		$datamart_structure_id = $this->BatchSet->getCompatibleDatamartStructureId($batch_set['Adhoc']['model']);
 		if(!$datamart_structure_id){
 			$this->flash(__('this batch set cannot be used to create a generic batch set', true), 'javascript:history.back();', 5);
+			return;
+		}
+		$datamart_structure_data = $this->DatamartStructure->findById($datamart_structure_id);
+		if(!AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])){
+			$this->flash(__('you are not allowed to use the generic version of that batch set.', true), 'javascript:history.back()');
 			return;
 		}
 
