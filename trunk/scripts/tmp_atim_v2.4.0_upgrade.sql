@@ -86,7 +86,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Vous ne pouvez pas reprendre une recherche qui a été faite dans une session antérieure."),
 ("you are not allowed to use the generic version of that batch set.",
  "You are not allowed to use the generic version of that batch set.",
- "Vous n'êtes pas autorisés à utiliser la version générique de cet ensemble de données."); 
+ "Vous n'êtes pas autorisés à utiliser la version générique de cet ensemble de données."),
+("the current diagnosis date is before the parent diagnosis date",
+ "The current diagnosis date is before the parent diagnosis date.",
+ "L'actuelle date de diagnostic est avant la date du diagnostic parent.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 
@@ -619,45 +622,117 @@ ALTER TABLE tmp_bogus_primary_dx
  ADD INDEX (`primary_number`);
 SELECT IF(COUNT(*) > 0, 'See table tmp_bogus_primary_dx to manually fix the bogus primary dx and their children', 'All dx are ok. You can drop table tmp_bogus_primary_dx') AS msg FROM tmp_bogus_primary_dx
 UNION
-SELECT 'Once done you may drop diagnosis_masters.primary_number as well as diagnosis_masters_revs.primary_number' AS msg; 
+SELECT 'Check the release nodes to know how to fit your existing diagnosis to version 2.4.x' AS msg; 
+
+CREATE TABLE dxd_primaries(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_primaries_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+CREATE TABLE dxd_unknown(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_unknown_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+CREATE TABLE dxd_secondaries(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_secondaries_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+CREATE TABLE dxd_progressions(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_progressions_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+CREATE TABLE dxd_recurrences(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_recurrences_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+CREATE TABLE dxd_remissions(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id)
+)Engine=InnoDb;
+CREATE TABLE dxd_remissions_revs(
+ id INT UNSIGNED NOT NULL,
+ diagnosis_master_id INT NOT NULL,
+ `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `version_created` datetime NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO structures(alias) VALUES
+('dx_master'),
+('dx_primary'),
+('dx_unknown'),
+('dx_secondary'),
+('dx_remission'),
+('dx_progression');
+
+UPDATE diagnosis_controls SET flag_active = 0; /* disable old dx_controls */
+
+INSERT INTO diagnosis_controls(controls_type, flag_primary, flag_secondary, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('primary', 1, 0, 1, 'dx_master,dx_primary', 'dxd_primaries', 0, 'primary'),
+('unknown', 1, 0, 1, 'dx_master,dx_unknown', 'dxd_unknown', 0, 'unknown'),
+('secondary', 0, 1, 1, 'dx_master,dx_secondary', 'dxd_secondaries', 0, 'secondary'),
+('remission', 0, 1, 1, 'dx_master,dx_remission', 'dxd_remissions', 0, 'remission'),
+('progression', 0, 1, 1, 'dx_master,dx_progression', 'dxd_progressions', 0, 'progression'),
+('recurrence', 0, 1, 1, 'dx_master,dx_recurrence', 'dxd_recurrences', 0, 'recurrence');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_master'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '1', '', '1', 'date', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='dx_master'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '2', '', '1', 'age at dx', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='dx_master'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0'), '1', '3', '', '0', '', '1', 'precision', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+
 
 UPDATE diagnosis_masters AS dm
 LEFT JOIN diagnosis_masters AS dm_parent ON dm.participant_id=dm_parent.participant_id AND dm.dx_origin!='primary' AND dm_parent.dx_origin='primary' AND dm.primary_number=dm_parent.primary_number
 LEFT JOIN tmp_bogus_primary_dx AS bogus_dx ON dm.participant_id=bogus_dx.participant_id AND dm.primary_number=bogus_dx.primary_number
 SET dm.parent_id=dm_parent.id
 WHERE dm_parent.id IS NOT NULL AND bogus_dx.participant_id IS NULL;
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("recurrence", "recurrence");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin"),  (SELECT id FROM structure_permissible_values WHERE value="recurrence" AND language_alias="recurrence"), "2", "1");
-
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("progression", "progression");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin"),  (SELECT id FROM structure_permissible_values WHERE value="progression" AND language_alias="progression"), "2", "1");
-
-INSERT INTO structures(`alias`) VALUES ('dx_origin_primary');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='dx_origin_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin')  AND `flag_confidential`='0'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', 'primary', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
-
-INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('origin_wo_primary', '', '', NULL);
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("secondary", "secondary");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin_wo_primary"),  (SELECT id FROM structure_permissible_values WHERE value="secondary" AND language_alias="secondary"), "2", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("recurrence", "recurrence");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin_wo_primary"),  (SELECT id FROM structure_permissible_values WHERE value="recurrence" AND language_alias="recurrence"), "2", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("progression", "progression");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin_wo_primary"),  (SELECT id FROM structure_permissible_values WHERE value="progression" AND language_alias="progression"), "2", "1");
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("unknown", "unknown");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="origin_wo_primary"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "2", "1");
-
-INSERT INTO structures(`alias`) VALUES ('dx_origin_wo_primary');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'dx_origin', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='origin_wo_primary') , '0', '', '', 'help_dx origin', 'origin', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='dx_origin_wo_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin_wo_primary')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx origin' AND `language_label`='origin' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
-
-UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin') AND `flag_confidential`='0');
-
-INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
-((SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin_wo_primary')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx origin' AND `language_label`='origin' AND `language_tag`=''), 'notEmpty', '', '');
 
 DELETE FROM structure_formats WHERE structure_field_id=(SELECT id FROM structure_fields WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_number');
 DELETE FROM structure_fields WHERE plugin='Clinicalannotation' AND model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='primary_number';
@@ -736,3 +811,595 @@ CREATE TABLE datamart_adhoc_permissions(
 
 INSERT INTO datamart_adhoc_permissions (group_id, datamart_adhoc_id) 
 (SELECT groups.id, datamart_adhoc.id FROM groups INNER JOIN datamart_adhoc);
+
+-- cap reports refactoring
+ALTER TABLE dxd_cap_report_smintestines
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_perihilarbileducts
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_pancreasexos
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_intrahepbileducts
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_gallbladders
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_distalexbileducts
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_colon_biopsies
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_ampullas
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_colon_rectum_resections
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_pancreasendos
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+ 
+ALTER TABLE dxd_cap_report_smintestines_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_perihilarbileducts_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_pancreasexos_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_intrahepbileducts_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_gallbladders_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_ampullas_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_colon_rectum_resections_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_cap_report_pancreasendos_revs
+ ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
+ ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
+ ADD COLUMN notes TEXT,
+ ADD COLUMN path_mstage varchar(15) NOT NULL DEFAULT '',
+ ADD COLUMN path_mstage_metastasis_site_specify varchar(250),
+ ADD COLUMN path_nstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN path_nstage_nbr_node_examined SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_nstage_nbr_node_involved SMALLINT(1) DEFAULT NULL,
+ ADD COLUMN path_tnm_descriptor_m char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_r char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tnm_descriptor_y char(1) NOT NULL DEFAULT '',
+ ADD COLUMN path_tstage varchar(5) NOT NULL DEFAULT '',
+ ADD COLUMN tumor_size_cannot_be_determined tinyint(1) DEFAULT 0,
+ ADD COLUMN tumor_size_greatest_dimension decimal(3, 1) DEFAULT NULL,
+ ADD COLUMN tumour_grade varchar(150) NOT NULL DEFAULT '',
+ ADD COLUMN tumour_grade_specify varchar(250) NOT NULL DEFAULT '';
+
+UPDATE dxd_cap_report_smintestines AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_perihilarbileducts AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_pancreasexos AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_intrahepbileducts AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_hepatocellular_carcinomas AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_gallbladders AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_distalexbileducts AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_colon_biopsies_revs AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_ampullas_revs AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_colon_rectum_resections AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_pancreasendos AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+
+UPDATE dxd_cap_report_smintestines_revs AS cap_rev INNER JOIN dxd_cap_report_smintestines AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_perihilarbileducts_revs AS cap_rev INNER JOIN dxd_cap_report_perihilarbileducts AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_pancreasexos_revs AS cap_rev INNER JOIN dxd_cap_report_pancreasexos AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_intrahepbileducts_revs AS cap_rev INNER JOIN dxd_cap_report_intrahepbileducts AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_hepatocellular_carcinomas_revs AS cap_rev INNER JOIN dxd_cap_report_hepatocellular_carcinomas AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_gallbladders_revs AS cap_rev INNER JOIN dxd_cap_report_gallbladders AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_distalexbileducts_revs AS cap_rev INNER JOIN dxd_cap_report_distalexbileducts AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_colon_biopsies_revs AS cap_rev INNER JOIN dxd_cap_report_colon_biopsies AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_ampullas_revs AS cap_rev INNER JOIN dxd_cap_report_ampullas AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap_rev INNER JOIN dxd_cap_report_colon_rectum_resections AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+UPDATE dxd_cap_report_pancreasendos_revs AS cap_rev INNER JOIN dxd_cap_report_pancreasendos AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
+
+
+
+
+
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label)
+(SELECT 'all', 'lab', controls_type, 1, REPLACE(form_alias, 'dx_cap_report', 'ed_cap_report'), REPLACE(detail_tablename, 'dxd_cap_report', 'ed_cap_report'), 0, databrowser_label FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %');
+ALTER TABLE dxd_cap_report_smintestines
+ DROP FOREIGN KEY FK_dxd_cap_report_smintestines_diagnosis_masters;
+RENAME TABLE dxd_cap_report_smintestines TO ed_cap_report_smintestines;
+ALTER TABLE dxd_cap_report_perihilarbileducts
+ DROP FOREIGN KEY FK_dxd_cap_report_perihilarbileducts_diagnosis_masters;
+RENAME TABLE dxd_cap_report_perihilarbileducts TO ed_cap_report_perihilarbileducts;
+ALTER TABLE dxd_cap_report_pancreasexos
+ DROP FOREIGN KEY FK_dxd_cap_report_pancreasexos_diagnosis_masters;
+RENAME TABLE dxd_cap_report_pancreasexos TO ed_cap_report_pancreasexos;
+ALTER TABLE dxd_cap_report_intrahepbileducts
+ DROP FOREIGN KEY FK_dxd_cap_report_intrahepbileducts_diagnosis_masters;
+RENAME TABLE dxd_cap_report_intrahepbileducts TO ed_cap_report_intrahepbileducts;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+ DROP FOREIGN KEY FK_dxd_cap_report_hepatocellulars_diagnosis_masters;
+RENAME TABLE dxd_cap_report_hepatocellular_carcinomas TO ed_cap_report_hepatocellular_carcinomas;
+ALTER TABLE dxd_cap_report_gallbladders
+ DROP FOREIGN KEY FK_dxd_cap_report_gallbladders_diagnosis_masters;
+RENAME TABLE dxd_cap_report_gallbladders TO ed_cap_report_gallbladders;
+ALTER TABLE dxd_cap_report_distalexbileducts
+ DROP FOREIGN KEY FK_dxd_cap_report_distalexbileducts_diagnosis_masters;
+RENAME TABLE dxd_cap_report_distalexbileducts TO ed_cap_report_distalexbileducts;
+ALTER TABLE dxd_cap_report_colon_biopsies
+ DROP FOREIGN KEY FK_dxd_cap_report_colons_diagnosis_masters;
+RENAME TABLE dxd_cap_report_colon_biopsies TO ed_cap_report_colon_biopsies;
+ALTER TABLE dxd_cap_report_ampullas
+ DROP FOREIGN KEY FK_dxd_cap_report_ampullas_diagnosis_masters;
+RENAME TABLE dxd_cap_report_ampullas TO ed_cap_report_ampullas;
+ALTER TABLE dxd_cap_report_colon_rectum_resections
+ DROP FOREIGN KEY FK_dxd_cap_report_colon_rectum_resections_diagnosis_masters;
+RENAME TABLE dxd_cap_report_colon_rectum_resections TO ed_cap_report_colon_rectum_resections;
+ALTER TABLE dxd_cap_report_pancreasendos
+ DROP FOREIGN KEY FK_dxd_cap_report_pancreasendos_diagnosis_masters;
+RENAME TABLE dxd_cap_report_pancreasendos TO ed_cap_report_pancreasendos;
+
+RENAME TABLE dxd_cap_report_smintestines_revs TO ed_cap_report_smintestines_revs;
+RENAME TABLE dxd_cap_report_perihilarbileducts_revs TO ed_cap_report_perihilarbileducts_revs;
+RENAME TABLE dxd_cap_report_pancreasexos_revs TO ed_cap_report_pancreasexos_revs;
+RENAME TABLE dxd_cap_report_intrahepbileducts_revs TO ed_cap_report_intrahepbileducts_revs;
+RENAME TABLE dxd_cap_report_hepatocellular_carcinomas_revs TO ed_cap_report_hepatocellular_carcinomas_revs;
+RENAME TABLE dxd_cap_report_gallbladders_revs TO ed_cap_report_gallbladders_revs;
+RENAME TABLE dxd_cap_report_distalexbileducts_revs TO ed_cap_report_distalexbileducts_revs;
+RENAME TABLE dxd_cap_report_colon_biopsies_revs TO ed_cap_report_colon_biopsies_revs;
+RENAME TABLE dxd_cap_report_ampullas_revs TO ed_cap_report_ampullas_revs;
+RENAME TABLE dxd_cap_report_colon_rectum_resections_revs TO ed_cap_report_colon_rectum_resections_revs;
+RENAME TABLE dxd_cap_report_pancreasendos_revs TO ed_cap_report_pancreasendos_revs;
+
+#create an intermediary table to update the ctrl id
+CREATE TABLE event_masters_tmp
+(SELECT diagnosis_control_id AS control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, id AS old_dx_id FROM diagnosis_masters WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
+UPDATE event_masters_tmp AS em
+INNER JOIN diagnosis_controls AS dc ON em.control_id=dc.id
+INNER JOIN event_controls AS ec ON dc.controls_type=ec.event_type
+SET em.control_id=ec.id; 
+
+ALTER TABLE event_masters
+ ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
+ALTER TABLE event_masters_revs
+ ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
+
+INSERT INTO event_masters (event_control_id, event_date, event_date_accuracy, created, created_by, modified, modified_by, participant_id, diagnosis_master_id, deleted, tmp_old_dx_id)
+(SELECT control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, old_dx_id FROM event_masters_tmp);
+INSERT INTO event_masters_revs (id, event_control_id, event_date, event_date_accuracy, participant_id, diagnosis_master_id, tmp_old_dx_id, version_created, modified_by)
+(SELECT 0, diagnosis_control_id, dx_date, dx_date_accuracy, participant_id, parent_id, id, version_created, modified_by FROM diagnosis_masters_revs WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
+
+
+ALTER TABLE dxd_cap_report_smintestines
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_perihilarbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_pancreasexos
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_intrahepbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_gallbladders
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_distalexbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_colon_biopsies
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_ampullas
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_colon_rectum_resections
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_pancreasendos
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ 
+ALTER TABLE dxd_cap_report_smintestines_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_perihilarbileducts_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_pancreasexos_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_intrahepbileducts_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_gallbladders_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_distalexbileducts_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_colon_biopsies_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_ampullas_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_colon_rectum_resections_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ALTER TABLE dxd_cap_report_pancreasendos_revs
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+
+UPDATE dxd_cap_report_smintestines AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_perihilarbileducts AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_pancreasexos AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_intrahepbileducts AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_hepatocellular_carcinomas AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_gallbladders AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_distalexbileducts AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_colon_biopsies AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_ampullas AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_colon_rectum_resections AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_pancreasendos AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+
+UPDATE dxd_cap_report_smintestines_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_perihilarbileducts_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_pancreasexos_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_intrahepbileducts_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_hepatocellular_carcinomas_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_gallbladders_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_distalexbileducts_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_colon_biopsies_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_ampullas_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
+UPDATE dxd_cap_report_pancreasendos_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id; 
+
+UPDATE event_masters_revs AS rev
+INNER JOIN event_masters AS em ON rev.tmp_old_dx_id=em.tmp_old_dx_id
+SET rev.id=em.id, rev.event_control_id=em.event_control_id
+WHERE rev.tmp_old_dx_id IS NOT NULL;
+
+DROP TABLE event_masters_tmp;
+ALTER TABLE event_masters
+ DROP COLUMN tmp_old_dx_id;
+ALTER TABLE event_masters_revs
+ DROP COLUMN tmp_old_dx_id;
+
+#fields to validate: path_mstage, path_nstage, path_tstage, tumour_grade
+
+#SELECT field FROM structure_fields WHERE model='DiagnosisMaster' AND id IN(
+#SELECT structure_field_id FROM structure_formats WHERE structure_id IN(
+#SELECT id FROM structures WHERE alias IN(
+#SELECT form_alias FROM diagnosis_controls WHERE id BETWEEN 3 AND 13)))
+#GROUP BY field;
