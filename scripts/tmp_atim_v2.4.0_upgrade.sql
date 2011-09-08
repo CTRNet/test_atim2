@@ -812,6 +812,35 @@ CREATE TABLE datamart_adhoc_permissions(
 INSERT INTO datamart_adhoc_permissions (group_id, datamart_adhoc_id) 
 (SELECT groups.id, datamart_adhoc.id FROM groups INNER JOIN datamart_adhoc);
 
+--drop clutter
+ALTER TABLE structures
+ DROP COLUMN language_help,
+ DROP COLUMN language_title,
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_formats
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_fields
+ MODIFY public_identifier varchar(50) NOT NULL DEFAULT '',
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_validations
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE versions
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
 -- cap reports refactoring
 ALTER TABLE dxd_cap_report_smintestines
  ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
@@ -1395,6 +1424,38 @@ ALTER TABLE event_masters
  DROP COLUMN tmp_old_dx_id;
 ALTER TABLE event_masters_revs
  DROP COLUMN tmp_old_dx_id;
+
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_smintestines';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_perihilarbileducts';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_pancreasexos';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_intrahepbileducts';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_hepatocellular_carcinomas';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_gallbladders';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_distalexbileducts';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_colon_biopsies';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_ampullas';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_colon_rectum_resections';
+UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_pancreasendos';
+
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_smintestines';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_perihilarbileducts';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_pancreasexos';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_intrahepbileducts';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_hepatocellular_carcinomas';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_gallbladders';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_distalexbileducts';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_colon_biopsies';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_ampullas';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_colon_rectum_resections';
+UPDATE structures SET alias=REPLACE(alias, 'dx_cap_', 'ed_cap_') WHERE alias='dx_cap_report_pancreasendos';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', '', 'tumor_size_greatest_dimension', 'float', NULL, 0, '', '', '', 'tumor size greatest dimension (cm)', ''), 
+('Clinicalannotation', 'EventDetail', '', 'additional_dimension_a', 'float', NULL, 0, '', '', '', 'additional dimension (cm)', ''), 
+('Clinicalannotation', 'EventDetail', '', 'additional_dimension_b', 'float', NULL, 0, '', '', '', '', 'x'), 
+('Clinicalannotation', 'EventDetail', '', 'tumor_size_cannot_be_determined', 'checkbox', NULL, 0, '', '', '', 'cannot be determined', ''), 
+('Clinicalannotation', 'EventDetail', '', 'notes', 'textarea', NULL, 0, 'cols=40, rows=6', '', '', 'notes', ''), 
+('Clinicalannotation', 'EventDetail', '', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='histologic_grade_c'), 0, '', '', '', 'histologic grade', ''); 
 
 #fields to validate: path_mstage, path_nstage, path_tstage, tumour_grade
 
