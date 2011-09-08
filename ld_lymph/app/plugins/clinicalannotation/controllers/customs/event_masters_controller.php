@@ -14,11 +14,6 @@ class EventMastersControllerCustom extends EventMastersController {
 		return $score;		
 	}
 	
-	
-	
-	
-	
-	
 }
 
 ?>
