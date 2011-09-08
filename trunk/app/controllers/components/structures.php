@@ -115,8 +115,14 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		
-		if(($return = Cache::read($alias, "structures")) === false){
+		$return = Cache::read($alias, "structures");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Structure caching issue. (null)');
+			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
