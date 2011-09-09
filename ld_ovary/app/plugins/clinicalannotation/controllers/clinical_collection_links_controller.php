@@ -18,7 +18,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		'Codingicd.CodingIcdo3Topo'
 	);
 	
-	var $paginate = array('ClinicalCollectionLinks'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
+	var $paginate = array('ClinicalCollectionLink'=>array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
@@ -112,7 +112,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ( $submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 			
 				if(isset($this->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/inventorymanagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
@@ -191,7 +193,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ($submitted_data_validates && $this->ClinicalCollectionLink->save($this->data) ) {
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				$this->atimFlash( 'your data has been updated','/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
@@ -210,7 +214,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
-		$arr_allow_deletion = $this->allowClinicalCollectionLinkDeletion($clinical_collection_link_id);
+		$arr_allow_deletion = $this->ClinicalCollectionLink->allowDeletion($clinical_collection_link_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -227,7 +231,9 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 			if ($this->ClinicalCollectionLink->save($this->data)){
 				
 				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				
 				$this->atimFlash( 'your data has been deleted' , '/clinicalannotation/clinical_collection_links/listall/'.$participant_id.'/');
 			}else{
@@ -236,20 +242,6 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id);
 		}
-	}
-	
-	/**
-	 * Define if a collection could be separated from the participant.
-	 * 
-	 * @param $clinical_collection_link_id Id of the link
-	 * 
-	 * @author N. Luc
-	 * @since 2008-03-04
-	 */
-	 
-	function allowClinicalCollectionLinkDeletion($clinical_collection_link_id){
-		//empty function to allow easy customization
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

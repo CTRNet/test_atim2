@@ -89,13 +89,18 @@ exit;
 
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 
 			if($submitted_data_validates) {
 
 				// 4- SAVE
-
 				if ( $this->StudyRelated->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/study/study_related/detail/'.$study_summary_id.'/'.$this->StudyRelated->id );
 					}
 				}
@@ -140,14 +145,19 @@ exit;
 				// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 
 				$hook_link = $this->hook('presave_process');
-				if( $hook_link ) { require($hook_link); }
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 
 				if($submitted_data_validates) {
 
 					// 4- SAVE
-
 					$this->StudyRelated->id = $study_related_id;
 					if ( $this->StudyRelated->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been updated','/study/study_related/detail/'.$study_summary_id.'/'.$study_related_id );
 						}
 					}
@@ -166,7 +176,7 @@ exit;
 		$study_related_data= $this->StudyRelated->find('first',array('conditions'=>array('StudyRelated.id'=>$study_related_id, 'StudyRelated.study_summary_id'=>$study_summary_id)));
 		if(empty($study_related_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowStudyRelatedDeletion($study_related_id);
+		$arr_allow_deletion = $this->StudyRelated->allowDeletion($study_related_id);
 
 
 		// CUSTOM CODE
@@ -185,32 +195,6 @@ exit;
 			}else {
 					$this->flash($arr_allow_deletion['msg'], '/study/study_related/detail/'.$study_summary_id.'/'.$study_related_id);
 			}
-	}
-
-		
-
-/* --------------------------------------------------------------------------
-* ADDITIONAL FUNCTIONS
-* -------------------------------------------------------------------------- */
-
-/**
- * Check if a record can be deleted.
- *
- * @param $family_history_id Id of the studied record.
- *
- * @return Return results as array:
- * 	['allow_deletion'] = true/false
- * 	['msg'] = message to display when previous field equals false
- *
- * @author N. Luc
- * @since 2007-10-16
- */
-
-	function allowStudyRelatedDeletion($study_related_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

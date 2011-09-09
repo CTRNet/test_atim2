@@ -45,6 +45,7 @@ header ('Content-type: text/html; charset=utf-8');
 			var STR_COPY = "<?php echo(__("copy", null)); ?>";
 			var STR_PASTE = "<?php echo(__("paste")); ?>";
 			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
+			var STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS = "<?php echo(__("paste on all lines of all sections")); ?>";
 			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
 						
 		</script>
@@ -76,11 +77,13 @@ header ('Content-type: text/html; charset=utf-8');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.5.min')."\n";
+	echo $javascript->link('jquery-1.5.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";
 	echo $javascript->link('jquery.popup.js')."\n";
+	echo $javascript->link('jquery.tablednd_0_5.js')."\n";
+	echo $javascript->link('jquery.mousewheel.min.js')."\n";
 	echo $javascript->link('fg.menu.js')."\n";
 	echo $javascript->link('default')."\n";
 	echo $javascript->link('storage_layout')."\n";
@@ -88,6 +91,7 @@ header ('Content-type: text/html; charset=utf-8');
 	echo $javascript->link('copyControl')."\n";
 	echo $javascript->link('ccl')."\n";
 	echo $javascript->link('treeViewControl')."\n";
+	echo $javascript->link('dropdownConfig')."\n";
 	?>
 	
 	<script type="text/javascript">

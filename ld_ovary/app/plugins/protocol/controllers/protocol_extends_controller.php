@@ -20,19 +20,21 @@ class ProtocolExtendsController extends ProtocolAppController {
 			return;
 		}
 				
-		$this->ProtocolExtend = new ProtocolExtend(false, $protocol_master_data['ProtocolControl']['extend_tablename']);
+		$this->ProtocolExtend = AppModel::atimInstantiateExtend($this->ProtocolExtend, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		$this->data = $this->paginate($this->ProtocolExtend, array('ProtocolExtend.protocol_master_id'=>$protocol_master_id));
 
 		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 		if($is_used['is_used']){
-			$this->ProtocolExtend->validationErrors[] = __('warning', true).": ".__($is_used['msg'], true).".";
+			AppController::addWarningMsg(__('warning', true).": ".__($is_used['msg'], true));
 		}
 			
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias']);
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 	}
 
@@ -49,7 +51,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 		
 		// Set tablename to use
-		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
+		$this->ProtocolExtend = AppModel::atimInstantiateExtend($this->ProtocolExtend, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		
 		// Get extend data
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
@@ -76,7 +78,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 
 		// Set tablename to use
-		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
+		$this->ProtocolExtend = AppModel::atimInstantiateExtend($this->ProtocolExtend, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
@@ -90,9 +92,15 @@ class ProtocolExtendsController extends ProtocolAppController {
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 				
 			if ($submitted_data_validates && $this->ProtocolExtend->save( $this->data ) ) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been saved', '/protocol/protocol_extends/listall/'.$protocol_master_id );
 			}
 		}
@@ -111,7 +119,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 
 		// Set form alias/tablename to use
-		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
+		$this->ProtocolExtend = AppModel::atimInstantiateExtend($this->ProtocolExtend, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		
 		// Get extend data
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
@@ -133,6 +141,10 @@ class ProtocolExtendsController extends ProtocolAppController {
 
 			$this->ProtocolExtend->id = $protocol_extend_id;
 			if ($submitted_data_validates && $this->ProtocolExtend->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				$this->atimFlash( 'your data has been updated','/protocol/protocol_extends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
 			}
 		}
@@ -151,11 +163,11 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 		
 		// Set extend data
-		$this->ProtocolExtend = new ProtocolExtend( false, $protocol_master_data['ProtocolControl']['extend_tablename'] );
+		$this->ProtocolExtend = AppModel::atimInstantiateExtend($this->ProtocolExtend, $protocol_master_data['ProtocolControl']['extend_tablename']);
 		$prot_extend_data = $this->ProtocolExtend->find('first',array('conditions'=>array('ProtocolExtend.id'=>$protocol_extend_id,'ProtocolExtend.protocol_master_id'=>$protocol_master_id)));
 		if(empty($prot_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
-		$arr_allow_deletion = $this->allowProtocolExtendDeletion($protocol_extend_id);
+		$arr_allow_deletion = $this->ProtocolExtend->allowDeletion($protocol_extend_id);
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
@@ -172,29 +184,6 @@ class ProtocolExtendsController extends ProtocolAppController {
 		}
 		
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $protocol_extend_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2010-04-18
-	 */
-	 
-	function allowProtocolExtendDeletion($protocol_extend_id){		
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
-	
-	
 }
 
 ?>
