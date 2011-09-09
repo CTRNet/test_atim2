@@ -16,7 +16,11 @@
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
+	
+	$hook_link = $structures->hook('loop');
 		
 	$first = true;
 	$counter = 0;
@@ -45,6 +49,10 @@
 		
 		$final_options_children['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
 		$final_options_children['data'] = $data['children'];
+		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 				
 		if($is_batch_process) $structures->build($sample_info, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);

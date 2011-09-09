@@ -10,7 +10,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		'Clinicalannotation.MiscIdentifierControl'
 	);
 	
-	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifier.identifier_name ASC, MiscIdentifier.identifier_value ASC'));
+	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
 	
 	function index() {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
@@ -29,7 +29,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
 		$this->Structures->set('miscidentifiers_for_participant_search');
 			
-		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($this->viewVars['atim_structure']);
+		if($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($this->viewVars['atim_structure']);
 							
 		$this->data = $this->paginate($this->MiscIdentifier, $_SESSION['ctrapp_core']['search']['criteria']);
 
@@ -70,7 +70,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if ( !$participant_id && !$misc_identifier_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
+		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id)));		
 		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		$this->data = $misc_identifier_data;
 		
@@ -123,9 +123,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }	
 				
 		if ( empty($this->data) && $display_add_form) {	
-			$this->data = array();			
-			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name'];
-			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
+			$this->data = $controls;			
 			
 		} else {
 			// Launch Save Process
@@ -145,7 +143,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
 				// Set incremented identifier if required
@@ -159,7 +159,9 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 				if ( $this->MiscIdentifier->save($this->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/misc_identifiers/listall/'.$participant_id.'/'.$this->MiscIdentifier->id );
 				}
@@ -172,19 +174,11 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		// MANAGE DATA
 		
-		$belongs_to_details = array(
-			'belongsTo' => array(
-				'MiscIdentifierControl' => array(
-					'className' => 'Clinicalannotation.MiscIdentifierControl',
-					'foreignKey' => 'misc_identifier_control_id')));
-
-		$this->MiscIdentifier->bindModel($belongs_to_details);						
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));
 		if($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
 			AppController::getInstance()->redirect("/pages/err_confidential");
 		}		
-		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('MiscIdentifierControl')));
-
+		
 		if(empty($misc_identifier_data) || (!isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$is_incremented_identifier = (empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])? false: true);
@@ -209,14 +203,18 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
 				if ( $this->MiscIdentifier->save($this->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) { require($hook_link); }
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
 				}
@@ -231,7 +229,7 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '-1'));		
 		if(empty($misc_identifier_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
-		$arr_allow_deletion = $this->allowMiscIdentifierDeletion($misc_identifier_id);
+		$arr_allow_deletion = $this->MiscIdentifier->allowDeletion($misc_identifier_id);
 		
 		// CUSTOM CODE
 		$hook_link = $this->hook('delete');
@@ -251,29 +249,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/misc_identifiers/detail/'.$participant_id.'/'.$misc_identifier_id);
 		}	
 	}
-	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $misc_identifier_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */	
-	 
-	function allowMiscIdentifierDeletion( $misc_identifier_id ) {
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
 }
 
 ?>

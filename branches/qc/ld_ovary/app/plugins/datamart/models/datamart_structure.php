@@ -4,9 +4,15 @@ class DatamartStructure extends DatamartAppModel {
 	
 	function getIdByModelName($model_name){
 		$data = $this->find('first', array('conditions' => array('model' => $model_name), 'recursive' => -1, 'fields' => array('id')));
-		if(count($data)){
+		if(!empty($data)){
 			return $data['DatamartStructure']['id'];
 		}
+		
+		$data = $this->find('first', array('conditions' => array('control_master_model' => $model_name), 'recursive' => -1, 'fields' => array('id')));
+		if(!empty($data)){
+			return $data['DatamartStructure']['id'];
+		}
+		
 		return null;
 	}
 	
