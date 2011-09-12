@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.4.0', NOW(), '> 3250');
+INSERT INTO `versions` (version_number, date_installed, build_number, created, created_by, modified, modified_by) VALUES('2.4.0', NOW(), '> 3250', NOW(), 1, NOW(), 1);
 
 REPLACE INTO i18n(id, en, fr) VALUES
 ('core_app_version', '2.4.0 dev', '2.4.0 dev'),
@@ -92,6 +92,80 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "L'actuelle date de diagnostic est avant la date du diagnostic parent.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
+
+-- drop clutter
+ALTER TABLE structures
+ DROP COLUMN language_help,
+ DROP COLUMN language_title,
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_formats
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_fields
+ MODIFY public_identifier varchar(50) NOT NULL DEFAULT '',
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE structure_validations
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE versions
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ 
+-- fix non strict fields
+ALTER TABLE aliquot_internal_uses MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE aliquot_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE aliquot_review_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE announcements MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL, MODIFY COLUMN `date` DATETIME DEFAULT NULL, MODIFY COLUMN `date_start` DATETIME DEFAULT NULL, MODIFY COLUMN `date_end` DATETIME DEFAULT NULL;
+ALTER TABLE ar_breast_tissue_slides MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE atim_information MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE banks MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE clinical_collection_links MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE coding_adverse_events MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE collections MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE datamart_adhoc MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE datamart_batch_sets MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE datamart_browsing_indexes MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE datamart_browsing_results MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE datamart_reports MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE derivative_details MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE drugs MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE event_masters MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE lab_book_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE materials MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE menus MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE pages MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE participant_contacts MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE participants MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE quality_ctrls MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE realiquotings MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE reproductive_histories MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE sample_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE shelves MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE source_aliquots MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE specimen_details MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE specimen_review_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE spr_breast_cancer_types MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE storage_coordinates MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE storage_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE structure_permissible_values_customs MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE tma_slides MODIFY COLUMN created DATETIME DEFAULT NULL;
+ALTER TABLE tx_masters MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE txe_chemos MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE txe_radiations MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE txe_surgeries MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
+ALTER TABLE users MODIFY COLUMN created DATETIME DEFAULT NULL, MODIFY COLUMN modified DATETIME DEFAULT NULL;
 
 ALTER TABLE datamart_browsing_indexes
  ADD COLUMN temporary BOOLEAN NOT NULL DEFAULT true AFTER notes;
@@ -812,35 +886,6 @@ CREATE TABLE datamart_adhoc_permissions(
 INSERT INTO datamart_adhoc_permissions (group_id, datamart_adhoc_id) 
 (SELECT groups.id, datamart_adhoc.id FROM groups INNER JOIN datamart_adhoc);
 
---drop clutter
-ALTER TABLE structures
- DROP COLUMN language_help,
- DROP COLUMN language_title,
- DROP COLUMN created,
- DROP COLUMN created_by,
- DROP COLUMN modified,
- DROP COLUMN modified_by;
-ALTER TABLE structure_formats
- DROP COLUMN created,
- DROP COLUMN created_by,
- DROP COLUMN modified,
- DROP COLUMN modified_by;
-ALTER TABLE structure_fields
- MODIFY public_identifier varchar(50) NOT NULL DEFAULT '',
- DROP COLUMN created,
- DROP COLUMN created_by,
- DROP COLUMN modified,
- DROP COLUMN modified_by;
-ALTER TABLE structure_validations
- DROP COLUMN created,
- DROP COLUMN created_by,
- DROP COLUMN modified,
- DROP COLUMN modified_by;
-ALTER TABLE versions
- DROP COLUMN created,
- DROP COLUMN created_by,
- DROP COLUMN modified,
- DROP COLUMN modified_by;
 -- cap reports refactoring
 ALTER TABLE dxd_cap_report_smintestines
  ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
@@ -1263,110 +1308,6 @@ UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap_rev INNER JOIN dxd_cap
 UPDATE dxd_cap_report_pancreasendos_revs AS cap_rev INNER JOIN dxd_cap_report_pancreasendos AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
 
 
-
-
-
-INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label)
-(SELECT 'all', 'lab', controls_type, 1, REPLACE(form_alias, 'dx_cap_report', 'ed_cap_report'), REPLACE(detail_tablename, 'dxd_cap_report', 'ed_cap_report'), 0, databrowser_label FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %');
-ALTER TABLE dxd_cap_report_smintestines
- DROP FOREIGN KEY FK_dxd_cap_report_smintestines_diagnosis_masters;
-RENAME TABLE dxd_cap_report_smintestines TO ed_cap_report_smintestines;
-ALTER TABLE dxd_cap_report_perihilarbileducts
- DROP FOREIGN KEY FK_dxd_cap_report_perihilarbileducts_diagnosis_masters;
-RENAME TABLE dxd_cap_report_perihilarbileducts TO ed_cap_report_perihilarbileducts;
-ALTER TABLE dxd_cap_report_pancreasexos
- DROP FOREIGN KEY FK_dxd_cap_report_pancreasexos_diagnosis_masters;
-RENAME TABLE dxd_cap_report_pancreasexos TO ed_cap_report_pancreasexos;
-ALTER TABLE dxd_cap_report_intrahepbileducts
- DROP FOREIGN KEY FK_dxd_cap_report_intrahepbileducts_diagnosis_masters;
-RENAME TABLE dxd_cap_report_intrahepbileducts TO ed_cap_report_intrahepbileducts;
-ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
- DROP FOREIGN KEY FK_dxd_cap_report_hepatocellulars_diagnosis_masters;
-RENAME TABLE dxd_cap_report_hepatocellular_carcinomas TO ed_cap_report_hepatocellular_carcinomas;
-ALTER TABLE dxd_cap_report_gallbladders
- DROP FOREIGN KEY FK_dxd_cap_report_gallbladders_diagnosis_masters;
-RENAME TABLE dxd_cap_report_gallbladders TO ed_cap_report_gallbladders;
-ALTER TABLE dxd_cap_report_distalexbileducts
- DROP FOREIGN KEY FK_dxd_cap_report_distalexbileducts_diagnosis_masters;
-RENAME TABLE dxd_cap_report_distalexbileducts TO ed_cap_report_distalexbileducts;
-ALTER TABLE dxd_cap_report_colon_biopsies
- DROP FOREIGN KEY FK_dxd_cap_report_colons_diagnosis_masters;
-RENAME TABLE dxd_cap_report_colon_biopsies TO ed_cap_report_colon_biopsies;
-ALTER TABLE dxd_cap_report_ampullas
- DROP FOREIGN KEY FK_dxd_cap_report_ampullas_diagnosis_masters;
-RENAME TABLE dxd_cap_report_ampullas TO ed_cap_report_ampullas;
-ALTER TABLE dxd_cap_report_colon_rectum_resections
- DROP FOREIGN KEY FK_dxd_cap_report_colon_rectum_resections_diagnosis_masters;
-RENAME TABLE dxd_cap_report_colon_rectum_resections TO ed_cap_report_colon_rectum_resections;
-ALTER TABLE dxd_cap_report_pancreasendos
- DROP FOREIGN KEY FK_dxd_cap_report_pancreasendos_diagnosis_masters;
-RENAME TABLE dxd_cap_report_pancreasendos TO ed_cap_report_pancreasendos;
-
-RENAME TABLE dxd_cap_report_smintestines_revs TO ed_cap_report_smintestines_revs;
-RENAME TABLE dxd_cap_report_perihilarbileducts_revs TO ed_cap_report_perihilarbileducts_revs;
-RENAME TABLE dxd_cap_report_pancreasexos_revs TO ed_cap_report_pancreasexos_revs;
-RENAME TABLE dxd_cap_report_intrahepbileducts_revs TO ed_cap_report_intrahepbileducts_revs;
-RENAME TABLE dxd_cap_report_hepatocellular_carcinomas_revs TO ed_cap_report_hepatocellular_carcinomas_revs;
-RENAME TABLE dxd_cap_report_gallbladders_revs TO ed_cap_report_gallbladders_revs;
-RENAME TABLE dxd_cap_report_distalexbileducts_revs TO ed_cap_report_distalexbileducts_revs;
-RENAME TABLE dxd_cap_report_colon_biopsies_revs TO ed_cap_report_colon_biopsies_revs;
-RENAME TABLE dxd_cap_report_ampullas_revs TO ed_cap_report_ampullas_revs;
-RENAME TABLE dxd_cap_report_colon_rectum_resections_revs TO ed_cap_report_colon_rectum_resections_revs;
-RENAME TABLE dxd_cap_report_pancreasendos_revs TO ed_cap_report_pancreasendos_revs;
-
-#create an intermediary table to update the ctrl id
-CREATE TABLE event_masters_tmp
-(SELECT diagnosis_control_id AS control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, id AS old_dx_id FROM diagnosis_masters WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
-UPDATE event_masters_tmp AS em
-INNER JOIN diagnosis_controls AS dc ON em.control_id=dc.id
-INNER JOIN event_controls AS ec ON dc.controls_type=ec.event_type
-SET em.control_id=ec.id; 
-
-ALTER TABLE event_masters
- ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
-ALTER TABLE event_masters_revs
- ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
-
-INSERT INTO event_masters (event_control_id, event_date, event_date_accuracy, created, created_by, modified, modified_by, participant_id, diagnosis_master_id, deleted, tmp_old_dx_id)
-(SELECT control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, old_dx_id FROM event_masters_tmp);
-INSERT INTO event_masters_revs (id, event_control_id, event_date, event_date_accuracy, participant_id, diagnosis_master_id, tmp_old_dx_id, version_created, modified_by)
-(SELECT 0, diagnosis_control_id, dx_date, dx_date_accuracy, participant_id, parent_id, id, version_created, modified_by FROM diagnosis_masters_revs WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
-
-
-ALTER TABLE dxd_cap_report_smintestines
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_perihilarbileducts
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_pancreasexos
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_intrahepbileducts
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_gallbladders
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_distalexbileducts
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_colon_biopsies
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_ampullas
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_colon_rectum_resections
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
-ALTER TABLE dxd_cap_report_pancreasendos
- CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
- ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
- 
 ALTER TABLE dxd_cap_report_smintestines_revs
  CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
 ALTER TABLE dxd_cap_report_perihilarbileducts_revs
@@ -1389,6 +1330,67 @@ ALTER TABLE dxd_cap_report_colon_rectum_resections_revs
  CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
 ALTER TABLE dxd_cap_report_pancreasendos_revs
  CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
+ 
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label)
+(SELECT 'all', 'lab', controls_type, 1, REPLACE(form_alias, 'dx_cap_report', 'ed_cap_report'), REPLACE(detail_tablename, 'dxd_cap_report', 'ed_cap_report'), 0, databrowser_label FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %');
+ALTER TABLE dxd_cap_report_smintestines
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_smintestines_diagnosis_masters;
+ALTER TABLE dxd_cap_report_perihilarbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_perihilarbileducts_diagnosis_masters;
+ALTER TABLE dxd_cap_report_pancreasexos
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_pancreasexos_diagnosis_masters;
+ALTER TABLE dxd_cap_report_intrahepbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_intrahepbileducts_diagnosis_masters;
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_hepatocellulars_diagnosis_masters;
+ALTER TABLE dxd_cap_report_gallbladders
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_gallbladders_diagnosis_masters;
+ALTER TABLE dxd_cap_report_distalexbileducts
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_distalexbileducts_diagnosis_masters;
+ALTER TABLE dxd_cap_report_colon_biopsies
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_colons_diagnosis_masters;
+ALTER TABLE dxd_cap_report_ampullas
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_ampullas_diagnosis_masters;
+ALTER TABLE dxd_cap_report_colon_rectum_resections
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_colon_rectum_resections_diagnosis_masters;
+ALTER TABLE dxd_cap_report_pancreasendos
+ CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL,
+ DROP FOREIGN KEY FK_dxd_cap_report_pancreasendos_diagnosis_masters;
+ 
+#create an intermediary table to update the ctrl id
+CREATE TABLE event_masters_tmp
+(SELECT diagnosis_control_id AS control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, id AS old_dx_id FROM diagnosis_masters WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
+UPDATE event_masters_tmp AS em
+INNER JOIN diagnosis_controls AS dc ON em.control_id=dc.id
+INNER JOIN event_controls AS ec ON dc.controls_type=ec.event_type
+SET em.control_id=ec.id; 
+
+ALTER TABLE event_masters
+ ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
+ALTER TABLE event_masters_revs
+ ADD COLUMN tmp_old_dx_id INT DEFAULT NULL;
+
+INSERT INTO event_masters (event_control_id, event_date, event_date_accuracy, created, created_by, modified, modified_by, participant_id, diagnosis_master_id, deleted, tmp_old_dx_id)
+(SELECT control_id, dx_date, dx_date_accuracy, created, created_by, modified, modified_by, participant_id, parent_id, deleted, old_dx_id FROM event_masters_tmp);
+INSERT INTO event_masters_revs (id, event_control_id, event_date, event_date_accuracy, participant_id, diagnosis_master_id, tmp_old_dx_id, version_created, modified_by)
+(SELECT 0, diagnosis_control_id, dx_date, dx_date_accuracy, participant_id, parent_id, id, version_created, modified_by FROM diagnosis_masters_revs WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
+
+
+UPDATE event_masters_revs AS rev
+INNER JOIN event_masters AS em ON rev.tmp_old_dx_id=em.tmp_old_dx_id
+SET rev.id=em.id, rev.event_control_id=em.event_control_id
+WHERE rev.tmp_old_dx_id IS NOT NULL;
+
 
 UPDATE dxd_cap_report_smintestines AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
 UPDATE dxd_cap_report_perihilarbileducts AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
@@ -1414,16 +1416,61 @@ UPDATE dxd_cap_report_ampullas_revs AS cap INNER JOIN event_masters AS em ON cap
 UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
 UPDATE dxd_cap_report_pancreasendos_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id; 
 
-UPDATE event_masters_revs AS rev
-INNER JOIN event_masters AS em ON rev.tmp_old_dx_id=em.tmp_old_dx_id
-SET rev.id=em.id, rev.event_control_id=em.event_control_id
-WHERE rev.tmp_old_dx_id IS NOT NULL;
+
 
 DROP TABLE event_masters_tmp;
 ALTER TABLE event_masters
  DROP COLUMN tmp_old_dx_id;
 ALTER TABLE event_masters_revs
  DROP COLUMN tmp_old_dx_id;
+
+ALTER TABLE dxd_cap_report_smintestines
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_perihilarbileducts
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_pancreasexos
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_intrahepbileducts
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_hepatocellular_carcinomas
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_gallbladders
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_distalexbileducts
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_colon_biopsies
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_ampullas
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_colon_rectum_resections
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+ALTER TABLE dxd_cap_report_pancreasendos
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
+
+
+RENAME TABLE dxd_cap_report_smintestines TO ed_cap_report_smintestines;
+RENAME TABLE dxd_cap_report_perihilarbileducts TO ed_cap_report_perihilarbileducts;
+RENAME TABLE dxd_cap_report_pancreasexos TO ed_cap_report_pancreasexos;
+RENAME TABLE dxd_cap_report_intrahepbileducts TO ed_cap_report_intrahepbileducts;
+RENAME TABLE dxd_cap_report_hepatocellular_carcinomas TO ed_cap_report_hepatocellular_carcinomas;
+RENAME TABLE dxd_cap_report_gallbladders TO ed_cap_report_gallbladders;
+RENAME TABLE dxd_cap_report_distalexbileducts TO ed_cap_report_distalexbileducts;
+RENAME TABLE dxd_cap_report_colon_biopsies TO ed_cap_report_colon_biopsies;
+RENAME TABLE dxd_cap_report_ampullas TO ed_cap_report_ampullas;
+RENAME TABLE dxd_cap_report_colon_rectum_resections TO ed_cap_report_colon_rectum_resections;
+RENAME TABLE dxd_cap_report_pancreasendos TO ed_cap_report_pancreasendos;
+
+RENAME TABLE dxd_cap_report_smintestines_revs TO ed_cap_report_smintestines_revs;
+RENAME TABLE dxd_cap_report_perihilarbileducts_revs TO ed_cap_report_perihilarbileducts_revs;
+RENAME TABLE dxd_cap_report_pancreasexos_revs TO ed_cap_report_pancreasexos_revs;
+RENAME TABLE dxd_cap_report_intrahepbileducts_revs TO ed_cap_report_intrahepbileducts_revs;
+RENAME TABLE dxd_cap_report_hepatocellular_carcinomas_revs TO ed_cap_report_hepatocellular_carcinomas_revs;
+RENAME TABLE dxd_cap_report_gallbladders_revs TO ed_cap_report_gallbladders_revs;
+RENAME TABLE dxd_cap_report_distalexbileducts_revs TO ed_cap_report_distalexbileducts_revs;
+RENAME TABLE dxd_cap_report_colon_biopsies_revs TO ed_cap_report_colon_biopsies_revs;
+RENAME TABLE dxd_cap_report_ampullas_revs TO ed_cap_report_ampullas_revs;
+RENAME TABLE dxd_cap_report_colon_rectum_resections_revs TO ed_cap_report_colon_rectum_resections_revs;
+RENAME TABLE dxd_cap_report_pancreasendos_revs TO ed_cap_report_pancreasendos_revs;
 
 UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_smintestines';
 UPDATE structure_fields SET model='EventDetail', tablename=REPLACE(tablename, 'dxd_cap_', 'ed_cap_') WHERE tablename='dxd_cap_report_perihilarbileducts';
@@ -1455,12 +1502,33 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation', 'EventDetail', '', 'additional_dimension_b', 'float', NULL, 0, '', '', '', '', 'x'), 
 ('Clinicalannotation', 'EventDetail', '', 'tumor_size_cannot_be_determined', 'checkbox', NULL, 0, '', '', '', 'cannot be determined', ''), 
 ('Clinicalannotation', 'EventDetail', '', 'notes', 'textarea', NULL, 0, 'cols=40, rows=6', '', '', 'notes', ''), 
-('Clinicalannotation', 'EventDetail', '', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='histologic_grade_c'), 0, '', '', '', 'histologic grade', ''); 
+('Clinicalannotation', 'EventDetail', '', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='histologic_grade_c'), 0, '', '', '', 'histologic grade', ''),
+('Clinicalannotation', 'EventDetail', '', 'tumour_grade_specify', 'input', NULL, 0, '', '', '', 'tumour grade specify', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_m', 'yes_no', NULL, 0, '', '', '', 'tnm descriptors', 'multiple primary tumors'), 
+('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_r', 'yes_no', NULL, 0, '', '', '', '', 'recurrent'), 
+('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_y', 'yes_no', NULL, 0, '', '', '', '', 'post treatment'), 
+('Clinicalannotation', 'EventDetail', '', 'path_tstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='path_tstage_sm'), 0, '', '', '', 'path tstage', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_nstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='path_nstage_sm'), 0, '', '', '', 'path nstage', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_nstage_nbr_node_examined', 'integer', NULL, 0, '', '', '', 'number node examined', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_nstage_nbr_node_involved', 'integer', NULL, 0, '', '', '', 'number node involved', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_mstage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='path_mstage_sm'), 0, '', '', '', 'path mstage', ''), 
+('Clinicalannotation', 'EventDetail', '', 'path_mstage_metastasis_site_specify', 'input', NULL, 0, '', '', '', 'metastasis site specify', ''); 
 
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="additional_dimension_a") WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="additional_dimension_a") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="additional_dimension_b") WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="additional_dimension_b") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="notes") WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="notes") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_mstage") WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_mstage") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_mstage_metastasis_site_specify") WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_mstage_metastasis_site_specify") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_nstage") WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_nstage") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_nstage_nbr_node_examined") WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_nstage_nbr_node_examined") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_nstage_nbr_node_involved") WHERE structure_field_id IN(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_nstage_nbr_node_involved") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_tnm_descriptor_m") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_tnm_descriptor_m") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_tnm_descriptor_r") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_tnm_descriptor_r") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_tnm_descriptor_y") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_tnm_descriptor_y") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="path_tstage") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="path_tstage") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="tumor_size_cannot_be_determined") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="tumor_size_cannot_be_determined") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="tumor_size_greatest_dimension") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="tumor_size_greatest_dimension") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="tumour_grade") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="tumour_grade") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventDetail" AND field="tumour_grade_specify") WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="tumour_grade_specify") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE model="EventMaster" AND field="event_date") WHERE structure_field_id=(SELECT id FROM structure_fields WHERE model="DiagnosisMaster" AND field="dx_date") AND structure_id IN(SELECT id FROM structures WHERE alias IN("ed_cap_report_smintestines", "ed_cap_report_perihilarbileducts", "ed_cap_report_pancreasexos", "ed_cap_report_intrahepbileducts", "ed_cap_report_hepatocellular_carcinomas", "ed_cap_report_gallbladders", "ed_cap_report_distalexbileducts", "ed_cap_report_colon_biopsies", "ed_cap_report_ampullas", "ed_cap_report_colon_rectum_resections", "ed_cap_report_pancreasendos"));
 #fields to validate: path_mstage, path_nstage, path_tstage, tumour_grade
-
-#SELECT field FROM structure_fields WHERE model='DiagnosisMaster' AND id IN(
-#SELECT structure_field_id FROM structure_formats WHERE structure_id IN(
-#SELECT id FROM structures WHERE alias IN(
-#SELECT form_alias FROM diagnosis_controls WHERE id BETWEEN 3 AND 13)))
-#GROUP BY field;
