@@ -31,7 +31,7 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		CONCAT(realiq.id, 2) AS id,
 		aliq.id AS aliquot_master_id,
 		'realiquoted to' AS use_definition, 
-		CONCAT(child.qc_ldov_aliquot_label, ' - ', child.barcode) AS use_code,
+		CONCAT(child.aliquot_label, ' - ', child.barcode) AS use_code,
 		'' AS use_details,
 		realiq.parent_used_volume AS used_volume,
 		aliq.aliquot_volume_unit,
@@ -48,24 +48,23 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		WHERE realiq.deleted != 1",
 	
 		"SELECT 
-		CONCAT(tested.id, 3) AS id,
+		CONCAT(qc.id, 3) AS id,
 		aliq.id AS aliquot_master_id,
 		'quality control' AS use_definition, 
 		qc.qc_code AS use_code,
 		'' AS use_details,
-		tested.used_volume,
+		qc.used_volume,
 		aliq.aliquot_volume_unit,
 		qc.date AS use_datetime,
 		qc.run_by AS used_by,
-		tested.created,
+		qc.created,
 		CONCAT('|inventorymanagement|quality_ctrls|detail|',aliq.collection_id,'|',aliq.sample_master_id,'|',qc.id) AS detail_url,
 		samp.id AS sample_master_id,
 		samp.collection_id AS collection_id
-		FROM quality_ctrl_tested_aliquots AS tested
-		INNER JOIN aliquot_masters AS aliq ON aliq.id = tested.aliquot_master_id AND aliq.deleted != 1
-		INNER JOIN quality_ctrls AS qc ON qc.id = tested.quality_ctrl_id AND qc.deleted != 1
+		FROM quality_ctrls AS qc
+		INNER JOIN aliquot_masters AS aliq ON aliq.id = qc.aliquot_master_id AND aliq.deleted != 1
 		INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
-		WHERE tested.deleted != 1",
+		WHERE qc.deleted != 1",
 	
 		"SELECT 
 		CONCAT(item.id, 4) AS id,
@@ -125,34 +124,6 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
 		INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 		WHERE aluse.deleted != 1");
-	
-	function findFastFromAliquotMasterId($aliquot_master_id) {
-		//TODO: REPLACE BY A BETTER SOLUTION IN v2.3 (View use is too time consuming see issue 1352)
-		$tmp_uses_list = array();
-		foreach($this->view_sub_queries as $sub_query) {
-			$sub_query_results = $this->query($sub_query." AND aliq.id = $aliquot_master_id");
-			foreach($sub_query_results as $new_record) {
-				$view_aliquot_use = array();
-				foreach($new_record as $model => $data) {
-					$view_aliquot_use = array_merge($view_aliquot_use,$data);
-				}
-				if((strlen($view_aliquot_use['use_datetime']) > 1) && (strpos($view_aliquot_use['use_datetime'], ':') == false)) {
-					$view_aliquot_use['use_datetime'] .= ' 00:00';
-				}	
-				$tmp_uses_list[$view_aliquot_use['use_datetime']][] = $view_aliquot_use;
-			}
-		}
-		krsort($tmp_uses_list);
-		
-		$uses_list = array();
-		foreach($tmp_uses_list as $tmp => $records_set) {
-			foreach($records_set as $data) {
-				$uses_list[]['ViewAliquotUse'] = $data;
-			}
-		}
-						
-		return $uses_list;
-	}
 
 }
 
