@@ -3,8 +3,9 @@
 	// --------------------------------------------------------------------------------
 	// Save Participant Identifier
 	// -------------------------------------------------------------------------------- 
+	$this->data['Participant']['qc_ldov_initals'] = strtoupper($this->data['Participant']['qc_ldov_initals']);
 	if($submitted_data_validates) {
-		$this->data['Participant']['participant_identifier'] = strtoupper(substr($this->data['Participant']['first_name'], 0, 1).substr($this->data['Participant']['last_name'], 0, 1)).' ('.$participant_id.')';
+		$this->data['Participant']['participant_identifier'] = $this->data['Participant']['qc_ldov_initals'].' ('.$participant_id.')';
 	}
 	
 ?>

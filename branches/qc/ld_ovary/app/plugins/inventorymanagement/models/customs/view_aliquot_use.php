@@ -124,6 +124,34 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq.deleted != 1
 		INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 		WHERE aluse.deleted != 1");
+	
+	function findFastFromAliquotMasterId($aliquot_master_id) {
+		//TODO: REPLACE BY A BETTER SOLUTION IN v2.3 (View use is too time consuming see issue 1352)
+		$tmp_uses_list = array();
+		foreach($this->view_sub_queries as $sub_query) {
+			$sub_query_results = $this->query($sub_query." AND aliq.id = $aliquot_master_id");
+			foreach($sub_query_results as $new_record) {
+				$view_aliquot_use = array();
+				foreach($new_record as $model => $data) {
+					$view_aliquot_use = array_merge($view_aliquot_use,$data);
+				}
+				if((strlen($view_aliquot_use['use_datetime']) > 1) && (strpos($view_aliquot_use['use_datetime'], ':') == false)) {
+					$view_aliquot_use['use_datetime'] .= ' 00:00';
+				}	
+				$tmp_uses_list[$view_aliquot_use['use_datetime']][] = $view_aliquot_use;
+			}
+		}
+		krsort($tmp_uses_list);
+		
+		$uses_list = array();
+		foreach($tmp_uses_list as $tmp => $records_set) {
+			foreach($records_set as $data) {
+				$uses_list[]['ViewAliquotUse'] = $data;
+			}
+		}
+						
+		return $uses_list;
+	}
 
 }
 
