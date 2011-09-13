@@ -4,7 +4,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('core_installname', "Lady Davis - Breast", "Lady Davis - Sein"),
 ('qc_lady_participant_bt_query_desc', "Searches for participants having B and T collections", "Cherche les participant ayant les collections B et T"),
 ('qc_lady_participant_bmt_query_desc', "Searches for participants having B, M and T collections", "Cherche les participant ayant les colletions B, M et T"),
-('participant B-T', 'Participant B-T', 'Participant B-T');
+('participant B-T', 'Participant B-T', 'Participant B-T'),
+("pre-op", "Pre-op", "Pré-op");
 
 INSERT INTO datamart_adhoc (title, description, plugin, model, form_alias_for_search, form_alias_for_results, form_links_for_results, sql_query_for_results, flag_use_query_results) VALUES
 ('participant B-T', 'qc_lady_participant_bt_query_desc', 'clinicalannotation', 'Participant', 'participants', 'participants', '', 
