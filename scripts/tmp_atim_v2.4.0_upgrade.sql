@@ -92,6 +92,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "L'actuelle date de diagnostic est avant la date du diagnostic parent.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
+UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
 
 -- drop clutter
 ALTER TABLE structures
@@ -690,13 +691,17 @@ UPDATE structure_formats SET `flag_add_readonly`='1', `flag_edit_readonly`='1' W
 UPDATE structure_formats SET `flag_add_readonly`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_origin' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='origin') AND `flag_confidential`='0');
 
 SELECT '--Looking for bogus primary dx--' AS msg;
-CREATE TABLE tmp_bogus_primary_dx (SELECT participant_id, primary_number, COUNT(*) AS c FROM diagnosis_masters WHERE dx_origin='primary' GROUP BY participant_id, primary_number HAVING c > 1);
+CREATE TABLE tmp_bogus_primary_dx (SELECT participant_id, primary_number, 'more than one primary' AS issue, COUNT(*) AS c FROM diagnosis_masters WHERE dx_origin='primary' GROUP BY participant_id, primary_number HAVING c > 1);
+INSERT INTO tmp_bogus_primary_dx (participant_id, primary_number, issue) (SELECT dm1.participant_id, dm1.primary_number, 'no primary' AS issue FROM diagnosis_masters AS dm1 
+LEFT OUTER JOIN diagnosis_masters AS dm2 ON dm1.primary_number=dm2.primary_number AND dm1.participant_id=dm2.participant_id AND dm2.dx_origin='primary'
+WHERE dm1.primary_number IS NOT NULL AND dm2.id IS NULL
+GROUP BY dm1.primary_number);
 ALTER TABLE tmp_bogus_primary_dx 
  ADD INDEX (`participant_id`),
  ADD INDEX (`primary_number`);
 SELECT IF(COUNT(*) > 0, 'See table tmp_bogus_primary_dx to manually fix the bogus primary dx and their children', 'All dx are ok. You can drop table tmp_bogus_primary_dx') AS msg FROM tmp_bogus_primary_dx
 UNION
-SELECT 'Check the release nodes to know how to fit your existing diagnosis to version 2.4.x' AS msg; 
+SELECT 'Check the release notes to know how to fit your existing diagnosis to version 2.4.x' AS msg; 
 
 CREATE TABLE dxd_primaries(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -785,7 +790,7 @@ INSERT INTO structures(alias) VALUES
 ('dx_remission'),
 ('dx_progression');
 
-UPDATE diagnosis_controls SET flag_active = 0; /* disable old dx_controls */
+UPDATE diagnosis_controls SET flag_active = 0 WHERE controls_type LIKE 'cap report - %'; /* disable old dx_controls */
 
 INSERT INTO diagnosis_controls(controls_type, flag_primary, flag_secondary, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
 ('primary', 1, 0, 1, 'dx_master,dx_primary', 'dxd_primaries', 0, 'primary'),
@@ -800,10 +805,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_master'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '2', '', '1', 'age at dx', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='dx_master'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0'), '1', '3', '', '0', '', '1', 'precision', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-
-
 UPDATE diagnosis_masters AS dm
-LEFT JOIN diagnosis_masters AS dm_parent ON dm.participant_id=dm_parent.participant_id AND dm.dx_origin!='primary' AND dm_parent.dx_origin='primary' AND dm.primary_number=dm_parent.primary_number
+LEFT JOIN diagnosis_masters AS dm_parent ON dm.participant_id=dm_parent.participant_id AND (dm.dx_origin!='primary' OR dm.dx_origin IS NULL) AND dm_parent.dx_origin='primary' AND dm.primary_number=dm_parent.primary_number AND dm_parent.primary_number IS NOT NULL 
 LEFT JOIN tmp_bogus_primary_dx AS bogus_dx ON dm.participant_id=bogus_dx.participant_id AND dm.primary_number=bogus_dx.primary_number
 SET dm.parent_id=dm_parent.id
 WHERE dm_parent.id IS NOT NULL AND bogus_dx.participant_id IS NULL;
@@ -887,6 +890,8 @@ INSERT INTO datamart_adhoc_permissions (group_id, datamart_adhoc_id)
 (SELECT groups.id, datamart_adhoc.id FROM groups INNER JOIN datamart_adhoc);
 
 -- cap reports refactoring
+UPDATE diagnosis_controls SET controls_type=REPLACE(controls_type, 'cap peport - ', 'cap report - '), databrowser_label=REPLACE(databrowser_label, 'cap peport - ', 'cap report - ');
+
 ALTER TABLE dxd_cap_report_smintestines
  ADD COLUMN additional_dimension_a decimal(3,1) DEFAULT NULL,
  ADD COLUMN additional_dimension_b decimal(3,1) DEFAULT NULL,
@@ -1290,8 +1295,8 @@ UPDATE dxd_cap_report_intrahepbileducts AS cap INNER JOIN diagnosis_masters AS d
 UPDATE dxd_cap_report_hepatocellular_carcinomas AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
 UPDATE dxd_cap_report_gallbladders AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
 UPDATE dxd_cap_report_distalexbileducts AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
-UPDATE dxd_cap_report_colon_biopsies_revs AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
-UPDATE dxd_cap_report_ampullas_revs AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_colon_biopsies AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
+UPDATE dxd_cap_report_ampullas AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
 UPDATE dxd_cap_report_colon_rectum_resections AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
 UPDATE dxd_cap_report_pancreasendos AS cap INNER JOIN diagnosis_masters AS dx ON cap.diagnosis_master_id=dx.id SET cap.additional_dimension_a = dx.additional_dimension_a, cap.additional_dimension_b = dx.additional_dimension_b, cap.notes = dx.notes, cap.path_mstage = dx.path_mstage, cap.path_mstage_metastasis_site_specify = dx.path_mstage_metastasis_site_specify, cap.path_nstage = dx.path_nstage, cap.path_nstage_nbr_node_examined = dx.path_nstage_nbr_node_examined, cap.path_nstage_nbr_node_involved = dx.path_nstage_nbr_node_involved, cap.path_tnm_descriptor_m = dx.path_tnm_descriptor_m, cap.path_tnm_descriptor_r = dx.path_tnm_descriptor_r, cap.path_tnm_descriptor_y = dx.path_tnm_descriptor_y, cap.path_tstage = dx.path_tstage, cap.tumor_size_cannot_be_determined = dx.tumor_size_cannot_be_determined, cap.tumor_size_greatest_dimension = dx.tumor_size_greatest_dimension, cap.tumour_grade = dx.tumour_grade, cap.tumour_grade_specify = dx.tumour_grade_specify;
 
@@ -1306,7 +1311,6 @@ UPDATE dxd_cap_report_colon_biopsies_revs AS cap_rev INNER JOIN dxd_cap_report_c
 UPDATE dxd_cap_report_ampullas_revs AS cap_rev INNER JOIN dxd_cap_report_ampullas AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
 UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap_rev INNER JOIN dxd_cap_report_colon_rectum_resections AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
 UPDATE dxd_cap_report_pancreasendos_revs AS cap_rev INNER JOIN dxd_cap_report_pancreasendos AS cap ON cap_rev.id=cap.id SET cap_rev.additional_dimension_a = cap.additional_dimension_a, cap_rev.additional_dimension_b = cap.additional_dimension_b, cap_rev.notes = cap.notes, cap_rev.path_mstage = cap.path_mstage, cap_rev.path_mstage_metastasis_site_specify = cap.path_mstage_metastasis_site_specify, cap_rev.path_nstage = cap.path_nstage, cap_rev.path_nstage_nbr_node_examined = cap.path_nstage_nbr_node_examined, cap_rev.path_nstage_nbr_node_involved = cap.path_nstage_nbr_node_involved, cap_rev.path_tnm_descriptor_m = cap.path_tnm_descriptor_m, cap_rev.path_tnm_descriptor_r = cap.path_tnm_descriptor_r, cap_rev.path_tnm_descriptor_y = cap.path_tnm_descriptor_y, cap_rev.path_tstage = cap.path_tstage, cap_rev.tumor_size_cannot_be_determined = cap.tumor_size_cannot_be_determined, cap_rev.tumor_size_greatest_dimension = cap.tumor_size_greatest_dimension, cap_rev.tumour_grade = cap.tumour_grade, cap_rev.tumour_grade_specify = cap.tumour_grade_specify;
-
 
 ALTER TABLE dxd_cap_report_smintestines_revs
  CHANGE COLUMN diagnosis_master_id event_master_id INT NOT NULL;
@@ -1385,7 +1389,6 @@ INSERT INTO event_masters (event_control_id, event_date, event_date_accuracy, cr
 INSERT INTO event_masters_revs (id, event_control_id, event_date, event_date_accuracy, participant_id, diagnosis_master_id, tmp_old_dx_id, version_created, modified_by)
 (SELECT 0, diagnosis_control_id, dx_date, dx_date_accuracy, participant_id, parent_id, id, version_created, modified_by FROM diagnosis_masters_revs WHERE diagnosis_control_id IN(SELECT id FROM diagnosis_controls WHERE controls_type LIKE 'cap report - %'));
 
-
 UPDATE event_masters_revs AS rev
 INNER JOIN event_masters AS em ON rev.tmp_old_dx_id=em.tmp_old_dx_id
 SET rev.id=em.id, rev.event_control_id=em.event_control_id
@@ -1416,7 +1419,8 @@ UPDATE dxd_cap_report_ampullas_revs AS cap INNER JOIN event_masters AS em ON cap
 UPDATE dxd_cap_report_colon_rectum_resections_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id;
 UPDATE dxd_cap_report_pancreasendos_revs AS cap INNER JOIN event_masters AS em ON cap.event_master_id=em.tmp_old_dx_id SET cap.event_master_id=em.id; 
 
-
+DELETE FROM diagnosis_masters WHERE id IN(SELECT old_dx_id FROM event_masters_tmp); 
+DELETE FROM diagnosis_masters_revs WHERE id IN(SELECT old_dx_id FROM event_masters_tmp); 
 
 DROP TABLE event_masters_tmp;
 ALTER TABLE event_masters
@@ -1503,7 +1507,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation', 'EventDetail', '', 'tumor_size_cannot_be_determined', 'checkbox', NULL, 0, '', '', '', 'cannot be determined', ''), 
 ('Clinicalannotation', 'EventDetail', '', 'notes', 'textarea', NULL, 0, 'cols=40, rows=6', '', '', 'notes', ''), 
 ('Clinicalannotation', 'EventDetail', '', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='histologic_grade_c'), 0, '', '', '', 'histologic grade', ''),
-('Clinicalannotation', 'EventDetail', '', 'tumour_grade_specify', 'input', NULL, 0, '', '', '', 'tumour grade specify', ''), 
+('Clinicalannotation', 'EventDetail', '', 'tumour_grade_specify', 'input', NULL, 0, '', '', '', 'histologic grade specify', ''), 
 ('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_m', 'yes_no', NULL, 0, '', '', '', 'tnm descriptors', 'multiple primary tumors'), 
 ('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_r', 'yes_no', NULL, 0, '', '', '', '', 'recurrent'), 
 ('Clinicalannotation', 'EventDetail', '', 'path_tnm_descriptor_y', 'yes_no', NULL, 0, '', '', '', '', 'post treatment'), 
