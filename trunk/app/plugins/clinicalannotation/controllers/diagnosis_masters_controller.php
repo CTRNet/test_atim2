@@ -113,6 +113,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
+		
+		$events_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.diagnosis_master_id' => $diagnosis_master_id)));
+		foreach($events_data as $event_data){
+			EventMaster::generateDxCompatWarnings($this->data, $event_data);
+		}
 	}
 
 	function add( $participant_id, $parent_id, $dx_control_id){
