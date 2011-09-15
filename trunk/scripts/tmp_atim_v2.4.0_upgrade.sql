@@ -89,7 +89,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Vous n'êtes pas autorisés à utiliser la version générique de cet ensemble de données."),
 ("the current diagnosis date is before the parent diagnosis date",
  "The current diagnosis date is before the parent diagnosis date.",
- "L'actuelle date de diagnostic est avant la date du diagnostic parent.");
+ "L'actuelle date de diagnostic est avant la date du diagnostic parent."),
+("detailed results", "Detailed results", "Résultats détaillés");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';

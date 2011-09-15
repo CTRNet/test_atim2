@@ -329,7 +329,7 @@ function uncheckAll( $div ) {
 		});
 		
 		if($(scope).find(".btn_add_or:first").length == 1){
-			var tabIndex = null;
+			var tabindex = null;
 			$(scope).find(".range").each(function(){
 				//uses .btn_add_or to know if this is a search form and if advanced controls are on
 				var cell = $(this).parent().parent().parent(); 
@@ -907,6 +907,10 @@ function uncheckAll( $div ) {
 		flyOverSubmit();
 		$(window).scroll(flyOverSubmit);
 		$(window).resize(flyOverSubmit);
+		
+		if(window.initPage){
+			initPage();
+		}
 	}
 
 	function globalInit(scope){

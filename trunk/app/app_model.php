@@ -671,11 +671,23 @@ class AppModel extends Model {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	function redirectIfNonExistent($id, $method, $line){
+	/**
+	 * Redirects to the missing data page if a model id cannot be fetched
+	 * @param int $id
+	 * @param string $method The method name to display in the error message
+	 * @param string $line The line number to display in the error message
+	 * @param bool $return Returns the data line if it exists
+	 * @return null if $return is true and the data exists, the data, null otherwise
+	 */
+	function redirectIfNonExistent($id, $method, $line, $return = false){
 		$this->id = $id;
 		if(!$this->exists()){
 			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
 		}
+		if($return){
+			return $this->findById($id);
+		}
+		return null;
 	}
 }
 

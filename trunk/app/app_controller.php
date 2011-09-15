@@ -16,6 +16,8 @@ class AppController extends Controller {
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
 	
+	public static $result_are_unique_ctrl = null;
+	
 	function beforeFilter() {
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
@@ -638,6 +640,8 @@ class AppController extends Controller {
 	 * Finds and paginate search results. Stores search in cache. 
 	 * Handles detail level when there is a unique ctrl_id. 
 	 * Defines/updates the result structure.
+	 * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id, 
+	 * 	false otherwise. (Non master/detail models will return false) 
 	 * @param int $search_id The search id used by the pagination
 	 * @param Object $model The model to search upon
 	 * @param string $structure_alias The structure alias to parse the search conditions on
@@ -646,6 +650,7 @@ class AppController extends Controller {
 	 */
 	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false){
 		//setting structure
+		$unique_ctrl_id = false;
 		$structure = $this->Structures->get('form', $structure_alias);
 		$this->set('atim_structure', $structure);
 		if($this->data){
@@ -673,6 +678,7 @@ class AppController extends Controller {
 			));
 			if(count($ctrl_ids) == 1){
 				//only one ctrl, attach detail
+				$unique_ctrl_id = true;
 				$has_one = array();
 				$master_class_name = null;
 				if($view){
@@ -766,6 +772,7 @@ class AppController extends Controller {
 		// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
 		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
 		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+		self::$result_are_unique_ctrl = $unique_ctrl_id;
 	}
 }
 
