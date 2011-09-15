@@ -44,9 +44,14 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		);
 		
 		$ids = array();
+		$no_add_ids = array();
+		$can_have_child  = array('primary', 'secondary');
 		foreach($this->data as $data){
 			if(array_key_exists('DiagnosisMaster', $data)){
 				$ids[] = $data['DiagnosisMaster']['id'];
+				if(!in_array($data['DiagnosisControl']['controls_type'], $can_have_child)){
+					$no_add_ids[] = $data['DiagnosisMaster']['id'];
+				}
 			}
 		}
 		$ids_having_child = $this->DiagnosisMaster->hasChild($ids);
@@ -65,6 +70,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters'); 
 		$atim_structure['EventMaster'] = $this->Structures->get('form', 'eventmasters'); 
 		$this->set('atim_structure', $atim_structure);
+		$this->set('no_add_ids', $no_add_ids);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -76,13 +82,31 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	function detail( $participant_id, $diagnosis_master_id ) {
 		// MANAGE DATA
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-		if(empty($dx_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($dx_master_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		$this->data = $dx_master_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']) );
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
+		
+		//check for dates warning
+		if(
+			is_numeric($dx_master_data['DiagnosisMaster']['parent_id']) && 
+			!empty($dx_master_data['DiagnosisMaster']['dx_date']) &&
+			$dx_master_data['DiagnosisMaster']['dx_date_accuracy'] == 'c'
+		){
+			$parent_dx = $this->DiagnosisMaster->findById($dx_master_data['DiagnosisMaster']['parent_id']);
+			if(
+				!empty($parent_dx['DiagnosisMaster']['dx_date']) &&
+				$parent_dx['DiagnosisMaster']['dx_date_accuracy'] == 'c' &&
+				(strtotime($dx_master_data['DiagnosisMaster']['dx_date']) - strtotime($parent_dx['DiagnosisMaster']['dx_date']) < 0)
+			){
+				AppController::addWarningMsg(__('the current diagnosis date is before the parent diagnosis date', true));
+			}
+		}
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -94,13 +118,30 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 	function add( $participant_id, $parent_id, $dx_control_id){
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		$dx_ctrl = $this->DiagnosisControl->redirectIfNonExistent($dx_control_id, __METHOD__, __LINE__, true);
 		if(empty($participant_data)) { 
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
-		if($parent_id != 0){
+		if($parent_id == 0){
+			if(!$dx_ctrl['DiagnosisControl']['flag_primary']){
+				//is not a primary but has no parent
+				$this->flash('invalid control id', 'javascript:history.back();');
+			}
+		}else{
 			$parent_dx = $this->DiagnosisMaster->find('first', array('conditions' => array('DiagnosisMaster.id' => $parent_id, 'DiagnosisMaster.participant_id' => $participant_id)));
 			if(empty($parent_dx)){
 				$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );				
+			}
+			
+			if(
+				//is a child but cannot be
+				!$dx_ctrl['DiagnosisControl']['flag_secondary'] ||
+				//is a secondary of a secondary
+				$dx_ctrl['DiagnosisControl']['controls_type'] == 'secondary' && $parent_dx['DiagnosisMaster']['diagnosis_control_id'] == $dx_ctrl['DiagnosisControl']['id'] ||
+				//is not having a secondary or primary parent
+				!in_array($parent_dx['DiagnosisControl']['controls_type'], array('primary', 'secondary'))
+			){
+				$this->flash('invalid control id', 'javascript:history.back();');
 			}
 		}
 		

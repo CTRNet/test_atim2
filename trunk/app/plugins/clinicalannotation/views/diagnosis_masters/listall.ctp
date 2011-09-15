@@ -9,7 +9,7 @@
 				), 'access to all data' => array(
 					'link' => '/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 					'icon' => 'access_to_data'
- 				)
+ 				), 'add' => AppController::checkLinkPermission('/clinicalannotation/diagnosis_masters/add/') ? 'javascript:addPopup(%%DiagnosisMaster.id%%);' : '/noright'
 			), 'TreatmentMaster' => array(
 				'detail' => array(
 					'link' => '/clinicalannotation/treatment_masters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/1',
@@ -51,7 +51,6 @@
 		}
 		ksort($add_links);
 		$structure_links['bottom'] = array('add' => $add_links);
-		$structure_links['tree']['DiagnosisMaster']['add'] = AppController::checkLinkPermission('/clinicalannotation/diagnosis_masters/add/') ? 'javascript:addPopup(%%DiagnosisMaster.id%%);' : '/noright';
 	}
 	
 	$structure_extras = array();
@@ -82,10 +81,30 @@
 	$structures->build( $final_atim_structure, $final_options );
 	
 	if(!$is_ajax){
+		$options = array();
+		$secondary_ctrl_id = null;
+		foreach($diagnosis_controls_list as $dx_ctrl){
+			if($dx_ctrl['DiagnosisControl']['flag_secondary']){
+				$options[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['databrowser_label'], true);
+				if($dx_ctrl['DiagnosisControl']['controls_type'] == 'secondary'){
+					$secondary_ctrl_id = $dx_ctrl['DiagnosisControl']['id'];
+				}
+			}
+		}
 		?>
+		<div id="popupSelect" class="hidden">
+			<?php
+			echo $this->Form->input("data[DiagnosisControl][id]", array('type' => 'select', 'label' => false, 'options' => array())); 
+			?>
+		</div>
+		
+		
 		<script>
 		var loadingStr = "<?php echo(__("loading", null)); ?>";
 		var ajaxTreeView = true;
+		var noAddIds = [<?php echo implode(", ", $no_add_ids); ?>];
+		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
+		var secondaryCtrlId = <?php echo $secondary_ctrl_id; ?>;
 
 		function addPopup(diagnosis_master_id){
 			if($("#addPopup").length == 0){
@@ -94,19 +113,49 @@
 					{ "label" : STR_OK, "icon" : "add", "action" : function(){ document.location = root_url + 'clinicalannotation/diagnosis_masters/add/<?php echo $atim_menu_variables['Participant.id'] ; ?>/' + $("#addPopup").data("dx_id") + '/' + $("#addPopup select").val() + '/' } }));
 				$("#popupSelect").appendTo("#target").show();
 			}
+
+			$("a.form.add").each(function(){
+				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
+					//remove add button for "unknown" nodes
+					if(parseInt($(this).prop("href").substr(20, $(this).prop("href").length - 22)) == diagnosis_master_id){
+						//found the right one
+						var parentUl = getParentElement(this, "UL");
+						var options = "";
+						if($(parentUl).prop("id") == "tree_root"){
+							//full options dropdown
+							for(i in dropdownOptions){
+								options += "<option value='" + i + "'>" + dropdownOptions[i] + "</option>";
+							}
+						}else{
+							//options without secondary
+							for(i in dropdownOptions){
+								if(i != secondaryCtrlId){
+									options += "<option value='" + i + "'>" + dropdownOptions[i] + "</option>";
+								}
+							}
+						}
+						$("#data\\[DiagnosisControl\\]\\[id\\]").html(options);
+					}
+				}
+			});
+			
 			$("#addPopup").data("dx_id", diagnosis_master_id).popup();
 		}
+
+		function initPage(){
+			$("a.form.add").each(function(){
+				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
+					//remove add button for "unknown" nodes
+					var id = $(this).prop("href").substr(20, $(this).prop("href").length - 22);
+					if($.inArray(parseInt(id), noAddIds) > -1){
+						$(this).hide();
+					}
+				}
+			});
+
+			dropdownOptions = $.parseJSON(dropdownOptions);
+		}
 		</script>
-		<div id="popupSelect" class="hidden">
-			<?php
-			$options = array();
-			foreach($diagnosis_controls_list as $dx_ctrl){
-				if($dx_ctrl['DiagnosisControl']['flag_secondary']){
-					$options[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['databrowser_label'], true);
-				}	
-			}
-			echo $this->Form->input("data[DiagnosisControl][id]", array('type' => 'select', 'label' => false, 'options' => $options)); 
-			?>
-		</div>
+		
 		<?php  
 	}
