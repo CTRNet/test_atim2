@@ -371,14 +371,14 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		if((!$collection_id) || (!$sample_master_id)) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
+		}
 		// MANAGE DATA
 
 		// Get the sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
 		if(empty($sample_data)) { 
 			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
+		}	
 		
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
@@ -422,8 +422,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->data = array();
 					
 		// Set sample aliquot list
-		if(!$is_from_tree_view) { 		
-			$this->set('aliquots_data', $this->paginate($this->AliquotMaster, array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
+		$aliquots_data = array();
+		if(!$is_from_tree_view) {
+			$aliquots_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id))); 
+			$aliquots_data = AppController::defineArrayKey($aliquots_data, "AliquotMaster", "aliquot_control_id", false);
+			$this->set('aliquots_data', $aliquots_data);
 		}
 		
 		// Set Lab Book Id
@@ -451,8 +454,13 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 		}
 		$this->Structures->set($structure_name);	
-		if(!$is_from_tree_view) { 
-			$this->Structures->set('aliquotmasters', 'aliquots_listall_structure');	
+		if(!$is_from_tree_view) {
+			//parse each group to load the required detailed aliquot structures 
+			$aliquots_structures = array();
+			foreach($aliquots_data as $aliquot_control_id => $aliquots){
+				$aliquots_structures[$aliquot_control_id] = $this->Structures->get('form', $aliquots[0]['AliquotControl']['form_alias']);
+			}
+			$this->set('aliquots_structures', $aliquots_structures);
 		}
 
 		// Define if this detail form is displayed into the collection content tree view

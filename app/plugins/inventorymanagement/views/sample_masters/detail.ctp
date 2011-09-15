@@ -62,60 +62,80 @@
 	}
 
 	// Set override
-	$structure_override = array();
 	$dropdown_options = array('SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''));
 	
 	// BUILD FORM
 
-	if(!isset($aliquots_listall_structure)) {
-
+	if(!isset($aliquots_data)){
 		// DISPLAY ONLY SAMPLE DETAIL FORM
-		
 		// 1- SAMPLE DETAIL	
-		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'links' => $structure_links, 'settings' => $sample_settings, 'data' => $sample_master_data);
+		$final_options = array(
+			'dropdown_options' => $dropdown_options, 
+			'links' => $structure_links, 
+			'settings' => $sample_settings, 
+			'data' => $sample_master_data
+		);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
-		if( $hook_link ) { require($hook_link); }
+		if($hook_link){
+			require($hook_link); 
+		}
 			
 		// BUILD FORM
 		$structures->build( $final_atim_structure, $final_options );
 		
-	} else { 
-		
+	}else{ 
 		// DISPLAY BOTH SAMPLE DETAIL FORM AND SAMPLE ALIQUOTS LIST
-		
 		// 1- SAMPLE DETAIL	
-		$sample_settings['actions'] = false;
+		$sample_settings['actions'] = empty($aliquots_data);
 		
 		$final_atim_structure = $atim_structure; 
-		$final_options = array('override' => $structure_override, 'dropdown_options' => $dropdown_options, 'settings' => $sample_settings, 'data' => $sample_master_data);
+		$final_options = array(
+			'dropdown_options' => $dropdown_options, 
+			'settings' => $sample_settings, 
+			'data' => $sample_master_data
+		);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 			
 		// BUILD FORM
 		$structures->build( $final_atim_structure, $final_options );
 
-		// 2- ALIQUOTS LIST
+		// 2- ALIQUOTS LISTS
 		
 		$structure_links['index']['detail'] = '/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		
-		$structure_override = array();
-		
-		$final_atim_structure = $aliquots_listall_structure; 
-		$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options, 'data' => $aliquots_data, 'settings' => array('header' => __('aliquots', null)));
-		
-		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquots');
-		if( $hook_link ) { require($hook_link); }
-			
-		// BUILD FORM
-		$structures->build( $final_atim_structure, $final_options );	
 		
+		$arr_size = count($aliquots_data);
+		$i = 0;
+		foreach($aliquots_data as $aliquot_control_id => $aliquots){
+			$final_atim_structure = $aliquots_structures[$aliquot_control_id];
+			$final_options = array(
+				'type'				=> 'index', 
+				'links'				=> $structure_links, 
+				'dropdown_options'	=> $dropdown_options, 
+				'data' 				=> $aliquots, 
+				'settings' 			=> array(
+					'header'			=> __('aliquots', null) .' > '.__($aliquots[0]['AliquotControl']['aliquot_type'], true),
+					'actions'			=> ++ $i == $arr_size,
+					'pagination'		=> false
+				)
+			);
+			
+			// CUSTOM CODE
+			if($hook_link){ 
+				require($hook_link); 
+			}
+				
+			// BUILD FORM
+			$structures->build( $final_atim_structure, $final_options );
+		}
 	}
 	
 ?>
