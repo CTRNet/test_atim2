@@ -331,12 +331,12 @@ class StructuresHelper extends Helper {
 					'description'	=> ''
 				);
 			}
-			
-			echo('<div class="descriptive_heading">
-					<h4>'.$options['settings']['header']['title'].'</h4>
-					<p>'.$options['settings']['header']['description'].'</p>
+
+			echo '<div class="descriptive_heading">
+					<h4>',$options['settings']['header']['title'],(AppController::$result_are_unique_ctrl ? ' ('.__('detailed results', true).')' : ''),'</h4>
+					<p>',$options['settings']['header']['description'],'</p>
 				</div>
-			');
+			';
 		}
 		
 		if($options['settings']['language_heading']){
@@ -903,7 +903,7 @@ class StructuresHelper extends Helper {
 				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
 				$options['remove_line_ctrl'] = $remove_line_ctrl;
 				$header_data = $this->buildDisplayHeader($table_index, $options);
-				echo "<thead>",$header_data['header'],"</thead>";
+				echo "<thead class='fmlh'>",$header_data['header'],"</thead>";
 				
 				if($options['type'] == "addgrid" && count($data) == 0){
 					//display at least one line
