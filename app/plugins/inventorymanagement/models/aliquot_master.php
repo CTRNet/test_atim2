@@ -23,6 +23,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 			 	'dependent' => true)
 	);
 	
+	var $virtualFields = array(
+		'in_stock_order'	=> 'IF(in_stock = "yes - available", 1, IF(in_stock = "yes - not available", 2, 3))'
+	);
+	
 	private static $warning_field = "barcode";//can be overriden into a custom model
 	
 	public static $aliquot_type_dropdown = array();

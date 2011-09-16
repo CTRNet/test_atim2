@@ -2072,7 +2072,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 					'NOT' => array('AliquotMaster.id' => $aliquot_to_exclude));
 				
 				$exclude_aliquot = false;
-				$aliquot_data_for_selection = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.storage_datetime DESC', 'recursive' => '0'));
+				$aliquot_data_for_selection = $this->AliquotMaster->find('all', array(
+					'conditions' => $criteria, 
+					'order' => array('AliquotMaster.in_stock_order', 'AliquotMaster.storage_datetime DESC'), 
+					'recursive' => '0')
+				);
 				
 				if(empty($aliquot_data_for_selection)) {
 					// No aliquot can be defined as child
