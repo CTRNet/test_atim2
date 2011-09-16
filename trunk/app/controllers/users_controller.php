@@ -13,7 +13,11 @@ class UsersController extends AppController {
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
 	}
 	
-	function login() {
+	function login($is_ajax = false){
+		if($is_ajax){
+			echo !empty($_SESSION['Auth']);
+			exit;
+		}
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
 		$this->Version->id = $version_data[0]['id'];
 		$this->Version->read();
@@ -72,7 +76,6 @@ class UsersController extends AppController {
 		$this->Acl->flushCache();
 		$this->redirect($this->Auth->logout());
 	}
-
 }
 
 ?>
