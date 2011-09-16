@@ -890,14 +890,18 @@ function uncheckAll( $div ) {
 		
 		//on login page, displays a warning if the server is more than ~2 min late compared to the client
 		if(window.serverClientTimeDiff != undefined){
+			//adding date to the request URL to fool IE caching
 			$.get(root_url + 'users/login/1?t=' + (new Date().getTime()), function(data){
-				if(data == 1){
+				data = $.parseJSON(data);
+				if(data.logged_in == 1){
 					document.location = ".";
+				}else{ 
+					var foo = new Date;
+					if(data.server_time - parseInt(foo.getTime() / 1000) < -120){
+						$("#timeErr").show();
+					}
 				}
 			});
-			if(window.serverClientTimeDiff < -120){
-				$("#timeErr").show();
-			}
 		}
 		
 		if(useHighlighting){

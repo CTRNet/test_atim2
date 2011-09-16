@@ -15,7 +15,7 @@ class UsersController extends AppController {
 	
 	function login($is_ajax = false){
 		if($is_ajax){
-			echo !empty($_SESSION['Auth']);
+			echo json_encode(array("logged_in" => !empty($_SESSION['Auth']), "server_time" => time()));
 			exit;
 		}
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
