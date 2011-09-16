@@ -889,8 +889,15 @@ function uncheckAll( $div ) {
 		$("input, select, textarea").first().focus();
 		
 		//on login page, displays a warning if the server is more than ~2 min late compared to the client
-		if(window.serverClientTimeDiff && window.serverClientTimeDiff < -120){
-			$("#timeErr").show();
+		if(window.serverClientTimeDiff != undefined){
+			$.get(root_url + 'users/login/1?t=' + (new Date().getTime()), function(data){
+				if(data == 1){
+					document.location = ".";
+				}
+			});
+			if(window.serverClientTimeDiff < -120){
+				$("#timeErr").show();
+			}
 		}
 		
 		if(useHighlighting){
