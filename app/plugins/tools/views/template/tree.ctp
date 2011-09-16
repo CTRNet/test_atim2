@@ -14,6 +14,12 @@
 						</tr>
 					</tbody>
 				</table>
+				<?php 
+				if(!$controls){
+					?>
+					<div style='padding-left: 10px;'><label><?php __('auto submit'); ?></label><input type='checkbox' name='autosubmit'/></div>
+					<?php 
+				}?>
 				<table class="columns">
 					<tbody>
 						<tr>
@@ -198,7 +204,7 @@ if($controls){
 		//2 - reanable js constrol (calendar, addline, suggest, data accuracy, etc.
 		$(".nameInput").remove();
 		setLoading();
-		$.get(root_url + 'inventorymanagement/collections/templateInit/' + wizard_id, function(jsonData){
+		$.get(root_url + 'inventorymanagement/collections/templateInit/' + wizard_id + "?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
 			$(".ajaxContent").html(jsonData.display);
 			$(".ajaxContent form").append("<input type='hidden' name='data[0][bogus_hidden_for_submit]' value=''/>");
@@ -240,7 +246,8 @@ if($controls){
 			//get first node
 			currentNode = $("#tree_root li:first ul:first li:first:not(.wizardDone)");
 		}else{
-			currentNode.css({"background-color" : "#dfd", "font-weight" : "normal"});
+			currentNode.css("background-color", "#dfd");
+			currentNode.find("div:first").css("font-weight", "normal");
 			currentNode.find("a.delete:first").remove();
 			if($(currentNode).find("li:not(.wizardDone)").length > 0){
 				//going down
@@ -263,7 +270,8 @@ if($controls){
 			}
 		}
 		if(currentNode && currentNode.length > 0){
-			$(currentNode).addClass("wizardDone").css({"background-color" : "#ffc", "font-weight" : "bold"});
+			$(currentNode).addClass("wizardDone").css("background-color", "#ffc");
+			$(currentNode).find("div:first").css("font-weight", "bold");
 			data = $(currentNode).data();
 			url = null;
 			if(data.datamart_structure_id == 1){
@@ -293,6 +301,9 @@ if($controls){
 				}
 				globalInit(".ajaxContent");
 				overrideSubmitButton();
+				if($("input[name=autosubmit]:checked").length == 1){
+					$(".ajaxContent input[type=submit]").click();
+				}
 			});
 		}else{
 			//done
