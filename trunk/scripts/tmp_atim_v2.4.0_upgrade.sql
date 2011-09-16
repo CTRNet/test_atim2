@@ -93,7 +93,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("detailed results", "Detailed results", "Résultats détaillés"),
 ("the diagnosis value for %s does not match the cap report value",
  "The diagnosis value for %s does not match the cap report value",
- "La valeur du diagnostic pour %s ne correspond pas à la valeur du rapport cap");
+ "La valeur du diagnostic pour %s ne correspond pas à la valeur du rapport cap"),
+("auto submit", "Auto submit", "Envoi automatique");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
