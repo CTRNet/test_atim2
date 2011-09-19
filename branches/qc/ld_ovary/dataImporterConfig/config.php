@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/Documents and Settings/u703617/Desktop/ldovary/working_copy_GotliebBankData_revised_by_Amber_20110614.xls";
+	static $xls_file_path	= "C:/Documents and Settings/u703617/Desktop/ldovary/working_copy_GotliebBankData_revised_by_MarieClaude_20110915.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -45,7 +45,7 @@ class Config{
 	static $config_files	= array();
 	
 	//--------------------------------------
-
+static $missing = array();
 	static $sample_aliquot_controls = array();
 	static $label_2_sample_description = array();
 			
@@ -79,7 +79,7 @@ function addonFunctionStart(){
 
 function addonFunctionEnd(){
 	echo "developp addonFunctionEnd";
-
+foreach(Config::$missing as $key=>$val) echo "$key<br>";
 //	if(!empty(Config::$bloodBoxesData)) {
 //		die("<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet : ".implode(" ,",array_keys(Config::$bloodBoxesData))."</FONT><br>");
 //	}
@@ -100,36 +100,36 @@ function pr($arr) {
 function setStaticDataForCollection() {
 	global $connection;
 	
-	$allowed_sample_types = array('ascite',
-		'blood',
-		'cystic fluid',
-		'peritoneal wash',
-		'tissue',
-		'ascite cell',
-		'ascite supernatant',
-		'blood cell',
-		'plasma',
-		'serum',
-		'cell culture',
-		'cell lysate',
-		'cystic fluid cell',
-		'cystic fluid supernatant',
-		'dna',
-		'protein',
-		'rna',
-		'peritoneal wash cell',
-		'peritoneal wash supernatant');
-		
 	//-------------------------------------------------------------------
 	// Set sample aliquot controls
 	//-------------------------------------------------------------------
 	
-	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('".implode("','", $allowed_sample_types)."')";
+	$query = "SELECT DISTINCT derivative_sample_control_id FROM parent_to_derivative_sample_controls WHERE flag_active = '1' AND parent_sample_control_id IS NULL";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$new_ids = array();
+	$all_ids = array();
+	while($row = $results->fetch_assoc()){
+		$new_ids[] = $row['derivative_sample_control_id'];
+		$all_ids[] = $row['derivative_sample_control_id'];
+	}
+	$sount = 0;
+	while(!empty($new_ids)) {
+		$query = "SELECT DISTINCT derivative_sample_control_id FROM parent_to_derivative_sample_controls WHERE flag_active = '1' AND parent_sample_control_id IN ('".implode("','", $new_ids)."')";
+		$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+		$new_ids = array();
+		while($row = $results->fetch_assoc()){
+			if(!in_array($row['derivative_sample_control_id'], $all_ids)) {
+				$new_ids[] = $row['derivative_sample_control_id'];
+				$all_ids[] = $row['derivative_sample_control_id'];
+			}
+		}
+	}
+	
+	$query = "select id,sample_type,detail_tablename,sample_type_code from sample_controls where id in ('".implode("','", $all_ids)."')";
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'sample_type_code' => $row['sample_type_code'], 'aliquots' => array());
 	}	
-	if(sizeof(Config::$sample_aliquot_controls) != sizeof($allowed_sample_types)) die("get sample controls failed");
 	
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
@@ -176,15 +176,15 @@ function setStaticDataForCollection() {
 	foreach($xls_reader_matches->sheets[$sheets_nbr['Match Table']]['cells'] as $line => $new_line) {
 		$line_counter++;
 		
-		if($line_counter != 1) {			
-			$label = utf8_encode($new_line[$headers['file value']]);
+		if($line_counter != 1) {	
+			$label = preg_replace(array('/\ $/', '/^\ /'), array('', ''), $new_line[$headers['file value']]);
 			$sample_type = array_key_exists($headers['sample type'], $new_line)? $new_line[$headers['sample type']] : '';
 			$tissue_source = array_key_exists($headers['Tissue Source Match'], $new_line)? $new_line[$headers['Tissue Source Match']] : '';
 			$tissue_type = array_key_exists($headers['Tissue Type Match'], $new_line)? $new_line[$headers['Tissue Type Match']] : '';
 			$tissue_laterality = array_key_exists($headers['Tissue Laterality Match'], $new_line)? $new_line[$headers['Tissue Laterality Match']] : '';
 			
 			if(!empty($label)) {
-				if(array_key_exists($label, Config::$label_2_sample_description)) echo "<br><FONT COLOR=\"red\" >SAMPLE LABEL MATCHES : Label '$label' is defined twice</FONT>";
+				if(array_key_exists($label, Config::$label_2_sample_description)) echo "<br><FONT COLOR=\"green\" >SAMPLE LABEL MATCHES : Label '$label' is defined twice</FONT>";
 				
 				if(empty($sample_type)) {
 					echo "<br><FONT COLOR=\"red\" >SAMPLE LABEL MATCHES : Missing match for label [$label]</FONT>";

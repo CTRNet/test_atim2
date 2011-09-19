@@ -84,7 +84,7 @@ function postLineRead(Model $m){
 		if(!empty($new_collection_label)) {
 			if(!is_null(Config::$current_participant['collection_label'])) {
 				// Record previous participant data
-				recordParticipantAndCollection($m);
+				//recordParticipantAndCollection($m);		
 			} 
 			
 			// Reset data
@@ -142,13 +142,21 @@ function postLineRead(Model $m){
 }
 
 function buildParticipantCollection(Model $m, $sample_label){
-	
-	if(!array_key_exists(strtolower($sample_label), Config::$label_2_sample_description)) {
-		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label] is not defined into the Match Table Worksheet (Line ".$m->line.")</FONT><br>";
-	
+	$formatted_sample_label = '';
+	if($sample_label == utf8_decode('cervical tu (-20˚c overnight in o.r)'))  {
+		exit;
+		$formatted_sample_label = 'cervical tu';
+		$sample_label = 'cervical tu (-20˚c overnight in o.r)';
+	} else {
+		$formatted_sample_label = strtolower(preg_replace(array('/\ $/', '/^\ /', '/\ [0-9A-Ea-e]$/', '/\ [12][0-9]$/', '/[0-9]$/'), array('', '', '', '', ''), $sample_label));
+	}
+			
+	if(!array_key_exists($formatted_sample_label, Config::$label_2_sample_description)) {
+		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label]($formatted_sample_label) is not defined into the Match Table Worksheet (Line ".$m->line.")</FONT><br>";
+Config::$missing[$formatted_sample_label] = '-';
 	} else {
 		// Set sample and aliquot information
-		$sample_and_aliquot_data = Config::$label_2_sample_description[strtolower($sample_label)];
+		$sample_and_aliquot_data = Config::$label_2_sample_description[$formatted_sample_label];
 		
 		$aliquot_data = array(
 			'type' => (array_key_exists('is_clot', $sample_and_aliquot_data) && $sample_and_aliquot_data['is_clot'])? 'clot tube' : 'tube', 
@@ -195,6 +203,13 @@ function buildParticipantCollection(Model $m, $sample_label){
 				
 			// BLOOD
 			
+			case 'blood':
+				if(!isset(Config::$current_participant['samples']['blood'])) {
+					Config::$current_participant['samples']['blood'] = array('type' => 'blood', 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}
+				Config::$current_participant['samples']['blood']['aliquots'][] = $aliquot_data;
+				break;						
+			case 'serum':			
 			case 'plasma':			
 			case 'blood cell':
 				if(!isset(Config::$current_participant['samples']['blood'])) {
@@ -207,7 +222,13 @@ function buildParticipantCollection(Model $m, $sample_label){
 				break;					
 				
 			// CYSTIC FLUID
-						
+			
+			case 'cystic fluid':
+				if(!isset(Config::$current_participant['samples']['cystic fluid'])) {
+					Config::$current_participant['samples']['cystic fluid'] = array('type' => 'cystic fluid', 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}
+				Config::$current_participant['samples']['cystic fluid']['aliquots'][] = $aliquot_data;
+				break;	
 			case 'cystic fluid supernatant':			
 			case 'cystic fluid cell':
 				if(!isset(Config::$current_participant['samples']['cystic fluid'])) {
@@ -220,7 +241,13 @@ function buildParticipantCollection(Model $m, $sample_label){
 				break;
 				
 			// PERITONEAL WASH
-						
+
+			case 'peritoneal wash':
+				if(!isset(Config::$current_participant['samples']['peritoneal wash'])) {
+					Config::$current_participant['samples']['peritoneal wash'] = array('type' => 'peritoneal wash', 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}				
+				Config::$current_participant['samples']['peritoneal wash']['aliquots'][] = $aliquot_data;
+				break;	
 			case 'peritoneal wash supernatant':			
 			case 'peritoneal wash cell':
 				if(!isset(Config::$current_participant['samples']['peritoneal wash'])) {
@@ -232,10 +259,27 @@ function buildParticipantCollection(Model $m, $sample_label){
 				Config::$current_participant['samples']['peritoneal wash']['derivatives'][$sample_type]['aliquots'][] = $aliquot_data;
 				break;
 
+			// PLEURAL FLUID
 
+			case 'pleural fluid':
+				if(!isset(Config::$current_participant['samples']['pleural fluid'])) {
+					Config::$current_participant['samples']['pleural fluid'] = array('type' => 'pleural fluid', 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}				
+				Config::$current_participant['samples']['pleural fluid']['aliquots'][] = $aliquot_data;
+				break;	
+			case 'pleural fluid supernatant':			
+			case 'pleural fluid cell':
+				if(!isset(Config::$current_participant['samples']['pleural fluid'])) {
+					Config::$current_participant['samples']['pleural fluid'] = array('type' => 'pleural fluid', 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}
+				if(!isset(Config::$current_participant['samples']['pleural fluid']['derivatives'][$sample_type])) {
+					Config::$current_participant['samples']['pleural fluid']['derivatives'][$sample_type] = array('type' => $sample_type, 'details' => array(), 'aliquots' => array(), 'derivatives' => array());
+				}
+				Config::$current_participant['samples']['pleural fluid']['derivatives'][$sample_type]['aliquots'][] = $aliquot_data;
+				break;
 				
 			default:
-				die ("ERR: 98723492394 sample type [".$sample_type." is not supported!") ;
+				die ("ERR: 98723492394 sample type [".$sample_type."] is not supported!") ;
 		}
 	}
 }
@@ -258,74 +302,60 @@ function recordParticipantAndCollection(Model $m) {
 	);
 	$insert = array_merge($insert, $created);
 	$query = "INSERT INTO participants (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-	mysqli_query($connection, $query) or die("PARTICIPANT INSERT [".$m->line."] qry failed [".$query."] ".mysqli_error($connection));
-	$storage_master_id = mysqli_insert_id($connection);
-	$query = "UPDATE storage_masters SET code=CONCAT('B - ', id) WHERE id=".$storage_master_id;
-
-//TODO continue
-		
-		INSERT INTO `participants` (`qc_ldov_initals`,`modified`, `created`, `created_by`, `modified_by`) VALUES ('RS', NULL, '', '', NULL, NULL, NULL, '', '', '', '2011-09-14 20:24:47', '2011-09-14 20:24:47', 1, 1)
-		
-		UPDATE `participants` SET `participant_identifier` = 'RS (1)', `date_of_birth` = NULL, `date_of_birth_accuracy` = '', `date_of_death` = NULL, `date_of_death_accuracy` = '', `last_chart_checked_date` = NULL, `last_chart_checked_date_accuracy` = '', `modified` = '2011-09-14 20:24:48', `modified_by` = 1 WHERE `participants`.`id` = 1
-		
-		
-	pr(Config::$current_participant);	
-	exit;
-		
-		
-		
-		
-	$collection_notes = $collections['NOTES'];
-	unset($collections['NOTES']);
+	mysqli_query($connection, $query) or die("participant insert [".$m->line."] qry failed [".$query."] ".mysqli_error($connection));
+	$participant_id = mysqli_insert_id($connection);
+	$query = "UPDATE participants SET participant_identifier=CONCAT(qc_ldov_initals, ' (', id, ')') WHERE id=".$participant_id;
+	mysqli_query($connection, $query) or die("participant insert [".$m->line."] qry failed [".$query."] ".mysqli_error($connection));
 	
-	// Create Blood Collection
-	if(isset($collections['blood'])) {
-		
-		// Create collection
-		$insert = array(
-			"acquisition_label" => "'".$ns." Sang (00-00-0000)'",
-			"bank_id" => "1", 
-			"collection_notes" => "'".$collection_notes."'",
-			"collection_property" => "'participant collection'"
-		);
-		$insert = array_merge($insert, $created);
-		$query = "INSERT INTO collections (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$blood_collection_id = mysqli_insert_id($connection);
+	// Create collection
 
-		// Create link
-		$insert = array(
-			"collection_id" => $blood_collection_id,
-			"participant_id" => $participant_id
-		);
-		$insert = array_merge($insert, $created);
-		$query = "INSERT INTO clinical_collection_links (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$insert = array(
+		"acquisition_label" => "'".Config::$current_participant['collection_label']."'",
+		"bank_id" => "1", 
+		"collection_datetime" => "'".Config::$current_participant['collection_date']."'",
+		"collection_property" => "'participant collection'"
+	);
+	$insert = array_merge($insert, $created);
+	$query = "INSERT INTO collections (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+	mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$collection_id = mysqli_insert_id($connection);
+	
+	// Create link
+	
+	$insert = array(
+		"collection_id" => $collection_id,
+		"participant_id" => $participant_id
+	);
+	$insert = array_merge($insert, $created);
+	$query = "INSERT INTO clinical_collection_links (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+	mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
+	foreach(Config::$current_participant['samples'] as $tmp => $specimen_data) {
+		$sample_master_id = null;
 		
-		// Create sample
+		$sample_type = $specimen_data['type'];
+		if(!array_key_exists($sample_type, Config::$sample_aliquot_controls)) die("ERR: 98983q.".$sample_type);
+		$sample_control_data = Config::$sample_aliquot_controls[$sample_type];
+		
+		// Create Specimen
+		
 		$insert = array(
-			"sample_code" 					=> "'tmp_tissue'", 
+			"sample_type"					=> "'".$sample_type."'",  
 			"sample_category"				=> "'specimen'", 
-			"sample_control_id"				=> Config::$sample_aliquot_controls['blood']['sample_control_id'], 
-			"sample_type"					=> "'blood'", 
+			"collection_id"					=> "'".$collection_id."'", 
+			"sample_control_id"				=> $sample_control_data['sample_control_id'], 
+			"sample_code" 					=> "'tmp'", 
 			"initial_specimen_sample_id"	=> "NULL", 
-			"initial_specimen_sample_type"	=> "'blood'", 
-			"collection_id"					=> "'".$blood_collection_id."'", 
+			"initial_specimen_sample_type"	=> "'".$sample_type."'",  
 			"parent_id"						=> "NULL" 
 		);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$sample_master_id = mysqli_insert_id($connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('B - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=CONCAT('". $sample_control_data['sample_type_code']." - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
-		$insert = array(
-			"sample_master_id"	=> $sample_master_id
-		);
-		$query = "INSERT INTO sd_spe_bloods (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
@@ -333,207 +363,36 @@ function recordParticipantAndCollection(Model $m) {
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
 		
-		// Create Derivative
-		createDerivative($ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $sample_master_id, 'blood', $collections['blood']['derivatives'], 'Sang');
-	
-		// Create Aliquot
-		createAliquot($ns, $participant_id, $blood_collection_id, $sample_master_id, 'blood', $collections['blood']['aliquots'], 'Sang');
-		
-		unset($collections['blood']);
-	}
-	
-	// Create Tissue Collection
-	$tissue_collection_id = null;
-	if(!empty($collections)) {
-		
-		$collection_type = '';
-		if((sizeof($collections) == 1) && (array_key_exists('ascite', $collections)))  {
-			$collection_type = 'ASC';
-		} else if((sizeof($collections) > 1) && (array_key_exists('ascite', $collections)))  {
-			$collection_type = 'Tissu/ASC';
-		} else {
-			$collection_type = 'Tissu';
-		}
-		
-		$insert = array(
-			"acquisition_label" => "'".$ns." $collection_type 00-00-0000'",
-			"bank_id" => "1", 
-			"collection_notes" => "'".$collection_notes."'",
-			"collection_property" => "'participant collection'"
-		);
-		$insert = array_merge($insert, $created);
-		$query = "INSERT INTO collections (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$tissue_collection_id = mysqli_insert_id($connection);
-
-		// link
-		$insert = array(
-			"collection_id" => $tissue_collection_id,
-			"participant_id" => $participant_id
-		);
-		$insert = array_merge($insert, $created);
-		$query = "INSERT INTO clinical_collection_links (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	}
-	
-	foreach($collections as $specimen_key => $data) {
-		if(empty($tissue_collection_id)) die ('cascasc');
-		
-		$sample_master_id = null;
-		$specimen_code = null;
-		
-		// Create Specimen
-		switch($specimen_key) {
-			case 'blood':
-				die('23234234');
-				break;
-			
-			case 'ascite':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite']['sample_control_id'], 
-					"sample_type"					=> "'ascite'", 
-					"initial_specimen_sample_id"	=> "NULL", 
-					"initial_specimen_sample_type"	=> "'ascite'", 
-					"collection_id"					=> "'".$tissue_collection_id."'", 
-					"parent_id"						=> "NULL" 
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('A - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO sd_spe_ascites (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				if(isset($spent_time['details']['ASC'])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] = "'".$spent_time['details']['ASC']['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['details']['ASC']['unit']."'";
-				} else if(isset($spent_time['default']['value'])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] ="'".$spent_time['default']['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['default']['unit']."'";
-				}					
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
-
-				$specimen_code = 'ASC';
-				break;
-			
-			case 'peritoneal wash':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['peritoneal wash']['sample_control_id'], 
-					"sample_type"					=> "'peritoneal wash'", 
-					"initial_specimen_sample_id"	=> "NULL", 
-					"initial_specimen_sample_type"	=> "'peritoneal wash'", 
-					"collection_id"					=> "'".$tissue_collection_id."'", 
-					"parent_id"						=> "NULL" 
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('PW - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO sd_spe_peritoneal_washes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				if(isset($spent_time['details']['LP'])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] = "'".$spent_time['details']['LP']['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['details']['LP']['unit']."'";
-				} else if(isset($spent_time['default']['value'])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] ="'".$spent_time['default']['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['default']['unit']."'";
-				}					
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
-
-				$specimen_code = 'PW';
-				break;
-							
-			default:
-				if($data['type'] != 'tissue') {
-					echo "<pre>";
-					print_r($collections);
-					die ('ERR: 9973671812cacacasc');
-				}
-				
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['tissue']['sample_control_id'], 
-					"sample_type"					=> "'tissue'", 
-					"initial_specimen_sample_id"	=> "NULL", 
-					"initial_specimen_sample_type"	=> "'tissue'", 
-					"collection_id"					=> "'".$tissue_collection_id."'", 
-					"parent_id"						=> "NULL" 
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				
+		$insert = null;
+		switch($sample_type) {
+			case 'tissue':
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id,
-					"chuq_tissue_code" => "'".$data['details']['code']."'",
-					"tissue_nature" => "'".$data['details']['type']."'",
-					"tissue_source" => "'".$data['details']['source']."'",
-					"tissue_laterality" => "'".$data['details']['laterality']."'"
+					"tissue_nature" => "'".$specimen_data['details']['tissue_type']."'",
+					"tissue_source" => "'".$specimen_data['details']['tissue_source']."'",
+					"tissue_laterality" => "'".$specimen_data['details']['tissue_laterality']."'"
 				);
-				
-				$query = "INSERT INTO sd_spe_tissues (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
+				break;	
+			
+			default :
+				if(!empty($specimen_data['details'])) die("ERR: 9s3cacacq.".$sample_type);
 				$insert = array(
 					"sample_master_id"	=> $sample_master_id
-				);
-				if(isset($spent_time['details'][$data['details']['code']])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] = "'".$spent_time['details'][$data['details']['code']]['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['details'][$data['details']['code']]['unit']."'";
-				} else if(isset($spent_time['default']['value'])) {
-					$insert['chuq_evaluated_spent_time_from_coll'] = "'".$spent_time['default']['value']."'";
-					$insert['chuq_evaluated_spent_time_from_coll_unit'] = "'".$spent_time['default']['unit']."'";
-				}					
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				$specimen_code = $data['details']['code'];
-				break;				
+				);	
 		}
 		
+		$query = "INSERT INTO ".$sample_control_data['detail_tablename']." (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
 		// Create Derivative
-		createDerivative($ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $sample_master_id, $specimen_key, $data['derivatives'], $specimen_code);
+		createDerivative($participant_id, $collection_id, $sample_master_id, $sample_type, $sample_master_id, $sample_type, $specimen_data['derivatives']);
 		
 		// Create Aliquot
-		createAliquot($ns, $participant_id, $tissue_collection_id, $sample_master_id, $data['type'], $data['aliquots'], $specimen_code);
-				
+		createAliquot($participant_id, $collection_id, $sample_master_id, $sample_type, $specimen_data['aliquots']);			
 	}
 }
-function createDerivative($ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data, $specimen_code = null) {
+
+function createDerivative($participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
@@ -544,324 +403,55 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 	
 	if(empty($derivative_data)) return;
 	
-	foreach($derivative_data as $der_type => $new_derivative) {
+	foreach($derivative_data as $tmp => $new_derivative_data) {
+		$sample_master_id = null;
 		
-		switch($der_type) {
-			case 'plasma':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=>  Config::$sample_aliquot_controls['plasma']['sample_control_id'], 
-					"sample_type"					=> "'plasma'", 
-					"initial_specimen_sample_id"	=> $initial_specimen_sample_id, 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> $collection_id, 
-					"parent_id"						=> $parent_sample_master_id,
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);	
-		
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('PLS - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO sd_der_plasmas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-
-				// Manage Derivative
-				if(!empty($derivative_data['derivatives'])) die('ascasc');
-				break;
-
-				
-			case 'serum':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['serum']['sample_control_id'], 
-					"sample_type"					=> "'serum'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO 	sd_der_serums (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				// Manage Derivative
-				if(!empty($new_derivative['derivatives'])) die('ascasc');
-				
-				break;	
-	
-			case 'blood cell':
-			case 'blood cell (arlt)':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['blood cell']['sample_control_id'], 
-					"sample_type"					=> "'blood cell'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-							
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('BLD-C - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				if($der_type == 'blood cell (arlt)') $insert['chuq_is_erythrocyte'] = "'y'";
-				$query = "INSERT INTO 	sd_der_blood_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				break;	
-				
-				
-			case 'dna':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['dna']['sample_control_id'], 
-					"sample_type"					=> "'dna'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('DNA - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO 	sd_der_dnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				// Manage Derivative
-				if(!empty($new_derivative['derivatives'])) die('ascasc');
-				
-				break;						
-					
-
-			case 'rna':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['rna']['sample_control_id'], 
-					"sample_type"					=> "'rna'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('RNA - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO 	sd_der_rnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				// Manage Derivative
-				if(!empty($new_derivative['derivatives'])) die('ascasc');
-				
-				break;						
-	
-	
-			case 'ascite supernatant':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite supernatant']['sample_control_id'], 
-					"sample_type"					=> "'ascite supernatant'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-				
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('ASC-S - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO 	sd_der_ascite_sups (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				// Manage Derivative
-				if(!empty($new_derivative['derivatives'])) die('ascasc');
-				
-				break;
-				
-				
-			case 'ascite cell':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite cell']['sample_control_id'], 
-					"sample_type"					=> "'ascite cell'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-							
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('ASC-C - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO 	sd_der_ascite_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				break;		
-						
-
-			case 'cell culture':
-				$insert = array(
-					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
-					"sample_control_id"				=> Config::$sample_aliquot_controls['cell culture']['sample_control_id'], 
-					"sample_type"					=> "'cell culture'", 
-					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
-					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
-					"collection_id"					=> "'".$collection_id."'", 
-					"parent_id"						=> "'".$parent_sample_master_id."'",
-					"parent_sample_type"			=> "'".$parent_sample_type."'"
-				);				
-							
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$sample_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('C-CULT - ', id) WHERE id=".$sample_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$query = "INSERT INTO sd_der_cell_cultures (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-				$insert = array(
-					"sample_master_id"	=> $sample_master_id
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
-				
-				break;		
-				
-			default:
-				die('ERR 9998377 : '.$der_type);
-		}
+		$sample_type = $new_derivative_data['type'];
+		if(!array_key_exists($sample_type, Config::$sample_aliquot_controls)) die("ERR: 989sasa83q.".$sample_type);
+		$sample_control_data = Config::$sample_aliquot_controls[$sample_type];
 		
 		// Create Derivative
-		createDerivative($ns, $participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $der_type, $new_derivative['derivatives'], $specimen_code);
+		
+		$insert = array(
+			"sample_type"					=> "'".$sample_type."'",  
+			"sample_category"				=> "'derivative'", 
+			"collection_id"					=> "'".$collection_id."'", 
+			"sample_control_id"				=> $sample_control_data['sample_control_id'], 
+			"sample_code" 					=> "'tmp'", 
+			"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
+			"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
+			"parent_id"						=> "'".$parent_sample_master_id."'", 
+			"parent_sample_type"			=> "'".$parent_sample_type."'"
+		);
+		$insert = array_merge($insert, $created);
+		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$sample_master_id = mysqli_insert_id($connection);
+		$query = "UPDATE sample_masters SET sample_code=CONCAT('". $sample_control_data['sample_type_code']." - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+		$insert = array(
+			"sample_master_id"	=> $sample_master_id
+		);
+		$insert = array_merge($insert, $created);
+		$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));				
+		
+		$insert = array(
+				"sample_master_id"	=> $sample_master_id
+			);	
+		$query = "INSERT INTO ".$sample_control_data['detail_tablename']." (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
+		// Create Derivative
+		createDerivative($participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $sample_type, $new_derivative_data['derivatives']);
 		
 		// Create Aliquot
-		createAliquot($ns, $participant_id, $collection_id, $sample_master_id, $der_type, $new_derivative['aliquots'], $specimen_code);
+		createAliquot($participant_id, $collection_id, $sample_master_id, $sample_type, $new_derivative_data['aliquots']);
 	}
 }
 	
-function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data, $specimen_code) {
+function createAliquot($participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data) {
 	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
@@ -870,225 +460,36 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 		"modified_by"	=> Config::$db_created_id
 		);
 	
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 	if(empty($aliquot_data)) return;
 	
 	foreach($aliquot_data as $new_aliquot) {
-		
-		// MANAGE STORAGE
-		
-		//get storage prefix
-		$box_number = null;
-		if(!empty($new_aliquot['storage'])) {
-			switch($sample_type.'-'.$new_aliquot['type']) {
-				case 'blood-tube':
-				case 'blood-RNALater tube':	
-				case 'plasma-tube':
-				case 'serum-tube':
-				case 'blood cell-tube':
-				case 'blood cell (arlt)-tube':
-					$box_number = 'Sang '.$new_aliquot['storage'];
-					break;
-				case 'dna-tube':
-					$box_number = 'DNA '.$new_aliquot['storage'];
-					break;
-				case 'rna-tube':
-					$box_number = 'RNA '.$new_aliquot['storage'];
-					break;
-				case 'cell culture-tube':
-					$box_number = 'VC '.$new_aliquot['storage'];
-					break;
-				case 'tissue-oct block':
-					$box_number = 'OCT '.$new_aliquot['storage'];
-					break;
-				case 'tissue-frozen tube':
-					$box_number = 'Tissu '.$new_aliquot['storage'];
-					break;
-				case 'tissue-paraffin block':
-					$box_number = 'FFPE '.$new_aliquot['storage'];
-					break;
-				case 'ascite-tube':
-				case 'ascite supernatant-tube':
-				case 'ascite cell-tube':
-					$box_number = 'ASC '.$new_aliquot['storage'];
-					break;
-				case 'peritoneal wash-tube':
-					$box_number = 'PW '.$new_aliquot['storage'];
-					break;
-				default:
-					die ('ERR_9849983 '.$sample_type.'-'.$new_aliquot['type']);
-			}
-		}
-				
-		//get storage master id
-		$storage_master_id = null;
-		if(!empty($box_number)) {
-			if(isset(Config::$storages['storages'][$box_number])) {
-				$storage_master_id = Config::$storages['storages'][$box_number]['id'];
-			} else {
-			
-				$insert = array(
-					"code" => "'-1'",
-					"storage_type"			=> "'box'",
-					"storage_control_id"	=> "8",
-					"short_label"			=> "'".$box_number."'",
-					"selection_label"		=> "'".$box_number."'",
-					"lft"		=> "'".(Config::$storages['next_left'])."'",
-					"rght"		=> "'".(Config::$storages['next_left'] + 1)."'",
-					"set_temperature"	=> "'FALSE'"
-				);
-				$insert = array_merge($insert, $created);
-				$query = "INSERT INTO storage_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$storage_master_id = mysqli_insert_id($connection);
-				$query = "UPDATE storage_masters SET code=CONCAT('B - ', id) WHERE id=".$storage_master_id;
-				mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				
-				$insert = array(
-					"storage_master_id"	=> $storage_master_id,
-				);
-				$query = "INSERT INTO std_boxs (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-						
-				Config::$storages['next_left'] = Config::$storages['next_left'] + 2;
-				Config::$storages['storages'][$box_number] = array('id' => $storage_master_id);
-			} 
-		}		
-		
-		// CREATE ALIQUOT
+		$aliquot_type = $new_aliquot['type'];
+		if(empty(Config::$sample_aliquot_controls[$sample_type]['aliquots']) || !array_key_exists($aliquot_type, Config::$sample_aliquot_controls[$sample_type]['aliquots'])) die("ERR: sdacacacq.".$sample_type.'-'.$aliquot_type);
+		$aliquot_control_data =  Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type];
 		
 		$master_insert = array(
-			"aliquot_type" => null,
-			"aliquot_control_id" => null,
+			"aliquot_type" => "'".$aliquot_type."'",
+			"aliquot_control_id" => $aliquot_control_data['aliquot_control_id'],
 			"in_stock" => "'yes - available'",
 			"collection_id" => $collection_id,
 			"sample_master_id" => $sample_master_id,
-			"aliquot_label" => null
+			"aliquot_label" => "'".$new_aliquot['aliquot_label']."'",
+			"aliquot_volume_unit" => "'".$aliquot_control_data['volume_unit']."'",
+			"storage_master_id" => $new_aliquot['storage_master_id']
 		);
-		if(!empty($storage_master_id)) $master_insert['storage_master_id'] = $storage_master_id;
-
-		$detail_insert = array();
-		$detail_table = 'ad_tubes';
-		
-		$real_aliquot_type = str_replace(array('oct ','RNALater ','paraffin ', 'frozen '), array('','','', ''), $new_aliquot['type']);
-		$real_sample_type = str_replace(array(' (arlt)'), array(''), $sample_type);
-		if(!isset(Config::$sample_aliquot_controls[$real_sample_type]) 
-		&& !isset(Config::$sample_aliquot_controls[$real_sample_type]['aliquots'][$real_aliquot_type])) {
-			die('ERR 993883 : '.$sample_type.'-'.$new_aliquot['type']);
-		}
-		$aliquot_control_id = Config::$sample_aliquot_controls[$real_sample_type]['aliquots'][$real_aliquot_type]['aliquot_control_id'];
-
-		$prefix = '';
-		switch($sample_type.'-'.$new_aliquot['type']) {
-			case 'blood-tube':
-				$prefix = "'Sang $ns 00-00-0000'";
-			case 'blood-RNALater tube':	
-				if(empty($prefix)) {
-					$prefix = "'RL $ns 00-00-0000'";
-					$detail_insert['chuq_blood_solution'] = "'RNA later'";
-				}
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = $prefix;				
-				break;
-				
-			case 'plasma-tube':
-				$prefix = 'P';
-			case 'ascite supernatant-tube':
-				if(empty($prefix)) $prefix = 'SASC';
-			case 'serum-tube':
-				if(empty($prefix)) $prefix = 'SE';
-			case 'ascite cell-tube':
-				if(empty($prefix)) $prefix = 'NC';
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";							
-				break;				
-				
-			case 'tissue-frozen tube':
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
-				break;	
-
-			case 'tissue-paraffin block':
-				$prefix = 'FFPE';
-			case 'tissue-oct block':
-				if(empty($prefix)) $prefix = 'OCT';
-				$master_insert['aliquot_type'] = "'block'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";	
-				$detail_insert['block_type'] = ($prefix == 'OCT')? "'OCT'" : "'paraffin'";		
-				$detail_table = 'ad_blocks';			
-				break;	
-
-			case 'dna-tube':
-			case 'rna-tube':
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";					
-				break;	
-
-			case 'blood cell-tube':
-				$prefix = 'BC';
-			case 'blood cell (arlt)-tube':
-				if(empty($prefix)) $prefix = 'ARLT';
-			case 'cell culture-tube':
-				if(empty($prefix)) $prefix = 'VC '.$specimen_code;
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";				
-				break;	
-				
-			case 'ascite-tube':
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
-				break;
-
-			case 'peritoneal wash-tube':
-				$master_insert['aliquot_type'] = "'tube'";
-				$master_insert['aliquot_control_id'] = $aliquot_control_id;
-				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
-				break;
-					
-			default:
-				die('ERR 99628');
-		}
 		
 		$master_insert = array_merge($master_insert, $created);
 		$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($master_insert)).") VALUES (".implode(", ", array_values($master_insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query($connection, $query) or die("createAliquot [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$aliquot_master_id = mysqli_insert_id($connection);
-		$query = "UPDATE aliquot_masters SET barcode= CONCAT('tmp_','".$sample_master_id."','_','".$aliquot_master_id."') WHERE id=".$aliquot_master_id;
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$query = "UPDATE aliquot_masters SET barcode= '".$aliquot_master_id."' WHERE id=".$aliquot_master_id;
+		mysqli_query($connection, $query) or die("createAliquot [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
-		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
-		$query = "INSERT INTO $detail_table (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
+		$detail_insert = array(
+			'aliquot_master_id' => $aliquot_master_id
+		);
+		
+		$query = "INSERT INTO ".$aliquot_control_data['detail_tablename']." (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
 	}
 }
