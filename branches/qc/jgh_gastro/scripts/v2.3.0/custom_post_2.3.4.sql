@@ -1,15 +1,15 @@
 -- run post 2.3.4 install.
 
-INSERT INTO structure_permissible_values_custom (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by) VALUES
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma specimen'), 'primary', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma specimen'), 'metastasis', '', '', 0, 1, now(), 1, now(), 1),
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by) VALUES
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma specimen'), 'Primary', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma specimen'), 'Metastasis', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'head and neck', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'trunk', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'upper extremities', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'lower extremities', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'Head and neck', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'Trunk', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'Upper extremities', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor site'), 'Lower extremities', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'mucosal', '', '', 0, 1, now(), 1, now(), 1);
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma histologic type'), 'Mucosal', '', '', 0, 1, now(), 1, now(), 1);
 
 ALTER TABLE qc_gastro_dxd_cap_melanomas
  ADD COLUMN organ VARCHAR(50) NOT NULL DEFAULT '' AFTER pm_precision,
@@ -74,65 +74,65 @@ INSERT INTO structure_value_domains (domain_name, override, category, source) VA
 ('qc_gastrop_cap_melanoma_cell_population', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma cell population')"),
 ('qc_gastrop_cap_melanoma_lateral_margins', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma lateral margins')"),
 ('qc_gastrop_cap_melanoma_deep_margins', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma deep margins')"),
-('qc_gastrop_cap_melanoma_growth_phase', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma growh phase')");
+('qc_gastrop_cap_melanoma_growth_phase', '', '', "StructurePermissibleValuesCustom::getCustomDropdown('cap melanoma growth phase')");
 
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by) VALUES
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'bone', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'brain', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'eye', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'liver', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'lung', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'lymph node', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'other', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'skin', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'unknown', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'vulval', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Bone', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Brain', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Eye', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Liver', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Lung', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Lymph node', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Other', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Skin', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Unknown', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma organ'), 'Vulval', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'present', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'not identified', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'Present', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'Not identified', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma ulceration'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'I (melanoma in situ)', '', '', 0, 1, now(), 1, now(), 1),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'II (melanoma present in but does not fill and expand papillary dermis)', '', '', 0, 1, now(), 1, now(), 1),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'III (melanoma fills and expands papillary dermis)', '', '', 0, 1, now(), 1, now(), 1),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'IV (Melanoma invades reticular dermis)', '', '', 0, 1, now(), 1, now(), 1),
 ((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma anatomical level clark'), 'V (Melanoma invades subcutaneum)', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'indeterminate', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'not identified', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'present', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'Indeterminate', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'Not identified', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma vascular invasion or angiotropism'), 'Present', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'absent', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'low', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'moderate', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'high', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'Absent', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'Low', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'Moderate', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'High', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes1'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'focal', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'diffuse', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'Focal', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'Diffuse', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma tumor-infilatrating lymphocytes2'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'amelanotic', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'epitheloid', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'mixed', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'nevoid', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'other', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'small cell', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'spindle', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'spitzoid', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Amelanotic', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Epitheloid', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Mixed', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Nevoid', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Other', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Small cell', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Spindle', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma cell population'), 'Spitzoid', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'not involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'Not involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma lateral margins'), 'Involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'undetermined', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'not involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'Undetermined', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'Not involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma deep margins'), 'Involved by melanoma', '', '', 0, 1, now(), 1, now(), 1),
 
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'radial', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'vertical', '', '', 0, 1, now(), 1, now(), 1),
-((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'indeterminate', '', '', 0, 1, now(), 1, now(), 1);
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'Radial', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'Vertical', '', '', 0, 1, now(), 1, now(), 1),
+((SELECT id FROM structure_permissible_values_custom_controls WHERE name='cap melanoma growth phase'), 'Indeterminate', '', '', 0, 1, now(), 1, now(), 1);
 
 UPDATE structure_formats SET display_order=display_order+15 WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas') AND display_order > 25;
 
