@@ -323,8 +323,8 @@ function completeInvetoryRevsTable() {
 					break;	
 		
 				case 'ad_tubes':
-					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, chuq_blood_solution, version_created) "
-						."SELECT id, aliquot_master_id, chuq_blood_solution, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, version_created) "
+						."SELECT id, aliquot_master_id, NOW() FROM ".$table_name;
 					break;	
 			
 				case 'storage_masters':
