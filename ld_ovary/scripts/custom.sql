@@ -872,3 +872,5 @@ WHERE al.deleted != 1;
 
 UPDATE aliquot_controls SET flag_active=true WHERE id IN(2, 6, 5, 7);
 
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(3);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(12);
