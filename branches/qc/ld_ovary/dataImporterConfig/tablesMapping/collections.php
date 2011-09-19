@@ -84,7 +84,7 @@ function postLineRead(Model $m){
 		if(!empty($new_collection_label)) {
 			if(!is_null(Config::$current_participant['collection_label'])) {
 				// Record previous participant data
-				//recordParticipantAndCollection($m);		
+				recordParticipantAndCollection($m);		
 			} 
 			
 			// Reset data
@@ -153,7 +153,6 @@ function buildParticipantCollection(Model $m, $sample_label){
 			
 	if(!array_key_exists($formatted_sample_label, Config::$label_2_sample_description)) {
 		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label]($formatted_sample_label) is not defined into the Match Table Worksheet (Line ".$m->line.")</FONT><br>";
-Config::$missing[$formatted_sample_label] = '-';
 	} else {
 		// Set sample and aliquot information
 		$sample_and_aliquot_data = Config::$label_2_sample_description[$formatted_sample_label];
@@ -464,7 +463,7 @@ function createAliquot($participant_id, $collection_id, $sample_master_id, $samp
 	
 	foreach($aliquot_data as $new_aliquot) {
 		$aliquot_type = $new_aliquot['type'];
-		if(empty(Config::$sample_aliquot_controls[$sample_type]['aliquots']) || !array_key_exists($aliquot_type, Config::$sample_aliquot_controls[$sample_type]['aliquots'])) die("ERR: sdacacacq.".$sample_type.'-'.$aliquot_type);
+		if(empty(Config::$sample_aliquot_controls[$sample_type]['aliquots']) || !array_key_exists($aliquot_type, Config::$sample_aliquot_controls[$sample_type]['aliquots'])) echo("ERR: 56784 - [".$sample_type.'-'.$aliquot_type.']');
 		$aliquot_control_data =  Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type];
 		
 		$master_insert = array(
