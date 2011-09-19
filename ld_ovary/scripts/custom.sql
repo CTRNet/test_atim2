@@ -870,5 +870,5 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 WHERE al.deleted != 1;
 
-
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(2, 6, 5, 7);
 
