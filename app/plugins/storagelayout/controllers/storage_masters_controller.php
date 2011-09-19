@@ -21,6 +21,9 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * -------------------------------------------------------------------------- */
 	 
 	function index() {
+		// clear SEARCH criteria
+		$_SESSION['ctrapp_core']['search'] = null; 
+		
 		//find all storage control types to build add button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		
@@ -30,14 +33,24 @@ class StorageMastersController extends StoragelayoutAppController {
 		if( $hook_link ) { require($hook_link); }
 	}
 		
-	function search($search_id) {
+	function search() {
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/'));
-		$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search');
+		
+		if(!empty($this->data)){
+			$_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
+		}
+		
+		$this->data = $this->paginate($this->StorageMaster, $_SESSION['ctrapp_core']['search']['criteria']);
 		
 		//find all storage control types to build add button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['StorageMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/storagelayout/storage_masters/search';
+
 		// CUSTOM CODE: FORMAT DISPLAY DATA
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}

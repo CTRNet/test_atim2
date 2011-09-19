@@ -9,10 +9,10 @@ function initDatamartActions(){
 		window.errorYouNeedToSelectAtLeastOneItem = "js untranslated errorYouNeedToSelectAtLeastOneItem";	
 	}
 
-	orgAction = $("form").prop("action");
+	orgAction = $("form").attr("action");
 
 	if($("#search_for").length == 1){ 
-		$(".form.submit").unbind('click').prop("onclick", "").click(function(){
+		$(".form.submit").unbind('click').attr("onclick", "").click(function(){
 			if(validateSubmit()){
 				$("form").submit();
 			}
@@ -25,12 +25,12 @@ function initDatamartActions(){
 		flyOut: true,
 		directionV: 'down',
 		callback: function(item){
-			var json = getJsonFromClass($(item).prop("class"));
+			var json = getJsonFromClass($(item).attr("class"));
 			if(json != null){
 				if(json.value.length > 0){
 					$('#hierarchy').find(".label").html(json.label);
 					$('#search_for').val(json.value);
-					$("form").prop("action", typeof(json.action) != 'undefined' ? json.action : orgAction + json.value);
+					$("form").attr("action", typeof(json.action) != 'undefined' ? json.action : orgAction + json.value);
 				}
 			}
 		}
@@ -38,7 +38,7 @@ function initDatamartActions(){
 	
 	var selectToReplace = null;
 	$("select").each(function(){
-		if($(this).prop("name") == "data[Browser][search_for]"){
+		if($(this).attr("name") == "data[Browser][search_for]"){
 			selectToReplace = this;
 			return;
 		}
@@ -54,7 +54,7 @@ function initDatamartActions(){
 	$(".button.confirm").click(function(){
 		removeConfirmed = true;
 		$("#popup").popup('close');
-		$("form").submit();
+		$("#submit_button").click();
 	});
 	$(".button.close").click(function(){
 		$("#popup").popup('close');
@@ -68,7 +68,7 @@ function validateSubmit(){
 	}
 	if($(":checkbox").length > 0 && $(":checkbox[checked=true]").length == 0){
 		errors.push(errorYouNeedToSelectAtLeastOneItem);
-	}else if($("form").prop("action").indexOf("remove") != -1 && !removeConfirmed){
+	}else if($("form").attr("action").indexOf("remove") != -1 && !removeConfirmed){
 		//popup do you wish do remove
 		$("#popup").popup();
 		return false;

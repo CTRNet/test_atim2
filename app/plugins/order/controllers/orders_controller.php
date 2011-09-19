@@ -14,6 +14,8 @@ class OrdersController extends OrderAppController {
 		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 	
 	function index() {
+		$_SESSION['ctrapp_core']['search'] = null;
+		
 		// Clear Order session data
 		unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 		
@@ -23,9 +25,16 @@ class OrdersController extends OrderAppController {
 		}
 	}
   
-	function search($search_id) {
+	function search() {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-		$this->searchHandler($search_id, $this->ORder, 'orders', '/order/orders/search');
+			
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
+			
+		$this->data = $this->paginate($this->Order, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Order']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/order/orders/search';
 
 		$hook_link = $this->hook('format');
 		if($hook_link){

@@ -10,14 +10,25 @@ class DrugsController extends DrugAppController {
 	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
 
 	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function search($search_id) {
-		$this->searchHandler($search_id, $this->Drug, 'drugs', '/drug/drugs/search');
+	function search() {
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
+		
+		$this->data = $this->paginate($this->Drug, $_SESSION['ctrapp_core']['search']['criteria']);
 
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/index/') );	
+				
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Drug']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/drug/drugs/search';
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

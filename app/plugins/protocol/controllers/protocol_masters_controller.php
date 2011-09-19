@@ -9,16 +9,24 @@ class ProtocolMastersController extends ProtocolAppController {
 	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
 	
 	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}
 	
-	function search($search_id) {
-		$this->searchHandler($search_id, $this->ProtocolMaster, 'protocolmasters', '/protocol/protocol_masters/search');
+	function search() {
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
+		
+		$this->data = $this->paginate($this->ProtocolMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/index/"));
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ProtocolMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/protocol/protocol_masters/search';
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

@@ -59,15 +59,15 @@ class EventMastersController extends ClinicalannotationAppController {
 		}
 	}
 	
-	function detail( $event_group, $participant_id, $event_master_id, $is_ajax = 0 ) {
+	function detail( $event_group, $participant_id, $event_master_id ) {
+		if ( (!$participant_id) && (!$event_group) && (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		
 		// MANAGE DATA
 		$this->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if(empty($this->data)) { 
-			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}	
+		if(empty($this->data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
-		$dx_data = empty($this->data['EventMaster']['diagnosis_master_id']) ?: $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])));		
-		$this->set('dx_data', $dx_data);
+		$this->set('dx_data', (empty($this->data['EventMaster']['diagnosis_master_id'])? array() : $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])))));		
+
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventMaster.id'=>$event_master_id,  'EventControl.id'=>$this->data['EventControl']['id']) );
@@ -75,17 +75,11 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this->data['EventControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->set('is_ajax', $is_ajax);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
-		}
-
-		if(is_array($dx_data) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false){
-			//cap report, generate warnings if there are mismatches
-			EventMaster::generateDxCompatWarnings($dx_data[0], $this->data);
 		}
 	}
 	

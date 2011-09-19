@@ -42,8 +42,13 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-		
-		if(!isset(self::$auto_validation[$this->name])){
+		if(!isset(self::$auto_validation[$this->name]) &&
+			isset($this->Behaviors->MasterDetail) &&
+			is_array($this->Behaviors->MasterDetail) && 
+			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail)
+		){
+			//build master validation (detail validation are built within the validation function)
+			//TODO: 2.4.x: Remove this and build all autovalidation within the validation function
 			$this->buildAutoValidation($this->name, $this);
 		}
 		
@@ -407,7 +412,9 @@ class AppModel extends Model {
 				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					//attach auto validation
 					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
+					
 					if(!isset(self::$auto_validation[$auto_validation_name])){
+						//build detail validation on the fly
 						$this->buildAutoValidation($auto_validation_name, $detail_class_instance);
 					}
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
@@ -428,6 +435,38 @@ class AppModel extends Model {
 		}
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
+	}
+	
+	/**
+	 * Use this function to build an ATiM model. It ensures that custom models are loaded properly.
+	 * @param string $plugin_name
+	 * @param string $class_name
+	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
+	 * @return An ATiM model 
+	 * 
+	 * @deprecated use AppModel::getInstance to get an instance. One will be created if none exists. If you
+	 * want a new one, use ClassRegistry::init.
+	 * TODO: delete for ATiM 2.4
+	 */
+	static function atimNew($plugin_name, $class_name, $error_view_on_null){
+		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
+		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
+			if($error_view_on_null){
+				$app = AppController::getInstance();
+				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
+				exit;
+			}else{
+				return NULL;
+			}
+		}
+		$custom_class_name = $class_name."Custom";
+		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
+		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
+		
+		if(Configure::read('debug') > 0){
+			AppController::addWarningMsg("AppModel::atimNew is deprecated. ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance.");
+		}
+		return $loaded_class;
 	}
 	
 	static function getInstance($plugin_name, $class_name, $error_view_on_null){
@@ -669,25 +708,6 @@ class AppModel extends Model {
 	 */
 	function allowDeletion($id){
 		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
-	/**
-	 * Redirects to the missing data page if a model id cannot be fetched
-	 * @param int $id
-	 * @param string $method The method name to display in the error message
-	 * @param string $line The line number to display in the error message
-	 * @param bool $return Returns the data line if it exists
-	 * @return null if $return is true and the data exists, the data, null otherwise
-	 */
-	function redirectIfNonExistent($id, $method, $line, $return = false){
-		$this->id = $id;
-		if(!$this->exists()){
-			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
-		}
-		if($return){
-			return $this->findById($id);
-		}
-		return null;
 	}
 }
 

@@ -43,13 +43,12 @@ class UsersController extends AdministrateAppController {
 				$hashed_pwd = Security::hash($this->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->data['Generated']['field1'], 'confirm_password' => $this->data['Generated']['field1']));
 				if($this->data['User']['password'] != $hashed_pwd){
-					$password_data['User']['new_password'] = '';
+					$password_data['User']['new_password'] .= 'invalid';
 				}
-				
-				$this->User->validatePassword($password_data);
+				$this->User->validatePassword($password_data, '/administrate/users/add/'.$group_id);
 				
 				$this->data['Generated']['field1'] = Security::hash($this->data['Generated']['field1'], null, true);
-				$submitted_data_validates = empty($this->User->validationErrors);
+				$submitted_data_validates = true;
 				$this->data['User']['group_id'] = $group_id;
 				$this->data['User']['flag_active'] = true;
 				
@@ -91,6 +90,12 @@ class UsersController extends AdministrateAppController {
 			$this->data['Group']['id'] = $group_id;
 			
 			$submitted_data_validates = true;
+			
+			if($user_id == $_SESSION['Auth']['User']['id'] && !$this->data['User']['flag_active']){
+				unset($this->data['User']['flag_active']);
+				AppController::addWarningMsg(__('you cannot deactivate yourself', true));
+			}
+			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
@@ -136,15 +141,6 @@ class UsersController extends AdministrateAppController {
 			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
 		}
 	}
-	
-	function search($search_id = 0){
-		$this->set( 'atim_menu', $this->Menus->get('/administrate/groups') );
-		$this->searchHandler($search_id, $this->User, 'users', '/administrate/users/search');
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) {
-			require($hook_link);
-		}
-	}
 }
 
+?>

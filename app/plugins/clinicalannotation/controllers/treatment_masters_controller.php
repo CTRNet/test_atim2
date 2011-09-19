@@ -47,16 +47,12 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if( $hook_link ) { require($hook_link); }		
 	}
 	
-	function detail($participant_id, $tx_master_id, $is_ajax = 0){
-		if (( !$participant_id ) && ( !$tx_master_id )) { 
-			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
+	function detail($participant_id, $tx_master_id) {
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($treatment_master_data)) { 
-			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
+		if(empty($treatment_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $treatment_master_data;
 
 		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
@@ -67,13 +63,10 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		// set structure alias based on control data
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
-		$this->set('is_ajax', $is_ajax);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}		
+		if( $hook_link ) { require($hook_link); }		
 	}
 	
 	function edit( $participant_id, $tx_master_id ) {
@@ -194,6 +187,8 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
 			$this->data['TreatmentMaster']['tx_control_id'] = $tx_control_id;
+			$this->data['TreatmentMaster']['tx_method'] = $tx_control_data['TreatmentControl']['tx_method'];
+			$this->data['TreatmentMaster']['disease_site'] = $tx_control_data['TreatmentControl']['disease_site'];
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;

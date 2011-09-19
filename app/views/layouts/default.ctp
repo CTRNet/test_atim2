@@ -9,18 +9,13 @@ header ('Content-type: text/html; charset=utf-8');
 
 	<?php
 		$session_delay_sec = AppController::atimSetCookie();
-		$header = $shell->header(array(
-			'atim_menu_for_header' => $atim_menu_for_header,
-			'atim_sub_menu_for_header' => $atim_sub_menu_for_header,
-			'atim_menu' => $atim_menu,
-			'atim_menu_variables' => $atim_menu_variables) 
-		);
+		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>img/favicon.ico"/>
+	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
 		echo $html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
@@ -52,9 +47,6 @@ header ('Content-type: text/html; charset=utf-8');
 			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
 			var STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS = "<?php echo(__("paste on all lines of all sections")); ?>";
 			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
-			var STR_LOADING = "<?php __('loading'); ?>";
-			var STR_OK = "<?php __('ok'); ?>";
-			var STR_CANCEL = "<?php __('cancel'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
@@ -85,7 +77,7 @@ header ('Content-type: text/html; charset=utf-8');
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.6.2.min')."\n";
+	echo $javascript->link('jquery-1.5.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";

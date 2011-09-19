@@ -137,16 +137,5 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/participant_messages/detail/'.$participant_id.'/'.$participant_message_id);
 		}
 	}
-	
-	function search($search_id = 0){
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
-		$this->searchHandler($search_id, $this->ParticipantMessage, 'participantmessages', '/clinicalannotation/participant_messages/search');
-		$this->Structures->set('participantmessages');
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) {
-			require($hook_link);
-		}
-	}
 }
 ?>

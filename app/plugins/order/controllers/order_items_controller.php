@@ -22,16 +22,27 @@ class OrderItemsController extends OrderAppController {
 	function index() {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
 						
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
 	}
 	
-	function search($search_id) {
+	function search() {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-		$this->searchHandler($search_id, $this->OrderItem, 'orderitems', '/inventorymanagement/order_items/search');
 
+		$oderitems_structure = $this->Structures->get('form', 'orderitems');
+		$this->set('atim_structure', $oderitems_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($oderitems_structure);
+		
+		$this->data = $this->paginate($this->OrderItem, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['OrderItem']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/order_items/search';
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
