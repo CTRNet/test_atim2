@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.5', NOW(), '3451');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.5', NOW(), '3515');
 
 ALTER TABLE groups
  ADD deleted BOOLEAN NOT NULL DEFAULT 0;
