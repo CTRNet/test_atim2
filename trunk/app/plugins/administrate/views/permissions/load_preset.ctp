@@ -13,22 +13,21 @@ $structures->build($atim_structure, array(
 	)
 );
 
-$can_delete = AppController::checkLinkPermission($this->data[0]['PermissionPreset']['delete']);
-
+$can_delete = !empty($this->data) && AppController::checkLinkPermission($this->data[0]['PermissionPreset']['delete']);
+print_r($this->data);
 $structures->build($atim_structure, array(
 	'type' => 'index', 
 	'data' => $this->data, 
 	'links' => array(
 		'index' => array('detail' => '%%PermissionsPreset.link%%', 'delete' => $can_delete ? '%%PermissionsPreset.delete%%' : '/underdev/'),
 		'bottom' => array(
-			__('save preset', true) => array('link' => 'javascript:savePresetPopup();', 'icon' => 'submit')
+			__('save preset', true) => array('link' => AppController::checkLinkPermission('/administrate/permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
 		)
 	), 
 	'settings' => array(
 		'header' => __('saved presets', true), 
 		'pagination' => false)
 	)
-	//TODO: validate the delete link and the save link before using them
 );
 ?>
 <script>
