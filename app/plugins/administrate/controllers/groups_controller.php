@@ -2,7 +2,7 @@
 
 class GroupsController extends AdministrateAppController {
 	
-	var $uses = array('Group',	'Aco', 'Aro');
+	var $uses = array('Group',	'Aco', 'Aro', 'User');
 	
 	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
@@ -103,10 +103,10 @@ class GroupsController extends AdministrateAppController {
 			$this->flash('Invalid id for Group', '/administrate/groups/index/');
 		}
 		
-		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));	
+		$this->data = $this->User->find('first',array('conditions'=>array('User.group_id'=>$group_id)));
 		$this->hook();
 
-		if(empty($this->data['User'])){
+		if(empty($this->data)){
 			if ($this->Group->atim_delete($group_id)) {
 				$this->atimFlash('Group deleted', '/administrate/groups/index/');
 			}

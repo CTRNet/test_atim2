@@ -8,7 +8,7 @@ function set_at_state_in_tree_root(new_at_li, json){
 	$($li).find("div.rightPart:first").addClass("at");
 	$($li).find("div.treeArrow:first").show();
 	$("#frame").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$.get($(this).prop("href"), {}, function(data){
+	$.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function(data){
 		$("#frame").html(data);
 		initActions();
 	});
@@ -27,7 +27,7 @@ function initAjaxTreeView(scope){
 			$(this).addClass("fetching");
 			var flat_url = json.url.replace(/\//g, "_");
 			if(flat_url.length > 0){
-				$.get(root_url + json.url, function(data){
+				$.get(root_url + json.url + "?t=" + new Date().getTime(), function(data){
 					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
 					if($("#" + flat_url).find("ul").length == 1){
 						var currentLi = getParentElement(expandButton, "LI");

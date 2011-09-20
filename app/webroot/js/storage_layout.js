@@ -211,7 +211,7 @@ function showInPopup(element, json){
 	}
 	$("#default_popup").html("<div class='loading'>---" + loadingStr + "---</div>");
 	$("#default_popup").popup();
-	$.get(json.load, {}, function(data){
+	$.get(json.load + "?t=" + new Date().getTime(), {}, function(data){
 		 $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 		 $("#default_popup").popup();
 	});
