@@ -14,7 +14,6 @@ $structures->build($atim_structure, array(
 );
 
 $can_delete = !empty($this->data) && AppController::checkLinkPermission($this->data[0]['PermissionPreset']['delete']);
-print_r($this->data);
 $structures->build($atim_structure, array(
 	'type' => 'index', 
 	'data' => $this->data, 
