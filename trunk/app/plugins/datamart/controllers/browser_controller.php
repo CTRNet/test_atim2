@@ -354,6 +354,7 @@ class BrowserController extends DatamartAppController {
 				$this->data = $browsing['BrowsingResult']['id_csv'];
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
+			$this->set('unused_parent', $browsing['BrowsingResult']['parent_node_id'] && $browsing['BrowsingResult']['raw']);
 
 		}else if($browsing != null){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -474,5 +475,88 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->save($this->data);
 			$this->atimFlash('your data has been updated', "/datamart/browser/index");
 		}
+	}
+	
+	/**
+	 * Creates a drilldown of the parent node based on the non matched parent
+	 * row of the current set. Echoes the new node id, if any.
+	 * @param int $node_id
+	 */
+	function unusedParent($node_id){
+		Configure::write('debug', 0);
+		$child_data = $this->BrowsingResult->findById($node_id);
+		if(!$child_data['BrowsingResult']['parent_node_id']){
+			echo json_encode(array('redirect' => '/pages/err_internal?p[]=no+parent', 'msg' => ''));
+		}
+		$parent_data = $this->BrowsingResult->findById($child_data['BrowsingResult']['parent_node_id']);
+		$control = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $child_data['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent_data['DatamartStructure']['id'])));
+		$parent_key_used_data = null;
+		if(empty($control)){
+			$control = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id2' => $child_data['DatamartStructure']['id'], 'BrowsingControl.id1' => $parent_data['DatamartStructure']['id'])));
+			assert(!empty($control));
+			
+			//load the child model
+			$datamart_structure = $this->DatamartStructure->findById($control['BrowsingControl']['id1']);
+			$datamart_structure = $datamart_structure['DatamartStructure'];
+			$parent_model = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+			
+			//fetch the used parent keys
+			$parent_key_used_data = $parent_model->find('all', array(
+				'fields' => array($parent_model->name.'.'.$datamart_structure['use_key']),
+				'conditions' => array($control['BrowsingControl']['use_field'] => explode(',', $child_data['BrowsingResult']['id_csv']))
+			));
+
+		}else{
+			//load the child model
+			$datamart_structure = $this->DatamartStructure->findById($control['BrowsingControl']['id1']);
+			$datamart_structure = $datamart_structure['DatamartStructure'];
+			$child_model = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+			
+			//fetch the used parent keys
+			$parent_key_used_data = $child_model->find('all', array(
+				'fields' => array($control['BrowsingControl']['use_field']),
+				'conditions' => array($child_model->name.'.'.$datamart_structure['use_key'] => explode(',', $child_data['BrowsingResult']['id_csv'])) 
+			));
+		}
+		
+		$parent_key_used = array();
+		foreach($parent_key_used_data as $data){
+			$parent_key_used[] = current(current($data));
+		}
+		$parent_key_used = array_unique($parent_key_used);
+		sort($parent_key_used);
+		$parent_key_used = array_diff(explode(',', $parent_data['BrowsingResult']['id_csv']), $parent_key_used);
+		$id_csv = implode(",",  $parent_key_used);
+		
+		//build the save array
+		$save = array('BrowsingResult' => array(
+			"user_id" => $_SESSION['Auth']['User']['id'],
+			"parent_node_id" => $child_data['BrowsingResult']['parent_node_id'],
+			"browsing_structures_id" => $parent_data['DatamartStructure']['id'],
+			"browsing_structures_sub_id" => $parent_data['BrowsingResult']['browsing_structures_sub_id'],
+			"id_csv" => $id_csv,
+			"raw" => false
+		));
+
+		$return_id = null;
+		if(!empty($save['BrowsingResult']['id_csv'])){
+			$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
+			if(!empty($tmp)){
+				//current set already exists, use it
+				$return_id = $tmp['BrowsingResult']['id'];
+			}else{
+				$this->BrowsingResult->id = null;
+				$this->BrowsingResult->save($save);
+				$return_id = $this->BrowsingResult->id;
+			}
+		}
+		
+		if($return_id){
+			$this->redirect('/datamart/browser/browse/'.$return_id);
+		}else{
+			AppController::addWarningMsg(__('there are no unused parent items', true));
+			$this->redirect('/datamart/browser/browse/'.$node_id);
+		}
+		exit;
 	}
 }
