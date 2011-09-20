@@ -19,13 +19,13 @@ ALTER TABLE qc_gastro_dxd_cap_melanomas
  ADD COLUMN chronic_sun_damages CHAR(1) NOT NULL DEFAULT '' AFTER ulceration,
  ADD COLUMN complete_or_segmental_regression CHAR(1) NOT NULL DEFAULT '' AFTER chronic_sun_damages,
  ADD COLUMN anatomical_level_clarks VARCHAR(200) NOT NULL DEFAULT '' AFTER complete_or_segmental_regression,
- ADD COLUMN depth_of_invasion_specify_mm UNSIGNED FLOAT DEFAULT NULL AFTER anatomical_level_clarks,
- ADD COLUMN depth_of_invasion_at_least_mm UNSIGNED FLOAT DEFAULT NULL AFTER depth_of_invasion_specify_mm,
+ ADD COLUMN depth_of_invasion_specify_mm FLOAT UNSIGNED DEFAULT NULL AFTER anatomical_level_clarks,
+ ADD COLUMN depth_of_invasion_at_least_mm FLOAT UNSIGNED DEFAULT NULL AFTER depth_of_invasion_specify_mm,
  ADD COLUMN vascular_invasion_or_angiotopism VARCHAR(50) NOT NULL DEFAULT '' AFTER depth_of_invasion_at_least_mm,
  ADD COLUMN tumor_infiltrating_lymphocytes1 VARCHAR(50) NOT NULL DEFAULT '' AFTER vascular_invasion_or_angiotopism,
  ADD COLUMN tumor_infiltrating_lymphocytes2 VARCHAR(50) NOT NULL DEFAULT '' AFTER tumor_infiltrating_lymphocytes1,
  ADD COLUMN mitotic_index VARCHAR(200) NOT NULL DEFAULT '' AFTER tumor_infiltrating_lymphocytes2,
- ADD COLUMN mitotic_figures_per_smm UNSIGNED FLOAT DEFAUTL NULL AFTER mitotic_index,
+ ADD COLUMN mitotic_figures_per_smm FLOAT UNSIGNED DEFAULT NULL AFTER mitotic_index,
  ADD COLUMN cell_population VARCHAR(50) NOT NULL DEFAULT '' AFTER mitotic_figures_per_smm,
  ADD COLUMN lateral_margins VARCHAR(50) NOT NULL DEFAULT '' AFTER cell_population,
  ADD COLUMN deep_margins VARCHAR(50) NOT NULL DEFAULT '' AFTER lateral_margins,
@@ -34,18 +34,18 @@ ALTER TABLE qc_gastro_dxd_cap_melanomas
 ALTER TABLE qc_gastro_dxd_cap_melanomas_revs
  ADD COLUMN organ VARCHAR(50) NOT NULL DEFAULT '' AFTER pm_precision,
  ADD COLUMN other VARCHAR(50) NOT NULL DEFAULT '' AFTER organ,
- ADD COLUMN comments TEXT DEFAULT NULL '' AFTER other,
+ ADD COLUMN comments TEXT DEFAULT NULL AFTER other,
  ADD COLUMN ulceration VARCHAR(50) NOT NULL DEFAULT '' AFTER comments,
  ADD COLUMN chronic_sun_damages CHAR(1) NOT NULL DEFAULT '' AFTER ulceration,
  ADD COLUMN complete_or_segmental_regression CHAR(1) NOT NULL DEFAULT '' AFTER chronic_sun_damages,
  ADD COLUMN anatomical_level_clarks VARCHAR(200) NOT NULL DEFAULT '' AFTER complete_or_segmental_regression,
- ADD COLUMN depth_of_invasion_specify_mm UNSIGNED FLOAT DEFAULT NULL AFTER anatomical_level_clarks,
- ADD COLUMN depth_of_invasion_at_least_mm UNSIGNED FLOAT DEFAULT NULL AFTER depth_of_invasion_specify_mm,
+ ADD COLUMN depth_of_invasion_specify_mm FLOAT UNSIGNED DEFAULT NULL AFTER anatomical_level_clarks,
+ ADD COLUMN depth_of_invasion_at_least_mm FLOAT UNSIGNED DEFAULT NULL AFTER depth_of_invasion_specify_mm,
  ADD COLUMN vascular_invasion_or_angiotopism VARCHAR(50) NOT NULL DEFAULT '' AFTER depth_of_invasion_at_least_mm,
  ADD COLUMN tumor_infiltrating_lymphocytes1 VARCHAR(50) NOT NULL DEFAULT '' AFTER vascular_invasion_or_angiotopism,
  ADD COLUMN tumor_infiltrating_lymphocytes2 VARCHAR(50) NOT NULL DEFAULT '' AFTER tumor_infiltrating_lymphocytes1,
  ADD COLUMN mitotic_index VARCHAR(200) NOT NULL DEFAULT '' AFTER tumor_infiltrating_lymphocytes2,
- ADD COLUMN mitotic_figures_per_smm UNSIGNED FLOAT DEFAULT NULL AFTER mitotic_index,
+ ADD COLUMN mitotic_figures_per_smm FLOAT UNSIGNED DEFAULT NULL AFTER mitotic_index,
  ADD COLUMN cell_population VARCHAR(50) NOT NULL DEFAULT '' AFTER mitotic_figures_per_smm,
  ADD COLUMN lateral_margins VARCHAR(50) NOT NULL DEFAULT '' AFTER cell_population,
  ADD COLUMN deep_margins VARCHAR(50) NOT NULL DEFAULT '' AFTER lateral_margins,
@@ -176,4 +176,124 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='deep_margins' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastrop_cap_melanoma_deep_margins')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='deep margins' AND `language_tag`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='growth_phase' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastrop_cap_melanoma_growth_phase')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='growth phase' AND `language_tag`=''), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_gastro_dxd_cap_melanomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_gastro_dxd_cap_melanomas' AND `field`='necrosis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='necrosis' AND `language_tag`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sex') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='marital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='marital_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
+
+UPDATE structure_fields SET field = 'qc_gastro_bio_material' WHERE field = 'qc_gastro_access_med_file' AND language_label = 'biological material storage and use';
+
+SELECT "
+Users have to review all consents: 
+Old values 'Access to medical file' and 'Biological material storage and use' were recorded
+into the same field 'qc_gastro_access_med_file'!" AS TODO ;
+
+ALTER TABLE qc_gastro_cd_consents
+  MODIFY qc_gastro_access_med_file CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_bio_material CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_blood_col CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_saliva_col CHAR(1) NOT NULL DEFAULT '';
+
+ALTER TABLE qc_gastro_cd_consents_revs
+  MODIFY qc_gastro_access_med_file CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_bio_material CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_blood_col CHAR(1) NOT NULL DEFAULT '',
+  MODIFY qc_gastro_saliva_col CHAR(1) NOT NULL DEFAULT '';
+  
+UPDATE qc_gastro_cd_consents SET qc_gastro_access_med_file = 'y' WHERE qc_gastro_access_med_file ='1';
+UPDATE qc_gastro_cd_consents SET qc_gastro_bio_material = 'y' WHERE qc_gastro_bio_material ='1';
+UPDATE qc_gastro_cd_consents SET qc_gastro_blood_col = 'y' WHERE qc_gastro_blood_col ='1';
+UPDATE qc_gastro_cd_consents SET qc_gastro_saliva_col = 'y' WHERE qc_gastro_saliva_col ='1';
+
+UPDATE qc_gastro_cd_consents SET qc_gastro_access_med_file = '' WHERE qc_gastro_access_med_file !='y';
+UPDATE qc_gastro_cd_consents SET qc_gastro_bio_material = '' WHERE qc_gastro_bio_material !='y';
+UPDATE qc_gastro_cd_consents SET qc_gastro_blood_col = '' WHERE qc_gastro_blood_col !='y';
+UPDATE qc_gastro_cd_consents SET qc_gastro_saliva_col = '' WHERE qc_gastro_saliva_col !='y';
+
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_access_med_file = 'y' WHERE qc_gastro_access_med_file ='1';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_bio_material = 'y' WHERE qc_gastro_bio_material ='1';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_blood_col = 'y' WHERE qc_gastro_blood_col ='1';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_saliva_col = 'y' WHERE qc_gastro_saliva_col ='1';
+
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_access_med_file = '' WHERE qc_gastro_access_med_file !='y';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_bio_material = '' WHERE qc_gastro_bio_material !='y';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_blood_col = '' WHERE qc_gastro_blood_col !='y';
+UPDATE qc_gastro_cd_consents_revs SET qc_gastro_saliva_col = '' WHERE qc_gastro_saliva_col !='y';
+
+UPDATE structure_fields SET setting = null, type = 'yes_no' 
+WHERE field in ('qc_gastro_access_med_file', 'qc_gastro_saliva_col', 'qc_gastro_blood_col', 'qc_gastro_bio_material') 
+AND tablename = 'qc_gastro_cd_consents';
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_access_med_file' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_bio_material' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_blood_col' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_saliva_col' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Diag revision
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- DX: other
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tumour grade') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='laterality' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='qc_gastro_tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='qc_gastro_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_gastro_tissue_precision') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET structure_value_domain = NULL WHERE type = 'yes_no';
+
+UPDATE structures, structure_formats, structure_fields
+SET structure_formats.flag_search = '1',
+structure_formats.flag_index = '1',
+structure_formats.flag_summary = '0'
+WHERE structure_formats.structure_id = structures.id
+AND structure_fields.id = structure_formats.structure_field_id
+AND structures.alias LIKE 'dx_cap_report_%' 
+AND structure_formats.flag_detail = '1'
+AND structure_fields.field != 'notes';
+
+UPDATE diagnosis_controls SET controls_type = 'cap report - lung (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_lungs';
+UPDATE diagnosis_controls SET controls_type = 'cap report - melanoma (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_melanomas';
+UPDATE diagnosis_controls SET controls_type = 'cap report - kidney (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_kidneys';
+UPDATE diagnosis_controls SET controls_type = 'cap report - testis (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_testis';
+UPDATE diagnosis_controls SET controls_type = 'cap report - urinary bladder (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_bladders';
+UPDATE diagnosis_controls SET controls_type = 'cap report - prostate gland - needle biopsy (ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_prostate_needles';
+UPDATE diagnosis_controls SET controls_type = 'cap report - prostate gland - radical prostatectomy( ld vers.)' WHERE form_alias = 'qc_gastro_dxd_cap_prostate_radicals';
+
+UPDATE diagnosis_controls SET databrowser_label = controls_type WHERE form_alias LIKE 'qc_gastro_dxd_cap_%';
+
+INSERT INTO i18n (id,en) VALUES 
+('cap report - lung (ld vers.)', 'CAP Report - Lung (ld vers.)'),
+('cap report - melanoma (ld vers.)', 'CAP Report - Melanoma (ld vers.)'),
+('cap report - kidney (ld vers.)', 'CAP Report - Kidney (ld vers.)'),
+('cap report - testis (ld vers.)', 'CAP Report - Testis (ld vers.)'),
+('cap report - urinary bladder (ld vers.)', 'CAP Report - Urinary bladder (ld vers.)'),
+('cap report - prostate gland - needle biopsy (ld vers.)', 'CAP Report - Needle biopsy (ld vers.)'),
+('cap report - prostate gland - radical prostatectomy( ld vers.)', 'CAP Report - Radical prostatectomy( ld vers.)');
+
+UPDATE structures, structure_formats, structure_fields
+SET structure_formats.flag_search = '1',
+structure_formats.flag_index = '1',
+structure_formats.flag_summary = '0'
+WHERE structure_formats.structure_id = structures.id
+AND structure_fields.id = structure_formats.structure_field_id
+AND structures.alias LIKE 'c_gastro_dxd_cap_%' 
+AND structure_formats.flag_detail = '1'
+AND structure_fields.field != 'notes';
+
+
+
 
