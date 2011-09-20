@@ -229,7 +229,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 		foreach($ccls as $ccl){
 			$tmp_array[$ccl['Collection']['collection_datetime']][] = array(
 				'event' => __('collection', true)." (".$ccl['Collection']['acquisition_label'].")", 
-				'link' => '/inventorymanagement/collections/detail/'.$participant_id.'/'.$ccl['Collection']['id'],
+				'link' => '/inventorymanagement/collections/detail/'.$ccl['Collection']['id'],
 				'date_accuracy' => $ccl['Collection']['collection_datetime_accuracy']	
 			);
 		}

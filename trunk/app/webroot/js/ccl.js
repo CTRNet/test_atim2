@@ -25,7 +25,7 @@ function initCcl(){
 		if(popupLoaded){
 			$("#popup").popup();
 		}else{
-			$.get(root_url + "/inventorymanagement/collections/index/true", null, function(data){
+			$.get(root_url + "/inventorymanagement/collections/index/true?t=" + new Date().getTime(), null, function(data){
 				$("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 				initDatepicker("#popup");
 				initAdvancedControls("#popup");
