@@ -186,10 +186,7 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 
 UPDATE structure_fields SET field = 'qc_gastro_bio_material' WHERE field = 'qc_gastro_access_med_file' AND language_label = 'biological material storage and use';
 
-SELECT "
-Users have to review all consents: 
-Old values 'Access to medical file' and 'Biological material storage and use' were recorded
-into the same field 'qc_gastro_access_med_file'!" AS TODO ;
+SELECT "Users have to review all consents: Old values 'Access to medical file' and 'Biological material storage and use' were recorded into the same field 'qc_gastro_access_med_file'!" AS TODO ;
 
 ALTER TABLE qc_gastro_cd_consents
   MODIFY qc_gastro_access_med_file CHAR(1) NOT NULL DEFAULT '',
@@ -232,7 +229,7 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_blood_col' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_cd_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='qc_gastro_cd_consents' AND `field`='qc_gastro_saliva_col' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
--- Diag revision
+-- DX: diagnosismasters
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature') AND `flag_confidential`='0');
@@ -254,6 +251,8 @@ UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_dx_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_fields SET structure_value_domain = NULL WHERE type = 'yes_no';
+
+-- DX: Cap report
 
 UPDATE structures, structure_formats, structure_fields
 SET structure_formats.flag_search = '1',
@@ -294,6 +293,341 @@ AND structures.alias LIKE 'c_gastro_dxd_cap_%'
 AND structure_formats.flag_detail = '1'
 AND structure_fields.field != 'notes';
 
+-- ALifestyle
+
+UPDATE structures, structure_formats, structure_fields
+SET structure_formats.flag_search = '1',
+structure_formats.flag_index = '1',
+structure_formats.flag_summary = '0'
+WHERE structure_formats.structure_id = structures.id
+AND structure_fields.id = structure_formats.structure_field_id
+AND structures.alias LIKE 'qc_gastro_lifestyle' 
+AND structure_formats.flag_detail = '1';
+
+ALTER TABLE qc_gastro_ed_lifestyle
+  MODIFY sibling_has_cancer CHAR(1) NOT NULL DEFAULT '',
+  MODIFY smoke_parent CHAR(1) NOT NULL DEFAULT '',
+  MODIFY smoke_mother_pregnant CHAR(1) NOT NULL DEFAULT '',
+  MODIFY can_digest_milk CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_multi_vitamins CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_calcium_supplement CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_vitamin_d_supplement CHAR(1) NOT NULL DEFAULT '';
+
+ALTER TABLE qc_gastro_ed_lifestyle_revs
+  MODIFY sibling_has_cancer CHAR(1) NOT NULL DEFAULT '',
+  MODIFY smoke_parent CHAR(1) NOT NULL DEFAULT '',
+  MODIFY smoke_mother_pregnant CHAR(1) NOT NULL DEFAULT '',
+  MODIFY can_digest_milk CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_multi_vitamins CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_calcium_supplement CHAR(1) NOT NULL DEFAULT '',
+  MODIFY taking_vitamin_d_supplement CHAR(1) NOT NULL DEFAULT '';
+
+UPDATE qc_gastro_ed_lifestyle SET sibling_has_cancer = 'y' WHERE sibling_has_cancer ='1';
+UPDATE qc_gastro_ed_lifestyle SET smoke_parent = 'y' WHERE smoke_parent ='1';
+UPDATE qc_gastro_ed_lifestyle SET smoke_mother_pregnant = 'y' WHERE smoke_mother_pregnant ='1';
+UPDATE qc_gastro_ed_lifestyle SET can_digest_milk = 'y' WHERE can_digest_milk ='1';
+UPDATE qc_gastro_ed_lifestyle SET taking_multi_vitamins = 'y' WHERE taking_multi_vitamins ='1';
+UPDATE qc_gastro_ed_lifestyle SET taking_calcium_supplement = 'y' WHERE taking_calcium_supplement ='1';
+UPDATE qc_gastro_ed_lifestyle SET taking_vitamin_d_supplement = 'y' WHERE taking_vitamin_d_supplement ='1';
+
+UPDATE qc_gastro_ed_lifestyle_revs SET sibling_has_cancer = 'y' WHERE sibling_has_cancer ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET smoke_parent = 'y' WHERE smoke_parent ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET smoke_mother_pregnant = 'y' WHERE smoke_mother_pregnant ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET can_digest_milk = 'y' WHERE can_digest_milk ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_multi_vitamins = 'y' WHERE taking_multi_vitamins ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_calcium_supplement = 'y' WHERE taking_calcium_supplement ='1';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_vitamin_d_supplement = 'y' WHERE taking_vitamin_d_supplement ='1';
+
+UPDATE qc_gastro_ed_lifestyle SET sibling_has_cancer = '' WHERE sibling_has_cancer != 'y';
+UPDATE qc_gastro_ed_lifestyle SET smoke_parent = '' WHERE smoke_parent != 'y';
+UPDATE qc_gastro_ed_lifestyle SET smoke_mother_pregnant = '' WHERE smoke_mother_pregnant != 'y';
+UPDATE qc_gastro_ed_lifestyle SET can_digest_milk = '' WHERE can_digest_milk != 'y';
+UPDATE qc_gastro_ed_lifestyle SET taking_multi_vitamins = '' WHERE taking_multi_vitamins != 'y';
+UPDATE qc_gastro_ed_lifestyle SET taking_calcium_supplement = '' WHERE taking_calcium_supplement != 'y';
+UPDATE qc_gastro_ed_lifestyle SET taking_vitamin_d_supplement = '' WHERE taking_vitamin_d_supplement != 'y';
+
+UPDATE qc_gastro_ed_lifestyle_revs SET sibling_has_cancer = '' WHERE sibling_has_cancer != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET smoke_parent = '' WHERE smoke_parent != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET smoke_mother_pregnant = '' WHERE smoke_mother_pregnant != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET can_digest_milk = '' WHERE can_digest_milk != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_multi_vitamins = '' WHERE taking_multi_vitamins != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_calcium_supplement = '' WHERE taking_calcium_supplement != 'y';
+UPDATE qc_gastro_ed_lifestyle_revs SET taking_vitamin_d_supplement = '' WHERE taking_vitamin_d_supplement != 'y';
+
+UPDATE structure_fields SET setting = null, type = 'yes_no' 
+WHERE field in ('sibling_has_cancer', 'smoke_parent', 'smoke_mother_pregnant', 'can_digest_milk', 'taking_multi_vitamins', 'taking_calcium_supplement', 'taking_vitamin_d_supplement') 
+AND tablename = 'qc_gastro_ed_lifestyle';
+
+UPDATE menus SET flag_active = 0 WHERE use_link like '%labbook%';
+
+-- -----------------------------------------------------------
+-- INVENTORY
+-- -----------------------------------------------------------
+
+DROP VIEW IF EXISTS view_collections;
+CREATE VIEW `view_collections` AS 
+SELECT `col`.`id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,
+`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+`col`.`acquisition_label` AS `acquisition_label`,
+`col`.`collection_site` AS `collection_site`,
+`col`.`collection_datetime` AS `collection_datetime`,
+`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
+`col`.`collection_property` AS `collection_property`,
+`col`.`collection_notes` AS `collection_notes`,
+`col`.`deleted` AS `deleted`,
+`banks`.`name` AS `bank_name`,
+`col`.`created` AS `created` , 
+identifier.identifier_value AS participant_ramq
+FROM (((`collections` `col` left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) 
+LEFT JOIN `participants` `part` ON(((`link`.`participant_id` = `part`.`id`) AND (`part`.`deleted` <> 1)))) 
+LEFT JOIN `banks` ON(((`col`.`bank_id` = `banks`.`id`) AND (`banks`.`deleted` <> 1)))) 
+LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id= 1 WHERE (`col`.`deleted` <> 1);
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='440' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='specimen_biobank_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+DROP VIEW IF EXISTS view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+specimen_detail.specimen_biobank_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+samp.sample_category,
+samp.deleted, 
+identifier.identifier_value AS participant_ramq
+
+FROM sample_masters as samp
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN specimen_details as specimen_detail ON specimen.id = specimen_detail.sample_master_id AND specimen_detail.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id= 1 WHERE samp.deleted != 1;
+
+UPDATE structure_formats, structure_fields
+SET 
+flag_add = '0',
+flag_add_readonly = '0',
+flag_edit = '0',
+flag_edit_readonly = '0',
+flag_search = '0',
+flag_search_readonly = '0',
+flag_addgrid = '0',
+flag_addgrid_readonly = '0',
+flag_editgrid = '0',
+flag_editgrid_readonly = '0',
+flag_summary = '0',
+flag_batchedit = '0',
+flag_batchedit_readonly = '0',
+flag_index = '0',
+flag_detail = '0'
+WHERE structure_fields.id = structure_formats.structure_field_id AND structure_fields.field = 'aliquot_label';
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+DROP TABLE IF EXISTS view_aliquots;
+DROP VIEW IF EXISTS view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimen.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+al.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted, 
+identifier.identifier_value AS participant_ramq
+
+FROM aliquot_masters as al
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+LEFT JOIN `misc_identifiers` `identifier` ON `link`.`participant_id` = `identifier`.`participant_id` AND `identifier`.`deleted` <> 1 AND identifier.misc_identifier_control_id= 1 WHERE al.deleted != 1;
+
+UPDATE parent_to_derivative_sample_controls SET lab_book_control_id = null;
+UPDATE realiquoting_controls SET lab_book_control_id = null;
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='441' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_sd_pbmc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_gastro_ficol' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE ad_blocks_revs 
+ ADD qc_gastro_mold_id VARCHAR(50) NOT NULL DEFAULT''AFTER patho_dpt_block_code;
+
+ALTER TABLE qc_gastro_dxd_cap_bladders_revs
+ DROP COLUMN specimen_laterality;
+
+ALTER TABLE qc_gastro_dxd_cap_bladders 
+  MODIFY `histologic_grade` varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE qc_gastro_dxd_cap_lungs 
+  MODIFY `histologic_grade` varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE qc_gastro_dxd_cap_lungs_revs 
+  MODIFY `histologic_type` varchar(250) NOT NULL DEFAULT '';
+
+ALTER TABLE qc_gastro_dxd_cap_lungs_revs 
+  MODIFY `tumor_size_cannot_determine` tinyint(1) DEFAULT NULL;
+
+ALTER TABLE qc_gastro_dxd_cap_prostate_radicals_revs
+  ADD `pt` varchar(50) NOT NULL DEFAULT '' AFTER ptmn_y,
+  ADD `pn` varchar(50) NOT NULL DEFAULT '' AFTER pt,
+  ADD `pn_no_nodes` tinyint(1) DEFAULT NULL AFTER pn,
+  ADD `pn_examined` int(10) unsigned DEFAULT NULL AFTER pn_no_nodes,
+  ADD `pn_examined_cannot_determine` tinyint(1) DEFAULT NULL AFTER pn_examined,
+  ADD `pn_examined_cannot_determine_precision` varchar(50) DEFAULT '' AFTER pn_examined_cannot_determine,
+  ADD `pn_involved` int(10) unsigned DEFAULT NULL AFTER pn_examined_cannot_determine_precision,
+  ADD `pn_involved_cannot_determine` tinyint(1) DEFAULT NULL AFTER pn_involved,
+  ADD `pn_involved_cannot_determine_precision` varchar(50) DEFAULT '' AFTER pn_involved_cannot_determine,
+  ADD `pm` varchar(50) NOT NULL DEFAULT '' AFTER pn_involved_cannot_determine_precision;
+
+ALTER TABLE qc_gastro_dxd_cap_testis_revs 
+ ADD `tumor_nodule4_greatest_dimension_cm` float unsigned DEFAULT NULL AFTER tumor_nodule3_greatest_dimension_cm;
+
+ALTER TABLE qc_gastro_dxd_cap_testis_revs
+ DROP COLUMN turor_nodule4_greatest_dimension_cm;
+
+ALTER TABLE sd_der_rnas_revs
+ DROP COLUMN qc_gastro_ficol;
+
+ALTER TABLE sd_der_pbmcs_revs
+ ADD COLUMN `qc_gastro_ficol` char(1) NOT NULL DEFAULT '';
+ 
+ALTER TABLE qc_gastro_ed_lifestyle
+ ADD COLUMN `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+ALTER TABLE sd_der_pbmcs
+  MODIFY qc_gastro_ficol CHAR(1) NOT NULL DEFAULT '';
+
+UPDATE sd_der_pbmcs SET qc_gastro_ficol = 'y' WHERE qc_gastro_ficol ='1';
+UPDATE sd_der_pbmcs_revs SET qc_gastro_ficol = 'y' WHERE qc_gastro_ficol ='1';
+
+UPDATE sd_der_pbmcs SET qc_gastro_ficol = '' WHERE qc_gastro_ficol != 'y';
+UPDATE sd_der_pbmcs_revs SET qc_gastro_ficol = '' WHERE qc_gastro_ficol != 'y';
+
+UPDATE structure_fields SET setting = null, type = 'yes_no' 
+WHERE field = 'qc_gastro_ficol'
+AND tablename = 'sd_der_pbmcs';
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats, structure_fields
+SET 
+flag_add = '0',
+flag_add_readonly = '0',
+flag_edit = '0',
+flag_edit_readonly = '0',
+flag_search = '0',
+flag_search_readonly = '0',
+flag_addgrid = '0',
+flag_addgrid_readonly = '0',
+flag_editgrid = '0',
+flag_editgrid_readonly = '0',
+flag_summary = '0',
+flag_batchedit = '0',
+flag_batchedit_readonly = '0',
+flag_index = '0',
+flag_detail = '0'
+WHERE structure_fields.id = structure_formats.structure_field_id AND structure_fields.field = 'sop_master_id';
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE sd_der_rnas
+  MODIFY qc_gastro_micro_rna CHAR(1) NOT NULL DEFAULT '';
+
+UPDATE sd_der_rnas SET qc_gastro_micro_rna = 'y' WHERE qc_gastro_micro_rna ='1';
+UPDATE sd_der_rnas_revs SET qc_gastro_micro_rna = 'y' WHERE qc_gastro_micro_rna ='1';
+
+UPDATE sd_der_rnas SET qc_gastro_micro_rna = '' WHERE qc_gastro_micro_rna != 'y';
+UPDATE sd_der_rnas_revs SET qc_gastro_micro_rna = '' WHERE qc_gastro_micro_rna != 'y';
+
+UPDATE structure_fields SET setting = null, type = 'yes_no' 
+WHERE field = 'qc_gastro_micro_rna'
+AND tablename = 'sd_der_rnas';
+
+UPDATE structure_formats SET `display_order`='429' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_sd_rna') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='qc_gastro_micro_rna' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'ad_%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='445' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='culture_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_culture_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='446' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='culture_status_reason' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_culture_status_reason') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='447' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='cell_passage_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_number_of_slices' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_thickness' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
