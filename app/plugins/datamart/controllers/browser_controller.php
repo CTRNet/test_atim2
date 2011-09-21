@@ -529,9 +529,16 @@ class BrowserController extends DatamartAppController {
 		$id_csv = implode(",",  $parent_key_used);
 		
 		//build the save array
+		$parent_node_id = null;
+		$browsing_result = $this->BrowsingResult->findById($child_data['BrowsingResult']['parent_node_id']);
+		if($browsing_result['BrowsingResult']['raw']){
+			$parent_node_id = $child_data['BrowsingResult']['parent_node_id'];
+		}else{
+			$parent_node_id = $browsing_result['BrowsingResult']['parent_node_id'];
+		}
 		$save = array('BrowsingResult' => array(
 			"user_id" => $_SESSION['Auth']['User']['id'],
-			"parent_node_id" => $child_data['BrowsingResult']['parent_node_id'],
+			"parent_node_id" => $parent_node_id,
 			"browsing_structures_id" => $parent_data['DatamartStructure']['id'],
 			"browsing_structures_sub_id" => $parent_data['BrowsingResult']['browsing_structures_sub_id'],
 			"id_csv" => $id_csv,
