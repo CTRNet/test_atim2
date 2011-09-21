@@ -297,7 +297,7 @@ class BrowserController extends DatamartAppController {
 		
 		//handle display data
 		if($check_list){
-			$result = $this->Browser->InitDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
+			$result = $this->Browser->initDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
 			
 			if(!$this->Browser->valid_permission){
 				$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');

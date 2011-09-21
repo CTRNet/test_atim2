@@ -278,7 +278,7 @@ class Browser extends DatamartAppModel {
 			if($merge){
 				array_push($linked_types_down, $tree_node['BrowsingResult']['browsing_structures_id']);
 				if($node_id != $active_node){
-					$tree_node['merge'] = true;
+					$tree_node['merge'] = true;//for children
 				}
 			}
 			foreach($children as $child){
@@ -292,7 +292,10 @@ class Browser extends DatamartAppModel {
 				if(!isset($tree_node['merge']) && (($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node)){
 					array_push($linked_types_up, $child_node['BrowsingResult']['browsing_structures_id']);
 					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || !$child_node['BrowsingResult']['raw']){
-						$tree_node['merge'] = true;
+						$tree_node['merge'] = true;//for parent
+						if(!$child_node['BrowsingResult']['raw'] && $child_node['BrowsingResult']['id'] == $active_node){
+							$tree_node['hide_merge_icon'] = true;
+						}
 					}
 				}
 			}
@@ -306,6 +309,14 @@ class Browser extends DatamartAppModel {
 		}
 		if(!empty($merged_ids) && (in_array($node_id, $merged_ids) || $node_id == $active_node)){
 			$tree_node['paint_merged'] = true;
+		}
+		if($node_id == $active_node){
+			//remove the merge icon on the drilldown of the current node
+			foreach($tree_node['children'] as &$child_node){
+				if($child_node['DatamartStructure']['id'] == $tree_node['DatamartStructure']['id']){
+					$child_node['merge'] = false;
+				}
+			}
 		}
 		return $tree_node;
 	}
@@ -513,7 +524,7 @@ class Browser extends DatamartAppModel {
 					$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."datamart/browser/browse/";
-					if(isset($cell['merge']) && $cell['merge']){
+					if(isset($cell['merge']) && $cell['merge'] && !isset($cell['hide_merge_icon'])){
 						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view", true)."'/>&nbsp;</a>");
 					}else{
 						$controls = sprintf($controls, "");
@@ -955,10 +966,11 @@ class Browser extends DatamartAppModel {
 		
 		if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
 			$this->valid_permission = false;
-		}else if($merge_to != 0){
-			$nodes_to_fetch = $this->getNodesToMerge($browsing, $merge_to);
 		}else{
 			$this->valid_permission = true;
+			if($merge_to != 0){
+				$nodes_to_fetch = $this->getNodesToMerge($browsing, $merge_to);
+			}
 		}
 		
 		//prepare nodes_to_fetch_stack
