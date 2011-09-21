@@ -112,8 +112,7 @@ class Browser extends DatamartAppModel {
 				'children' => $sorted_rez
 			);
 			
-			//TODO: remove "foo" in 2.4.0
-			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, "foo", $data_model, $data_pkey));
+			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, null, $data_model, $data_pkey));
 			
 		}else{
 			
