@@ -205,7 +205,7 @@ function showInPopup(element, json){
 	}
 	$("#popup").html("<div class='loading'>---" + loadingStr + "---</div>");
 	$("#popup").popup();
-	$.get(json.load, {}, function(data){
+	$.get(json.load + "?t=" + new Date().getTime(), {}, function(data){
 		 $("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 		 $("#popup").popup();
 	});
