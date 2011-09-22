@@ -25,7 +25,7 @@ class OrdersController extends OrderAppController {
   
 	function search($search_id) {
 		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-		$this->searchHandler($search_id, $this->ORder, 'orders', '/order/orders/search');
+		$this->searchHandler($search_id, $this->Order, 'orders', '/order/orders/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
