@@ -53,7 +53,7 @@ class DatamartAppModel extends AppModel {
 				'children' => $functions_menu
 			);
 		}
-		$csv_action = 'datamart/csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
+		$csv_action = 'datamart/csv/csv/%d/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
 		if(strlen($data_model)){
 			$csv_action .= $data_model.'/';
 			if(strlen($data_pkey)){
@@ -63,7 +63,12 @@ class DatamartAppModel extends AppModel {
 		$result[] = array(
 			'value' => '0',
 			'default' => __('export as CSV file (comma-separated values)', true),
-			'action' => $csv_action
+			'action' => sprintf($csv_action, 0)
+		);
+		$result[] = array(
+			'value' => '0',
+			'default' => __('full export as CSV file', true),
+			'action' => sprintf($csv_action, 1)
 		);
 		
 		return $result;

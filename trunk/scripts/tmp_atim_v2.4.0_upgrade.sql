@@ -96,7 +96,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "La valeur du diagnostic pour %s ne correspond pas à la valeur du rapport cap"),
 ("auto submit", "Auto submit", "Envoi automatique"),
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
-("unused parents", "Unused parents", "Parents non utilisés");
+("unused parents", "Unused parents", "Parents non utilisés"),
+("full export as CSV", "Full export as CSV", "Export complet comme CSV");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';

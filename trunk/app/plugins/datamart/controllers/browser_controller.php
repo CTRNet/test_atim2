@@ -319,12 +319,22 @@ class BrowserController extends DatamartAppController {
 				$browsing['DatamartStructure']['use_key'], 
 				$this->Browser->checklist_sub_models_id_filter
 			);
-			foreach($dropdown_options as &$option){
+			foreach($dropdown_options as $key => $option){
 				if(isset($option['action']) && strpos($option['action'], 'datamart/csv/csv') === 0){
-					$option['action'] = 'datamart/browser/csv/'.$node_id."/".$merge_to."/";
-					break;
+					unset($dropdown_options[$key]);
 				}
 			}
+			$action = 'datamart/browser/csv/%d/'.$node_id."/".$merge_to."/";
+			$dropdown_options[] = array(
+				'value' => '0',
+				'default' => __('export as CSV file (comma-separated values)', true),
+				'action' => sprintf($action, 0)
+			);
+			$dropdown_options[] = array(
+				'value' => '0',
+				'default' => __('full export as CSV file', true),
+				'action' => sprintf($action, 1)
+			);
 			
 			$this->set("dropdown_options", $dropdown_options);
 			$this->Structures->set("datamart_browser_start");
@@ -382,7 +392,7 @@ class BrowserController extends DatamartAppController {
 	 * @param int $parent_id
 	 * @param int $merge_to
 	 */
-	function csv($node_id, $merge_to){
+	function csv($all_fields, $node_id, $merge_to){
 		$browsing = $this->BrowsingResult->findById($node_id);
 		$ids = current(current($this->data));
 		if(is_string($ids)){
@@ -401,8 +411,9 @@ class BrowserController extends DatamartAppController {
 		
 		Configure::write('debug', 0);
 		$this->set('csv_header', true);
+		$this->set('all_fields', $all_fields);
 		while($this->data = $this->Browser->getDataChunk(300)){
-			$this->render();
+			$this->render('../csv/csv');
 			$this->set('csv_header', false);
 		}
 		
