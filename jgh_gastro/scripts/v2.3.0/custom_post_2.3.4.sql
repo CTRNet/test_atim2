@@ -631,3 +631,10 @@ UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FR
 
 ALTER TABLE sd_der_rnas_revs
   MODIFY qc_gastro_micro_rna CHAR(1) NOT NULL DEFAULT '';
+  
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_number_of_slices' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_thickness' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ 
+ 
+ 
+
