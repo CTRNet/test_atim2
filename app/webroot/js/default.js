@@ -113,45 +113,6 @@ function initActions(){
 	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
 }
 
-function checkAll( $div ) {
-	
-	// check compatibility
-	if ( !document.getElementsByTagName ) return false;
-	if ( !document.getElementById ) return false;
-	
-	// check existing IDs and attributes
-	if ( !document.getElementById( $div ) ) return false;
-	
-	allInputs = document.getElementById( $div ).getElementsByTagName( 'input' );
-	for ( var i=0; i<allInputs.length; i++ ) {
-		if ( allInputs[i].getAttribute('type')=='checkbox' ) {
-			// allInputs[i].setAttribute('checked', 'checked');
-			allInputs[i].checked = true;
-		}
-		
-	}
-	
-}
-
-function uncheckAll( $div ) {
-	
-	// check compatibility
-	if ( !document.getElementsByTagName ) return false;
-	if ( !document.getElementById ) return false;
-	
-	// check existing IDs and attributes
-	if ( !document.getElementById( $div ) ) return false;
-	
-	allInputs = document.getElementById( $div ).getElementsByTagName( 'input' );
-	for ( var i=0; i<allInputs.length; i++ ) {
-		if ( allInputs[i].getAttribute('type')=='checkbox' ) {
-			allInputs[i].checked = false;
-		}
-		
-	}
-	
-}
-	
 /*
 	admin editors, expandable list of elements
 	individual elements should be wrapped in p tags, and those p tags wrapped in a containing div
@@ -474,7 +435,7 @@ function uncheckAll( $div ) {
 	function initCheckAll(scope){
 		var elem = $(scope).find(".checkAll");
 		if(elem.length > 0){
-			parent = getParentElement(elem, "TBODY");
+			parent = getParentElement(elem, "FORM");
 			$(elem).click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", true);
 				return false;
