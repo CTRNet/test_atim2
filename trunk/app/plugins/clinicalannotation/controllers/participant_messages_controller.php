@@ -148,5 +148,15 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 			require($hook_link);
 		}
 	}
+	
+	function index(){
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		$this->Structures->set('participantmessages');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
 }
 ?>

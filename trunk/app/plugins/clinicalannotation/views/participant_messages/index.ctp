@@ -1,15 +1,15 @@
-<?php 
+<?php
 	$structure_links = array(
-		'index'=>array('detail'=>'/clinicalannotation/participants/profile/%%Participant.id%%'),
+		'top'=>'/clinicalannotation/participant_messages/search/'.AppController::getNewSearchId(),
 		'bottom'=>array(
-			'add participant'=>'/clinicalannotation/participants/add/', 
+			'add participant'=>'/clinicalannotation/participants/add',
 			'new search' => ClinicalannotationAppController::$search_links
 		)
 	);
-	
+
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links, 'settings' => array('header' => __('search type', null).': '.__('participants', null)));
+	$final_options = array('type'=>'search','links'=>$structure_links, 'settings' => array('header' => __('search type', null).': '.__('participant messages', null)));
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
