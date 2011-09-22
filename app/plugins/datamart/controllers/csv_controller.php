@@ -4,6 +4,7 @@ class CsvController extends DatamartAppController {
 
 	/**
 	 * Fetches data and returns it in a CSV
+	 * @param boolean $all_fields
 	 * @param string $plugin
 	 * @param string $model_name The model to use to fetch the data
 	 * @param string $model_pkey The key to use to fetch the data
@@ -11,7 +12,7 @@ class CsvController extends DatamartAppController {
 	 * @param string $data_model The model to look for in the data array
 	 * @param string $data_pkey The pkey to look for in the data array
 	 */
-	function csv($plugin, $model_name, $model_pkey, $structure_alias, $data_model = null, $data_pkey = null){
+	function csv($all_fields, $plugin, $model_name, $model_pkey, $structure_alias, $data_model = null, $data_pkey = null){
 		$this->ModelToSearch = AppModel::getInstance($plugin, $model_name, true);
 		
 		if($data_pkey == null){
@@ -77,7 +78,10 @@ class CsvController extends DatamartAppController {
 		if($use_find){
 			$this->data = $this->ModelToSearch->find('all', array('conditions' => $model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')"));
 		}
-		$this->Structures->set($structure_alias);
+		
+		$this->set('csv_header', true);
+		$this->set('all_fields', $all_fields);
+		$this->Structures->set($structure_alias, 'result_structure');
 		Configure::write('debug', 0);
 		$this->layout = false;
 	}
