@@ -24,12 +24,6 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
 		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC')); 
 	
-	function index() {
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }	
-	}
-	
 	function search($search_id = ''){
 		$this->searchHandler($search_id, $this->Participant, 'participants', '/clinicalannotation/participants/search');
 	
@@ -37,7 +31,12 @@ class ParticipantsController extends ClinicalannotationAppController {
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
-		}	
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 
 	function profile( $participant_id ) {
