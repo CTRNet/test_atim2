@@ -139,7 +139,7 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 	}
 	
 	function search($search_id = 0){
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/search') );
 		$this->searchHandler($search_id, $this->ParticipantMessage, 'participantmessages', '/clinicalannotation/participant_messages/search');
 		$this->Structures->set('participantmessages');
 		
@@ -147,15 +147,10 @@ class ParticipantMessagesController extends ClinicalAnnotationAppController {
 		if( $hook_link ) {
 			require($hook_link);
 		}
-	}
-	
-	function index(){
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
-		$this->Structures->set('participantmessages');
 		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) {
-			require($hook_link);
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}
 }

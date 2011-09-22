@@ -11,25 +11,20 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 	);
 	
 	var $paginate = array('MiscIdentifier'=>array('limit' => pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC, MiscIdentifier.identifier_value ASC'));
-	
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
-						
-		$this->Structures->set('miscidentifiers_for_participant_search');
-				
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
-		}
-	}
-	
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/index'));
+
+	function search($search_id = '') {
+		$this->set('atim_menu', $this->Menus->get('/clinicalannotation/participants/search'));
+		
 		$this->searchHandler($search_id, $this->MiscIdentifier, 'miscidentifiers_for_participant_search', '/clinicalannotation/misc_identifiers/search');
 				
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 		
 	}

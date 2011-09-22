@@ -1,31 +1,41 @@
-<?php
-$final_atim_structure = $atim_structure;
-$final_options = null; 
-if(empty($this->data)){
-	$final_options = array(
-		'type' => 'search',
-		'links' => array(
-			'top' => '/clinicalannotation/participant_messages/search/'.AppController::getNewSearchId(),
-			'bottom' => array('new search' => ClinicalannotationAppController::$search_links)
+<?php 
+	$structure_links = array(
+		'index' => '/clinicalannotation/participant_messages/detail/%%ParticipantMessage.participant_id%%/%%ParticipantMessage.id%%/',
+		'bottom' => array(
+			'add participant' => '/clinicalannotation/participants/add/',
+			'new search' => ClinicalannotationAppController::$search_links
 		)
 	);
 	
-	$hook_link = $structures->hook('form');
-	if( $hook_link ) {
-		require($hook_link);
+	$structure_override = array();
+	$settings = array('return' => true);
+	if(isset($is_ajax)){
+		$settings['actions'] = false;
+	}else{
+		$settings['header'] = __('search type', null).': '.__('participant messages', null);
 	}
-}else{
+	
+	$final_atim_structure = $atim_structure; 
 	$final_options = array(
-		'type' => 'index',
-		'links' => array(
-			'index' => '/clinicalannotation/participant_messages/detail/%%ParticipantMessage.participant_id%%/%%ParticipantMessage.id%%/'
-		)
+		'type' => 'index', 
+		'links' => $structure_links, 
+		'override' => $structure_override, 
+		'settings' => $settings
 	);
 	
-	$hook_link = $structures->hook('results');
-	if( $hook_link ) {
-		require($hook_link);
+	// CUSTOM CODE
+	$hook_link = $structures->hook();
+	if( $hook_link ) { 
+		require($hook_link); 
 	}
-}
+		
+	// BUILD FORM
+	$page = $structures->build( $final_atim_structure, $final_options );
 
-$structures->build($final_atim_structure, $final_options);
+	if(isset($is_ajax)){
+		echo json_encode(array('page' => $page, 'new_search_id' => AppController::getNewSearchId()));
+	}else{
+		echo $page;
+	}
+		
+?>

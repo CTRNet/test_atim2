@@ -809,6 +809,19 @@ function initActions(){
 		if(window.wizardTreeData){
 			drawTree($.parseJSON(window.wizardTreeData));
 		}
+		if($(".ajax_search_results").length == 1){
+			$(".ajax_search_results").parent().hide();
+			$("input.submit").prop("onclick", "").unbind('unclick').click(function(){
+				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
+				$(".ajax_search_results").parent().show();
+				$.post($("form").attr("action"), $("form").serialize(), function(data){
+					data = $.parseJSON(data);
+					$(".ajax_search_results").html(data.page);
+					$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+				});
+				return false;
+			});
+		}
 		
 		if(window.realiquotInit){
 			$("a.submit").prop("onclick", "").unbind('unclick').click(function(){
