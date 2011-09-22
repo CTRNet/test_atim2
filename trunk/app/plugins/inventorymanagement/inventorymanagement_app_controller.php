@@ -2,6 +2,12 @@
 
 class InventorymanagementAppController extends AppController {	
 		
+	static $search_links = array(
+		'collections'	=> array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search'),
+		'samples'		=> array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search'),
+		'aliquots'		=> array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search')
+	);
+	
 	function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->actionPath = 'controllers/';

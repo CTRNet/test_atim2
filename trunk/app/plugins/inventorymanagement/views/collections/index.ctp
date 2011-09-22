@@ -1,16 +1,10 @@
 <?php 
-
-	$search_type_links = array();
-	$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-	$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-
 	$structure_override = array();
 	$structure_links['top'] = '/inventorymanagement/collections/search/'.AppController::getNewSearchId();
 	$settings = array('header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url)));
 	$dropdown = null;
 	if(!isset($is_ccl_ajax) || !$is_ccl_ajax){
-		$structure_links['bottom'] = array('add collection' => '/inventorymanagement/collections/add', 'new search' => $search_type_links);
+		$structure_links['bottom'] = array('add collection' => '/inventorymanagement/collections/add', 'new search' => InventorymanagementAppController::$search_links);
 	}else{
 		//forece participant collection
 		foreach($atim_structure['StructureFormat'] as $key => $field){
