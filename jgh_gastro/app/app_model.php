@@ -42,8 +42,13 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-		
-		if(!isset(self::$auto_validation[$this->name])){
+		if(!isset(self::$auto_validation[$this->name]) &&
+			isset($this->Behaviors->MasterDetail) &&
+			is_array($this->Behaviors->MasterDetail) && 
+			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail)
+		){
+			//build master validation (detail validation are built within the validation function)
+			//TODO: 2.4.x: Remove this and build all autovalidation within the validation function
 			$this->buildAutoValidation($this->name, $this);
 		}
 		
@@ -407,7 +412,9 @@ class AppModel extends Model {
 				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					//attach auto validation
 					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
+					
 					if(!isset(self::$auto_validation[$auto_validation_name])){
+						//build detail validation on the fly
 						$this->buildAutoValidation($auto_validation_name, $detail_class_instance);
 					}
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
