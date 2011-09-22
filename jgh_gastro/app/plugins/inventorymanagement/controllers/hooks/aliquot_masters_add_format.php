@@ -3,15 +3,16 @@
 	// --------------------------------------------------------------------------------
 	// Set default aliquot barcode(s)
 	// -------------------------------------------------------------------------------- 	
-	foreach($this->data as &$new_parent_and_children_set){
-		$initial_specimen_sample_id = $new_parent_and_children_set['parent']['ViewSample']['initial_specimen_sample_id'];
+	$default_aliquot_barcodes = array();
+	foreach($samples as $view_sample){
+		$initial_specimen_sample_id = $view_sample['ViewSample']['initial_specimen_sample_id'];
 		$initial_specimen_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $initial_specimen_sample_id), 'recursive' => 0));
-	
 		$default_aliquot_barcode = $initial_specimen_sample_data['Collection']['acquisition_label'].
 			'-'.
 			$initial_specimen_sample_data['SpecimenDetail']['specimen_biobank_id'].
 			'-';
-		$new_parent_and_children_set['children'][0] = array('AliquotMaster'=>array('barcode'=>$default_aliquot_barcode));
+		$default_aliquot_barcodes[$view_sample['ViewSample']['sample_master_id']] = $default_aliquot_barcode;
 	}
+	$this->set('default_aliquot_barcodes', $default_aliquot_barcodes);
 	
 ?>
