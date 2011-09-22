@@ -634,7 +634,11 @@ ALTER TABLE sd_der_rnas_revs
   
 UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_number_of_slices' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_gastro_tissueinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qc_gastro_thickness' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
- 
- 
+
+SELECT '****************' as msg
+UNION
+SELECT IF((SELECT COUNT(*) FROM `quality_ctrls`) > 0, 'Quality controls have been created into the system. The custom_post_2.3.5 script will erase everything. Don't continue migration process!', 'You db is ok. You can run the next custom_post_2.3.5 script.') AS msg
+UNION ALL
+SELECT '****************' as msg;
  
 
