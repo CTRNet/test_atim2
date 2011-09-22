@@ -6,12 +6,7 @@ if(empty($this->data)){
 		'type' => 'search',
 		'links' => array(
 			'top' => '/clinicalannotation/participant_messages/search/'.AppController::getNewSearchId(),
-			'bottom' => array('new search' => array(
-					'participants' => '/clinicalannotation/participants/index/',
-					'misc identifiers' => '/clinicalannotation/misc_identifiers/index/',
-					'participant messages' => '/clinicalannotation/participant_messages/search/'
-				)
-			)
+			'bottom' => array('new search' => ClinicalannotationAppController::$search_links)
 		)
 	);
 	
