@@ -6,10 +6,21 @@
 			'new search' => InventorymanagementAppController::$search_links)
 	);
 	
-	$structure_override = array();
+	$settings = array(
+		'return' => true
+	);
+	if(isset($is_ajax)){
+		$settings['actions'] = false;
+	}else{
+		$settings['header'] = array( 'title' => __('search type', null).': '.__('aliquots', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url));
+	}
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => array( 'title' => __('search type', null).': '.__('aliquots', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url))));
+	$final_options = array(
+		'type' => 'index', 
+		'links' => $structure_links, 
+		'settings' => $settings
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -18,6 +29,11 @@
 	}
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );	
+	$form = $structures->build( $final_atim_structure, $final_options );
+	if(isset($is_ajax)){
+		echo json_encode(array('page' => $form, 'new_search_id' => AppController::getNewSearchId()));
+	}else{
+		echo $form;
+	}	
 
 ?>

@@ -36,25 +36,15 @@ class SampleMastersController extends InventorymanagementAppController {
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
-						
-		$this->unsetInventorySessionData();
-		
-		$this->Structures->set('view_sample_joined_to_collection');
-				
-		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
-		$this->set("help_url", $help_url['ExternalLink']['link']);
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
-		}
-	}
 	
-	function search($search_id) {
+	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+		
+		if(empty($search_id)){
+			//index
+			$this->unsetInventorySessionData();
+		}
+		
 		$this->searchHandler($search_id, $this->ViewSample, 'view_sample_joined_to_collection', '/inventorymanagement/sample_masters/search');
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
@@ -63,6 +53,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}
 	
