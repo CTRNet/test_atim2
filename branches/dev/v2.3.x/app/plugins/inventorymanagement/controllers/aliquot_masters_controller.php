@@ -931,6 +931,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
+					'StorageMaster'	=> $data_unit['StorageMaster'],
 					'FunctionManagement' => $data_unit['FunctionManagement'],
 					'AliquotControl' => isset($data_unit['AliquotControl']) ? $data_unit['AliquotControl'] : array() 
 				);
