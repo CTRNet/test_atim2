@@ -6,13 +6,11 @@
 		)
 	);
 
-	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'search', 
 		'links' => array('top' => '/clinicalannotation/misc_identifiers/search/'.AppController::getNewSearchId()), 
-		'override' => $structure_override, 
 		'settings' => array(
 			'header' => __('search type', null).': '.__('misc identifiers', null),
 			'actions' => FALSE
@@ -26,7 +24,7 @@
 	);
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook();
+	$hook_link = $structures->hook('index');//when the caller is search, the hook will be 'search_index.php'
 	if( $hook_link ) { 
 		require($hook_link); 
 	}

@@ -19,22 +19,18 @@ class OrderItemsController extends OrderAppController {
 		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-						
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
-		}
-	}
-	
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+	function search($search_id = 0) {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
 		$this->searchHandler($search_id, $this->OrderItem, 'orderitems', '/inventorymanagement/order_items/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}	
 	
@@ -68,13 +64,17 @@ class OrderItemsController extends OrderAppController {
 	}
 
 	function add( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		// MANAGE DATA
 	
 		// Check order line
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_line_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

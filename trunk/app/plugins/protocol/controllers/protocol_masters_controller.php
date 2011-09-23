@@ -8,30 +8,30 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
 	
-	function index() {
-		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-	}
-	
-	function search($search_id) {
+	function search($search_id = 0) {
+		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/search/"));
 		$this->searchHandler($search_id, $this->ProtocolMaster, 'protocolmasters', '/protocol/protocol_masters/search');
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
-		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/index/"));
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 	
 	function add($protocol_control_id) {
-		if ( !$protocol_control_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-				
 		$protocol_control_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
-		if (empty($protocol_control_data) ) { $this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		if (empty($protocol_control_data) ) { 
+			$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+		}
 		
 		$this->set( 'atim_menu_variables', array('ProtocolControl.id'=>$protocol_control_id)); 
-		$this->set('atim_menu', $this->Menus->get('/protocol/protocol_masters/index/'));
+		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/search/"));
 		$this->Structures->set($protocol_control_data['ProtocolControl']['form_alias']);
 		
 		$hook_link = $this->hook('format');

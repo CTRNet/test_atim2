@@ -14,22 +14,18 @@ class ShipmentsController extends OrderAppController {
 		
 	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-						
-		$_SESSION['ctrapp_core']['search'][$search_id];
-		if($hook_link){
-			require($hook_link); 
-		}
-	}
-	
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+	function search($search_id = 0){
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
 		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/inventorymanagement/shipments/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}	
 		

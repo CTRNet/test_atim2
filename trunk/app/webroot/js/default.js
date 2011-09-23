@@ -815,12 +815,27 @@ function initActions(){
 				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 				$(".ajax_search_results").parent().show();
 				$.post($("form").attr("action"), $("form").serialize(), function(data){
-					data = $.parseJSON(data);
-					$(".ajax_search_results").html(data.page);
-					$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+					try{
+						data = $.parseJSON(data);
+						$(".ajax_search_results").html(data.page);
+						history.replaceState(data.page, "foo");//storing result in history
+						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+					}catch(exception){
+						//simply submit the form then
+						$("form").submit();
+					}
 				});
 				return false;
 			});
+			
+			window.onpopstate = function(event) {
+				//retrieving result from history
+				//try html5 storage? http://diveintohtml5.org/storage.html
+				if(event.state != null){
+					$(".ajax_search_results").html(event.state);
+					$(".ajax_search_results").parent().show();
+				}
+			};
 		}
 		
 		if(window.realiquotInit){

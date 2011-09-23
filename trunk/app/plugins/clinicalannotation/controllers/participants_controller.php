@@ -67,7 +67,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 	
 	function add() {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/search') );
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

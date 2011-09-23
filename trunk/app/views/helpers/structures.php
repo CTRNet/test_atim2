@@ -433,7 +433,7 @@ class StructuresHelper extends Helper {
 						'.$exact_search.'
 						<div class="bottom_button">
 							<input class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="#n" onclick="$($(this).parent().children()[0]).click();" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
+							<a href="" onclick="$($(this).parent().children()[0]).click(); return false;" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
 						</div>
 					</div>
 				</div>

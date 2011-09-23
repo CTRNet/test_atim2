@@ -6,22 +6,34 @@
 	}
 	ksort($add_links);
 	
+	$settings = array('return' => true);
+	if(isset($is_ajax)){
+		$settings['actions'] = false;
+	}
+	
 	$structure_links = array(
 		'index' => array('detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
 		'bottom' => array(
 			'tree view' => '/storagelayout/storage_masters/contentTreeView', 
-			'search' => '/storagelayout/storage_masters/index', 
+			'search' => '/storagelayout/storage_masters/search', 
 			'add' => $add_links)
 	);
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'index', 'links' => $structure_links);
+	$final_options = array('type' => 'index', 'links' => $structure_links, 'settings' => $settings);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );
+	$form = $structures->build( $final_atim_structure, $final_options );
+	if(isset($is_ajax)){
+		echo json_encode(array('page' => $form, 'new_search_id' => AppController::getNewSearchId()));
+	}else{
+		echo $form;
+	}
 	
 ?>
