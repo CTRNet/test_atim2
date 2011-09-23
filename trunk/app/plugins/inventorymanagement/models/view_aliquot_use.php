@@ -16,6 +16,8 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 	const VOLUME_UNIT = 12;
 	const PLUGIN = 13;
 	
+	var $base_model = "AliquotUse";
+	
 	function findFastFromAliquotMasterId($aliquot_master_id){
 		$models_details = array(
 			"SourceAliquot" => array(

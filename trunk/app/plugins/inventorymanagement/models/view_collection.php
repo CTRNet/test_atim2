@@ -1,6 +1,8 @@
 <?php
 
 class ViewCollection extends InventorymanagementAppModel {
+	
+	var $base_model = "Collection";
 
 	function summary($variables=array()) {
 		$return = false;

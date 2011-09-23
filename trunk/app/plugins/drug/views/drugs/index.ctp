@@ -2,8 +2,8 @@
 
 	$structure_links = array(
 		'bottom'=>array(
-			'add'=>'/drug/drugs/add/',
-			'new search' => array('link' => '/drug/drugs/search/', 'icon' => 'search')
+			'new search' => array('link' => '/drug/drugs/search/', 'icon' => 'search'),
+			'add'=>'/drug/drugs/add/'
 		)
 	);
 	
@@ -11,7 +11,7 @@
 	$final_options = array(
 		'type'=>'search',
 		'links'=> array('top'=>array('search'=>'/drug/drugs/search/'.AppController::getNewSearchId())),
-		'settings' => array('actions' => false)
+		'settings' => array('actions' => false, 'header' => __('search type', null).': '.__('drugs', null)),
 	);
 	
 	$final_atim_structure2 = $empty_structure;

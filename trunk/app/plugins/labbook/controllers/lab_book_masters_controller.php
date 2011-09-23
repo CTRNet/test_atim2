@@ -19,38 +19,22 @@ class LabBookMastersController extends LabBookAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 	 
-	function index($is_ajax = false) {
-		if($is_ajax){
-			//layout = ajax to avoid printing layout
-			$this->layout = 'ajax';
-			//debug = 0 to avoid printing debug queries that would break the javascript array
-			Configure::write('debug', 0);
-		}
-		$this->set('is_ajax', $is_ajax);
-		
-		//find all lab book data control types to build add button
-		$this->set('lab_book_controls_list', $this->LabBookControl->find('all', array('conditions' => array('LabBookControl.flag_active' => '1'))));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}
-	}
-		
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/index/'));
+	function search($search_id = 0){
+		$this->set('atim_menu', $this->Menus->get('/labbook/lab_book_masters/search/'));
 		$this->searchHandler($search_id, $this->LabBookMaster, 'labbookmasters', '/labbook/lab_book_masters/search');
 
 		//find all lab_book data control types to build add button
 		$this->set('lab_book_controls_list', $this->LabBookControl->find('all', array('conditions' => array('LabBookControl.flag_active' => '1'))));
 		
-
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}
 	

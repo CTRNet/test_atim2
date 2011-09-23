@@ -1,7 +1,10 @@
 <?php 
 	$structure_links = array(
 		'index' => array('detail' => '/order/order_items/listall/%%OrderLine.order_id%%/%%OrderLine.id%%/'),
-		'bottom' => array('add order' => '/order/orders/add/', 'new search' => OrderAppController::$search_links)
+		'bottom' => array(
+			'new search' => OrderAppController::$search_links,
+			'add order' => '/order/orders/add/'
+		)
 	);
 	
 	$settings = array('return' => true);

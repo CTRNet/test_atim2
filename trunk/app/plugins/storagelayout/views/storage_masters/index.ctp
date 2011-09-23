@@ -8,8 +8,8 @@
 
 	$structure_links = array(
 		'bottom' => array(
-			'add' => $add_links,
 			'new search' => array('link' => '/storagelayout/storage_masters/search', 'icon' => 'search'),
+			'add' => $add_links,
 			'tree view' => '/storagelayout/storage_masters/contentTreeView'
 		) 
 	);
@@ -19,7 +19,8 @@
 		'type' => 'search', 
 		'links' => array('top' => array('search' =>'/storagelayout/storage_masters/search/'.AppController::getNewSearchId())),
 		'settings' => array(
-			'actions' => false
+			'actions' => false,
+			'header' => __('search type', null).': '.__('storages', null),
 		)
 	);
 	$final_atim_structure2 = $empty_structure;

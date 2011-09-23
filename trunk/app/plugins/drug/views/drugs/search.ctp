@@ -3,8 +3,8 @@
 	$structure_links = array(
 		'index'=>array('detail'=>'/drug/drugs/detail/%%Drug.id%%'),
 		'bottom'=>array(
-			'add'=>'/drug/drugs/add',
-			'search'=>'/drug/drugs/search'
+			'search'=>'/drug/drugs/search',
+			'add'=>'/drug/drugs/add'
 		)
 	);
 	

@@ -25,68 +25,45 @@ class CollectionsController extends InventorymanagementAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 	
-	function index($is_ccl_ajax = false) {
-		if($is_ccl_ajax){
-			//layout = ajax to avoid printing layout
-			$this->layout = 'ajax';
-			//debug = 0 to avoid printing debug queries that would break the javascript array
-			Configure::write('debug', 0);
-			$this->set("is_ccl_ajax", $is_ccl_ajax);
-		}
-		$this->unsetInventorySessionData();
-				
-		$this->Structures->set('view_collection');
-		
-		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
-		$this->set("help_url", $help_url['ExternalLink']['link']);
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }			
-	}
-	
-	function search($search_id, $is_ccl_ajax = false) {
-		if($is_ccl_ajax){
-			//layout = ajax to avoid printing layout
-			$this->layout = 'ajax';
-			//debug = 0 to avoid printing debug queries that would break the javascript array
-			Configure::write('debug', 0);
-			$this->set("is_ccl_ajax", $is_ccl_ajax);
+	function search($search_id = 0, $is_ccl_ajax = false){
+		if(empty($search_id)){
+			//index
+			$this->unsetInventorySessionData();
 		}
 		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
-		
-		$view_collection = $this->Structures->get('form', 'view_collection');
-		$this->set('atim_structure', $view_collection);
-		if ($this->data){
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($view_collection);
-		}
-		
-		if($is_ccl_ajax){
+		if($is_ccl_ajax && $this->data){
+			//custom result handling for ccl
+			$view_collection = $this->Structures->get('form', 'view_collection');
+			$this->set('atim_structure', $view_collection);
+			$this->Structures->set('empty', 'empty_structure');
+			$conditions = $this->Structures->parseSearchConditions($view_collection);
 			$limit = 20;
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'][] = "ViewCollection.participant_id IS NULL";
-			$this->data = $this->ViewCollection->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit + 1));
+			$conditions[] = "ViewCollection.participant_id IS NULL";
+			$this->data = $this->ViewCollection->find('all', array('conditions' => $conditions, 'limit' => $limit + 1));
 			if(count($this->data) > $limit){
 				unset($this->data[$limit]);
 				$this->set("overflow", true);
 			}
-			$this->set('collections_data', $this->data);
 		}else{
-			$this->set('collections_data', $this->paginate($this->ViewCollection, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']));
+			$this->searchHandler($search_id, $this->ViewCollection, 'view_collection', '/inventorymanagement/collections/search');
 		}
-		$this->data = array();
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging']['ViewCollection']['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = '/inventorymanagement/collections/search';
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
 		$this->set("help_url", $help_url['ExternalLink']['link']);
-		
+		if($is_ccl_ajax){
+			$this->set('is_ccl_ajax', $is_ccl_ajax);
+		}
+	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 	
 	function detail($collection_id, $is_from_tree_view = 0) {
