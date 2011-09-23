@@ -653,126 +653,134 @@ class AppController extends Controller {
 		$unique_ctrl_id = false;
 		$structure = $this->Structures->get('form', $structure_alias);
 		$this->set('atim_structure', $structure);
-		if($this->data){
-			//newly submitted search, parse conditions and store in session
-			$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
-		}
-		if(!isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])){
-			self::addWarningMsg(__('you cannot resume a search that was made in a previous session', true));
-			$this->redirect('/menus');
-			exit;
-		}
-
-		//check if the current model is a master/detail one or a similar view 
-		if(!$ignore_detail && (
-			$model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model'] || 
-			$view = in_array($model->name, array('ViewAliquot', 'ViewSample'))
-		)){
-			//determine if the results contain only one control id
-			$control_field = strtolower(str_replace($view ? 'View' : 'Master', '', $model->name)).'_control_id';
-			$ctrl_ids = $model->find('all', array(
-				'fields'		=> array($model->name.'.'.$control_field), 
-				'conditions'	=> $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],
-				'group'			=> array($model->name.'.'.$control_field),
-				'limit'			=> 2
-			));
-			if(count($ctrl_ids) == 1){
-				//only one ctrl, attach detail
-				$unique_ctrl_id = true;
-				$has_one = array();
-				$master_class_name = null;
-				if($view){
-					$master_class_name = str_replace('View', '', $model->name).'Master';
-					$has_one[$master_class_name] = array(
-						'className' => $master_class_name,
-						'foreignKey' => 'id'
-					);
-				}else{
-					$master_class_name = $model->name;
-				}
-				
-				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
-				$ctrl_model = AppModel::getInstance('', $control_class, true);
-				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
-				$ctrl_data = current($ctrl_data);
-				//put a new instance of the detail model in the cache
-				ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
-				new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
-				
-				//has one and win
-				$has_one[$detail_class] = array(
-					'className' => $detail_class,
-					'foreignKey' => $master_foreign
-				);
-				
-				if($master_class_name == 'SampleMaster'){
-					//join specimen/derivative details
-					if($ctrl_data['sample_category'] == 'specimen'){
-						$has_one['SpecimenDetail'] = array(
-							'className' => 'SpecimenDetail',
-							'foreignKey' => 'sample_master_id'
+		if(empty($search_id)){
+			$this->Structures->set('empty', 'empty_structure');
+		}else{
+			if($this->data){
+				//newly submitted search, parse conditions and store in session
+				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
+			}else if(!isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])){
+				self::addWarningMsg(__('you cannot resume a search that was made in a previous session', true));
+				$this->redirect('/menus');
+				exit;
+			}
+	
+			//check if the current model is a master/detail one or a similar view 
+			if(!$ignore_detail && (
+				($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) ||
+				$model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model'] 
+			)){
+				//determine if the results contain only one control id
+				$control_field = strtolower(str_replace($view ? 'View' : 'Master', '', $model->name)).'_control_id';
+				$ctrl_ids = $model->find('all', array(
+					'fields'		=> array($model->name.'.'.$control_field), 
+					'conditions'	=> $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],
+					'group'			=> array($model->name.'.'.$control_field),
+					'limit'			=> 2
+				));
+				if(count($ctrl_ids) == 1){
+					//only one ctrl, attach detail
+					$unique_ctrl_id = true;
+					$has_one = array();
+					$master_class_name = null;
+					if($view){
+						$master_class_name = str_replace('View', '', $model->name).'Master';
+						$has_one[$master_class_name] = array(
+							'className' => $master_class_name,
+							'foreignKey' => 'id'
 						);
 					}else{
-						//derivative
-						$has_one['DerivativeDetail'] = array(
-							'className' => 'DerivativeDetail',
-							'foreignKey' => 'sample_master_id'
-						);
+						$master_class_name = $model->name;
+					}
+					
+					extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
+					$ctrl_model = AppModel::getInstance('', $control_class, true);
+					$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
+					$ctrl_data = current($ctrl_data);
+					//put a new instance of the detail model in the cache
+					ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
+					new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
+					
+					//has one and win
+					$has_one[$detail_class] = array(
+						'className' => $detail_class,
+						'foreignKey' => $master_foreign
+					);
+					
+					if($master_class_name == 'SampleMaster'){
+						//join specimen/derivative details
+						if($ctrl_data['sample_category'] == 'specimen'){
+							$has_one['SpecimenDetail'] = array(
+								'className' => 'SpecimenDetail',
+								'foreignKey' => 'sample_master_id'
+							);
+						}else{
+							//derivative
+							$has_one['DerivativeDetail'] = array(
+								'className' => 'DerivativeDetail',
+								'foreignKey' => 'sample_master_id'
+							);
+						}
+					}
+					
+					//persistent bind
+					$model->bindModel(
+						array(
+							'hasOne' => $has_one,
+							'belongsTo' => array(
+								$control_class => array(
+									'className' => $control_class,
+									$control_field
+								)
+							)
+						), false
+					);
+					
+					//updating structure
+					if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
+						$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
 					}
 				}
-				
-				//persistent bind
-				$model->bindModel(
-					array(
-						'hasOne' => $has_one,
-						'belongsTo' => array(
-							$control_class => array(
-								'className' => $control_class,
-								$control_field
-							)
-						)
-					), false
-				);
-				
-				//updating structure
-				if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
-					$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
+			}
+			
+			$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			
+			if(
+				$model->name == 'ViewAliquot' && 
+				count($this->data) > 0 && 
+				!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && 
+				isset($this->data[0]['alc']['aliquot_type'])
+			){
+				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
+				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
+				//to "alc" model.
+				foreach($this->data as &$data_unit){
+					$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+				}
+			}else if(
+				$model->name == 'ViewSample' && 
+				count($this->data) > 0 && 
+				!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
+				isset($this->data[0]['sampc']['sample_type'])
+			){
+				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
+				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
+				//to "sampc" model.
+				foreach($this->data as &$data_unit){
+					$data_unit['ViewSample'] += $data_unit['sampc'];
 				}
 			}
-		}
 		
-		$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-		
-		if(
-			$model->name == 'ViewAliquot' && 
-			count($this->data) > 0 && 
-			!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && 
-			isset($this->data[0]['alc']['aliquot_type'])
-		){
-			//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-			//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-			//to "alc" model.
-			foreach($this->data as &$data_unit){
-				$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
-			}
-		}else if(
-			$model->name == 'ViewSample' && 
-			count($this->data) > 0 && 
-			!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
-			isset($this->data[0]['sampc']['sample_type'])
-		){
-			//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-			//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-			//to "sampc" model.
-			foreach($this->data as &$data_unit){
-				$data_unit['ViewSample'] += $data_unit['sampc'];
+			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
+			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
+			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+			self::$result_are_unique_ctrl = $unique_ctrl_id;
+			
+			if($this->RequestHandler->isAjax()){
+				Configure::write('debug', 0);
+				$this->set('is_ajax', true);
 			}
 		}
-	
-		// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
-		$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
-		$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
-		self::$result_are_unique_ctrl = $unique_ctrl_id;
 	}
 }
 
