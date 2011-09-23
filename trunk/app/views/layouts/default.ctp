@@ -1,6 +1,10 @@
 <?php 
-ob_start('ob_gzhandler');
-header ('Content-type: text/html; charset=utf-8');
+$headers_were_sent = headers_sent();
+if(!$headers_were_sent){
+	ob_start('ob_gzhandler');
+	header ('Content-type: text/html; charset=utf-8');
+	AppController::atimSetCookie();
+}
 ?>
 
 <!DOCTYPE HTML>
@@ -8,7 +12,7 @@ header ('Content-type: text/html; charset=utf-8');
 <head>
 
 	<?php
-		$session_delay_sec = AppController::atimSetCookie();
+		
 		$header = $shell->header(array(
 			'atim_menu_for_header' => $atim_menu_for_header,
 			'atim_sub_menu_for_header' => $atim_sub_menu_for_header,
@@ -39,7 +43,6 @@ header ('Content-type: text/html; charset=utf-8');
 			var root_url = "<?php echo($this->webroot); ?>";
 			var webroot_dir = root_url + "/app/webroot/";
 			var locale = "<?php echo($locale); ?>";
-			var sessionExpiration = (new Date()).getTime() + <?php echo ($session_delay_sec + 1) * 1000; ?>;
 			var STR_OR = "<?php __('or'); ?>";
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
@@ -110,6 +113,8 @@ header ('Content-type: text/html; charset=utf-8');
 	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>
-<?php 
-ob_end_flush();
+<?php
+if(!$headers_were_sent){ 
+	ob_end_flush();
+}
 ?>

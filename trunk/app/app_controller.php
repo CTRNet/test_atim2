@@ -523,7 +523,6 @@ class AppController extends Controller {
 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
 		}
-		return $session_delay;
 	}
 	
 	/**
