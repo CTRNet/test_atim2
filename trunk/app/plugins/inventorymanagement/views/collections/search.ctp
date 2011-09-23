@@ -26,8 +26,10 @@
 			);
 		}
 		$structure_links = array(
-			'index' => array('detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%'),
-			'bottom' => array(
+			'index' => array(
+				'detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%',
+				'copy into add form' => array('link' => '/inventorymanagement/collections/add/0/%%ViewCollection.collection_id%%', 'icon' => 'copy')
+			), 'bottom' => array(
 				'new search' => InventorymanagementAppController::$search_links,
 				'add collection' => '/inventorymanagement/collections/add'
 			)

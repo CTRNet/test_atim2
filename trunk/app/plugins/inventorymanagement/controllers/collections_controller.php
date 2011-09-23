@@ -111,18 +111,10 @@ class CollectionsController extends InventorymanagementAppController {
 		}
 	}
 	
-	function add($clinical_collection_link_id = 0) {
+	function add($clinical_collection_link_id = 0, $copy_source = 0) {
 		if($clinical_collection_link_id > 0){
 			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
 		}
-		// MANAGE DATA
-		
-		$initial_data = array();
-		if(empty($this->data)) {
-			$initial_data['Collection']['collection_property'] = 'participant collection';
-			$initial_data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a', true);
-		}
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		if(!empty($ccl_data)){
@@ -130,15 +122,20 @@ class CollectionsController extends InventorymanagementAppController {
 			$this->Structures->set('linked_collections');
 		}
 		
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
-		if(empty($this->data)) {
-			$this->data = $initial_data;
+		if(empty($this->data)){
+			if(empty($copy_source)){
+				$this->data['Collection']['collection_property'] = 'participant collection';
+			}else{
+				$this->data = $this->Collection->findById($copy_source);
+			}
+			$this->data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a', true);
 			
 		} else {
 			
