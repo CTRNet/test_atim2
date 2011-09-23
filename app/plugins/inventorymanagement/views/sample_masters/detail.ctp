@@ -52,13 +52,7 @@
 		$sample_settings['header'] = __('sample', null);
 		
 	} else {
-		// General detail form display
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-	
-		$structure_links['bottom']['new search'] = $search_type_links;
+		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $structure_links['bottom']);
 	}
 
 	// Set override
@@ -76,7 +70,6 @@
 			'settings' => $sample_settings, 
 			'data' => $sample_master_data
 		);
-		
 		// CUSTOM CODE
 		$hook_link = $structures->hook();
 		if($hook_link){
@@ -93,7 +86,8 @@
 		
 		$final_atim_structure = $atim_structure; 
 		$final_options = array(
-			'dropdown_options' => $dropdown_options, 
+			'dropdown_options' => $dropdown_options,
+			'links' => $structure_links, 
 			'settings' => $sample_settings, 
 			'data' => $sample_master_data
 		);

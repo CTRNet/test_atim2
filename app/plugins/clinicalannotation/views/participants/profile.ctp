@@ -3,9 +3,9 @@
 	$structure_links = array(
 		'index'=>array(),
 		'bottom'=>array(
+			'new search' => ClinicalannotationAppController::$search_links,
 			'edit'=>'/clinicalannotation/participants/edit/'.$atim_menu_variables['Participant.id'],
-			'delete'=>'/clinicalannotation/participants/delete/'.$atim_menu_variables['Participant.id'],			
-			'new search' => ClinicalannotationAppController::$search_links
+			'delete'=>'/clinicalannotation/participants/delete/'.$atim_menu_variables['Participant.id']			
 		)
 	);
 	

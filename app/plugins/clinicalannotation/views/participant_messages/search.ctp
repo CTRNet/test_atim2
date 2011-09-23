@@ -2,8 +2,8 @@
 	$structure_links = array(
 		'index' => '/clinicalannotation/participant_messages/detail/%%ParticipantMessage.participant_id%%/%%ParticipantMessage.id%%/',
 		'bottom' => array(
-			'add participant' => '/clinicalannotation/participants/add/',
-			'new search' => ClinicalannotationAppController::$search_links
+			'new search' => ClinicalannotationAppController::$search_links,
+			'add participant' => '/clinicalannotation/participants/add/'
 		)
 	);
 	

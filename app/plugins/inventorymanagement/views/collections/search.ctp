@@ -1,8 +1,13 @@
-<?php 
-	$structure_override = array();
+<?php
+ 	$settings = array('return' => true);
 	if(isset($is_ccl_ajax)){
 		$structure_links = array('radiolist' => array("ClinicalCollectionLink.collection_id" => "%%ViewCollection.collection_id%%"));
-		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('pagination' => false, 'actions' => false));
+		$final_options = array(
+			'type' => 'index', 
+			'data' => $this->data, 
+			'links' => $structure_links, 
+			'settings' => array('pagination' => false, 'actions' => false, 'return' => true)
+		);
 		if(isset($overflow)){
 			?>
 			<ul class="error">
@@ -10,14 +15,29 @@
 			</ul>
 			<?php 
 		}
+		
 	}else{
+		if(isset($is_ajax)){
+			$settings['actions'] = false;
+		}else{
+			$settings['header'] = array(
+				'title' => __('search type', null).': '.__('collections', null),
+				'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url)
+			);
+		}
 		$structure_links = array(
-		'index' => array('detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%'),
-		'bottom' => array(
-			'add collection' => '/inventorymanagement/collections/add', 
-			'new search' => InventorymanagementAppController::$search_links)
+			'index' => array('detail' => '/inventorymanagement/collections/detail/%%ViewCollection.collection_id%%'),
+			'bottom' => array(
+				'new search' => InventorymanagementAppController::$search_links,
+				'add collection' => '/inventorymanagement/collections/add'
+			)
 		);
-		$final_options = array('type' => 'index', 'data' => $collections_data, 'links' => $structure_links, 'override' => $structure_override, 'settings' => array('header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url))));
+		$final_options = array(
+			'type' => 'index', 
+			'data' => $this->data, 
+			'links' => $structure_links, 
+			'settings' => $settings
+		);
 	}
 	
 	$final_atim_structure = $atim_structure;
@@ -25,9 +45,15 @@
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
-	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );
+	$form = $structures->build( $final_atim_structure, $final_options );
+	if(isset($is_ajax) && !isset($is_ccl_ajax)){
+		echo json_encode(array('page' => $form, 'new_search_id' => AppController::getNewSearchId()));
+	}else{
+		echo $form;
+	}
 				
 ?>

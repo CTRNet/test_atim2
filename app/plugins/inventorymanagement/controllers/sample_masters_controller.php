@@ -38,7 +38,7 @@ class SampleMastersController extends InventorymanagementAppController {
 	 * -------------------------------------------------------------------------- */
 	
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
 		
 		if(empty($search_id)){
 			//index

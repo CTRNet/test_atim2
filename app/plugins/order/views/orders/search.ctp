@@ -2,8 +2,8 @@
 	$structure_links = array(
 		'index'=>array('detail'=>'/order/orders/detail/%%Order.id%%'),
 		'bottom'=>array(
-			'add'=>'/order/orders/add',
-			'new search' => OrderAppController::$search_links
+			'new search' => OrderAppController::$search_links,
+			'add'=>'/order/orders/add'
 		)
 	);
 	

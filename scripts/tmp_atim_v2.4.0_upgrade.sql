@@ -1552,3 +1552,6 @@ UPDATE menus SET use_link='/clinicalannotation/participants/search/' WHERE id='c
 UPDATE menus SET use_link='/storagelayout/storage_masters/search/' WHERE id='sto_CAN_01';
 UPDATE menus SET use_link='/order/orders/search/' WHERE id='ord_CAN_101';
 UPDATE menus SET use_link='/protocol/protocol_masters/search/' WHERE id='proto_CAN_37';
+UPDATE menus SET use_link='/drug/drugs/search/' WHERE id='drug_CAN_96';
+UPDATE menus SET use_link='/inventorymanagement/collections/search' WHERE id='inv_CAN';
+UPDATE menus SET use_link='/labbook/lab_book_masters/search/' WHERE id='procd_CAN_01';

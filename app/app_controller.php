@@ -671,7 +671,8 @@ class AppController extends Controller {
 				$model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model'] 
 			)){
 				//determine if the results contain only one control id
-				$control_field = strtolower(str_replace($view ? 'View' : 'Master', '', $model->name)).'_control_id';
+				$base_model = isset($model->base_model) ? $model->base_model : $model->name;
+				$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
 				$ctrl_ids = $model->find('all', array(
 					'fields'		=> array($model->name.'.'.$control_field), 
 					'conditions'	=> $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],

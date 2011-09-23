@@ -1,7 +1,10 @@
 <?php 
 
 	$structure_links = array(
-		'bottom' => array('add order' => '/order/orders/add/', 'new search' => OrderAppController::$search_links)
+		'bottom' => array(
+			'new search' => OrderAppController::$search_links,
+			'add order' => '/order/orders/add/'
+		)
 	);
 
 	$final_atim_structure = $atim_structure; 

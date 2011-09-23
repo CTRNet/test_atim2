@@ -1,8 +1,8 @@
 <?php
 	$structure_links = array(
 		'bottom'=>array(
-			'add participant'=>'/clinicalannotation/participants/add',
-			'new search' => ClinicalannotationAppController::$search_links
+			'new search' => ClinicalannotationAppController::$search_links,
+			'add participant'=>'/clinicalannotation/participants/add'
 		)
 	);
 

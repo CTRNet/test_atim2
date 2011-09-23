@@ -8,6 +8,7 @@
 	
 	$structure_links = array(
 		'bottom'=>array(
+			'new search' => array('link' => '/protocol/protocol_masters/search/', 'icon' => 'search'),
 			'add' => $add_links
 		)
 	);
@@ -16,7 +17,7 @@
 	$final_options = array(
 		'type'=>'search',
 		'links' => array('top'=>array('search'=>'/protocol/protocol_masters/search/'.AppController::getNewSearchId())), 
-		'settings' => array('actions' => false)
+		'settings' => array('actions' => false, 'header' => __('search type', null).': '.__('protocols', null)),
 	);
 	
 	$final_atim_structure2 = $empty_structure;

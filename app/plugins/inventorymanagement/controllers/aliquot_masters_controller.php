@@ -47,7 +47,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/index'));
+		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
 		
 		if(empty($search_id)){
 			$this->unsetInventorySessionData();
@@ -1696,7 +1696,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// set data for initial data to allow bank to override data
 		$created_aliquot_override_data = array(
-			'AliquotMaster.aliquot_type' => $child_aliquot_ctrl['AliquotControl']['aliquot_type'],
+			'AliquotControl.aliquot_type' => $child_aliquot_ctrl['AliquotControl']['aliquot_type'],
 			'AliquotMaster.storage_datetime' => date('Y-m-d G:i'),
 			'AliquotMaster.in_stock' => 'yes - available',
 	
