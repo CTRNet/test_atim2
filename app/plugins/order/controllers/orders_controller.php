@@ -13,23 +13,24 @@ class OrdersController extends OrderAppController {
 		'Order'=>array('limit' => pagination_amount,'order'=>'Order.date_order_placed DESC'), 
 		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 	
-	function index() {
-		// Clear Order session data
-		unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
+	function search($search_id = 0) {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
 		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
+		if(empty($search_id)){
+			//index
+			unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 		}
-	}
-  
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+		
 		$this->searchHandler($search_id, $this->Order, 'orders', '/order/orders/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link);
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}
 	

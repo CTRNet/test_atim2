@@ -19,19 +19,9 @@ class StorageMastersController extends StoragelayoutAppController {
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
-	 
-	function index() {
-		//find all storage control types to build add button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-	}
-		
-	function search($search_id) {
-		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/index/'));
+	function search($search_id = 0){
+		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/search/'));
 		$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search');
 		
 		//find all storage control types to build add button
@@ -39,7 +29,14 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 	
 	function detail($storage_master_id, $is_from_tree_view_or_layout = 0, $storage_category = null) {
@@ -133,7 +130,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index/');		
+		$atim_menu = $this->Menus->get('/storagelayout/storage_masters/search/');		
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageControl.id' => $storage_control_id));
 		
@@ -358,12 +355,12 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
 			if($atim_flash){
-				$this->atimFlash('your data has been deleted', '/storagelayout/storage_masters/index/');
+				$this->atimFlash('your data has been deleted', '/storagelayout/storage_masters/search/');
 			}else{
-				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/index/');
+				$this->flash('error deleting data - contact administrator', '/storagelayout/storage_masters/search/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/detail/' . $storage_master_id);
+			$this->flash($arr_allow_deletion['msg'], '/storagelayout/storage_masters/search/' . $storage_master_id);
 		}		
 	}
 	
@@ -401,7 +398,7 @@ class StorageMastersController extends StoragelayoutAppController {
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
-			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/index');
+			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/search');
 			$this->set("search", true);
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		}

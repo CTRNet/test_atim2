@@ -20,7 +20,7 @@
 	);
 	
 	// CUSTOM CODE
-	$hook_link = $structures->hook();
+	$hook_link = $structures->hook('index');//when the caller is search, the hook will be 'search_index.php'
 	if( $hook_link ) { 
 		require($hook_link); 
 	}

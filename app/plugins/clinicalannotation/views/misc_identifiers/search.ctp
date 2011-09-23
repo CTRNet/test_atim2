@@ -7,7 +7,6 @@
 		)
 	);
 	
-	$structure_override = array();
 	$settings = array('return' => true);
 	if(isset($is_ajax)){
 		$settings['actions'] = false;
@@ -19,7 +18,6 @@
 	$final_options = array(
 		'type' => 'index', 
 		'links' => $structure_links, 
-		'override' => $structure_override, 
 		'settings' => $settings
 	);
 	

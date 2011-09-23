@@ -9,18 +9,19 @@ class DrugsController extends DrugAppController {
 		
 	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
 
-	function index() {
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-	}
-	
-	function search($search_id) {
+	function search($search_id = 0) {
 		$this->searchHandler($search_id, $this->Drug, 'drugs', '/drug/drugs/search');
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 
 	function add() {	

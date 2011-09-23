@@ -53,7 +53,7 @@
 		$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date', true).': '.$due_messages_count.'.
 		Click <a href="javascript:goToNotDoneDueMessages()">here</a> to see them.
 		</li></ul>
-		<form action="'.$this->webroot.'clinicalannotation/participant_messages/search/" method="POST" id="doneDueMessages">
+		<form action="'.$this->webroot.'clinicalannotation/participant_messages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
 			<input type="hidden" name="data[ParticipantMessage][done]" value="0">
 			<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="'.now().'">
 		</form>

@@ -1550,3 +1550,5 @@ UPDATE menus SET flag_active=0 WHERE id='inv_CAN_23';
 
 UPDATE menus SET use_link='/clinicalannotation/participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/storagelayout/storage_masters/search/' WHERE id='sto_CAN_01';
+UPDATE menus SET use_link='/order/orders/search/' WHERE id='ord_CAN_101';
+UPDATE menus SET use_link='/protocol/protocol_masters/search/' WHERE id='proto_CAN_37';
