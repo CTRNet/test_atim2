@@ -1547,3 +1547,6 @@ UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields
 
 UPDATE menus SET flag_active=0 WHERE id='inv_CAN_22';
 UPDATE menus SET flag_active=0 WHERE id='inv_CAN_23';
+
+UPDATE menus SET use_link='/clinicalannotation/participants/search/' WHERE id='clin_CAN_1';
+UPDATE menus SET use_link='/storagelayout/storage_masters/search/' WHERE id='sto_CAN_01';
