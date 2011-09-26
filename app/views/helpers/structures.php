@@ -331,7 +331,7 @@ class StructuresHelper extends Helper {
 					'description'	=> ''
 				);
 			}
-			$detailed_results = 'aasaa';
+			$detailed_results = '';
 			if(AppController::$result_are_unique_ctrl){
 				$detailed_results = __('detailed results', true);
 				if(strlen(trim($options['settings']['header']['title'])) > 0){
