@@ -98,7 +98,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
 ("unused parents", "Unused parents", "Parents non utilisés"),
 ("full export as CSV", "Full export as CSV", "Export complet comme CSV"),
-('copy into add form', 'Copy into add form', "Copier dans le formulaire d'ajout");
+('copy for new collection', 'Copy for new collection', "Copier pour une nouvelle collection");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
