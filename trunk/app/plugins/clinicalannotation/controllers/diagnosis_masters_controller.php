@@ -204,9 +204,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']));
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
-		$structurre_alias = $dx_control_data['DiagnosisControl']['form_alias'].', ';
-		$structurre_alias .= empty($dx_master_data['DiagnosisMaster']['parent_id']) ? 'dx_origin_primary' : 'dx_origin_wo_primary';  
-		$this->Structures->set($structurre_alias);
+		$structure_alias = $dx_control_data['DiagnosisControl']['form_alias'].', ';
+		$structure_alias .= empty($dx_master_data['DiagnosisMaster']['parent_id']) ? 'dx_origin_primary' : 'dx_origin_wo_primary';  
+		$this->Structures->set($structure_alias);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
