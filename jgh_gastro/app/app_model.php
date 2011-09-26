@@ -42,16 +42,6 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-		if(!isset(self::$auto_validation[$this->name]) &&
-			isset($this->Behaviors->MasterDetail) &&
-			is_array($this->Behaviors->MasterDetail) && 
-			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail)
-		){
-			//build master validation (detail validation are built within the validation function)
-			//TODO: 2.4.x: Remove this and build all autovalidation within the validation function
-			$this->buildAutoValidation($this->name, $this);
-		}
-		
 	}
 	
 	/**
@@ -376,6 +366,16 @@ class AppModel extends Model {
 	
 	function validates($options = array()){
 		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+		
+		if(!isset(self::$auto_validation[$this->name]) &&
+			isset($this->Behaviors->MasterDetail) &&
+			(strpos($this->name, 'Detail') === false ||
+			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))
+		){
+			//build master validation (detail validation are built within the validation function)
+			self::buildAutoValidation($this->name, $this);
+			$this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+		}
 		$this->setDataAccuracy();
 
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){

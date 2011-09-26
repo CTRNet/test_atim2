@@ -931,6 +931,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
+					'StorageMaster'	=> $data_unit['StorageMaster'],
 					'FunctionManagement' => $data_unit['FunctionManagement'],
 					'AliquotControl' => isset($data_unit['AliquotControl']) ? $data_unit['AliquotControl'] : array() 
 				);
@@ -2046,8 +2047,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);		
 		
-		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail');
+		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		
 		// Set url to cancel
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
