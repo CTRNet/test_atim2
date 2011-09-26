@@ -1,5 +1,5 @@
 -- Update version information
-INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.6', NOW(), '3548');
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES('2.3.6', NOW(), '3556');
 
 UPDATE structure_fields SET structure_value_domain = NULL WHERE type = 'yes_no';
 
