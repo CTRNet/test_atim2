@@ -24,23 +24,20 @@
 					'icon'	=> 'detail',
 					'link'	=> '/clinicalannotation/product_masters/productsTreeView/' . $participant_id
 					) 
+					
 			);
 		}
 		$bottom_links['add specimen'] = $add_links;
 		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
-		$bottom_links['copy into add form'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
+		$structure_links['bottom'] = $bottom_links;
 		
-		if(!empty($templates)){
-			$bottom_links['template'] = array();
-			foreach($templates as $template){
-				$bottom_links['template'][$template['Template']['name']] = array(
-					'icon' => 'template',
-					'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
-				);
-			}
-		}
-		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $bottom_links);
-		
+		// General detail form display
+		$search_type_links = array();
+		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
+		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
+		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
+	
+		$structure_links['bottom']['new search'] = $search_type_links;
 	}
 	
 	$structure_override = array();

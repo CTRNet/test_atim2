@@ -13,23 +13,15 @@ class UsersController extends AppController {
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
 	}
 	
-	function login($is_ajax = false){
-		if($is_ajax){
-			echo json_encode(array("logged_in" => !empty($_SESSION['Auth']), "server_time" => time()));
-			exit;
-		}
+	function login() {
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
 		$this->Version->id = $version_data[0]['id'];
 		$this->Version->read();
 		if($this->Version->data['Version']['permissions_regenerated'] == 0){
-			$version_number = $this->Version->data['Version']['version_number'];
 			$this->PermissionManager->buildAcl();
 			AppController::addWarningMsg(__('permissions have been regenerated', true));
 			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 			$this->Version->save();
-
-			//also update the i18n string
-			$this->User->query("UPDATE i18n SET en='".$version_number."', fr ='".$version_number."' WHERE id='core_app_version'");
 		}
 		
 		if($this->Auth->user()){
@@ -46,10 +38,6 @@ class UsersController extends AppController {
 			}
 			$group = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
 			$_SESSION['Auth']['User']['flag_show_confidential'] = $group['Group']['flag_show_confidential'];
-			if(!isset($_SESSION['Auth']['User']['search_id'])){
-				$_SESSION['Auth']['User']['search_id'] = 1;
-				$_SESSION['ctrapp_core']['search'] = array();
-			}
 			$this->redirect($this->Auth->redirect());
 		}else if(!empty($this->data)){
 			//failed login
@@ -80,6 +68,7 @@ class UsersController extends AppController {
 		$this->Acl->flushCache();
 		$this->redirect($this->Auth->logout());
 	}
+
 }
 
 ?>

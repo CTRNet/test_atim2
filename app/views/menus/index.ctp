@@ -1,6 +1,7 @@
 <?php
 	$atim_content = array(
-		'menu'			=> ''
+		'menu'			=>	'',
+		'announcements'	=>	''
 	);
 	
 	if(count($menu_data)){
@@ -49,22 +50,32 @@
 		
 	}
 	
-	if($due_messages_count > 0 && AppController::checkLinkPermission('/clinicalannotation/participant_messages/search/')){
-		$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date', true).': '.$due_messages_count.'.
-		Click <a href="javascript:goToNotDoneDueMessages()">here</a> to see them.
-		</li></ul>
-		<form action="'.$this->webroot.'clinicalannotation/participant_messages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
-			<input type="hidden" name="data[ParticipantMessage][done]" value="0">
-			<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="'.now().'">
-		</form>
-		';
-	}
+	$atim_content['announcements'] .= '<h2>'.__( 'core_announcements', true ).'</h2>';
+		
+	if(count($announcements_data)){
 	
+		$atim_content['announcements'] .= '
+				<ul class="big_announcements">
+		';
+		
+		foreach($announcements_data as $key => $announcement){
+			$atim_content['announcements'] .= '
+					<!-- '.$announcement['Announcement']['id'].' -->
+					<li>
+						<a href="'.$html->url( '/customize/announcements/detail/'.$announcement['Announcement']['id'] ).'">
+							'.$announcement['Announcement']['title'].'
+							<span>'.__( strtolower(date( 'M', $time->toUnix($announcement['Announcement']['date']) )), true ).' '.date( 'd', $time->toUnix($announcement['Announcement']['date']) ).'</span>
+						</a>
+					</li>
+			';
+		}
+			
+		$atim_content['announcements'] .= '
+			</ul>
+		';
+		
+	}
 
 	echo $structures->generateContentWrapper($atim_content);
+	
 ?>
-<script>
-function goToNotDoneDueMessages(){
-	$("#doneDueMessages").submit();
-}
-</script>

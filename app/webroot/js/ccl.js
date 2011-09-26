@@ -6,7 +6,7 @@ function initCcl(){
 	var popupSearch = function(){
 		//postData = participant collection + serialized form
 		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection"; 
-		$.post(root_url + "/inventorymanagement/collections/search/-1/true", postData, function(data){
+		$.post(root_url + "/inventorymanagement/collections/search/true", postData, function(data){
 			$("#collection_frame").html(data);
 			$("#collection_loading").hide();
 		});
@@ -18,19 +18,19 @@ function initCcl(){
 		return false;
 	};
 
-	$("#collection_new").prop("checked", true);
+	$("#collection_new").attr("checked", true);
 	$("#collection_search").click(function(){
-		$("#collection_search").prop("checked", false);
-		$("#collection_new").prop("checked", true);
+		$("#collection_search").attr("checked", false);
+		$("#collection_new").attr("checked", true);
 		if(popupLoaded){
 			$("#popup").popup();
 		}else{
-			$.get(root_url + "/inventorymanagement/collections/search/0/true?t=" + new Date().getTime(), null, function(data){
+			$.get(root_url + "/inventorymanagement/collections/index/true?t=" + new Date().getTime(), null, function(data){
 				$("#popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
 				initDatepicker("#popup");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
-				$("#popup .form.search").unbind('click').prop("onclick", null).click(popupSearch);
+				$("#popup .form.search").unbind('click').attr("onclick", null).click(popupSearch);
 				$("#popup").popup();
 				popupLoaded = true;
 			});

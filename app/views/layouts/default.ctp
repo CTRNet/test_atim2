@@ -1,10 +1,6 @@
 <?php 
-$headers_were_sent = headers_sent();
-if(!$headers_were_sent){
-	ob_start('ob_gzhandler');
-	header ('Content-type: text/html; charset=utf-8');
-	AppController::atimSetCookie();
-}
+ob_start('ob_gzhandler');
+header ('Content-type: text/html; charset=utf-8');
 ?>
 
 <!DOCTYPE HTML>
@@ -12,19 +8,14 @@ if(!$headers_were_sent){
 <head>
 
 	<?php
-		
-		$header = $shell->header(array(
-			'atim_menu_for_header' => $atim_menu_for_header,
-			'atim_sub_menu_for_header' => $atim_sub_menu_for_header,
-			'atim_menu' => $atim_menu,
-			'atim_menu_variables' => $atim_menu_variables) 
-		);
+		$session_delay_sec = AppController::atimSetCookie();
+		$header = $shell->header( array('atim_menu_for_header'=>$atim_menu_for_header,'atim_menu'=>$atim_menu,'atim_menu_variables'=>$atim_menu_variables) );
 		$title = $this->loaded['shell']->pageTitle;
 	?>
 	
 	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>img/favicon.ico"/>
+	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>/img/favicon.ico"/>
 	<?php 
 		echo $html->css('style')."\n"; 
 		echo $html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
@@ -43,6 +34,7 @@ if(!$headers_were_sent){
 			var root_url = "<?php echo($this->webroot); ?>";
 			var webroot_dir = root_url + "/app/webroot/";
 			var locale = "<?php echo($locale); ?>";
+			var sessionExpiration = (new Date()).getTime() + <?php echo ($session_delay_sec + 1) * 1000; ?>;
 			var STR_OR = "<?php __('or'); ?>";
 			var STR_SPECIFIC = "<?php __('specific'); ?>";
 			var STR_RANGE = "<?php __('range'); ?>";
@@ -55,9 +47,6 @@ if(!$headers_were_sent){
 			var STR_PASTE_ON_ALL_LINES = "<?php echo(__("paste on all lines")); ?>";
 			var STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS = "<?php echo(__("paste on all lines of all sections")); ?>";
 			var STR_LAB_BOOK = "<?php __("lab book"); ?>";
-			var STR_LOADING = "<?php __('loading'); ?>";
-			var STR_OK = "<?php __('ok'); ?>";
-			var STR_CANCEL = "<?php __('cancel'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
@@ -88,7 +77,7 @@ if(!$headers_were_sent){
 	
 	// JS added to end of DOM tree...
 	
-	echo $javascript->link('jquery-1.6.2.min')."\n";
+	echo $javascript->link('jquery-1.5.2.min')."\n";
 	echo $javascript->link('jquery-ui-1.8.2.custom.min')."\n";
 	echo $javascript->link('jquery.ui-datepicker-fr.js')."\n";
 	echo $javascript->link('jquery.highlight.js')."\n";
@@ -113,8 +102,6 @@ if(!$headers_were_sent){
 	<div id="default_popup" class='hidden std_popup'></div>
 </body>
 </html>
-<?php
-if(!$headers_were_sent){ 
-	ob_end_flush();
-}
+<?php 
+ob_end_flush();
 ?>

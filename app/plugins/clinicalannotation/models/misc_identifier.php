@@ -33,11 +33,9 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	}	
 	
 	function beforeFind($queryData){
-		if(
-			!$_SESSION['Auth']['User']['flag_show_confidential'] 
-			&& is_array($queryData['conditions']) 
-			&& AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])
-		){
+		if(!$_SESSION['Auth']['User']['flag_show_confidential'] 
+		&& is_array($queryData['conditions']) 
+		&& AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])){
 			if($this->confid_warning_absent){
 				AppController::addWarningMsg(__('due to your restriction on confidential data, your search did not return confidential identifiers', true));
 				$this->confid_warning_absent = false;

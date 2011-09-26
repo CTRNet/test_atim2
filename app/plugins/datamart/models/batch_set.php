@@ -4,16 +4,6 @@ class BatchSet extends DatamartAppModel {
 
 	var $useTable = 'datamart_batch_sets';
 	
-	var $belongsTo = array(
-		'Adhoc' => array(            
-			'className'    => 'Datamart.adhoc',            
-			'foreignKey'    => 'datamart_adhoc_id'
-		), 'DatamartStructure' => array(
-			'className' => 'Datamart.DatamartStructure',
-			'foreignKey' => 'datamart_structure_id'
-		)
-	);
-	
 	var $hasMany = array(
 		'BatchId' =>
 		 array('className'   => 'Datamart.BatchId',
@@ -49,8 +39,6 @@ class BatchSet extends DatamartAppModel {
 				$return['menu'] = array(null, __('temporary batch set', true));		
 			} else if (!empty($variables['BatchSet.id'])) {
 				$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
-				$batchset_data['BatchSet']['flag_use_query_results'] = !empty($batchset_data['BatchSet']['datamart_adhoc_id']);
-				$batchset_data['BatchSet']['model'] = empty($batchset_data['BatchSet']['datamart_adhoc_id']) ? $batchset_data['DatamartStructure']['model'] : $batchset_data['Adhoc']['model'];  
 				if(!empty($batchset_data)) {
 					$return['title'] = array(null, __('batchset information', null));
 					$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
@@ -105,7 +93,7 @@ class BatchSet extends DatamartAppModel {
 			}
 		}
 		$available_batchsets_conditions = array(
-			array('OR' => array('AND' => array('Adhoc.plugin' => $plugin, 'Adhoc.model' => $model), 
+			array('OR' => array('AND' => array('BatchSet.plugin' => $plugin, 'BatchSet.model' => $model), 
 					'BatchSet.datamart_structure_id' => $datamart_structure_id)),
 			'OR' => array(
 				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],

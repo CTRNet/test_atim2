@@ -19,18 +19,33 @@ class OrderItemsController extends OrderAppController {
 		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
-	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
-		$this->searchHandler($search_id, $this->OrderItem, 'orderitems', '/inventorymanagement/order_items/search');
-
+	function index() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+						
+		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
+		
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
+	}
+	
+	function search() {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+
+		$oderitems_structure = $this->Structures->get('form', 'orderitems');
+		$this->set('atim_structure', $oderitems_structure);
+		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($oderitems_structure);
 		
-		if(empty($search_id)){
-			//index
-			$this->render('index');
+		$this->data = $this->paginate($this->OrderItem, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['OrderItem']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/order_items/search';
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link); 
 		}
 	}	
 	
@@ -64,17 +79,13 @@ class OrderItemsController extends OrderAppController {
 	}
 
 	function add( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { 
-			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
+		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 	
 		// Check order line
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { 
-			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
+		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

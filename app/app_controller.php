@@ -4,7 +4,6 @@ class AppController extends Controller {
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
 	private static $me = NULL;
-	private static $acl = null;
 	public static $beignFlash = false;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
@@ -15,8 +14,6 @@ class AppController extends Controller {
 	private static $cal_info_long = array(1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
-	
-	public static $result_are_unique_ctrl = null;
 	
 	function beforeFilter() {
 		AppController::$me = $this;
@@ -63,13 +60,7 @@ class AppController extends Controller {
 			$log_activity_model->save($log_activity_data);
 			
 		// menu grabbed for HEADER
-			$atim_sub_menu_for_header = array();
-			$menu_model = AppModel::getInstance("", "Menu", true);
-			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
-			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
-		
-			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
-			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
 			
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
@@ -479,7 +470,7 @@ class AppController extends Controller {
 	}
 	
 	static function addWarningMsg($msg){
-		if(isset($_SESSION['ctrapp_core']['warning_msg'][$msg])){
+		if(array_key_exists($msg, $_SESSION['ctrapp_core']['warning_msg'])){
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
 		}else{
 			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
@@ -496,26 +487,6 @@ class AppController extends Controller {
 	}
 	
 	/**
-	 * Builds the value definition array for an updateAll call
-	 * @param array They data array to build the values with
-	 */
-	static function getUpdateAllValues(array $data){
-		$result = array();
-		foreach($data as $model => $fields){
-			foreach($fields as $name => $value){
-				if(is_array($value)){
-					if(strlen($value['year'])){
-						$result[$model.".".$name] = "'".AppController::getFormatedDatetimeSQL($value)."'";
-					}
-				}else if(strlen($value)){
-					$result[$model.".".$name] = "'".$value."'";
-				}
-			}
-		}
-		return $result;
-	}
-	
-	/**
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
 	static function atimSetCookie(){
@@ -523,6 +494,7 @@ class AppController extends Controller {
 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
 		}
+		return $session_delay;
 	}
 	
 	/**
@@ -568,25 +540,17 @@ class AppController extends Controller {
 	 * @param array $in_array
 	 * @param string $model The model ($in_array[$model])
 	 * @param string $field The field (new key = $in_array[$model][$field])
-	 * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
 	 * @return array
 	 */
-	static function defineArrayKey($in_array, $model, $field, $unique = false){
+	static function defineArrayKey($in_array, $model, $field){
 		$out_array = array();
-		if($unique){
-			foreach($in_array as $val){
-				$out_array[$val[$model][$field]] = $val;
+		foreach($in_array as $val){
+			if(isset($val[$model])){
+				$out_array[$val[$model][$field]][] = $val;
+			}else{
+				//the key cannot be foud
+				$out_array[-1][] = $val;
 			}
-		}else{
-			foreach($in_array as $val){
-				if(isset($val[$model])){
-					$out_array[$val[$model][$field]][] = $val;
-				}else{
-					//the key cannot be foud
-					$out_array[-1][] = $val;
-				}
-			}
-			
 		}
 		return $out_array;
 	}
@@ -598,187 +562,6 @@ class AppController extends Controller {
 			}
 			if(empty($val)){
 				unset($data[$key]);
-			}
-		}
-	}
-	
-	static function getNewSearchId(){
-		return $_SESSION['Auth']['User']['search_id'] ++;
-	}
-	
-	/**
-	* @param string $link The link to check
-	* @return True if the user can access that page, false otherwise
-	*/
-	static function checkLinkPermission($link){
-		$parts = Router::parse($link);
-		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
-		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-	
-		if (self::$acl == null) {
-			self::$acl = new SessionAclComponent();
-			self::$acl->initialize($this);
-		}
-		
-		$instance = AppController::getInstance();
-	
-		return strpos($aco_alias,'controllers/Users') !== false
-		|| strpos($aco_alias,'controllers/Pages') !== false
-		|| $aco_alias == "controllers/Menus/index"
-		|| self::$acl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
-	}
-	
-	static function applyTranslation(&$in_array, $model, $field){
-		foreach($in_array as &$part){
-			$part[$model][$field] = __($part[$model][$field], true); 
-		}
-	}
-	
-	/**
-	 * Finds and paginate search results. Stores search in cache. 
-	 * Handles detail level when there is a unique ctrl_id. 
-	 * Defines/updates the result structure.
-	 * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id, 
-	 * 	false otherwise. (Non master/detail models will return false) 
-	 * @param int $search_id The search id used by the pagination
-	 * @param Object $model The model to search upon
-	 * @param string $structure_alias The structure alias to parse the search conditions on
-	 * @param string $url The base url to use in the pagination links (meaning without the search_id)
-	 * @param bool $ignore_detail If true, even if the model is a master_detail ,the detail level won't be loaded
-	 */
-	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false){
-		//setting structure
-		$unique_ctrl_id = false;
-		$structure = $this->Structures->get('form', $structure_alias);
-		$this->set('atim_structure', $structure);
-		if(empty($search_id)){
-			$this->Structures->set('empty', 'empty_structure');
-		}else{
-			if($this->data){
-				//newly submitted search, parse conditions and store in session
-				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
-			}else if(!isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])){
-				self::addWarningMsg(__('you cannot resume a search that was made in a previous session', true));
-				$this->redirect('/menus');
-				exit;
-			}
-	
-			//check if the current model is a master/detail one or a similar view 
-			if(!$ignore_detail && (
-				($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) ||
-				$model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model'] 
-			)){
-				//determine if the results contain only one control id
-				$base_model = isset($model->base_model) ? $model->base_model : $model->name;
-				$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
-				$ctrl_ids = $model->find('all', array(
-					'fields'		=> array($model->name.'.'.$control_field), 
-					'conditions'	=> $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],
-					'group'			=> array($model->name.'.'.$control_field),
-					'limit'			=> 2
-				));
-				if(count($ctrl_ids) == 1){
-					//only one ctrl, attach detail
-					$unique_ctrl_id = true;
-					$has_one = array();
-					$master_class_name = null;
-					if($view){
-						$master_class_name = str_replace('View', '', $model->name).'Master';
-						$has_one[$master_class_name] = array(
-							'className' => $master_class_name,
-							'foreignKey' => 'id'
-						);
-					}else{
-						$master_class_name = $model->name;
-					}
-					
-					extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
-					$ctrl_model = AppModel::getInstance('', $control_class, true);
-					$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
-					$ctrl_data = current($ctrl_data);
-					//put a new instance of the detail model in the cache
-					ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
-					new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
-					
-					//has one and win
-					$has_one[$detail_class] = array(
-						'className' => $detail_class,
-						'foreignKey' => $master_foreign
-					);
-					
-					if($master_class_name == 'SampleMaster'){
-						//join specimen/derivative details
-						if($ctrl_data['sample_category'] == 'specimen'){
-							$has_one['SpecimenDetail'] = array(
-								'className' => 'SpecimenDetail',
-								'foreignKey' => 'sample_master_id'
-							);
-						}else{
-							//derivative
-							$has_one['DerivativeDetail'] = array(
-								'className' => 'DerivativeDetail',
-								'foreignKey' => 'sample_master_id'
-							);
-						}
-					}
-					
-					//persistent bind
-					$model->bindModel(
-						array(
-							'hasOne' => $has_one,
-							'belongsTo' => array(
-								$control_class => array(
-									'className' => $control_class,
-									$control_field
-								)
-							)
-						), false
-					);
-					
-					//updating structure
-					if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
-						$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
-					}
-				}
-			}
-			
-			$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
-			
-			if(
-				$model->name == 'ViewAliquot' && 
-				count($this->data) > 0 && 
-				!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && 
-				isset($this->data[0]['alc']['aliquot_type'])
-			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "alc" model.
-				foreach($this->data as &$data_unit){
-					$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
-				}
-			}else if(
-				$model->name == 'ViewSample' && 
-				count($this->data) > 0 && 
-				!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
-				isset($this->data[0]['sampc']['sample_type'])
-			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "sampc" model.
-				foreach($this->data as &$data_unit){
-					$data_unit['ViewSample'] += $data_unit['sampc'];
-				}
-			}
-		
-			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
-			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
-			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
-			self::$result_are_unique_ctrl = $unique_ctrl_id;
-			
-			if($this->RequestHandler->isAjax()){
-				Configure::write('debug', 0);
-				$this->set('is_ajax', true);
 			}
 		}
 	}

@@ -4,6 +4,8 @@ class AdhocsController extends DatamartAppController {
 	
 	var $uses = array(
 		'Datamart.Adhoc', 
+		'Datamart.AdhocFavourite',
+		'Datamart.AdhocSaved', 
 		
 		'Datamart.BatchSet',
 		'Datamart.BatchId',
@@ -19,6 +21,7 @@ class AdhocsController extends DatamartAppController {
 	); 
 	
 	function index( $type_of_list='all' ) {
+		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list ) );
 		$this->Structures->set('querytool_adhoc' );
 		
@@ -29,7 +32,6 @@ class AdhocsController extends DatamartAppController {
 		} else if ( $type_of_list=='saved' ) {
 			$this->data = $this->paginate($this->AdhocSaved, array('AdhocSaved.user_id'=>$_SESSION['Auth']['User']['id']));
 		}
-		
 		foreach($this->data as &$data_unit){
 			$data_unit['Adhoc']['title'] = __($data_unit['Adhoc']['title'], true);
 			$data_unit['Adhoc']['description'] = __($data_unit['Adhoc']['description'], true);
@@ -71,76 +73,109 @@ class AdhocsController extends DatamartAppController {
 		$this->atimFlash( 'Query is no longer one of your favourites.', '/datamart/adhocs/search/all/'.$adhoc_id );
 	}
 	
-	function search($type_of_list, $adhoc_id){
+	function search( $type_of_list='all', $adhoc_id=0  ) {
+		
 		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL;
-
+		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
 		
+		// BIND models on the fly...
+		$this->Adhoc->bindModel(
+			  array('hasMany' => array(
+						 'AdhocFavourite'	=> array(
+								'className'  	=> 'AdhocFavourite',
+								'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
+								'foreignKey'	=> 'adhoc_id',
+								'dependent'		=> true
+						 ),
+						 'AdhocSaved'	=> array(
+								'className'  	=> 'AdhocSaved',
+								'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
+								'foreignKey'	=> 'adhoc_id',
+								'dependent'		=> true
+						 )
+					)
+			  )
+		 );
 		
-		$adhoc = $this->Adhoc->findById($adhoc_id);
-		if(empty($adhoc['AdhocPermission'])){
-			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
-			return;
-		}
-		$this->set( 'data_for_detail', $adhoc );
+		$data_for_detail = $this->Adhoc->find('first', array('conditions'=>array('Adhoc.id'=>$adhoc_id), 'limit'=>4));
+		$this->set( 'data_for_detail', $data_for_detail );
 		
-		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_search'] ) );
+		$this->set( 'atim_structure_for_form', $this->Structures->get( 'form', $data_for_detail['Adhoc']['form_alias_for_search'] ) );
 		
 	}
 	
-	function results( $type_of_list='all', $adhoc_id) {
+	function results( $type_of_list='all', $adhoc_id=0 ) {
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>$type_of_list, 'Adhoc.id'=>$adhoc_id ) );
-		if(empty($this->data)){
-			//cannot reach that page without data
-			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
-		}
 		
-		if(!is_numeric($adhoc_id)){
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		// BIND models on the fly...
+		$this->Adhoc->bindModel(
+			  array('hasMany' => array(
+						 'AdhocFavourite'	=> array(
+								'className'  	=> 'AdhocFavourite',
+								'conditions'	=> 'AdhocFavourite.user_id="'.$_SESSION['Auth']['User']['id'].'"',
+								'foreignKey'	=> 'adhoc_id',
+								'dependent'		=> true
+						 ),
+						 'AdhocSaved'	=> array(
+								'className'  	=> 'AdhocSaved',
+								'conditions'	=> 'AdhocSaved.user_id="'.$_SESSION['Auth']['User']['id'].'"',
+								'foreignKey'	=> 'adhoc_id',
+								'dependent'		=> true
+						 )
+					)
+			  )
+		 );
+			
+		if(is_numeric($adhoc_id)){
+			$adhoc = $this->Adhoc->find( 'first', array( 'conditions'=>array('Adhoc.id'=>$adhoc_id)));
+		   	$this->set( 'data_for_detail', $adhoc );
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $adhoc['Adhoc']['form_alias_for_results']));
+		}else{
+			list($type_from, $type_to) = explode("_", $adhoc_id);
+			list($plugin, $model) = explode(".", $type_to);
+			$adhoc = array("Adhoc" => array("description" => "Browsing", "model" => $model, $plugin => $plugin));
+			$this->set( 'data_for_detail', $adhoc);
+			$this->set( 'atim_structure_for_results', $this->Structures->get( 'form', $type_to ));
 		}
-		$adhoc = $this->Adhoc->findById($adhoc_id);
-		if(empty($adhoc['AdhocPermission'])){
-			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
-			return;
-		}
-	   	$this->set( 'data_for_detail', $adhoc );
 		$this->Structures->set('datamart_browser_start', 'atim_structure_for_add');
-		$this->Structures->set($adhoc['Adhoc']['form_alias_for_results'], 'atim_structure_for_results');
-		$this->Structures->set($adhoc['Adhoc']['form_alias_for_results']);
+		
 		// do search for RESULTS, using THIS->DATA if any
 		
 		// start new instance of QUERY's model, and search it using QUERY's parsed SQL 
 		$this->ModelToSearch = AppModel::getInstance($adhoc['Adhoc']['plugin'] ? $adhoc['Adhoc']['plugin'] : '', $adhoc['Adhoc']['model'], true);
 			
-		// due to QUOTES and HTML code, save as PIPES in datatable ROWS
-		$sql_query_for_results  = $adhoc['Adhoc']['sql_query_for_results'];
-		$sql_query_with_search_terms = str_replace( '"', '|', $sql_query_for_results );
-		$sql_query_without_search_terms = str_replace( '"', '|', $sql_query_with_search_terms );
-		$final_query = '';
+		// parse resulting IDs from the SQL to build FINDALL criteria for QUERY's true MODEL 
+		$criteria = array();
 		
-		// parse FORM inputs to popultate QUERY's sql properly
-		if($adhoc['Adhoc']['sql_query_for_results']) {
-			//use sql query
-			
-			//rename the keys to make them ready for parse_sql_conditions
-			$conditions = $this->Structures->parseSearchConditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']), false);
-			foreach($conditions as $key => $value){
-				if(strpos($key, " >=") == strlen($key) - 3){
-					$conditions[substr($key, 0, strlen($key) - 3)."_start"] = $value;
-					unset($conditions[$key]);
-				}else if(strpos($key, " <=") == strlen($key) - 3){
-					$conditions[substr($key, 0, strlen($key) - 3)."_end"] = $value;
-					unset($conditions[$key]);
-				}else if(strpos($key, " LIKE") == strlen($key) - 3){
-					$conditions[substr($key, 0, strlen($key) - 5)] = $value;
-					unset($conditions[$key]);
-				}
+		// parse FORM inputs to popultate QUERY's sql properly 
+		$sql_query_with_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
+		$sql_query_without_search_terms = $adhoc['Adhoc']['sql_query_for_results'];
+		
+		$conditions = $this->Structures->parseSearchConditions($this->Structures->get('form', $adhoc['Adhoc']['form_alias_for_results']), false);
+		//rename the keys to make them ready for parse_sql_conditions
+		foreach($conditions as $key => $value){
+			if(strpos($key, " >=") == strlen($key) - 3){
+				$conditions[substr($key, 0, strlen($key) - 3)."_start"] = $value;
+				unset($conditions[$key]);
+			}else if(strpos($key, " <=") == strlen($key) - 3){
+				$conditions[substr($key, 0, strlen($key) - 3)."_end"] = $value;
+				unset($conditions[$key]);
+			}else if(strpos($key, " LIKE") == strlen($key) - 3){
+				$conditions[substr($key, 0, strlen($key) - 5)] = $value;
+				unset($conditions[$key]);
 			}
 			
-			$final_query = $sql_query_without_search_terms;
+		}
+		
+		// if SEARCH form data, parse and create conditions
+		$criteria = array();
+		
+		if ( $adhoc['Adhoc']['sql_query_for_results'] ) {
 			list( $sql_query_with_search_terms, $sql_query_without_search_terms ) = $this->Structures->parse_sql_conditions( $adhoc['Adhoc']['sql_query_for_results'], $conditions );
+			
 			$ids = $this->ModelToSearch->query( $sql_query_with_search_terms );
-			$criteria = array();
+			
 			foreach ( $ids as $array ) {
 				foreach ( $array as $id_model=>$id_fields ) {
 					if ( $id_model==$adhoc['Adhoc']['model'] ) {
@@ -148,27 +183,38 @@ class AdhocsController extends DatamartAppController {
 					}
 				}
 			}
+			
 			$criteria = implode( ' OR ', $criteria );
+			
 			if ( !$criteria ) {
 				$criteria = $adhoc['Adhoc']['model'].'.id="-1"';
 			}
 			
+		} else if ( $this->data ) {
+			
+			$criteria = $this->Forms->getSearchConditions( $this->data, $ctrapp_form );
+			
+		}
+
+		// make list of SEARCH RESULTS
+		
+		// due to QUOTES and HTML code, save as PIPES in datatable ROWS
+		$sql_query_with_search_terms = str_replace( '"', '|', $sql_query_with_search_terms );
+		$sql_query_without_search_terms = str_replace( '"', '|', $sql_query_without_search_terms );
+		
+		if ( $adhoc['Adhoc']['flag_use_query_results'] && $adhoc['Adhoc']['sql_query_for_results'] ) {
     		$this->set( 'final_query', $sql_query_without_search_terms );
     		$results = $ids;
-		}else{ 
-			//function call
-			require_once('customs/custom_adhoc_functions.php');
-			$custom_adhoc_functions = new CustomAdhocFunctions();
-			if(!method_exists($custom_adhoc_functions, $adhoc['Adhoc']['function_for_results'])){
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			}
-			$function = $adhoc['Adhoc']['function_for_results'];
-			$results = $custom_adhoc_functions->$function($this, array());
+		} else {
+			$this->set('final_query', '');
+			$results = $this->ModelToSearch->find( 'all', array('conditions'=>$criteria, 'recursive'=>3) );
+			// $results = $this->ModelToSearch->findall( $criteria, NULL, NULL, NULL, NULL, 3 );
 		}
 		
-		$this->set('results', $results ); // set for display purposes...
+		$this->set( 'results', $results ); // set for display purposes...
 		
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
+		
 		$ctrapp_form_links = array();
 		if ( $adhoc['Adhoc']['form_links_for_results'] ) {
 			$adhoc['Adhoc']['form_links_for_results'] = explode( '|', $adhoc['Adhoc']['form_links_for_results'] );
@@ -179,24 +225,45 @@ class AdhocsController extends DatamartAppController {
 				$ctrapp_form_links[ $exploded_form_links[0] ]['icon'] = $exploded_link_name[0];
 			}
 		}
+		
 		$this->set( 'ctrapp_form_links', $ctrapp_form_links ); // set for display purposes...
 			
+		// get list of compatible BATCHES (matching model), for form PULLDOWN
+			
+		$criteria = array();
+		
+		if ( $adhoc['Adhoc']['flag_use_query_results'] ) {
+			$criteria[] = 'flag_use_query_results = "1"';
+			$criteria[] = 'model = "'.$adhoc['Adhoc']['model'].'"';
+			$criteria[] = 'sql_query_for_results = "'.$sql_query_without_search_terms.'"';
+		} else {
+			$criteria[] = 'flag_use_query_results = "0"';
+			$criteria[] = 'model = "'.$adhoc['Adhoc']['model'].'"';
+		}
+		
+		$criteria[] = 'BatchSet.user_id="'.$_SESSION['Auth']['User']['id'].'"';
+		$batch_set_results = $this->BatchSet->find( 'all', array('conditions'=>$criteria, 'recursive'=>2) );
+		
 		// save THIS->DATA (if any) for Saved Search
+			
 		$save_this_search_data = array();
 		
-		if(is_array($this->data)){
-			foreach ( $this->data as $model=>$subarray ) {
-				if(is_array($subarray)){
-					foreach ( $subarray as $field_name=>$field_value ) {
-						if ( !is_array($field_value) && trim($field_value) ) {
-							$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
-						}
+		foreach ( $this->data as $model=>$subarray ) {
+			if(is_array($subarray)){
+				foreach ( $subarray as $field_name=>$field_value ) {
+					if ( !is_array($field_value) && trim($field_value) ) {
+						$save_this_search_data[] = $model.'.'.$field_name.'='.$field_value;
 					}
 				}
 			}
 		}
 		
+		$save_this_search_data = implode('|',$save_this_search_data);
+		
+		if ( !isset($_SESSION['ctrapp_core']['datamart']['search_criteria']) ) { $_SESSION['ctrapp_core']['datamart']['search_criteria'] = NULL; }
+		$_SESSION['ctrapp_core']['datamart']['search_criteria'] = $save_this_search_data;
 		// save for display
+
 		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
 		
 		if($this->DatamartStructure->getIdByModelName($adhoc['Adhoc']['model']) != null){
@@ -206,6 +273,7 @@ class AdhocsController extends DatamartAppController {
 				"action"	=> "datamart/browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
 			);
 		}
+		$this->set( 'save_this_search_data', $save_this_search_data );
 		$this->set('actions', $actions);
 	}
 	
@@ -224,9 +292,8 @@ class AdhocsController extends DatamartAppController {
 		
 	}
 	
-	//@deprecated
 	function csv(){
-		die("do not come here");
+		
 		// set function variables, makes script readable :)
 		$adhoc_id = $_SESSION['ctrapp_core']['datamart']['process']['Adhoc']['id'];
 		

@@ -12,7 +12,8 @@
 	));
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
-		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false)
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
 	));
 
 	// CUSTOM CODE

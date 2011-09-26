@@ -8,5 +8,6 @@
 	
 ?>
 <script>
-var serverClientTimeDiff = null;
+var foo = new Date; // Generic JS date object
+var serverClientTimeDiff = <?php echo time() ?> - parseInt(foo.getTime() / 1000);
 </script>

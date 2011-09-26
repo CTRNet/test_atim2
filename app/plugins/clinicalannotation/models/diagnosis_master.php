@@ -33,9 +33,9 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 	 * Replaces icd10 empty string to null values to respect foreign keys constraints
 	 * @param $participantArray
 	 */
-	function patchIcd10NullValues(&$participantArray){
-		if(strlen(trim($participantArray['DiagnosisMaster']['primary_icd10_code'])) == 0){
-			$participantArray['DiagnosisMaster']['primary_icd10_code'] = null;
+	function patchIcd10NullValues(&$participant_array){
+		if(array_key_exists('primary_icd10_code', $participant_array['DiagnosisMaster']) && strlen(trim($participant_array['DiagnosisMaster']['primary_icd10_code'])) == 0){
+			$participant_array['DiagnosisMaster']['primary_icd10_code'] = null;
 		}
 	}
 	
@@ -100,25 +100,6 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		}
 		ksort($sorted_dx);
 		return $sorted_dx;	
-	}
-	
-	function hasChild(array $diagnosis_master_ids){
-		$tx_model = AppModel::getInstance("clinicalannotation", "TreatmentMaster", true);
-		$event_master_model = AppModel::getInstance("clinicalannotation", "EventMaster", true);
-		return array_merge($this->find('list', array(
-				'fields'		=> array('DiagnosisMaster.parent_id'),
-				'conditions'	=> array('DiagnosisMaster.parent_id' => $diagnosis_master_ids),
-				'group'			=> array('DiagnosisMaster.parent_id')
-			)), $tx_model->find('list', array(
-				'fields'		=> array('TreatmentMaster.diagnosis_master_id'),
-				'conditions'	=> array('TreatmentMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('TreatmentMaster.diagnosis_master_id')
-			)), $event_master_model->find('list', array(
-				'fields'		=> array('EventMaster.diagnosis_master_id'),
-				'conditions'	=> array('EventMaster.diagnosis_master_id' => $diagnosis_master_ids),
-				'group'			=> array('EventMaster.diagnosis_master_id')
-			))
-		);
 	}
 }
 ?>

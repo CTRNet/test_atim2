@@ -13,21 +13,25 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	
 	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
 	
+	/* --------------------------------------------------------------------------
+	 * DISPLAY FUNCTIONS
+	 * -------------------------------------------------------------------------- */
+
+	/* ------------------------------ QUALITY CTRL ------------------------------ */
+	
 	function listAll($collection_id, $sample_master_id) {
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// MANAGE DATA
 		
-		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => 0));
-		if(empty($sample_data)) { 
-			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}	
+		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
+		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		$this->data = $this->paginate($this->QualityCtrl, array('QualityCtrl.sample_master_id'=>$sample_master_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$sample_id_parameter = ($sample_data['SampleControl']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
+		$sample_id_parameter = ($sample_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/listAll/%%Collection.id%%/' . $sample_id_parameter));		
 
 		$this->set( 'atim_menu_variables', 
@@ -478,4 +482,3 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 }
 ?>
-

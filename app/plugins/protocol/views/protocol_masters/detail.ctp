@@ -2,7 +2,7 @@
 
 	$structure_links = array(
 		'bottom'=>array(
-			'new search'=> array('link' => '/protocol/protocol_masters/index/', 'icon' => 'search'),
+			'search'=>'/protocol/protocol_masters/index/',
 			'edit'=>'/protocol/protocol_masters/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/',
 			'delete'=>'/protocol/protocol_masters/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/'
 		)

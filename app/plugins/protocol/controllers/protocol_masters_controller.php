@@ -8,30 +8,38 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 	var $paginate = array('ProtocolMaster'=>array('limit' => pagination_amount,'order'=>'ProtocolMaster.code DESC'));
 	
-	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/search/"));
-		$this->searchHandler($search_id, $this->ProtocolMaster, 'protocolmasters', '/protocol/protocol_masters/search');
+	function index() {
+		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
 		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}
+		if( $hook_link ) { require($hook_link); }
+	}
+	
+	function search() {
+		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
 		
-		if(empty($search_id)){
-			//index
-			$this->render('index');
-		}
+		$this->data = $this->paginate($this->ProtocolMaster, $_SESSION['ctrapp_core']['search']['criteria']);
+		
+		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
+		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/index/"));
+		
+		// if SEARCH form data, save number of RESULTS and URL
+		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['ProtocolMaster']['count'];
+		$_SESSION['ctrapp_core']['search']['url'] = '/protocol/protocol_masters/search';
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { require($hook_link); }
 	}
 	
 	function add($protocol_control_id) {
+		if ( !$protocol_control_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+				
 		$protocol_control_data = $this->ProtocolControl->find('first',array('conditions'=>array('ProtocolControl.id'=>$protocol_control_id)));
-		if (empty($protocol_control_data) ) { 
-			$this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
+		if (empty($protocol_control_data) ) { $this->redirect( '/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('ProtocolControl.id'=>$protocol_control_id)); 
-		$this->set('atim_menu', $this->Menus->get("/protocol/protocol_masters/search/"));
+		$this->set('atim_menu', $this->Menus->get('/protocol/protocol_masters/index/'));
 		$this->Structures->set($protocol_control_data['ProtocolControl']['form_alias']);
 		
 		$hook_link = $this->hook('format');

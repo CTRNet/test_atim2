@@ -85,6 +85,7 @@ div.outerWrapper div.wrapper {
 	border: 1px solid #243340;
 	border-color: #243340;
 	border-top: none;
+	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding: 0;
 }
@@ -181,13 +182,14 @@ div.actions {
 	line-height: 1.3em;
 	color: #bbf;
 	background: #dde8f2;
+	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding: 6px 0 0 10px;
 }
 
 	div.bottom_button {
 		background: url(../img/btnBack.png);
-		border-radius: 5px; 
+		-moz-border-radius: 5px; border-radius: 5px; 
 		border-color: #999999;
 		border-style: solid;
 		border-width: 1px;
@@ -206,6 +208,7 @@ div.actions {
 		padding: 5px 10px 4px 27px;
 		color: #000;
 		line-height: 15px;
+		-moz-border-radius: 3px; 
 		border-radius: 3px; 
 		
 	}
@@ -213,6 +216,11 @@ div.actions {
 	div.bottom_button:focus {
 		border-color: #000;
 		background-image: url("../img/btnBackSel.png");
+	}
+	
+	li.at div.bottom_button a,
+	div.bottom_button a:hover{
+		color: #000;
 	}
 	
 	div.bottom_button a.not_allowed {
@@ -228,12 +236,6 @@ div.actions {
 		top: 0px;
 	}
 	
-	a.not_allowed.treeButton{
-		display: inline-block;
-		width: 16px;
-		height: 16px;
-		margin: 0 2px 0 2px;
-	}
 /*===========================================================*
 	-= popup filter menu 
 *===========================================================*/
@@ -254,6 +256,7 @@ div.actions {
 		background: #374d61;
 		text-align: left;
 		
+		-moz-border-radius: 10px;
 		border-radius: 10px;
 		
 		z-index: 1000;
@@ -278,6 +281,7 @@ div.actions {
 	}
 		
 	div.filter_menu div.menuContent{
+		-moz-border-radius: 0; 
 		border-radius: 0; 
 		background: #486680;
 		
@@ -293,6 +297,7 @@ div.actions {
 	}
 	
 	div.filter_menu div ul {
+		-moz-border-radius: 0; 
 		border-radius: 0px; 
 		background: #486680;
 	}
@@ -318,6 +323,7 @@ div.actions {
 		background: rgba(55,77,97,0.8);
 		width: 100%;
 		height: 15px;
+		-moz-border-radius: 10px 10px 0 0; 
 		border-radius: 10px 10px 0 0; 
 	}
 	
@@ -332,6 +338,7 @@ div.actions {
 		background: rgba(55,77,97,0.8);
 		width: 100%;
 		height: 15px;
+		-moz-border-radius: 0 0 10px 10px; 
 		border-radius: 0 0 10px 10px; 
 	}
 		
@@ -386,16 +393,19 @@ div.actions {
 	div.filter_menu div ul li a {
 		color: #fff;
 		display: none;
+		-moz-border-radius: 0; 
 		border-radius: 0; 
 	}
 
 	div.filter_menu div ul li.count_0 {
 		border-top: 1px solid #374d61;
 		margin: 0;
+		-moz-border-radius-topleft: 5px; 
 		border-top-left-radius: 5px; 
 	}
 	div.filter_menu div ul li.count_last_line {
 		margin: 0;
+		-moz-border-radius: 0 0 5px 5px;
 		border-radius: 0 0 5px 5px;
 	}
 
@@ -445,35 +455,14 @@ ul#root_menu_for_header li,
 ul#root_menu_for_header li a,
 ul#main_menu_for_header li,
 ul#main_menu_for_header li a {
-	display: inline-block; 
+	display: block; 
+	float: left;
 	width: 40px;
 	height: 40px;
+	margin-right: 5px;
+	text-indent: -10000px;
 	text-decoration: none;
 }
-.sub_menu_for_header li{
-	margin: 0 3px 0 3px;
-}
-.sub_menu_for_header{
-	position: absolute;
-	border-radius: 10px;
-	border-style: solid;
-	border-color: black;
-	border-width: 1px;
-	z-index: 1;
-	display: none;
-	background-color: #628cae;
-	width: 190px;
-	top: 40px;
-	right: 0px;
-	padding-top: 3px;
-	background: -webkit-gradient(linear, left top, left bottom, from(#628cae), color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
-	background: -moz-linear-gradient(top,  #628cae,  #7aaed8, #628cae); /* for firefox 3.6+ */
-}
-li.qry-CAN-1:hover .sub_menu_for_header.qry-CAN-1,
-li.core_CAN_33:hover .sub_menu_for_header.core_CAN_33{
-	display: block;
-}
-
 
 #root_menu_for_header li:hover{
 	background-image: url("../img/icons/toolbox_top_bk01.png");
@@ -576,6 +565,7 @@ div.menu ul li.count_0.root {
 	height: 40px;
 	padding: 5px 30px 5px 10px;
 	z-index: 10;
+	-moz-border-radius-topleft: 5px; 
 	border-top-left-radius: 5px; 
 }
 div.menu ul.total_count_0 li.root,
@@ -604,6 +594,7 @@ div.menu.level_1 {
 	margin: 0;
 	padding: 0;
 	border: 0;
+	-moz-border-radius: 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	z-index: 100;
 }
@@ -709,6 +700,7 @@ div.menu ul#summary li ul {
 	margin: 0;
 	padding: 10px;
 	z-index: 1000;
+	-moz-border-radius: 7px 0 7px 7px; 
 	border-radius: 7px 0 7px 7px; 
 	
 	/*
@@ -793,6 +785,8 @@ span.help {
 		font-weight: normal;
 		cursor: default;
 		filter: alpha(opacity=30);
+		-moz-opacity: 0.3;
+		-khtml-opacity: 0.3;
 		opacity: 0.3;
 	}	
 	div.error-message {
@@ -805,6 +799,7 @@ span.help {
 	
 		div.wrapper th span.help.right:hover div{
 			left: 10px;
+			-moz-border-radius: 0 15px 15px 15px;
 			border-radius: 0 15px 15px 15px;
 		}
 		div.wrapper td.help span.help:hover div, div.wrapper th span.help:hover div {
@@ -822,6 +817,7 @@ span.help {
 			text-align: left;
 			line-height: 1.3em;
 			
+			-moz-border-radius: 15px 0 15px 15px;
 			border-radius: 15px 0 15px 15px;
 		
 			z-index: 200;
@@ -832,6 +828,7 @@ span.help {
 		}
 		div.wrapper th.column_1 span.help div {
 			top: 10px; left: 10px;
+			-moz-border-radius: 0 15px 15px 15px;
 			border-radius: 0 15px 15px 15px;
 		}
 
@@ -1060,53 +1057,23 @@ span.help {
 					font-size: 120%;
 					font-weight: bolder;
 				}
-				ul#tree_root ul{
-					border-left: dotted 1px black;
-				}
-				ul#tree_root:first-child li { 
-					background-color: #fff; 
-				}
-				div.nodeBlock{
-					margin-left: -5px;
-					vertical-align: top;
-					position: relative;
-				}
-				div.nodeBlock .leftPart{
-					float: left;
-				}
-				div.nodeBlock .rightPart{
-					margin-left: 33px;
-				}
-				div.nodeBlock .rightPart.disabled{
-					color: grey;
-				}
-				div.at { 
-					background-color: #ffc; 
-				
-				}
-				
-				div.treeArrow{
-					position: absolute;
-					height: 0px;
-					right: -10px;
-					top: 0px;
-					border-left: 8px solid black;
-					border-top: 8px solid transparent;
-					border-bottom: 8px solid transparent;
-					display: none;
-				}
+				ul#tree_root li { background-color: #fff; }
+				ul#tree_root li.at { background-color: #ffc; }
 				ul#tree_root li a.reveal {
-					display: inline-block;
+					display: block;
+					float: left;
 					width: 20px;
 					text-indent: -9999px;
-					vertical-align: top;
 				}
 				ul#tree_root li a.reveal.not_allowed {
-					filter:alpha(opacity=30);
-					opacity: 0.3;
-				}
-				.floatLeft{
+					display: block;
 					float: left;
+					text-indent: -9999px;
+					
+					filter:alpha(opacity=30);
+					-moz-opacity:0.3;
+					-khtml-opacity: 0.3;
+					opacity: 0.3;
 				}
 				a.form { 
 					padding: 1px 0px 1px 16px;
@@ -1121,18 +1088,15 @@ a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
 a.add_to_order { background: url("../img/icons/into_cart_16x16.png") no-repeat left center; }
 a.add_to_shipment { background: url("../img/icons/truck_add_into_16x16.png") no-repeat left center; }
 a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
-a.annotation { background: url(../img/icons/annotation_16x16.png) center no-repeat; }
 a.batch_set { background: url("../img/icons/batch_set_16x16.png") no-repeat left center; }
 a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
 a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
 a.copy  { background: url("../img/icons/copy-icon16x16.png") no-repeat left center; }
 a.create_shipment  { background: url("../img/icons/truck_add_16x16.png") no-repeat left center; }
-a.diagnosis { background: url(../img/icons/dx_16x16.png) no-repeat left center; }
 a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
 a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
 a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
 a.disabled { background: url("../img/icons/light_off_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
-a.disk{ background: url("../img/icons/Save_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
 a.drug { background: url("../img/icons/Security_16x16.png") no-repeat center center; }
 a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
 a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
@@ -1161,14 +1125,12 @@ a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center;
 a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
 a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left center; }
 a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
-a.template { background: url("../img/icons/blueprint_16x16.png") no-repeat left center; }
 a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
 a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
-a.treatments { background: url(../img/icons/seringue_16x16.png) no-repeat left center; }
 a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
 a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
 
-li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x32.png") no-repeat 4px center; }
+li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
 
 
 /* -=toolbox*/
@@ -1187,11 +1149,11 @@ a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center 
 a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
 a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
 a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
-a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat 3px center; }
+a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat;}
 a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
 a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
 a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
-a.plugin.menu.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
+a.plugin.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
 a.plugin.labbook {background: url("../img/icons/book_opened_32x32.png") no-repeat center center;}
 a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
 a.plugin.underdev {background: url("../img/icons/under_dev_32x32.png") no-repeat center center;}
@@ -1199,7 +1161,6 @@ a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") n
 a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
 a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
 a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
-a.tools.template {background: url("../img/icons/blueprint_32x32.png") no-repeat center center;}
 a.menu.help{background: url("../img/icons/help_32x32.png") no-repeat center center;}
 td.id a,
 td.id a:hover,
@@ -1222,10 +1183,11 @@ td.id a.not_allowed {
 	color: red;
 }
 div.wrapper table.structure table.columns.tree ul ul {
-	margin-top: 5px;
-	margin-left: 16px;
-	margin-bottom: 5px;
+	margin-top: 1em;
+	margin-left: 1em;
+	margin-bottom: 2em;
 	border: 3px solid #cacdf2;
+	border-left: 1px dotted #ddf;
 	border-right: none;
 }
 div.wrapper table.structure table.extra td {
@@ -1292,8 +1254,9 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		padding-top: 10px;
 	}
 	
-		ul.error li, ul.warning li, ul.confirm li, ul.batchCreate li {
+		ul.error li, ul.warning li, ul.confirm li {
 			padding: 3px 25px;
+			-moz-border-radius: 5px; 
 			border-radius: 5px;
 			border-width: 3px;
 			border-style: solid; 
@@ -1322,12 +1285,7 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			border-color: #EB0;
 			background: url(../img/icons/Warning_16x16.png) no-repeat 4px 2px;
 		}
-		ul.batchCreate{
-			background-image: url(../img/batch_bg.gif);
-		}
-		ul.batchCreate li{
-			border-color: #00009b;
-		}
+	
 		
 div#footer {
 	margin: 20px 0 0 0;
@@ -1394,6 +1352,7 @@ table.cake-sql-log th {
 
 .button{
 	background: url(../img/btnBack.png);
+	-moz-border-radius: 5px; 
 	border-radius: 5px; 
 	border-color: #999999;
 	border-style: solid;
@@ -1830,12 +1789,14 @@ ul.actionDropdown li a{
 
 .databrowser div.info.left{
 	right: 15px;
+	-moz-border-radius: 10px 0px 10px 10px;
 	border-radius: 10px 0 10px 10px;
 	
 }
 	
 .databrowser div.info.right{
 	left: 15px;
+	-moz-border-radius: 0px 10px 10px 10px;
 	border-radius: 0 10px 10px 10px;
 	
 }
@@ -1856,7 +1817,7 @@ ul.actionDropdown li a{
 	text-decoration: none;
 }
 
-div.actions{
+.popup_container .wrapper, div.actions{
 	margin: 0px;
 	min-height: 0px;
 	line-height: 25px;	
@@ -1864,6 +1825,7 @@ div.actions{
 
 .std_popup{
 	background : transparent url(jQuery/popup/img/dark.png);
+	-moz-border-radius : 0 0 5px 5px;
 	border-radius: 0 0 5px 5px;
 	padding : 5px;
 	display: none;

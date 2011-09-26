@@ -7,36 +7,18 @@
 	ksort($add_links);
 
 	$structure_links = array(
-		'bottom' => array(
-			'new search' => array('link' => '/storagelayout/storage_masters/search', 'icon' => 'search'),
-			'add' => $add_links,
-			'tree view' => '/storagelayout/storage_masters/contentTreeView'
-		) 
+		'top' => array('search' =>'/storagelayout/storage_masters/search/'),
+		'bottom' => array('tree view' => '/storagelayout/storage_masters/contentTreeView', 'add' => $add_links)
 	);
 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array(
-		'type' => 'search', 
-		'links' => array('top' => array('search' =>'/storagelayout/storage_masters/search/'.AppController::getNewSearchId())),
-		'settings' => array(
-			'actions' => false,
-			'header' => __('search type', null).': '.__('storages', null),
-		)
-	);
-	$final_atim_structure2 = $empty_structure;
-	$final_options2 = array(
-		'links'		=> $structure_links,
-		'extras'	=> '<div class="ajax_search_results"></div>'
-	);
+	$final_options = array('type' => 'search', 'links' => $structure_links);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { 
-		require($hook_link); 
-	}
+	if( $hook_link ) { require($hook_link); }
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
-	$structures->build( $final_atim_structure2, $final_options2 );
 	
 ?>
