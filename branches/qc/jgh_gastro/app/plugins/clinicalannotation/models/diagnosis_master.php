@@ -33,9 +33,9 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 	 * Replaces icd10 empty string to null values to respect foreign keys constraints
 	 * @param $participantArray
 	 */
-	function patchIcd10NullValues(&$participantArray){
-		if(strlen(trim($participantArray['DiagnosisMaster']['primary_icd10_code'])) == 0){
-			$participantArray['DiagnosisMaster']['primary_icd10_code'] = null;
+	function patchIcd10NullValues(&$participant_array){
+		if(array_key_exists('primary_icd10_code', $participant_array['DiagnosisMaster']) && strlen(trim($participant_array['DiagnosisMaster']['primary_icd10_code'])) == 0){
+			$participant_array['DiagnosisMaster']['primary_icd10_code'] = null;
 		}
 	}
 	
