@@ -28,7 +28,7 @@
 		}
 		$bottom_links['add specimen'] = $add_links;
 		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
-		$bottom_links['copy into add form'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
+		$bottom_links['copy for new collection'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
 		
 		if(!empty($templates)){
 			$bottom_links['template'] = array();
