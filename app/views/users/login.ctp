@@ -8,5 +8,5 @@
 	
 ?>
 <script>
-var serverClientTimeDiff = null;
+var loginPage = true;
 </script>
