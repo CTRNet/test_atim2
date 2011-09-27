@@ -13,9 +13,9 @@ class UsersController extends AppController {
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
 	}
 	
-	function login($is_ajax = false){
-		if($is_ajax){
-			echo json_encode(array("logged_in" => !empty($_SESSION['Auth']), "server_time" => time()));
+	function login(){
+		if($this->RequestHandler->isAjax()){
+			echo json_encode(array("logged_in" => isset($_SESSION['Auth']['User']), "server_time" => time()));
 			exit;
 		}
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
