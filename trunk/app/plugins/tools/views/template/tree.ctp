@@ -1,4 +1,4 @@
-<?php 
+<?php
 $tree_html = 
 '<table class="structure">
 	<tbody>
@@ -32,9 +32,9 @@ if($controls){
 	);
 }else{
 	$final_options = array(
-		'type' => 'index',
+		'type' => 'detail',
 		'extras' => 
-			"<div style='padding-left: 10px;'><label>". __('auto submit') ."</label><input type='checkbox' name='autosubmit'/></div>"
+			"<div style='padding-left: 10px;'><label>". __('auto submit', true) ."</label><input type='checkbox' name='autosubmit'/></div>"
 			.$tree_html
 			."<div class='ajaxContent'></div>"
 	);
@@ -49,6 +49,7 @@ $structures->build( $final_atim_structure, $final_options );
 	var modelsData = '<?php echo addslashes(json_encode($js_data)); ?>';
 	var wizardTreeData = '<?php echo json_encode($tree_data); ?>';
 	var nodeId = 0;
+	var collectionId = <?php echo isset($collection_id) ? $collection_id : null; ?>;
 
 	function drawTree(treeData){
 		modelsData = $.parseJSON(modelsData);
@@ -97,7 +98,7 @@ $structures->build( $final_atim_structure, $final_options );
 	function bindButtons(scope){
 		$(scope).find(".delete").unbind('click').click(function(){
 			var parentLi = getParentElement(this, "LI"); 
-			if(currentNode){
+			if($(currentNode).data() == $(parentLi).data()){
 				$(parentLi).find("ul:first").remove();
 				nextNode();
 			}
@@ -236,7 +237,7 @@ $structures->build( $final_atim_structure, $final_options );
 		//2 - reanable js constrol (calendar, addline, suggest, data accuracy, etc.
 		$(".nameInput").remove();
 		setLoading();
-		$.get(root_url + 'inventorymanagement/collections/templateInit/' + wizard_id + "?t=" + new Date().getTime(), function(jsonData){
+		$.get(root_url + 'inventorymanagement/collections/templateInit/' + collectionId + '/' + wizard_id + "?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
 			$(".ajaxContent").html(jsonData.display);
 			$(".ajaxContent form").append("<input type='hidden' name='data[0][bogus_hidden_for_submit]' value=''/>");

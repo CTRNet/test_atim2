@@ -286,8 +286,9 @@ class CollectionsController extends InventorymanagementAppController {
 	function template($collection_id, $template_id){
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
 		$template_model = AppModel::getInstance("Tools", "Template", true);
-		$template = $template_model->findById($template_id);
-		$tree = $template_model->init($template_id);
+		$template_model->id = $template_id;
+		$template = $template_model->read();
+		$tree = $template_model->init();
 		$this->set('tree_data', $tree['']);
 		
 		$sample_controls = $this->SampleControl->find('all');
@@ -315,21 +316,25 @@ class CollectionsController extends InventorymanagementAppController {
 			'aliquot_controls' => AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true),
 			'aliquot_relations' => AppController::defineArrayKey($aliquot_controls, "AliquotControl", "sample_control_id")
 		);
+		
+		
 		$this->set('js_data', $js_data);
 		$this->set('template_id', $template['Template']['id']);
 		$this->set('controls', 0);
 		$this->set('collection_id', $collection_id);
-		$this->set('description', $template['Template']['name']);
 		$this->set('flag_system', $template['Template']['flag_system']);
+		$this->Structures->set('template');
+		$this->data = $template;
 		$this->render('/../../tools/views/template/tree');
 	}
 	
-	function templateInit($template_id){
+	function templateInit($collection_id, $template_id){
 		$template_model = AppModel::getInstance("Tools", "Template", true);
 		$template = $template_model->findById($template_id);
 		$template_model->init($template_id);
 		$this->set('template', $template);
 		$this->Structures->set('empty');
+		$this->set('collection_id', $collection_id);
 		if(!empty($this->data)){
 			//validate and stuff
 			$data_validates = true;
