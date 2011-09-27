@@ -1,16 +1,16 @@
 <?php
 class TemplateController extends AppController {
 
-	var $uses = array('Tools.Template', 'Tools.TemplateNode');
-
+	var $uses = array('Tools.Template', 'Tools.TemplateNode', 'Group');
+	
 	function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->actionPath = 'controllers/';
 	}
 	
 	function index(){
-		$this->set( 'atim_menu', $this->Menus->get('/menus/tools/') );
-		$this->data = $this->Template->find('all', array('conditions' => array('flag_system' => false)));
+		$this->set('atim_menu', $this->Menus->get('/tools/Template/index'));
+		$this->data = $this->Template->findOwnedNodes();
 		$this->Structures->set('template');
 	}
 
@@ -53,8 +53,38 @@ class TemplateController extends AppController {
 		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type'); 
 
 		$this->Structures->set('template');
-		
 		if(!empty($this->data)){
+			//correct owner/visibility if needed
+			if(Template::$sharing[$this->data['Template']['visibility']] < Template::$sharing[$this->data['Template']['owner']]){
+				$this->data['Template']['owner'] = $this->data['Template']['visibility'];
+				AppController::addWarningMsg(__('visibility reduced to owner level', true)); 
+			}
+			
+			//update entity
+			$this->data['Template']['owning_entity_id'] = null;
+			$this->data['Template']['visible_entity_id'] = null;
+			$tmp = array(
+				'owner' => array($this->data['Template']['owner'] => &$this->data['Template']['owning_entity_id']),
+				'visibility' => array($this->data['Template']['visibility'] => &$this->data['Template']['visible_entity_id'])
+			);
+			
+			foreach($tmp as $level){
+				foreach($level as $sharing => &$value){
+					switch($sharing){
+						case "user":
+							$value = $_SESSION['Auth']['User']['id'];
+							break;
+						case "bank":
+							$group_data = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
+							$value = $group_data['Group']['bank_id'];
+							break;
+						default:
+							$value = null;
+					}
+				}
+			}
+			unset($value);
+
 			//record the tree
 			if($template_id == 0){
 				//new tree
@@ -113,10 +143,9 @@ class TemplateController extends AppController {
 				$this->TemplateNode->delete($node_to_delete);
 			}
 			
-			$this->atimFlash('your data has been saved', '/tools/Template/edit/1');
+			$this->atimFlash('your data has been saved', '/tools/Template/edit/'.$template_id);
 			return;
 		}
-		
 		$this->Template->id = $template_id;
 		$this->data = $this->Template->read(); 
 		$tree = $this->Template->init();
@@ -143,5 +172,19 @@ class TemplateController extends AppController {
 		$this->set('collection_id', 0);
 		
 		$this->render('tree');
+	}
+	
+	function delete($template_id){
+		$nodes_to_delete = $this->TemplateNode->find('list', array(
+			'fields'		=> array('TemplateNode.id'),
+			'conditions'	=> array('TemplateNode.template_id' => $template_id)
+		));
+		$nodes_to_delete = array_reverse($nodes_to_delete);
+		foreach($nodes_to_delete as $node_to_delete){
+			$this->TemplateNode->delete($node_to_delete);
+		}
+		$this->Template->delete($template_id);
+		
+		$this->flash('your data has been deleted', '/tools/Template/index/');
 	}
 }

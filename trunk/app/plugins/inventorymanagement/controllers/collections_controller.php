@@ -100,7 +100,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('is_from_tree_view', $is_from_tree_view);
 		
 		$template_model = AppModel::getInstance("Tools", "Template", true);
-		$templates = $template_model->find('all');
+		$templates = $template_model->findVisibleNodes();
 		$this->set('templates', $templates);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
