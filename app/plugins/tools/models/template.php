@@ -4,6 +4,12 @@ class Template extends AppModel {
 	var $useTable = 'templates';
 	var $tree = null;
 
+	static $sharing = array(
+		'user'	=> 0,
+		'bank'	=> 1,
+		'all'	=> 2
+	);
+	
 	function init(){
 		$template_node_model = AppModel::getInstance("Tools", "TemplateNode", true);
 		$tree = $template_node_model->find('all', array('conditions' => array('TemplateNode.Template_id' => $this->id)));
@@ -24,34 +30,27 @@ class Template extends AppModel {
 		return $result;
 	}
 	
-//	function getNode($number){
-//		$current = &$this->tree;
-//		$index = 0;
-//		$stack = array();
-//		$i = 0;
-//		$node_number = 0;
-//		while($current != null){
-//			if($index == 0 && $node_number ++ == $number){
-//				break;
-//			}
-//			if(isset($current['children'][$index])){
-//				array_push($stack, array('current' => $current, 'index' => $index));
-//				$current = $current['children'][$index];
-//				$index = 0;
-//			}else if($current != null){
-//				echo '[',$current['id'],']<br/>';
-//				$poped = array_pop($stack);
-//				$current = $poped['current'];
-//				$index = $poped['index'] + 1;
-//			}
-//			
-//			++ $i;
-//			if($i > 1000){
-//				die("loop err");
-//				break;
-//			}
-//		}
-//		
-//		return $current;
-//	}
+	function findOwnedNodes(){
+		$group_model = AppModel::getInstance("", "Group", true);
+		$group_data = $group_model->findById($_SESSION['Auth']['User']['group_id']);
+		return $this->find('all', array('conditions' => array(
+			'OR' => array(
+					array('Template.owner' => 'user', 'Template.owning_entity_id' => $_SESSION['Auth']['User']['id']),
+					array('Template.owner' => 'bank', 'Template.owning_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.owner' => 'all')
+			), 'Template.flag_system' => false
+		)));
+	}
+	
+	function findVisibleNodes(){
+		$group_model = AppModel::getInstance("", "Group", true);
+		$group_data = $group_model->findById($_SESSION['Auth']['User']['group_id']);
+		return $this->find('all', array('conditions' => array(
+			'OR' => array(
+					array('Template.visibility' => 'user', 'Template.visible_entity_id' => $_SESSION['Auth']['User']['id']),
+					array('Template.visibility' => 'bank', 'Template.visible_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.visibility' => 'all')
+			)
+		)));
+	}
 }

@@ -17,7 +17,6 @@ $tree_html =
 		</tr>
 	</tbody>
 </table>';
-
 $final_options = array();
 if($controls){
 	$final_options = array(
