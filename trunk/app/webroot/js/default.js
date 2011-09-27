@@ -875,7 +875,7 @@ function initActions(){
 		$("input, select, textarea").first().focus();
 		
 		//on login page, displays a warning if the server is more than ~2 min late compared to the client
-		if(window.serverClientTimeDiff != undefined){
+		if(window.loginPage != undefined){
 			//adding date to the request URL to fool IE caching
 			$.get(root_url + 'users/login/1?t=' + (new Date().getTime()), function(data){
 				data = $.parseJSON(data);
