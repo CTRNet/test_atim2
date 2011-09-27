@@ -473,11 +473,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function add($collection_id, $sample_control_id, $parent_sample_master_id = 0, $is_ajax = false) {
+	function add($collection_id, $sample_control_id, $parent_sample_master_id = 0) {
 		if((!$collection_id) || (!$sample_control_id)){
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-		if($is_ajax){
+		if($this->RequestHandler->isAjax()){
 			$this->layout = 'ajax';
 		}
 		
@@ -687,7 +687,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						require($hook_link); 
 					}
 					
-					if($is_ajax){
+					if($this->RequestHandler->isAjax()){
 						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => $sample_master_id));
 						exit;
 					}else{
@@ -698,7 +698,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 		
 		$this->set('is_specimen', $is_specimen);		
-		$this->set('is_ajax', $is_ajax);
+		$this->set('is_ajax', $this->RequestHandler->isAjax());
 	}
 	
 	function edit($collection_id, $sample_master_id) {

@@ -328,8 +328,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function add($sample_master_id=null, $aliquot_control_id=null, $is_ajax = false){
-		if($is_ajax){
+	function add($sample_master_id = null, $aliquot_control_id = null, $quantity = 1){
+		if($this->RequestHandler->isAjax()){
 			$this->layout = 'ajax';
 			ob_start();
 		}
@@ -468,10 +468,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($is_intial_display){
 			
 			// 1- INITIAL DISPLAY
-			
 			$this->data = array();
 			foreach($samples as $sample){
-				$this->data[] = array('parent' => $sample, 'children' => array());
+				$this->data[] = array('parent' => $sample, 'children' => array_fill(0, $quantity, array()));
 			}
 			
 			$hook_link = $this->hook('initial_display');
@@ -568,7 +567,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
 					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
 				} else {
-					if($is_ajax){
+					if($this->RequestHandler->isAjax()){
 						ob_end_clean();
 						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => -1));
 						exit;
@@ -592,7 +591,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 			}
 		}
-		$this->set('is_ajax', $is_ajax);
+		$this->set('is_ajax', $this->RequestHandler->isAjax());
 	}
 	
 	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {

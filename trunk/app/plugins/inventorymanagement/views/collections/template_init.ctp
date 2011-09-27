@@ -2,7 +2,7 @@
 	ob_start();
 	$structures->build($atim_structure, array(
 		'type' => 'edit',
-		'links' => array('top' => '/inventorymanagement/collections/templateInit/'.$template['Template']['id']),
+		'links' => array('top' => '/inventorymanagement/collections/templateInit/'.$collection_id.'/'.$template['Template']['id']),
 		'settings' => array(
 			'header' => array('title' => __('template init', true), 'description' => $template['Template']['name']),
 			)

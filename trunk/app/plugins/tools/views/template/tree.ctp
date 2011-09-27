@@ -253,6 +253,7 @@ $structures->build( $final_atim_structure, $final_options );
 	function overrideSubmitButton(){
 		$(".ajaxContent input[type=submit]").unbind('click').click(function(){
 			$.post($("form").prop("action"), $("form").serialize(), function(jsonData){
+				console.log(jsonData);
 				jsonData = $.parseJSON(jsonData);
 				if(jsonData.goToNext){
 					//update current node display if needed
@@ -310,7 +311,7 @@ $structures->build( $final_atim_structure, $final_options );
 			if(data.datamart_structure_id == 1){
 				//aliquot
 				parentLi = getParentElement(currentNode, "LI");
-				url = 'inventorymanagement/aliquot_masters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/1';
+				url = 'inventorymanagement/aliquot_masters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/' + data.quantity;
 			}else{
 				//sample
 				parentLi = getParentElement(currentNode, "LI");
@@ -322,7 +323,7 @@ $structures->build( $final_atim_structure, $final_options );
 				}else{
 					parentId = 0;
 				}
-				url = 'inventorymanagement/sample_masters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/1';
+				url = 'inventorymanagement/sample_masters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/';
 			}
 			
 			$.get(root_url + url, function(jsonData){
@@ -343,7 +344,7 @@ $structures->build( $final_atim_structure, $final_options );
 			$(".ajaxContent").html("<div class='center'><?php __('done'); ?></div>");
 			$("#tree_root li:first").css("background-color", "#dfd");
 			$("#tree_root a.add").remove();
-			
+			//document.location = root_url + '/inventorymanagement/sample_masters/contentTreeView/' + collectionId;
 		}
 	}
 	
