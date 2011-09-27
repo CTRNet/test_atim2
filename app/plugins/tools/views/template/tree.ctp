@@ -1,4 +1,6 @@
-<table class="structure">
+<?php 
+$tree_html = 
+'<table class="structure">
 	<tbody>
 		<tr>
 			<td>
@@ -6,24 +8,7 @@
 					<tbody>
 						<tr>
 							<td>
-								<span class="nameInput">
-									<label><?php __('name'); ?></label><input type='text' name='tmp_description' value='<?php echo addslashes($description); ?>'/>
-								</span>
 								<ul id="tree_root"></ul>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<?php 
-				if(!$controls){
-					?>
-					<div style='padding-left: 10px;'><label><?php __('auto submit'); ?></label><input type='checkbox' name='autosubmit'/></div>
-					<?php 
-				}?>
-				<table class="columns">
-					<tbody>
-						<tr>
-							<td class='ajaxContent'>
 							</td>
 						</tr>
 					</tbody>
@@ -31,23 +16,33 @@
 			</td>
 		</tr>
 	</tbody>
-</table>
+</table>';
 
-<?php 
-$links = array();
+$final_options = array();
 if($controls){
-	$links = array(
-		'top' => '/tools/Template/edit/'.$template_id,
-		'bottom' => array(
-			'list' => '/tools/Template/index',
-			'reset' => '/tools/Template/edit/'.$template_id
-		)
+	$final_options = array(
+		'type' => 'edit',
+		'links' => array(
+			'top' => '/tools/Template/edit/'.$template_id,
+			'bottom' => array(
+				'list' => '/tools/Template/index',
+				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
+			)
+		), 'extras' => $tree_html
+	);
+}else{
+	$final_options = array(
+		'type' => 'index',
+		'extras' => 
+			"<div style='padding-left: 10px;'><label>". __('auto submit') ."</label><input type='checkbox' name='autosubmit'/></div>"
+			.$tree_html
+			."<div class='ajaxContent'></div>"
 	);
 }
-	$structures->build($atim_structure, array(
-		'type' => 'detail',
-		'links' => $links
-	));
+
+$final_atim_structure = $atim_structure;
+$structures->build( $final_atim_structure, $final_options );
+
 ?>
 
 <script>
@@ -66,6 +61,7 @@ if($controls){
 			$("#tree_root li").each(function(){
 				tree.push(JSON.stringify($(this).data()));
 			});
+			
 			$("form").append("<input type='hidden' name='data[tree]' value='" + tree + "'/>");
 			$("form").append("<input type='hidden' name='data[description]' value='" + $("input[name=tmp_description]").val() + "'/>");
 		});
@@ -81,6 +77,21 @@ if($controls){
 		for(i in treeData.children){
 			drawTreeRecur(treeData.children[i], newNode);
 		}
+	}
+
+	function numberValidation(field, valueIfWrong){
+		var val = $(field).val();
+		var wrong = (isNaN(parseInt(val)) || val != parseInt(val) || parseInt(val) < 1) &&  
+			val.trim().length > 0;
+
+		if(wrong){
+			flashColor($(field), "#F00");
+			if(valueIfWrong != null){
+				$(field).val(valueIfWrong);
+			}
+		}
+		
+		return !wrong;
 	}
 
 	function bindButtons(scope){
@@ -100,17 +111,20 @@ if($controls){
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select>", new Array(
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1'></input>", new Array(
 					{ "label" : STR_CANCEL, "icon" : "cancel", "action" : function(){ $("#addDialog").popup("close"); } }, 
 					{ "label" : STR_OK, "icon" : "detail", "action" : function(){
-							data = new Object();
-							data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
-							data.children = new Array();
-							data.control_id = $("#addDialog select").val();
-							data.label =  $("#addDialog select option[value='" + data.control_id + "']").text();
-							data.id = 0;
-							data.parent_id = $("#addDialog").data("parent_id");
-							addNode(data , $("#addDialog").data("node"));
+							if(numberValidation($("#addDialog input"), null)){
+								data = new Object();
+								data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
+								data.children = new Array();
+								data.control_id = $("#addDialog select").val();
+								data.label =  $("#addDialog select option[value='" + data.control_id + "']").text();
+								data.id = 0;
+								data.parent_id = $("#addDialog").data("parent_id");
+								data.quantity = isNaN(parseInt($("#addDialog input").val())) ? 1 : $("#addDialog input").val();
+								addNode(data , $("#addDialog").data("node"));
+							}
 						} 
 					})
 				);
@@ -122,9 +136,19 @@ if($controls){
 			}else if($(li).data("datamart_structure_id") == 5){
 				options = getDropdownOptions($(li).data("controlId"));
 			}
-			$("#addDialog select").html(options);
+
+			updateNumInput = function(){
+				if($("#addDialog select").val() > 0){
+					$("#addDialog input").attr("disabled", true).val("1");
+				}else{
+					$("#addDialog input").attr("disabled", false);
+				}  
+			};
+			
+			$("#addDialog select").html(options).change(updateNumInput);
 			$("#addDialog").data("node", $(getParentElement(this, "LI")));
 			$("#addDialog").data("parent_id", $(getParentElement(this, "LI")).data("nodeId"));
+			updateNumInput();
 			$("#addDialog").popup();
 		});
 	}
@@ -138,7 +162,7 @@ if($controls){
 			type = 'collection';
 		}else if(treeData.datamart_structure_id == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"];
+			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' value='" + treeData.quantity + "'/>";
 		}else{
 			type = 'sample';
 			label = modelsData.sample_controls[treeData.control_id]["SampleControl"]["sample_type"];
@@ -162,11 +186,19 @@ if($controls){
 		);
 		li = $(node).find("li:last");
 		li.find(".leftPart a").css("cursor", "default");
+		li.find("input").change(function(){
+			if(numberValidation($(this), treeData.quantity)){
+				console.log("k");
+				$(li).data("quantity", $(this).val());
+				console.log($(li).data());
+			}
+		});
 		$(li).data({
 			"datamart_structure_id" : treeData.datamart_structure_id, 
 			"controlId" : treeData.control_id, 
 			"nodeId" : treeData.id == 0 ? nodeId -- : treeData.id,
-			"parent_id" : treeData.parent_id
+			"parent_id" : treeData.parent_id,
+			"quantity" : treeData.quantity
 		}); 
 		bindButtons(li); 
 		return li;
@@ -312,5 +344,35 @@ if($controls){
 			$("#tree_root a.add").remove();
 			
 		}
+	}
+	
+	function confirmReset(){
+		if($("#confirmReset").length == 0){
+			buildConfirmDialog("confirmReset", "<?php __('are you sure you want to reset?'); ?>", new Array(
+				{icon : "detail", label : STR_YES, "action" : function(){ document.location = root_url + "/tools/Template/edit/<?php echo $template_id; ?>";}},
+				{"icon" : "cancel", label : STR_CANCEL, "action" : function(){ $("#confirmReset").popup('close'); }})
+			);
+		}
+		$("#confirmReset").popup();
+	}
+
+	function flashColor(item, color){
+		var timer = 80;
+		$(item).animate({
+			"background-color": color
+		  }, timer, function() {
+		    // Animation complete.
+			    $(item).animate({
+					"background-color": "#fff"
+				  }, timer, function() {
+					  $(item).animate({
+							"background-color": color
+						  }, timer, function() {
+							  $(item).animate({
+									"background-color": "#fff"
+								  }, timer)
+						  })
+				  })
+		  });	
 	}
 </script>

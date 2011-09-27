@@ -38,7 +38,7 @@ class TemplateController extends AppController {
 		$sample_controls = $sample_control_model->find('all', array('fields' => array('id', 'sample_type'), 'recursive' => -1));
 		$samples_relations = $parent_to_derivative_sample_control_model->find('all', array('conditions' => array('flag_active' => 1), 'recusrive' => -1));
 		AppController::applyTranslation($sample_controls, 'SampleControl', 'sample_type');
-		unset($sample_control);
+		
 		foreach($samples_relations as &$sample_relation){
 			unset($sample_relation['ParentSampleControl']);
 			unset($sample_relation['DerivativeControl']);
@@ -51,14 +51,14 @@ class TemplateController extends AppController {
 		$aliquot_control_model = AppModel::getInstance("Inventorymanagement", "AliquotControl", 1);
 		$aliquot_controls = $aliquot_control_model->find('all', array('fields' => array('id', 'sample_control_id', 'aliquot_type'), 'conditions' => array('flag_active' => 1), 'recursive' => -1));
 		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type'); 
-		unset($aliquot_control);
+
+		$this->Structures->set('template');
 		
 		if(!empty($this->data)){
-			$this->Structures->set('template');//for validation
 			//record the tree
 			if($template_id == 0){
 				//new tree
-				if($this->Template->save(array('Template' => array('name' => $this->data['description'])))){
+				if($this->Template->save($this->data)){
 					$template_id = $this->Template->id;
 				}else{
 					//non unique or empty name, give a temp one or we will lose the tree
@@ -68,15 +68,15 @@ class TemplateController extends AppController {
 					$this->Template->validationErrors = $errors;
 				}
 			}else{
-				$this->Template->save(array('Template' => array(
-					'id' => $template_id,
-					'name' => $this->data['description']))
-				);
+				$this->data['Template']['id'] = $template_id;
+				$this->Template->save($this->data);
 			}
+			
 			$tree = json_decode('['.$this->data['tree'].']');
 			array_shift($tree);//remove root
 			$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
 			$found_nodes = array();//already in db found nodes
+			
 			foreach($tree as $node){
 				if($node->nodeId < 0){
 					//create the node in Db
@@ -88,16 +88,19 @@ class TemplateController extends AppController {
 					}
 					$this->TemplateNode->data = array();
 					$this->TemplateNode->id = null;
+					
 					$this->TemplateNode->save(array('TemplateNode' => array(
 						'template_id'				=> $template_id,
 						'parent_id'				=> $parent_id,
 						'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
-						'control_id'			=> abs($node->controlId)
+						'control_id'			=> abs($node->controlId),
+						'quantity'				=> $node->quantity
 					)));
 					$nodes_mapping[$node->nodeId] = $this->TemplateNode->id;
 					$found_nodes[] = $this->TemplateNode->id;
 				}else{
 					$found_nodes[] = $node->nodeId;
+					$this->TemplateNode->save(array('TemplateNode' => array('id' => $node->nodeId, 'quantity' => $node->quantity)));
 				}
 			}
 			
@@ -109,13 +112,17 @@ class TemplateController extends AppController {
 			foreach($nodes_to_delete as $node_to_delete){
 				$this->TemplateNode->delete($node_to_delete);
 			}
+			
+			$this->atimFlash('your data has been saved', '/tools/Template/edit/1');
+			return;
 		}
 		
-		$tree = $this->Template->init($template_id);
+		$this->Template->id = $template_id;
+		$this->data = $this->Template->read(); 
+		$tree = $this->Template->init();
 		$this->set('tree_data', $tree['']);
-		$this->Structures->set('empty');
 		$this->set('template_id', $template_id);
-		$this->set('atim_menu', $this->Menus->get('/menus/tools/'));
+		$this->set('atim_menu', $this->Menus->get('/tools/Template/index'));
 		$js_data = array(
 			'sample_controls' => $sample_controls, 
 			'samples_relations' => $samples_relations, 
@@ -136,6 +143,5 @@ class TemplateController extends AppController {
 		$this->set('collection_id', 0);
 		
 		$this->render('tree');
-		$this->render(false);
 	}
 }
