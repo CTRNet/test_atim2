@@ -36,7 +36,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 
 	static public $volume_condition = array('OR' => array(array('AliquotControl.volume_unit' => NULL), array('AliquotControl.volume_unit' => '')));
 
-	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
+	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 		
 	function summary($variables=array()) {
 		$return = false;
@@ -602,6 +602,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	static function joinOnAliquotDup($on_field){
-		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'INNER', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
+		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
 	}
 }

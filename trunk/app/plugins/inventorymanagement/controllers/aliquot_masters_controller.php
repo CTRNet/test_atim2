@@ -425,7 +425,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($is_batch_process) {
 			$this->setBatchMenu(array('SampleMaster' => $sample_master_ids));
 		}else{
-			$atim_menu_link = '/inventorymanagement/aliquot_masters/listall/%%Collection.id%%/' . ($is_specimen? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%');
+			$atim_menu_link = '/inventorymanagement/sample_masters/detail/%%Collection.id%%/' . ($is_specimen? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%');
 			$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 			$this->set('atim_menu_variables', array(
 				'Collection.id' => $samples[0]['ViewSample']['collection_id'], 

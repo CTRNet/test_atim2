@@ -333,11 +333,11 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('existing_specimen_sample_types', $sample_type_list);
 
 		$sample_type_list = array();
-		$criteria = array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'derivative');
+		$criteria = array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'derivative');
 		if(!$is_collection_sample_list) { 
 			$criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
 		}
-		$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => $criteria, 'order' => 'SampleControl.sample_type ASC', 'recursive' => '-1'));
+		$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => $criteria, 'order' => 'SampleControl.sample_type ASC', 'recursive' => '0'));
 		foreach($tmp_sample_type_list as $new_sample_type) {
 			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
 			$sample_type = $new_sample_type['SampleControl']['sample_type'];
@@ -544,8 +544,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%';
-		$atim_menu_link .= ($is_specimen? '/-1': '/%%SampleMaster.initial_specimen_sample_id%%');
+		$atim_menu_link = ($is_specimen? '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%' : '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%');
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
@@ -569,7 +568,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(empty($this->data)) {
 			$this->data = array();
 			$this->data['SampleControl']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];
-			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
+			$this->data['SampleControl']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
 	
 			//Set default reception date
 			if($is_specimen){

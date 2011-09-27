@@ -1563,3 +1563,20 @@ ALTER TABLE specimen_review_controls
  DROP COLUMN specimen_sample_type;
  
 UPDATE structure_fields SET field = 'sample_control_id' WHERE model = 'SpecimenReviewControl' AND field = 'specimen_sample_type';
+
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'inv_CAN_223' LIMIT 1 ;
+UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'inv_CAN_2223' LIMIT 1 ;
+UPDATE menus SET parent_id = 'inv_CAN_221' WHERE id IN ('inv_CAN_2231', 'inv_CAN_2233');
+UPDATE menus SET parent_id = 'inv_CAN_2221' WHERE id IN ('inv_CAN_22233', 'inv_CAN_22231');
+
+DELETE FROM menus WHERE id IN ('inv_CAN_223', 'inv_CAN_2223', 'inv_CAN_22', 'inv_CAN_23');
+
+UPDATE menus SET language_title = 'collection content - tree view' WHERE id = 'inv_CAN_21';
+UPDATE menus SET language_title = 'specimen details and aliquots' WHERE id = 'inv_CAN_221';
+UPDATE menus SET language_title = 'derivative details and aliquots' WHERE id = 'inv_CAN_2221';
+
+INSERT INTO i18n (id,en,fr) VALUES
+('collection content - tree view', 'Samples & Aliquots', 'Échantillons & Aliquots'),
+('specimen details and aliquots', 'Details & Aliquots', 'Détails & Aliquots'),
+('derivative details and aliquots', 'Details & Aliquots', 'Détails & Aliquots');
+

@@ -294,35 +294,29 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		
 		// Get Quality Control Data
 		$quality_ctrl_data = $this->QualityCtrl->find('first',array(
-			'conditions'=>array(
-				'QualityCtrl.id' => $quality_ctrl_id, 
-				'SampleMaster.collection_id' => $collection_id,
-				'SampleMaster.id' => $sample_master_id
-			)
+			'fields' => array('*'),
+			'conditions'=>array('QualityCtrl.id' => $quality_ctrl_id,'SampleMaster.collection_id' => $collection_id,'SampleMaster.id' => $sample_master_id),
+			'joins' => array(
+				AliquotMaster::joinOnAliquotDup('QualityCtrl.aliquot_master_id'), 
+				AliquotMaster::$join_aliquot_control_on_dup,
+				SampleMaster::joinOnSampleDup('QualityCtrl.sample_master_id'), 
+				SampleMaster::$join_sample_control_on_dup)
 		));
+		if(empty($quality_ctrl_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		$structure_to_load = 'qualityctrls';
-		if(isset($quality_ctrl_data['AliquotMaster'])){
-			$aliquot_ctrl_model = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
-			$aliquot_ctrl_data = $aliquot_ctrl_model->findById($quality_ctrl_data['AliquotMaster']['aliquot_control_id']);
-			$quality_ctrl_data['AliquotControl'] = $aliquot_ctrl_data['AliquotControl'];
-			if(!empty($aliquot_ctrl_data['AliquotControl']['volume_unit'])){
-				$structure_to_load .= ",qualityctrls_volume_for_detail";
-			}
+		if(!empty($quality_ctrl_data['AliquotControl']['volume_unit'])){
+			$structure_to_load .= ",qualityctrls_volume_for_detail";
 		}
 		$this->Structures->set($structure_to_load);
 		
-		if(empty($quality_ctrl_data)) { 
-			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-
 		// Set aliquot data
 		$this->set('quality_ctrl_data', $quality_ctrl_data);
 		$this->data = array();
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$sample_id_parameter = ($quality_ctrl_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
+		$sample_id_parameter = ($quality_ctrl_data['SampleControl']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/' . $sample_id_parameter . '/%%QualityCtrl.id%%'));	
 		
 		$this->set( 'atim_menu_variables', 
@@ -345,14 +339,22 @@ class QualityCtrlsController extends InventoryManagementAppController {
  
 		// MANAGE DATA
 		
-		$qc_data = $this->QualityCtrl->find('first',array('conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
+		$qc_data = $this->QualityCtrl->find('first',array(
+			'fields' => array('*'),
+			'conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id),
+			'joins' => array(
+				SampleMaster::joinOnSampleDup('QualityCtrl.sample_master_id'), 
+				SampleMaster::$join_sample_control_on_dup)
+		));
+		
+		
 		if(empty($qc_data)) { 
 			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-
-		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$sample_id_parameter = ($qc_data['SampleMaster']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+				
+		$sample_id_parameter = ($qc_data['SampleControl']['sample_category'] == 'specimen')? '%%SampleMaster.initial_specimen_sample_id%%': '%%SampleMaster.id%%';
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/quality_ctrls/detail/%%Collection.id%%/' . $sample_id_parameter . '/%%QualityCtrl.id%%'));	
 		
 		$this->set( 'atim_menu_variables', 
