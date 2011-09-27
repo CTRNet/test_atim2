@@ -1556,3 +1556,10 @@ UPDATE menus SET use_link='/protocol/protocol_masters/search/' WHERE id='proto_C
 UPDATE menus SET use_link='/drug/drugs/search/' WHERE id='drug_CAN_96';
 UPDATE menus SET use_link='/inventorymanagement/collections/search' WHERE id='inv_CAN';
 UPDATE menus SET use_link='/labbook/lab_book_masters/search/' WHERE id='procd_CAN_01';
+
+DELETE FROM menus WHERE use_link IN ('/inventorymanagement/aliquots/detail/', '/inventorymanagement/boxes/listall/', '/inventorymanagement/shelves/listall/', '/inventorymanagement/towers/listall/');
+
+ALTER TABLE specimen_review_controls
+ DROP COLUMN specimen_sample_type;
+ 
+UPDATE structure_fields SET field = 'sample_control_id' WHERE model = 'SpecimenReviewControl' AND field = 'specimen_sample_type';
