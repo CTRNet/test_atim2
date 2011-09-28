@@ -724,8 +724,11 @@ class StructuresHelper extends Helper {
 					.self::getTimeInputs($field_name, $time, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
-			}else if($table_row_part['type'] == "select" 
-			|| (($options['type'] == "search" || $options['type'] == "batchedit") && ($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"))){
+			}else if($table_row_part['type'] == "select" ||
+				(($options['type'] == "search" || $options['type'] == "batchedit") && 
+					($table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u")
+				)
+			){
 				if(array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])){
 					$table_row_part['settings']['options']['previously_defined'] = array($current_value => $table_row_part['settings']['options']['previously_defined'][$current_value]);
 					
@@ -763,11 +766,14 @@ class StructuresHelper extends Helper {
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
-			}else if($table_row_part['type'] == "yes_no"){
+			}else if($table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u"){
 				$display =
 					$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'hidden', 'value' => "")))
 					.__('yes', true).$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "y", 'hiddenField' => false, 'checked' => $current_value == "y" ? true : false)))
 					.__('no', true). $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "n", 'hiddenField' => false, 'checked' => $current_value == "n" ? true : false)));
+				if($table_row_part['type'] == "y_n_u"){
+					$display .= __('unknown', true). $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "u", 'hiddenField' => false, 'checked' => $current_value == "u" ? true : false))); 
+				}
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$current_value = str_replace('.', ',', $current_value);
 			}
@@ -803,7 +809,7 @@ class StructuresHelper extends Helper {
 			}else if($table_row_part['type'] == "time" && $elligible_as_date){
 				list($hour, $minutes) = explode(":", $current_value);
 				$display = AppController::getFormatedTimeString($hour, $minutes);
-			}else if($table_row_part['type'] == "select" || $table_row_part['type'] == "radio" || $table_row_part['type'] == "checkbox" || $table_row_part['type'] == "yes_no"){
+			}else if(in_array($table_row_part['type'], array("select", "radio", "checkbox", "yes_no", "y_n_u"))){
 				if(isset($table_row_part['settings']['options']['defined'][$current_value])){
 					$display = $table_row_part['settings']['options']['defined'][$current_value];
 				}else if(isset($table_row_part['settings']['options']['previously_defined'][$current_value])){
@@ -1513,7 +1519,7 @@ class StructuresHelper extends Helper {
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
 		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
-		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null);
+		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null, "y_n_u" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
@@ -1737,9 +1743,12 @@ class StructuresHelper extends Helper {
 						}else if($sfs['type'] == "checkbox"){
 							//provide yes/no as default for checkboxes
 							$dropdown_result['defined'] = array(0 => __("no", true), 1 => __("yes", true));
-						}else if($sfs['type'] == "yes_no"){
+						}else if($sfs['type'] == "yes_no" || $sfs['type'] == "y_n_u"){
 							//provide yes/no/? as default for yes_no
 							$dropdown_result['defined'] = array("" => "", "n" => __("no", true), "y" => __("yes", true));
+							if($sfs['type'] == "y_n_u"){
+								$dropdown_result['defined']["u"] = __('unknown', true);	
+							}
 						}
 					
 						if($options['type'] == "search" && ($sfs['type'] == "checkbox" || $sfs['type'] == "radio")){
