@@ -22,12 +22,6 @@
 	ksort($add_aliquots);	
 	$add_aliquots = empty($add_aliquots)? '/underdevelopment/': $add_aliquots;
 
-	// Manage search button	
-	$search_type_links = array();
-	$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-	$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-	$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-
 	$detail_link = ($model_to_use == 'ViewAliquot')? 
 		'/inventorymanagement/aliquot_masters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%':
 		'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
@@ -39,7 +33,7 @@
 		'bottom' => array(
 			'add aliquot' => $add_aliquots,
 			'filter' => $filter_links,
-			'new search' => $search_type_links
+			'new search' => InventorymanagementAppController::$search_links
 		)
 	);
 	
