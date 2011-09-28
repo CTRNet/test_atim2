@@ -189,17 +189,22 @@ function initActions(){
 				beforeShow: function(input, inst){
 					//put the date back in place
 					//because of datagrids copy controls we cannot keep the date in tmp
-					var month = $(monthField).val();
-					var day = $(dayField).val();
-					if(month < 10 && month > 0){
+					var month = parseInt($(monthField).val(), 10);
+					var day = parseInt($(dayField).val(), 10);
+					if(isNaN(month)){
+						month = "";
+					}else if(month < 10 && month > 0){
 						month = "0" + month;
 					}
-					if(day < 10 && day > 0){
+					if(isNaN(day)){
+						day = "";
+					}else if(day < 10 && day > 0){
 						day = "0" + day;
 					}	
 					var tmpDate = $(yearField).val() + "-" + month + "-" + day;
 					if(tmpDate.length == 10){
 						$(this).datepicker('setDate', tmpDate);
+						
 					}
 				},
 				onClose: function(dateText,picker) {
