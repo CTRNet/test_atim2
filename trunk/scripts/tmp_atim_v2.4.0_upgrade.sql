@@ -98,7 +98,11 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
 ("unused parents", "Unused parents", "Parents non utilisés"),
 ("full export as CSV", "Full export as CSV", "Export complet comme CSV"),
-('copy for new collection', 'Copy for new collection', "Copier pour une nouvelle collection");
+('copy for new collection', 'Copy for new collection', "Copier pour une nouvelle collection"),
+("user", "User", "Utilisateur"),
+("owner", "Owner", "Propriétaire"),
+("visibility", "Visibility", "Visibilité"),
+("visibility reduced to owner level", "Visibility reduced to owner level", "Visibilité réduite au niveau du propriétaire");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -1557,26 +1561,37 @@ UPDATE menus SET use_link='/drug/drugs/search/' WHERE id='drug_CAN_96';
 UPDATE menus SET use_link='/inventorymanagement/collections/search' WHERE id='inv_CAN';
 UPDATE menus SET use_link='/labbook/lab_book_masters/search/' WHERE id='procd_CAN_01';
 
-DELETE FROM menus WHERE use_link IN ('/inventorymanagement/aliquots/detail/', '/inventorymanagement/boxes/listall/', '/inventorymanagement/shelves/listall/', '/inventorymanagement/towers/listall/');
 
-ALTER TABLE specimen_review_controls
- DROP COLUMN specimen_sample_type;
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='template') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE template_nodes
+ ADD COLUMN quantity TINYINT UNSIGNED NOT NULL DEFAULT 1;
+
+ALTER TABLE templates
+ ADD COLUMN owner VARCHAR(10) NOT NULL DEFAULT 'user',
+ ADD COLUMN visibility VARCHAR(10) NOT NULL DEFAULT 'user',
+ ADD COLUMN flag_active BOOLEAN NOT NULL DEFAULT true,
+ ADD COLUMN owning_entity_id INT UNSIGNED DEFAULT NULL; 
+ ADD COLUMN visible_entity_id INT UNSIGNED DEFAULT NULL; 
  
-UPDATE structure_fields SET field = 'sample_control_id' WHERE model = 'SpecimenReviewControl' AND field = 'specimen_sample_type';
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('sharing', '', '', null);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("user", "user");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="sharing"),  (SELECT id FROM structure_permissible_values WHERE value="user" AND language_alias="user"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("bank", "bank");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="sharing"),  (SELECT id FROM structure_permissible_values WHERE value="bank" AND language_alias="bank"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("all", "all");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="sharing"),  (SELECT id FROM structure_permissible_values WHERE value="all" AND language_alias="all"), "3", "1");
 
-UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'inv_CAN_223' LIMIT 1 ;
-UPDATE `menus` SET `flag_active` = '0' WHERE `menus`.`id` = 'inv_CAN_2223' LIMIT 1 ;
-UPDATE menus SET parent_id = 'inv_CAN_221' WHERE id IN ('inv_CAN_2231', 'inv_CAN_2233');
-UPDATE menus SET parent_id = 'inv_CAN_2221' WHERE id IN ('inv_CAN_22233', 'inv_CAN_22231');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Tool', 'Template', 'templates', 'owner', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='sharing') , '0', '', 'user', '', 'owner', ''), 
+('Tool', 'Template', 'templates', 'visibility', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='sharing') , '0', '', 'user', '', 'visibility', ''), 
+('Tool', 'Template', 'templates', 'flag_active', 'checkbox',  NULL , '0', '', '1', '', 'active', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='active' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-DELETE FROM menus WHERE id IN ('inv_CAN_223', 'inv_CAN_2223', 'inv_CAN_22', 'inv_CAN_23');
-
-UPDATE menus SET language_title = 'collection content - tree view' WHERE id = 'inv_CAN_21';
-UPDATE menus SET language_title = 'specimen details and aliquots' WHERE id = 'inv_CAN_221';
-UPDATE menus SET language_title = 'derivative details and aliquots' WHERE id = 'inv_CAN_2221';
-
-INSERT INTO i18n (id,en,fr) VALUES
-('collection content - tree view', 'Samples & Aliquots', 'Échantillons & Aliquots'),
-('specimen details and aliquots', 'Details & Aliquots', 'Détails & Aliquots'),
-('derivative details and aliquots', 'Details & Aliquots', 'Détails & Aliquots');
-
+INSERT INTO structure_validations
+(structure_field_id, rule, on_action, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), 'notEmpty', '', ''),
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), 'notEmpty', '', '');
