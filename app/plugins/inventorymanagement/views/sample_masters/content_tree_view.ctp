@@ -19,14 +19,9 @@
 		}
 		ksort($add_links);
 	
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-		
 		$bottom = array(
 			'add' => $add_links,
-			'new search' => $search_type_links);
+			'new search' => InventorymanagementAppController::$search_links);
 	}
 
 	$structure_links = array(
