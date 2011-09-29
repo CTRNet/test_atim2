@@ -1058,16 +1058,23 @@ class AliquotMastersController extends InventoryManagementAppController {
  		// MANAGE DATA
 
 		// Get the use data
-		$use_data = $this->AliquotInternalUse->find('first', array('conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id, 'AliquotInternalUse.id' => $aliquot_use_id)));
+		$use_data = $this->AliquotInternalUse->find('first', array(
+			'fields' => array('*'),
+			'conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id, 'AliquotInternalUse.id' => $aliquot_use_id),
+			'joins' => array(
+				AliquotMaster::joinOnAliquotDup('AliquotInternalUse.aliquot_master_id'), 
+				AliquotMaster::$join_aliquot_control_on_dup)
+			)
+		);
 		if(empty($use_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Get Sample Data
-		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $use_data['AliquotMaster']['collection_id'], 'SampleMaster.id' => $use_data['AliquotMaster']['sample_master_id']), 'recursive' => '-1'));
+		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $use_data['AliquotMaster']['collection_id'], 'SampleMaster.id' => $use_data['AliquotMaster']['sample_master_id']), 'recursive' => '0'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Set aliquot volume unit
-		$aliquot_volume_unit = empty($use_data['AliquotMaster']['aliquot_volume_unit'])? 'n/a': $use_data['AliquotMaster']['aliquot_volume_unit'];
-
+		$aliquot_volume_unit = empty($use_data['AliquotControl']['volume_unit'])? 'n/a': $use_data['AliquotControl']['volume_unit'];
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -1096,7 +1103,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// Launch validations		
 			$submitted_data_validates = true;
 			
-			if((!empty($this->data['AliquotInternalUse']['used_volume'])) && empty($use_data['AliquotMaster']['aliquot_volume_unit'])) {
+			if((!empty($this->data['AliquotInternalUse']['used_volume'])) && empty($use_data['AliquotControl']['volume_unit'])) {
 				// No volume has to be recored for this aliquot type				
 				$this->AliquotInternalUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';	
 				$submitted_data_validates = false;			
@@ -1188,12 +1195,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$criteria = array(
 			'AliquotMaster.collection_id' => $collection_id,
 			'AliquotMaster.sample_master_id' => $sample_data['SampleMaster']['parent_id'],
-			'OR' => array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL)),
+			'OR' => array(array('AliquotControl.volume_unit' => ''), array('AliquotControl.volume_unit' => NULL)),
 			'NOT' => array('AliquotMaster.id' => $existing_source_aliquot_ids)
 		);
 		$available_sample_aliquots_wo_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		unset($criteria['OR']);
-		$criteria['NOT']['OR'] = array(array('AliquotMaster.aliquot_volume_unit' => ''), array('AliquotMaster.aliquot_volume_unit' => NULL));
+		$criteria['NOT']['OR'] = array(array('AliquotControl.volume_unit' => ''), array('AliquotControl.volume_unit' => NULL));
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
 		if(empty($available_sample_aliquots_w_volume) && empty($available_sample_aliquots_wo_volume)){
@@ -1253,7 +1260,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					// New aliquot defined as source
 				
 					// Check volume
-					if((!empty($studied_aliquot_pointer['SourceAliquot']['used_volume'])) && empty($studied_aliquot_pointer['AliquotMaster']['aliquot_volume_unit'])) {
+					
+					if((!empty($studied_aliquot_pointer['SourceAliquot']['used_volume'])) && empty($studied_aliquot_pointer['AliquotControl']['volume_unit'])) {
 						// No volume has to be recored for this aliquot type				
 						$errors['SourceAliquot']['used_volume']['no volume has to be recorded for this aliquot type'][] = $line_counter; 
 						$submitted_data_validates = false;			
@@ -1678,7 +1686,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->setAliquotMenu($parent);
 		}
 				
-		$this->set('aliquot_type', $child_aliquot_ctrl['AliquotControl']['aliquot_type']);
 		$this->set('realiquot_from', $parent_aliquot_ctrl_id);
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);
@@ -1699,7 +1706,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'Realiquoting.realiquoting_datetime' => date('Y-m-d G:i')
 		);
 		if(!empty($child_aliquot_ctrl['AliquotControl']['volume_unit'])){
-			$created_aliquot_override_data['AliquotMaster.aliquot_volume_unit'] = $child_aliquot_ctrl['AliquotControl']['volume_unit'];
+			$created_aliquot_override_data['AliquotControl.volume_unit'] = $child_aliquot_ctrl['AliquotControl']['volume_unit'];
 		}
 		if(!empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])){
 			$created_aliquot_override_data['GeneratedParentAliquot.aliquot_volume_unit'] = $parent_aliquot_ctrl['AliquotControl']['volume_unit'];
@@ -2080,7 +2087,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					//Set default data
 					$default_use_datetime = $this->AliquotMaster->getDefaultRealiquotingDate($parent_aliquot_data);
 					foreach($aliquot_data_for_selection as &$children_aliquot) {
-						$children_aliquot['GeneratedParentAliquot']['aliquot_volume_unit'] = empty($parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'])? '': $parent_aliquot_data['AliquotMaster']['aliquot_volume_unit'];
+						$children_aliquot['GeneratedParentAliquot']['aliquot_volume_unit'] = empty($parent_aliquot_data['AliquotControl']['volume_unit'])? '': $parent_aliquot_data['AliquotControl']['volume_unit'];
 						$children_aliquot['Realiquoting']['realiquoting_datetime'] = $default_use_datetime;
 					}
 					
