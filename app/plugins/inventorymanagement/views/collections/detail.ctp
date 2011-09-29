@@ -15,30 +15,33 @@
 		ksort($add_links);
 		
 		$bottom_links = array('edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id']);
-		if(empty($participant_id)){
-			$bottom_links['participant'] = '/underdevelopment/';
-		}else{
-			$bottom_links['participant'] = array(
-				'detail'		=> '/clinicalannotation/participants/profile/' . $participant_id,
-				'collections'	=> array(
-					'icon'	=> 'detail',
-					'link'	=> '/clinicalannotation/product_masters/productsTreeView/' . $participant_id
-					) 
-			);
-		}
-		$bottom_links['add specimen'] = $add_links;
-		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
 		$bottom_links['copy for new collection'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
-		
+		$bottom_links['add specimen'] = $add_links;
 		if(!empty($templates)){
-			$bottom_links['template'] = array();
+			$bottom_links['add from template'] = array();
 			foreach($templates as $template){
-				$bottom_links['template'][$template['Template']['name']] = array(
-					'icon' => 'template',
+				$bottom_links['add from template'][$template['Template']['name']] = array(
+					'icon' => ($template['Template']['name'] == 'day collection template')? 'add' : 'template',
 					'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
 				);
 			}
 		}
+		if(empty($participant_id)){
+			$bottom_links['participant data'] = '/underdevelopment/';
+		}else{
+			$bottom_links['participant data'] = array(
+				'profile'		=> array(
+					'icon'	=> 'participant',
+					'link'	=> '/clinicalannotation/participants/profile/' . $participant_id),
+				'participant inventory'	=> array(
+					'icon'	=> 'participant',
+					'link'	=> '/clinicalannotation/product_masters/productsTreeView/' . $participant_id
+					) 
+			);
+		}
+				
+		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
+		
 		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $bottom_links);
 		
 	}

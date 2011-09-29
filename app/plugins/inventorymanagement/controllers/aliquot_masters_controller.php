@@ -49,10 +49,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
 		
-		if(empty($search_id)){
-			$this->unsetInventorySessionData();
-		}
-		
 		$this->searchHandler($search_id, $this->ViewAliquot, 'view_aliquot_joined_to_sample_and_collection', '/inventorymanagement/aliquot_masters/search');
 
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));

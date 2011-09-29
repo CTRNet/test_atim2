@@ -76,7 +76,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("delete in batch", "Delete in batch", "Supprimer en lot"),
 ("primary phone number", "Primary phone number", "Numéro de téléphone primaire"),
 ("secondary phone number", "Secondary phone number", "Numéro de téléphone secondaire"),
-("collection template", "Collection template", "Modèle de collection"),
+("collection template", "Collection Template", "Modèle de collection"),
 ("collection_template_description", 
  "Collections templates allow to quickly create collection content without the need to browse the menus after the creation of each element.",
  "Les modèles de collections permettent de créer rapidement le contenu d'une collection sans devoir naviguer les menus après la création de chaque élément."),
@@ -98,7 +98,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
 ("unused parents", "Unused parents", "Parents non utilisés"),
 ("full export as CSV", "Full export as CSV", "Export complet comme CSV"),
-('copy for new collection', 'Copy for new collection', "Copier pour une nouvelle collection"),
+('copy for new collection', 'Copy for New col.', "Copier pour nouvelle col."),
 ("user", "User", "Utilisateur"),
 ("owner", "Owner", "Propriétaire"),
 ("visibility", "Visibility", "Visibilité"),
@@ -1619,4 +1619,13 @@ INSERT INTO structure_validations
 ((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner'), 'notEmpty', '', ''),
 ((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), 'notEmpty', '', '');
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('default values', 'Default Values', 'Valeurs par défaut'),
+('samples and aliquots creation from template','Samples and Aliquots Creation from Template', 'Création échantillons et aliquots selon modèle'),
+('add from template', 'Add From Template', 'Créer selon modèle'),
+('participant data', 'Participant Data', 'Données participant'),
+('day collection template', 'Day Collection Template', 'Modèle de collection du jour');
+
+INSERT INTO `templates` (`name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `flag_system`) 
+VALUES ('day collection template', 'all', 'all', 1, NULL, NULL, 0);
 
