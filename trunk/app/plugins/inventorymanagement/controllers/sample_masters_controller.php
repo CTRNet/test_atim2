@@ -1116,8 +1116,8 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		$this->set('children_sample_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('created_sample_override_data', array(
-			'SampleMaster.sample_type'		=> $children_control_data['SampleControl']['sample_type'],
-			'SampleMaster.sample_category'	=> $children_control_data['SampleControl']['sample_category'],
+			'SampleControl.sample_type'		=> $children_control_data['SampleControl']['sample_type'],
+			'SampleControl.sample_category'	=> $children_control_data['SampleControl']['sample_category'],
 			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
