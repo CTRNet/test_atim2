@@ -1,7 +1,7 @@
 <?php 
 
 	$structure_links = array(
-		'bottom' => array('add collection' => '/inventorymanagement/collections/add', 'new search' => InventorymanagementAppController::$search_links)
+		'bottom' => array('new search' => InventorymanagementAppController::$search_links, 'add collection' => '/inventorymanagement/collections/add')
 	);
 
 	$final_atim_structure = $atim_structure; 
