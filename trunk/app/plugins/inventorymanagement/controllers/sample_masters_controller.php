@@ -1338,7 +1338,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			}
 		}
 		
-		if(isset($this->data[0]['parent']['AliquotMaster']) && empty($this->data[0]['parent']['AliquotMaster']['aliquot_volume_unit'])){
+		if(isset($this->data[0]['parent']['AliquotMaster']) && empty($this->data[0]['parent']['AliquotControl']['volume_unit'])){
 			 $this->Structures->set('sourcealiquots', 'sourcealiquots');//overwrite, we do not need the volume
 		}
 	}
