@@ -37,6 +37,9 @@ if($controls){
 			.$tree_html
 			."<div class='ajaxContent'></div>"
 	);
+	if(isset($structure_header)) {
+		$final_options['settings']['header'] = $structure_header;
+	}
 }
 
 $final_atim_structure = $atim_structure;

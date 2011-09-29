@@ -13,24 +13,6 @@ class InventorymanagementAppController extends AppController {
 		$this->Auth->actionPath = 'controllers/';
 	}
 	
-	/**
-	 * Unset session data linked to the inventroy management system.
-	 *
-	 * @author N. Luc
-	 * @since 2009-09-11
-	 * @updated N. Luc
-	 */
-	 
-	function unsetInventorySessionData() {
-		unset($_SESSION['InventoryManagement']['treeView']['Filter']);
-		unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
-		unset($_SESSION['InventoryManagement']['CollectionAliquots']['Filter']);
-
-		unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
-		unset($_SESSION['InventoryManagement']['SampleAliquots']['Filter']);
-	}
-	
-	
 	function setBatchMenu(array $data){
 		if(array_key_exists('SampleMaster', $data) && !empty($data['SampleMaster'])){
 			$id = null;

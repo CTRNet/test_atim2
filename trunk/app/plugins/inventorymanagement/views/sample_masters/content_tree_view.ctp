@@ -19,9 +19,18 @@
 		}
 		ksort($add_links);
 	
-		$bottom = array(
-			'add' => $add_links,
-			'new search' => InventorymanagementAppController::$search_links);
+		$bottom = array();
+		$bottom['add specimen'] = $add_links;		
+		if(!empty($templates)){
+			$bottom['add from template'] = array();
+			foreach($templates as $template){
+				$bottom['add from template'][$template['Template']['name']] = array(
+					'icon' => ($template['Template']['name'] == 'day collection template')? 'add' : 'template',
+					'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
+				);
+			}
+		}
+		$bottom['new search'] = InventorymanagementAppController::$search_links;
 	}
 
 	$structure_links = array(

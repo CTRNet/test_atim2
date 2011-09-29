@@ -26,11 +26,6 @@ class CollectionsController extends InventorymanagementAppController {
 	 * -------------------------------------------------------------------------- */
 	
 	function search($search_id = 0, $is_ccl_ajax = false){
-		if(empty($search_id)){
-			//index
-			$this->unsetInventorySessionData();
-		}
-		
 		if($is_ccl_ajax && $this->data){
 			//custom result handling for ccl
 			$view_collection = $this->Structures->get('form', 'view_collection');
@@ -72,6 +67,8 @@ class CollectionsController extends InventorymanagementAppController {
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
+		
+		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
 		
@@ -323,6 +320,7 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('controls', 0);
 		$this->set('collection_id', $collection_id);
 		$this->set('flag_system', $template['Template']['flag_system']);
+		$this->set('structure_header', array('title' => __('samples and aliquots creation from template', true), 'description' => __('collection template',true) .': '.__($template['Template']['name'],true)));
 		$this->Structures->set('template');
 		$this->data = $template;
 		$this->render('/../../tools/views/template/tree');
@@ -333,13 +331,41 @@ class CollectionsController extends InventorymanagementAppController {
 		$template = $template_model->findById($template_id);
 		$template_model->init($template_id);
 		$this->set('template', $template);
-		$this->Structures->set('empty');
+		
+		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => 'i18n', 'name' => 'TemplateInit'));
+		$this->Structures->set('empty', 'template_init_structure');
+		
 		$this->set('collection_id', $collection_id);
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		foreach($this->Structures->controller->viewVars['template_init_structure']['Sfs'] as $new_field) {
+			if(in_array($new_field['type'], array('datetime', 'timestamp', 'date', 'time'))) {
+				$this->TemplateInit->_schema[$new_field['field']] = array('type' => $new_field['type']);
+				//TODO Should we be able to manage accuracy?
+			}
+		}
+		
 		if(!empty($this->data)){
 			//validate and stuff
 			$data_validates = true;
+			
+			$this->TemplateInit->set($this->data);
+			if(!$this->TemplateInit->validates()){
+				$data_validates = false;						
+			}	
+
 			//hook
+			$hook_link = $this->hook('validate_and_set');
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
+		
 			if($data_validates){
+				$_SESSION['InventoryManagement']['TemplateInit'] = $this->data;
 				$this->set('goToNext', true);
 			}
 		}

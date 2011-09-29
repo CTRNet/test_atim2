@@ -40,11 +40,6 @@ class SampleMastersController extends InventorymanagementAppController {
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
 		
-		if(empty($search_id)){
-			//index
-			$this->unsetInventorySessionData();
-		}
-		
 		$this->searchHandler($search_id, $this->ViewSample, 'view_sample_joined_to_collection', '/inventorymanagement/sample_masters/search');
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
@@ -65,11 +60,16 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(!$collection_id) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
+		unset($_SESSION['InventoryManagement']['TemplateInit']);
+		
 		if($is_ajax){
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}else{
 			$this->set("specimen_sample_controls_list", $this->SampleControl->getPermissibleSamplesArray(null));
+			$template_model = AppModel::getInstance("Tools", "Template", true);
+			$templates = $template_model->findVisibleNodes();
+			$this->set('templates', $templates);
 		}
 		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
