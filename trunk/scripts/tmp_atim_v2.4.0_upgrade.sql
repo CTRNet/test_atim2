@@ -1629,3 +1629,16 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 INSERT INTO `templates` (`name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `flag_system`) 
 VALUES ('day collection template', 'all', 'all', 1, NULL, NULL, 0);
 
+REPLACE INTO i18n (id,en,fr) VALUES 
+('specimen details and aliquots', 'Specimen Details & Aliquots', 'Détails spécimen & Aliquots'),
+('derivative details and aliquots', 'Derivative Details & Aliquots', 'Détails dérivé & Aliquots');
+
+UPDATE storage_controls SET set_temperature = '1' WHERE set_temperature = 'TRUE';
+UPDATE storage_controls SET set_temperature = '0' WHERE set_temperature != '1';
+
+UPDATE storage_controls SET is_tma_block = '1' WHERE is_tma_block = 'TRUE';
+UPDATE storage_controls SET is_tma_block = '0' WHERE is_tma_block != '1';
+
+ALTER TABLE storage_controls
+  MODIFY `is_tma_block` tinyint(1) NOT NULL DEFAULT '0',
+  MODIFY `set_temperature` tinyint(1) NOT NULL DEFAULT '0';

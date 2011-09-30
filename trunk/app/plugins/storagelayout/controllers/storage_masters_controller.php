@@ -70,7 +70,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = null;
 		$is_tma = false;
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+		if($storage_data['StorageControl']['is_tma_block']) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 			$is_tma = true;
@@ -122,7 +122,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Set predefined parent storage
 		if(!is_null($predefined_parent_storage_id)) {
-			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => 'FALSE')));
+			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => '0')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 			$this->set('predefined_parent_storage_selection_label', $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data));	
 		}
@@ -166,8 +166,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$this->data['StorageMaster']['selection_label'] = $this->StorageMaster->getSelectionLabel($this->data);	
 		
 				// Set storage temperature information
-				$this->data['StorageMaster']['set_temperature'] = $storage_control_data['StorageControl']['set_temperature'];
-				$this->StorageMaster->manageTemperature($this->data);		
+				$this->StorageMaster->manageTemperature($this->data, $storage_control_data);		
 			}	
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
@@ -223,7 +222,7 @@ class StorageMastersController extends StoragelayoutAppController {
 
 		// Set predefined parent storage
 		if(!empty($storage_data['StorageMaster']['parent_id'])) {
-			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id'], 'StorageControl.is_tma_block' => 'FALSE')));
+			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id'], 'StorageControl.is_tma_block' => '0')));
 			if(empty($predefined_parent_storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 			$this->set('predefined_parent_storage_selection_label', $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data));	
 		}		
@@ -232,7 +231,7 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
 		$atim_menu = null;
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0) {
+		if($storage_data['StorageControl']['is_tma_block']) {
 			// TMA menu
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/detail/%%StorageMaster.id%%/0/TMA');
 		} else {
@@ -281,8 +280,7 @@ class StorageMastersController extends StoragelayoutAppController {
 				$this->data['StorageMaster']['selection_label'] = $this->StorageMaster->getSelectionLabel($this->data);	
 			
 				// Set storage temperature information
-				$this->data['StorageMaster']['set_temperature'] = $storage_data['StorageControl']['set_temperature'];
-				$this->StorageMaster->manageTemperature($this->data);
+				$this->StorageMaster->manageTemperature($this->data, array('StorageControl' => $storage_data['StorageControl']));
 			}
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE

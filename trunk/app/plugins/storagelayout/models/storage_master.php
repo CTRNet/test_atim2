@@ -52,7 +52,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		){
 			$this->validationErrors['recorded_storage_selection_label'] = 'you can not store your storage inside itself';
 
-		} else if(!empty($parent_storage_data) && (strcmp($parent_storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+		} else if(!empty($parent_storage_data) && ($parent_storage_data['StorageControl']['is_tma_block'])) {
 			$this->validationErrors['recorded_storage_selection_label'] = 'you can not define a tma block as a parent storage';
 					
 		} else {
@@ -157,8 +157,8 @@ class StorageMaster extends StoragelayoutAppModel {
 			
 			if(isset($storage_data['StorageMaster']) && isset($storage_data['StorageControl'])) {
 				// One storage has been found
-				
-				if((!$is_sample_core) && (strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') == 0)) {
+
+				if((!$is_sample_core) && ($storage_data['StorageControl']['is_tma_block'])) {
 					// 1- Check defined storage is not a TMA Block when studied element is a sample core
 					$storage_definition_error = 'only sample core can be stored into tma block';
 					
@@ -486,9 +486,11 @@ class StorageMaster extends StoragelayoutAppModel {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	function manageTemperature(&$storage_data) {
+	function manageTemperature(&$storage_data, $storage_control_data) {
+		if($storage_data['StorageMaster']['storage_control_id'] != $storage_control_data['StorageControl']['id']) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+
 		// storage temperature	
-		if((strcmp($storage_data['StorageMaster']['set_temperature'], 'FALSE') == 0)) {
+		if(!$storage_control_data['StorageControl']['set_temperature']) {
 			if(!empty($storage_data['StorageMaster']['parent_id'])) {
 				$parent_storage_data = $this->find('first', array('conditions' => array('StorageMaster.id' => $storage_data['StorageMaster']['parent_id']), 'recursive' => '-1'));
 				if(empty($parent_storage_data)) { 
@@ -640,7 +642,7 @@ class StorageMaster extends StoragelayoutAppModel {
 			// Search 'direct' children to update
 			$conditions = array();
 			$conditions['StorageMaster.parent_id'] = $studied_parent_storage_ids;
-			$conditions['StorageMaster.set_temperature'] = 'FALSE';
+			$conditions['StorageControl.set_temperature'] = '0';
 			$conditions['OR'] = array();
 			
 			if(empty($parent_temperature) && (!is_numeric($parent_temperature))) {
@@ -660,8 +662,7 @@ class StorageMaster extends StoragelayoutAppModel {
 
 			$studied_parent_storage_ids = array();
 			
-			$children_storage_to_update = $this->find('all', array('conditions' => $conditions, 'recursive' => '-1'));	
-			
+			$children_storage_to_update = $this->find('all', array('conditions' => $conditions, 'recursive' => '0'));			
 			foreach($children_storage_to_update as $new_children_to_update) {
 				// New children to update
 				$studied_children_id = $new_children_to_update['StorageMaster']['id'];
@@ -710,7 +711,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						$data_array[$i][$type]['selection_label'] = $this->getSelectionLabel($data_array[$i]);	
 						
 						// Set new temperature
-						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+						if(!$data_array[$i]['StorageControl']['set_temperature']) {
 							$data_array[$i][$type]['temperature'] = null;
 							$data_array[$i][$type]['temp_unit'] = null;
 						}
@@ -735,7 +736,7 @@ class StorageMaster extends StoragelayoutAppModel {
 					if($type == "StorageMaster") {
 						$this->updateChildrenStorageSelectionLabel($data_array[$i][$type]['id'], $data_array[$i]);
 						
-						if(strcmp($data_array[$i][$type]['set_temperature'], 'FALSE') == 0) {
+						if(!$data_array[$i]['StorageControl']['set_temperature']) {
 							$this->updateChildrenSurroundingTemperature($data_array[$i][$type]['id'], null, null);
 						}
 					}
@@ -788,7 +789,9 @@ class StorageMaster extends StoragelayoutAppModel {
 		if(array_key_exists("AliquotMaster", $exception)){
 			$conditions['AliquotMaster.id !='] = $exception['AliquotMaster'];
 		}
-		$aliquot_master_model = ClassRegistry::getObject('AliquotMaster');
+		if(!$aliquot_master_model = ClassRegistry::getObject('AliquotMaster')){
+			$aliquot_master_model = ClassRegistry::init('AliquotMaster');
+		}
 		$tmp = $aliquot_master_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
 			return StorageMaster::POSITION_OCCUPIED;
