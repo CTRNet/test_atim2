@@ -16,13 +16,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'className'    => 'Storagelayout.StorageMaster',            
 			'foreignKey'    => 'storage_master_id'));
 	
-	var $hasOne = array(
-		'SpecimenDetail' => array(
-			'className'   => 'Inventorymanagement.SpecimenDetail',
-			 	'foreignKey'  => 'sample_master_id',
-			 	'dependent' => true)
-	);
-	
 	var $virtualFields = array(
 		'in_stock_order'	=> 'IF(AliquotMaster.in_stock = "yes - available", 1, IF(AliquotMaster.in_stock = "yes - not available", 2, 3))'
 	);

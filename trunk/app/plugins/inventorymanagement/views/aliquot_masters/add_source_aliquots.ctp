@@ -16,7 +16,7 @@
 	//no volume
 	$final_atim_structure = $sourcealiquots; 
 	$final_options = array(
-		'data' 		=> $this->data['no_vol'],
+		'data' 		=> isset($this->data['no_vol'])? $this->data['no_vol'] : array(),
 		'links' 	=> $structure_links, 
 		'override' 	=> $structure_override, 
 		'type' 		=> 'editgrid', 
@@ -42,7 +42,7 @@
 	//volume
 	$final_atim_structure = $sourcealiquots_volume; 
 	$final_options = array(
-		'data' 		=> $this->data['vol'],
+		'data' 		=> isset($this->data['vol'])? $this->data['vol'] : array(),
 		'links' 	=> $structure_links, 
 		'override' 	=> $structure_override, 
 		'type' 		=> 'editgrid', 

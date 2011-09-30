@@ -734,7 +734,7 @@ class SampleMastersController extends InventorymanagementAppController {
 
 		// Get parent sample information
 		$parent_sample_master_id = $sample_data['SampleMaster']['parent_id'];
-		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '-1'));
+		$parent_sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $parent_sample_master_id), 'recursive' => '0'));
 		if(!empty($parent_sample_master_id) && empty($parent_sample_data)) { 
 			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 

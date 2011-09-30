@@ -65,7 +65,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
+	
+	/**
+	 * @deprecated
+	 */
 	function listAll($collection_id, $sample_master_id, $filter_option = null) {
+		pr('deprecated');
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 		// MANAGE FILTER OPTION
 
@@ -602,7 +608,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE DATA
 	
 		// Get the aliquot data
-		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
+		$joins = array(
+			array('table' => 'specimen_details',
+				'alias' => 'SpecimenDetail',
+				'type' => 'LEFT',
+				'conditions' => array('SpecimenDetail.sample_master_id = AliquotMaster.sample_master_id')),
+			array('table' => 'derivative_details',
+				'alias' => 'DerivativeDetail',
+				'type' => 'LEFT',
+				'conditions' => array('DerivativeDetail.sample_master_id = AliquotMaster.sample_master_id'))			
+		);
+    	$condtions = array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id);
+		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => $condtions, 'joins' => $joins));
 		if(empty($aliquot_data)) { 
 			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}		
@@ -611,14 +628,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		switch($aliquot_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $aliquot_data['SampleMaster']['id'])));
-				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_master['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 			case 'derivative':
 				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$derivative_detail_data = $this->DerivativeDetail->find('first', array('conditions' => array('DerivativeDetail.sample_master_id' => $sample_master_id)));
-				if(empty($derivative_detail_data)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
-				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($derivative_detail_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
 				break;
 				
 			default:
@@ -1306,7 +1320,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-		
+//TODO
+pr('bug');
+exit;
+//pr($this->data);
+//bug		AliquotMastercoordx missing + StorageMaster
 			if (!$submitted_data_validates) {
 				// Set error message
 				foreach($errors as $model => $field_messages) {

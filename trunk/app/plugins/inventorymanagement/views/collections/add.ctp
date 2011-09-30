@@ -2,7 +2,7 @@
 	
 	$structure_links = array(
 		'top' => '/inventorymanagement/collections/add/'.(isset($atim_variables['ClinicalCollectionLink.id']) ? $atim_variables['ClinicalCollectionLink.id'].'/' : ''),
-		'bottom' => array('cancel' => '/inventorymanagement/collections/index')
+		'bottom' => array('cancel' => '/inventorymanagement/collections/search')
 	);
 	
 	$structure_override = array();
