@@ -1406,7 +1406,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				'table' => 'source_aliquots',
 				'alias' => 'SourceAliquot',
 				'type' => 'INNER',
-				'conditions' => array('AliquotMaster.id = SourceAliquot.aliquot_master_id', 'SourceAliquot.sample_master_id' => $sample_master_id)
+				'conditions' => array('AliquotMaster.id = SourceAliquot.aliquot_master_id', 'SourceAliquot.deleted != 1', 'SourceAliquot.sample_master_id' => $sample_master_id)
 			)
 		);
 		
