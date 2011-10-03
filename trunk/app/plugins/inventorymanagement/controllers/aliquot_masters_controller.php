@@ -1286,19 +1286,29 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Master validation
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					
+					$tmp_StorageMaster = $studied_aliquot_pointer['StorageMaster'];
+					$tmp_storage_coord_x = $studied_aliquot_pointer['AliquotMaster']['storage_coord_x'];
+					$tmp_storage_coord_y = $studied_aliquot_pointer['AliquotMaster']['storage_coord_y'];				
 					unset($studied_aliquot_pointer['StorageMaster']);
 					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_x']);
 					unset($studied_aliquot_pointer['AliquotMaster']['storage_coord_y']);
+					
 					$this->AliquotMaster->set($studied_aliquot_pointer);
 					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
+					
 					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
 					foreach($this->AliquotMaster->invalidFields() as $field => $error) { 
 						$errors['AliquotMaster'][$field][$error][] = $line_counter; 
 					}					
 					
 					// Reset data to get position data (not really required for this function)
-					$studied_aliquot_pointer = $this->AliquotMaster->data;				
-
+					$studied_aliquot_pointer = $this->AliquotMaster->data;	
+					
+					$studied_aliquot_pointer['StorageMaster'] = $tmp_StorageMaster;		
+					$studied_aliquot_pointer['AliquotMaster']['storage_coord_x'] = $tmp_storage_coord_x;
+					$studied_aliquot_pointer['AliquotMaster']['storage_coord_y'] = $tmp_storage_coord_y;	
+					
 					// Launch Aliquot Source validation
 					$this->SourceAliquot->set($studied_aliquot_pointer);
 					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates : false;
@@ -1320,11 +1330,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-//TODO
-pr('bug');
-exit;
-//pr($this->data);
-//bug		AliquotMastercoordx missing + StorageMaster
+
 			if (!$submitted_data_validates) {
 				// Set error message
 				foreach($errors as $model => $field_messages) {

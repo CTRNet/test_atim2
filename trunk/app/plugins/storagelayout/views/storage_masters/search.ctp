@@ -15,7 +15,7 @@
 	$structure_links = array(
 		'index' => array('detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
 		'bottom' => array(
-			'new search' => array('link' => '/storagelayout/storage_masters/search', 'icon' => 'search'),
+//			'new search' => array('link' => '/storagelayout/storage_masters/search', 'icon' => 'search'),
 			'add' => $add_links,
 			'tree view' => '/storagelayout/storage_masters/contentTreeView'
 		) 
