@@ -155,7 +155,16 @@ class AppModel extends Model {
 	}
 	
 	function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
-		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra));
+		$params = array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra);
+		
+		//TODO Review follwoing lines: Eventum #1680
+		if(!empty($fields)) $params['fields'] = $fields;
+		if(isset($extra['joins'])) {
+			$params['joins'] = $extra['joins'];
+			unset($extra['joins']);
+		}
+		
+		return $this->find('all', $params);
 	}
 	
 /**

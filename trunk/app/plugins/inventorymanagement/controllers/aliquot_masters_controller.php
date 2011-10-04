@@ -1714,8 +1714,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);
 		
-		$this->Structures->set('in_stock_detail', 'in_stock_detail');
-		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail_volume');
+		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail');
+		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
 		
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
@@ -1793,6 +1793,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
 				$parent_aliquot_data['id'] = $parent_id;
 				$parent_aliquot_data['aliquot_control_id'] = $parent_aliquot_ctrl_id;
+				unset($parent_aliquot_data['storage_coord_x']);
+				unset($parent_aliquot_data['storage_coord_y']);
 				
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
@@ -1803,7 +1805,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				// Set parent data to $validated_data
 				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
+				$validated_data[$parent_id]['parent']['AliquotMaster']['storage_coord_x'] = $parent_and_children['AliquotMaster']['storage_coord_x'];
+				$validated_data[$parent_id]['parent']['AliquotMaster']['storage_coord_y'] = $parent_and_children['AliquotMaster']['storage_coord_y'];
+				
 				$validated_data[$parent_id]['parent']['FunctionManagement'] = $parent_and_children['FunctionManagement'];
+				$validated_data[$parent_id]['parent']['AliquotControl'] = $parent_and_children['AliquotControl'];
+				$validated_data[$parent_id]['parent']['StorageMaster'] = $parent_and_children['StorageMaster'];
+				
 				$validated_data[$parent_id]['children'] = array();
 				
 				//B- Validate new aliquot created + realiquoting data
@@ -1953,9 +1961,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
 					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				} else {
-					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
 				}
 					
 			} else {
@@ -2039,11 +2047,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 		$this->set('realiquot_from', $parent_aliquot_ctrl_id);
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
-		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);		
+		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);
 		
-		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail');
-		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
-		
+		if(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])){
+			$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail');
+			$this->Structures->set('children_aliquots_selection', 'atim_structure_for_children_aliquots_selection');
+		} else {
+			$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail');
+			$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
+		}
+			
 		// Set url to cancel
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
 		$this->set('url_to_cancel', $url_to_cancel);
@@ -2063,7 +2076,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// Get parent aliquot data
 			$this->AliquotMaster->unbindModel(array(
 				'hasOne' => array('SpecimenDetail', 'DerivativeDetail'),
-				'belongsTo' => array('Collection','StorageMaster')));
+				'belongsTo' => array('Collection')));
 			$has_many_details = array(
 				'hasMany' => array( 
 					'RealiquotingParent' => array(
@@ -2135,7 +2148,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->validationErrors[] = $msg;
 				}
 			}
-
+			
 			$hook_link = $this->hook('initial_display');
 			if($hook_link){
 				require($hook_link);
@@ -2168,6 +2181,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$parent_aliquot_data = $parent_and_children['AliquotMaster'];
 				$parent_aliquot_data["id"] = $parent_id;
 				$parent_aliquot_data["aliquot_control_id"] = $parent_aliquot_ctrl_id;
+				unset($parent_aliquot_data['storage_coord_x']);
+				unset($parent_aliquot_data['storage_coord_y']);
 				
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
@@ -2175,10 +2190,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$errors[$field][$msg][] = $record_counter;
 					}
 				}
-				
+			
 				// Set parent data to $validated_data
 				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
+				$validated_data[$parent_id]['parent']['AliquotMaster']['storage_coord_x'] = $parent_and_children['AliquotMaster']['storage_coord_x'];
+				$validated_data[$parent_id]['parent']['AliquotMaster']['storage_coord_y'] = $parent_and_children['AliquotMaster']['storage_coord_y'];
+				
 				$validated_data[$parent_id]['parent']['FunctionManagement'] = $parent_and_children['FunctionManagement'];
+				$validated_data[$parent_id]['parent']['AliquotControl'] = $parent_and_children['AliquotControl'];
+				$validated_data[$parent_id]['parent']['StorageMaster'] = $parent_and_children['StorageMaster'];
+				
+				
 				$validated_data[$parent_id]['children'] = array();
 				
 				//B- Validate realiquoting data
@@ -2289,9 +2311,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//redirect
 				
 				if($aliquot_master_id == null){
-					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
 				}else{
-					$this->flash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
 				}
 			
 			} else {
@@ -2305,12 +2327,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}				
 			}
 		}
-		
-		if(empty($this->data[0]['parent']['AliquotControl']['volume_unit'])){
-			//switch to volumeless structures
-			$this->Structures->set('children_aliquots_selection', 'atim_structure_for_children_aliquots_selection');
-			$this->Structures->set('in_stock_detail', 'in_stock_detail');
-		}
 	}
 	
 	function listAllRealiquotedParents($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -2323,7 +2339,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		// Get/Manage Parent Aliquots
-		$this->data = $this->paginate($this->Realiquoting, array('Realiquoting.child_aliquot_master_id '=> $aliquot_master_id));
+		$this->paginate['Realiquoting'] = array(
+			'limit' => pagination_amount , 
+			'order' => 'Realiquoting.realiquoting_datetime DESC',
+			'fields' => array('*'),
+			'joins' => array(AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'), AliquotMaster::$join_aliquot_control_on_dup));	
+		$this->data = $this->paginate('Realiquoting', array('Realiquoting.child_aliquot_master_id'=> $aliquot_master_id)); 
 		
 		// Manage data to build URL to access la book
 		$this->set('display_lab_book_url', true);
@@ -2337,7 +2358,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object.
-		$this->setAliquotMenu($current_aliquot_data);
+		$this->setAliquotMenu($current_aliquot_data, true);
 		
 		// Set structure
 		$this->Structures->set('realiquotedparent');
