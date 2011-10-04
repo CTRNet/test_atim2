@@ -30,7 +30,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 											array('table' => 'sample_masters', 'alias' => 'sample_source', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = sample_source.id'))),
 				self::SOURCE_ID			=> 'CONCAT(SourceAliquot.id, 1)',
 				self::USE_DEFINITION	=> '"sample derivative creation"',
-				self::USE_CODE			=> '""',
+				self::USE_CODE			=> 'SampleMaster.sample_code',
 				self::USE_DETAIL		=> '""',
 				self::USE_VOLUME		=> 'SourceAliquot.used_volume',
 				self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',

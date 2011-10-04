@@ -15,8 +15,16 @@
 	$children_options = array_merge($options, array(
 		'type'		=> 'addgrid', 
 		'links' 	=> $structure_links, 
-		'settings' 	=> $structure_settings	
+		'settings' 	=> $structure_settings
 	));
+	$children_options['settings']["language_heading"] = __('selected children aliquot(s)',true);
+	
+	foreach($in_stock_detail['Sfs'] as &$sfs){
+		if($sfs['flag_edit'] && $sfs['type'] != 'hidden'){
+			$sfs['language_heading'] = 'parent aliquot (for update)';
+			break;
+		}
+	}
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();

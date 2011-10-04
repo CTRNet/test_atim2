@@ -12,9 +12,22 @@
 	));
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
-		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false)
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, "language_heading" => __('created children aliquot(s)', true))
 	));
-
+	
+	foreach($in_stock_detail['Sfs'] as &$sfs){
+		if($sfs['flag_edit'] && $sfs['type'] != 'hidden'){
+			$sfs['language_heading'] = 'parent aliquot (for update)';
+			break;
+		}
+	}
+	foreach($in_stock_detail_volume['Sfs'] as &$sfs){
+		if($sfs['flag_edit'] && $sfs['type'] != 'hidden'){
+			$sfs['language_heading'] = 'parent aliquot (for update)';
+			break;
+		}
+	}
+		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if($hook_link){
@@ -60,7 +73,7 @@
 		}else{
 			$final_parent_structure = $in_stock_detail_volume;
 		}
-		
+				
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
