@@ -43,7 +43,7 @@
 		'bottom' => array(
 			'add' => $add_links,
 			'filter' => $filter_links,
-			'new search' => InventorymanagementAppController::$search_links
+//			'new search' => InventorymanagementAppController::$search_links
 		)
 	);
 	

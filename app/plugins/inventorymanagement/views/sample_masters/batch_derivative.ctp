@@ -16,7 +16,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 	}
 	foreach($child_structure_to_use['Sfs'] as &$sfs){
 		if($sfs['flag_edit']){
-			$sfs['language_heading'] = __('used aliquot', true);
+			$sfs['language_heading'] = 'aliquot source (for update)';
 			break;
 		}
 	}
@@ -35,7 +35,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 //structure options
 $options = array(
 		"links"		=> array(
-			"top" => '/inventorymanagement/sample_masters/batchDerivative/',
+			"top" => '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id,
 			'bottom' => array('cancel' => $url_to_cancel)
 		));
 
@@ -45,7 +45,7 @@ $options_parent = array_merge($options, array(
 
 $options_children = array_merge($options, array(
 	"type" => "addgrid",
-	"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
+	"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, 'language_heading' => __('derivatives',true)),
 	"override"	=> $created_sample_override_data,
 	"dropdown_options" => array('DerivativeDetail.lab_book_master_id' => (isset($lab_books_list) && (!empty($lab_books_list)))? $lab_books_list: array('' => ''))));
 
@@ -63,6 +63,7 @@ $hook_link = $structures->hook('loop');
 $first = true;
 $counter = 0;
 
+$one_parent = (sizeof($this->data) == 1)? true : false;
 
 //print the layout
 while($data = array_shift($this->data)){
@@ -85,7 +86,7 @@ while($data = array_shift($this->data)){
 			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 	}
 	$prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
-	$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) ." #".$counter;
+	$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) .($one_parent? '' : " #".$counter);
 	$final_options_parent['settings']['name_prefix'] = $prefix;
 	$final_options_parent['data'] = $parent;
 	
@@ -93,7 +94,8 @@ while($data = array_shift($this->data)){
 	$final_options_children['data'] = $data['children'];
 	$final_options_children['dropdown_options']['SampleMaster.parent_id'] = array($parent['ViewSample']['sample_master_id'] => $parent['ViewSample']['sample_code']);
 	$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
-
+	if(isset($parent['AliquotMaster']) && !empty($parent['AliquotControl']['volume_unit'])) $final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
+	
 	if( $hook_link ) { 
 		require($hook_link); 
 	}

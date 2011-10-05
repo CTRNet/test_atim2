@@ -52,7 +52,7 @@
 		$sample_settings['header'] = __('sample', null);
 		
 	} else {
-		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $structure_links['bottom']);
+//		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $structure_links['bottom']);
 	}
 
 	// Set override
@@ -116,7 +116,8 @@
 				'dropdown_options'	=> $dropdown_options, 
 				'data' 				=> $aliquots, 
 				'settings' 			=> array(
-					'header'			=> __('aliquots', null) .' > '.__($aliquots[0]['AliquotControl']['aliquot_type'], true),
+					'language_heading'	=> __($aliquots[0]['AliquotControl']['aliquot_type'], true),
+					'header'			=> ($i == 0 )? __('aliquots', null) : array(),
 					'actions'			=> ++ $i == $arr_size,
 					'pagination'		=> false
 				)

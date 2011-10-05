@@ -24,7 +24,7 @@
 			'pagination' 	=> false,
 			'form_bottom'	=> false,
 			'actions'		=> false,
-			'header'		=> __('aliquots without volume', true),
+			'language_heading'		=> __('aliquots without volume', true),
 			'name_prefix'	=> 'no_vol'
 		)
 	);
@@ -49,7 +49,7 @@
 		'settings'	=> array(
 			'pagination' 	=> false,
 			'form_top'		=> false,
-			'header'		=> __('aliquots with volume', true),
+			'language_heading'		=> __('aliquots with volume', true),
 			'name_prefix'	=> 'vol'
 		)
 	);

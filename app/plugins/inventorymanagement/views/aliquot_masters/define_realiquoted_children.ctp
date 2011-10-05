@@ -12,19 +12,14 @@
 		"type" 		=> "edit",
 		"settings"	=> array_merge($structure_settings, array("stretch" => false)))
 	);
+	$parent_options['settings']["language_heading"] = __('parent aliquot (for update)',true);
+	
 	$children_options = array_merge($options, array(
 		'type'		=> 'addgrid', 
 		'links' 	=> $structure_links, 
 		'settings' 	=> $structure_settings
 	));
 	$children_options['settings']["language_heading"] = __('selected children aliquot(s)',true);
-	
-	foreach($in_stock_detail['Sfs'] as &$sfs){
-		if($sfs['flag_edit'] && $sfs['type'] != 'hidden'){
-			$sfs['language_heading'] = 'parent aliquot (for update)';
-			break;
-		}
-	}
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -57,7 +52,7 @@
 				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
-		$final_parent_options['settings']['header'] = __('realiquoting process', true) . ' - ' . __('realiquoted children selection', true) . (empty($aliquot_id)? " #".$counter : '');
+		$final_parent_options['settings']['header'] = __('realiquoting process', true) . ' - ' . __('children selection', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_parent_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
 		$final_parent_options['data'] = $aliquot['parent'];
 		$final_children_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];

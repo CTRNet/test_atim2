@@ -11,8 +11,9 @@ $parent_settings = array(
 		'actions' => false,
 		'form_top' => false,
 		'form_bottom' => false,
-		'header' => __('used aliquot', true). " - ".__('creation', true)." #",
-		'stretch' => false
+		'header' => __('internal use', true),
+		'stretch' => false,
+		"language_heading" => __('used aliquot (for update)', true)
 	)
 );
 
@@ -25,7 +26,7 @@ $children_settings = array(
 		'form_bottom' => false,
 		"add_fields"	=> true, 
 		"del_fields"	=> true,
-		"language_heading" => __('internal use', true)
+		"language_heading" => __('internal use creation', true)
 	)
 );
 	
@@ -39,11 +40,12 @@ $hook_link = $structures->hook('loop');
 $first = true;
 $creation = 0;
 
+$many_studied_aliquots = (sizeof($this->data) == 1)? false : true;
 while($data_unit = array_shift($this->data)){
 	$final_options_parent = $parent_settings;
 	$final_options_children = $children_settings;
 	
-	$final_options_parent['settings']['header'] .= (++$creation);
+	$final_options_parent['settings']['header'] .= $many_studied_aliquots? " #".(++$creation) : '';
 	$final_options_parent['data'] = $data_unit['parent'];
 	$final_options_parent['settings']['name_prefix'] = $data_unit['parent']['AliquotMaster']['id'];
 	$final_options_children['settings']['name_prefix'] = $data_unit['parent']['AliquotMaster']['id'];
@@ -66,6 +68,7 @@ while($data_unit = array_shift($this->data)){
 	}else{
 		$final_structure_parent = $aliquots_volume_structure;
 		$final_structure_children = $aliquotinternaluses_volume_structure;
+		$final_options_children['override']['AliquotControl.volume_unit'] = $data_unit['parent']['AliquotControl']['volume_unit'];
 	}
 		
 	if( $hook_link ) { 
