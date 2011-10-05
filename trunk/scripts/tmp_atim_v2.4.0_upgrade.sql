@@ -1672,12 +1672,12 @@ UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='sourcealiquots_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '13', '', '0', '', '0', '', '0', '', '1', 'float', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '1');
+((SELECT id FROM structures WHERE alias='sourcealiquots_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '1');
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='aliquot_volume_unit');
 
 UPDATE structure_formats SET `display_order`='1000' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1713,7 +1713,69 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='children_aliquots_selection'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '7', '', '0', '', '1', '-', '0', '', '0', '', '1', '', '0', '', 
 '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0'); 
 
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='define as source' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='use' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
 
+INSERT INTO i18n (id,en,fr) VALUES ('define as source', 'Define as Source', 'Définir comme source');
+REPLACE INTO i18n (id,en,fr) VALUES
+ ('aliquot internal use code', 'Use Defintion', 'Définition de l''utilisation'), 
+ ('aliquot used volume', 'Used Volume', 'Volume utilisé');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('used aliquot (for update)', 'Used Aliquot (For update)', 'Aliquot utilisé (pour mise à jour)'),
+('internal use creation', 'Internal Use Creation', 'Création utilisation interne');
+
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '1');
+
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+DELETE FROM i18n WHERE id IN ('children creation', 'children selection', 'at least one child has to be defined');
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+('children creation', 'Children Creation', 'Création des ''enfants'''),
+('children selection', 'Children Selection', 'Sélection des ''enfants'''),
+('at least one child has to be defined', 'At least one child has not been defined!', 'Au moins un enfant doit être défini!');
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('at least one child has to be created', '', 'At least one child aliquot has to be created!', 'Au moins un aliquot ''enfant'' doit être créé!'),
+('define realiquoted children', '', 'Define Realiquoted Children', 'Définir aliquots ''enfants'''),
+('no aliquot has been defined as realiquoted child', '', 'No aliquot has been defined as realiquoted child!', 'Aucun aliquot n''a été défini comme aliquot ''enfant''!'),
+('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', '', 'No new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', 'Aucun nouvel aliquot ne peut actuellement être défini comme aliquot ''enfant'' pour les aliquots ''parents'' suivants'),
+('no new sample aliquot could be actually defined as realiquoted child', '', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
+('parent/child', '', 'Parent/Child', 'Parent/Enfant'),
+('parent_used_volume_help', '', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot ''parent'' utilisé pour créer l''aliquot ''enfant''.'),
+('realiquoted children selection', '', 'Realiquoted Children Selection', 'Sélection des aliquots ''enfant'''),
+('select children aliquot type', '', 'Children Aliquot Type', 'Type de l''aliquot ''enfant'''),
+('selected children aliquot(s)', '', 'Children Aliquot(s)', 'Aliquot(s) ''enfant''');
+
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='14' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_volume');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' );
+
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('aliquot source (for update)', 'Aliquot Source (For update)', 'Aliquot source (pour mise à jour)'),
+('derivatives', 'Derivatives', 'Dérivés');
+
+UPDATE structures SET alias = 'sourcealiquots_volume_for_batchderivative' WHERE alias = 'source_aliquots_volume';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '8000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='7999' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='9990' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='9991' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='source aliquot used volume' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' );
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('source aliquot used volume','Used Volume','Volume utilisé'),
+('source_used_volume_help', 'Volume of the source aliquot to create the new derivative sample.', 'Volume de l''aliquot source utilisé pour créer l''échantillon dérivé.');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume', `flag_override_help`='1', `language_help`='source_used_volume_help' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 

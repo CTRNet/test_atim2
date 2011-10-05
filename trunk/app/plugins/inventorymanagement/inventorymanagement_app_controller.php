@@ -62,6 +62,10 @@ class InventorymanagementAppController extends AppController {
 	}
 	
 	function setAliquotMenu($data, $is_realiquoted_list = false){
+		if(!isset($data['SampleControl']) || !isset($data['SampleMaster']) || !isset($data['AliquotMaster'])) {
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
 		$atim_menu_link = ($data['SampleControl']['sample_category'] == 'specimen')?
 			'/inventorymanagement/aliquot_masters/'.($is_realiquoted_list? 'listAllRealiquotedParents':'detail').'/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
 			'/inventorymanagement/aliquot_masters/'.($is_realiquoted_list? 'listAllRealiquotedParents':'detail').'/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';

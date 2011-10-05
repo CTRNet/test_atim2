@@ -848,9 +848,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else{
 			$aliquot_ids = array_keys($this->data);
 		}
-		
-		$this->Structures->set('sourcealiquots', "aliquots_structure");
-		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
+			
+		$this->Structures->set('used_aliq_in_stock_details', "aliquots_structure");
+		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'aliquots_volume_structure');
 		$this->Structures->set('aliquotinternaluses', 'aliquotinternaluses_structure');
 		$this->Structures->set('aliquotinternaluses_volume,aliquotinternaluses', 'aliquotinternaluses_volume_structure');
 
@@ -1040,9 +1040,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}	
 		
-		// Set aliquot volume unit
-		$aliquot_volume_unit = empty($use_data['AliquotControl']['volume_unit'])? 'n/a': $use_data['AliquotControl']['volume_unit'];
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -1057,7 +1054,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				'AliquotMaster.id' => $aliquot_master_id));
 			
 		// Set structure
-		$this->Structures->set('aliquotinternaluses');
+		$this->Structures->set(empty($use_data['AliquotControl']['volume_unit'])? 'aliquotinternaluses' : 'aliquotinternaluses,aliquotinternaluses_volume');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -1086,9 +1083,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $use_data['AliquotMaster']['collection_id'], 'SampleMaster.id' => $use_data['AliquotMaster']['sample_master_id']), 'recursive' => '0'));
 		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
-		// Set aliquot volume unit
-		$aliquot_volume_unit = empty($use_data['AliquotControl']['volume_unit'])? 'n/a': $use_data['AliquotControl']['volume_unit'];
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object.
@@ -1096,6 +1090,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		// Set structure
 		$this->Structures->set('aliquotinternaluses');
+		$this->Structures->set(empty($use_data['AliquotControl']['volume_unit'])? 'aliquotinternaluses' : 'aliquotinternaluses,aliquotinternaluses_volume');
+		
+		$this->set('aliquot_use_id', $aliquot_use_id);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -2232,7 +2229,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$validated_data[$parent_id]['children'][$tmp_id] = $children_aliquot;
 					}
 				}
-				if(!$children_has_been_defined) $errors[]['at least one child has not been defined'][] = $record_counter;	
+				if(!$children_has_been_defined) $errors[]['at least one child has to be defined'][] = $record_counter;	
 			}
 			
 			$this->data = $validated_data;

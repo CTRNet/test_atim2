@@ -14,7 +14,7 @@
 		'type' => 'add', 
 		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('lab book selection', true)),
 		'links' => array(
-			'top' => '/inventorymanagement/sample_masters/batchDerivative/',
+			'top' => '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id,
 			'bottom' => $bottom
 		), 
 		'extras' => $extras);
