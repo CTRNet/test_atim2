@@ -41,7 +41,7 @@ $options_parent = array(
 	'type'		=> 'edit',
 	'links'		=> $links,
 	'settings'	=> array(
-		'header'		=> __('quality control creation process', true) . ' - ' . __('creation', true) ." #",
+		'header'		=> __('quality control creation process', true) . ' - ' . __('creation', true),
 		'form_top'		=> false,
 		'actions'		=> false,
 		'form_bottom'	=> false,
@@ -94,7 +94,7 @@ while($data = array_shift($this->data)){
 	
 	$final_options_parent['data'] = $parent;
 	
-	$final_options_parent['settings']['header'] .= ++ $counter;
+	$final_options_parent['settings']['header'] .=  " #".(++ $counter);
 	$final_options_parent['settings']['name_prefix'] = $prefix;
 	
 	$final_options_children['settings']['name_prefix'] = $prefix;
@@ -103,6 +103,7 @@ while($data = array_shift($this->data)){
 	if(isset($parent['AliquotControl']['volume_unit']) && strlen($parent['AliquotControl']['volume_unit']) > 0){
 		$final_structure_parent = $parent_structure_w_vol;
 		$final_structure_children = $children_structure_w_vol;
+		$final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
 	}else{
 		$final_structure_parent = $parent_structure;
 		$final_structure_children = $children_structure;

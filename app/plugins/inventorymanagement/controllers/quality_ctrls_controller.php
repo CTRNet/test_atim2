@@ -43,10 +43,24 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}
 	}
 	
+	function addInit($collection_id, $sample_master_id){
+		$this->setBatchMenu(array('SampleMaster' => $sample_master_id));
+		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
+		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
+		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure_vol');
+		$this->Structures->set('aliquotmasters', 'aliquot_structure_no_vol');
+		$this->Structures->set('empty', 'empty_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
+	
 	function add($sample_master_id = null){
 		$this->Structures->set('view_sample_joined_to_collection', "samples_structure");
-		$this->Structures->set('sourcealiquots', "aliquots_structure");
-		$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquots_volume_structure');
+		$this->Structures->set('used_aliq_in_stock_details', "aliquots_structure");
+		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'aliquots_volume_structure');
 		$this->Structures->set('qualityctrls', 'qc_structure');
 		$this->Structures->set('qualityctrls,qualityctrls_volume', 'qc_volume_structure');
 			
@@ -148,47 +162,52 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$qc_data_to_save = array();
 			foreach($this->data as $key => $data_unit){
 				//validate
-				
+
+				$sample_master_id = null;
 				$sample_data = $data_unit['ViewSample'];
 				unset($data_unit['ViewSample']);
-				if(isset($data_unit['AliquotMaster'])){
-					$aliquot_data['AliquotMaster'] = $data_unit['AliquotMaster'];
-					$remove_from_storage = $data_unit['FunctionManagement']['remove_from_storage'];
-					unset($data_unit['AliquotMaster']);
-					unset($data_unit['AliquotControl']);
-					unset($data_unit['FunctionManagement']);
-				}
+				
 				$aliquot_master_id = null;
-				$sample_master_id = null;
-				if($aliquot_data != null){
+				if(isset($data_unit['AliquotMaster'])){
+					$sample_master_id = $data_unit['AliquotMaster']['sample_master_id'];
 					$aliquot_master_id = $key;
+					
+					$aliquot_data = array();
+					$aliquot_data['AliquotMaster'] = $data_unit['AliquotMaster'];
+					$aliquot_data['AliquotMaster']['id'] = $aliquot_master_id;
+					
+					$aliquot_data['AliquotControl'] = $data_unit['AliquotControl'];
+					$aliquot_data['StorageMaster'] = $data_unit['StorageMaster'];
+					$aliquot_data['FunctionManagement'] = $data_unit['FunctionManagement'];
+					
+					unset($data_unit['AliquotControl']);
+					unset($data_unit['StorageMaster']);
+					unset($data_unit['FunctionManagement']);
+					
 					$this->AliquotMaster->data = null;
-					$aliquot_data['AliquotMaster']['id'] = $key;
-					$aliquot_data['FunctionManagement']['recorded_storage_selection_label'] = $data_unit['StorageMaster']['selection_label'];
+					unset($aliquot_data['AliquotMaster']['storage_coord_x']);
+					unset($aliquot_data['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($aliquot_data);
 					if(!$this->AliquotMaster->validates()){
 						foreach($this->AliquotMaster->validationErrors as $field => $error_msg){
 							$errors[$field] = $error_msg;
 						}
 					}
-					unset($data_unit['StorageMaster']);
+					$aliquot_data['AliquotMaster']['storage_coord_x'] = $data_unit['AliquotMaster']['storage_coord_x'];
+					$aliquot_data['AliquotMaster']['storage_coord_y'] = $data_unit['AliquotMaster']['storage_coord_y'];
 					
-					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
-					$aliquot_data2 = $this->AliquotMaster->find('first', array(
-						'fields'		=> array('*'),
-						'conditions'	=> array('AliquotMaster.id' => $key),
-						'recursive'		=> 0,
-						'joins'			=> $joins)
-					);
-					$aliquot_data['AliquotMaster'] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
-					$display_data[] = array('parent' => $aliquot_data2, 'children' => $data_unit);
-					$sample_master_id = $aliquot_data2['AliquotMaster']['sample_master_id'];
-					if($remove_from_storage){
+					unset($data_unit['AliquotMaster']);
+					
+					$display_data[] = array('parent' => array_merge($aliquot_data, array('ViewSample' => $sample_data)), 'children' => $data_unit);
+					
+					if($aliquot_data['FunctionManagement']['remove_from_storage']){
 						$aliquot_data['AliquotMaster']['storage_master_id'] = null;
 						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
 						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
 					}
-					$aliquot_data_to_save[] = array_merge($aliquot_data2['AliquotMaster'], $aliquot_data['AliquotMaster']);
+					
+					$aliquot_data_to_save[] = $aliquot_data['AliquotMaster'];
+					
 				}else{
 					$sample_master_id = $key;
 					$sample_data['sample_master_id'] = $key;
@@ -462,20 +481,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/quality_ctrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
-		}
-	}
-	
-	function addInit($collection_id, $sample_master_id){
-		$this->setBatchMenu(array('SampleMaster' => $sample_master_id));
-		$this->set('aliquot_data_no_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, AliquotMaster::$volume_condition))));
-		$this->set('aliquot_data_vol', $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id, 'NOT' => AliquotMaster::$volume_condition))));
-		$this->Structures->set('aliquotmasters,aliquotmasters_volume', 'aliquot_structure_vol');
-		$this->Structures->set('aliquotmasters', 'aliquot_structure_no_vol');
-		$this->Structures->set('empty', 'empty_structure');
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) {
-			require($hook_link);
 		}
 	}
 }
