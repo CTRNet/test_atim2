@@ -1777,6 +1777,32 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot used volume', `flag_override_help`='1', `language_help`='source_used_volume_help' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume_for_batchderivative') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotmasters_volume'), (SELECT id FROM structure_fields WHERE `model`='ALiquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '29', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotmasters_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('tested aliquot selection','Tested Aliquot Selection','Sélection aliquot testé'),
+('unspecified','Unspecified', 'Non spécifié');
+
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='25', `flag_override_label`='1', `language_label`='tested aliquot used volume', `flag_override_help`='1', `language_help`='tested_aliquot_volume_help' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='used_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('tested aliquot used volume','Used Volume','Volume utilisé'),
+('tested_aliquot_volume_help', 'Volume of the aliquot used for the quality control.', 'Volume de l''aliquot utilisé pour le contrôle de qualité.');
+
+
+
+
+
+
+
+
+
+
 
 
 
