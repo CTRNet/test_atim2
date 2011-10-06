@@ -121,240 +121,47 @@ class SampleMastersController extends InventorymanagementAppController {
 		}
 	}
 	
-	function listAll($collection_id, $initial_specimen_sample_id, $filter_option = null) {
-		if((!$collection_id) || (!$initial_specimen_sample_id)) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
+	/**
+	 * List all derivatives samples of a specimen.
+	 * 
+	 * @param $collection_id ID of the collection
+	 * @param $specimen_sample_id sample_master_id of the specimen
+	 */
+	function listAllDerivatives($collection_id, $specimen_sample_master_id) {
+		if((!$collection_id) || (!$specimen_sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
-		// MANAGE FILTER OPTION
+		$specimen_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $specimen_sample_master_id), 'recursive' => -1)); 
+		if(empty($specimen_data)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$is_collection_sample_list = ($initial_specimen_sample_id == '-1')? true: false;
+		$derivatives_data = array();
+		$derivatives_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $specimen_sample_master_id, 'SampleMaster.initial_specimen_sample_id != SampleMaster.id'), 'recursive' => 0)); 
 		
-		$model_to_use = null;
-		$form_alias = null;
-		$sample_search_criteria = array();
-		$menu_variables = array();
-		
-		$filter_value = 'no filter';
-		
-		if($is_collection_sample_list) {
-			//---------------------------------------------------
-			// A- User is working on collection samples list
-			//---------------------------------------------------
-			
-			// A.1- Manage filter option
-			if(is_null($filter_option)) {
-				if(isset($_SESSION['InventoryManagement']['CollectionSamples']['Filter'])) { 
-					// Get existing filter
-					$filter_option = $_SESSION['InventoryManagement']['CollectionSamples']['Filter']; 
-				}
-			} else if($filter_option == '-1') {
-				// User inactived filter
-				$filter_option = null;
-				unset($_SESSION['InventoryManagement']['CollectionSamples']['Filter']);
-			}
-			
-			// A.2- Set Model, Alias, Menu Criteria and Search Criteria to use
-			if(is_null($filter_option)) {
-				// No filter
-				$model_to_use = 'ViewSample';
-				$form_alias = 'view_sample_joined_to_parent';
-				
-			} else  {
-				// Get filter options
-				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { 
-					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-	
-				switch($option_for_list_all[0]) {
-					case 'CATEGORY':
-						// list all collection samples according to sample category: Either specimen or derivative
-						$model_to_use = 'ViewSample';
-						$form_alias = 'view_sample_joined_to_parent';
+		if(empty($derivatives_data)) {
+			$this->Structures->set('sample_masters,sd_undetailed_derivatives', 'no_data_structure');
+			$this->data = array();
 						
-						$sample_category = $option_for_list_all[1];
-						$sample_search_criteria['ViewSample.sample_category'] = $sample_category;
-						$filter_value = $sample_category;
-						break;
-						
-					case 'SAMP_CONT_ID':
-						// list all collection samples according to sample type
-						$model_to_use = 'SampleMaster';
-						
-						$sample_control_id = $option_for_list_all[1];
-						$sample_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id; 
-						
-						$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-						if(empty($sample_control_data)) { 
-							$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}	
-										
-						$form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$filter_value = $sample_control_data['SampleControl']['sample_type'];
-						break;
-						
-					default:
-						$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true);								
-				}
-				
-				// Set filter option in session
-				$_SESSION['InventoryManagement']['CollectionSamples']['Filter'] = $filter_option;
-			}			
-			
 		} else {
-			//---------------------------------------------------
-			// B- User is working on specimen derivatives list	
-			//---------------------------------------------------
-			
-			$is_existing_specimen = $this->SampleMaster->find('count', array('conditions' => array('SampleMaster.initial_specimen_sample_id' => $initial_specimen_sample_id)));
-			if(!$is_existing_specimen) { 
-				$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}
-			
-			$menu_variables['SampleMaster.id'] = $initial_specimen_sample_id;
-			$menu_variables['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id;
-					
-			// B.1- Manage filter option
-			if(is_null($filter_option)) {
-				// Get existing filter
-				if(isset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter'])) { 
-					if($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']['InitialSpecimenSampleId'] != $initial_specimen_sample_id) {
-						// New studied specimen: clear filter option
-						$filter_option = null;
-						unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);						
-						
-					} else {
-						// Get existing filter
-						$filter_option = $_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']['Option']; 
-					}
-				}
-			} else if($filter_option == '-1') {
-				// User inactived filter
-				$filter_option = null;
-				unset($_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter']);
-			}
-			
-			// B.2- Set Model, Alias, Menu Criteria and Search Criteria to use
-			if(is_null($filter_option)) {	
-				// No filter
-				$model_to_use = 'ViewSample';
-				$form_alias = 'view_sample_joined_to_parent';
-						
-				$sample_search_criteria['ViewSample.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
-				$sample_search_criteria['ViewSample.sample_category'] = 'derivative'; 
-			
-			} else {	
-				// Get filter options
-				$model_to_use = 'SampleMaster';
-						
-				$sample_search_criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
-				$sample_search_criteria['SampleMaster.sample_category'] = 'derivative'; 
-			
-				$option_for_list_all = explode("|", $filter_option);			
-				if(sizeof($option_for_list_all) != 2)  { 
-					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-	
-				switch($option_for_list_all[0]) {
-					case 'SAMP_CONT_ID':
-						// list all derivatives samples according to sample type
-						$sample_control_id = $option_for_list_all[1];
-						$sample_search_criteria['SampleMaster.sample_control_id'] = $sample_control_id; 
-						
-						$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-						if(empty($sample_control_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
-										
-						$form_alias = $sample_control_data['SampleControl']['form_alias'];
-						$filter_value = $sample_control_data['SampleControl']['sample_type'];
-						break;
-						
-					default:
-						$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true);								
-				}
-				
-				// Set filter option in session
-				$_SESSION['InventoryManagement']['SpecimenDerivatives']['Filter'] = array(
-					'InitialSpecimenSampleId' => $initial_specimen_sample_id,
-					'Option' => $filter_option);
-			}		
-		}
+			// Data
+			$derivatives_data = AppController::defineArrayKey($derivatives_data, "SampleMaster", "sample_control_id", false);
+			$this->set('derivatives_data', $derivatives_data);
 
-		// MANAGE DATA
-		
-		// Search data to display
-		$samples_data = array();
-		switch($model_to_use) {
-			case 'ViewSample': 
-				// Get data
-				$samples_data = $this->paginate($this->ViewSample, array_merge(array('ViewSample.collection_id' => $collection_id), $sample_search_criteria));
-				break;
-				
-			case 'SampleMaster':		
-				// Get data (User would like to list sample data fo a specific sample type)
-				$belongs_to_details = array(
-					'belongsTo' => array('GeneratedParentSample' => array(
-						'className' => 'Inventorymanagement.SampleMaster',
-						'foreignKey' => 'parent_id')));
-				
-				$this->SampleMaster->bindModel($belongs_to_details, false);			
-				$samples_data = $this->paginate($this->SampleMaster, array_merge(array('SampleMaster.collection_id' => $collection_id), $sample_search_criteria));
-				$this->SampleMaster->unbindModel(array('belongsTo' => array('GeneratedParentSample')), false);
-				break;
-				
-			default:
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		
-		$this->set('model_to_use', $model_to_use);
-		$this->set('samples_data', $samples_data);
-		$this->data = array();
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS	
-		
-		if(is_null($form_alias)) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-		$this->Structures->set($form_alias);		
-		
-		// Get all sample control types to build the add to selected button (only for collection samples form)
-		$specimen_sample_controls_list = array();
-		if($is_collection_sample_list) {
-			$specimen_sample_controls_list = $this->SampleControl->getPermissibleSamplesArray(null); 
-		}
-		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);
-		
-		// Get all collection / derivative sample type list to build the filter button
-		$sample_type_list = array();
-		if($is_collection_sample_list) {
-			$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_category' => 'specimen'), 'order' => 'SampleControl.sample_type ASC', 'recursive' => '-1'));
-			foreach($tmp_sample_type_list as $new_sample_type) {
-				$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-				$sample_type = $new_sample_type['SampleControl']['sample_type'];
-				$sample_type_list[$sample_type] = $sample_control_id;
+			// Structures
+			$derivatives_structures = array();
+			foreach($derivatives_data as $sample_control_id => $derivatives){
+				$derivatives_structures[$sample_control_id] = $this->Structures->get('form', $derivatives[0]['SampleControl']['form_alias']);
 			}
+			$this->set('derivatives_structures', $derivatives_structures);			
+			
 		}
-		$this->set('existing_specimen_sample_types', $sample_type_list);
-
-		$sample_type_list = array();
-		$criteria = array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'derivative');
-		if(!$is_collection_sample_list) { 
-			$criteria['SampleMaster.initial_specimen_sample_id'] = $initial_specimen_sample_id; 
-		}
-		$tmp_sample_type_list = $this->SampleMaster->find('all', array('fields' => 'DISTINCT SampleControl.sample_type, SampleMaster.sample_control_id', 'conditions' => $criteria, 'order' => 'SampleControl.sample_type ASC', 'recursive' => '0'));
-		foreach($tmp_sample_type_list as $new_sample_type) {
-			$sample_control_id = $new_sample_type['SampleMaster']['sample_control_id'];
-			$sample_type = $new_sample_type['SampleControl']['sample_type'];
-			$sample_type_list[$sample_type] = $sample_control_id;
-		}
-		$this->set('existing_derivative_sample_types', $sample_type_list);
-		
-		// Get the current menu object. 
-		$menu_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/' . (($is_collection_sample_list)? '-1': '%%SampleMaster.initial_specimen_sample_id%%');
-		$this->set('atim_menu', $this->Menus->get($menu_link));
 		
 		// Set menu variables
-		$atim_menu_variables = array_merge(array('Collection.id' => $collection_id), $menu_variables);
+		$menu_link = '/inventorymanagement/sample_masters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%';
+		$this->set('atim_menu', $this->Menus->get($menu_link));
+		
+		$atim_menu_variables = array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $specimen_sample_master_id);
+		
 		$this->set('atim_menu_variables', $atim_menu_variables);
-		
-		$this->set('filter_value', $filter_value);
-		
+
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
@@ -544,7 +351,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu_link = ($is_specimen? '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%' : '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%');
+		$atim_menu_link = ($is_specimen? '/inventorymanagement/sample_masters/contentTreeView/%%Collection.id%%' : '/inventorymanagement/sample_masters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%');
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
