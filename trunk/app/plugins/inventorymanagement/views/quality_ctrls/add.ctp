@@ -33,7 +33,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 }
 
 $links = array(
-	'top' 		=> '/inventorymanagement/quality_ctrls/add/',
+	'top' 		=> '/inventorymanagement/quality_ctrls/add/'.$sample_master_id_parameter,
 	'bottom'	=> array('cancel' => $cancel_button)
 );
 
@@ -75,6 +75,8 @@ $hook_link = $structures->hook('loop');
 $final_structure_parent = null;
 $final_structure_children = null;
 
+$one_parent = (sizeof($this->data) == 1)? true : false;
+
 while($data = array_shift($this->data)){
 	$parent = $data['parent'];
 	$prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
@@ -94,7 +96,7 @@ while($data = array_shift($this->data)){
 	
 	$final_options_parent['data'] = $parent;
 	
-	$final_options_parent['settings']['header'] .=  " #".(++ $counter);
+	$final_options_parent['settings']['header'] .=  $one_parent? '' : " #".(++ $counter);
 	$final_options_parent['settings']['name_prefix'] = $prefix;
 	
 	$final_options_children['settings']['name_prefix'] = $prefix;
