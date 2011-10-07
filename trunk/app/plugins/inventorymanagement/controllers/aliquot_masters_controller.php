@@ -1371,7 +1371,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->setAliquotMenu($aliquots[0]);
 		}
 		
-		$this->set('skip_lab_book_selection_step', false);
+		$this->set('skip_lab_book_selection_step', true);
 		
 		// Hook Call
 		
@@ -2141,7 +2141,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->data = $this->paginate('Realiquoting', array('Realiquoting.child_aliquot_master_id'=> $aliquot_master_id)); 
 		
 		// Manage data to build URL to access la book
-		$this->set('display_lab_book_url', true);
+		$this->set('display_lab_book_url', false);
 		foreach($this->data as &$new_record) {
 			$new_record['Realiquoting']['generated_lab_book_master_id'] = '-1';
 			if(array_key_exists('lab_book_master_id',$new_record['Realiquoting']) && !empty($new_record['Realiquoting']['lab_book_master_id'])) {
