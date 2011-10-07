@@ -1876,4 +1876,226 @@ UPDATE menus SET FLAG_ACTIVE = 0 WHERE use_link like '/labbook%';
 UNION ALL
 SELECT '****************' as msg;
 
+INSERT INTO structure_value_domains(`domain_name`) VALUES ('ctrnet_submission_disease_site');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('breast - breast', 'breast - breast'),
+('central nervous system - brain', 'central nervous system - brain'),
+('central nervous system - spinal cord', 'central nervous system - spinal cord'),
+('central nervous system - other central nervous system', 'central nervous system - other central nervous system'),
+('digestive - anal', 'digestive - anal'),
+('digestive - appendix', 'digestive - appendix'),
+('digestive - bile ducts', 'digestive - bile ducts'),
+('digestive - colorectal', 'digestive - colorectal'),
+('digestive - esophageal', 'digestive - esophageal'),
+('digestive - gallbladder', 'digestive - gallbladder'),
+('digestive - liver', 'digestive - liver'),
+('digestive - pancreas', 'digestive - pancreas'),
+('digestive - small intestine', 'digestive - small intestine'),
+('digestive - stomach', 'digestive - stomach'),
+('digestive - other digestive', 'digestive - other digestive'),
+('female genital - cervical', 'female genital - cervical'),
+('female genital - endometrium', 'female genital - endometrium'),
+('female genital - fallopian tube', 'female genital - fallopian tube'),
+('female genital - gestational trophoblastic neoplasia', 'female genital - gestational trophoblastic neoplasia'),
+('female genital - ovary', 'female genital - ovary'),
+('female genital - peritoneal', 'female genital - peritoneal'),
+('female genital - uterine', 'female genital - uterine'),
+('female genital - vulva', 'female genital - vulva'),
+('female genital - vagina', 'female genital - vagina'),
+('female genital - other female genital', 'female genital - other female genital'),
+('haematological - leukemia', 'haematological - leukemia'),
+('haematological - lymphoma', 'haematological - lymphoma'),
+('haematological - hodgkin''s disease', 'haematological - hodgkin''s disease'),
+('haematological - non-hodgkin''s lymphomas', 'haematological - non-hodgkin''s lymphomas'),
+('haematological - other haematological', 'haematological - other haematological'),
+('head & neck - larynx', 'head & neck - larynx'),
+('head & neck - nasal cavity and sinuses', 'head & neck - nasal cavity and sinuses'),
+('head & neck - lip and oral cavity', 'head & neck - lip and oral cavity'),
+('head & neck - pharynx', 'head & neck - pharynx'),
+('head & neck - thyroid', 'head & neck - thyroid'),
+('head & neck - salivary glands', 'head & neck - salivary glands'),
+('head & neck - other head & neck', 'head & neck - other head & neck'),
+('male genital - penis', 'male genital - penis'),
+('male genital - prostate', 'male genital - prostate'),
+('male genital - testis', 'male genital - testis'),
+('male genital - other male genital', 'male genital - other male genital'),
+('musculoskeletal sites - soft tissue sarcoma', 'musculoskeletal sites - soft tissue sarcoma'),
+('musculoskeletal sites - bone', 'musculoskeletal sites - bone'),
+('musculoskeletal sites - other bone', 'musculoskeletal sites - other bone'),
+('ophthalmic - eye', 'ophthalmic - eye'),
+('ophthalmic - other eye', 'ophthalmic - other eye'),
+('skin - melanoma', 'skin - melanoma'),
+('skin - non melanomas', 'skin - non melanomas'),
+('skin - other skin', 'skin - other skin'),
+('thoracic - lung', 'thoracic - lung'),
+('thoracic - mesothelioma', 'thoracic - mesothelioma'),
+('thoracic - other thoracic', 'thoracic - other thoracic'),
+('urinary tract - bladder', 'urinary tract - bladder'),
+('urinary tract - renal pelvis and ureter', 'urinary tract - renal pelvis and ureter'),
+('urinary tract - kidney', 'urinary tract - kidney'),
+('urinary tract - urethra', 'urinary tract - urethra'),
+('urinary tract - other urinary tract', 'urinary tract - other urinary tract'),
+('other - primary unknown', 'other - primary unknown'),
+('other - gross metastatic disease', 'other - gross metastatic disease');
+
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="breast - breast" AND language_alias="breast - breast"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="central nervous system - brain" AND language_alias="central nervous system - brain"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="central nervous system - spinal cord" AND language_alias="central nervous system - spinal cord"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="central nervous system - other central nervous system" AND language_alias="central nervous system - other central nervous system"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - anal" AND language_alias="digestive - anal"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - appendix" AND language_alias="digestive - appendix"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - bile ducts" AND language_alias="digestive - bile ducts"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - colorectal" AND language_alias="digestive - colorectal"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - esophageal" AND language_alias="digestive - esophageal"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - gallbladder" AND language_alias="digestive - gallbladder"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - liver" AND language_alias="digestive - liver"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - pancreas" AND language_alias="digestive - pancreas"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - small intestine" AND language_alias="digestive - small intestine"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - stomach" AND language_alias="digestive - stomach"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="digestive - other digestive" AND language_alias="digestive - other digestive"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - cervical" AND language_alias="female genital - cervical"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - endometrium" AND language_alias="female genital - endometrium"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - fallopian tube" AND language_alias="female genital - fallopian tube"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - gestational trophoblastic neoplasia" AND language_alias="female genital - gestational trophoblastic neoplasia"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - ovary" AND language_alias="female genital - ovary"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - peritoneal" AND language_alias="female genital - peritoneal"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - uterine" AND language_alias="female genital - uterine"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - vulva" AND language_alias="female genital - vulva"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - vagina" AND language_alias="female genital - vagina"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="female genital - other female genital" AND language_alias="female genital - other female genital"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="haematological - leukemia" AND language_alias="haematological - leukemia"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="haematological - lymphoma" AND language_alias="haematological - lymphoma"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="haematological - hodgkin's disease" AND language_alias="haematological - hodgkin's disease"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="haematological - non-hodgkin's lymphomas" AND language_alias="haematological - non-hodgkin's lymphomas"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="haematological - other haematological" AND language_alias="haematological - other haematological"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - larynx" AND language_alias="head & neck - larynx"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - nasal cavity and sinuses" AND language_alias="head & neck - nasal cavity and sinuses"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - lip and oral cavity" AND language_alias="head & neck - lip and oral cavity"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - pharynx" AND language_alias="head & neck - pharynx"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - thyroid" AND language_alias="head & neck - thyroid"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - salivary glands" AND language_alias="head & neck - salivary glands"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="head & neck - other head & neck" AND language_alias="head & neck - other head & neck"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="male genital - penis" AND language_alias="male genital - penis"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="male genital - prostate" AND language_alias="male genital - prostate"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="male genital - testis" AND language_alias="male genital - testis"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="male genital - other male genital" AND language_alias="male genital - other male genital"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="musculoskeletal sites - soft tissue sarcoma" AND language_alias="musculoskeletal sites - soft tissue sarcoma"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="musculoskeletal sites - bone" AND language_alias="musculoskeletal sites - bone"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="musculoskeletal sites - other bone" AND language_alias="musculoskeletal sites - other bone"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="ophthalmic - eye" AND language_alias="ophthalmic - eye"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="ophthalmic - other eye" AND language_alias="ophthalmic - other eye"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="skin - melanoma" AND language_alias="skin - melanoma"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="skin - non melanomas" AND language_alias="skin - non melanomas"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="skin - other skin" AND language_alias="skin - other skin"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="thoracic - lung" AND language_alias="thoracic - lung"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="thoracic - mesothelioma" AND language_alias="thoracic - mesothelioma"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="thoracic - other thoracic" AND language_alias="thoracic - other thoracic"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - bladder" AND language_alias="urinary tract - bladder"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - renal pelvis and ureter" AND language_alias="urinary tract - renal pelvis and ureter"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - kidney" AND language_alias="urinary tract - kidney"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - urethra" AND language_alias="urinary tract - urethra"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - other urinary tract" AND language_alias="urinary tract - other urinary tract"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown" AND language_alias="other - primary unknown"), "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - gross metastatic disease" AND language_alias="other - gross metastatic disease"), "1");
+
+INSERT IGNORE INTO i18n (id,en) VALUES
+("breast - breast", "Breast - Breast"),
+("central nervous system - brain", "Central Nervous System - Brain"),
+("central nervous system - spinal cord", "Central Nervous System - Spinal Cord"),
+("central nervous system - other central nervous system", "Central Nervous System - Other Central Nervous System"),
+("digestive - anal ", "Digestive - Anal "),
+("digestive - appendix", "Digestive - Appendix"),
+("digestive - bile ducts ", "Digestive - Bile Ducts"),
+("digestive - colorectal", "Digestive - Colorectal"),
+("digestive - esophageal", "Digestive - Esophageal"),
+("digestive - gallbladder ", "Digestive - Gallbladder"), 
+("digestive - liver ", "Digestive - Liver"), 
+("digestive - pancreas ", "Digestive - Pancreas"), 
+("digestive - small intestine ", "Digestive - Small Intestine"), 
+("digestive - stomach ", "Digestive - Stomach"), 
+("digestive - other digestive", "Digestive - Other Digestive"),
+("female genital - cervical", "Female Genital - Cervical"),
+("female genital - endometrium ", "Female Genital - Endometrium"), 
+("female genital - fallopian tube ", "Female Genital - Fallopian Tube"), 
+("female genital - gestational trophoblastic neoplasia ", "Female Genital - Gestational Trophoblastic Neoplasia"), 
+("female genital - ovary", "Female Genital - Ovary"),
+("female genital - peritoneal", "Female Genital - Peritoneal"),
+("female genital - uterine ", "Female Genital - Uterine"), 
+("female genital - vulva", "Female Genital - Vulva"),
+("female genital - vagina", "Female Genital - Vagina"),
+("female genital - other female genital", "Female Genital - Other Female Genital"),
+("haematological - leukemia", "Haematological - Leukemia"),
+("haematological - lymphoma", "Haematological - Lymphoma"),
+("haematological - hodgkin's disease ", "Haematological - Hodgkin's Disease"), 
+("haematological - non-hodgkin's lymphomas ", "Haematological - Non-Hodgkin's Lymphomas"), 
+("haematological - other haematological", "Haematological - Other Haematological"),
+("head & neck - larynx", "Head & Neck - Larynx"),
+("head & neck - nasal cavity and sinuses", "Head & Neck - Nasal Cavity and Sinuses"),
+("head & neck - lip and oral cavity", "Head & Neck - Lip and Oral Cavity"),
+("head & neck - pharynx", "Head & Neck - Pharynx"),
+("head & neck - thyroid", "Head & Neck - Thyroid"),
+("head & neck - salivary glands", "Head & Neck - Salivary Glands"),
+("head & neck - other head & neck", "Head & Neck - Other Head & Neck"),
+("male genital - penis", "Male Genital - Penis"),
+("male genital - prostate ", "Male Genital - Prostate"), 
+("male genital - testis", "Male Genital - Testis"),
+("male genital - other male genital", "Male Genital - Other Male Genital"),
+("musculoskeletal sites - soft tissue sarcoma ", "Musculoskeletal Sites - Soft Tissue Sarcoma"), 
+("musculoskeletal sites - bone", "Musculoskeletal Sites - Bone"),
+("musculoskeletal sites - other bone", "Musculoskeletal Sites - Other Bone"),
+("ophthalmic - eye", "Ophthalmic - Eye"),
+("ophthalmic - other eye", "Ophthalmic - Other Eye"),
+("skin - melanoma ", "Skin - Melanoma"), 
+("skin - non melanomas ", "Skin - Non Melanomas"), 
+("skin - other skin", "Skin - Other Skin"),
+("thoracic - lung", "Thoracic - Lung"),
+("thoracic - mesothelioma ", "Thoracic - Mesothelioma"), 
+("thoracic - other thoracic", "Thoracic - Other Thoracic"),
+("urinary tract - bladder ", "Urinary Tract - Bladder"), 
+("urinary tract - renal pelvis and ureter", "Urinary Tract - Renal Pelvis and Ureter"),
+("urinary tract - kidney ", "Urinary Tract - Kidney"), 
+("urinary tract - urethra", "Urinary Tract - Urethra"),
+("urinary tract - other urinary tract", "Urinary Tract - Other Urinary Tract"),
+("other - primary unknown", "Other - Primary Unknown"),
+("other - gross metastatic disease ", "Other - Gross Metastatic Disease"); 
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
 
