@@ -1826,3 +1826,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `field`='volume_unit'), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 UPDATE menus SET use_link = '/inventorymanagement/sample_masters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%' WHERE use_link = '/inventorymanagement/sample_masters/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%';
+
+UPDATE structure_formats SET flag_search = 0 WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'ad_%') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'current_volume');
+UPDATE structure_formats SET display_order = (display_order + 400) WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'sd_der%');
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('at least one quality control has to be created for each item','At least one quality control has to be created for each item!','Au moins un contrôle de qualité doit être créé par item.'),
+('error: unable to define date','Error: Unable to define date.','Erreur: Impossible de définir la date.'),
+('password is required','Password is required.','Le mot de passe est requis.'),
+('password must have a minimal length of 6 characters','Password must have a minimal length of 6 characters.','Le mot de passe doit comporter au moins 6 caractères.'),
+('you must define at least one use for each aliquot','You must define at least one use for each aliquot.','Vous devez définir au moins une utilisation pour chaque aliquot.');
+

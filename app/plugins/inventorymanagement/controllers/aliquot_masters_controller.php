@@ -739,6 +739,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				);
 				
 				unset($data_unit['AliquotMaster']);
+				unset($data_unit['StorageMaster']);
 				unset($data_unit['FunctionManagement']);
 				unset($data_unit['AliquotControl']);
 				
@@ -754,7 +755,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$errors = array_merge($errors, $this->AliquotInternalUse->validationErrors);
 					}
 				}
-				unset($data_unit['StorageMaster']);
 				$uses_to_save = array_merge($uses_to_save, $data_unit);
 				$this->data[] = array('parent' => $parent, 'children' => $data_unit);
 			}
