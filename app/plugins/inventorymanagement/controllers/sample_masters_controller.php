@@ -814,7 +814,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(!$is_menu_already_set) $this->setBatchMenu(array('SampleMaster' => $init_data['ids']));
 		$this->set('parent_sample_control_id', $init_data['control_id']);
 		
-		$this->set('skip_lab_book_selection_step', false);
+		$this->set('skip_lab_book_selection_step', true);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
