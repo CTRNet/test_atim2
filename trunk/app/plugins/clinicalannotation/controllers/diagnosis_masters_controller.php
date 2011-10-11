@@ -54,7 +54,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
-		pr($no_add_ids);
+		
 		$ids_having_child = $this->DiagnosisMaster->hasChild($ids);
 		$ids_having_child = array_fill_keys($ids_having_child, null);
 		foreach($this->data as &$data){
