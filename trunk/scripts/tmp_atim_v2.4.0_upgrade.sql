@@ -1610,14 +1610,14 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Tool', 'Template', 'templates', 'visibility', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='sharing') , '0', '', 'user', '', 'visibility', ''), 
 ('Tool', 'Template', 'templates', 'flag_active', 'checkbox',  NULL , '0', '', '1', '', 'active', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='' AND `language_label`='active' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 INSERT INTO structure_validations
 (structure_field_id, rule, on_action, language_message) VALUES
-((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner'), 'notEmpty', '', ''),
-((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), 'notEmpty', '', '');
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), 'notEmpty', '', ''),
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), 'notEmpty', '', '');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('default values', 'Default Values', 'Valeurs par défaut'),
@@ -1999,103 +1999,3 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - other urinary tract" AND language_alias="urinary tract - other urinary tract"), "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown" AND language_alias="other - primary unknown"), "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - gross metastatic disease" AND language_alias="other - gross metastatic disease"), "1");
-
-INSERT IGNORE INTO i18n (id,en) VALUES
-("breast - breast", "Breast - Breast"),
-("central nervous system - brain", "Central Nervous System - Brain"),
-("central nervous system - spinal cord", "Central Nervous System - Spinal Cord"),
-("central nervous system - other central nervous system", "Central Nervous System - Other Central Nervous System"),
-("digestive - anal ", "Digestive - Anal "),
-("digestive - appendix", "Digestive - Appendix"),
-("digestive - bile ducts ", "Digestive - Bile Ducts"),
-("digestive - colorectal", "Digestive - Colorectal"),
-("digestive - esophageal", "Digestive - Esophageal"),
-("digestive - gallbladder ", "Digestive - Gallbladder"), 
-("digestive - liver ", "Digestive - Liver"), 
-("digestive - pancreas ", "Digestive - Pancreas"), 
-("digestive - small intestine ", "Digestive - Small Intestine"), 
-("digestive - stomach ", "Digestive - Stomach"), 
-("digestive - other digestive", "Digestive - Other Digestive"),
-("female genital - cervical", "Female Genital - Cervical"),
-("female genital - endometrium ", "Female Genital - Endometrium"), 
-("female genital - fallopian tube ", "Female Genital - Fallopian Tube"), 
-("female genital - gestational trophoblastic neoplasia ", "Female Genital - Gestational Trophoblastic Neoplasia"), 
-("female genital - ovary", "Female Genital - Ovary"),
-("female genital - peritoneal", "Female Genital - Peritoneal"),
-("female genital - uterine ", "Female Genital - Uterine"), 
-("female genital - vulva", "Female Genital - Vulva"),
-("female genital - vagina", "Female Genital - Vagina"),
-("female genital - other female genital", "Female Genital - Other Female Genital"),
-("haematological - leukemia", "Haematological - Leukemia"),
-("haematological - lymphoma", "Haematological - Lymphoma"),
-("haematological - hodgkin's disease ", "Haematological - Hodgkin's Disease"), 
-("haematological - non-hodgkin's lymphomas ", "Haematological - Non-Hodgkin's Lymphomas"), 
-("haematological - other haematological", "Haematological - Other Haematological"),
-("head & neck - larynx", "Head & Neck - Larynx"),
-("head & neck - nasal cavity and sinuses", "Head & Neck - Nasal Cavity and Sinuses"),
-("head & neck - lip and oral cavity", "Head & Neck - Lip and Oral Cavity"),
-("head & neck - pharynx", "Head & Neck - Pharynx"),
-("head & neck - thyroid", "Head & Neck - Thyroid"),
-("head & neck - salivary glands", "Head & Neck - Salivary Glands"),
-("head & neck - other head & neck", "Head & Neck - Other Head & Neck"),
-("male genital - penis", "Male Genital - Penis"),
-("male genital - prostate ", "Male Genital - Prostate"), 
-("male genital - testis", "Male Genital - Testis"),
-("male genital - other male genital", "Male Genital - Other Male Genital"),
-("musculoskeletal sites - soft tissue sarcoma ", "Musculoskeletal Sites - Soft Tissue Sarcoma"), 
-("musculoskeletal sites - bone", "Musculoskeletal Sites - Bone"),
-("musculoskeletal sites - other bone", "Musculoskeletal Sites - Other Bone"),
-("ophthalmic - eye", "Ophthalmic - Eye"),
-("ophthalmic - other eye", "Ophthalmic - Other Eye"),
-("skin - melanoma ", "Skin - Melanoma"), 
-("skin - non melanomas ", "Skin - Non Melanomas"), 
-("skin - other skin", "Skin - Other Skin"),
-("thoracic - lung", "Thoracic - Lung"),
-("thoracic - mesothelioma ", "Thoracic - Mesothelioma"), 
-("thoracic - other thoracic", "Thoracic - Other Thoracic"),
-("urinary tract - bladder ", "Urinary Tract - Bladder"), 
-("urinary tract - renal pelvis and ureter", "Urinary Tract - Renal Pelvis and Ureter"),
-("urinary tract - kidney ", "Urinary Tract - Kidney"), 
-("urinary tract - urethra", "Urinary Tract - Urethra"),
-("urinary tract - other urinary tract", "Urinary Tract - Other Urinary Tract"),
-("other - primary unknown", "Other - Primary Unknown"),
-("other - gross metastatic disease ", "Other - Gross Metastatic Disease"); 
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-
