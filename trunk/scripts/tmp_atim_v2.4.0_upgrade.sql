@@ -1610,14 +1610,14 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Tool', 'Template', 'templates', 'visibility', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='sharing') , '0', '', 'user', '', 'visibility', ''), 
 ('Tool', 'Template', 'templates', 'flag_active', 'checkbox',  NULL , '0', '', '1', '', 'active', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='' AND `language_label`='active' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' ), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 INSERT INTO structure_validations
 (structure_field_id, rule, on_action, language_message) VALUES
-((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), 'notEmpty', '', ''),
-((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), 'notEmpty', '', '');
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner'), 'notEmpty', '', ''),
+((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), 'notEmpty', '', '');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('default values', 'Default Values', 'Valeurs par défaut'),
@@ -1999,3 +1999,102 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="urinary tract - other urinary tract" AND language_alias="urinary tract - other urinary tract"), "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown" AND language_alias="other - primary unknown"), "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - gross metastatic disease" AND language_alias="other - gross metastatic disease"), "1");
+
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('breast - breast', '', 'Breast - Breast', 'Sein - Sein'),
+
+('central nervous system - brain', '', 'Central Nervous System - Brain', 'Système Nerveux Central - Cerveau'),
+('central nervous system - other central nervous system', '', 'Central Nervous System - Other', 'Système Nerveux Central - Autre'),
+('central nervous system - spinal cord', '', 'Central Nervous System - Spinal Cord', 'Système Nerveux Central - Moelle épinière'),
+
+('digestive - anal', '', 'Digestive - Anal', 'Appareil digestif - Anal'),
+('digestive - appendix', '', 'Digestive - Appendix', 'Appareil digestif - Appendice'),
+('digestive - bile ducts', '', 'Digestive - Bile Ducts', 'Appareil digestif - Voies biliaires'),
+('digestive - colorectal', '', 'Digestive - Colorectal', 'Appareil digestif - Colorectal'),
+('digestive - esophageal', '', 'Digestive - Esophageal', 'Appareil digestif - Oesophage'),
+('digestive - gallbladder', '', 'Digestive - Gallbladder', 'Appareil digestif - Vésicule biliaire'),
+('digestive - liver', '', 'Digestive - Liver', 'Appareil digestif - Foie'),
+('digestive - other digestive', '', 'Digestive - Other', 'Appareil digestif - Autre'),
+('digestive - pancreas', '', 'Digestive - Pancreas', 'Appareil digestif - Pancréas'),
+('digestive - small intestine', '', 'Digestive - Small Intestine', 'Appareil digestif - Intestin grêle'),
+('digestive - stomach', '', 'Digestive - Stomach', 'Appareil digestif - Estomac'),
+
+('female genital - cervical', '', 'Female Genital - Cervical', 'Appareil génital féminin - Col de l''utérus'),
+('female genital - endometrium', '', 'Female Genital - Endometrium', 'Appareil génital féminin - Endomètre'),
+('female genital - fallopian tube', '', 'Female Genital - Fallopian Tube', 'Appareil génital féminin - Trompes de Fallope'),
+('female genital - gestational trophoblastic neoplasia', '', 'Female Genital - Gestational Trophoblastic Neoplasia', 'Appareil génital féminin - Néoplasie trophoblastique gestationnelle'),
+('female genital - other female genital', '', 'Female Genital - Other', 'Appareil génital féminin - Autre'),
+('female genital - ovary', '', 'Female Genital - Ovary', 'Appareil génital féminin - Ovaire'),
+('female genital - peritoneal', '', 'Female Genital - Peritoneal', 'Appareil génital féminin - Péritoine'),
+('female genital - uterine', '', 'Female Genital - Uterine', 'Appareil génital féminin - Utérin'),
+('female genital - vagina', '', 'Female Genital - Vagina', 'Appareil génital féminin - Vagin'),
+('female genital - vulva', '', 'Female Genital - Vulva', 'Appareil génital féminin - Vulve'),
+
+('haematological - hodgkin''s disease', '', 'Haematological - Hodgkin''s Disease', 'Hématologie - Maladie de Hodgkin'),
+('haematological - leukemia', '', 'Haematological - Leukemia', 'Hématologie - Leucémie'),
+('haematological - lymphoma', '', 'Haematological - Lymphoma', 'Hématologie - Lymphome'),
+('haematological - non-hodgkin''s lymphomas', '', 'Haematological - Non-Hodgkin''s Lymphomas', 'Hématologie - Lymphome Non-hodgkinien'),
+('haematological - other haematological', '', 'Haematological - Other', 'Hématologie - Autre'),
+
+('head & neck - larynx', '', 'Head & Neck - Larynx', 'Tête & Cou - Larynx'),
+('head & neck - lip and oral cavity', '', 'Head & Neck - Lip and Oral Cavity', 'Tête & Cou - Lèvres et la cavité buccale'),
+('head & neck - nasal cavity and sinuses', '', 'Head & Neck - Nasal Cavity and Sinuses', 'Tête & Cou - Cavité nasale et sinus'),
+('head & neck - other head & neck', '', 'Head & Neck - Other', 'Tête & Cou - Autre'),
+('head & neck - pharynx', '', 'Head & Neck - Pharynx', 'Tête & Cou - Pharynx'),
+('head & neck - salivary glands', '', 'Head & Neck - Salivary Glands', 'Tête & Cou - Glandes salivaires'),
+('head & neck - thyroid', '', 'Head & Neck - Thyroid', 'Tête & Cou - Thyroïde'),
+
+('male genital - other male genital', '', 'Male Genital - Other', 'Appareil génital masculin - Autre'),
+('male genital - penis', '', 'Male Genital - Penis', 'Appareil génital masculin - Pénis'),
+('male genital - prostate', '', 'Male Genital - Prostate', 'Appareil génital masculin - Prostate'),
+('male genital - testis', '', 'Male Genital - Testis', 'Appareil génital masculin - Testicule'),
+
+('musculoskeletal sites - bone', '', 'Musculoskeletal Sites - Bone', 'Sites musculo-squelettiques - Os'),
+('musculoskeletal sites - other bone', '', 'Musculoskeletal Sites - Other Bone', 'Sites musculo-squelettiques - Autre'),
+('musculoskeletal sites - soft tissue sarcoma', '', 'Musculoskeletal Sites - Soft Tissue Sarcoma', 'Sites musculo-squelettiques - Sarcome des tissus mous'),
+
+('ophthalmic - eye', '', 'Ophthalmic - Eye', 'Ophtalmique - Yeux'),
+('ophthalmic - other eye', '', 'Ophthalmic - Other', 'Ophtalmique - Autre'),
+
+('other - gross metastatic disease', '', 'Other - Gross Metastatic Disease', ''),
+('other - primary unknown', '', 'Other - Primary Unknown', 'Autre - Primaire inconnu'),
+
+('skin - melanoma', '', 'Skin - Melanoma', 'Peau - Melanome'),
+('skin - non melanomas', '', 'Skin - Non Melanomas', 'Peau - Autre que Melanome'),
+('skin - other skin', '', 'Skin - Other', 'Peau - Autre'),
+
+('thoracic - lung', '', 'Thoracic - Lung', 'Thoracique - Poumon'),
+('thoracic - mesothelioma', '', 'Thoracic - Mesothelioma', 'Thoracique - Mésothéliome'),
+('thoracic - other thoracic', '', 'Thoracic - Other', 'Thoracique - Autre'),
+
+('urinary tract - bladder', '', 'Urinary Tract - Bladder', 'Voies urinaires - Vessie'),
+('urinary tract - kidney', '', 'Urinary Tract - Kidney', 'Voies urinaires - Rein'),
+('urinary tract - other urinary tract', '', 'Urinary Tract - Other', 'Voies urinaires - Autre'),
+('urinary tract - renal pelvis and ureter', '', 'Urinary Tract - Renal Pelvis and Ureter', 'Voies urinaires - Bassinet et uretère'),
+('urinary tract - urethra', '', 'Urinary Tract - Urethra', 'Voies urinaires - Urètre');					
+					
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sopd_general_all');		
+INSERT INTO structures (alias) VALUES ('sopd_inventory_all');
+UPDATE structure_formats SET `flag_search`='1', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='version' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopControl' AND `tablename`='sop_controls' AND `field`='sop_group' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopControl' AND `tablename`='sop_controls' AND `field`='type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='activated_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='status' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='scope' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='purpose' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE sop_controls SET extend_tablename = NULL, extend_form_alias = NULL;
+UPDATE sop_controls SET form_alias = CONCAT('sopmasters,',form_alias);
+ALTER TABLE sop_controls ADD column `flag_active` tinyint(1) NOT NULL DEFAULT '1';
+
+UPDATE menus SET use_summary = 'Sop.SopMaster::summary' WHERE id = 'sop_CAN_03';
+UPDATE menus SET flag_active = '0' WHERE id = 'sop_CAN_04';
+
+
+
+
+
+					
+	
