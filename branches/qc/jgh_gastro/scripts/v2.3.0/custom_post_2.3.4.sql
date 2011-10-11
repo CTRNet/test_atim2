@@ -637,7 +637,7 @@ UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id F
 
 SELECT '****************' as msg
 UNION
-SELECT IF((SELECT COUNT(*) FROM `quality_ctrls`) > 0, 'Quality controls have been created into the system. The custom_post_2.3.5 script will erase everything. Don't continue migration process!', 'You db is ok. You can run the next custom_post_2.3.5 script.') AS msg
+SELECT IF((SELECT COUNT(*) FROM `quality_ctrls`) > 0, 'Quality controls have been created into the system. The custom_post_2.3.5 script will erase everything. Don\'t continue migration process!', 'You db is ok. You can run the next custom_post_2.3.5 script.') AS msg
 UNION ALL
 SELECT '****************' as msg;
  
