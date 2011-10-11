@@ -229,6 +229,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 								$errors[$field] = $error_msg . " ".__('line', true).": ".$line;
 							}
 						}
+						$quality_control = $this->QualityCtrl->data; 
 						$quality_control['QualityCtrl']['aliquot_master_id'] = $aliquot_master_id;
 						$quality_control['QualityCtrl']['sample_master_id'] = $sample_master_id;
 						$qc_data_to_save[] = $quality_control;
