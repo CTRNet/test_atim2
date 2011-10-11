@@ -1254,7 +1254,6 @@ div.wrapper table.structure table.extra td {
 			margin: 2px;
 			border: none;
 			border-top: 3px solid #486680;
-			z-index: 1000;
 		}
 div.wrapper table.structure table.columns tr.pagination th {
 	font-weight: normal;
