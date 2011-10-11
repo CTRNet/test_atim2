@@ -327,10 +327,14 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function templateInit($collection_id, $template_id){
-		$template_model = AppModel::getInstance("Tools", "Template", true);
-		$template = $template_model->findById($template_id);
-		$template_model->init($template_id);
+		$template = null;
+		if($template_id != 0){
+			$template_model = AppModel::getInstance("Tools", "Template", true);
+			$template = $template_model->findById($template_id);
+			$template_model->init($template_id);
+		}
 		$this->set('template', $template);
+		$this->set('template_id', $template_id);
 		
 		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => 'i18n', 'name' => 'TemplateInit'));
 		$this->Structures->set('empty', 'template_init_structure');

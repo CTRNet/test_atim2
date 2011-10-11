@@ -37,8 +37,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	var $paginate = array(
 		'AliquotMaster' => array('limit' => pagination_amount , 'order' => 'AliquotMaster.barcode DESC'), 
-		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC')/*, 
-		'ViewAliquotUse' => array('limit' => pagination_amount, 'order' => 'ViewAliquotUse.use_datetime DESC')*/);
+		'ViewAliquot' => array('limit' => pagination_amount , 'order' => 'ViewAliquot.barcode DESC')
+	);
 
 	/* --------------------------------------------------------------------------
 	 * DISPLAY FUNCTIONS
@@ -754,6 +754,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->AliquotInternalUse->validates()){
 						$errors = array_merge($errors, $this->AliquotInternalUse->validationErrors);
 					}
+					$use_data_unit = $this->AliquotInternalUse->data;
 				}
 				$uses_to_save = array_merge($uses_to_save, $data_unit);
 				$this->data[] = array('parent' => $parent, 'children' => $data_unit);
@@ -1643,18 +1644,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 								$errors[$field][$msg][] = $record_counter;
 							}
 						}
-						
+
 						// Reset data to get position data
 						$child = $this->AliquotMaster->data;						
 
 						// ** Realiquoting **					
-												
 						$this->Realiquoting->set(array('Realiquoting' =>  $child['Realiquoting']));
 						if(!$this->Realiquoting->validates()){
 							foreach($this->Realiquoting->validationErrors as $field => $msg) {
 								$errors[$field][$msg][] = $record_counter;
 							}
 						}
+						$child['Realiquoting'] = $this->Realiquoting->data['Realiquoting'];
 						
 						// Check volume can be completed
 						if((!empty($child['Realiquoting']['parent_used_volume'])) && empty($child['GeneratedParentAliquot']['aliquot_volume_unit'])) {
@@ -1667,7 +1668,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 				}
 				
-				if(!$new_aliquot_created) $errors[]['at least one child has to be created'][] = $record_counter;
+				if(!$new_aliquot_created){
+					$errors[]['at least one child has to be created'][] = $record_counter;
+				}
 			}
 			
 			$this->data = $validated_data;
@@ -1709,7 +1712,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->AliquotMaster->save(array('AliquotMaster' => $parent_data['AliquotMaster']), false)){
 						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					
+
 					foreach($parent_and_children['children'] as $children) {
 						
 						$realiquoting_data = array('Realiquoting' => $children['Realiquoting']);
@@ -2016,6 +2019,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 									$errors[$field][$msg][] = $record_counter;
 								}
 							}
+							$children_aliquot['Realiquoting'] = $this->Realiquoting->data['Realiquoting']; 
 							
 							// Check volume can be completed
 							if((!empty($children_aliquot['Realiquoting']['parent_used_volume'])) && empty($children_aliquot['GeneratedParentAliquot']['aliquot_volume_unit'])) {
@@ -2026,7 +2030,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$validated_data[$parent_id]['children'][$tmp_id] = $children_aliquot;
 					}
 				}
-				if(!$children_has_been_defined) $errors[]['at least one child has to be defined'][] = $record_counter;	
+				if(!$children_has_been_defined){
+					$errors[]['at least one child has to be defined'][] = $record_counter;	
+				}
 			}
 			
 			$this->data = $validated_data;
@@ -2124,13 +2130,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function listAllRealiquotedParents($collection_id, $sample_master_id, $aliquot_master_id) {
-		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
-
 		// MANAGE DATA
 		
 		// Get the aliquot data
 		$current_aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($current_aliquot_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if(empty($current_aliquot_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		// Get/Manage Parent Aliquots
 		$this->paginate['Realiquoting'] = array(
