@@ -101,9 +101,40 @@ class SopMaster extends SopAppModel
 		return $result;
 	}
 	
-	
-	
-	
+	function allowDeletion($sop_master_id) {	
+		$ctrl_model = AppModel::getInstance("Storagelayout", "TmaSlide", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('TmaSlide.sop_master_id' => $sop_master_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'sop is assigned to a slide'); 
+		}
+
+		$StorageDetail = AppModel::getInstance("Storagelayout", "StorageDetail", true);
+		$block_model = new StorageDetail(false, 'std_tma_blocks');			
+		$ctrl_value = $block_model->find('count', array('conditions' => array('StorageDetail.sop_master_id' => $sop_master_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'sop is assigned to a block'); 
+		}
+ 		
+		$ctrl_model = AppModel::getInstance("Inventorymanagement", "Collection", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('Collection.sop_master_id' => $sop_master_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'sop is assigned to a collection'); 
+		}	
+				
+		$ctrl_model = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('SampleMaster.sop_master_id' => $sop_master_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'sop is assigned to a sample'); 
+		}	
+				
+		$ctrl_model = AppModel::getInstance("Inventorymanagement", "AliquotMaster", true);
+		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('AliquotMaster.sop_master_id' => $sop_master_id), 'recursive' => '-1'));
+		if($ctrl_value > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'sop is assigned to an aliquot'); 
+		}	
+
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>

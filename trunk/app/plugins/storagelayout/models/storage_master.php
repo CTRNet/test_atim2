@@ -464,7 +464,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		}
 		
 		// Check storage contains no aliquots
-		$aliquot_master_model = AppModel::getInstance("Inventorymangement", "AliquotMaster", true);
+		$aliquot_master_model = AppModel::getInstance("Inventorymanagement", "AliquotMaster", true);
 		$nbr_storage_aliquots = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot exists within the deleted storage'); 
