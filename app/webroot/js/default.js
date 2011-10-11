@@ -765,6 +765,24 @@ function initActions(){
 		$("input[type=radio]:checked").click();
 	}
 	
+	function handleSearchResultLinks(){
+		$(".ajax_search_results thead a, .ajax_search_results tfoot a").click(function(){
+			$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
+			$.get($(this).attr("href"), function(data){
+				try{
+					data = $.parseJSON(data);
+					$(".ajax_search_results").html(data.page);
+					history.replaceState(data.page, "foo");//storing result in history
+					handleSearchResultLinks();
+				}catch(exception){
+					//simply submit the form then
+					document.location = $(this).attr("href"); 
+				}				
+			});
+			return false;
+		});
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -821,7 +839,9 @@ function initActions(){
 						data = $.parseJSON(data);
 						$(".ajax_search_results").html(data.page);
 						history.replaceState(data.page, "foo");//storing result in history
+						//update the form action
 						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+						handleSearchResultLinks();
 					}catch(exception){
 						//simply submit the form then
 						$("form").submit();
@@ -836,6 +856,7 @@ function initActions(){
 				if(event.state != null){
 					$(".ajax_search_results").html(event.state);
 					$(".ajax_search_results").parent().show();
+					handleSearchResultLinks();
 				}
 			};
 		}
