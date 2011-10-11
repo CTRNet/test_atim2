@@ -45,12 +45,12 @@
 	if(!$is_ajax){
 		$add_links = array();
 		foreach ($diagnosis_controls_list as $diagnosis_control){
-			if($diagnosis_control['DiagnosisControl']['flag_primary']){
+			if($diagnosis_control['DiagnosisControl']['category'] == 'primary'){
 				$add_links[__($diagnosis_control['DiagnosisControl']['controls_type'], true)] = '/clinicalannotation/diagnosis_masters/add/'.$atim_menu_variables['Participant.id'].'/0/'.$diagnosis_control['DiagnosisControl']['id'].'/';
 			}
 		}
 		ksort($add_links);
-		$structure_links['bottom'] = array('add' => $add_links);
+		$structure_links['bottom'] = array('add primary' => $add_links);
 	}
 	
 	$structure_extras = array();
@@ -84,13 +84,19 @@
 		$options = array();
 		$secondary_ctrl_id = null;
 		foreach($diagnosis_controls_list as $dx_ctrl){
-			if($dx_ctrl['DiagnosisControl']['flag_secondary']){
-				$options[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['databrowser_label'], true);
-				if($dx_ctrl['DiagnosisControl']['controls_type'] == 'secondary'){
+			if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
+				$options[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category'], true) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type'], true);		
+				if($dx_ctrl['DiagnosisControl']['category'] == 'secondary'){
 					$secondary_ctrl_id = $dx_ctrl['DiagnosisControl']['id'];
 				}
 			}
 		}
+		
+		$hook_link = $structures->hook('after_ids_groups');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
 		?>
 		<div id="popupSelect" class="hidden">
 			<?php

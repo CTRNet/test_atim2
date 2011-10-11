@@ -2095,4 +2095,88 @@ UPDATE menus SET flag_active = '0' WHERE id = 'sop_CAN_04';
 INSERT INTO structure_value_domains (domain_name, source) VALUES ('sop_types', 'Sop.SopControl::getTypePermissibleValues'),('sop_groups','Sop.SopControl::getGroupPermissibleValues');	
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_types') ,  `setting`='' WHERE model='SopControl' AND tablename='sop_controls' AND field='type' ;	
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_groups')  WHERE model='SopControl' AND tablename='sop_controls' AND field='sop_group' AND `type`='select' AND structure_value_domain  IS NULL ;			
-	
+
+ALTER TABLE diagnosis_controls
+  ADD COLUMN `category` enum('primary','secondary','progression','remission','recurrence') NOT NULL DEFAULT 'primary' AFTER id;
+
+UPDATE diagnosis_controls SET flag_active = 0 WHERE controls_type = 'cap report - perihilar bile duct';
+
+UPDATE diagnosis_controls SET controls_type = 'basic primary' WHERE controls_type = 'primary';
+UPDATE diagnosis_controls SET controls_type = 'primary diagnosis unknown' WHERE controls_type = 'unknown';
+
+UPDATE diagnosis_controls SET category = 'secondary', controls_type = 'basic secondary' WHERE controls_type = 'secondary';
+UPDATE diagnosis_controls SET category = 'remission', controls_type = 'basic remission' WHERE controls_type = 'remission';
+UPDATE diagnosis_controls SET category = 'progression', controls_type = 'basic progression' WHERE controls_type = 'progression';
+UPDATE diagnosis_controls SET category = 'recurrence', controls_type = 'basic recurrence' WHERE controls_type = 'recurrence';
+
+ALTER TABLE diagnosis_controls
+  DROP COLUMN flag_primary, DROP COLUMN flag_secondary;
+  
+UPDATE diagnosis_controls SET databrowser_label = concat(category,'|',controls_type) WHERE controls_type IN ('blood', 'tissue', 'basic recurrence', 'basic progression', 'basic remission', 'basic secondary', 'primary diagnosis unknown', 'basic primary');
+
+SELECT 'Run following queries after diagnosis data migration' AS msg
+UNION SELECT '
+ALTER TABLE diagnosis_masters 
+	DROP COLUMN dx_identifier,
+	DROP COLUMN primary_number,
+	DROP COLUMN dx_origin;
+ALTER TABLE diagnosis_masters_revs
+	DROP COLUMN dx_identifier,
+	DROP COLUMN primary_number,
+	DROP COLUMN dx_origin;	
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN (''primary_number'', ''dx_origin'', ''dx_identifier''));
+DELETE FROM structure_fields WHERE field IN (''primary_number'', ''dx_origin'', ''dx_identifier'');
+' AS msg;
+
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('diagnosis_type', 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues'),('diagnosis_category','Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues');	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisControl', 'diagnosis_controls', 'controls_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type') , '0', '', '', '', 'controls type', ''), 
+('Clinicalannotation', 'DiagnosisControl', 'diagnosis_controls', 'category', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') , '0', '', '', '', 'category', '');
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('diagnosismasters'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='controls_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='controls type' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='category' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '13', '', '0', '', '0', '', '1', 'help_memo', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date');
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_primary,dx_tissues') WHERE controls_type = 'tissue';
+ALTER TABLE diagnosis_masters 
+	ADD COLUMN `primary_id` int(11) DEFAULT NULL AFTER id;
+ALTER TABLE diagnosis_masters_revs
+	ADD COLUMN `primary_id` int(11) DEFAULT NULL AFTER id;	
+ALTER TABLE `diagnosis_masters`
+  ADD CONSTRAINT `diagnosis_masters_ibfk_2` FOREIGN KEY (`primary_id`) REFERENCES `diagnosis_masters` (`id`);
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_primary,dx_bloods') WHERE form_alias LIKE '%dx_bloods%';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date');
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_primary'), detail_tablename = 'dxd_primaries' WHERE controls_type = 'primary diagnosis unknown';
+DROP TABLE dxd_unknown;
+DROP TABLE dxd_unknown_revs;
+
+DELETE FROM diagnosis_controls WHERE controls_type = 'basic primary';
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_master');
+DELETE FROM structures WHERE alias='dx_master';
+
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_secondary') WHERE controls_type LIKE '%basic secondary%';
+
+DELETE FROM structures WHERE alias IN ('dx_unknown');
+
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_progression ') WHERE controls_type LIKE 'basic progression';
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_remission ') WHERE controls_type LIKE 'basic remission';
+UPDATE diagnosis_controls SET form_alias = CONCAT('diagnosismasters,dx_recurrence ') WHERE controls_type LIKE 'basic recurrence';
+
+INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES 
+('error_fk_diagnosis_primary_id', 'Your data cannot be deleted! This diagnosis/progression/etc is linked to a primary or secondary diagnostic.', 'Vos données ne peuvent être supprimées! Ce diagnostic/progression/etc est attaché à un diagnostic primaire ou secondaire.'),
+('error_fk_diagnosis_parent_id', 'Your data cannot be deleted! This diagnosis/progression/etc is linked to a primary  or secondary diagnostic.', 'Vos données ne peuvent être supprimées! Ce diagnostic/progression/etc est attaché à un diagnostic primaire ou secondaire.'),
+
+('sop is assigned to a slide', 'Your data cannot be deleted! This sop is linked to slide creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création de lame.'),
+('sop is assigned to a block', 'Your data cannot be deleted! This sop is linked to block creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création de bloc.'),
+('sop is assigned to a sample', 'Your data cannot be deleted! This sop is linked to sample creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création d''un échantillon.'),
+('sop is assigned to a collection', 'Your data cannot be deleted! This sop is linked to collection creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création de collection.'),
+('sop is assigned to a aliquot', 'Your data cannot be deleted! This sop is linked to aliquot creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création d''aliquot.');
+
+
+
