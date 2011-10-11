@@ -22,3 +22,13 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model LIKE 'SpecimenReviewMaster')
 OR id2 = (SELECT id FROM datamart_structures WHERE model LIKE 'SpecimenReviewMaster');
 
+# patch with y_n_u from 2.4.0
+UPDATE structure_fields SET type='y_n_u' WHERE id IN(2228, 2229, 2242);
+
+UPDATE structure_fields SET language_label='mitotic index (mitotic figures per mm²)' WHERE id=2236;
+DELETE FROM structure_formats WHERE structure_field_id=2237;
+DELETE FROM structure_fields WHERE id=2237;
+ALTER TABLE qc_gastro_dxd_cap_melanomas
+ DROP COLUMN mitotic_figures_per_smm;
+ALTER TABLE qc_gastro_dxd_cap_melanomas_revs
+ DROP COLUMN mitotic_figures_per_smm;
