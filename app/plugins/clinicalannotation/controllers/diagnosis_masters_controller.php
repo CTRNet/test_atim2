@@ -49,11 +49,12 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		foreach($this->data as $data){
 			if(array_key_exists('DiagnosisMaster', $data)){
 				$ids[] = $data['DiagnosisMaster']['id'];
-				if(!in_array($data['DiagnosisControl']['controls_type'], $can_have_child)){
+				if(!in_array($data['DiagnosisMaster']['dx_origin'], $can_have_child)){
 					$no_add_ids[] = $data['DiagnosisMaster']['id'];
 				}
 			}
 		}
+		pr($no_add_ids);
 		$ids_having_child = $this->DiagnosisMaster->hasChild($ids);
 		$ids_having_child = array_fill_keys($ids_having_child, null);
 		foreach($this->data as &$data){
