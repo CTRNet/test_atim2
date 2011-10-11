@@ -27,15 +27,21 @@ if($controls){
 				'list' => '/tools/Template/index',
 				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
 			)
-		), 'extras' => $tree_html
+		), 'settings' => array('return' => true),
+		'extras' => $tree_html
 	);
+	if(isset($is_ajax)){
+		$final_options['settings']['actions'] = false;
+		$final_options['settings']['form_bottom'] = false;
+	}
 }else{
 	$final_options = array(
 		'type' => 'detail',
 		'extras' => 
 			"<div style='padding-left: 10px;'><label>". __('auto submit', true) ."</label><input type='checkbox' name='autosubmit'/></div>"
 			.$tree_html
-			."<div class='ajaxContent'></div>"
+			."<div class='ajaxContent'></div>",
+		'settings' => array('return' => true)
 	);
 	if(isset($structure_header)) {
 		$final_options['settings']['header'] = $structure_header;
@@ -43,7 +49,18 @@ if($controls){
 }
 
 $final_atim_structure = $atim_structure;
-$structures->build( $final_atim_structure, $final_options );
+$page = $structures->build( $final_atim_structure, $final_options );
+
+if(isset($is_ajax)){
+	$page = $shell->validationHtml().$page;
+	$tmp = $shell->validationErrors();
+	$has_errors = !empty($tmp);
+	$shell->validationErrors = null;
+	echo json_encode(array('page' => $page, 'has_errors' => $has_errors));
+	return;
+}else{
+	echo $page;
+}
 
 ?>
 
@@ -67,6 +84,20 @@ $structures->build( $final_atim_structure, $final_options );
 			
 			$("form").append("<input type='hidden' name='data[tree]' value='" + tree + "'/>");
 			$("form").append("<input type='hidden' name='data[description]' value='" + $("input[name=tmp_description]").val() + "'/>");
+
+			$.post($("form").attr("action"), $("form").serialize(), function(data){
+				data = $.parseJSON(data);
+				$("body").append("<div class='hidden' id='tmp_add'></div>");
+				$("#tmp_add").html(data.page);
+				$("form").first().attr("action", $("#tmp_add form").attr("action")).find("table").first().replaceWith($("#tmp_add table").first());
+				$(".outerWrapper").prepend($("#validation"));
+				$("#tmp_add").remove();
+				if(!data.has_errors){
+					$("form").submit();
+				}
+			});
+			
+			return false;
 		});
 
 		if(!<?php echo $controls; ?>){

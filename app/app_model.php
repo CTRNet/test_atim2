@@ -383,7 +383,9 @@ class AppModel extends Model {
 		){
 			//build master validation (detail validation are built within the validation function)
 			self::buildAutoValidation($this->name, $this);
-			$this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+			if(array_key_exists($this->name, self::$auto_validation)){
+				$this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+			}
 		}
 		$this->setDataAccuracy();
 

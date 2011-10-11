@@ -138,18 +138,24 @@ class ShellHelper extends Helper {
 		}
 		
 		// display any VALIDATION ERRORS
-		$display_errors_html = $this->validationErrors();
 		
+		$return .= $this->validationHtml().'	
+			<!-- start #wrapper -->
+			<div class="outerWrapper">
+				<div id="wrapper" class="wrapper plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
+		';
+		
+		return $return;
+		
+	}
+	
+	function validationHtml(){
+		$display_errors_html = $this->validationErrors();
 		
 		$confirm_msg_html = "";
 		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
 			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
-		}
-		
-		if(isset($_SESSION['ctrapp_core']['batch_create_msg'])){
-			$confirm_msg_html = '<ul class="batchCreate"><li>'.$_SESSION['ctrapp_core']['batch_create_msg'].'</li></ul>';
-			unset($_SESSION['ctrapp_core']['batch_create_msg']);
 		}
 		
 		if(isset($_SESSION['ctrapp_core']['warning_msg']) && count($_SESSION['ctrapp_core']['warning_msg']) > 0){
@@ -163,23 +169,18 @@ class ShellHelper extends Helper {
 			$confirm_msg_html .= '</ul>';
 			$_SESSION['ctrapp_core']['warning_msg'] = array();
 		}
+		$return = "";
 		if($display_errors_html != null || strlen($confirm_msg_html) > 0){
-		$return .= '
-			<!-- start #validation -->
-			<div id="validation">
-				'.$display_errors_html.$confirm_msg_html.'
-			</div>
-			<!-- end #validation -->
-			';
+			$return .= '
+				<!-- start #validation -->
+				<div id="validation">
+					'.$display_errors_html.$confirm_msg_html.'
+				</div>
+				<!-- end #validation -->
+				';
 		}
-		$return .= '	
-			<!-- start #wrapper -->
-			<div class="outerWrapper">
-				<div id="wrapper" class="wrapper plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
-		';
 		
 		return $return;
-		
 	}
 	
 	function validationErrors(){

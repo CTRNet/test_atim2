@@ -33,6 +33,7 @@ class TemplateController extends AppController {
 			$this->Template->redirectIfNonExistent($template_id, __METHOD__, __LINE__);
 		}
 		
+		//js menus required data-------
 		$sample_control_model = AppModel::getInstance("Inventorymanagement", "SampleControl", true);
 		$parent_to_derivative_sample_control_model = AppModel::getInstance("Inventorymanagement", "ParentToDerivativeSampleControl", true);
 		$sample_controls = $sample_control_model->find('all', array('fields' => array('id', 'sample_type'), 'recursive' => -1));
@@ -50,7 +51,8 @@ class TemplateController extends AppController {
 		
 		$aliquot_control_model = AppModel::getInstance("Inventorymanagement", "AliquotControl", 1);
 		$aliquot_controls = $aliquot_control_model->find('all', array('fields' => array('id', 'sample_control_id', 'aliquot_type'), 'conditions' => array('flag_active' => 1), 'recursive' => -1));
-		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type'); 
+		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
+ 		//-----------------------------
 
 		$this->Structures->set('template');
 		if(!empty($this->data)){
@@ -60,7 +62,7 @@ class TemplateController extends AppController {
 				AppController::addWarningMsg(__('visibility reduced to owner level', true)); 
 			}
 			
-			//update entity
+			//update entities----------
 			$this->data['Template']['owning_entity_id'] = null;
 			$this->data['Template']['visible_entity_id'] = null;
 			$tmp = array(
@@ -84,70 +86,81 @@ class TemplateController extends AppController {
 				}
 			}
 			unset($value);
+			unset($tmp);
+			//-------------------------
 
 			//record the tree
-			if($template_id == 0){
-				//new tree
+			if($this->RequestHandler->isAjax()){
+				//ajax request are made to save the template info
+				Configure::write('debug', 0);
+				if($template_id != 0){
+					$this->data['Template']['id'] = $template_id;
+				}
 				if($this->Template->save($this->data)){
-					$template_id = $this->Template->id;
-				}else{
-					//non unique or empty name, give a temp one or we will lose the tree
-					$errors = $this->Template->validationErrors; 
-					$this->Template->save(array('Template' => array('name' => 'tmp '.now())));
-					$template_id = $this->Template->id;
-					$this->Template->validationErrors = $errors;
-				}
-			}else{
-				$this->data['Template']['id'] = $template_id;
-				$this->Template->save($this->data);
-			}
-			
-			$tree = json_decode('['.$this->data['tree'].']');
-			array_shift($tree);//remove root
-			$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
-			$found_nodes = array();//already in db found nodes
-			
-			foreach($tree as $node){
-				if($node->nodeId < 0){
-					//create the node in Db
-					$parent_id = null;
-					if($node->parent_id < 0){
-						$parent_id = $nodes_mapping[$node->parent_id]; 
-					}else if($node->parent_id > 0){
-						$parent_id = $node->parent_id;
+					if($template_id == 0){
+						$template_id = $this->Template->getLastInsertId();
 					}
-					$this->TemplateNode->data = array();
-					$this->TemplateNode->id = null;
-					
-					$this->TemplateNode->save(array('TemplateNode' => array(
-						'template_id'				=> $template_id,
-						'parent_id'				=> $parent_id,
-						'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
-						'control_id'			=> abs($node->controlId),
-						'quantity'				=> $node->quantity
-					)));
-					$nodes_mapping[$node->nodeId] = $this->TemplateNode->id;
-					$found_nodes[] = $this->TemplateNode->id;
-				}else{
-					$found_nodes[] = $node->nodeId;
-					$this->TemplateNode->save(array('TemplateNode' => array('id' => $node->nodeId, 'quantity' => $node->quantity)));
 				}
+				$this->set('is_ajax', true);
+			}else{
+				//non ajax is made to save the tree
+				$tree = json_decode('['.$this->data['tree'].']');
+				array_shift($tree);//remove root
+				$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
+				$found_nodes = array();//already in db found nodes
+				
+				foreach($tree as $node){
+					if($node->nodeId < 0){
+						//create the node in Db
+						$parent_id = null;
+						if($node->parent_id < 0){
+							$parent_id = $nodes_mapping[$node->parent_id]; 
+						}else if($node->parent_id > 0){
+							$parent_id = $node->parent_id;
+						}
+						$this->TemplateNode->data = array();
+						$this->TemplateNode->id = null;
+						
+						$this->TemplateNode->save(array('TemplateNode' => array(
+							'template_id'			=> $template_id,
+							'parent_id'				=> $parent_id,
+							'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
+							'control_id'			=> abs($node->controlId),
+							'quantity'				=> $node->quantity
+						)));
+						$nodes_mapping[$node->nodeId] = $this->TemplateNode->id;
+						$found_nodes[] = $this->TemplateNode->id;
+					}else{
+						$found_nodes[] = $node->nodeId;
+						$this->TemplateNode->save(array('TemplateNode' => array('id' => $node->nodeId, 'quantity' => $node->quantity)));
+					}
+				}
+				
+				$nodes_to_delete = $this->TemplateNode->find('list', array(
+					'fields'		=> array('TemplateNode.id'),
+					'conditions'	=> array('TemplateNode.template_id' => $template_id, 'NOT' => array('TemplateNode.id' => $found_nodes))
+				));
+				$nodes_to_delete = array_reverse($nodes_to_delete);
+				foreach($nodes_to_delete as $node_to_delete){
+					$this->TemplateNode->delete($node_to_delete);
+				}
+				
+				$this->atimFlash('your data has been saved', '/tools/Template/edit/'.$template_id);
+				return;
 			}
-			
-			$nodes_to_delete = $this->TemplateNode->find('list', array(
-				'fields'		=> array('TemplateNode.id'),
-				'conditions'	=> array('TemplateNode.template_id' => $template_id, 'NOT' => array('TemplateNode.id' => $found_nodes))
-			));
-			$nodes_to_delete = array_reverse($nodes_to_delete);
-			foreach($nodes_to_delete as $node_to_delete){
-				$this->TemplateNode->delete($node_to_delete);
-			}
-			
-			$this->atimFlash('your data has been saved', '/tools/Template/edit/'.$template_id);
-			return;
 		}
+		
+		//loading tree and setting variables
 		$this->Template->id = $template_id;
-		$this->data = $this->Template->read(); 
+		$tmp_data = $template_id ? $this->Template->ownedNode($template_id) : array();
+		if($template_id != 0){
+			if(empty($tmp_data)){
+				$this->flash('you do not own that node', '/tools/Template/index/');
+				return;
+			}else{
+				$this->data = $tmp_data;
+			}
+		}
 		$tree = $this->Template->init();
 		$this->set('tree_data', $tree['']);
 		$this->set('template_id', $template_id);
@@ -159,15 +172,7 @@ class TemplateController extends AppController {
 			'aliquot_relations' => AppController::defineArrayKey($aliquot_controls, "AliquotControl", "sample_control_id")
 		);
 		$this->set('js_data', $js_data);
-		$description = null;
-		if($template_id != 0){
-			$template = $this->Template->findById($template_id);
-			$description = $template['Template']['name'];
-		}else{
-			$description = '';
-		}
 		$this->set('template_id', $template_id);
-		$this->set('description', $description);
 		$this->set('controls', 1);
 		$this->set('collection_id', 0);
 		
@@ -175,6 +180,11 @@ class TemplateController extends AppController {
 	}
 	
 	function delete($template_id){
+		$template = $this->Template->ownedNode($template_id);
+		if(empty($template)){
+			$this->flash('you do not own that node', '/tools/Template/index/');
+			return;
+		}
 		$nodes_to_delete = $this->TemplateNode->find('list', array(
 			'fields'		=> array('TemplateNode.id'),
 			'conditions'	=> array('TemplateNode.template_id' => $template_id)
