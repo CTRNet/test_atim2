@@ -16,6 +16,7 @@ function initDatamartActions(){
 			if(validateSubmit()){
 				$("form").submit();
 			}
+			return false;
 		});
 	}
 
