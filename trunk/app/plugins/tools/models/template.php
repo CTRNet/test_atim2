@@ -30,6 +30,26 @@ class Template extends AppModel {
 		return $result;
 	}
 	
+	/**
+	 * Returns the node with id if it's being owned by the current user
+	 * Enter description here ...
+	 * @param unknown_type $id
+	 */
+	function ownedNode($id){
+		$group_model = AppModel::getInstance("", "Group", true);
+		$group_data = $group_model->findById($_SESSION['Auth']['User']['group_id']);
+		return $this->find('first', array(
+			'conditions' => array(
+				'OR' => array(
+					array('Template.owner' => 'user', 'Template.owning_entity_id' => $_SESSION['Auth']['User']['id']),
+					array('Template.owner' => 'bank', 'Template.owning_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.owner' => 'all')
+				), 'Template.flag_system' => false,
+				'Template.id' => $id
+			)
+		));
+	}
+	
 	function findOwnedNodes(){
 		$group_model = AppModel::getInstance("", "Group", true);
 		$group_data = $group_model->findById($_SESSION['Auth']['User']['group_id']);
