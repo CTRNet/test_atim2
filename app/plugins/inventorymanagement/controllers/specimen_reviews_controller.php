@@ -26,9 +26,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 
-	function listAll($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-		
+	function listAll($collection_id, $sample_master_id){
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
@@ -39,7 +37,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		// Set list of available review
 		$review_controls = $this->SpecimenReviewControl->find('all', array('conditions'=>array('SpecimenReviewControl.sample_control_id' => $sample_data['SampleMaster']['sample_control_id'], 'SpecimenReviewControl.flag_active' => '1' )));
 		$this->set( 'review_controls', $review_controls );
-		if(empty($review_controls)) { $this->SpecimenReviewControl->validationErrors[]	= 'no path review exists for this type of sample'; }
+		if(empty($review_controls)) { 
+			$this->SpecimenReviewControl->validationErrors[]	= 'no path review exists for this type of sample'; 
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -61,12 +61,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 	}
 	
 	function add($collection_id, $sample_master_id, $specimen_review_control_id) {
-		if ((!$collection_id) || (!$sample_master_id) || (!$specimen_review_control_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-		
 		// MANAGE DATA
-		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
 		$criteria = array(
 			'SpecimenReviewControl.id' => $specimen_review_control_id, 
@@ -74,7 +73,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewControl.flag_active' => '1');
 		$review_control_data = $this->SpecimenReviewControl->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
 					
-		if(empty($review_control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($review_control_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		$this->set( 'review_control_data', $review_control_data );
 		
@@ -144,15 +145,17 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			// Validate specimen review
 			$this->SpecimenReviewMaster->set($specimen_review_data);
 			$submitted_data_validates = ($this->SpecimenReviewMaster->validates())? $submitted_data_validates: false;
+			$specimen_review_data = $this->SpecimenReviewMaster->data;
 			
 			// Validate aliquot review
 			if($is_aliquot_review_defined) {
 				$all_aliquot_review_master_errors = array();
-				foreach($aliquot_review_data as $key => $new_aliquot_review) {
+				foreach($aliquot_review_data as &$new_aliquot_review){
 					// Aliquot Review Master
 					$this->AliquotReviewMaster->set($new_aliquot_review);
-					$submitted_data_validates = ($this->AliquotReviewMaster->validates())? $submitted_data_validates: false;
+					$submitted_data_validates = ($this->AliquotReviewMaster->validates()) ? $submitted_data_validates : false;
 					$all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
+					$new_aliquot_review = $this->AliquotReviewMaster->data;
 				}
 				if(!empty($all_aliquot_review_master_errors)) {
 					$this->AliquotReviewMaster->validationErrors = array();
@@ -180,7 +183,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 				$studied_aliquot_master_ids = array();
 				if($is_aliquot_review_defined) {
-					foreach($aliquot_review_data as $key => $new_aliquot_review) {
+					foreach($aliquot_review_data as $new_aliquot_review) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
 						$new_aliquot_review['AliquotReviewMaster']['id'] = null;
