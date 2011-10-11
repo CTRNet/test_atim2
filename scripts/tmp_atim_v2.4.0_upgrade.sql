@@ -2092,9 +2092,7 @@ ALTER TABLE sop_controls ADD column `flag_active` tinyint(1) NOT NULL DEFAULT '1
 UPDATE menus SET use_summary = 'Sop.SopMaster::summary' WHERE id = 'sop_CAN_03';
 UPDATE menus SET flag_active = '0' WHERE id = 'sop_CAN_04';
 
-
-
-
-
-					
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('sop_types', 'Sop.SopControl::getTypePermissibleValues'),('sop_groups','Sop.SopControl::getGroupPermissibleValues');	
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_types') ,  `setting`='' WHERE model='SopControl' AND tablename='sop_controls' AND field='type' ;	
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sop_groups')  WHERE model='SopControl' AND tablename='sop_controls' AND field='sop_group' AND `type`='select' AND structure_value_domain  IS NULL ;			
 	
