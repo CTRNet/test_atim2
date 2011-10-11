@@ -14,12 +14,13 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			'foreignKey' => 'diagnosis_master_id'));
 	
 	function summary( $variables=array() ) {
+
 		$return = false;
 		if ( isset($variables['DiagnosisMaster.id']) ) {
-			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$variables['DiagnosisMaster.id'])));
-			
+			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$variables['DiagnosisMaster.id']), 'recursive' => 0));
+
 			$return = array(
-					'menu' 				=> array(NULL, __($result['DiagnosisControl']['controls_type'], TRUE)),
+					'menu' 				=> array(NULL, __($result['DiagnosisControl']['category'], TRUE) . ' - '. __($result['DiagnosisControl']['controls_type'], TRUE)),
 					'title' 			=> array(NULL, __('diagnosis', TRUE)),
 					'data'				=> $result,
 					'structure alias'	=> 'diagnosismasters'
@@ -53,6 +54,20 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 	 */
 	function allowDeletion($diagnosis_master_id) {
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
+		
+		// Check for existing records linked to the participant. If found, set error message and deny delete
+		$nbr_primary = $ccl_model->find('count', array('conditions' => array('DiagnosisMaster.primary_id' => $diagnosis_master_id), 'recursive' => '-1'));
+		if ($nbr_primary > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_primary_id';
+		}
+
+		// Check for existing records linked to the participant. If found, set error message and deny delete
+		$nbr_parent = $ccl_model->find('count', array('conditions' => array('DiagnosisMaster.parent_id' => $diagnosis_master_id), 'recursive' => '-1'));
+		if ($nbr_parent > 0) {
+			$arr_allow_deletion['allow_deletion'] = false;
+			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_parent_id';
+		}
 		
 		// Check for existing records linked to the participant. If found, set error message and deny delete
 		$ccl_model = AppModel::getInstance("Clinicalannotation", "ClinicalCollectionLink", true);

@@ -10,7 +10,7 @@
 	
 	$structure_settings = array(
 		'tabindex' => 100,
-		'header' => __('add new diagnosis', NULL) . ': ' . __($dx_type, null)
+		'header' => __('add new', true) . ' ' . __($dx_ctrl['DiagnosisControl']['category'], NULL) . ': ' . __($dx_ctrl['DiagnosisControl']['controls_type'], null)
 	);
 
 	$final_atim_structure = $atim_structure;
