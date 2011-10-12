@@ -11,7 +11,6 @@
 	);
 	if(isset($is_ajax)){
 		$settings['actions'] = false;
-		$settings['header'] = AppController::$result_are_unique_ctrl ? " " : null;
 	}else{
 		$settings['header'] = array( 'title' => __('search type', null).': '.__('aliquots', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url));
 	}
@@ -32,7 +31,7 @@
 	// BUILD FORM
 	$form = $structures->build( $final_atim_structure, $final_options );
 	if(isset($is_ajax)){
-		echo json_encode(array('page' => $form, 'new_search_id' => AppController::getNewSearchId()));
+		echo json_encode(array('page' => $shell->validationHtml().$form, 'new_search_id' => AppController::getNewSearchId()));
 	}else{
 		echo $form;
 	}	

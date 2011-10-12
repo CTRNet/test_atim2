@@ -10,7 +10,6 @@
 	$settings = array('return' => true);
 	if(isset($is_ajax)){
 		$settings['actions'] = false;
-		$settings['header'] = AppController::$result_are_unique_ctrl ? " " : null;
 	}else{
 		$settings['header'] = array( 'title' => __('search type', null).': '.__('samples', null), 'description' => sprintf(__("more information about the types of samples and aliquots are available %s here", true), $help_url));
 	}
@@ -32,7 +31,7 @@
 	$page = $structures->build( $final_atim_structure, $final_options );
 	if(isset($is_ajax)){
 		echo json_encode(array(
-			'page' => $page, 
+			'page' => $shell->validationHtml().$page, 
 			'new_search_id' => AppController::getNewSearchId() 
 		));
 	}else{

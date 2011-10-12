@@ -331,15 +331,8 @@ class StructuresHelper extends Helper {
 					'description'	=> ''
 				);
 			}
-			$detailed_results = '';
-			if(AppController::$result_are_unique_ctrl){
-				$detailed_results = __('detailed results', true);
-				if(strlen(trim($options['settings']['header']['title'])) > 0){
-					$detailed_results = '('.$detailed_results.')';
-				}
-			}
 			echo '<div class="descriptive_heading">
-					<h4>',$options['settings']['header']['title'],' ',$detailed_results,'</h4>
+					<h4>',$options['settings']['header']['title'],'</h4>
 					<p>',$options['settings']['header']['description'],'</p>
 				</div>
 			';
