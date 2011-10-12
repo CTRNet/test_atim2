@@ -2,7 +2,8 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/clinicalannotation/diagnosis_masters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
-			'redefine diagnosis type' => '/underdevelopment/',
+			'add' => '/underdevelopment/',
+			'redefine unknown primary' => '/underdevelopment/',
 			'delete'=>'/clinicalannotation/diagnosis_masters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'list'=>'/clinicalannotation/diagnosis_masters/listall/%%DiagnosisMaster.participant_id%%/'
 		)
@@ -14,11 +15,20 @@
 			$redefine_links[__($diagnosis_control['DiagnosisControl']['controls_type'], true)] = '/clinicalannotation/diagnosis_masters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/'.$diagnosis_control['DiagnosisControl']['id'];
 		}
 		ksort($redefine_links);
-		$structure_links['bottom']['redefine diagnosis type'] = $redefine_links;
-		
+		$structure_links['bottom']['redefine unknown primary'] = $redefine_links;	
 	} else {
-		unset($structure_links['bottom']['redefine diagnosis type']);
-		
+		unset($structure_links['bottom']['redefine unknown primary']);
+	}
+	
+	if(isset($child_controls_list) && !empty($child_controls_list)) {
+		$add_links = array();
+		foreach ($child_controls_list as $diagnosis_control){
+			$add_links[__($diagnosis_control['DiagnosisControl']['category'], true) . ' - ' . __($diagnosis_control['DiagnosisControl']['controls_type'], true)] = '/clinicalannotation/diagnosis_masters/add/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/'.$diagnosis_control['DiagnosisControl']['id'];
+		}
+		ksort($add_links);
+		$structure_links['bottom']['add'] = $add_links;	
+	} else {
+		unset($structure_links['bottom']['add']);
 	}
 	
 	// Set form structure and option 

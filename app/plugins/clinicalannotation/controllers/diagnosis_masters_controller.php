@@ -115,7 +115,15 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				AppController::addWarningMsg(__('the current diagnosis date is before the parent diagnosis date', true));
 			}
 		}
-	
+		
+		// available child ctrl_id for creation
+		
+		if($dx_master_data['DiagnosisControl']['category'] == 'primary') {
+			$this->set('child_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array("DiagnosisControl.category NOT IN ('primary')", 'DiagnosisControl.flag_active' => 1))));		
+		} else if($dx_master_data['DiagnosisControl']['category'] == 'secondary') {
+			$this->set('child_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array("DiagnosisControl.category NOT IN ('primary', 'secondary')", 'DiagnosisControl.flag_active' => 1))));		
+		}
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
