@@ -40,6 +40,10 @@ function initAjaxTreeView(scope){
 					}
 					$(expandButton).removeClass("fetching");
 					$("#" + flat_url).remove();
+					
+					if(window.initTree){
+						initTree($(currentLi));
+					}
 				});
 			}
 		}

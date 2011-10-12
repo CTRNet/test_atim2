@@ -43,18 +43,20 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			))
 		);
 		
-		$ids = array();
-		$no_add_ids = array();
-		$can_have_child  = array('primary', 'secondary');
+		$ids = array();//ids already having child
+		$can_have_child = $this->DiagnosisMaster->find('all', array(
+			'fields' => array('DiagnosisMaster.id'),
+			'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary'), 'DiagnosisMaster.participant_id' => $participant_id),
+			'recursive' => 0
+		));
+		$can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
+		$can_have_child = array_keys($can_have_child);
 		foreach($this->data as $data){
 			if(array_key_exists('DiagnosisMaster', $data)){
 				$ids[] = $data['DiagnosisMaster']['id'];
-				if(!in_array($data['DiagnosisControl']['category'], $can_have_child)){
-					$no_add_ids[] = $data['DiagnosisMaster']['id'];
-				}
 			}
 		}
-		
+
 		$ids_having_child = $this->DiagnosisMaster->hasChild($ids);
 		$ids_having_child = array_fill_keys($ids_having_child, null);
 		foreach($this->data as &$data){
@@ -71,7 +73,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters'); 
 		$atim_structure['EventMaster'] = $this->Structures->get('form', 'eventmasters'); 
 		$this->set('atim_structure', $atim_structure);
-		$this->set('no_add_ids', $no_add_ids);
+		$this->set('can_have_child', $can_have_child);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
