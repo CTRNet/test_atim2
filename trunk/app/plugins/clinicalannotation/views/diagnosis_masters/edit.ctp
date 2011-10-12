@@ -9,7 +9,7 @@ $structure_links = array(
 // 1- DIAGNOSTIC DATA
 
 $structure_settings = array(
-	'header' => __('edit diagnosis record', NULL)
+	'header' => null
 );
 
 $final_atim_structure = $atim_structure;

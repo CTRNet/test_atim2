@@ -47,7 +47,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$no_add_ids = array();
 		$can_have_child  = array('primary', 'secondary');
 		foreach($this->data as $data){
-			if(array_key_exists('DiagnosisMaster', $data) && array_key_exists('DiagnosisControl', $data)){
+			if(array_key_exists('DiagnosisMaster', $data)){
 				$ids[] = $data['DiagnosisMaster']['id'];
 				if(!in_array($data['DiagnosisControl']['category'], $can_have_child)){
 					$no_add_ids[] = $data['DiagnosisMaster']['id'];
@@ -89,7 +89,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->data = $dx_master_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']) );
+		
+		$this->setDiagnosisMenu($dx_master_data);
+		
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		
@@ -201,7 +203,8 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']));
+		$this->setDiagnosisMenu($dx_master_data);
+		
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$structure_alias = $dx_control_data['DiagnosisControl']['form_alias'].', ';
 		$structure_alias .= empty($dx_master_data['DiagnosisMaster']['parent_id']) ? 'dx_origin_primary' : 'dx_origin_wo_primary';  
@@ -266,6 +269,42 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id);
 		}		
+	}
+	
+	function setDiagnosisMenu($dx_master_data) {
+		if(!isset($dx_master_data['DiagnosisMaster']['id'])) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		
+		$primary_id = null;
+		$progression_1_id = null;
+		$progression_2_id = null;
+		if(empty($dx_master_data['DiagnosisMaster']['primary_id'])) {
+			//Primary Display
+			$primary_id = $dx_master_data['DiagnosisMaster']['id'];
+			$menu_link = '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%';
+			
+		} else if($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['parent_id']) {
+			// Secondary or primary progression display
+			$primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
+			$progression_1_id = $dx_master_data['DiagnosisMaster']['id'];
+			$menu_link = '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%'	;
+			
+		} else {
+			// Secondary progression display
+			$primary_id = $dx_master_data['DiagnosisMaster']['primary_id'];
+			$progression_1_id = $dx_master_data['DiagnosisMaster']['parent_id'];
+			$progression_2_id = $dx_master_data['DiagnosisMaster']['id'];
+			$menu_link = '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%'	;
+		}
+		
+		$this->set( 'atim_menu', $this->Menus->get($menu_link));
+		$this->set( 'atim_menu_variables', array(
+			'Participant.id'=>$dx_master_data['DiagnosisMaster']['participant_id'], 
+			'DiagnosisMaster.id'=>$dx_master_data['DiagnosisMaster']['id'], 
+			
+			'DiagnosisMaster.primary_id'=>$primary_id,
+			'DiagnosisMaster.progression_1_id'=>$progression_1_id,
+			'DiagnosisMaster.progression_2_id'=>$progression_2_id 
+		));
 	}
 }
 
