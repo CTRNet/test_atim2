@@ -108,7 +108,7 @@
 		<script>
 		var loadingStr = "<?php echo(__("loading", null)); ?>";
 		var ajaxTreeView = true;
-		var noAddIds = [<?php echo implode(", ", $no_add_ids); ?>];
+		var canHaveChild = [<?php echo implode(", ", $can_have_child); ?>];
 		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
 		var secondaryCtrlId = <?php echo $secondary_ctrl_id; ?>;
 
@@ -148,18 +148,21 @@
 			$("#addPopup").data("dx_id", diagnosis_master_id).popup();
 		}
 
-		function initPage(){
+		function initTree(section){
 			$("a.form.add").each(function(){
 				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
 					//remove add button for "unknown" nodes
 					var id = $(this).prop("href").substr(20, $(this).prop("href").length - 22);
-					if($.inArray(parseInt(id), noAddIds) > -1){
+					if($.inArray(parseInt(id), canHaveChild) == -1){
 						$(this).hide();
 					}
 				}
 			});
+		}
 
+		function initPage(){
 			dropdownOptions = $.parseJSON(dropdownOptions);
+			initTree($("body"));
 		}
 		</script>
 		
