@@ -1280,7 +1280,7 @@ div.wrapper table.structure table.columns td.no_data_available {
 div.wrapper table.structure table.columns td a.not_allowed {
 	color: #dde8f2;
 }
-	div#validation {
+	div.validation {
 		margin: 0 10px;
 		background-color: #fff;
 		
@@ -1289,6 +1289,11 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		border-left: 1px solid #243340;
 		
 		padding-top: 10px;
+	}
+	
+	div.extra div.validation{
+		margin: 0 -10px 10px -10px;	
+		border: none;
 	}
 	
 		ul.error li, ul.warning li, ul.confirm li, ul.batchCreate li {

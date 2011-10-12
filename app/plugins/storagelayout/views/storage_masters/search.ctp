@@ -9,7 +9,6 @@
 	$settings = array('return' => true);
 	if(isset($is_ajax)){
 		$settings['actions'] = false;
-		$settings['header'] = AppController::$result_are_unique_ctrl ? " " : null;
 	}
 	
 	$structure_links = array(
@@ -34,7 +33,7 @@
 	$form = $structures->build( $final_atim_structure, $final_options );
 	if(isset($is_ajax)){
 		echo json_encode(array(
-			'page' => $form, 
+			'page' => $shell->validationHtml().$form, 
 			'new_search_id' => AppController::getNewSearchId()
 		));
 	}else{

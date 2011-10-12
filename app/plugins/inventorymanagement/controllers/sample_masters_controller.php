@@ -875,7 +875,8 @@ class SampleMastersController extends InventorymanagementAppController {
 	
 	function batchDerivative($aliquot_master_id = null){
 		if(!isset($this->data['SampleMaster']['sample_control_id'])
-		|| !isset($this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])){
+			|| !isset($this->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])
+		){
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		} else if($this->data['SampleMaster']['sample_control_id'] == ''){
 			$this->flash(__("you must select a derivative type", true), "javascript:history.back();", 5);

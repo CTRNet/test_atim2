@@ -109,8 +109,8 @@ class ShellHelper extends Helper {
 			<!-- end #header -->
 			
 		';	
-		// display DEFAULT menu
 		if($logged_in){	
+			// display DEFAULT menu
 			$return .= '
 				<!-- start #menu -->
 				<div id="menu">
@@ -119,7 +119,7 @@ class ShellHelper extends Helper {
 				<!-- end #menu -->
 			';
 		}else{
-		// display hardcoded LOGIN menu
+			// display hardcoded LOGIN menu
 			$return .= '
 				<!-- start #menu -->
 				<div id="menu">
@@ -173,7 +173,7 @@ class ShellHelper extends Helper {
 		if($display_errors_html != null || strlen($confirm_msg_html) > 0){
 			$return .= '
 				<!-- start #validation -->
-				<div id="validation">
+				<div class="validation">
 					'.$display_errors_html.$confirm_msg_html.'
 				</div>
 				<!-- end #validation -->

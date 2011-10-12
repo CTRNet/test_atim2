@@ -102,7 +102,12 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("user", "User", "Utilisateur"),
 ("owner", "Owner", "Propriétaire"),
 ("visibility", "Visibility", "Visibilité"),
-("visibility reduced to owner level", "Visibility reduced to owner level", "Visibilité réduite au niveau du propriétaire");
+("visibility reduced to owner level", "Visibility reduced to owner level", "Visibilité réduite au niveau du propriétaire"),
+("empty template", "Empty Template", "Modèle vide"),
+("redirecting to samples & aliquots", "Redirecting to samples & aliquots", "Redirection vers échantillons & aliquots"),
+("the results contain various data types, so the details are not displayed",
+ "The results contain various data types, so the details are not displayed.",
+ "Les résultats contiennent différents types de données, alors les détails ne sont pas affichés."); 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -1623,11 +1628,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('default values', 'Default Values', 'Valeurs par défaut'),
 ('samples and aliquots creation from template','Samples and Aliquots Creation from Template', 'Création échantillons et aliquots selon modèle'),
 ('add from template', 'Add From Template', 'Créer selon modèle'),
-('participant data', 'Participant Data', 'Données participant'),
-('day collection template', 'Day Collection Template', 'Modèle de collection du jour');
-
-INSERT INTO `templates` (`name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`, `flag_system`) 
-VALUES ('day collection template', 'all', 'all', 1, NULL, NULL, 0);
+('participant data', 'Participant Data', 'Données participant');
 
 REPLACE INTO i18n (id,en,fr) VALUES 
 ('specimen details and aliquots', 'Specimen Details & Aliquots', 'Détails spécimen & Aliquots'),
@@ -1665,8 +1666,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='used_aliq_in_stock_detail_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0'), '0', '11', '', '1', 'volume unit', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='used_aliq_in_stock_detail_volume'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '1', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
-UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label');
 UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit');
 UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='use' );
 UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SourceAliquot' AND `tablename`='source_aliquots' AND `field`='used_volume');
@@ -1680,7 +1681,7 @@ UPDATE structure_formats SET `display_order`='1000' WHERE structure_id=(SELECT i
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_from_storage' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
@@ -1699,7 +1700,7 @@ UPDATE structure_fields SET language_help = 'parent_used_volume_help' WHERE fiel
 INSERT INTO i18n (id,en,fr) VALUES ('parent_used_volume_help', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot ''parent'' utilisé pour créer l''aliquot ''enfant''.');
 
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 INSERT INTO i18n (id,en,fr) VALUES 
 ('selected children aliquot(s)', 'Children Aliquot(s)', 'Aliquot(s) ''enfant''');
@@ -2072,7 +2073,7 @@ INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('urinary tract - other urinary tract', '', 'Urinary Tract - Other', 'Voies urinaires - Autre'),
 ('urinary tract - renal pelvis and ureter', '', 'Urinary Tract - Renal Pelvis and Ureter', 'Voies urinaires - Bassinet et uretère'),
 ('urinary tract - urethra', '', 'Urinary Tract - Urethra', 'Voies urinaires - Urètre');					
-					
+
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sopd_general_all');		
 INSERT INTO structures (alias) VALUES ('sopd_inventory_all');
 UPDATE structure_formats SET `flag_search`='1', `flag_addgrid`='0', `flag_editgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -2177,6 +2178,3 @@ INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
 ('sop is assigned to a sample', 'Your data cannot be deleted! This sop is linked to sample creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création d''un échantillon.'),
 ('sop is assigned to a collection', 'Your data cannot be deleted! This sop is linked to collection creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création de collection.'),
 ('sop is assigned to a aliquot', 'Your data cannot be deleted! This sop is linked to aliquot creation.', 'Vos données ne peuvent être supprimées! Ce SOP est attaché à une création d''aliquot.');
-
-
-

@@ -16,8 +16,6 @@ class AppController extends Controller {
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
 	
-	public static $result_are_unique_ctrl = null;
-	
 	function beforeFilter() {
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
@@ -649,7 +647,6 @@ class AppController extends Controller {
 	 */
 	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false){
 		//setting structure
-		$unique_ctrl_id = false;
 		$structure = $this->Structures->get('form', $structure_alias);
 		$this->set('atim_structure', $structure);
 		if(empty($search_id)){
@@ -680,7 +677,6 @@ class AppController extends Controller {
 				));
 				if(count($ctrl_ids) == 1){
 					//only one ctrl, attach detail
-					$unique_ctrl_id = true;
 					$has_one = array();
 					$master_class_name = null;
 					if($view){
@@ -740,6 +736,9 @@ class AppController extends Controller {
 					if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
 						$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
 					}
+				}else if(count($ctrl_ids) > 0){
+					//more than one
+					AppController::addWarningMsg(__("the results contain various data types, so the details are not displayed", true));
 				}
 			}
 			
@@ -774,7 +773,6 @@ class AppController extends Controller {
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
 			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
 			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
-			self::$result_are_unique_ctrl = $unique_ctrl_id;
 			
 			if($this->RequestHandler->isAjax()){
 				Configure::write('debug', 0);
