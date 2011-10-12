@@ -129,11 +129,13 @@ class BatchSetsController extends DatamartAppController {
 		$atim_structure_for_results = null;
 		$criteria = "";
 		if($batch_set['BatchSet']['datamart_structure_id']){
-			$batch_set['BatchSet']['plugin'] = $batch_set['DatamartStructure']['plugin'];
-			$batch_set['BatchSet']['model'] = $batch_set['DatamartStructure']['model'];
-			$atim_structure_for_results = $this->Structures->getFormById($batch_set['DatamartStructure']['structure_id']);
-			$batch_set['BatchSet']['form_links_for_results'] = $batch_set['DatamartStructure']['index_link'];
-			$batch_set['BatchSet']['lookup_key_name'] = $batch_set['DatamartStructure']['use_key'];
+			$datamart_structure = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
+			$batch_set['BatchSet']['plugin'] = $datamart_structure['DatamartStructure']['plugin'];
+			$batch_set['BatchSet']['model'] = $datamart_structure['DatamartStructure']['model'];
+			$atim_structure_for_results = $this->Structures->getFormById($datamart_structure['DatamartStructure']['structure_id']);
+			$batch_set['BatchSet']['form_links_for_results'] = $datamart_structure['DatamartStructure']['index_link'];
+			$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['DatamartStructure']['use_key'];
+			$batch_set['DatamartStructure'] = $datamart_structure['DatamartStructure'];
 		}else{
 			$batch_set['BatchSet']['plugin'] = $batch_set['Adhoc']['plugin'];
 			$batch_set['BatchSet']['model'] = $batch_set['Adhoc']['model'];
@@ -258,7 +260,7 @@ class BatchSetsController extends DatamartAppController {
 		// parse LINKS field in ADHOCS list for links in CHECKLIST
 		$ctrapp_form_links = array();
 		
-		if ( $batch_set['Adhoc']['form_links_for_results'] ) {
+		if ( isset($batch_set['Adhoc']) && $batch_set['Adhoc']['form_links_for_results']) {
 			$batch_set['Adhoc']['form_links_for_results'] = explode( '|', $batch_set['Adhoc']['form_links_for_results'] );
 			foreach ( $batch_set['Adhoc']['form_links_for_results'] as $exploded_form_links ) {
 				$exploded_form_links = explode( '=>', $exploded_form_links );
