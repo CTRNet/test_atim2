@@ -13,15 +13,22 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'diagnosis_master_id'));
 	
-	function summary( $variables=array() ) {
-
+	function primarySummary($variables=array()) {
+		return $this->summary($variables['DiagnosisMaster.primary_id']);
+	}
+	function progression1Summary($variables=array()) {
+		return $this->summary($variables['DiagnosisMaster.progression_1_id']);
+	}
+	function progression2Summary($variables=array()) {
+		return $this->summary($variables['DiagnosisMaster.progression_2_id']);
+	}
+	function summary( $diagnosis_master_id = null ) {
 		$return = false;
-		if ( isset($variables['DiagnosisMaster.id']) ) {
-			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$variables['DiagnosisMaster.id']), 'recursive' => 0));
-
+		if ( !is_null($diagnosis_master_id) ) {
+			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id), 'recursive' => 0));
 			$return = array(
 					'menu' 				=> array(NULL, __($result['DiagnosisControl']['category'], TRUE) . ' - '. __($result['DiagnosisControl']['controls_type'], TRUE)),
-					'title' 			=> array(NULL, __('diagnosis', TRUE)),
+					'title' 			=> array(NULL,  __($result['DiagnosisControl']['category'], TRUE)),
 					'data'				=> $result,
 					'structure alias'	=> 'diagnosismasters'
 			);
