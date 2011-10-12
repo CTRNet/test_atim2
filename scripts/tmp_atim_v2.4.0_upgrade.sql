@@ -2224,6 +2224,36 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 
 UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') AND `flag_confidential`='0');
 
+INSERT INTO i18n (id,en,fr) VALUES 
+('unknown primary has been redefined. complete primary data.', 'Unknown primary has been redefined. Please complete new data.', 'Le diagnostic primaire ''Inconnu'' a été re-défini. Veuillez mettre à jour les données.'),
+('redefine diagnosis type', 'Redefine Diagnosis', 'Re-définir le diagnostic');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

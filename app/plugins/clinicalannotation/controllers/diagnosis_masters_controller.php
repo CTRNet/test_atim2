@@ -93,6 +93,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->setDiagnosisMenu($dx_master_data);
+		if(($dx_master_data['DiagnosisControl']['category'] == 'primary') && ($dx_master_data['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) {
+			$this->set('primary_ctrl_to_redefine_unknown', $this->DiagnosisControl->find('all', array('conditions' => array('NOT' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisControl']['id'], 'DiagnosisControl.controls_type' => 'primary diagnosis unknown'), 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.flag_active' => 1)))); 
+		}
 		
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
@@ -171,7 +174,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			$this->DiagnosisMaster->patchIcd10NullValues($this->data);
 			$this->data['DiagnosisMaster']['participant_id'] = $participant_id;
 			$this->data['DiagnosisMaster']['diagnosis_control_id'] = $dx_control_id;
-			$this->data['DiagnosisMaster']['type'] = $dx_control_data['DiagnosisControl']['controls_type'];
 			
 			$this->data['DiagnosisMaster']['parent_id'] = $parent_id == 0 ? null : $parent_id;
 			$this->data['DiagnosisMaster']['primary_id'] = $parent_id == 0 ? null : (empty($parent_dx['DiagnosisMaster']['primary_id'])? $parent_dx['DiagnosisMaster']['id'] : $parent_dx['DiagnosisMaster']['primary_id']);
@@ -196,21 +198,44 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			}
 		}
 	}
-
-	function edit( $participant_id, $diagnosis_master_id ) {
+	
+	function edit( $participant_id, $diagnosis_master_id, $new_primary_control_id = null ) {
+		
 		// MANAGE DATA
+		
 		$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if(empty($dx_master_data)) { 
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 		
+		if(!is_null($new_primary_control_id)) {
+			
+			// UNKNOWN PRIMARY REDEFINITION
+			// User expected to change an unknown primary to a specific diagnosis
+			
+			$new_primary_ctrl = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $new_primary_control_id)));
+			if(empty($new_primary_ctrl) 
+			|| ($dx_master_data['DiagnosisControl']['category'] != 'primary')
+			|| ($dx_master_data['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown')
+			|| ($new_primary_ctrl['DiagnosisControl']['category'] != 'primary')
+			|| ($new_primary_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			
+			if($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
+				if(!$this->DiagnosisMaster->atim_delete($diagnosis_master_id)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				$this->DiagnosisMaster->query("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']."(`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
+			}
+			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $new_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
+			
+			$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
+			if(empty($dx_master_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+		
+			$this->addWarningMsg(__('unknown primary has been redefined. complete primary data.', true));
+		}
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->setDiagnosisMenu($dx_master_data);
 		
-		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
-		$structure_alias = $dx_control_data['DiagnosisControl']['form_alias'].', ';
-		$structure_alias .= empty($dx_master_data['DiagnosisMaster']['parent_id']) ? 'dx_origin_primary' : 'dx_origin_wo_primary';  
-		$this->Structures->set($structure_alias);
+		$this->Structures->set($dx_master_data['DiagnosisControl']['form_alias']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

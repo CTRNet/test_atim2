@@ -2,10 +2,24 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/clinicalannotation/diagnosis_masters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
+			'redefine diagnosis type' => '/underdevelopment/',
 			'delete'=>'/clinicalannotation/diagnosis_masters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'list'=>'/clinicalannotation/diagnosis_masters/listall/%%DiagnosisMaster.participant_id%%/'
 		)
 	);
+	
+	if(isset($primary_ctrl_to_redefine_unknown) && !empty($primary_ctrl_to_redefine_unknown)) {
+		$redefine_links = array();
+		foreach ($primary_ctrl_to_redefine_unknown as $diagnosis_control){
+			$redefine_links[__($diagnosis_control['DiagnosisControl']['controls_type'], true)] = '/clinicalannotation/diagnosis_masters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/'.$diagnosis_control['DiagnosisControl']['id'];
+		}
+		ksort($redefine_links);
+		$structure_links['bottom']['redefine diagnosis type'] = $redefine_links;
+		
+	} else {
+		unset($structure_links['bottom']['redefine diagnosis type']);
+		
+	}
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
