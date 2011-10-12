@@ -374,10 +374,10 @@ if(isset($is_ajax)){
 			});
 		}else{
 			//done
-			$(".ajaxContent").html("<div class='center'><?php __('done'); ?></div>");
+			$(".ajaxContent").html("<div class='center'><?php __('done'); ?><br/><?php __('redirecting to samples & aliquots'); ?></div>");
 			$("#tree_root li:first").css("background-color", "#dfd");
 			$("#tree_root a.add").remove();
-			//document.location = root_url + '/inventorymanagement/sample_masters/contentTreeView/' + collectionId;
+			document.location = root_url + '/inventorymanagement/sample_masters/contentTreeView/' + collectionId;
 		}
 	}
 	

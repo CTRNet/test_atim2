@@ -17,14 +17,15 @@
 		$bottom_links = array('edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id']);
 		$bottom_links['copy for new collection'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
 		$bottom_links['add specimen'] = $add_links;
-		if(!empty($templates)){
-			$bottom_links['add from template'] = array();
-			foreach($templates as $template){
-				$bottom_links['add from template'][$template['Template']['name']] = array(
-					'icon' => ($template['Template']['name'] == 'day collection template')? 'add' : 'template',
-					'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
-				);
-			}
+		$bottom_links['add from template']['empty template'] = array(
+			'icon' => 'add',
+			'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/0'
+		);
+		foreach($templates as $template){
+			$bottom_links['add from template'][$template['Template']['name']] = array(
+				'icon' => 'template',
+				'link' => '/inventorymanagement/collections/template/'.$atim_menu_variables['Collection.id'].'/'.$template['Template']['id']
+			);
 		}
 		if(empty($participant_id)){
 			$bottom_links['participant data'] = '/underdevelopment/';
