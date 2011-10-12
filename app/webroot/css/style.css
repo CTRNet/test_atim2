@@ -1919,11 +1919,7 @@ span.button a{
 	white-space: nowrap;	
 }
 
-.storageLayout{
-	margin: 10px; 
-	width: 98%;
-}
-div.wrapper table.structure td .storageLayout td{
+.storageLayout td{
 	border-style:solid; 
 	border-width:1px; 
 	min-width: 30px; 

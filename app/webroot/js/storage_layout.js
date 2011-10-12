@@ -5,8 +5,86 @@
 var submitted = false; //avoids internal double posts
 
 function initStorageLayout(){
-	//create all items
-	var jsonOrgItems = eval('(' + orgItems + ')');
+	var id = document.URL.match(/[0-9]+/g);
+	$("#firstStorageRow").data('storageId', id.pop());
+	//load the top storage loayout
+	$.get(document.URL, function(data){
+		data = $.parseJSON(data);
+		if(data.valid){
+			initRow($("#firstStorageRow"), data);
+		}
+	});
+	
+	//bind preparePost to the submit button
+	$("#submit_button_link").click(function(){
+		window.onbeforeunload = null;
+		preparePost();
+		return false;
+	});
+	
+	window.onbeforeunload = function(event) {
+		if($("#saveWarning:visible").length){
+			return STR_NAVIGATE_UNSAVED_DATA;
+		}
+	};
+	
+	//handle the "pick a storage to drag and drop to" button and popup
+	$.get(root_url + '/storagelayout/storage_masters/search/', function(data){
+		var isVisible = $("#default_popup:visible").length;
+		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
+		globalInit($("#default_popup"));
+		
+		if(isVisible){
+			//recenter popup
+			$("#default_popup").popup('close');
+			$("#default_popup").popup();
+		}
+		
+		$("#default_popup input.submit").click(function(){
+			//search results into popup
+			$.post($("#default_popup form").attr("action") + '/1', $("#default_popup form").serialize(), function(data){
+				$("body").append("<div class='hidden tmpSearchForm'></div>");
+				$(".tmpSearchForm").append($("#default_popup .wrapper"));
+				data = $.parseJSON(data);
+				var isVisible = $("#default_popup:visible").length;
+				$("#default_popup").html('<div class="wrapper"><div class="frame">' + data.page + '</div></div>');
+				if(isVisible){
+					//recenter popup
+					$("#default_popup").popup('close');
+					$("#default_popup").popup();
+				}
+				
+				$("#default_popup a.form.detail").click(function(){
+					//handle selection buttons
+					$("#secondStorageRow").html("");
+					var id = $(this).attr("href").match("[0-9]+(/)*$")[0];
+					if(id != $("#firstStorageRow").data("storageId")){
+						//if not the same storage
+						$("#secondStorageRow").data("storageId", id);
+						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id, function(data){
+							data = $.parseJSON(data);
+							if(data.valid){
+								initRow($("#secondStorageRow"), data);
+							}
+						});
+					}
+					return false;
+				});
+			});
+			return false;
+		});
+	});
+	
+	$("#btnPickStorage").click(function(){
+		$("#default_popup").popup();
+	});
+}
+
+function initRow(row, data){
+	var jsonOrgItems = data.positions;
+	row.html(data.content);
+	id = row.data('storageId');
+	//display items in the proper cells
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
@@ -14,15 +92,13 @@ function initStorageLayout(){
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
-			debug($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size());
-			if($("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
-				$("#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).append(appendString);
+			if($("#s_" + id + "_c_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).size() > 0){
+				$("#s_" + id + "_c_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y).append(appendString);
 			}else{
-				$("#unclassified").append(appendString);
-				debug("Error: [#cell_" + jsonOrgItems[i].x + "_" + jsonOrgItems[i].y + "] not foud");	
+				row.find(".unclassified").append(appendString);
 			}
 		}else{
-			$("#unclassified").append(appendString);
+			row.find(".unclassified").append(appendString);
 		}
 	}
 	
@@ -46,35 +122,29 @@ function initStorageLayout(){
 		}
 	});
 	
-	//bind preparePost to the submit button
-	$("#submit_button_link").click(function(){
-		window.onbeforeunload = null;
-		preparePost();
-		return false;
+	row.find(".RecycleStorage").click(function(){
+		moveStorage(row, true);
 	});
-	
-	$("#RecycleStorage").click(function(){
-		moveStorage(true);
+	row.find(".TrashStorage").click(function(){
+		moveStorage(row, false);
 	});
-	$("#TrashStorage").click(function(){
-		moveStorage(false);
+	row.find(".TrashUnclassified").click(function(){
+		moveUlTo(row, "unclassified", "trash");
 	});
-	$("#TrashUnclassified").click(function(){
-		moveUlTo("unclassified", "trash");
+	row.find(".RecycleTrash").click(function(){
+		moveUlTo(row, "trash", "unclassified");
 	});
-	$("#RecycleTrash").click(function(){
-		moveUlTo("trash", "unclassified");
-	});
-	$("#Reset").click(function(){
-		document.location="";
-	});
-	
-	window.onbeforeunload = function(event) {
-		console.log(event.srcElement);
-		if($("#saveWarning:visible").length){
-			return STR_NAVIGATE_UNSAVED_DATA;
-		}
-	};
+}
+
+function searchBack(){
+	$("#default_popup").html("").append($(".tmpSearchForm .wrapper"));
+	$(".tmpSearchForm").remove();
+	var isVisible = $("#default_popup:visible").length;
+	if(isVisible){
+		//recenter popup
+		$("#default_popup").popup('close');
+		$("#default_popup").popup();
+	}
 }
 
 /**
@@ -104,12 +174,13 @@ function moveItem(draggable, droparea){
 
 /**
  * Moves an item to the Trash area and updates the icons accordingly
+ * @param scope The scope of the item to move
  * @param item The item to move
  * @return false to avoid browser redirection
  */
-function deleteItem(item) {
+function deleteItem(scope, item) {
 	$(item).fadeOut(200, function(){
-		$(this).appendTo($("#trash"));
+		$(this).appendTo(scope.find(".trash"));
 		$(this).fadeIn();
 	});
 	$('#saveWarning').show();
@@ -119,12 +190,13 @@ function deleteItem(item) {
 
 /**
  * Moves an item to the unclassified area and updates the icons accordingly
+ * @param scope The scope of the item to move
  * @param item The item to move
  * @return false to avoid browser redirection
  */
-function recycleItem(item) {
+function recycleItem(scope, item) {
 	$(item).fadeOut(200, function(){
-		$(this).appendTo($("#unclassified"));
+		$(this).appendTo(scope.find(".unclassified"));
 		$(this).fadeIn();
 	});
 	$('#saveWarning').show();
@@ -169,19 +241,20 @@ function preparePost(){
 
 /**
  * Moves all storage's items
+ * @param scope The scope of the move
  * @param recycle If true, the items go to the unclassified box, otherwise they go to the trash
  * @return
  */
-function moveStorage(recycle){
-	var elements = $("ul");
+function moveStorage(scope, recycle){
+	var elements = scope.find("ul");
 	for(var i = 0; i < elements.length; ++ i){
 		var id = elements[i].id;
-		if(id != null && id.indexOf("cell_") == 0){
+		if(id != null && id.indexOf("s_") == 0){
 			for(var j = $(elements[i]).children().length - 1; j >= 0; -- j){
 				if(recycle){
-					recycleItem($(elements[i]).children()[j]);
+					recycleItem(scope, $(elements[i]).children()[j]);
 				}else{
-					deleteItem($(elements[i]).children()[j]);
+					deleteItem(scope, $(elements[i]).children()[j]);
 				}
 			}
 		}
@@ -190,17 +263,18 @@ function moveStorage(recycle){
 
 /**
  * Moves an unordered list's items towards a destination
- * @param ulArray The unordered list which items needs to be moved
- * @param destination The destination where to move the items
+ * @parem scope The scope of the move
+ * @param sourceClass The source class
+ * @param destinationClass The destination class
  * @return
  */
-function moveUlTo(ulId, destinationId){
-	var liArray = $("#" + ulId).children();
+function moveUlTo(scope, sourceClass, destinationClass){
+	var liArray = scope.find("." + sourceClass).children();
 	for(var j = liArray.length - 1; j >= 0; -- j){
-		if(destinationId == "trash"){
-			deleteItem(liArray[j]);
+		if(destinationClass == "trash"){
+			deleteItem(scope, liArray[j]);
 		}else{
-			recycleItem(liArray[j]);
+			recycleItem(scope, liArray[j]);
 		}
 	}	
 }

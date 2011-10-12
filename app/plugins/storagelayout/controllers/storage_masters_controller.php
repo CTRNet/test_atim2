@@ -20,9 +20,15 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * DISPLAY FUNCTIONS
 	 * -------------------------------------------------------------------------- */
 		
-	function search($search_id = 0){
+	function search($search_id = 0, $from_layout_page = false){
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/search/'));
 		$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search');
+		
+		if(count($this->data) > 20 && $from_layout_page){
+			$this->data = array();
+			$this->set('overflow', true);
+		}
+		$this->set('from_layout_page', $from_layout_page);
 		
 		//find all storage control types to build add button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
@@ -456,19 +462,12 @@ class StorageMastersController extends StoragelayoutAppController {
 	 * @since 2007-05-22
 	 */
 	 
-	function storageLayout($storage_master_id) {
-		if(!$storage_master_id) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-		
+	function storageLayout($storage_master_id){
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { 
-			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-		
+		$storage_data = $this->StorageMaster->redirectIfNonExistent($storage_master_id, __METHOD__, __LINE__, true); 
+
 		$coordinate_list = array();
 		if($storage_data['StorageControl']['coord_x_type'] == "list"){
 			$coordinate_tmp = $this->StorageCoordinate->find('all', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1', 'order' => 'StorageCoordinate.order ASC'));
@@ -478,8 +477,13 @@ class StorageMastersController extends StoragelayoutAppController {
 		}
 		
 		// Storage layout not allowed for this type of storage
-		if(empty($storage_data['StorageControl']['coord_x_type'])) { 
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		if(empty($storage_data['StorageControl']['coord_x_type'])) {
+			if($this->RequestHandler->isAjax()){
+				echo json_encode(array('valid' => 0));
+				exit;	
+			}else{
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			} 
 		}
 		
 		$storage_master_c = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id)));
@@ -564,9 +568,15 @@ class StorageMastersController extends StoragelayoutAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 		
 		$this->set('data', $data);
+		$this->Structures->set('empty', 'empty_structure');
+		if($this->RequestHandler->isAjax()){
+			$this->render('storage_layout_html');
+		}
 	}
 
 	function autocompleteLabel(){
