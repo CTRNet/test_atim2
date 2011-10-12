@@ -7,7 +7,7 @@
 	ksort($add_links);
 	
 	$settings = array('return' => true);
-	if(isset($is_ajax)){
+	if(isset($is_ajax) && !isset($from_layout_page)){
 		$settings['actions'] = false;
 	}
 	
@@ -20,8 +20,19 @@
 		) 
 	);
 	
+	if(isset($from_layout_page)){
+		unset($structure_links['bottom']);
+		$structure_links['bottom'] = array('cancel' => 'javascript:searchBack();');
+		$settings['pagination'] = false;
+	}
+	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type' => 'index', 'links' => $structure_links, 'settings' => $settings);
+	
+	if(isset($overflow)){
+		$shell->validationHtml();//clear validations
+		$final_atim_structure = $empty_structure;
+	}
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
@@ -31,6 +42,12 @@
 		
 	// BUILD FORM
 	$form = $structures->build( $final_atim_structure, $final_options );
+	
+	if(isset($overflow)){
+		$form = '<ul class="error">
+				<li>'.__("the query returned too many results", true).'. '.__("try refining the search parameters", true).'</li>
+			</ul>'.$form;
+	}
 	if(isset($is_ajax)){
 		echo json_encode(array(
 			'page' => $shell->validationHtml().$form, 

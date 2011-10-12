@@ -836,7 +836,6 @@ function initActions(){
 				$(".ajax_search_results").parent().show();
 				$.post($("form").attr("action"), $("form").serialize(), function(data){
 					try{
-						console.log("A");
 						data = $.parseJSON(data);
 						$(".ajax_search_results").html(data.page);
 						history.replaceState(data.page, "foo");//storing result in history
@@ -949,6 +948,7 @@ function initActions(){
 		initRemoveLine(scope);
 		initCheckboxes(scope);
 		initAccuracy(scope);
+		initAdvancedControls(scope);
 
 		if(window.labBookFields){
 			initLabBook(scope);

@@ -773,11 +773,11 @@ class AppController extends Controller {
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
 			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
 			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
-			
-			if($this->RequestHandler->isAjax()){
-				Configure::write('debug', 0);
-				$this->set('is_ajax', true);
-			}
+		}
+
+		if($this->RequestHandler->isAjax()) {
+			Configure::write ( 'debug', 0 );
+			$this->set ( 'is_ajax', true );
 		}
 	}
 }

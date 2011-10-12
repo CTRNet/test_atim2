@@ -28,6 +28,9 @@
 		'links'		=> $structure_links,
 		'extras'	=> '<div class="ajax_search_results"></div>'
 	);
+	if(isset($is_ajax)){
+		unset($final_options2['links']['bottom']);
+	}
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
