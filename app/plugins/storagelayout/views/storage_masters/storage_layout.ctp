@@ -15,7 +15,16 @@
 <?php 
 $content = ob_get_clean();
 
-$structures->build($empty_structure, array('type' => 'detail', 'extras' => $content, 'links' => array('bottom' => array('undo' => '/storagelayout/storage_masters/storageLayout/'.$atim_menu_variables['StorageMaster.id']))));
+$structures->build($empty_structure, array(
+	'type' => 'detail', 
+	'extras' => $content, 
+	'links' => array(
+		'top' => '/storagelayout/storage_masters/storageLayout/'.$atim_menu_variables['StorageMaster.id'],
+		'bottom' => array(
+			'undo' => '/storagelayout/storage_masters/storageLayout/'.$atim_menu_variables['StorageMaster.id']
+		)
+	)
+));
 ?>
 
 <style type="text/css">

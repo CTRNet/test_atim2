@@ -17,7 +17,7 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'search', 
-		'links' => array('top' => array('search' =>'/storagelayout/storage_masters/search/'.AppController::getNewSearchId())),
+		'links' => array('top' => array('search' =>'/storagelayout/storage_masters/search/'.(isset($is_ajax) ? '-1' : AppController::getNewSearchId()))),
 		'settings' => array(
 			'actions' => false,
 			'header' => __('search type', null).': '.__('storages', null),

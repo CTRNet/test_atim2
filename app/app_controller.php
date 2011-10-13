@@ -771,8 +771,13 @@ class AppController extends Controller {
 			}
 		
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
-			$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
-			$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+			if($search_id == -1){
+				//don't use the last search button if search id = -1
+				unset($_SESSION['ctrapp_core']['search'][$search_id]);
+			}else{
+				$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
+				$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+			}
 		}
 
 		if($this->RequestHandler->isAjax()) {
