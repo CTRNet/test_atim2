@@ -7,19 +7,22 @@ var submitted = false; //avoids internal double posts
 function initStorageLayout(){
 	var id = document.URL.match(/[0-9]+/g);
 	$("#firstStorageRow").data('storageId', id.pop());
+	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
+	
+	//bind preparePost to the submit button
+	$("a.form.submit").attr("onclick", null).click(function(){
+		window.onbeforeunload = null;
+		preparePost();
+		return false;
+	});
+	
+	
 	//load the top storage loayout
-	$.get(document.URL, function(data){
+	$.get(document.URL + '/1', function(data){
 		data = $.parseJSON(data);
 		if(data.valid){
 			initRow($("#firstStorageRow"), data);
 		}
-	});
-	
-	//bind preparePost to the submit button
-	$("#submit_button_link").click(function(){
-		window.onbeforeunload = null;
-		preparePost();
-		return false;
 	});
 	
 	window.onbeforeunload = function(event) {
@@ -61,7 +64,7 @@ function initStorageLayout(){
 					if(id != $("#firstStorageRow").data("storageId")){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
-						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id, function(data){
+						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
@@ -88,7 +91,7 @@ function initRow(row, data){
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
-			+ '<a href="#popup" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + ' ajax {\'callback\' : \'showInPopup\', \'load\' : \'' + jsonOrgItems[i].link + '\'}" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
@@ -209,31 +212,28 @@ function recycleItem(scope, item) {
  */
 function preparePost(){
 	if(!submitted){
-		submitted = true;
+		//submitted = true;
 		var cells = '';
 		var elements = $(".dragme");
-		debug("JOY" + elements.length);
 		for(var i = elements.length - 1; i >= 0; --i){
 			itemData = getJsonFromClass($(elements[i]).prop("class"));
-			if($(elements[i]).parent().prop("id").indexOf("cell_") == 0){
+			if($(elements[i]).parent().prop("id").indexOf("s_") == 0){
 				//normal cell
-				var cellId = $(elements[i]).parent().prop("id");
-				var index1 = cellId.indexOf("_") + 1;
-				var index2 = cellId.lastIndexOf("_");
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "' + cellId.substr(index1, index2 - index1) + '", "y" : "' + cellId.substr(index2 + 1) + '"},'; 
-			}else if($(elements[i]).parent().prop("id").indexOf("trash") == 0){
+				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
+				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
+			}else if($(elements[i]).parent().hasClass("trash")){
 				//trash, x and y are set to "t"
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "t", "y" : "t"},';
+				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "t", "x" : "t", "y" : "t"},';
 			}else{
 				//unclassified, x and y are set to "u"
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "x" : "u", "y" : "u"},';
+				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "u", "y" : "u"},';
 			}
 		}
 		if(cells.length > 0){
 			cells = cells.substr(0, cells.length - 1);
 		}
-		$("#data").val('[' + cells + ']');
-		$("form").submit();
+		var form = getParentElement($("#firstStorageRow"), "FORM");
+		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
 	}else{
 		return false;
 	}
@@ -279,14 +279,9 @@ function moveUlTo(scope, sourceClass, destinationClass){
 	}	
 }
 
-function showInPopup(element, json){
-	if(!window.loadingStr){
-		window.loadingStr = "js untranslated loading";	
-	}
-	$("#default_popup").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$("#default_popup").popup();
-	$.get(json.load + "?t=" + new Date().getTime(), {}, function(data){
-		 $("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>");
-		 $("#default_popup").popup();
+function showInPopup(link){
+	$("#otherPopup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
+	$.get(link + "?t=" + new Date().getTime(), {}, function(data){
+		 $("#otherPopup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 	});
 }

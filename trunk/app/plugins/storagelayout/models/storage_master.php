@@ -691,62 +691,70 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * @param type The current type we are seeking
 	 * @param x_key The name of the key for the x coordinate
 	 * @param y_key The name of the key for the y coordinate
-	 * @param $storage_parent_key The name of the key of the parent storage id
+	 * @param storage_parent_key The name of the key of the parent storage id
 	 * @param rcv_data The data received from the user
-	 * @param UpdaterObject The object to use to update the data
+	 * @param updater_model The model to use to update the data
+	 * @param storage_control
 	 */
-	function updateAndSaveDataArray(&$data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $UpdaterObject, $storage_control){
-		for($i = sizeof($data_array) - 1; $i >= 0; -- $i){
-			if(isset($rcv_data[$type]) && isset($rcv_data[$type][$data_array[$i][$type]['id']])){
-				$trash = false;
+	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, $storage_control){
+		//for($i = count($data_array) - 1; $i >= 0; -- $i){
+		foreach($data_array as &$init_data_unit){
+			$init_data_id = $init_data_unit[$type]['id'];
+			if(($init_data_unit[$type][$x_key] != $rcv_data[$type][$init_data_id]['x'] && !(in_array($rcv_data[$type][$init_data_id]['x'], array('u', 't')) && $init_data_unit[$type][$x_key] == ''))  
+				|| ($init_data_unit[$type][$y_key] != $rcv_data[$type][$init_data_id]['y']  && !(in_array($rcv_data[$type][$init_data_id]['y'], array('u', 't')) && $init_data_unit[$type][$y_key] == ''))
+				|| $init_data_unit[$type][$storage_parent_key] != $rcv_data[$type][$init_data_id]['s'] 
+			){
+				//only save what changed
+				$update_temp_and_label = $init_data_unit[$type][$storage_parent_key] != $rcv_data[$type][$init_data_id]['s'] && $type == 'StorageMaster';
 				//this is is a cell
-				if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 't'){
+				if($rcv_data[$type][$init_data_id]['x'] == 't'){
 					//trash
-					$data_array[$i][$type][$x_key] = null;
-					$data_array[$i][$type][$y_key] = null;
-					$data_array[$i][$type][$storage_parent_key] = null;
+					$init_data_unit[$type][$x_key] = null;
+					$init_data_unit[$type][$y_key] = null;
+					$init_data_unit[$type][$storage_parent_key] = null;
 					
 					if($type == "StorageMaster") {
 						// Set new selection label 
-						$data_array[$i][$type]['selection_label'] = $this->getSelectionLabel($data_array[$i]);	
+						$init_data_unit[$type]['selection_label'] = $this->getSelectionLabel($init_data_unit);	
 						
 						// Set new temperature
-						if(!$data_array[$i]['StorageControl']['set_temperature']) {
-							$data_array[$i][$type]['temperature'] = null;
-							$data_array[$i][$type]['temp_unit'] = null;
+						if(!$init_data_unit['StorageControl']['set_temperature']) {
+							$init_data_unit[$type]['temperature'] = null;
+							$init_data_unit[$type]['temp_unit'] = null;
 						}
 					}
 					
-					$trash = true;
-
-				}else if($rcv_data[$type][$data_array[$i][$type]['id']]['x'] == 'u'){
+				}else if($rcv_data[$type][$init_data_id]['x'] == 'u'){
 					//unclassified
-					$data_array[$i][$type][$x_key] = null;
-					$data_array[$i][$type][$y_key] = null;
+					$init_data_unit[$type][$x_key] = null;
+					$init_data_unit[$type][$y_key] = null;
+					
 				}else{
 					//positioned
-					$data_array[$i][$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['x']); 
-					$data_array[$i][$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? null : $rcv_data[$type][$data_array[$i][$type]['id']]['y']);
+					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? null : $rcv_data[$type][$init_data_id]['x']); 
+					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? null : $rcv_data[$type][$init_data_id]['y']);
+					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
 				}
-				//clean the array asap to gain efficiency
-				unset($rcv_data[$type][$data_array[$i][$type]['id']]);
-				$UpdaterObject->save($data_array[$i], false);
 				
-				if($trash){
-					if($type == "StorageMaster") {
-						$this->updateChildrenStorageSelectionLabel($data_array[$i][$type]['id'], $data_array[$i]);
-						
-						if(!$data_array[$i]['StorageControl']['set_temperature']) {
-							$this->updateChildrenSurroundingTemperature($data_array[$i][$type]['id'], null, null);
-						}
-					}
+				//clean the array asap to gain efficiency
+				unset($rcv_data[$type][$init_data_id]);
+	
+				if($update_temp_and_label){
+					$this->manageTemperature($init_data_unit, $init_data_unit);
+					$init_data_unit['StorageMaster']['selection_label'] = $this->getSelectionLabel($init_data_unit);
+				}
+				
+				$updater_model->save($init_data_unit[$type], false);
+				
+				if($update_temp_and_label){
+					$this->updateChildrenStorageSelectionLabel($init_data_id, $init_data_unit);
 					
-					unset($data_array[$i]);
+					if(!$init_data_unit['StorageControl']['set_temperature']) {
+						$this->updateChildrenSurroundingTemperature($init_data_id, null, null);
+					}
 				}
 			}
 		}
-		// Re-index
-		$data_array = array_values($data_array);
 	}
 	
 	function buildChildrenArray(&$children_array, $type_key, $x_key, $y_key, $label_key, $coordinate_list, $link, $icon_name = "detail"){
