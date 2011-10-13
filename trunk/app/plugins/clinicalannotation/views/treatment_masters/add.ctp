@@ -43,26 +43,13 @@
 	$structures->build($empty_structure, array('settings'=>$structure_settings));	
 	
 	// 3- DIAGNOSTICS
-	
-	$structure_settings = array(
-		'form_inputs'=>false,
-		'pagination'=>false,
-		
-		'form_top' => false
-	);
-	
-	$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$data_for_checklist, 'links'=>$structure_links );
-	$final_atim_structure = $diagnosis_structure;
-	
-	$hook_link = $structures->hook('dx_list');
-	if( $hook_link ) { require($hook_link); }
 
 	// Define radio should be checked
 	$radio_checked = false;
 	if($initial_display || empty($this->data['TreatmentMaster']['diagnosis_master_id'])) { 
 		$radio_checked = true; 
 	}
-		
+	
 ?>
 	
 	<!-- N/A value -->
@@ -75,6 +62,26 @@
 			
 <?php
 
-	$structures->build( $final_atim_structure, $final_options );
-
+	$hook_link = $structures->hook('dx_list');	
+	$primary_sets_counter = sizeof($data_for_checklist);
+	foreach($data_for_checklist as $new_primary_set) {
+		$primary_sets_counter--;
+		
+		$structure_settings = array(
+			'pagination'	=> false,
+			'form_inputs'	=> false,
+			'form_top'		=> false,
+			'form_bottom'	=> $primary_sets_counter? false : true,
+			'actions'		=> $primary_sets_counter? false : true,
+			'language_heading' => __('new '.$new_primary_set['category'], true) . ' - ' . __($new_primary_set['controls_type'], true)
+		);
+		
+		$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$new_primary_set['dx_list'], 'links'=>$structure_links );
+		$final_atim_structure = $diagnosis_structure;
+		
+		if( $hook_link ) { require($hook_link); }
+		
+		$structures->build( $final_atim_structure, $final_options );
+	}
+	
 ?>

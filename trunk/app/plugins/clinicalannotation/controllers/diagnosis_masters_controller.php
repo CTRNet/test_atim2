@@ -155,9 +155,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			if(empty($parent_dx)){
 				$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );				
 			}
-			if(($dx_ctrl['DiagnosisControl']['category'] == 'primary') 
-			|| ($dx_ctrl['DiagnosisControl']['category'] == 'secondary') &&  ($parent_dx['DiagnosisControl']['category'] == 'secondary')) {
-
+			if(($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary') &&  ($parent_dx['DiagnosisControl']['category'] == 'secondary')) {
 				$this->flash('invalid control id', 'javascript:history.back();');
 			}
 		}
@@ -197,17 +195,28 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($submitted_data_validates) {				
 				if ( $this->DiagnosisMaster->save( $this->data )) {
+					$diagnosis_master_id = $this->DiagnosisMaster->getLastInsertId();
+				
+					if($parent_id == 0){
+						// Set primary_id of a Primary
+						$data_to_update = array();
+						$data_to_update['DiagnosisMaster']['primary_id'] = $diagnosis_master_id;
+						$this->DiagnosisMaster->id = $diagnosis_master_id;					
+						if(!$this->DiagnosisMaster->save($data_to_update, false)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
+					}
+					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$this->DiagnosisMaster->id.'/' );
+					
+					$this->atimFlash( 'your data has been saved', '/clinicalannotation/diagnosis_masters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
 				}
 			}
 		}
 	}
 	
-	function edit( $participant_id, $diagnosis_master_id, $new_primary_control_id = null ) {
+	function edit( $participant_id, $diagnosis_master_id, $redefined_primary_control_id = null ) {
 		
 		// MANAGE DATA
 		
@@ -216,12 +225,12 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 		
-		if(!is_null($new_primary_control_id)) {
+		if(!is_null($redefined_primary_control_id)) {
 			
 			// UNKNOWN PRIMARY REDEFINITION
 			// User expected to change an unknown primary to a specific diagnosis
 			
-			$new_primary_ctrl = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $new_primary_control_id)));
+			$new_primary_ctrl = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $redefined_primary_control_id)));
 			if(empty($new_primary_ctrl) 
 			|| ($dx_master_data['DiagnosisControl']['category'] != 'primary')
 			|| ($dx_master_data['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown')
@@ -230,9 +239,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 			
 			if($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
 				if(!$this->DiagnosisMaster->atim_delete($diagnosis_master_id)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				$this->DiagnosisMaster->query("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']."(`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
+				$this->DiagnosisMaster->query("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']." (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
 			}
-			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $new_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
+			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
 			
 			$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 			if(empty($dx_master_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
@@ -275,7 +284,6 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				}
 			}
 		}
-		
 	}
 
 	function delete( $participant_id, $diagnosis_master_id ) {
@@ -312,7 +320,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$primary_id = null;
 		$progression_1_id = null;
 		$progression_2_id = null;
-		if(empty($dx_master_data['DiagnosisMaster']['primary_id'])) {
+		if($dx_master_data['DiagnosisMaster']['primary_id'] == $dx_master_data['DiagnosisMaster']['id']) {
 			//Primary Display
 			$primary_id = $dx_master_data['DiagnosisMaster']['id'];
 			$menu_link = '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%';

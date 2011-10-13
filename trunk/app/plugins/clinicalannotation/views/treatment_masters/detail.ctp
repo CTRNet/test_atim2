@@ -32,22 +32,46 @@
 	
 	$structures->build( $final_atim_structure, $final_options );	
 	
-	
 	if(!$is_ajax){
 
 		// 2- DIAGNOSTICS
 		$structure_settings = array(
 			'form_inputs'=>false,
 			'pagination'=>false,
-				
+			'actions'=>false,
+			'form_bottom'	=> false,
 			'header' => '2- ' . __('related diagnosis', null), 
 			'form_top' => false
 		);
+
+		// Diagnosis history (if required)
 		
-		$final_options = array('data' => $diagnosis_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
+		if(!empty($diagnosis_data['history'])) {
+			$structure_settings['language_heading'] = __('diagnosis history', true);
+			
+			$final_options = array('data' => $diagnosis_data['history'], 'type' => 'index', 'settings' => $structure_settings, 'links' => array());
+			$final_atim_structure = $diagnosis_structure;
+			
+			$hook_link = $structures->hook('dx_list_history');
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
+			 
+			$structures->build( $final_atim_structure,  $final_options);			
+			
+			$structure_settings['header'] = null;
+			$structure_settings['language_heading'] = __('diagnosis event', true);
+		}
+		
+		// Diagnosis Event
+		
+		$structure_settings['actions'] = true;
+		$structure_settings['form_bottom'] = true;
+		
+		$final_options = array('data' => $diagnosis_data['event'], 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
 		$final_atim_structure = $diagnosis_structure;
 		
-		$hook_link = $structures->hook('dx_list');
+		$hook_link = $structures->hook('dx_list_event');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}

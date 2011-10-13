@@ -2228,12 +2228,8 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('unknown primary has been redefined. complete primary data.', 'Unknown primary has been redefined. Please complete new data.', 'Le diagnostic primaire ''Inconnu'' a été re-défini. Veuillez mettre à jour les données.'),
 ('redefine unknown primary', 'Redefine Prim. Diag.', 'Re-définir Diag. Prim.');
 
-
-
-
-
-
-
+REPLACE INTO i18n (id,en,fr) VALUES ('related diagnosis','Related Diagnosis Event','Évenement du diagnostic connexe');
+INSERT INTO i18n (id,en,fr) VALUES ('diagnosis history','History','Historic'), ('diagnosis event', 'Event', 'Évenement');
 
 
 
