@@ -59,7 +59,19 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}		
 		$this->data = $treatment_master_data;
 
-		$this->set('diagnosis_data', (empty($this->data['TreatmentMaster']['diagnosis_master_id'])? array(): $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])))));
+		$diagnosis_data = array('event' => array(), 'history' => array());
+		if(!empty($this->data['TreatmentMaster']['diagnosis_master_id'])) {
+			$tmp_diagnosis_data = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])));
+			if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			$diagnosis_data['event'][] = $tmp_diagnosis_data;
+			
+			if($tmp_diagnosis_data['DiagnosisMaster']['id'] != $tmp_diagnosis_data['DiagnosisMaster']['primary_id']) {
+				$tmp_diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($tmp_diagnosis_data['DiagnosisMaster']['primary_id'], $tmp_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id ASC'));
+				if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				$diagnosis_data['history'] = $tmp_diagnosis_data;
+			}
+		}
+		$this->set('diagnosis_data', $diagnosis_data);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id));
@@ -89,8 +101,9 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 		
 		// Set diagnosis data for diagnosis selection (radio button)
-		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
-		foreach($dx_data as &$dx_tmp_data){
+		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
+		$sorted_dx_data = array();
+		foreach($dx_data as $dx_tmp_data) {
 			// Define treatment data to take in consideration
 			$treatment_master_data_to_use = $treatment_master_data['TreatmentMaster'];
 			if(!empty($this->data)) {
@@ -100,11 +113,21 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			
 			// Set data to display correctly selected diagnosis			
 			if($dx_tmp_data['DiagnosisMaster']['id'] == $treatment_master_data_to_use['diagnosis_master_id'] ){
-				$dx_tmp_data['TreatmentMaster'] = $treatment_master_data_to_use;
+				$dx_tmp_data['TreatmentMaster']['diagnosis_master_id'] = $treatment_master_data_to_use['diagnosis_master_id'];
+			}
+			
+			$tmp_primary_id = $dx_tmp_data['DiagnosisMaster']['primary_id'];
+			if(!array_key_exists($tmp_primary_id, $sorted_dx_data)) $sorted_dx_data[$tmp_primary_id] = array('category'=>null,'controls_type'=>null,'dx_list'=>array());
+			if($tmp_primary_id == $dx_tmp_data['DiagnosisMaster']['id']) {
+				$sorted_dx_data[$tmp_primary_id]['category'] = $dx_tmp_data['DiagnosisControl']['category'];
+				$sorted_dx_data[$tmp_primary_id]['controls_type'] = $dx_tmp_data['DiagnosisControl']['controls_type'];
+				$sorted_dx_data[$tmp_primary_id]['dx_list'] = array_merge(array($dx_tmp_data), $sorted_dx_data[$tmp_primary_id]['dx_list']);
+			} else {
+				$sorted_dx_data[$tmp_primary_id]['dx_list'][] = $dx_tmp_data;
 			}
 		}
-		$this->set('data_for_checklist', $dx_data);		
-			
+		$this->set('data_for_checklist', $sorted_dx_data);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id) );
 		
@@ -143,7 +166,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}
 	}
 	
-	function add($participant_id=null, $tx_control_id=null) {
+	function add($participant_id, $tx_control_id) {
 		if ( !$participant_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		// MANAGE DATA
@@ -161,17 +184,28 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('initial_display', (empty($this->data)? true : false));
 			
 		// Set diagnosis data for diagnosis selection (radio button)
-		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id)));
-		if(!empty($this->data)) {
-			// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
-			foreach($dx_data as &$dx_tmp_data){
+		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
+		$sorted_dx_data = array();
+		foreach($dx_data as $dx_tmp_data) {
+			if(!empty($this->data)) {
+				// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
 				// Set data to display correctly selected diagnosis			
 				if($dx_tmp_data['DiagnosisMaster']['id'] == $this->data['TreatmentMaster']['diagnosis_master_id'] ){
 					$dx_tmp_data['TreatmentMaster'] = $this->data['TreatmentMaster'];
-				}
+				}				
+			}
+			
+			$tmp_primary_id = $dx_tmp_data['DiagnosisMaster']['primary_id'];
+			if(!array_key_exists($tmp_primary_id, $sorted_dx_data)) $sorted_dx_data[$tmp_primary_id] = array('category'=>null,'controls_type'=>null,'dx_list'=>array());
+			if($tmp_primary_id == $dx_tmp_data['DiagnosisMaster']['id']) {
+				$sorted_dx_data[$tmp_primary_id]['category'] = $dx_tmp_data['DiagnosisControl']['category'];
+				$sorted_dx_data[$tmp_primary_id]['controls_type'] = $dx_tmp_data['DiagnosisControl']['controls_type'];
+				$sorted_dx_data[$tmp_primary_id]['dx_list'] = array_merge(array($dx_tmp_data), $sorted_dx_data[$tmp_primary_id]['dx_list']);
+			} else {
+				$sorted_dx_data[$tmp_primary_id]['dx_list'][] = $dx_tmp_data;
 			}
 		}
-		$this->set('data_for_checklist', $dx_data);					
+		$this->set('data_for_checklist', $sorted_dx_data);					
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$tx_control_id));

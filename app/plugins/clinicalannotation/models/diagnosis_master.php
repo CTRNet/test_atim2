@@ -63,7 +63,7 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 		
 		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$nbr_primary = $this->find('count', array('conditions' => array('DiagnosisMaster.primary_id' => $diagnosis_master_id), 'recursive' => '-1'));
+		$nbr_primary = $this->find('count', array('conditions' => array('DiagnosisMaster.primary_id' => $diagnosis_master_id, "DiagnosisMaster.id != $diagnosis_master_id"), 'recursive' => '-1'));
 		if ($nbr_primary > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_primary_id';
