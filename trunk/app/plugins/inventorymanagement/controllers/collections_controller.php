@@ -336,7 +336,8 @@ class CollectionsController extends InventorymanagementAppController {
 		$this->set('template', $template);
 		$this->set('template_id', $template_id);
 		
-		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => 'i18n', 'name' => 'TemplateInit'));
+		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => false, 'name' => 'TemplateInit'));
+		$this->TemplateInit->_schema = array();
 		$this->Structures->set('empty', 'template_init_structure');
 		
 		$this->set('collection_id', $collection_id);
