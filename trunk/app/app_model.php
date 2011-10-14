@@ -313,10 +313,15 @@ class AppModel extends Model {
 	
 	public function buildAccuracyConfig(){
 		$tmp_acc = array();
-		foreach($this->_schema as $field_name => $foo){
-			if(strpos($field_name, "_accuracy") === strlen($field_name) - 9){
-				$tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+		if(isset($this->_schema)){
+			foreach($this->_schema as $field_name => $foo){
+				if(strpos($field_name, "_accuracy") === strlen($field_name) - 9){
+					$tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+				}
 			}
+		}else{
+			AppController::addWarningMsg('failed to build accuracy config for model ['.$this->name.'] because there is no schema. '
+				.'To avoid this warning message you can add an empty array as a schema to your model. Eg.: <code>$model->_schema = array();</code>');
 		}
 		self::$accuracy_config[$this->table] = $tmp_acc;
 	}
