@@ -107,7 +107,23 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("redirecting to samples & aliquots", "Redirecting to samples & aliquots", "Redirection vers échantillons & aliquots"),
 ("the results contain various data types, so the details are not displayed",
  "The results contain various data types, so the details are not displayed.",
- "Les résultats contiennent différents types de données, alors les détails ne sont pas affichés."); 
+ "Les résultats contiennent différents types de données, alors les détails ne sont pas affichés."),
+("pick a storage to drag and drop to", "Pick a storage to drag and drop to", "Sélectionnez un entreposage vers lequel glisser déposer"),
+("the storage you are already working on has been removed from the results",
+ "The storage you are already working on has been removed from the results",
+ "L'entreposage sur lequel vous travaillez a été retiré des résultats"),
+("storages without layout have been removed from the results",
+ "Storages without layout have been removed from the results",
+ "Les entreposages sans disposition ont été retirés des résultats"),
+("help_storage_layout_remove",
+ "Items in this cell will be removed from the storage.",
+ "Les items dans cette cellule seront retirés de l'entreposage."),
+("help_storage_layout_unclassified",
+ "Items in this cell are in the storage but do not have a position.",
+ "Les items dans cette cellule font partie de l'entreposage mais n'ont pas de position d'assignée."),
+("help_storage_layout_storage",
+ "The cells above are a representation of the positions of the storage.",
+ "Les cellules ci-dessous sont une représentation des positions de votre entrposage.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';

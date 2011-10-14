@@ -22,12 +22,34 @@ class StorageMastersController extends StoragelayoutAppController {
 		
 	function search($search_id = 0, $from_layout_page = false){
 		$this->set('atim_menu', $this->Menus->get('/storagelayout/storage_masters/search/'));
-		$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search');
 		
-		if(count($this->data) > 20 && $from_layout_page){
-			$this->data = array();
-			$this->set('overflow', true);
+		
+		if($from_layout_page){
+			$top_row_storage_id = $this->data['current_storage_id'];
+			unset($this->data['current_storage_id']);
+			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search', false, 21);
+			if(count($this->data) > 20){
+				$this->data = array();
+				$this->set('overflow', true);
+			}else{
+				$warn = false;
+				foreach($this->data as $key => $data){
+					if($data['StorageControl']['coord_x_type'] == null){
+						unset($this->data[$key]);
+						$warn = true;
+					}else if($data['StorageMaster']['id'] == $top_row_storage_id){
+						unset($this->data[$key]);
+						AppController::addInfoMsg(__('the storage you are already working on has been removed from the results', true));	
+					}
+				}
+				if($warn){
+					AppController::addInfoMsg(__('storages without layout have been removed from the results', true));
+				}
+			}
+		}else{
+			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/storagelayout/storage_masters/search');
 		}
+		
 		$this->set('from_layout_page', $from_layout_page);
 		
 		//find all storage control types to build add button
@@ -517,6 +539,8 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			//Update TmaSlide
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data['StorageControl']);
+			
+			$this->atimFlash('your data has been saved', '/storagelayout/storage_masters/storageLayout/' . $storage_master_id);
 		}
 		$this->data = array();
 		
@@ -647,4 +671,3 @@ class StorageMastersController extends StoragelayoutAppController {
 	
 	
 }
-?>

@@ -25,16 +25,21 @@ function axisLoopCondition(&$var, $reverseOrder, $limit){
 }
 ob_start();
 ?>
- <div style="display: table-cell;">
+ <div style="display: table-cell; vertical-align: top;">
  	<ul>
- 		<li><span class="button RecycleStorage"><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items", true)); ?></span></li>
- 		<li><span class="button TrashStorage"><span class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items", true)); ?></span></li>
+ 		<li><span class="button RecycleStorage" style='width: 80%;'><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items", true)); ?></span></li>
+ 		<li><span class="button TrashStorage" style='width: 80%;'><span class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items", true)); ?></span></li>
  	</ul>
  </div>
- <div style="display: table-cell;">
+ <div style="display: table-cell; padding-top: -10px; vertical-align: top;">
 	<div>
-		<h4 class="ui-widget-header" style="height: 15px; line-height: 15px;">
-			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo __($data['parent']['StorageControl']['storage_type'], true) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?></h4>
+		<h4 class="ui-widget-header">
+			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
+			<?php echo __($data['parent']['StorageControl']['storage_type'], true) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
+			<span class='help storage'>
+				<div><?php __('help_storage_layout_storage') ?></div>
+			</span>
+		</h4>
 		<table class='storageLayout' style="width: 100%;">
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
@@ -125,24 +130,34 @@ ob_start();
 		</table>
 	</div>
 </div>
-<div style="display: table-cell;">
-	<ul style="margin-left: 10px;">
-		<li>
-			<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top;">
-				<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;  margin-bottom: 5px;">
+<div style="display: table-cell; vertical-align: top;">
+	<ul class='trash_n_unclass'>
+		<li class='trash_n_unclass'>
+			<div style="width: 100%; border:solid 1px; display: inline-block; vertical-align: top;">
+				<h4 class="ui-widget-header">
 					<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassified", true)); ?>
+					<span class='help storage'>
+						<div><?php __('help_storage_layout_unclassified') ?></div>
+					</span>
 				</h4>
-				<ul class="unclassified" style="margin-right: 5px;"></ul>
-				<span class="button TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
+				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
+					<ul class="unclassified" style="margin-right: 5px;"></ul>
+					<span class="button TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
+				</div>	
 			</div>
 		</li>
-		<li>
-			<div class="droppable" style="width: 100%; border-style:solid; border-width:1px; display: inline-block; vertical-align: top;">
-				<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px; margin-bottom: 5px;">
+		<li class='trash_n_unclass'>
+			<div style="width: 100%; border:solid 1px; display: inline-block; vertical-align: top;">
+				<h4 class="ui-widget-header">
 					<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
+					<span class='help storage'>
+						<div><?php __('help_storage_layout_remove') ?></div>
+					</span>
 				</h4>
-				<ul class="trash" style="margin-right: 5px;"></ul>
-				<span class="button RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
+				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
+					<ul class="trash" style="margin-right: 5px;"></ul>
+					<span class="button RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
+				</div>
 			</div>
 		</li>
 	</ul>

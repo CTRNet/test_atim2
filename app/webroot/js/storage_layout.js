@@ -1,12 +1,14 @@
 /**
  * This script is used by the storage_layout page for drag and drop
  */
-
 var submitted = false; //avoids internal double posts
+var dragging = false;//counter Chrome 15 text selection issue
+var modified = false;//if true, save warning
 
 function initStorageLayout(){
 	var id = document.URL.match(/[0-9]+/g);
-	$("#firstStorageRow").data('storageId', id.pop());
+	id = id.pop();
+	$("#firstStorageRow").data('storageId', id);
 	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
 	
 	//bind preparePost to the submit button
@@ -18,15 +20,18 @@ function initStorageLayout(){
 	
 	
 	//load the top storage loayout
-	$.get(document.URL + '/1', function(data){
+	$.get(document.URL.replace(/#/g, '') + '/1', function(data){
 		data = $.parseJSON(data);
 		if(data.valid){
 			initRow($("#firstStorageRow"), data);
 		}
+		$("#firstStorageRow").find(".dragme").data("top", true);
+		$("#firstStorageRow").find(".droppable").data("top", true);
 	});
 	
+	
 	window.onbeforeunload = function(event) {
-		if($("#saveWarning:visible").length){
+		if(modified){
 			return STR_NAVIGATE_UNSAVED_DATA;
 		}
 	};
@@ -35,6 +40,7 @@ function initStorageLayout(){
 	$.get(root_url + '/storagelayout/storage_masters/search/', function(data){
 		var isVisible = $("#default_popup:visible").length;
 		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
+		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
 		globalInit($("#default_popup"));
 		
 		if(isVisible){
@@ -45,9 +51,10 @@ function initStorageLayout(){
 		
 		$("#default_popup input.submit").click(function(){
 			//search results into popup
-			$.post($("#default_popup form").attr("action") + '/1', $("#default_popup form").serialize(), function(data){
-				$("body").append("<div class='hidden tmpSearchForm'></div>");
-				$(".tmpSearchForm").append($("#default_popup .wrapper"));
+			$("body").append("<div class='hidden tmpSearchForm'></div>");
+			$(".tmpSearchForm").append($("#default_popup .wrapper"));
+			$("#default_popup").html("<div class='loading'>---" + STR_LOADING + "---</div>").popup();
+			$.post($(".tmpSearchForm form").attr("action") + '/1', $(".tmpSearchForm form").serialize(), function(data){
 				data = $.parseJSON(data);
 				var isVisible = $("#default_popup:visible").length;
 				$("#default_popup").html('<div class="wrapper"><div class="frame">' + data.page + '</div></div>');
@@ -64,10 +71,13 @@ function initStorageLayout(){
 					if(id != $("#firstStorageRow").data("storageId")){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
+						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
 						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
+								$("#secondStorageRow").find(".dragme").data("top", false);
+								$("#secondStorageRow").find(".droppable").data("top", false);
 							}
 						});
 					}
@@ -105,37 +115,58 @@ function initRow(row, data){
 		}
 	}
 	
+	$(".dragme").mouseover(function(){
+		document.onselectstart = function(){ return false; };
+	}).mouseout(function(){
+		if(!dragging){
+			document.onselectstart = null;
+		}
+	});
+	
 	//make them draggable
 	$(".dragme").draggable({
 		revert : 'invalid',
+		zIndex: 1,
 		start: function(event, ui){
-			//for easier dragging, convert the item display to inline-block
-			$(this).css("display", "inline-block");
-		},stop: function(event, ui){
-			//put back original display property
-			$(this).css("display", "list-item");
+			dragging = true;
+		}, stop: function(event, ui){
+			dragging = false;
 		}
 	});
 	
 	//create the drop zones
 	$(".droppable").droppable({
 		hoverClass: 'ui-state-active',
+		tolerance: 'pointer',
 		drop: function(event, ui){
 			moveItem(ui.draggable, this);
 		}
 	});
 	
+	var secondRow = row[0] == $("#secondStorageRow")[0];
 	row.find(".RecycleStorage").click(function(){
 		moveStorage(row, true);
+		if(secondRow){
+			$("#btnPickStorage").hide();
+		}
 	});
 	row.find(".TrashStorage").click(function(){
 		moveStorage(row, false);
+		if(secondRow){
+			$("#btnPickStorage").hide();
+		}
 	});
 	row.find(".TrashUnclassified").click(function(){
 		moveUlTo(row, "unclassified", "trash");
+		if(secondRow){
+			$("#btnPickStorage").hide();
+		}
 	});
 	row.find(".RecycleTrash").click(function(){
 		moveUlTo(row, "trash", "unclassified");
+		if(secondRow){
+			$("#btnPickStorage").hide();
+		}
 	});
 }
 
@@ -151,25 +182,28 @@ function searchBack(){
 }
 
 /**
- * Called when an item is dropped in a droppable zone, moves the DOM element to the new container and updates the action
- * icons accordingly
+ * Called when an item is dropped in a droppable zone, moves the DOM element to
+ * the new container
  * @param draggable The draggable item that has been moved
  * @param droparea The drop zone where it was dropped
  * @return
  */
 function moveItem(draggable, droparea){
-	if($(draggable).parent().prop("id") != $(droparea).children("ul:first")[0].id){
+	if($(draggable).parent()[0] != $(droparea).children("ul:first")[0]){
 		if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "trash"){
 			deleteItem(draggable);
 		}else if($(droparea).children().length >= 4 && $(droparea).children()[3].id == "unclassified"){
 			recycleItem(draggable);
 		}else{
-			$($(draggable).children()[0]).css("display", 'inline-block');//show trash can
-			$($(draggable).children()[1]).css("display", 'inline-block');//show recycle
 			$(draggable).appendTo($(droparea).children("ul:first"));
-			$('#saveWarning').show();
+			modified = true;
+			$("div.validation ul.confirm").remove();
 		}
 		$(draggable).css({"top" : "0px", "left" : "0px"});
+		if(!$(droparea).data("top") || !draggable.data("top")){
+			//as soon as we drag from bottom or drop bottom, hide button
+			$("#btnPickStorage").hide();
+		}
 	}else{
 		$(draggable).draggable({ revert : true });
 	}
@@ -186,7 +220,8 @@ function deleteItem(scope, item) {
 		$(this).appendTo(scope.find(".trash"));
 		$(this).fadeIn();
 	});
-	$('#saveWarning').show();
+	modified = true;
+	$("div.validation ul.confirm").remove();
 	return false;
 }
 
@@ -202,7 +237,8 @@ function recycleItem(scope, item) {
 		$(this).appendTo(scope.find(".unclassified"));
 		$(this).fadeIn();
 	});
-	$('#saveWarning').show();
+	modified = true;
+	$("div.validation ul.confirm").remove();
 	return false;
 }
 

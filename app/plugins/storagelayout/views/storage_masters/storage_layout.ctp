@@ -1,12 +1,13 @@
 <?php
 	ob_start();
 ?>
-<div style="display: table;">
+<div style="display: table; vertical-align: top;">
 	<div style="display: table-row;" id="firstStorageRow">
+		<div style="display: table-cell;" class='loading'>--- <?php __('loading'); ?>---</div>
 	</div>
 	<div style="display: table-row;">
-		<div style="display: table-cell; padding: 10px;">
-			<span class="button" id="btnPickStorage"><?php echo(__("pick a storage to drag and drop to", true)); ?></span>
+		<div style="display: table-cell; padding: 10px 0;">
+			<span class="button" id="btnPickStorage" style="width: 80%;"><?php echo(__("pick a storage to drag and drop to", true)); ?></span>
 		</div>
 	</div>
 	<div style="display: table-row;" id="secondStorageRow">
@@ -33,20 +34,37 @@ $structures->build($empty_structure, array(
 	clear: both;
 }
 .handle{
-	cursor: move;
-	vertical-align: top;
+	/*vertical-align: top;*/
 }
 .mycell{
 	padding: 5px;
 }
-.StorageMaster{
-	color: #cc0000;
+.dragme{
+	margin: 1px;
+	padding: 2px;
+	border-radius: 3px;
+	cursor: move;
+	backgroun-color: #ddd;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ddd), color-stop(50%, #eee), to(#bbb)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ddd,  #eee, #bbb); /* for firefox 3.6+ */
 }
-.AliquotMaster{
-	color: #00cc00;
+ul.trash_n_unclass{
+	margin-left: 10px;
 }
-.TmaSlide{
-	color: #0000cc;
+li.trash_n_unclass{
+	margin: 0 5px 5px 5px;
+}
+h4.ui-widget-header{
+	height: 20px; 
+	line-height: 20px; 
+	font-size: 130%;"
+}
+span.help.storage{
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	float: right;
+	margin: 2px;
 }
 </style>
 
