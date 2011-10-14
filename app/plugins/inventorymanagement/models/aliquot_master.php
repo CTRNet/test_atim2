@@ -44,7 +44,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'data'				=> $result,
-					'structure alias'	=> 'aliquotmasters'
+					'structure alias'	=> 'aliquot_masters'
 			);
 		}
 		
