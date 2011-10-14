@@ -2231,30 +2231,34 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 REPLACE INTO i18n (id,en,fr) VALUES ('related diagnosis','Related Diagnosis Event','Évenement du diagnostic connexe');
 INSERT INTO i18n (id,en,fr) VALUES ('diagnosis history','History','Historic'), ('diagnosis event', 'Event', 'Évenement');
 
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `field`='code'), 'isUnique', ''), 
+((SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `field`='code'), 'notEmpty', '');
 
+INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'sop versions',1,50);
+INSERT INTO `structure_value_domains` VALUES 
+(null,'custom_sop_verisons','open','','StructurePermissibleValuesCustom::getCustomDropdown(\'sop versions\')');
+INSERT INTO `structure_value_domains` VALUES 
+(null,'sop_status','open','',NULL);
+UPDATE structure_fields SET type='select', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'custom_sop_verisons'), setting = '' WHERE field = 'version' and model = 'SopMaster';
+UPDATE structure_fields SET type='select', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'sop_status') WHERE field = 'status' and model = 'SopMaster';
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
+VALUES
+("in development", "in development"),('activated','activated'),("expired","expired"),('desactivated','desactivated');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="in development" AND language_alias="in development"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="activated" AND language_alias="activated"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="expired" AND language_alias="expired"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="desactivated" AND language_alias="desactivated"), "4", "1");;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('in development', 'In Development', 'En développement'),('activated', 'Activated', 'Activé'),('expired', 'Expired', 'Expiré'),('desactivated', 'Desactivated', 'Désactivé');
 
 
 

@@ -95,7 +95,8 @@ class SopMaster extends SopAppModel
 		
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('order' => 'SopMaster.title')) as $sop) {
-			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['title'];
+			
+			$result[$sop['SopMaster']['id']] = (empty($sop['SopMaster']['title'])? __('unknown',true) : $sop['SopMaster']['title']) . ' ['.$sop['SopMaster']['code'].' - '.$sop['SopMaster']['version'].']';
 		}
 		
 		return $result;
