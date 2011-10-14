@@ -34,7 +34,7 @@ class StudySummary extends StudyAppModel
 		$result = array();
 					
 		foreach($this->find('all', array('order' => 'StudySummary.title ASC')) as $new_study) {
-			$result[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'] . (empty($new_study['StudySummary']['disease_site'])? '' : '(' . __($new_study['StudySummary']['disease_site'], true) .')');
+			$result[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
 		}
 		
 		return $result;

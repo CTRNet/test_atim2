@@ -39,7 +39,7 @@ class OrdersController extends OrderAppController {
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
 			
 		$hook_link = $this->hook('format');
 		if($hook_link){
