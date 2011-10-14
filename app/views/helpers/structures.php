@@ -523,32 +523,34 @@ class StructuresHelper extends Helper {
 				$new_line = true;
 				$end_of_line = "";
 				$display = "";
+				$help = null;//keeps the help if hidden fields are in the way
 				foreach($table_column as $table_row){
 					foreach($table_row as $table_row_part){
 						if($table_row_part['heading']){
 							if(!$new_line){
-								echo('<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>");
+								echo '<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>";
 								$display = array();
 								$end_of_line = "";
 							}
-							echo('<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
+							echo'<td class="heading no_border" colspan="'.( show_help ? '3' : '2' ).'">
 										<h4>'.$table_row_part['heading'].'</h4>
 									</td>
 								</tr><tr>
-							');
+							';
 							$new_line = true;
 						}
 						
 						if($table_row_part['label']){
 							if(!$new_line){
-								echo('<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>");
+								echo '<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>";
 								$display = array();
 								$end_of_line = "";
 							}
-							echo('<td class="label">
+							$help = null;
+							echo '<td class="label">
 										'.$table_row_part['label'].'
 								</td>
-							');
+							';
 						}
 						
 						//value
@@ -604,9 +606,16 @@ class StructuresHelper extends Helper {
 								}
 								$display[0] .= '</span>';
 							}
+							
+							if($table_row_part['type'] == 'hidden'){
+								$table_row_part['help'] = $help;
+							}else{
+								$help = $table_row_part['help'];
+							}
 						}
 						
 						if(show_help){
+							
 							$end_of_line = '
 									<td class="help">
 										'.$table_row_part['help'].'
@@ -617,12 +626,12 @@ class StructuresHelper extends Helper {
 					}
 					$table_row_count++;
 				} // end ROW 
-				echo('<td class="content">'.implode('</td><td class="content">', $display).'</td>'.$end_of_line.'</tr>
+				echo '<td class="content">'.implode('</td><td class="content">', $display).'</td>'.$end_of_line.'</tr>
 						</tbody>
 						</table>
 						
 					</td>
-				');
+				';
 				
 			}else{
 				$this->printExtras($count_columns, count($table_index), $table_column);
