@@ -2260,6 +2260,46 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('in development', 'In Development', 'En développement'),('activated', 'Activated', 'Activé'),('expired', 'Expired', 'Expiré'),('desactivated', 'Desactivated', 'Désactivé');
 
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') 
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field IN ('title', 'disease_site', 'start_date', 'end_date', 'summary'));
 
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `field`='title'), 'isUnique', ''), 
+((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `field`='title'), 'notEmpty', '');
 
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'ctrnet_submission_disease_site')
+WHERE field = 'disease_site' and model = 'StudySummary';
+
+ALTER TABLE study_summaries
+  MODIFY `disease_site` varchar(255) NOT NULL DEFAULT '';
+ALTER TABLE study_summaries_revs
+  MODIFY `disease_site` varchar(255) NOT NULL DEFAULT '';
+
+UPDATE menus set language_title = 'study and project' WHERE id = 'tool_CAN_100';
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('study and project', 'Study & Project', 'Étude & Projet');
+
+UPDATE structure_fields SET language_label = 'study / project' WHERE field = 'study_summary_id';
+UPDATE structure_fields SET language_label = 'default study / project' WHERE field = 'default_study_summary_id';
+
+INSERT INTO i18n (id,en,fr) VALUES ('study / project', 'Study/Project', 'Étude/Projet'), ('default study / project', 'Default Study/Project', 'Étude/Projet (par défaut)');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='end_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('study/project is assigned to an aliquot', 
+'Your data cannot be deleted! This study/project is linked to aliquot creation.', 
+'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une création d''aliquot.'),
+('study/project is assigned to an order', 
+'Your data cannot be deleted! This study/project is linked to an order.', 
+'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une commande.'),
+('study/project is assigned to an order line', 
+'Your data cannot be deleted! This study/project is linked to an order line.', 
+'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une ligne de commande.');
 
