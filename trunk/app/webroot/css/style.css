@@ -807,7 +807,7 @@ span.help {
 			left: 10px;
 			border-radius: 0 15px 15px 15px;
 		}
-		div.wrapper td.help span.help:hover div, div.wrapper th span.help:hover div {
+		div.wrapper span.help:hover div{
 			display: block;
 			text-indent: 0;
 			top: 10px; right: 10px;
@@ -1281,14 +1281,15 @@ div.wrapper table.structure table.columns td a.not_allowed {
 	color: #dde8f2;
 }
 	div.validation {
-		margin: 0 10px;
 		background-color: #fff;
-		
 		border: none;
+		padding-top: 10px;
+	}
+	
+	div.validationWrapper{
+		margin: 0 10px;
 		border-right: 1px solid #243340;
 		border-left: 1px solid #243340;
-		
-		padding-top: 10px;
 	}
 	
 	div.extra div.validation{
@@ -1296,12 +1297,11 @@ div.wrapper table.structure table.columns td a.not_allowed {
 		border: none;
 	}
 	
-		ul.error li, ul.warning li, ul.confirm li, ul.batchCreate li {
+		ul.error li, ul.warning li, ul.confirm li, ul.batchCreate li, ul.info li {
 			padding: 3px 25px;
 			border-radius: 5px;
 			border-width: 3px;
 			border-style: solid; 
-			/*color: #fff;*/
 		}
 		
 		ul.error{
@@ -1326,11 +1326,12 @@ div.wrapper table.structure table.columns td a.not_allowed {
 			border-color: #EB0;
 			background: url(../img/icons/Warning_16x16.png) no-repeat 4px 2px;
 		}
-		ul.batchCreate{
-			background-image: url(../img/batch_bg.gif);
+		ul.info{
+			background-image: url(../img/info_bg.gif);
 		}
-		ul.batchCreate li{
-			border-color: #00009b;
+		ul.info li{
+			border-color: #719cd0;
+			background: url(../img/icons/info_16x16.png) no-repeat 3px 1px;
 		}
 		
 div#footer {
@@ -1412,6 +1413,8 @@ table.cake-sql-log th {
 	font-size: 12px;
 	color: #000;
 	padding: 5px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#dfe9f3)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #fff, #dfe9f3); /* for firefox 3.6+ */
 }
 
 .button.large{
@@ -1429,7 +1432,8 @@ table.cake-sql-log th {
 .button:hover, .button:focus{
 	background: url(../img/btnBackSel.png);
 	border-color: #000;
-	
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#bacdde)); /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #fff, #bacdde); /* for firefox 3.6+ */
 }
 .button .ui-icon{
 	float: left; 

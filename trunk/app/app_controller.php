@@ -484,6 +484,14 @@ class AppController extends Controller {
 		}
 	}
 	
+	static function addInfoMsg($msg){
+		if(isset($_SESSION['ctrapp_core']['info_msg'][$msg])){
+			$_SESSION['ctrapp_core']['info_msg'][$msg] ++;
+		}else{
+			$_SESSION['ctrapp_core']['info_msg'][$msg] = 1;
+		}
+	}
+	
 	static function getStackTrace(){
 		$bt = debug_backtrace();
 		$result = array();
@@ -644,8 +652,9 @@ class AppController extends Controller {
 	 * @param string $structure_alias The structure alias to parse the search conditions on
 	 * @param string $url The base url to use in the pagination links (meaning without the search_id)
 	 * @param bool $ignore_detail If true, even if the model is a master_detail ,the detail level won't be loaded
+	 * @param mixed $limit If false, will make a paginate call, if an int greater than 0, will make a find with the limit
 	 */
-	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false){
+	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false, $limit = false){
 		//setting structure
 		$structure = $this->Structures->get('form', $structure_alias);
 		$this->set('atim_structure', $structure);
@@ -738,11 +747,15 @@ class AppController extends Controller {
 					}
 				}else if(count($ctrl_ids) > 0){
 					//more than one
-					AppController::addWarningMsg(__("the results contain various data types, so the details are not displayed", true));
+					AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
 				}
 			}
 			
-			$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			if($limit){
+				$this->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
+			}else{
+				$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			}
 			
 			if(
 				$model->name == 'ViewAliquot' && 

@@ -43,6 +43,7 @@ class UsersController extends AppController {
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_msg'] = array();//init
+				$_SESSION['ctrapp_core']['info_msg'] = array();//init
 			}
 			$group = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
 			$_SESSION['Auth']['User']['flag_show_confidential'] = $group['Group']['flag_show_confidential'];

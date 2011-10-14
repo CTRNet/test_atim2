@@ -139,7 +139,7 @@ class ShellHelper extends Helper {
 		
 		// display any VALIDATION ERRORS
 		
-		$return .= $this->validationHtml().'	
+		$return .= '<div class="validationWrapper">'.$this->validationHtml().'</div>	
 			<!-- start #wrapper -->
 			<div class="outerWrapper">
 				<div id="wrapper" class="wrapper plugin_'.( isset($this->params['plugin']) ? $this->params['plugin'] : 'none' ).' controller_'.$this->params['controller'].' action_'.$this->params['action'].'">
@@ -158,17 +158,20 @@ class ShellHelper extends Helper {
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
 		
-		if(isset($_SESSION['ctrapp_core']['warning_msg']) && count($_SESSION['ctrapp_core']['warning_msg']) > 0){
-			$confirm_msg_html .= '<ul class="warning">';
-			foreach($_SESSION['ctrapp_core']['warning_msg'] as $warning_msg => $count){
-				if($count > 1){
-					$warning_msg .= " (".$count.")";
+		foreach(array('warning', 'info') as $type){
+			if(isset($_SESSION['ctrapp_core'][$type.'_msg']) && count($_SESSION['ctrapp_core'][$type.'_msg']) > 0){
+				$confirm_msg_html .= '<ul class="'.$type.'">';
+				foreach($_SESSION['ctrapp_core'][$type.'_msg'] as $msg => $count){
+					if($count > 1){
+						$msg .= " (".$count.")";
+					}
+					$confirm_msg_html .= "<li>".$msg."</li>";
 				}
-				$confirm_msg_html .= "<li>".$warning_msg."</li>";
+				$confirm_msg_html .= '</ul>';
+				$_SESSION['ctrapp_core'][$type.'_msg'] = array();
 			}
-			$confirm_msg_html .= '</ul>';
-			$_SESSION['ctrapp_core']['warning_msg'] = array();
 		}
+		
 		$return = "";
 		if($display_errors_html != null || strlen($confirm_msg_html) > 0){
 			$return .= '
