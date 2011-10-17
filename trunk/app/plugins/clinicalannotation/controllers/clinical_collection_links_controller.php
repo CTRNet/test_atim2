@@ -49,7 +49,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		//get CodingIcd descriptions
 		$this->data['DiagnosisMaster']['morphology'] = $this->data['DiagnosisMaster']['morphology']." - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
 		$this->data['DiagnosisMaster']['topography'] = $this->data['DiagnosisMaster']['topography']." - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
-		$this->data['DiagnosisMaster']['primary_icd10_code'] = $this->data['DiagnosisMaster']['primary_icd10_code']." - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['primary_icd10_code']);
+		$this->data['DiagnosisMaster']['icd10_code'] = $this->data['DiagnosisMaster']['icd10_code']." - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['icd10_code']);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
