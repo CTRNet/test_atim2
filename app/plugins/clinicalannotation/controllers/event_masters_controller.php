@@ -18,9 +18,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get( '/'.$this->params['plugin'].'/'.$this->params['controller'].'/'.$this->params['action'].'/'.$this->params['pass'][0] ) );
 	}
 	
-	function listall( $event_group, $participant_id, $event_control_id=null ) {
-		if ( (!$participant_id) && (!$event_group)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-			
+	function listall( $event_group, $participant_id, $event_control_id=null ){
 		// set FILTER, used as this->data CONDITIONS
 		if ( !isset($_SESSION['MasterDetail_filter']) || !$event_control_id ) {
 			$_SESSION['MasterDetail_filter'] = array();
@@ -33,15 +31,14 @@ class EventMastersController extends ClinicalannotationAppController {
 			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 			
 			$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-			if(empty($filter_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+			if(empty($filter_data)) { 
+				$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			}
 			$this->Structures->set($filter_data['EventControl']['form_alias']);
 		}
 			
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { 
-			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
+		$participant_data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
 
 		$this->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		
@@ -50,7 +47,8 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// find all EVENTCONTROLS, for ADD form
 		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
-		$this->set( 'event_controls', $event_controls );
+		$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
+		$this->set('add_links', $add_links);
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -69,12 +67,16 @@ class EventMastersController extends ClinicalannotationAppController {
 		$diagnosis_data = array('event' => array(), 'history' => array());
 		if(!empty($this->data['EventMaster']['diagnosis_master_id'])) {
 			$tmp_diagnosis_data = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])));
-			if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			if(empty($tmp_diagnosis_data)){
+				$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			}
 			$diagnosis_data['event'][] = $tmp_diagnosis_data;
 			
 			if($tmp_diagnosis_data['DiagnosisMaster']['id'] != $tmp_diagnosis_data['DiagnosisMaster']['primary_id']) {
 				$tmp_diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($tmp_diagnosis_data['DiagnosisMaster']['primary_id'], $tmp_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id ASC'));
-				if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				if(empty($tmp_diagnosis_data)){
+					$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				$diagnosis_data['history'] = $tmp_diagnosis_data;
 			}
 		}
@@ -95,48 +97,33 @@ class EventMastersController extends ClinicalannotationAppController {
 			require($hook_link); 
 		}
 
-		if(is_array($diagnosis_data['history']) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false){
+		if(is_array($diagnosis_data['history']) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false && $diagnosis_data['history'][0]['DiagnosisControl']['flag_compare_with_cap']){
 			//cap report, generate warnings if there are mismatches
 			EventMaster::generateDxCompatWarnings($diagnosis_data['history'][0], $this->data);
 		}
 	}
 	
 	function add( $event_group, $participant_id, $event_control_id) {
-		if ((!$participant_id) || (!$event_group) || (!$event_control_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
 		// MANAGE DATA
 
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($participant_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 
 		$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-		if(empty($event_control_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($event_control_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 		
 		// Set diagnosis data for diagnosis selection (radio button)
-		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
-		$sorted_dx_data = array();
-		foreach($dx_data as $dx_tmp_data) {
-			if(!empty($this->data)) {
-				// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
-				// Set data to display correctly selected diagnosis			
-				if($dx_tmp_data['DiagnosisMaster']['id'] == $this->data['EventMaster']['diagnosis_master_id'] ){
-					$dx_tmp_data['EventMaster']['diagnosis_master_id'] = $this->data['EventMaster']['diagnosis_master_id'];
-				}				
-			}
-			
-			$tmp_primary_id = $dx_tmp_data['DiagnosisMaster']['primary_id'];
-			if(!array_key_exists($tmp_primary_id, $sorted_dx_data)) $sorted_dx_data[$tmp_primary_id] = array('category'=>null,'controls_type'=>null,'dx_list'=>array());
-			if($tmp_primary_id == $dx_tmp_data['DiagnosisMaster']['id']) {
-				$sorted_dx_data[$tmp_primary_id]['category'] = $dx_tmp_data['DiagnosisControl']['category'];
-				$sorted_dx_data[$tmp_primary_id]['controls_type'] = $dx_tmp_data['DiagnosisControl']['controls_type'];
-				$sorted_dx_data[$tmp_primary_id]['dx_list'] = array_merge(array($dx_tmp_data), $sorted_dx_data[$tmp_primary_id]['dx_list']);
-			} else {
-				$sorted_dx_data[$tmp_primary_id]['dx_list'][] = $dx_tmp_data;
-			}
+		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
+		if(!empty($this->data) && isset($this->data['EventMaster']['diagnosis_master_id'])){
+			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $this->data['EventMaster']['diagnosis_master_id'], 'EventMaster');
 		}
-		$this->set('data_for_checklist', $sorted_dx_data);	
+		$this->set('data_for_checklist', $dx_data);	
 
-		$this->set('initial_display', (empty($this->data)? true : false));
+		$this->set('initial_display', (empty($this->data)));
 					
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
@@ -181,39 +168,17 @@ class EventMastersController extends ClinicalannotationAppController {
 	}
 	
 	function edit( $event_group, $participant_id, $event_master_id ) {
-		if ((!$participant_id) || (!$event_group) || (!$event_master_id)) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }		
-		
 		// MANAGE DATA
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if (empty($event_master_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (empty($event_master_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		// Set diagnosis data for diagnosis selection (radio button)
-		$dx_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
-		$sorted_dx_data = array();
-		foreach($dx_data as $dx_tmp_data) {
-			// Define event data to take in consideration
-			$event_master_data_to_use = $event_master_data['EventMaster'];
-			if(!empty($this->data)) {
-				// User submitted data: take updated data in consideration in case data validation is wrong and form is redisplayed
-				$event_master_data_to_use = $this->data['EventMaster'];
-			}
-			
-			// Set data to display correctly selected diagnosis			
-			if($dx_tmp_data['DiagnosisMaster']['id'] == $event_master_data_to_use['diagnosis_master_id'] ){
-				$dx_tmp_data['EventMaster']['diagnosis_master_id'] = $event_master_data_to_use['diagnosis_master_id'];
-			}
-			
-			$tmp_primary_id = $dx_tmp_data['DiagnosisMaster']['primary_id'];
-			if(!array_key_exists($tmp_primary_id, $sorted_dx_data)) $sorted_dx_data[$tmp_primary_id] = array('category'=>null,'controls_type'=>null,'dx_list'=>array());
-			if($tmp_primary_id == $dx_tmp_data['DiagnosisMaster']['id']) {
-				$sorted_dx_data[$tmp_primary_id]['category'] = $dx_tmp_data['DiagnosisControl']['category'];
-				$sorted_dx_data[$tmp_primary_id]['controls_type'] = $dx_tmp_data['DiagnosisControl']['controls_type'];
-				$sorted_dx_data[$tmp_primary_id]['dx_list'] = array_merge(array($dx_tmp_data), $sorted_dx_data[$tmp_primary_id]['dx_list']);
-			} else {
-				$sorted_dx_data[$tmp_primary_id]['dx_list'][] = $dx_tmp_data;
-			}
-		}
-		$this->set('data_for_checklist', $sorted_dx_data);
+		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
+		$dx_id = isset($this->data['EventMaster']['diagnosis_master_id']) ? $this->data['EventMaster']['diagnosis_master_id'] : $event_master_data['EventMaster']['diagnosis_master_id']; 
+		$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $dx_id, 'EventMaster');
+		$this->set('data_for_checklist', $dx_data);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );

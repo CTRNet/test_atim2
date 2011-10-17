@@ -1060,10 +1060,10 @@ span.help {
 					font-size: 120%;
 					font-weight: bolder;
 				}
-				ul#tree_root ul{
+				ul.tree_root ul{
 					border-left: dotted 1px black;
 				}
-				ul#tree_root:first-child li { 
+				ul.tree_root:first-child li { 
 					background-color: #fff; 
 				}
 				div.nodeBlock{
@@ -1095,13 +1095,13 @@ span.help {
 					border-bottom: 8px solid transparent;
 					display: none;
 				}
-				ul#tree_root li a.reveal {
+				ul.tree_root li a.reveal {
 					display: inline-block;
 					width: 20px;
 					text-indent: -9999px;
 					vertical-align: top;
 				}
-				ul#tree_root li a.reveal.not_allowed {
+				ul.tree_root li a.reveal.not_allowed {
 					filter:alpha(opacity=30);
 					opacity: 0.3;
 				}

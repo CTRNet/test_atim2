@@ -160,28 +160,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		// Set diagnoses list
 		$diagnosis_data = $this->DiagnosisMaster->find('threaded', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
 		//because diagnosis has a one to many relation with participant, we need to format it
-		$stack = array();
-		$current_array = &$diagnosis_data;
-		$found_dx = false;
-		do{
-			while(($current_key = key($current_array)) !== null){
-				$current_element = &$current_array[$current_key];
-				next($current_array);
-				foreach($current_element['ClinicalCollectionLink'] as $unit){
-					if($unit['id'] == $clinical_collection_link_id){
-						$current_element['ClinicalCollectionLink'] = $unit;
-						$found_dx = true;
-						goto dx_end;
-					}
-				}
-
-				if(!empty($current_element['children'])){
-					array_push($stack, &$current_array);
-					$current_array = &$current_element['children'];
-				}
-			}
-		}while($current_array = array_pop($stack));
-		dx_end:
+		$found_dx = $this->DiagnosisMaster->arrangeThreadedDataForView($diagnosis_data, $clinical_collection_data['ClinicalCollectionLink']['diagnosis_master_id'], 'ClinicalCollectionLink');
 
 		$this->set( 'diagnosis_data', $diagnosis_data );
 		$this->set('found_dx', $found_dx);

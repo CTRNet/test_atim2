@@ -8,7 +8,7 @@ $tree_html =
 					<tbody>
 						<tr>
 							<td>
-								<ul id="tree_root"></ul>
+								<ul class="tree_root"></ul>
 							</td>
 						</tr>
 					</tbody>
@@ -72,13 +72,13 @@ if(isset($is_ajax)){
 
 	function drawTree(treeData){
 		modelsData = $.parseJSON(modelsData);
-		drawTreeRecur(treeData, $("#tree_root"));
+		drawTreeRecur(treeData, $(".tree_root"));
 
-		$("#tree_root .delete:first").remove();
+		$(".tree_root .delete:first").remove();
 
 		$("input[type=submit]").click(function(){
 			tree = new Array();
-			$("#tree_root li").each(function(){
+			$(".tree_root li").each(function(){
 				tree.push(JSON.stringify($(this).data()));
 			});
 			
@@ -311,7 +311,7 @@ if(isset($is_ajax)){
 		setLoading();
 		if(currentNode == null){
 			//get first node
-			currentNode = $("#tree_root li:first ul:first li:first:not(.wizardDone)");
+			currentNode = $(".tree_root li:first ul:first li:first:not(.wizardDone)");
 		}else{
 			currentNode.css("background-color", "#dfd");
 			currentNode.find("div:first").css("font-weight", "normal");
@@ -324,7 +324,7 @@ if(isset($is_ajax)){
 				ul = getParentElement(currentNode, "UL");
 				while(true){
 					$(ul).find("li.wizardDone a.add").remove();
-					if($(ul).prop("id") == "tree_root"){
+					if($(ul).hasClass("tree_root")){
 						currentNode = null;
 						break;
 					}
@@ -375,8 +375,8 @@ if(isset($is_ajax)){
 		}else{
 			//done
 			$(".ajaxContent").html("<div class='center'><?php __('done'); ?><br/><?php __('redirecting to samples & aliquots'); ?></div>");
-			$("#tree_root li:first").css("background-color", "#dfd");
-			$("#tree_root a.add").remove();
+			$(".tree_root li:first").css("background-color", "#dfd");
+			$(".tree_root a.add").remove();
 			document.location = root_url + '/inventorymanagement/sample_masters/contentTreeView/' + collectionId;
 		}
 	}
