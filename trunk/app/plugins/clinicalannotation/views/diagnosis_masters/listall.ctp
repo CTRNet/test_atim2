@@ -56,7 +56,7 @@
 	$structure_extras = array();
 	$structure_extras[10] = '<div id="frame"></div>';
 	
-	// Set form structure and option 
+	// Set form structure and option
 	$final_atim_structure = $atim_structure;
 	$final_options = array(
 		'type' => 'tree',
@@ -127,7 +127,7 @@
 						//found the right one
 						var parentUl = getParentElement(this, "UL");
 						var options = "";
-						if($(parentUl).prop("id") == "tree_root"){
+						if($(parentUl).hasClass("tree_root")){
 							//full options dropdown
 							for(i in dropdownOptions){
 								options += "<option value='" + i + "'>" + dropdownOptions[i] + "</option>";

@@ -118,11 +118,25 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		
 		// available child ctrl_id for creation
 		
-		if($dx_master_data['DiagnosisControl']['category'] == 'primary') {
-			$this->set('child_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array("DiagnosisControl.category NOT IN ('primary')", 'DiagnosisControl.flag_active' => 1))));		
-		} else if($dx_master_data['DiagnosisControl']['category'] == 'secondary') {
-			$this->set('child_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array("DiagnosisControl.category NOT IN ('primary', 'secondary')", 'DiagnosisControl.flag_active' => 1))));		
+		$condition_not_category = array('primary');
+		if($dx_master_data['DiagnosisControl']['category'] == 'secondary') {
+			$condition_category[] = 'secondary';
 		}
+		
+		$dx_ctrls = $this->DiagnosisControl->find('all', array(
+			'conditions' => array('NOT' => array("DiagnosisControl.category" => $condition_not_category), 'DiagnosisControl.flag_active' => 1),
+			'order' => 'DiagnosisControl.display_order')
+		);
+		$links = array();
+		foreach ($dx_ctrls as $dx_ctrl){
+			$links[] = array(
+						'order' => $dx_ctrl['DiagnosisControl']['display_order'],
+						'label' => __($dx_ctrl['DiagnosisControl']['category'], true) . ' - ' . __($dx_ctrl['DiagnosisControl']['controls_type'], true),
+						'link' => '/clinicalannotation/diagnosis_masters/add/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/'.$dx_ctrl['DiagnosisControl']['id']
+			);
+		}
+		AppController::buildBottomMenuOptions($links);
+		$this->set('child_controls_list', $links);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -131,9 +145,14 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 		
 		$events_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.diagnosis_master_id' => $diagnosis_master_id)));
-		foreach($events_data as $event_data){
-			EventMaster::generateDxCompatWarnings($this->data, $event_data);
+		if($this->data['DiagnosisControl']['flag_compare_with_cap']){
+			foreach($events_data as $event_data){
+				EventMaster::generateDxCompatWarnings($this->data, $event_data);
+			}
 		}
+		
+		$event_control_model = AppModel::getInstance('clinicalannotation', 'EventControl', true);
+		$this->set('event_controls', $event_control_model->find('all', array('conditions' => array('EventControl.flag_active' => 1))));
 	}
 
 	function add( $participant_id, $parent_id, $dx_control_id){

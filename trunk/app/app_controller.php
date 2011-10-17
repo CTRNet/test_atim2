@@ -798,6 +798,23 @@ class AppController extends Controller {
 			$this->set ( 'is_ajax', true );
 		}
 	}
+	
+	/**
+	* Builds menu options based on 1-display_order and 2-translation
+	* @param array $menu_options An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
+	* The label must be translated already.
+	*/
+	static function buildBottomMenuOptions(array &$menu_options){
+		$tmp = array();
+		foreach($menu_options as $menu_option){
+			$tmp[sprintf("%05d", $menu_option['order']).'-'.$menu_option['label']] = $menu_option['link'];
+		}
+		ksort($tmp);
+		$menu_options = array();
+		foreach($tmp as $label => $link){
+			$menu_options[preg_replace('/^[0-9]+-/', '', $label)] = $link;
+		}
+	}
 }
 
 	AppController::init();

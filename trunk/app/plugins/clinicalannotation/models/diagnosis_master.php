@@ -142,5 +142,28 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			))
 		);
 	}
+	
+	/**
+	 * Arranges the threaded data
+	 */
+	function arrangeThreadedDataForView(array &$threaded_dx_data, $seeking_dx_id, $seeking_model_name){
+		$stack = array();
+		$current_array = &$threaded_dx_data;
+		$found_dx = false;
+		foreach($threaded_dx_data as &$data){
+			if($data['DiagnosisMaster']['id'] == $seeking_dx_id){
+				$data[$seeking_model_name]['diagnosis_master_id'] = $seeking_dx_id;
+				$found_dx = true;
+				break;
+			}
+			if(isset($data['children']) && !empty($data['children'])){
+				if($found_dx = $this->arrangeThreadedDataForView($data['children'], $seeking_dx_id, $seeking_model_name)){
+					break;
+				}
+			}
+		}
+		
+		return $found_dx;
+	}
 }
 ?>
