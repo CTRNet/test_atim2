@@ -2319,6 +2319,9 @@ INSERT INTO i18n (id,en,fr) VALUES
 'Your data cannot be deleted! This study/project is linked to an order line.', 
 'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une ligne de commande.');
 
+ALTER TABLE diagnosis_controls
+ ADD COLUMN flag_compare_with_cap BOOLEAN DEFAULT true;
+ 
 REPLACE INTO i18n (id,en,fr) VALUES ('reserved for study','Reserved For Study/Projetc', 'Réservé pour une Étude/Projet');
 
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'aliquotmasters');
@@ -2363,7 +2366,3 @@ DELETE FROM diagnosis_controls WHERE form_alias LIKE 'dx_cap_%';
 " AS msg_5
 UNION ALL
 SELECT '****************' as msg_5;
-
-
--- ------------------------------------------------------------------------------------------------------------
-
