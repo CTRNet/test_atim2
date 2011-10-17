@@ -2348,3 +2348,22 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'study_
 
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='orders') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='comments' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET model = 'ProtocolControl', tablename = 'protocol_controls' WHERE tablename = 'protocol_masters' AND field = 'type';
+
+-- ------------------------------------------------------------------------------------------------------------
+-- DIAGNOSIS UPGRADE
+-- ------------------------------------------------------------------------------------------------------------
+
+SELECT '****************' as msg_5
+UNION
+SELECT 'Run following queries to delete CAP report from diagnosis_controls' AS msg_5
+UNION SELECT "
+DELETE FROM diagnosis_controls WHERE form_alias LIKE 'dx_cap_%';
+" AS msg_5
+UNION ALL
+SELECT '****************' as msg_5;
+
+
+-- ------------------------------------------------------------------------------------------------------------
+
