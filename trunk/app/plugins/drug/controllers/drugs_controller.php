@@ -25,7 +25,7 @@ class DrugsController extends DrugAppController {
 	}
 
 	function add() {	
-		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/index/') );
+		$this->set( 'atim_menu', $this->Menus->get('/drug/drugs/search/') );
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA		
 		$hook_link = $this->hook('format');

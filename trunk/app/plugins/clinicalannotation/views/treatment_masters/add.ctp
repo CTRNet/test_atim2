@@ -63,25 +63,32 @@
 <?php
 
 	$hook_link = $structures->hook('dx_list');	
-	$primary_sets_counter = sizeof($data_for_checklist);
-	foreach($data_for_checklist as $new_primary_set) {
-		$primary_sets_counter--;
+
+	if(!empty($data_for_checklist)) {
+		$primary_sets_counter = sizeof($data_for_checklist);
+		foreach($data_for_checklist as $new_primary_set) {
+			$primary_sets_counter--;
+			
+			$structure_settings = array(
+				'pagination'	=> false,
+				'form_inputs'	=> false,
+				'form_top'		=> false,
+				'form_bottom'	=> $primary_sets_counter? false : true,
+				'actions'		=> $primary_sets_counter? false : true,
+				'language_heading' => __('new '.$new_primary_set['category'], true) . ' - ' . __($new_primary_set['controls_type'], true)
+			);
+			
+			$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$new_primary_set['dx_list'], 'links'=>$structure_links );
+			$final_atim_structure = $diagnosis_structure;
+			
+			if( $hook_link ) { require($hook_link); }
+			
+			$structures->build( $final_atim_structure, $final_options );
+		}		
 		
-		$structure_settings = array(
-			'pagination'	=> false,
-			'form_inputs'	=> false,
-			'form_top'		=> false,
-			'form_bottom'	=> $primary_sets_counter? false : true,
-			'actions'		=> $primary_sets_counter? false : true,
-			'language_heading' => __('new '.$new_primary_set['category'], true) . ' - ' . __($new_primary_set['controls_type'], true)
-		);
-		
-		$final_options = array( 'type'=>'index', 'settings'=>$structure_settings, 'data'=>$new_primary_set['dx_list'], 'links'=>$structure_links );
-		$final_atim_structure = $diagnosis_structure;
-		
+	} else {
 		if( $hook_link ) { require($hook_link); }
-		
-		$structures->build( $final_atim_structure, $final_options );
+		$structures->build($empty_structure, array('type'=>'index', 'data'=>array(), 'links'=>$structure_links ));
 	}
 	
 ?>

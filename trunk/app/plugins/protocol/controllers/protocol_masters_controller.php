@@ -39,8 +39,9 @@ class ProtocolMastersController extends ProtocolAppController {
 		
 		if ( empty($this->data) ) {
 			$this->data = array();
-			$this->data['ProtocolMaster']['tumour_group'] = $protocol_control_data['ProtocolControl']['tumour_group'];
-			$this->data['ProtocolMaster']['type'] = $protocol_control_data['ProtocolControl']['type'];
+			$this->data['ProtocolControl']['tumour_group'] = $protocol_control_data['ProtocolControl']['tumour_group'];
+			$this->data['ProtocolControl']['type'] = $protocol_control_data['ProtocolControl']['type'];
+			
 		} else {
 			
 			$this->data['ProtocolMaster']['protocol_control_id'] = $protocol_control_id;
