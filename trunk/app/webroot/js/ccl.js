@@ -8,12 +8,12 @@ function initCcl(){
 		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection"; 
 		$.post(root_url + "/inventorymanagement/collections/search/-1/true", postData, function(data){
 			$("#collection_frame").html(data);
-			$("#collection_loading").hide();
+			$(".loading").hide();
 		});
 		if(popupLoaded){
 			$("#popup").popup('close');
 		}
-		$("#collection_loading").show();
+		$(".loading").show();
 		$("#collection_frame").html("");
 		return false;
 	};

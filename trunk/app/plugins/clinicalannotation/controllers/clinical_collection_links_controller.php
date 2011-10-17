@@ -76,7 +76,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$this->set( 'consent_data', $consent_data );
 	
 		// Set diagnoses list
-		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
+		$diagnosis_data = $this->DiagnosisMaster->find('threaded', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
 		$this->set( 'diagnosis_data', $diagnosis_data );
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -127,12 +127,12 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 	}
 	
 	function edit( $participant_id, $clinical_collection_link_id) {
-		if (( !$participant_id ) || ( !$clinical_collection_link_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
 		// MANAGE DATA
 	
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
-		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($clinical_collection_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 		
 		// Set collection data	
 		$collection_data = $this->Collection->find('all', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id)));
@@ -141,31 +141,50 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
 		//because consent has a one to many relation with participant, we need to format it
+		$consent_found = false;
 		foreach($consent_data as &$consent){
 			foreach($consent['ClinicalCollectionLink'] as $unit){
 				if($unit['id'] == $clinical_collection_link_id){
 					//we found the one that interests us
 					$consent['ClinicalCollectionLink'] = $unit;
-					break;
+					$consent_found = true;
+					goto consent_end;
 				}
 			}
 		}
-		$this->set( 'consent_data', $consent_data );
+		consent_end:
+		
+		$this->set('consent_data', $consent_data );
+		$this->set('found_consent', $consent_found);
 		
 		// Set diagnoses list
-		$diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
+		$diagnosis_data = $this->DiagnosisMaster->find('threaded', array('conditions' => array('DiagnosisMaster.deleted' => '0', 'DiagnosisMaster.participant_id' => $participant_id)));
 		//because diagnosis has a one to many relation with participant, we need to format it
-		foreach($diagnosis_data as &$diagnosis){
-			foreach($diagnosis['ClinicalCollectionLink'] as $unit){
-				if($unit['id'] == $clinical_collection_link_id){
-					//we found the one that interests us
-					$diagnosis['ClinicalCollectionLink'] = $unit;
-					break;
+		$stack = array();
+		$current_array = &$diagnosis_data;
+		$found_dx = false;
+		do{
+			while(($current_key = key($current_array)) !== null){
+				$current_element = &$current_array[$current_key];
+				next($current_array);
+				foreach($current_element['ClinicalCollectionLink'] as $unit){
+					if($unit['id'] == $clinical_collection_link_id){
+						$current_element['ClinicalCollectionLink'] = $unit;
+						$found_dx = true;
+						goto dx_end;
+					}
+				}
+
+				if(!empty($current_element['children'])){
+					array_push($stack, &$current_array);
+					$current_array = &$current_element['children'];
 				}
 			}
-		}
+		}while($current_array = array_pop($stack));
+		dx_end:
+
 		$this->set( 'diagnosis_data', $diagnosis_data );
-		
+		$this->set('found_dx', $found_dx);
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
