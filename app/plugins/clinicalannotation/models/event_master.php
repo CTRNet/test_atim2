@@ -24,10 +24,10 @@ class EventMaster extends ClinicalannotationAppModel {
 			'path_tstage'	=> 'path tstage',
 			'path_nstage'	=> 'path nstage',
 			'path_mstage'	=> 'path mstage',
-			'tumour_grade'	=> 'histologic grage'
+			'tumour_grade'	=> 'histologic grade'
 		);
 		foreach($to_check as $field => $language_label){
-			if($diagnosis_data[$field] != $event_data[$field]){
+			if(array_key_exists($field, $event_data) && $diagnosis_data[$field] != $event_data[$field]){
 				AppController::addWarningMsg(
 					sprintf(
 						__('the diagnosis value for %s does not match the cap report value', true), 
@@ -37,7 +37,6 @@ class EventMaster extends ClinicalannotationAppModel {
 			}
 		}
 	}
-	
 }
 
 ?>

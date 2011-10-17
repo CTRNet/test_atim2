@@ -57,6 +57,19 @@ class EventControl extends ClinicalannotationAppModel {
 		
 		return $result;
 	}
+	
+	function buildAddLinks($event_ctrl_data, $participant_id, $event_group){
+		$links = array();
+		foreach($event_ctrl_data as $event_ctrl){
+			$links[] = array(
+					'order' => $event_ctrl['EventControl']['display_order'],
+					'label' => __($event_ctrl['EventControl']['disease_site'], true).' - '.__($event_ctrl['EventControl']['event_type'], true),
+					'link' => '/clinicalannotation/event_masters/add/'.$event_group.'/'.$participant_id.'/'.$event_ctrl['EventControl']['id']
+			);
+		}
+		AppController::buildBottomMenuOptions($links);
+		return $links;
+	}
 }
 
 ?>

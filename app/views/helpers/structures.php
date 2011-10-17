@@ -347,7 +347,7 @@ class StructuresHelper extends Helper {
 				<div class="extra">'.$options['extras']['start'].'</div>
 			');
 		}
-		
+
 		$data = &$this->data;
 		if(is_array($options['data'])){
 			$data = $options['data'];
@@ -945,34 +945,14 @@ class StructuresHelper extends Helper {
 						//checklist
 						if (count($options['links']['checklist'])){
 							echo'
-								<td class="checkbox">
-							';
-							foreach($options['links']['checklist'] as $checkbox_name => $checkbox_value){
-								$checkbox_value = $this->strReplaceLink($checkbox_value, $data_unit);
-								echo $this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value)));
-							}
-							echo '
-								</td>
+								<td class="checkbox">',$this->getChecklist($options['links']['checklist'], $data_unit),'</td>
 							';
 						}
 					
 						//radiolist
 						if(count($options['links']['radiolist'])){
 							echo '
-								<td class="radiobutton">
-							';
-							foreach($options['links']['radiolist'] as $radiobutton_name => $radiobutton_value){
-								list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
-								$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data_unit);
-								$tmp_attributes = array('legend'=>false, 'value'=>false);
-								if(isset($data_unit[$tmp_model][$tmp_field]) && $data_unit[$tmp_model][$tmp_field] == $radiobutton_value){
-									$tmp_attributes['checked'] = 'checked';
-								}
-								echo $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array_merge($default_settings_wo_class, $tmp_attributes));
-							}
-							
-							echo '
-								</td>
+								<td class="radiobutton">',$this->getRadiolist($options['links']['radiolist'], $data_unit),'</td>
 							';
 						}
 		
@@ -1145,11 +1125,22 @@ class StructuresHelper extends Helper {
 		//prebuild links
 		if(count($data)){
 			foreach($options['links']['tree'] as $model_name => $links){
-				$tree_links = $options['links'];
-				$tree_links['index'] = $options['links']['tree'][$model_name];
-				$options['links']['tree'][$model_name] = $this->generateLinksList(null, $tree_links, 'index');
+				$tmp = $options['links']['tree'][$model_name];
+				unset($options['links']['tree'][$model_name]);
+				$options['links']['tree'][$model_name]['index'] = $tmp;
+				unset($tmp);
+				foreach(array('radiolist', 'checklist') as $type){
+					if(isset($options['links']['tree'][$model_name]['index'][$type])){
+						$options['links']['tree'][$model_name][$type] = $options['links']['tree'][$model_name]['index'][$type]; 
+						unset($options['links']['tree'][$model_name]['index'][$type]);
+					}	
+				}
+				
+				//index links
+				$options['links']['tree'][$model_name]['index'] = $this->generateLinksList(null, $options['links']['tree'][$model_name], 'index');
 			}
 		}
+		
 		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" '; 
 		echo '
 			<table class="structure" cellspacing="0"'.$stretch.'>
@@ -1180,7 +1171,7 @@ class StructuresHelper extends Helper {
 					// start root level of UL tree, and call NODE function
 					echo('
 						<tr><td>
-							<ul id="tree_root">
+							<ul class="tree_root">
 					');
 					
 					$this->buildTreeNode($atim_structures, $options, $data);
@@ -1245,7 +1236,16 @@ class StructuresHelper extends Helper {
 				foreach($data_val as $model_name => $model_array){
 					if(isset($options['links']['tree'][$model_name])){
 						//apply prebuilt links
-						$links = $this->strReplaceLink($options['links']['tree'][$model_name], $data_val);
+						if(isset($options['links']['tree'][$model_name]['radiolist'])){
+							$links .= $this->getRadiolist($options['links']['tree'][$model_name]['radiolist'], $data_val);
+						}
+						
+						if(isset($options['links']['tree'][$model_name]['checklist'])){
+							$links .= $this->getCheckist($options['links']['tree'][$model_name]['check'], $data_val);
+						}
+						
+						$links .= $this->strReplaceLink($options['links']['tree'][$model_name]['index'], $data_val);
+						
 						if(isset($model_array['id'])){
 							$expand_key = $model_name;
 							break;
@@ -1478,13 +1478,16 @@ class StructuresHelper extends Helper {
 		
 	}
 
-	private function displayExtras($return_array=array(), $options){
+	private function displayExtras($return_array = array(), $options){
 		if(count($options['extras'])){
-			foreach($options['extras'] as $key=>$val){
-				while(isset($return_array[$key])){
-					$key++;
+			foreach($options['extras'] as $key => $val){
+				if($key == 'start' || $key == 'end'){
+					continue;
 				}
-				$return_array[ $key ] = $val;
+				while(isset($return_array[$key])){
+					$key ++;
+				}
+				$return_array[$key] = $val;
 			}
 		}
 		ksort($return_array);
@@ -2327,6 +2330,33 @@ class StructuresHelper extends Helper {
 			}
 		}
 		return $current_value;
+	}
+	
+	private function getRadiolist(array $raw_radiolist, array $data){
+		$result = '';
+		$default_settings_wo_class = self::$default_settings_arr;
+		unset($default_settings_wo_class['class']);
+		foreach($raw_radiolist as $radiobutton_name => $radiobutton_value){
+			list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
+			$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data);
+			$tmp_attributes = array('legend' => false, 'value' => false);
+			if(isset($data[$tmp_model][$tmp_field]) && $data[$tmp_model][$tmp_field] == $radiobutton_value){
+				$tmp_attributes['checked'] = 'checked';
+			}
+			$result .= $this->Form->radio($radiobutton_name, array($radiobutton_value=>''), array_merge($default_settings_wo_class, $tmp_attributes));
+		}
+		
+		return $result;
+	}
+	
+	function getChecklist(array $raw_checklist, array $data){
+		$result = '';
+		$default_settings_wo_class = self::$default_settings_arr;
+		unset($default_settings_wo_class['class']);
+		foreach($raw_checklist as $checkbox_name => $checkbox_value){
+			$checkbox_value = $this->strReplaceLink($checkbox_value, $data);
+			$result .= $this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value)));
+		}
 	}
 }
 	

@@ -2,8 +2,8 @@ function set_at_state_in_tree_root(new_at_li, json){
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
-	$("#tree_root").find("div.treeArrow").hide();
-	$("#tree_root").find("div.rightPart").removeClass("at");
+	$(".tree_root").find("div.treeArrow").hide();
+	$(".tree_root").find("div.rightPart").removeClass("at");
 	$li = getParentElement(new_at_li, "LI");
 	$($li).find("div.rightPart:first").addClass("at");
 	$($li).find("div.treeArrow:first").show();
@@ -58,4 +58,11 @@ function initTreeView(scope){
 			$(matchingUl).stop().toggle("blind");
 		});
 	});
+	
+	var element = $(scope).find(".tree_root input[type=radio]:checked");
+	if(element.length == 1){
+		var lis = $(element).parents("li");
+		lis[0] = null;
+		$(lis).find("a.reveal.activate:first").click();
+	}
 }
