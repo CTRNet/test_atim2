@@ -42,8 +42,8 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 	 * @param $participantArray
 	 */
 	function patchIcd10NullValues(&$participant_array){
-		if(array_key_exists('primary_icd10_code', $participant_array['DiagnosisMaster']) && strlen(trim($participant_array['DiagnosisMaster']['primary_icd10_code'])) == 0){
-			$participant_array['DiagnosisMaster']['primary_icd10_code'] = null;
+		if(array_key_exists('icd10_code', $participant_array['DiagnosisMaster']) && strlen(trim($participant_array['DiagnosisMaster']['icd10_code'])) == 0){
+			$participant_array['DiagnosisMaster']['icd10_code'] = null;
 		}
 	}
 	
