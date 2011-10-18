@@ -128,7 +128,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("participant only", "Participant only", "Participant seulement"),
 ("participant and diagnosis", "Participant and diagnosis", "Participant et diagnostic"),
 ("participant and consent", "Participant and consent", "Participant et consentement"),
-("participant, consent and diagnosis", "Participant, consentement et diagnostic"),
+("participant, consent and diagnosis", "Participant, consent and diagnosis", "Participant, consentement et diagnostic"),
 ("copy linking (if it exists) to", "Copy linking (if it exists) to", "Copier les liens (s'ils existent) à");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
