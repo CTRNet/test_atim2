@@ -123,7 +123,13 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Les items dans cette cellule font partie de l'entreposage mais n'ont pas de position d'assignée."),
 ("help_storage_layout_storage",
  "The cells above are a representation of the positions of the storage.",
- "Les cellules ci-dessous sont une représentation des positions de votre entrposage.");
+ "Les cellules ci-dessous sont une représentation des positions de votre entrposage."),
+("nothing", "Nothing", "Rien"),
+("participant only", "Participant only", "Participant seulement"),
+("participant and diagnosis", "Participant and diagnosis", "Participant et diagnostic"),
+("participant and consent", "Participant and consent", "Participant et consentement"),
+("participant, consent and diagnosis", "Participant, consentement et diagnostic"),
+("copy linking (if it exists) to", "Copy linking (if it exists) to", "Copier les liens (s'ils existent) à");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -2487,3 +2493,24 @@ INSERT INTO i18n (id,en,fr) VALUES ('disease code','Disease Code','Code de malad
 
 -- ------------------------------------------------------------------------------------------------------------
 
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('col_copy_binding_opt', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("1", "nothing");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"),  (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="nothing"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("2", "participant only");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"),  (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="participant only"), "2", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("3", "participant and diagnosis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"),  (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="participant and diagnosis"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("4", "participant and consent");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"),  (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="participant and consent"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("5", "participant, consent and diagnosis");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"),  (SELECT id FROM structure_permissible_values WHERE value="5" AND language_alias="participant, consent and diagnosis"), "4", "1");
+
+INSERT INTO structures(`alias`) VALUES ('col_copy_binding_opt');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', 'FunctionManagement', '', 'col_copy_binding_opt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt') , '0', '', '5', '', 'copy linking (if it exists) to', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='col_copy_binding_opt'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='col_copy_binding_opt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='5' AND `language_help`='' AND `language_label`='copy linking (if it exists) to' AND `language_tag`=''), '0', '20', 'copy options', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='col_copy_binding_opt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='5' AND `language_help`='' AND `language_label`='copy linking (if it exists) to' AND `language_tag`=''), 'notEmpty', '');
