@@ -1137,7 +1137,9 @@ class StructuresHelper extends Helper {
 				}
 				
 				//index links
-				$options['links']['tree'][$model_name]['index'] = $this->generateLinksList(null, $options['links']['tree'][$model_name], 'index');
+				$tree_links = $options['links'];
+				$tree_links['index'] = $options['links']['tree'][$model_name]['index'];
+				$options['links']['tree'][$model_name]['index'] = $this->generateLinksList(null, $tree_links, 'index');
 			}
 		}
 		
