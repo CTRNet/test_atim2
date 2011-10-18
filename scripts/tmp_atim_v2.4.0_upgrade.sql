@@ -159,6 +159,53 @@ ALTER TABLE versions
  DROP COLUMN modified_by;
  
 -- fix non strict fields
+UPDATE aliquot_internal_uses SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE aliquot_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE aliquot_review_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE announcements SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE ar_breast_tissue_slides SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE atim_information SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE banks SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE clinical_collection_links SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE coding_adverse_events SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE collections SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE datamart_adhoc SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE datamart_batch_sets SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE datamart_browsing_indexes SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE datamart_browsing_results SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE datamart_reports SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE derivative_details SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE drugs SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE event_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE lab_book_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE materials SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE menus SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE menus SET modified='2001-01-01 00:00:00' WHERE modified='0000-00-00 00:00:00';
+UPDATE pages SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE pages SET modified='2001-01-01 00:00:00' WHERE modified='0000-00-00 00:00:00';
+UPDATE participant_contacts SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE participants SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE quality_ctrls SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE realiquotings SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE reproductive_histories SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE sample_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE shelves SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE source_aliquots SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE specimen_details SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE specimen_review_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE spr_breast_cancer_types SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE storage_coordinates SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE storage_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE structure_permissible_values_customs SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE tma_slides SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE tx_masters SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE txe_chemos SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE txe_radiations SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE txe_surgeries SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+UPDATE users SET created='2001-01-01 00:00:00' WHERE created='0000-00-00 00:00:00';
+
+
+
 ALTER TABLE aliquot_internal_uses MODIFY COLUMN created DATETIME DEFAULT NULL;
 ALTER TABLE aliquot_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
 ALTER TABLE aliquot_review_masters MODIFY COLUMN created DATETIME DEFAULT NULL;
@@ -277,6 +324,12 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='misc_identifier_value'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='identifier value' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+ALTER TABLE menus
+ DROP COLUMN use_params,
+ MODIFY use_summary VARCHAR(255) NOT NULL DEFAULT '',
+ MODIFY created_by INT UNSIGNED NOT NULL DEFAULT 1,
+ MODIFY modified_by INT UNSIGNED NOT NULL DEFAULT 1;
+
 INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link) VALUES
 ('core_CAN_41_4', 'core_CAN_41', 0, 4, 'manage reusable identifiers', '', '/administrate/misc_identifiers/index'); 
 
@@ -317,7 +370,7 @@ ALTER TABLE aliquot_masters_revs
 CREATE TABLE permissions_presets(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  name VARCHAR(50) NOT NULL UNIQUE,
- description TEXT NOT NULL DEFAULT '',
+ description TEXT DEFAULT NULL,
  serialized_data TEXT NOT NULL,
  `created` datetime NOT NULL,
   `created_by` int(10) unsigned NOT NULL,
@@ -328,7 +381,7 @@ CREATE TABLE permissions_presets(
 CREATE TABLE permissions_presets_revs(
  id INT UNSIGNED NOT NULL,
  name VARCHAR(50) NOT NULL UNIQUE,
- description TEXT NOT NULL DEFAULT '',
+ description TEXT DEFAULT NULL,
  serialized_data TEXT NOT NULL,
  `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -646,8 +699,8 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='email' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='users') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='User' AND `tablename`='users' AND `field`='department' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_params, use_summary, flag_active, created, created_by, modified, modified_by) VALUES
-('core_CAN_41_5', 'core_CAN_41', 0, 4, 'search for users', '', '/administrate/users/search/', '', '', 1, NOW(), 1, NOW(), 1); 
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_summary, flag_active, created, created_by, modified, modified_by) VALUES
+('core_CAN_41_5', 'core_CAN_41', 0, 4, 'search for users', '', '/administrate/users/search/', '', 1, NOW(), 1, NOW(), 1); 
 
 ALTER TABLE participant_messages
  ADD COLUMN done TINYINT UNSIGNED DEFAULT 0 AFTER `participant_id`;
@@ -910,6 +963,9 @@ CREATE TABLE template_nodes(
  FOREIGN KEY (`template_id`) REFERENCES templates(id),
  FOREIGN KEY (datamart_structure_id) REFERENCES datamart_structures(id)
 )Engine=InnoDb;
+
+ALTER TABLE structure_validations
+ MODIFY on_action VARCHAR(255) NOT NULL DEFAULT '';
 
 INSERT INTO structures(`alias`) VALUES ('template');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -1904,6 +1960,9 @@ UPDATE menus SET FLAG_ACTIVE = 0 WHERE use_link like '/labbook%';
 UNION ALL
 SELECT '****************' as msg_3;
 
+ALTER TABLE structure_value_domains
+ MODIFY category VARCHAR(255) NOT NULL DEFAULT '';
+
 INSERT INTO structure_value_domains(`domain_name`) VALUES ('ctrnet_submission_disease_site');
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ('breast - breast', 'breast - breast'),
@@ -2113,7 +2172,7 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='scope' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sopmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `tablename`='sop_masters' AND `field`='purpose' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE sop_controls SET extend_tablename = NULL, extend_form_alias = NULL;
+UPDATE sop_controls SET extend_tablename = '', extend_form_alias = '';
 UPDATE sop_controls SET form_alias = CONCAT('sopmasters,',form_alias);
 ALTER TABLE sop_controls ADD column `flag_active` tinyint(1) NOT NULL DEFAULT '1';
 
@@ -2234,9 +2293,9 @@ INSERT IGNORE INTO i18n (`id`, `en`, `fr`) VALUES
 ('diagnosis control type', 'Type', 'Type');
 
 UPDATE menus SET use_link = '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.primary_id%%', `use_summary` = 'Clinicalannotation.DiagnosisMaster::primarySummary', `language_title` = 'detail', `language_description` = NULL WHERE id = 'clin_CAN_5_1';
-INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_params`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
-('clin_CAN_5_1.1', 'clin_CAN_5_1', 0, 1, 'detail', NULL, '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%', '', 'Clinicalannotation.DiagnosisMaster::progression1Summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0),
-('clin_CAN_5_1.2', 'clin_CAN_5_1.1', 0, 1, 'detail', NULL, '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%', '', 'Clinicalannotation.DiagnosisMaster::progression2Summary', 1, '0000-00-00 00:00:00', 0, '0000-00-00 00:00:00', 0);
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+('clin_CAN_5_1.1', 'clin_CAN_5_1', 0, 1, 'detail', NULL, '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_1_id%%', 'Clinicalannotation.DiagnosisMaster::progression1Summary', 1, now(), 0, now(), 0),
+('clin_CAN_5_1.2', 'clin_CAN_5_1.1', 0, 1, 'detail', NULL, '/clinicalannotation/diagnosis_masters/detail/%%Participant.id%%/%%DiagnosisMaster.progression_2_id%%', 'Clinicalannotation.DiagnosisMaster::progression2Summary', 1, now(), 0, now(), 0);
 
 UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') AND `flag_confidential`='0');
 
