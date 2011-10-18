@@ -26,11 +26,22 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		$return = false;
 		if ( !is_null($diagnosis_master_id) ) {
 			$result = $this->find('first', array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id), 'recursive' => 0));
+			
+			$structure_alias = 'diagnosismasters';
+			switch($result['DiagnosisControl']['category']) {
+				case 'primary':
+					if($result['DiagnosisControl']['controls_type'] != 'primary diagnosis unknown') $structure_alias .= ',dx_primary';
+					break;
+				case 'secondary':
+					$structure_alias = ',dx_secondary';
+					break;
+			}
+			
 			$return = array(
 					'menu' 				=> array(NULL, __($result['DiagnosisControl']['category'], TRUE) . ' - '. __($result['DiagnosisControl']['controls_type'], TRUE)),
 					'title' 			=> array(NULL,  __($result['DiagnosisControl']['category'], TRUE)),
 					'data'				=> $result,
-					'structure alias'	=> 'diagnosismasters'
+					'structure alias'	=> $structure_alias
 			);
 			
 		}
@@ -164,6 +175,28 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		}
 		
 		return $found_dx;
+	}
+	
+	function getRelatedDiagnosisEvents($diagnosis_master_id) {
+		
+		$related_diagnosis_data = array();
+		
+		if(!empty($diagnosis_master_id)) {
+			$event_diagnosis_data = $this->find('first', array('conditions'=>array('DiagnosisMaster.id' => $diagnosis_master_id)));
+			if(empty($event_diagnosis_data)) AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			$related_diagnosis_data[] = array_merge(array('Generated' => array('diagnosis_event_relation_type' => 'diagnosis event')), $event_diagnosis_data);
+			
+			$history_diagnosis_data = array();
+			if($event_diagnosis_data['DiagnosisMaster']['id'] != $event_diagnosis_data['DiagnosisMaster']['primary_id']) {
+				$history_diagnosis_data = $this->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($event_diagnosis_data['DiagnosisMaster']['primary_id'], $event_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id DESC'));
+				if(empty($history_diagnosis_data)) AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				foreach($history_diagnosis_data as $new_diag) {
+					$related_diagnosis_data[] = array_merge(array('Generated' => array('diagnosis_event_relation_type' => 'diagnosis history')), $new_diag);
+				}
+			}
+		}
+		
+		return $related_diagnosis_data;
 	}
 }
 ?>

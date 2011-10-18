@@ -57,26 +57,14 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		}		
 		$this->data = $treatment_master_data;
 
-		$diagnosis_data = array('event' => array(), 'history' => array());
-		if(!empty($this->data['TreatmentMaster']['diagnosis_master_id'])) {
-			$tmp_diagnosis_data = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.id' => $this->data['TreatmentMaster']['diagnosis_master_id'])));
-			if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-			$diagnosis_data['event'][] = $tmp_diagnosis_data;
-			
-			if($tmp_diagnosis_data['DiagnosisMaster']['id'] != $tmp_diagnosis_data['DiagnosisMaster']['primary_id']) {
-				$tmp_diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($tmp_diagnosis_data['DiagnosisMaster']['primary_id'], $tmp_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id ASC'));
-				if(empty($tmp_diagnosis_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-				$diagnosis_data['history'] = $tmp_diagnosis_data;
-			}
-		}
-		$this->set('diagnosis_data', $diagnosis_data);
+		$this->set('diagnosis_data', $this->DiagnosisMaster->getRelatedDiagnosisEvents($this->data['TreatmentMaster']['diagnosis_master_id']));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id,'TreatmentMaster.id'=>$tx_master_id));
 		
 		// set structure alias based on control data
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
 		$this->set('is_ajax', $is_ajax);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -112,7 +100,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->Set('empty', 'empty_structure');
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -175,7 +163,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		$this->set('tx_header', __($tx_control_data['TreatmentControl']['disease_site'], true) . ' - ' . __($tx_control_data['TreatmentControl']['tx_method'], true));
 		
 		// set DIAGANOSES radio list form
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']); 			
 		$this->Structures->Set('empty', 'empty_structure');
 		
