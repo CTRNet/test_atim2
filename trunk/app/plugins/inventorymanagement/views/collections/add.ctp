@@ -1,7 +1,7 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/inventorymanagement/collections/add/'.(isset($atim_variables['ClinicalCollectionLink.id']) ? $atim_variables['ClinicalCollectionLink.id'].'/' : ''),
+		'top' => '/inventorymanagement/collections/add/'.$atim_variables['ClinicalCollectionLink.id'].'/'.$copy_source,
 		'bottom' => array('cancel' => '/inventorymanagement/collections/search')
 	);
 	
