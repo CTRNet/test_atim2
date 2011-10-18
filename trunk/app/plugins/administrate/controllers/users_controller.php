@@ -146,6 +146,7 @@ class UsersController extends AdministrateAppController {
 	function search($search_id = 0){
 		$this->set( 'atim_menu', $this->Menus->get('/administrate/groups') );
 		$this->searchHandler($search_id, $this->User, 'users', '/administrate/users/search');
+		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
