@@ -115,26 +115,40 @@ class CollectionsController extends InventorymanagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		if(!empty($ccl_data)){
-			$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
 			$this->Structures->set('linked_collections');
 		}
 		
+		$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
 		$this->set('atim_menu', $this->Menus->get('/inventorymanagement/collections/search'));
+		$this->set('copy_source', $copy_source);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
-		
-		if(empty($this->data)){
+		$need_to_save = !empty($this->data);
+		if(empty($this->data) || isset($this->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(empty($copy_source)){
 				$this->data['Collection']['collection_property'] = 'participant collection';
 			}else{
-				$this->data = $this->Collection->findById($copy_source);
+				$this->Structures->set('collections,col_copy_binding_opt');
+				if(empty($this->data)){
+					$this->data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
+				}
 			}
 			$this->data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a', true);
+				
+		}
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if($need_to_save){
 			
-		} else {
+			$copy_src_data = null;
+			if($copy_source){
+				$copy_src_data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
+			}
 			
 			// LAUNCH SAVE PROCESS
 			// 1- SET ADDITIONAL DATA	
@@ -157,7 +171,8 @@ class CollectionsController extends InventorymanagementAppController {
 				// 4- SAVE
 				
 				$collection_id = null;
-				if($this->Collection->save($this->data)) {
+				$this->Collection->id = null; 
+				if($this->Collection->save($this->data)){
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
@@ -172,10 +187,37 @@ class CollectionsController extends InventorymanagementAppController {
 						if(!$this->ClinicalCollectionLink->save($ccl_data)) {
 							$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
-					}else if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))) {
-						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}else{
+						$classic_ccl_insert = true;
+						if($copy_source){
+							$copy_links_option = (int)$this->data['FunctionManagement']['col_copy_binding_opt'];
+							if($copy_links_option > 1 && $copy_links_option < 6){
+								$classic_ccl_insert = false;
+								$ccl_array = array(
+									'collection_id' 		=> $collection_id, 
+									'participant_id' 		=> $copy_src_data['ClinicalCollectionLink']['participant_id'],
+									'consent_master_id' 	=> $copy_src_data['ClinicalCollectionLink']['consent_master_id'],
+									'diagnosis_master_id'	=> $copy_src_data['ClinicalCollectionLink']['diagnosis_master_id']
+								);
+								if($copy_links_option == 3 || $copy_links_option == 2){
+									unset($ccl_array['consent_master_id']);
+								}
+								if($copy_links_option == 4 || $copy_links_option == 2){
+									unset($ccl_array['diagnosis_master_id']);
+								}
+
+								if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => $ccl_array))){
+									//copying links
+									$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+								}
+							}
+						}
+						
+						if($classic_ccl_insert && !$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))){
+							$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
+						$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 					}
-					$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 				}				
 			}
 		}
