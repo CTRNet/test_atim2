@@ -117,16 +117,21 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 		
 		// available child ctrl_id for creation
-		
-		$condition_not_category = array('primary');
-		if($dx_master_data['DiagnosisControl']['category'] == 'secondary') {
-			$condition_category[] = 'secondary';
+		$condition_not_category = array();
+		$dx_ctrls = array();
+		switch($dx_master_data['DiagnosisControl']['category']) {
+			case 'secondary':
+				$condition_not_category[] = 'secondary';
+			case 'primary':
+				$condition_not_category[] = 'primary';
+				$dx_ctrls = $this->DiagnosisControl->find('all', array(
+					'conditions' => array('NOT' => array("DiagnosisControl.category" => $condition_not_category), 'DiagnosisControl.flag_active' => 1),
+					'order' => 'DiagnosisControl.display_order')
+				);
+				break;
+				
+			default:
 		}
-		
-		$dx_ctrls = $this->DiagnosisControl->find('all', array(
-			'conditions' => array('NOT' => array("DiagnosisControl.category" => $condition_not_category), 'DiagnosisControl.flag_active' => 1),
-			'order' => 'DiagnosisControl.display_order')
-		);
 		$links = array();
 		foreach ($dx_ctrls as $dx_ctrl){
 			$links[] = array(
@@ -178,10 +183,16 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				$this->flash('invalid control id', 'javascript:history.back();');
 			}
 		}
-
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$dx_control_id, 'DiagnosisMaster.parent_id' => $parent_id));
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
+		
+		$atim_menu_variables = array('Participant.id'=>$participant_id, "tableId"=>$dx_control_id, 'DiagnosisMaster.parent_id' => $parent_id);
+		if(!empty($parent_dx)) {
+			$this->setDiagnosisMenu($parent_dx, $atim_menu_variables);
+		} else {
+			$this->set( 'atim_menu_variables', $atim_menu_variables);
+			$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
+		}	
 		$this->set('origin', $parent_id == 0 ? 'primary' : 'secondary');
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
 		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias'].",".($parent_id == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"));
@@ -333,7 +344,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}		
 	}
 	
-	function setDiagnosisMenu($dx_master_data) {
+	function setDiagnosisMenu($dx_master_data, $additional_menu_variables = array()) {
 		if(!isset($dx_master_data['DiagnosisMaster']['id'])) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
 		$primary_id = null;
@@ -359,14 +370,15 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		}
 		
 		$this->set( 'atim_menu', $this->Menus->get($menu_link));
-		$this->set( 'atim_menu_variables', array(
-			'Participant.id'=>$dx_master_data['DiagnosisMaster']['participant_id'], 
-			'DiagnosisMaster.id'=>$dx_master_data['DiagnosisMaster']['id'], 
-			
-			'DiagnosisMaster.primary_id'=>$primary_id,
-			'DiagnosisMaster.progression_1_id'=>$progression_1_id,
-			'DiagnosisMaster.progression_2_id'=>$progression_2_id 
-		));
+		$this->set( 'atim_menu_variables', array_merge(
+			array('Participant.id'=>$dx_master_data['DiagnosisMaster']['participant_id'], 
+				'DiagnosisMaster.id'=>$dx_master_data['DiagnosisMaster']['id'], 
+				
+				'DiagnosisMaster.primary_id'=>$primary_id,
+				'DiagnosisMaster.progression_1_id'=>$progression_1_id,
+				'DiagnosisMaster.progression_2_id'=>$progression_2_id),
+			$additional_menu_variables)
+		);
 	}
 }
 
