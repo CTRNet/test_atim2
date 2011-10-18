@@ -564,7 +564,9 @@ class BrowserController extends DatamartAppController {
 				$return_id = $tmp['BrowsingResult']['id'];
 			}else{
 				$this->BrowsingResult->id = null;
-				$this->BrowsingResult->save($save);
+				if(!$this->BrowsingResult->save($save)){
+					$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
 				$return_id = $this->BrowsingResult->id;
 			}
 		}
