@@ -165,67 +165,60 @@ class ReportsController extends DatamartAppController {
 		$tmp_res_final = array();
 		
 		// Work on specimen
-		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN collections AS col ON col.id = sm.collection_id 
-			WHERE sm.sample_category = 'specimen'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
+		$sample_master_model = AppModel::getInstance('Inventorymanagement', 'SampleMaster', true);
+		
+		$res_1 = $sample_master_model->find('all', array(
+			'fields' => array('COUNT(*)', 'SampleControl.sample_type', 'SampleControl.sample_category'),
+			'conditions' => $search_on_date_range ? array('Collection.collection_datetime >=' => $start_date_for_sql, 'Collection.collection_datetime <=' => $end_date_for_sql) : array(),
+			'group'	=> 'SampleControl.sample_type',
+			'recursive' => 0
+		));
+		
 		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm']['sample_type']),
+			$tmp_res_final[$data['SampleControl']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => $data['SampleControl']['sample_category'], 'sample_type'=> $data['SampleControl']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}	
+		}
+
+		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_2 = $this->Report->query(
-			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+			"SELECT COUNT(*), participant_id, res.sample_type FROM (
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'specimen'
+				AND sc.sample_category = 'specimen'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
 		
 		// Work on derivative
-		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-			WHERE sm.sample_category = 'derivative'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
-		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm']['sample_type']),
-				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
-				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = sm.collection_id 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'derivative'
+				AND sc.sample_category = 'derivative'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
+		
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
-		
 		// Format data for report
 		foreach($tmp_res_final as $new_sample_type_data) {
 			$res_final[] = $new_sample_type_data;
@@ -395,6 +388,11 @@ class ReportsController extends DatamartAppController {
 			
 			$joins = array(
 				array(
+					'table'	=> 'aliquot_controls',
+					'alias'	=> 'AliquotControl',
+					'type'	=> 'INNER',
+					'conditions' => array('AliquotMaster.aliquot_control_id = AliquotControl.id')
+				), array(
 					'table'	=> 'sample_masters',
 					'alias'	=> 'SampleMaster',
 					'type'	=> 'INNER',

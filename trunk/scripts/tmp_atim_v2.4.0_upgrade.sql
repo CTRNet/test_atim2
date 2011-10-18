@@ -2565,7 +2565,7 @@ ALTER TABLE datamart_browsing_indexes
  MODIFY notes text DEFAULT NULL;
 ALTER TABLE datamart_browsing_indexes_revs
  MODIFY notes text DEFAULT NULL;
-
+ 
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'consent_masters'); 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_type_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'),
@@ -2625,7 +2625,8 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('topography_short_label', 'Topo', 'Topo'),
 ('date signed', 'Signed', 'Signé');
 
-
-
-
-
+ALTER TABLE datamart_browsing_results
+ MODIFY serialized_search_params text DEFAULT NULL;
+ALTER TABLE datamart_browsing_results_revs
+ MODIFY serialized_search_params text DEFAULT NULL;
+ 
