@@ -13,6 +13,8 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'diagnosis_master_id'));
 	
+	static public $join_diagnosis_control_on_dup = array('table' => 'diagnosis_controls', 'alias' => 'DiagnosisControl', 'type' => 'LEFT', 'conditions' => array('diagnosis_masters_dup.diagnosis_control_id = DiagnosisControl.id'));
+	
 	function primarySummary($variables=array()) {
 		return $this->summary($variables['DiagnosisMaster.primary_id']);
 	}
@@ -197,6 +199,10 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		}
 		
 		return $related_diagnosis_data;
+	}
+
+	static function joinOnDiagnosisDup($on_field){
+		return array('table' => 'diagnosis_masters', 'alias' => 'diagnosis_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = diagnosis_masters_dup.id'));
 	}
 }
 ?>

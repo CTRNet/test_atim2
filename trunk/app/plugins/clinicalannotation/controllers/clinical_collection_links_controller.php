@@ -28,6 +28,16 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
+		$this->paginate['ClinicalCollectionLink'] = array(
+			'limit' => pagination_amount , 
+			'order' => 'Collection.collection_datetime DESC',
+			'fields' => array('*'),
+			'joins' => array(
+				DiagnosisMaster::joinOnDiagnosisDup('ClinicalCollectionLink.diagnosis_master_id'), 
+				DiagnosisMaster::$join_diagnosis_control_on_dup,
+				ConsentMaster::joinOnConsentDup('ClinicalCollectionLink.consent_master_id'), 
+				ConsentMaster::$join_consent_control_on_dup));
+
 		$this->data = $this->paginate($this->ClinicalCollectionLink, array('ClinicalCollectionLink.participant_id'=>$participant_id));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -45,15 +55,23 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$clinical_collection_data = $this->ClinicalCollectionLink->find('first',array('conditions'=>array('ClinicalCollectionLink.id'=>$clinical_collection_link_id,'ClinicalCollectionLink.participant_id'=>$participant_id)));
 		if(empty($clinical_collection_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
-		$this->data = $clinical_collection_data;
-		//get CodingIcd descriptions
-		$this->data['DiagnosisMaster']['morphology'] = $this->data['DiagnosisMaster']['morphology']." - ".$this->CodingIcdo3Morpho->getDescription($this->data['DiagnosisMaster']['morphology']);
-		$this->data['DiagnosisMaster']['topography'] = $this->data['DiagnosisMaster']['topography']." - ".$this->CodingIcdo3Topo->getDescription($this->data['DiagnosisMaster']['topography']);
-		$this->data['DiagnosisMaster']['icd10_code'] = $this->data['DiagnosisMaster']['icd10_code']." - ".$this->CodingIcd10Who->getDescription($this->data['DiagnosisMaster']['icd10_code']);
+		
+		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.id' => $clinical_collection_data['ClinicalCollectionLink']['collection_id']), 'recursive' => '-1'));
+		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.id' => $clinical_collection_data['ClinicalCollectionLink']['consent_master_id'])));
+		$diagnosis_data = $this->DiagnosisMaster->getRelatedDiagnosisEvents($clinical_collection_data['ClinicalCollectionLink']['diagnosis_master_id']);
+		
+		$this->set( 'collection_data', $collection_data );
+		$this->set( 'consent_data', $consent_data );				
+		$this->set( 'diagnosis_data', $diagnosis_data );
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_link_id) );
+		
+		$this->Structures->set('collections', 'atim_structure_collection_detail');
+		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
+		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'atim_structure_diagnosis_detail');
+		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }

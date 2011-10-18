@@ -82,7 +82,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			require($hook_link); 
 		}
 
-		if(is_array($diagnosis_data[0]) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false && $diagnosis_data[0]['DiagnosisControl']['flag_compare_with_cap']){
+		if(isset($diagnosis_data[0]) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false && $diagnosis_data[0]['DiagnosisControl']['flag_compare_with_cap']){
 			//cap report, generate warnings if there are mismatches
 			EventMaster::generateDxCompatWarnings($diagnosis_data[0], $this->data);
 		}
