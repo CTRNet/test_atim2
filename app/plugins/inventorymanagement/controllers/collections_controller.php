@@ -192,8 +192,8 @@ class CollectionsController extends InventorymanagementAppController {
 						if($classic_ccl_insert && !$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))){
 							$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
-						$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 					}
+					$this->atimFlash('your data has been saved', '/inventorymanagement/collections/detail/' . $collection_id);
 				}				
 			}
 		}
