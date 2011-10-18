@@ -35,6 +35,9 @@ class StructuresComponent extends Object {
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
+					$structure['Structure']['CodingIcdCheck'] = 1;
+				}
 			}
 		}
 		
