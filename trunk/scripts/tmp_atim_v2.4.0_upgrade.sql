@@ -2558,3 +2558,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='col_copy_binding_opt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='5' AND `language_help`='' AND `language_label`='copy linking (if it exists) to' AND `language_tag`=''), 'notEmpty', '');
+
+UPDATE structure_formats SET `flag_override_default`='1', `default`='participant collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+

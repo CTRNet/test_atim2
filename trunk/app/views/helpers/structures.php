@@ -1533,6 +1533,7 @@ class StructuresHelper extends Helper {
 		if(isset($atim_structure['Sfs'])){
 			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
+				$model_dot_field = $sfs['model'].'.'.$sfs['field'];
 				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
 					$current = array(
 						"name" 				=> "",
@@ -1562,12 +1563,12 @@ class StructuresHelper extends Helper {
 						}
 						if($options['type'] == 'addgrid' || $options['type'] == 'editgrid'){
 							$field_name .= "%d.";
-							if(in_array($sfs['model'].".".$sfs['field'], $options['settings']['paste_disabled_fields'])){
+							if(in_array($model_dot_field, $options['settings']['paste_disabled_fields'])){
 								$settings['class'] .= " pasteDisabled";
-								$paste_disabled[] = $sfs['model'].".".$sfs['field']; 
+								$paste_disabled[] = $model_dot_field; 
 							}
 						}
-						$field_name .= $sfs['model'].".".$sfs['field'];
+						$field_name .= $model_dot_field;
 						$field_name = str_replace(".", "][", $field_name);//manually replace . by ][ to counter cake bug
 						$current['name'] = $field_name;
 						if(strlen($sfs['setting']) > 0 && !$current['readonly']){
@@ -1661,13 +1662,13 @@ class StructuresHelper extends Helper {
 							if($sfs['type'] == "hidden"){
 								if(strlen($current['label'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(sprintf(__("the hidden field [%s] label has been removed", true), $sfs['model'].".".$sfs['field']));
+										AppController::addWarningMsg(sprintf(__("the hidden field [%s] label has been removed", true), $model_dot_field));
 									}
 									$current['label'] = "";
 								}
 								if(strlen($current['heading'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(sprintf(__("the hidden field [%s] heading has been removed", true), $sfs['model'].".".$sfs['field']));
+										AppController::addWarningMsg(sprintf(__("the hidden field [%s] heading has been removed", true), $model_dot_field));
 									}
 									$current['heading'] = "";
 								}
@@ -1691,11 +1692,16 @@ class StructuresHelper extends Helper {
 						$dropdown_result = array("defined" => array(), "previously_defined" => array());
 						if($sfs['type'] == "select"){
 							$add_blank = true;
-							if(count($sfs['StructureValidation']) > 0 && ($options['type'] == "edit" || $options['type'] == "editgrid")){
+							if(count($sfs['StructureValidation']) > 0 && (in_array($options['type'], array('edit', 'editgrid', 'add', 'addgrid')))){
 								//check if the field can be empty or not
 								foreach($sfs['StructureValidation'] as $validation){
 									if($validation['rule'] == 'notEmpty'){
-										$add_blank = false;
+										if(in_array($options['type'], array('edit', 'editgrid')) || 
+											!empty($sfs['default']) || 
+											(isset($options['override'][$model_dot_field]) && !empty($options['override'][$model_dot_field]))
+										){
+											$add_blank = false;
+										}
 										break;
 									}
 								}
@@ -1705,8 +1711,8 @@ class StructuresHelper extends Helper {
 							}
 						}
 						
-						if(isset($options['dropdown_options'][$sfs['model'].".".$sfs['field']])){
-							$dropdown_result['defined'] = $options['dropdown_options'][$sfs['model'].".".$sfs['field']]; 
+						if(isset($options['dropdown_options'][$model_dot_field])){
+							$dropdown_result['defined'] = $options['dropdown_options'][$model_dot_field]; 
 						}else if(count($sfs['StructureValueDomain']) > 0){
 							if(strlen($sfs['StructureValueDomain']['source']) > 0){
 								//load source

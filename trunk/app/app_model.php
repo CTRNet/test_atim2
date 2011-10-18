@@ -714,13 +714,18 @@ class AppModel extends Model {
 	 */
 	function redirectIfNonExistent($id, $method, $line, $return = false){
 		$this->id = $id;
+		$result = null;
 		if(!$this->exists()){
 			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
 		}
 		if($return){
-			return $this->findById($id);
+			if($this->primaryKey == 'id'){
+				$result = $this->findById($id); 
+			}else{
+				$result = $this->find('first', array('conditions' => array($this->name.'.'.$this->primaryKey => $id)));
+			}
 		}
-		return null;
+		return $result;
 	}
 }
 

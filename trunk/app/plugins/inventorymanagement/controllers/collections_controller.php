@@ -15,15 +15,13 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		'Clinicalannotation.ClinicalCollectionLink',
 	
-		'ExternalLink');
+		'ExternalLink'
+	);
 	
 	var $paginate = array(
-		'Collection' => array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
-		'ViewCollection' => array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')); 
-	
-	/* --------------------------------------------------------------------------
-	 * DISPLAY FUNCTIONS
-	 * -------------------------------------------------------------------------- */
+		'Collection' 		=> array('limit' => pagination_amount, 'order' => 'Collection.acquisition_label ASC'),
+		'ViewCollection'	=> array('limit' => pagination_amount, 'order' => 'ViewCollection.acquisition_label ASC')
+	); 
 	
 	function search($search_id = 0, $is_ccl_ajax = false){
 		if($is_ccl_ajax && $this->data){
@@ -64,29 +62,17 @@ class CollectionsController extends InventorymanagementAppController {
 	function detail($collection_id, $is_from_tree_view = 0) {
 		// $is_from_tree_view : 0-Normal, 1-Tree view
 		
-		if(!$collection_id) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-		
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
-		
-		$collection_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
-		if(empty($collection_data)) { 
-			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-		$this->data = $collection_data;
+		$this->data = $this->ViewCollection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, true);
 		
 		// Set participant id
-		$this->set('participant_id', $collection_data['ViewCollection']['participant_id']);
+		$this->set('participant_id', $this->data['ViewCollection']['participant_id']);
 		
 		// Get all sample control types to build the add to selected button
 		$controls = $this->SampleControl->getPermissibleSamplesArray(null);
-		foreach($controls as $control){
-			$specimen_sample_controls_list[] = $control;	
-		}
-		$this->set('specimen_sample_controls_list', $specimen_sample_controls_list);	
+		$this->set('specimen_sample_controls_list', $controls);	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -126,9 +112,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$need_to_save = !empty($this->data);
 		if(empty($this->data) || isset($this->data['FunctionManagement']['col_copy_binding_opt'])){
-			if(empty($copy_source)){
-				$this->data['Collection']['collection_property'] = 'participant collection';
-			}else{
+			if(!empty($copy_source)){
 				$this->Structures->set('collections,col_copy_binding_opt');
 				if(empty($this->data)){
 					$this->data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
@@ -151,16 +135,9 @@ class CollectionsController extends InventorymanagementAppController {
 			}
 			
 			// LAUNCH SAVE PROCESS
-			// 1- SET ADDITIONAL DATA	
-			
-			// 2- LAUNCH SPECIAL VALIDATION PROCESS	
-			
 			$submitted_data_validates = true;
 			
-			// ... special validations
-			
-			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-			
+			// HOOK AND VALIDATION
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
@@ -168,8 +145,7 @@ class CollectionsController extends InventorymanagementAppController {
 			
 			if($submitted_data_validates) {
 
-				// 4- SAVE
-				
+				//SAVE
 				$collection_id = null;
 				$this->Collection->id = null; 
 				if($this->Collection->save($this->data)){
@@ -224,18 +200,10 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function edit($collection_id) {
-		if(!$collection_id) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-		
-		// MANAGE DATA
-		
 		$this->Collection->unbindModel(array('hasMany' => array('SampleMaster')));		
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		$collection_data = $this->Collection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, true);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
 		if(!empty($collection_data['ClinicalCollectionLink']['participant_id'])) {
@@ -246,40 +214,33 @@ class CollectionsController extends InventorymanagementAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if(empty($this->data)) {
-				$this->data = $collection_data;	
+			$this->data = $collection_data;	
 
-		} else {
-			
-			// 1- SET ADDITIONAL DATA	
-			
-			//....
-			
-			// 2- LAUNCH SPECIAL VALIDATION PROCESS	
+		}else{
 			
 			$submitted_data_validates = true;
-			
-			// ... special validations
-			
-			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+
+			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				
 				// 4- SAVE
-			
 				$this->Collection->id = $collection_id;
-				if ($this->Collection->save($this->data)) {
-					
+				if ($this->Collection->save($this->data)){
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					
 					$this->atimFlash('your data has been updated', '/inventorymanagement/collections/detail/' . $collection_id);
 				}
 			}
@@ -287,12 +248,6 @@ class CollectionsController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id) {
-		if(!$collection_id) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
-
-		// MANAGE DATA
-				
 		// Get collection data
 		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
 		if(empty($collection_data)) { 
