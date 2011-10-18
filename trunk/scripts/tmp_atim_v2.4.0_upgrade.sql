@@ -129,7 +129,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("participant and diagnosis", "Participant and diagnosis", "Participant et diagnostic"),
 ("participant and consent", "Participant and consent", "Participant et consentement"),
 ("participant, consent and diagnosis", "Participant, consent and diagnosis", "Participant, consentement et diagnostic"),
-("copy linking (if it exists) to", "Copy linking (if it exists) to", "Copier les liens (s'ils existent) à");
+("copy linking (if it exists) to", "Copy linking (if it exists) to", "Copier les liens (s'ils existent) à"),
+("copy options", "Copy Options", "Optoins copie");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -2625,8 +2626,8 @@ INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('topography_short_label', 'Topo', 'Topo'),
 ('date signed', 'Signed', 'Signé');
 
-ALTER TABLE datamart_browsing_results
- MODIFY serialized_search_params text DEFAULT NULL;
-ALTER TABLE datamart_browsing_results_revs
- MODIFY serialized_search_params text DEFAULT NULL;
- 
+UPDATE `menus` SET `use_summary` = 'Clinicalannotation.ClinicalCollectionLink::summary' WHERE `menus`.`id` = 'clin_CAN_67' LIMIT 1 ;
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
