@@ -64,22 +64,7 @@ class EventMastersController extends ClinicalannotationAppController {
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}	
 
-		$diagnosis_data = array('event' => array(), 'history' => array());
-		if(!empty($this->data['EventMaster']['diagnosis_master_id'])) {
-			$tmp_diagnosis_data = $this->DiagnosisMaster->find('first', array('conditions'=>array('DiagnosisMaster.id' => $this->data['EventMaster']['diagnosis_master_id'])));
-			if(empty($tmp_diagnosis_data)){
-				$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-			}
-			$diagnosis_data['event'][] = $tmp_diagnosis_data;
-			
-			if($tmp_diagnosis_data['DiagnosisMaster']['id'] != $tmp_diagnosis_data['DiagnosisMaster']['primary_id']) {
-				$tmp_diagnosis_data = $this->DiagnosisMaster->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($tmp_diagnosis_data['DiagnosisMaster']['primary_id'], $tmp_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id ASC'));
-				if(empty($tmp_diagnosis_data)){
-					$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-				}
-				$diagnosis_data['history'] = $tmp_diagnosis_data;
-			}
-		}
+		$diagnosis_data = $this->DiagnosisMaster->getRelatedDiagnosisEvents($this->data['EventMaster']['diagnosis_master_id']);
 		$this->set('diagnosis_data', $diagnosis_data);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -88,7 +73,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this->data['EventControl']['form_alias']);
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
 		$this->set('is_ajax', $is_ajax);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -97,9 +82,9 @@ class EventMastersController extends ClinicalannotationAppController {
 			require($hook_link); 
 		}
 
-		if(is_array($diagnosis_data['history']) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false && $diagnosis_data['history'][0]['DiagnosisControl']['flag_compare_with_cap']){
+		if(is_array($diagnosis_data[0]) && strpos($this->data['EventControl']['event_type'], 'cap report - ') !== false && $diagnosis_data[0]['DiagnosisControl']['flag_compare_with_cap']){
 			//cap report, generate warnings if there are mismatches
-			EventMaster::generateDxCompatWarnings($diagnosis_data['history'][0], $this->data);
+			EventMaster::generateDxCompatWarnings($diagnosis_data[0], $this->data);
 		}
 	}
 	
@@ -132,7 +117,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set('empty', 'empty_structure');
 		$this->Structures->set($event_control_data['EventControl']['form_alias']);
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');
+		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
 					
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -187,7 +172,7 @@ class EventMastersController extends ClinicalannotationAppController {
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set('empty', 'empty_structure');
 		$this->Structures->set($event_master_data['EventControl']['form_alias']);
-		$this->Structures->set('diagnosismasters', 'diagnosis_structure');		
+		$this->Structures->set('view_diagnosis', 'diagnosis_structure');		
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

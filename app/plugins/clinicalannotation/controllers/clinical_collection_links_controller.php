@@ -86,7 +86,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
 		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
-		$this->Structures->set('diagnosismasters', 'atim_structure_diagnosis_detail');
+		$this->Structures->set('view_diagnosis', 'atim_structure_diagnosis_detail');
 		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');

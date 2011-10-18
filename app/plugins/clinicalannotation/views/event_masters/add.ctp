@@ -34,7 +34,7 @@
 		'data'	=> $data_for_checklist,
 		'settings'	=> array(
 			'form_top'	=> false,
-			'language_heading' => '2- ' . __('related diagnosis', null),
+			'header' => '2- ' . __('related diagnosis', null),
 			'tree'		=> array('DiagnosisMaster' => 'DiagnosisMaster'),
 			'form_inputs' => false
 			

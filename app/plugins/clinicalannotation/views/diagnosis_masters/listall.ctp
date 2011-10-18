@@ -3,7 +3,7 @@
 	$structure_links = array(
 		'tree'=>array(
 			'DiagnosisMaster' => array(
-				'detail' => array(
+				'see diagnosis summary' => array(
 					'link' => '/clinicalannotation/diagnosis_masters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 					'icon' => 'diagnosis'
 				), 'access to all data' => array(
@@ -11,7 +11,7 @@
 					'icon' => 'access_to_data'
  				), 'add' => AppController::checkLinkPermission('/clinicalannotation/diagnosis_masters/add/') ? 'javascript:addPopup(%%DiagnosisMaster.id%%);' : '/noright'
 			), 'TreatmentMaster' => array(
-				'detail' => array(
+				'see treatment summary' => array(
 					'link' => '/clinicalannotation/treatment_masters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/1',
 					'icon' => 'treatments'
 				), 'access to all data' => array(
@@ -20,7 +20,7 @@
  				)
 			
 			), 'EventMaster' => array(
-				'detail' => array(
+				'see event summary' => array(
 					'link' => '/clinicalannotation/event_masters/detail/clinical/%%EventMaster.participant_id%%/%%EventMaster.id%%/1',
 					'icon' => 'annotation'
 				), 'access to all data' => array(
@@ -30,7 +30,19 @@
 			)
 		),'ajax' => array(
 			'index' => array(
-				'detail' => array(
+				'see diagnosis summary' => array(
+					'json' => array(
+						'update' => 'frame',
+						'callback' => 'set_at_state_in_tree_root'
+					)
+				),
+				'see treatment summary' => array(
+					'json' => array(
+						'update' => 'frame',
+						'callback' => 'set_at_state_in_tree_root'
+					)
+				),
+				'see event summary' => array(
 					'json' => array(
 						'update' => 'frame',
 						'callback' => 'set_at_state_in_tree_root'

@@ -69,7 +69,7 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 1))));
 		$this->set('is_ajax', $is_ajax);
-		$atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'diagnosismasters'); 
+		$atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'view_diagnosis'); 
 		$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters'); 
 		$atim_structure['EventMaster'] = $this->Structures->get('form', 'eventmasters'); 
 		$this->set('atim_structure', $atim_structure);

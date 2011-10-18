@@ -2488,7 +2488,51 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE diagnosis_controls SET form_alias = 'diagnosismasters,dx_unknown_primary' WHERE controls_type = 'primary diagnosis unknown';
 
-INSERT INTO i18n (id,en,fr) VALUES ('disease code','Disease Code','Code de maladie');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('disease code','Disease Code','Code de maladie'),
+('add diagnosis', 'Add', 'Ajouter'),
+('see diagnosis summary', 'Diagnosis', 'Diagnostique'),
+('see event summary', 'Annotation', 'Annotation'),
+('see treatment summary', 'treatment', 'Traitement'),
+('category & diagnosis control type', 'Cat. & Type', 'Cat & Type');
+
+INSERT INTO structures(`alias`) VALUES ('view_diagnosis');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='category' AND `language_tag`=''), '1', '1', '', '1', 'category & diagnosis control type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='controls_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='diagnosis control type' AND `language_tag`=''), '1', '2', '', '1', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx date' AND `language_label`='dx_date' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='help_primary code' AND `language_label`='disease code' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcdo3s/autocomplete/topo,tool=/codingicd/CodingIcdo3s/tool/topo' AND `default`='' AND `language_help`='help_topography' AND `language_label`='topography' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('dx_primary','dx_secondary')) AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('dx_primary','dx_secondary')) AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_value_domains(`domain_name`) VALUES ('diagnosis_event_relation_type');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("diagnosis history", "diagnosis history"),("diagnosis event", "diagnosis event");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="diagnosis_event_relation_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="diagnosis history" AND language_alias="diagnosis history"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="diagnosis_event_relation_type"),  
+(SELECT id FROM structure_permissible_values WHERE value="diagnosis event" AND language_alias="diagnosis event"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('diagnosis_event_relation_type');
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`) VALUES
+(null, '', 'Clinicalannotation', 'Generated', '', 'diagnosis_event_relation_type', 'diagnosis event relation type', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_event_relation_type'), 'diagnosis_event_relation_type_help', 'open', 'open', 'open', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosis_event_relation_type'), 
+(SELECT id FROM structure_fields WHERE `model`='Generated' AND `field`='diagnosis_event_relation_type' AND `type`='select'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('diagnosis event relation type', 'Relation To Data', 'Lien aux données'),
+('diagnosis_event_relation_type_help', 
+'Allow to define the type of relation existing between the studied data (treatment, annotation) and the displayed diagnosis. Diagnosis flagged as ''Event'' has been specifically linked to the studied data.',
+'Permet de définir le type de relation existant entre les données étudiées (traitement, annotation) et les diagnostices affichés. Le diagnostic marqué comme ''Événement'' a été spécifiquement liée aux données étudiées.');
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('clinical annotation description', '', 'Capture demographics, diagnosis, paths reports, treatment information, outcome and manage consents.', 'Enregistrer la démographie, les diagnostices, les rapports pathologiques, l''information sur les traitements, les résultats et administrer les consentements.'),
+('diagnosis', '', 'Diagnosis', 'Diagnostic'),
+('see diagnosis summary', '', 'Diagnosis', 'Diagnostic');
 
 
 -- ------------------------------------------------------------------------------------------------------------
