@@ -185,7 +185,7 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/clinical_collection_links/listall/') );
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLinks.id'=>$clinical_collection_link_id) );
+		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_link_id) );
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
 		$this->Structures->set('consent_masters', 'atim_structure_consent_detail');
