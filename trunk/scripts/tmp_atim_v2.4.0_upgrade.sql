@@ -2561,3 +2561,7 @@ INSERT INTO structure_validations (structure_field_id, rule, language_message) V
 
 UPDATE structure_formats SET `flag_override_default`='1', `default`='participant collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
 
+ALTER TABLE datamart_browsing_indexes
+ MODIFY notes text DEFAULT NULL;
+ALTER TABLE datamart_browsing_indexes_revs
+ MODIFY notes text DEFAULT NULL;

@@ -2365,6 +2365,8 @@ class StructuresHelper extends Helper {
 			$checkbox_value = $this->strReplaceLink($checkbox_value, $data);
 			$result .= $this->Form->checkbox($checkbox_name, array_merge($default_settings_wo_class, array('value' => $checkbox_value)));
 		}
+		
+		return $result;
 	}
 }
 	

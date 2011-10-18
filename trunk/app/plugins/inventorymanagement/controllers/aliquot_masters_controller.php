@@ -589,11 +589,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Delete storage data
 		$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 		$this->AliquotMaster->id = $aliquot_master_id;
-		$aliquot_data_to_save = 
-			array('AliquotMaster' => array(
-				'storage_master_id' => null,
-				'storage_coord_x' => null,
-				'storage_coord_y' => null));
+		$aliquot_data_to_save = array('AliquotMaster' => array(
+			'storage_master_id' => null,
+			'storage_coord_x' => '',
+			'storage_coord_y' => ''
+		));
 		if(!$this->AliquotMaster->save($aliquot_data_to_save, false)) {
 			$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
@@ -725,8 +725,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($data_unit['FunctionManagement']['remove_from_storage']){
 					$aliquot_data_to_save_tmp += array(
 						'storage_master_id' => null,
-						'storage_coord_x' => null,
-						'storage_coord_y' => null
+						'storage_coord_x' => '',
+						'storage_coord_y' => ''
 					);
 				}
 				$aliquot_data_to_save[] = $aliquot_data_to_save_tmp;
@@ -1149,8 +1149,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if($source_aliquot_pointer['FunctionManagement']['remove_from_storage'] || ($source_aliquot_pointer['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete aliquot storage data
 						$source_aliquot_pointer['AliquotMaster']['storage_master_id'] = null;
-						$source_aliquot_pointer['AliquotMaster']['storage_coord_x'] = null;
-						$source_aliquot_pointer['AliquotMaster']['storage_coord_y'] = null;	
+						$source_aliquot_pointer['AliquotMaster']['storage_coord_x'] = '';
+						$source_aliquot_pointer['AliquotMaster']['storage_coord_y'] = '';	
 					}
 					
 					// Save data:
@@ -1704,8 +1704,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if($parent_data['FunctionManagement']['remove_from_storage'] || ($parent_data['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete storage data
 						$parent_data['AliquotMaster']['storage_master_id'] = null;
-						$parent_data['AliquotMaster']['storage_coord_x'] = null;
-						$parent_data['AliquotMaster']['storage_coord_y'] = null;
+						$parent_data['AliquotMaster']['storage_coord_x'] = '';
+						$parent_data['AliquotMaster']['storage_coord_y'] = '';
 					}
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					
@@ -2066,8 +2066,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if($parent_data['FunctionManagement']['remove_from_storage'] || ($parent_data['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete storage data
 						$parent_data['AliquotMaster']['storage_master_id'] = null;
-						$parent_data['AliquotMaster']['storage_coord_x'] = null;
-						$parent_data['AliquotMaster']['storage_coord_y'] = null;
+						$parent_data['AliquotMaster']['storage_coord_x'] = '';
+						$parent_data['AliquotMaster']['storage_coord_y'] = '';
 					}
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					
