@@ -343,6 +343,9 @@ class AppModel extends Model {
 				$current = null;
 			}else{
 				list($year, $month, $day) = explode("-", trim($current));
+				if((!(empty($year) || is_numeric($year) && (empty($month) || is_numeric($month)) && (empty($day) || is_numeric($day))))){
+					continue;//if one of them is not empty AND not numeric
+				}
 				$hour = null;
 				$minute = null;
 				$time = null;
