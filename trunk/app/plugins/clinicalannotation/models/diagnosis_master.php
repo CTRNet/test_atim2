@@ -185,13 +185,17 @@ class DiagnosisMaster extends ClinicalannotationAppModel {
 		
 		if(!empty($diagnosis_master_id)) {
 			$event_diagnosis_data = $this->find('first', array('conditions'=>array('DiagnosisMaster.id' => $diagnosis_master_id)));
-			if(empty($event_diagnosis_data)) AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			if(empty($event_diagnosis_data)){
+				AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			}
 			$related_diagnosis_data[] = array_merge(array('Generated' => array('diagnosis_event_relation_type' => 'diagnosis event')), $event_diagnosis_data);
 			
 			$history_diagnosis_data = array();
 			if($event_diagnosis_data['DiagnosisMaster']['id'] != $event_diagnosis_data['DiagnosisMaster']['primary_id']) {
 				$history_diagnosis_data = $this->find('all', array('conditions'=>array('DiagnosisMaster.id' => array($event_diagnosis_data['DiagnosisMaster']['primary_id'], $event_diagnosis_data['DiagnosisMaster']['parent_id'])), 'order' => 'DiagnosisMaster.id DESC'));
-				if(empty($history_diagnosis_data)) AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				if(empty($history_diagnosis_data)){
+					AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				foreach($history_diagnosis_data as $new_diag) {
 					$related_diagnosis_data[] = array_merge(array('Generated' => array('diagnosis_event_relation_type' => 'diagnosis history')), $new_diag);
 				}
