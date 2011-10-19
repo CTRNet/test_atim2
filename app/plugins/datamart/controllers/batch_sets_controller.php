@@ -144,8 +144,6 @@ class BatchSetsController extends DatamartAppController {
 		}
 		$this->ModelToSearch = AppModel::getInstance($batch_set['BatchSet']['plugin'], $batch_set['BatchSet']['model'], true);
 			
-		$this->set("lookup_key_name", $batch_set['BatchSet']['lookup_key_name']);
-		
 		if(count($lookup_ids) > 0){
 			$criteria = $batch_set['BatchSet']['model'].'.'.$batch_set['BatchSet']['lookup_key_name']." IN ('".implode("', '", $lookup_ids)."')";
 		}
@@ -204,6 +202,7 @@ class BatchSetsController extends DatamartAppController {
 			$results = $this->ModelToSearch->find( 'all', array( 'conditions' => $criteria, 'recursive' => 0 ) );
 			$batch_set['BatchSet']['flag_use_query_results'] = 0;
 		}
+		
 		$this->set( 'results', AppModel::sortWithUrl($results, $this->passedArgs)); // set for display purposes...
 		$this->set( 'data_for_detail', $batch_set );
 		$this->set( 'atim_structure_for_results', $atim_structure_for_results);
