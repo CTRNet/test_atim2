@@ -509,7 +509,7 @@ class StructuresHelper extends Helper {
 								<tr>');
 				
 				if($many_columns){
-					echo '<td></td><td class="label center">', implode('</td><td class="label center">', $options['settings']['columns_names']), '</td></tr><tr>';
+					echo '<td></td><td class="label">', implode('</td><td class="label">', $options['settings']['columns_names']), '</td></tr><tr>';
 				}
 				// each row in column 
 				$table_row_count = 0;
