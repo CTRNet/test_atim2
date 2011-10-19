@@ -7,20 +7,20 @@
 	ksort($add_links);
 	
 	$settings = array('return' => true);
-	if(isset($is_ajax) && !isset($from_layout_page)){
+	
+	if(isset($is_ajax) && !$from_layout_page){
 		$settings['actions'] = false;
 	}
 	
 	$structure_links = array(
 		'index' => array('detail' => '/storagelayout/storage_masters/detail/%%StorageMaster.id%%'),
 		'bottom' => array(
-//			'new search' => array('link' => '/storagelayout/storage_masters/search', 'icon' => 'search'),
 			'add' => $add_links,
 			'tree view' => '/storagelayout/storage_masters/contentTreeView'
 		) 
 	);
 	
-	if(isset($from_layout_page)){
+	if($from_layout_page){
 		unset($structure_links['bottom']);
 		$structure_links['bottom'] = array('cancel' => 'javascript:searchBack();');
 		$settings['pagination'] = false;
