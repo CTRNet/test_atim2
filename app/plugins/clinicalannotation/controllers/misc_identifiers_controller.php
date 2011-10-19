@@ -130,8 +130,6 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 			// Set additional data
 			$this->data['MiscIdentifier']['participant_id'] = $participant_id;
 			$this->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
-			$this->data['MiscIdentifier']['identifier_name'] = $controls['MiscIdentifierControl']['misc_identifier_name']; 
-			$this->data['MiscIdentifier']['identifier_abrv'] = $controls['MiscIdentifierControl']['misc_identifier_name_abbrev'];
 			
 			// Launch validation
 			$submitted_data_validates = true;
