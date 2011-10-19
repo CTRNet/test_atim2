@@ -97,7 +97,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("auto submit", "Auto submit", "Envoi automatique"),
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
 ("unused parents", "Unused parents", "Parents non utilisés"),
-("full export as CSV", "Full export as CSV", "Export complet comme CSV"),
+("full export as CSV file", "Full export as CSV file", "Export complet comme fichier CSV"),
 ('copy for new collection', 'Copy for New col.', "Copier pour nouvelle col."),
 ("user", "User", "Utilisateur"),
 ("owner", "Owner", "Propriétaire"),
@@ -2542,7 +2542,7 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('see diagnosis summary', '', 'Diagnosis', 'Diagnostic');
 
 
--- ------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------
 
 
 INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('col_copy_binding_opt', '', '', NULL);
