@@ -356,17 +356,11 @@ class StructuresHelper extends Helper {
 			$data = array();
 		}
 		
-		$this->updateDataWithAccuracy($data, $atim_structure);
+		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
-		if(count($this->validationErrors) > 0 
-		&& ($type == "add"
-		|| $type == "edit"
-		|| $type == "search"
-		|| $type == "addgrid"
-		|| $type == "editgrid"
-		|| $type == "batchedit")){
+		if(count($this->validationErrors) > 0 && in_array($type, array('add', 'edit', 'search', 'addgrid', 'editgrid', 'batchedit'))){
 			//editable types, convert validation errors
 			$this->my_validation_errors = array();
 			foreach($this->validationErrors as $validation_error_arr){
@@ -377,20 +371,13 @@ class StructuresHelper extends Helper {
 		if($type == 'summary'){
 			$this->buildSummary($atim_structure, $options, $data);
 		
-		}else if($type == 'index'
-		|| $type == 'addgrid'
-		|| $type == 'editgrid'){
-			if($type == 'addgrid'
-			|| $type == 'editgrid'){
+		}else if(in_array($type, array('index', 'addgrid', 'editgrid'))){
+			if($type == 'addgrid' || $type == 'editgrid'){
 				$options['settings']['pagination'] = false;
 			}
 			$this->buildTable( $atim_structure, $options, $data);
 
-		}else if($type == 'detail'
-		|| $type == 'add'
-		|| $type == 'edit'
-		|| $type == 'search'
-		|| $type == 'batchedit'){
+		}else if(in_array($type, array('detail', 'add', 'edit', 'search', 'batchedit'))){
 			$this->buildDetail( $atim_structure, $options, $data);
 			
 		}else if($type == 'tree'){
@@ -1216,7 +1203,8 @@ class StructuresHelper extends Helper {
 	 * @param array $data
 	 */
 	private function buildTreeNode(array &$atim_structures, array $options, array $data){
-		foreach($data as $data_key => $data_val){
+		$accuracy_updated = array(); 
+		foreach($data as $data_key => &$data_val){
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
 			if (isset($data_val['children'])){
@@ -1282,6 +1270,13 @@ class StructuresHelper extends Helper {
 						}
 						
 						$table_index = $atim_structures[$options['settings']['tree'][$model_name]]['app_stack'];
+						
+						if(!array_key_exists($options['settings']['tree'][$model_name], $accuracy_updated)){
+							//update accuracy, only once per structure binding per level. 
+							$this->updateDataWithAccuracy($data, $atim_structures[$options['settings']['tree'][$model_name]]);
+							$accuracy_updated[$options['settings']['tree'][$model_name]] = true;
+						}
+						
 						break;
 					}
 				}
@@ -2296,9 +2291,10 @@ class StructuresHelper extends Helper {
 	private static function getCurrentValue($data_unit, array $table_row_part, $suffix, $options){
 		$warning = false;
 		if(is_array($data_unit) 
-		&& array_key_exists($table_row_part['model'], $data_unit) 
-		&& is_array($data_unit[$table_row_part['model']])
-		&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])){
+			&& array_key_exists($table_row_part['model'], $data_unit) 
+			&& is_array($data_unit[$table_row_part['model']])
+			&& array_key_exists($table_row_part['field'].$suffix, $data_unit[$table_row_part['model']])
+		){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
 		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
