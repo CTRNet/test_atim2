@@ -914,25 +914,27 @@ class SampleMastersController extends InventorymanagementAppController {
 		unset($this->data['DerivativeDetail']);
 		
 		// Set structures and menu
-		$model = null;
 		$ids = null;
 		if(array_key_exists('ids', $this->data['SampleMaster'])){
 			//initial display
-			$model = empty($this->data['SampleMaster']['ids']) ? 'AliquotMaster' : 'SampleMaster';
-			$ids = $this->data[$model]['ids'];
+			$ids = $this->data['SampleMaster']['ids'];
 		}else{
 			//working display
-			$tmp_data = current($this->data);
-			$model = array_key_exists('AliquotMaster', $tmp_data) ? 'AliquotMaster' : 'SampleMaster';
-			$ids = array_keys($this->data);
+			foreach($this->data as $key => $data){
+				if(is_numeric($key)){
+					$ids[] = array_key_exists('AliquotMaster', $data) ? $data['AliquotMaster']['sample_master_id'] : $key;
+				}
+			}
 		}
 
 		$unique_aliquot_master_data = null;
 		if(is_null($aliquot_master_id)) {
-			$this->setBatchMenu(array($model => $ids));
+			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
 			$unique_aliquot_master_data = $this->AliquotMaster->findById($aliquot_master_id);
-			if(empty($unique_aliquot_master_data)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			if(empty($unique_aliquot_master_data)){
+				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
 			$this->setAliquotMenu($unique_aliquot_master_data);
 		}
 		
@@ -1059,12 +1061,12 @@ class SampleMastersController extends InventorymanagementAppController {
 							$validation_model = $this->{$validation_model_name}; 
 							$validation_model->data = array();
 							$validation_model->set($child);
-							
 							if(!$validation_model->validates()){
 								foreach($validation_model->validationErrors as $field => $msg) {
 									$errors[$field][$msg][] = $record_counter;
 								}
 							}
+							echo $validation_model->name;
 							$child = $validation_model->data;
 						}					
 					}
