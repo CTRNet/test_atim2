@@ -15,6 +15,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 	const USE_BY = 11;
 	const VOLUME_UNIT = 12;
 	const PLUGIN = 13;
+	const USE_DATETIME_ACCU = 14;
 	
 	var $base_model = "AliquotUse";
 	
@@ -35,6 +36,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> 'SourceAliquot.used_volume',
 				self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
 				self::USE_DATETIME		=> 'DerivativeDetail.creation_datetime',
+				self::USE_DATETIME_ACCU	=> 'DerivativeDetail.creation_datetime_accuracy',
 				self::USE_BY			=> 'DerivativeDetail.creation_by',
 				self::CREATED			=> 'SourceAliquot.created',
 				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|listAllSourceAliquots|",sample_derivative.collection_id ,"|",sample_derivative.id)',
@@ -53,6 +55,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> 'Realiquoting.parent_used_volume',
 				self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
 				self::USE_DATETIME		=> 'Realiquoting.realiquoting_datetime',
+				self::USE_DATETIME_ACCU	=> 'Realiquoting.realiquoting_datetime_accuracy',
 				self::USE_BY			=> 'Realiquoting.realiquoted_by',
 				self::CREATED			=> 'Realiquoting.created',
 				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|listAllRealiquotedParents|",AliquotMasterChildren.collection_id,"|",AliquotMasterChildren.sample_master_id,"|",AliquotMasterChildren.id)',
@@ -70,6 +73,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> 'QualityCtrl.used_volume',
 				self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
 				self::USE_DATETIME		=> 'QualityCtrl.date',
+				self::USE_DATETIME_ACCU	=> 'QualityCtrl.date_accuracy',
 				self::USE_BY			=> 'QualityCtrl.run_by',
 				self::CREATED			=> 'QualityCtrl.created',
 				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|quality_ctrls|detail|",AliquotMaster.collection_id,"|",AliquotMaster.sample_master_id,"|",QualityCtrl.id)',
@@ -88,6 +92,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> '""',
 				self::VOLUME_UNIT		=> '""',
 				self::USE_DATETIME		=> 'Shipment.datetime_shipped',
+				self::USE_DATETIME_ACCU	=> 'Shipment.datetime_shipped_accuracy',
 				self::USE_BY			=> 'Shipment.shipped_by',
 				self::CREATED			=> 'Shipment.created',
 				self::DETAIL_URL		=> 'CONCAT("|order|shipments|detail|",Shipment.order_id,"|",Shipment.id)',
@@ -106,6 +111,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> '""',
 				self::VOLUME_UNIT		=> '""',
 				self::USE_DATETIME		=> 'SpecimenReviewMaster.review_date',
+				self::USE_DATETIME_ACCU	=> 'SpecimenReviewMaster.review_date_accuracy',
 				self::USE_BY			=> '""',
 				self::CREATED			=> 'AliquotReviewMaster.created',
 				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|specimen_reviews|detail|",AliquotMaster.collection_id,"|",AliquotMaster.sample_master_id,"|",SpecimenReviewMaster.id)',
@@ -124,6 +130,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_VOLUME		=> 'AliquotInternalUse.used_volume',
 				self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
 				self::USE_DATETIME		=> 'AliquotInternalUse.use_datetime',
+				self::USE_DATETIME_ACCU	=> 'AliquotInternalUse.use_datetime_accuracy',
 				self::USE_BY			=> 'AliquotInternalUse.used_by',
 				self::CREATED			=> 'AliquotInternalUse.created',
 				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|detailAliquotInternalUse|",AliquotMaster.id,"|",AliquotInternalUse.id)',
@@ -146,6 +153,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 					$model_conf[self::USE_VOLUME].' AS used_volume',
 					$model_conf[self::VOLUME_UNIT].' AS aliquot_volume_unit',
 					$model_conf[self::USE_DATETIME].' AS use_datetime',
+					$model_conf[self::USE_DATETIME_ACCU].' AS use_datetime_accuracy',
 					$model_conf[self::USE_BY].' AS used_by',
 					$model_conf[self::CREATED],
 					$model_conf[self::DETAIL_URL].' AS detail_url',
