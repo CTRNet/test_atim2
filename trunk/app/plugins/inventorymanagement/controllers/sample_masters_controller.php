@@ -667,7 +667,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 		
 		$is_specimen = true;
-		switch($sample_data['SampleMaster']['sample_category']) {
+		switch($sample_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Displayed sample is a specimen
 				$is_specimen = true;

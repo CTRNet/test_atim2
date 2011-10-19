@@ -1,7 +1,7 @@
 <?php 
 $structure_links = array(
-	'top' => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/',
-	'bottom' => array('cancel' => $cancel_button)
+	'top' => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/'.$aliquot_master_id,
+	'bottom' => array('cancel' => $url_to_cancel)
 );
 
 $parent_settings = array(
@@ -60,6 +60,7 @@ while($data_unit = array_shift($this->data)){
 	if(empty($this->data)){
 		$final_options_children['settings']['actions'] = true;
 		$final_options_children['settings']['form_bottom'] = true;
+		$final_options_children['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 	}
 	
 	if(empty($data_unit['parent']['AliquotControl']['volume_unit'])){
