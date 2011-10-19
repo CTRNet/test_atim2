@@ -68,7 +68,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		}else{
 			$this->set("specimen_sample_controls_list", $this->SampleControl->getPermissibleSamplesArray(null));
 			$template_model = AppModel::getInstance("Tools", "Template", true);
-			$templates = $template_model->findVisibleNodes();
+			$templates = $template_model->getAddFromTemplateMenu($collection_id);
 			$this->set('templates', $templates);
 		}
 		$atim_structure['SampleMaster']		= $this->Structures->get('form','sample_masters_for_collection_tree_view');
