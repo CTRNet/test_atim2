@@ -222,14 +222,12 @@ if(isset($is_ajax)){
 		li.find(".leftPart a").css("cursor", "default");
 		li.find("input").change(function(){
 			if(numberValidation($(this), treeData.quantity)){
-				console.log("k");
 				$(li).data("quantity", $(this).val());
-				console.log($(li).data());
 			}
 		});
 		$(li).data({
 			"datamart_structure_id" : treeData.datamart_structure_id, 
-			"controlId" : treeData.control_id, 
+			"controlId" : Math.abs(treeData.control_id), 
 			"nodeId" : treeData.id == 0 ? nodeId -- : treeData.id,
 			"parent_id" : treeData.parent_id,
 			"quantity" : treeData.quantity
@@ -286,7 +284,6 @@ if(isset($is_ajax)){
 	function overrideSubmitButton(){
 		$(".ajaxContent input[type=submit]").unbind('click').click(function(){
 			$.post($("form").prop("action"), $("form").serialize(), function(jsonData){
-				console.log(jsonData);
 				jsonData = $.parseJSON(jsonData);
 				if(jsonData.goToNext){
 					//update current node display if needed
@@ -338,7 +335,7 @@ if(isset($is_ajax)){
 		}
 		if(currentNode && currentNode.length > 0){
 			$(currentNode).addClass("wizardDone").css("background-color", "#ffc");
-			$(currentNode).find("div:first").css("font-weight", "bold");
+			$(currentNode).find("div:first").css("font-weight", "bold").find("input").attr("disabled", true);
 			data = $(currentNode).data();
 			url = null;
 			if(data.datamart_structure_id == 1){
