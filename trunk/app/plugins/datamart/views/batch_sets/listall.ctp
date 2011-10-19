@@ -7,7 +7,7 @@
 	$structure_links = array(
 		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
+			$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	
@@ -34,12 +34,12 @@
 			)), $structure_links['bottom']);
 	}
 	
-	?>
-		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>
-	<?php 
 	$extras = array();
 	if(isset($datamart_structure_id)){
-		$extras = "<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>";
+		$extras = array(
+			"<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>"
+			.'<input type="hidden" name="data[BatchSet][id]" value="'.$atim_menu_variables['BatchSet.id'].'"/>'
+		);
 	}
 	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => $extras));
 		
