@@ -73,4 +73,20 @@ class Template extends AppModel {
 			)
 		)));
 	}
+	
+	function getAddFromTemplateMenu($collection_id){
+		$visible_nodes = $this->findVisibleNodes();
+		$options['empty template'] = array(
+					'icon' => 'add',
+					'link' => '/inventorymanagement/collections/template/'.$collection_id.'/0'
+		);
+		foreach($visible_nodes as $template){
+			$options[$template['Template']['name']] = array(
+				'icon' => 'template',
+				'link' => '/inventorymanagement/collections/template/'.$collection_id.'/'.$template['Template']['id']
+			);
+		}
+		
+		return $options;
+	}
 }
