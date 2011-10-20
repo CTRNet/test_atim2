@@ -1074,33 +1074,56 @@ class StructuresHelper extends Helper {
 		if(is_array($table_structure) && count($data)){
 			//header line
 			$line = array();
-			
 			if($options['settings']['csv_header']){
-				foreach($table_structure as $table_column){
-					foreach($table_column as $fm => $table_row){
-						foreach($table_row as $table_row_part){
-							$line[] = $table_row_part['label'];
-						}
-					}
-				}
-				$this->Csv->addRow($line);
-			}
-
-			//content
-			foreach($data as $data_unit){
-				$line = array();
-				foreach($table_structure as $table_column){
-					foreach ( $table_column as $fm => $table_row){
-						foreach($table_row as $table_row_part){
-							if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
-								$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
-							}else{
-								$line[] = "";
+				if(empty($options['settings']['columns_names'])){
+					foreach($table_structure as $table_column){
+						foreach($table_column as $fm => $table_row){
+							foreach($table_row as $table_row_part){
+								$line[] = $table_row_part['label'];
 							}
 						}
 					}
+				}else{
+					$line = array_merge(array(''), $options['settings']['columns_names']);
 				}
 				$this->Csv->addRow($line);
+			}
+			
+
+			//content
+			if(empty($options['settings']['columns_names'])){
+				foreach($data as $data_unit){
+					$line = array();
+					foreach($table_structure as $table_column){
+						foreach ( $table_column as $fm => $table_row){
+							foreach($table_row as $table_row_part){
+								if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+									$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+								}else{
+									$line[] = "";
+								}
+							}
+						}
+					}
+					$this->Csv->addRow($line);
+				}
+			}else{
+				foreach($table_structure as $table_column){
+					foreach($table_column as $fm => $table_row){
+						foreach($table_row as $table_row_part){
+							$line = array($table_row_part['label']);
+							$current_data = $data[0][0][$table_row_part['field']];
+							foreach($options['settings']['columns_names'] as $column_name){
+								if(array_key_exists($column_name, $current_data)){
+									$line[] = trim($this->getPrintableField($table_row_part, $options, $current_data[$column_name], null, null));
+								}else{
+									$line[] = '';
+								}
+							}
+							$this->Csv->addRow($line);
+						}
+					}
+				}
 			}
 		}
 		
