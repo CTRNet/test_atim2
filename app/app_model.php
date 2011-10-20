@@ -331,28 +331,39 @@ class AppModel extends Model {
 			//build accuracy settings for that table
 			$this->buildAccuracyConfig();
 		}
-		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
 			if(!isset($this->data[$this->name][$date_field])){
 				continue;
 			}
 			
-			$current =  &$this->data[$this->name][$date_field];
+			$current = &$this->data[$this->name][$date_field];
 			if(empty($current)){
 				$this->data[$this->name][$accuracy_field] = '';
 				$current = null;
 			}else{
 				list($year, $month, $day) = explode("-", trim($current));
-				if((!(empty($year) || is_numeric($year) && (empty($month) || is_numeric($month)) && (empty($day) || is_numeric($day))))){
-					continue;//if one of them is not empty AND not numeric
-				}
 				$hour = null;
 				$minute = null;
-				$time = null;
 				if(strpos($day, ' ') !== false){
+					$time = null;
 					list($day, $time) = explode(" ", $day);
 					list($hour, $minute) = explode(":", $time);
 				}
+				
+				
+				//used to avoid altering the date when its invalid
+				$go_to_next_field = false;
+				foreach(array($year, $month, $day, $hour, $minute) as $field){
+					if(!empty($field) && !is_numeric($field)){
+						$go_to_next_field = true;
+						break;
+					}
+				}
+				if($go_to_next_field){
+					continue;//if one of them is not empty AND not numeric
+				}
+				
+				
 				if(!empty($year)){
 					if(strpos($year, '±') === 0 || (empty($month) && empty($day) && empty($hour) && empty($minute))){
 						$month = '01';
