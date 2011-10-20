@@ -135,7 +135,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("delivery postal code", "Delivery postal code", "Code postal de livraison"),
 ("delivery province", "Delivery province", "Province de livraison"),
 ("delivery street address", "Delivery street address", "Adresse de livraison"),
-("copy options", "Copy options", "Options de copie");
+("copy options", "Copy options", "Options de copie"),
+("and %d more", "And %d more", "Et %d de plus");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -2500,7 +2501,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('add diagnosis', 'Add', 'Ajouter'),
 ('see diagnosis summary', 'Diagnosis', 'Diagnostique'),
 ('see event summary', 'Annotation', 'Annotation'),
-('see treatment summary', 'Treatment', 'Traitement'),
+('see treatment summary', 'treatment', 'Traitement'),
 ('category & diagnosis control type', 'Cat. & Type', 'Cat & Type');
 
 INSERT INTO structures(`alias`) VALUES ('view_diagnosis');
@@ -2672,3 +2673,6 @@ DELETE FROM structure_fields WHERE field = 'misc_identifier_name_abbrev';
 UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_spent_times_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_spent_times_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='rec_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='14' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_spent_times_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');

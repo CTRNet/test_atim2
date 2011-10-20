@@ -662,7 +662,15 @@ class Browser extends DatamartAppModel {
 					}
 				}
 			}
-			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>".stripslashes(implode(", ", $values))."</td>\n";
+			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>";
+			if(count($values) > 6){
+				$result .= '<span class="databrowserShort">'.stripslashes(implode(", ", array_slice($values, 0, 6))).'</span>'
+					.'<span class="databrowserAll hidden">'.stripslashes(implode(", ", array_slice($values, 6))).'</span>'
+					.'<br/><a href="#" class="databrowserMore">'.sprintf(__('and %d more', true), count($values) - 6).'</a>';
+			}else{
+				$result .= stripslashes(implode(", ", $values));
+			}
+			$result .= "</td>\n";
 		}
 		$result .= "<tr><th>".__("exact search", true)."</th><td>".($search_params['exact_search'] ? __("yes", true) : __('no', true))."</td>\n";
 		$result .= "</table>";
