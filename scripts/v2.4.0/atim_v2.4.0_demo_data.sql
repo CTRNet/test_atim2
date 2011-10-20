@@ -2899,3 +2899,61 @@ INSERT INTO `tx_masters_revs` (`id`, `tx_control_id`, `tx_intent`, `target_site_
 (9, 3, 'curative', NULL, '2011-04-08', 'c', NULL, '', '', 'Building A', '', 1, NULL, 3, 10, 13, '2011-10-19 02:55:13');
 
 SET FOREIGN_KEY_CHECKS=1;
+
+-- -------------------------------------------------------------------
+-- CUSTOM QUERY EXAMPLE
+-- -------------------------------------------------------------------
+
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
+(null, 'QR_AQ_1_Demo', 'QR_AQ_1_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'QR_AQ_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
+ 'SELECT 
+AliquotMaster.id,
+AliquotMaster.sample_master_id,
+AliquotMaster.collection_id,
+Participant.id,
+Participant.participant_identifier,
+Participant.sex,
+AliquotMaster.barcode,
+SampleControl.sample_type,
+AliquotControl.aliquot_type,
+AliquotMaster.in_stock
+FROM participants AS Participant
+INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
+INNER JOIN collections AS Collection ON Collection.id = link.collection_id
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id
+INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id 
+INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id 
+INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+WHERE TRUE
+AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
+AND Participant.sex = "@@Participant.sex@@" 
+AND SampleControl.sample_type = "@@SampleControl.sample_type@@" 
+AND AliquotControl.aliquot_type = "@@AliquotControl.aliquot_type@@"  
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@"
+ORDER BY Participant.participant_identifier;', '');
+
+INSERT INTO datamart_adhoc_permissions (group_id,datamart_adhoc_id) VALUES ('1', (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_1_Demo'));
+
+INSERT INTO structures(`alias`) VALUES ('QR_AQ_complexe');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `type`='select'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='SampleControl' AND `field`='sample_type' AND `type`='select'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `field`='aliquot_type' AND `type`='select'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='in_stock' AND `type`='select'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO i18n (id, en, fr) VALUES
+('QR_AQ_1_Demo_Description',
+ 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)');
