@@ -783,6 +783,11 @@ function initActions(){
 		});
 	}
 	
+	function databrowserToggleSearchBox(cell){
+		$(cell).parent().find("span, a").toggle();
+		return false;
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -934,6 +939,11 @@ function initActions(){
 		if(window.initPage){
 			initPage();
 		}
+		
+		$("a.databrowserMore").click(function(){
+			$(this).parent().find("span, a").toggle();
+			return false;
+		});
 	}
 
 	function globalInit(scope){
