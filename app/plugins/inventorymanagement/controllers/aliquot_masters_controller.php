@@ -747,7 +747,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					'in_stock'			=> $data_unit['AliquotMaster']['in_stock'],
 					'in_stock_detail'	=> $data_unit['AliquotMaster']['in_stock_detail']
 				);
-				if($data_unit['FunctionManagement']['remove_from_storage']){
+				if($data_unit['FunctionManagement']['remove_from_storage']  || ($data_unit['AliquotMaster']['in_stock'] == 'no')){
 					$aliquot_data_to_save_tmp += array(
 						'storage_master_id' => null,
 						'storage_coord_x' => '',

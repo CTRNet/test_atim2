@@ -496,13 +496,11 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		if(empty($specimen_review_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 		
 		// Get Aliquot Review Data
-		$criteria = array(
-			'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id, 
-			'AliquotReviewMaster.aliquot_review_control_id' => $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['id']);
+		$criteria = array('AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id);
 		$aliquot_review_data_list = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->SpecimenReviewMaster->allowDeletion($collection_id);
+		$arr_allow_deletion = $this->SpecimenReviewMaster->allowDeletion($specimen_review_id);
 		
 		// CUSTOM CODE
 				

@@ -92,6 +92,7 @@ while($data = array_shift($this->data)){
 		//last row
 		$final_options_children['settings']['actions'] = true;
 		$final_options_children['settings']['form_bottom'] = true;
+		$final_options_children['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="'.$cancel_button.'"/>';
 	}
 	
 	$final_options_parent['data'] = $parent;
