@@ -2904,6 +2904,8 @@ SET FOREIGN_KEY_CHECKS=1;
 -- CUSTOM QUERY EXAMPLE
 -- -------------------------------------------------------------------
 
+DELETE FROM datamart_adhoc_permissions WHERE datamart_adhoc_id  = (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_1_Demo');
+DELETE FROM datamart_adhoc WHERE title = 'QR_AQ_1_Demo';
 INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
 (null, 'QR_AQ_1_Demo', 'QR_AQ_1_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'QR_AQ_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
  'SELECT 
@@ -2914,6 +2916,7 @@ Participant.id,
 Participant.participant_identifier,
 Participant.sex,
 AliquotMaster.barcode,
+AliquotMaster.aliquot_label,
 SampleControl.sample_type,
 AliquotControl.aliquot_type,
 AliquotMaster.in_stock
