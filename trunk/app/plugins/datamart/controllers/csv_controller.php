@@ -23,9 +23,11 @@ class CsvController extends DatamartAppController {
 		}
 		
 		if(!isset($this->data[$data_model]) || !isset($this->data[$data_model][$data_pkey])){
+			die("FAIL");
 			$this->redirect( '/pages/err_internal?p[]=failed to find values', NULL, TRUE );
 			exit;
 		}
+		echo "WIN!";
 		$ids[] = 0;
 		if(!is_array($this->data[$data_model][$data_pkey])){
 			$this->data[$data_model][$data_pkey] = explode(",", $this->data[$data_model][$data_pkey]);

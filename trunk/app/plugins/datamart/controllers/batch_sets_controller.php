@@ -143,6 +143,11 @@ class BatchSetsController extends DatamartAppController {
 			$atim_structure_for_results = $this->Structures->get( 'form', $batch_set['Adhoc']['form_alias_for_results']);
 		}
 		$this->ModelToSearch = AppModel::getInstance($batch_set['BatchSet']['plugin'], $batch_set['BatchSet']['model'], true);
+		
+		$lookup_model_name = $batch_set['BatchSet']['model'];
+		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
+		$this->set('lookup_model_name', $lookup_model_name);
+		$this->set('lookup_key_name', $lookup_key_name);
 			
 		if(count($lookup_ids) > 0){
 			$criteria = $batch_set['BatchSet']['model'].'.'.$batch_set['BatchSet']['lookup_key_name']." IN ('".implode("', '", $lookup_ids)."')";
@@ -222,8 +227,8 @@ class BatchSetsController extends DatamartAppController {
 				$batch_set['BatchSet']['model'], 
 				$batch_set['BatchSet']['lookup_key_name'],
 				$batch_set['BatchSet']['structure_alias'],
-				$batch_set['BatchSet']['model'],
-				$batch_set['BatchSet']['lookup_key_name'],
+				$lookup_model_name,
+				$lookup_key_name,
 				$batch_set_id
 			);
 			if($batch_set_id != 0){
