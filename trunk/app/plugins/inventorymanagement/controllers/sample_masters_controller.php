@@ -914,18 +914,9 @@ class SampleMastersController extends InventorymanagementAppController {
 		unset($this->data['DerivativeDetail']);
 		
 		// Set structures and menu
-		$ids = null;
-		if(array_key_exists('ids', $this->data['SampleMaster'])){
-			//initial display
-			$ids = $this->data['SampleMaster']['ids'];
-		}else{
-			//working display
-			foreach($this->data as $key => $data){
-				if(is_numeric($key)){
-					$ids[] = array_key_exists('AliquotMaster', $data) ? $data['AliquotMaster']['sample_master_id'] : $key;
-				}
-			}
-		}
+		$ids = array_key_exists('ids', $this->data['SampleMaster']) ? $this->data['SampleMaster']['ids'] : $this->data['sample_master_ids'];
+		$this->set('sample_master_ids', $ids);
+		unset($this->data['sample_master_ids']);
 
 		$unique_aliquot_master_data = null;
 		if(is_null($aliquot_master_id)) {
