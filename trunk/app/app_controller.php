@@ -231,7 +231,7 @@ class AppController extends Controller {
 		// parse result, set configs/defines
 		if ( $config_results ) {
 			Configure::write('Config.language', $config_results['Config']['config_language']);
-			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
+			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
 					
 					// break apart CONFIG key
@@ -256,21 +256,6 @@ class AppController extends Controller {
 		}
 		if(Configure::read('debug') == 0){
 			set_error_handler("myErrorHandler");
-		}
-	}
-	
-	/**
-	 * Recursively removes empty parts of an array. It includes empty arrays.
-	 * @param array &$arr The array to clean
-	 */
-	static function cleanArray(&$arr){
-		foreach($arr as $k => $foo){
-			if(is_array($arr[$k])){
-				AppController::cleanArray($arr[$k]);
-			}
-			if(empty($arr[$k]) || (is_array($arr[$k]) && count($arr[$k]) == 0) || (is_string($arr[$k]) && strlen(trim($arr[$k])) == 0)){
-				unset($arr[$k]);
-			}
 		}
 	}
 	
@@ -597,6 +582,10 @@ class AppController extends Controller {
 		return $out_array;
 	}
 	
+	/**
+	 * Recursively removes entries returning true on empty($value).
+	 * @param array &$data
+	 */
 	static function removeEmptyValues(array &$data){
 		foreach($data as $key => &$val){
 			if(is_array($val)){
