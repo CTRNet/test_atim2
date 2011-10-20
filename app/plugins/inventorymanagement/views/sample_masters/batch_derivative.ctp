@@ -79,11 +79,13 @@ while($data = array_shift($this->data)){
 		$final_options_children['settings']['form_bottom'] = true;
 		$final_options_children['settings']['actions'] = true;
 		$final_options_children['extras'] = 
-			'<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
+			'
+			<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
 			<input type="hidden" name="data[DerivativeDetail][lab_book_master_code]" value="'.$lab_book_master_code.'"/>
 			<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
 			<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
-			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>
+			<input type="hidden" name="data[sample_master_ids]" value="'.$sample_master_ids.'"/>';
 	}
 	$prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
 	$final_options_parent['settings']['header'] = __('derivative creation process', true) . ' - ' . __('creation', true) .($one_parent? '' : " #".$counter);
@@ -94,7 +96,9 @@ while($data = array_shift($this->data)){
 	$final_options_children['data'] = $data['children'];
 	$final_options_children['dropdown_options']['SampleMaster.parent_id'] = array($parent['ViewSample']['sample_master_id'] => $parent['ViewSample']['sample_code']);
 	$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
-	if(isset($parent['AliquotMaster']) && !empty($parent['AliquotControl']['volume_unit'])) $final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
+	if(isset($parent['AliquotMaster']) && !empty($parent['AliquotControl']['volume_unit'])){
+		$final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
+	}
 	
 	if( $hook_link ) { 
 		require($hook_link); 
