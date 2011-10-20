@@ -1031,6 +1031,10 @@ class Browser extends DatamartAppModel {
 					$this->checklist_use_key = $use_key;
 					$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
 				}
+				
+				if(!empty($current_browsing['DatamartStructure']['control_master_model'])){
+					AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
+				}
 			}
 
 			//structure merge, add 100 * iteration count to display column
