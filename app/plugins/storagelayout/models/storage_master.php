@@ -726,13 +726,13 @@ class StorageMaster extends StoragelayoutAppModel {
 					
 				}else if($rcv_data[$type][$init_data_id]['x'] == 'u'){
 					//unclassified
-					$init_data_unit[$type][$x_key] = null;
-					$init_data_unit[$type][$y_key] = null;
+					$init_data_unit[$type][$x_key] = '';
+					$init_data_unit[$type][$y_key] = '';
 					
 				}else{
 					//positioned
-					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? null : $rcv_data[$type][$init_data_id]['x']); 
-					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? null : $rcv_data[$type][$init_data_id]['y']);
+					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']); 
+					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
 					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
 				}
 				
@@ -750,7 +750,7 @@ class StorageMaster extends StoragelayoutAppModel {
 					$this->updateChildrenStorageSelectionLabel($init_data_id, $init_data_unit);
 					
 					if(!$init_data_unit['StorageControl']['set_temperature']) {
-						$this->updateChildrenSurroundingTemperature($init_data_id, null, null);
+						$this->updateChildrenSurroundingTemperature($init_data_id, $init_data_unit['StorageMaster']['temperature'], $init_data_unit['StorageMaster']['temp_unit']);
 					}
 				}
 			}

@@ -34,11 +34,11 @@ ob_start();
  <div style="display: table-cell; padding-top: -10px; vertical-align: top;">
 	<div>
 		<h4 class="ui-widget-header">
-			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __($data['parent']['StorageControl']['storage_type'], true) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
 			<span class='help storage'>
 				<div><?php __('help_storage_layout_storage') ?></div>
 			</span>
+			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
+			<?php echo __($data['parent']['StorageControl']['storage_type'], true) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 <?php
