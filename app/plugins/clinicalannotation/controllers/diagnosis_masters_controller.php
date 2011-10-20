@@ -75,6 +75,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set('atim_structure', $atim_structure);
 		$this->set('can_have_child', $can_have_child);
 		
+		$external_link_model = AppModel::getInstance('', 'ExternalLink', true);
+		$help_url = $external_link_model->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$this->set('help_url', $help_url['ExternalLink']['link']);
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 

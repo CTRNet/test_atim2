@@ -137,7 +137,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("delivery street address", "Delivery street address", "Adresse de livraison"),
 ("copy options", "Copy options", "Options de copie"),
 ("and %d more", "And %d more", "Et %d de plus"),
-("surgery without extension", "Surgery without extension", "Chirurgie sans extension");
+("surgery without extension", "Surgery without extension", "Chirurgie sans extension"),
+("information about the diagnosis module is available %s here",
+ "Information about the diagnosis module is available <a href='%s' target='blank'>here</a>",
+ "L'information à propos du module de diagnostic est disponible <a href='%s' target='blank'>ici</a>");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -2685,3 +2688,6 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date' 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-47' AND `plugin`='Clinicalannotation' AND `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='finish_date' AND `language_label`='finish date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_finish_date' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
 
 UPDATE tx_controls SET tx_method='surgery without extension', databrowser_label='all|surgery without extension' WHERE id=4;
+
+INSERT INTO external_links (name, link) VALUES
+('diagnosis_module_wiki', 'http://www.ctrnet.ca/mediawiki/index.php/Use_the_diagnosis_section');

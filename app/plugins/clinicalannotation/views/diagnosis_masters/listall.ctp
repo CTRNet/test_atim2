@@ -79,7 +79,7 @@
 				'DiagnosisMaster' => 'DiagnosisMaster',
 				'TreatmentMaster' => 'TreatmentMaster',
 				'EventMaster' => 'EventMaster',
-			)
+			), 'header' => array('title' => '', 'description' => sprintf(__('information about the diagnosis module is available %s here', true), $help_url))
 		)
 	);
 	
