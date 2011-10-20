@@ -20,6 +20,13 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
+	$add_to_batchset_hidden_field = null;
+	if(isset($data_for_detail['BatchSet']['id'])){
+		$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>';
+	}else{
+		$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][datamart_structure_id]" value="'.$data_for_detail['BatchSet']['datamart_structure_id'].'"/>';
+	}
+	
 	$structures->build( $atim_structure_for_results, array(
 		'type' 		=> 'index', 
 		'data'		=> $results, 
@@ -31,7 +38,7 @@
 			'pagination'	=> false, 
 			'sorting' => true
 		), 'links'	=> $structure_links,
-		'extras'	=> array('start' => '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>')
+		'extras'	=> array('end' => $add_to_batchset_hidden_field)
 	));
 	
 	// display adhoc-to-batchset ADD form
