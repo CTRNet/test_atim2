@@ -353,6 +353,11 @@ class AppModel extends Model {
 				
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
+				$plus_minus = false;
+				if(strpos($year, '±') === 0){
+					$plus_minus = true;
+					$year = substr($year, 2);
+				}
 				foreach(array($year, $month, $day, $hour, $minute) as $field){
 					if(!empty($field) && !is_numeric($field)){
 						$go_to_next_field = true;
@@ -363,16 +368,14 @@ class AppModel extends Model {
 					continue;//if one of them is not empty AND not numeric
 				}
 				
-				
 				if(!empty($year)){
-					if(strpos($year, '±') === 0 || (empty($month) && empty($day) && empty($hour) && empty($minute))){
+					if($plus_minus || (empty($month) && empty($day) && empty($hour) && empty($minute))){
 						$month = '01';
 						$day = '01';
 						$hour = '00';
 						$minute = '00';
-						if(strpos($year, '±') === 0){
+						if($plus_minus){
 							$this->data[$this->name][$accuracy_field] = 'y';
-							$year = substr(trim($year), 2);
 						}else{
 							$this->data[$this->name][$accuracy_field] = 'm';
 						}
