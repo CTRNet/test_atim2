@@ -2501,7 +2501,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('add diagnosis', 'Add', 'Ajouter'),
 ('see diagnosis summary', 'Diagnosis', 'Diagnostique'),
 ('see event summary', 'Annotation', 'Annotation'),
-('see treatment summary', 'treatment', 'Traitement'),
+('see treatment summary', 'Treatment', 'Traitement'),
 ('category & diagnosis control type', 'Cat. & Type', 'Cat & Type');
 
 INSERT INTO structures(`alias`) VALUES ('view_diagnosis');
@@ -2674,5 +2674,7 @@ UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_spent_times_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='rec_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='14' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_spent_times_report') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `display_order`='530' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotmasters_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='529' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotmasters_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
