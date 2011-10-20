@@ -1066,7 +1066,6 @@ class SampleMastersController extends InventorymanagementAppController {
 									$errors[$field][$msg][] = $record_counter;
 								}
 							}
-							echo $validation_model->name;
 							$child = $validation_model->data;
 						}					
 					}
