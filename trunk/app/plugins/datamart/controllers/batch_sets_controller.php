@@ -44,26 +44,7 @@ class BatchSetsController extends DatamartAppController {
 		
 		$this->data = $this->paginate($this->BatchSet, $batch_set_filter);
 		$datamart_structures = array();
-		foreach($this->data as $key => &$data) {
-			$data['BatchSet']['count_of_BatchId'] = sizeof($data['BatchId']);
-			if($data['BatchSet']['datamart_structure_id']){
-				$id = $data['BatchSet']['datamart_structure_id'];
-				if(!isset($datamart_structures[$id])){
-					$tmp = $this->DatamartStructure->findById($id);
-					$datamart_structures[$id] = $tmp['DatamartStructure']['model']; 
-				}
-				$this->data[$key]['BatchSet']['model'] = $datamart_structures[$id];
-			}
-			
-			if($data['BatchSet']['datamart_adhoc_id']){
-				$data['0']['query_type'] = __('custom', true);
-				$data['BatchSet']['model'] = $data['Adhoc']['model'];
-				$data['BatchSet']['flag_use_query_results'] = true;
-			}else{
-				$data['0']['query_type'] = __('generic', true);
-				$data['BatchSet']['flag_use_query_results'] = false;
-			}
-		}
+		$this->BatchSet->completeData($this->data);
 	}
 	
 	function listall($batch_set_id = 0){
@@ -481,10 +462,14 @@ class BatchSetsController extends DatamartAppController {
 				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
 				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
 				'BatchSet.sharing_status' => 'all'));					
-		$user_batchsets = $this->BatchSet->find('all', array('conditions' => $available_batchsets_conditions, 'order'=>'BatchSet.created DESC'));
+		$user_batchsets = $this->BatchSet->find('all', array(
+			'conditions' 	=> $available_batchsets_conditions, 
+			'order'			=>'BatchSet.created DESC'
+		));
 		foreach($user_batchsets as $key => $tmp_data) {
 			$user_batchsets[$key]['BatchSet']['count_of_BatchId'] = count($tmp_data['BatchId']); 
 		}
+		$this->BatchSet->completeData($user_batchsets);
 		$this->set('user_batchsets', $user_batchsets);
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'user' ) );
