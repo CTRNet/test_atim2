@@ -1009,10 +1009,10 @@ INSERT INTO `misc_identifiers_revs` (`id`, `identifier_value`, `misc_identifier_
 -- Dumping data for table `misc_identifier_controls`
 --
 
-INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `misc_identifier_name_abbrev`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`) VALUES
-(1, 'health insurance card', '#HIC', 1, 0, '', '', 1, 1),
-(2, 'hospital nbr', '#HN', 1, 1, '', '', 0, 1),
-(3, 'ovary bank no lab', '#Labo', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1, 1);
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`) VALUES
+(1, 'health insurance card', 1, 0, '', '', 1, 1),
+(2, 'hospital nbr', 1, 1, '', '', 0, 1),
+(3, 'ovary bank no lab', 1, 3, 'NoLaboCounter', 'No-Labo-%%key_increment%%', 1, 1);
 
 --
 -- Dumping data for table `orders`
