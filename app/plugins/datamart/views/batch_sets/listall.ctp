@@ -1,13 +1,17 @@
 <?php 
-	
 	// display adhoc DETAIL
-	$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
+	$structures->build( $atim_structure_for_detail, array(
+		'type'		=> 'detail', 
+		'settings'	=> array(
+			'actions'	=> false
+		), 'data'=> $data_for_detail
+	));
 
 	// display adhoc RESULTS form
 	$structure_links = array(
 		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
+			$lookup_model_name.'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	
@@ -16,7 +20,19 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'sorting' => true), 'links'=>$structure_links) );
+	$structures->build( $atim_structure_for_results, array(
+		'type' 		=> 'index', 
+		'data'		=> $results, 
+		'settings'	=>array(
+			'form_bottom'	=>false, 
+			'header' 		=> __('elements', null), 
+			'form_inputs'	=> false, 
+			'actions'		=> false, 
+			'pagination'	=> false, 
+			'sorting' => true
+		), 'links'	=> $structure_links,
+		'extras'	=> array('start' => '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>')
+	));
 	
 	// display adhoc-to-batchset ADD form
 	$structure_links = array(
