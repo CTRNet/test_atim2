@@ -27,13 +27,6 @@
 		unset($structure_links['bottom']['add diagnosis']);
 	}
 	
-// 	foreach($event_controls as $event_control){
-// 		$links = array();
-// 		foreach($event_controls as $event_control){
-// 			$links[sprintf("%05d", $event_control['EventControl']['display_order']).'-'.$event_control['EventControl']]
-// 		}
-// 	}
-	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links);
