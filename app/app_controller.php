@@ -734,6 +734,9 @@ class AppController extends Controller {
 					if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
 						$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
 					}
+					
+					ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
+					
 				}else if(count($ctrl_ids) > 0){
 					//more than one
 					AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
