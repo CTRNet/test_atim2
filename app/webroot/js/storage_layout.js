@@ -253,17 +253,8 @@ function preparePost(){
 		var elements = $(".dragme");
 		for(var i = elements.length - 1; i >= 0; --i){
 			itemData = getJsonFromClass($(elements[i]).prop("class"));
-			if($(elements[i]).parent().prop("id").indexOf("s_") == 0){
-				//normal cell
-				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
-			}else if($(elements[i]).parent().hasClass("trash")){
-				//trash, x and y are set to "t"
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "t", "x" : "t", "y" : "t"},';
-			}else{
-				//unclassified, x and y are set to "u"
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "u", "y" : "u"},';
-			}
+			var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
+			cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
 		}
 		if(cells.length > 0){
 			cells = cells.substr(0, cells.length - 1);

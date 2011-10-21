@@ -141,7 +141,7 @@ ob_start();
 					</span>
 				</h4>
 				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
-					<ul class="unclassified" style="margin-right: 5px;"></ul>
+					<ul id="s_<?php echo $atim_menu_variables['StorageMaster.id']; ?>_c_u_u" class="unclassified" style="margin-right: 5px;"></ul>
 					<span class="button TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
 				</div>	
 			</div>
@@ -155,7 +155,7 @@ ob_start();
 					</span>
 				</h4>
 				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
-					<ul class="trash" style="margin-right: 5px;"></ul>
+					<ul id="s_t_c_t_t" class="trash" style="margin-right: 5px;"></ul>
 					<span class="button RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
 				</div>
 			</div>
