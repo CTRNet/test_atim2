@@ -2707,6 +2707,58 @@ AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotCo
 ORDER BY display_order ASC LIMIT 0,1);
 UPDATE structure_formats SET `flag_index`='0' WHERE id = @structure_format_id;
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_undetailed_specimens');
+DELETE FROM structures WHERE alias='sd_undetailed_specimens';
+
+DELETE FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM structure_formats);
+
+UPDATE structure_fields SET language_help = 'inv_creation_datetime_defintion' WHERE field = 'creation_datetime' AND model = 'DerivativeDetail';
+UPDATE structure_fields SET language_help = 'inv_reception_datetime_defintion' WHERE field = 'reception_datetime' AND model = 'SpecimenDetail';
+
+INSERT INTO i18n (id,en,fr) VALUES ('inv_creation_datetime_defintion', 'Date of the samples creation (extraction, centrifugation, etc).', 'Date de la création des échantillons (extraction, centrifugation, etc).');
+
+ALTER TABLE specimen_details
+	ADD COLUMN time_at_room_temp_mn INT DEFAULT NULL AFTER supplier_dept;
+ALTER TABLE specimen_details_revs
+	ADD COLUMN time_at_room_temp_mn INT DEFAULT NULL AFTER supplier_dept;
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SpecimenDetail', 'specimen_details', 'time_at_room_temp_mn', 'integer',  NULL , '0', 'size=3', '', 'time_at_room_temp_mn_help', 'time at room temp (mn)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='specimens'), 
+(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn'), '1', '405', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('time at room temp (mn)', 'Time at room temperature (mn)', 'Temps à température ambiante (mn)'),
+('time_at_room_temp_mn_help', 
+'Time spent between the collection time and the initial specimen storage time at low temperature (minutes).', 
+'Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes).');
+
+
+	
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+SELECT *
+FROM `view_structure_formats_simplified`
+WHERE `field` IN ('collection_datetime', 'creation_datetime', 'reception_datetime') 
+AND structure_alias NOT LIKE 'qry%'
+AND plugin LIKE 'InventoryManagement';
+
+SELECT * FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM structure_formats);
+
+
+
+
 
 
 
