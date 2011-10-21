@@ -2691,3 +2691,23 @@ UPDATE tx_controls SET tx_method='surgery without extension', databrowser_label=
 
 INSERT INTO external_links (name, link) VALUES
 ('diagnosis_module_wiki', 'http://www.ctrnet.ca/mediawiki/index.php/Use_the_diagnosis_section');
+
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'barcode' AND `model` = 'StorageMaster');
+
+DELETE FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='aliquot_control_id');
+DELETE FROM structure_fields WHERE `model`='ViewAliquot' AND `field`='aliquot_control_id';
+
+SET @structure_format_id = (SELECT id FROM structure_formats 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots_volume') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0')
+ORDER BY display_order ASC LIMIT 0,1);
+UPDATE structure_formats SET `flag_index`='0' WHERE id = @structure_format_id;
+
+
+
+
+
