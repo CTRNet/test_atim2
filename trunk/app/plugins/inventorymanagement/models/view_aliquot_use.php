@@ -84,7 +84,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::JOINS				=> array(
 											AliquotMaster::joinOnAliquotDup('OrderItem.aliquot_master_id'),
 											AliquotMaster::$join_aliquot_control_on_dup,
-											array('table' => 'sample_masters' ,'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id'))),
+											array('table' => 'sample_masters' ,'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id', 'OrderItem.shipment_id IS NOT NULL'))),
 				self::SOURCE_ID			=> 'CONCAT(OrderItem.id, 4)',
 				self::USE_DEFINITION	=> '"aliquot shipment"',
 				self::USE_CODE			=> 'Shipment.shipment_code',
