@@ -2743,23 +2743,3 @@ INSERT INTO i18n (id,en,fr) VALUES
 
 
 
-
-
-
-
-
-SELECT *
-FROM `view_structure_formats_simplified`
-WHERE `field` IN ('collection_datetime', 'creation_datetime', 'reception_datetime') 
-AND structure_alias NOT LIKE 'qry%'
-AND plugin LIKE 'InventoryManagement';
-
-SELECT * FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM structure_formats);
-
-
-
-
-
-
-
-
