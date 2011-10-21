@@ -2248,11 +2248,11 @@ class StructuresHelper extends Helper {
 		}else{
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('value' => $year, 'size' => 4, 'maxlength' => 4)))."<div>".__('year', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('type' => 'number', 'min' => 1900, 'max' => 2100,  'value' => $year, 'size' => 4, 'maxlength' => 4)))."<div>".__('year', true)."</div></span>";
 				}else if($part == "M"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('value' => $month, 'size' => 2, 'maxlength' => 2)))."<div>".__('month', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 12, 'value' => $month, 'size' => 2, 'maxlength' => 2)))."<div>".__('month', true)."</div></span>";
 				}else{
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('value' => $day, 'size' => 2, 'maxlength' => 2)))."<div>".__('day', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 31, 'value' => $day, 'size' => 2, 'maxlength' => 2)))."<div>".__('day', true)."</div></span>";
 				}
 			}
 		}
