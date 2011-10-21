@@ -2734,11 +2734,14 @@ INSERT INTO i18n (id,en,fr) VALUES
 'Time spent between the collection time and the initial specimen storage time at low temperature (minutes).', 
 'Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes).');
 
+UPDATE structure_formats SET `language_heading`='shipping data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipment_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='recipient data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='recipient' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-	
- 
- 
-
+INSERT INTO i18n (id,en,fr) VALUES 
+('shipping data','Shipping Data','Données d''expédition'),
+('recipient data','Recipient','Destinataire'),
+('select recipient','Select Recipient','Sélectionner le destinataire'),
+('save recipient','Save Recipient Data','Sauvegarder info destinataire');
 
 
 
