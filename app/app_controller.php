@@ -659,88 +659,10 @@ class AppController extends Controller {
 				exit;
 			}
 	
-			//check if the current model is a master/detail one or a similar view 
-			if(!$ignore_detail && (
-				($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) ||
-				$model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model'] 
-			)){
-				//determine if the results contain only one control id
-				$base_model = isset($model->base_model) ? $model->base_model : $model->name;
-				$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
-				$ctrl_ids = $model->find('all', array(
-					'fields'		=> array($model->name.'.'.$control_field), 
-					'conditions'	=> $_SESSION['ctrapp_core']['search'][$search_id]['criteria'],
-					'group'			=> array($model->name.'.'.$control_field),
-					'limit'			=> 2
-				));
-				if(count($ctrl_ids) == 1){
-					//only one ctrl, attach detail
-					$has_one = array();
-					$master_class_name = null;
-					if($view){
-						$master_class_name = str_replace('View', '', $model->name).'Master';
-						$has_one[$master_class_name] = array(
-							'className' => $master_class_name,
-							'foreignKey' => 'id'
-						);
-					}else{
-						$master_class_name = $model->name;
-					}
-					
-					extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
-					$ctrl_model = AppModel::getInstance('', $control_class, true);
-					$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
-					$ctrl_data = current($ctrl_data);
-					//put a new instance of the detail model in the cache
-					ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
-					new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
-					
-					//has one and win
-					$has_one[$detail_class] = array(
-						'className' => $detail_class,
-						'foreignKey' => $master_foreign
-					);
-					
-					if($master_class_name == 'SampleMaster'){
-						//join specimen/derivative details
-						if($ctrl_data['sample_category'] == 'specimen'){
-							$has_one['SpecimenDetail'] = array(
-								'className' => 'SpecimenDetail',
-								'foreignKey' => 'sample_master_id'
-							);
-						}else{
-							//derivative
-							$has_one['DerivativeDetail'] = array(
-								'className' => 'DerivativeDetail',
-								'foreignKey' => 'sample_master_id'
-							);
-						}
-					}
-					
-					//persistent bind
-					$model->bindModel(
-						array(
-							'hasOne' => $has_one,
-							'belongsTo' => array(
-								$control_class => array(
-									'className' => $control_class,
-									$control_field
-								)
-							)
-						), false
-					);
-					
-					//updating structure
-					if($pos = strpos($ctrl_data['form_alias'], ',') !== false){
-						$this->Structures->set($structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1));
-					}
-					
-					ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
-					
-				}else if(count($ctrl_ids) > 0){
-					//more than one
-					AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
-				}
+			//check if the current model is a master/detail one or a similar view
+			if(!$ignore_detail){
+				self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], $structure_alias);
+				$this->Structures->set($structure_alias);
 			}
 			
 			if($limit){
@@ -788,6 +710,92 @@ class AppController extends Controller {
 		if($this->RequestHandler->isAjax()) {
 			Configure::write ( 'debug', 0 );
 			$this->set ( 'is_ajax', true );
+		}
+	}
+	
+	/**
+	 * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
+	 * @param AppModel &$model
+	 * @param array $criteria Search criterias
+	 * @param string &$structure_alias
+	 */
+	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
+		if(($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
+			//determine if the results contain only one control id
+			$base_model = isset($model->base_model) ? $model->base_model : $model->name;
+			$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
+			$ctrl_ids = $model->find('all', array(
+				'fields'		=> array($model->name.'.'.$control_field), 
+				'conditions'	=> $criteria,
+				'group'			=> array($model->name.'.'.$control_field),
+				'limit'			=> 2
+			));
+			if(count($ctrl_ids) == 1){
+				//only one ctrl, attach detail
+				$has_one = array();
+				$master_class_name = null;
+				if($view){
+					$master_class_name = str_replace('View', '', $model->name).'Master';
+					$has_one[$master_class_name] = array(
+						'className' => $master_class_name,
+						'foreignKey' => 'id'
+					);
+				}else{
+					$master_class_name = $model->name;
+				}
+					
+				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
+				$ctrl_model = AppModel::getInstance('', $control_class, true);
+				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
+				$ctrl_data = current($ctrl_data);
+				//put a new instance of the detail model in the cache
+				ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
+				new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
+					
+				//has one and win
+				$has_one[$detail_class] = array(
+					'className' => $detail_class,
+					'foreignKey' => $master_foreign
+				);
+					
+				if($master_class_name == 'SampleMaster'){
+					//join specimen/derivative details
+					if($ctrl_data['sample_category'] == 'specimen'){
+						$has_one['SpecimenDetail'] = array(
+							'className' => 'SpecimenDetail',
+							'foreignKey' => 'sample_master_id'
+						);
+					}else{
+						//derivative
+						$has_one['DerivativeDetail'] = array(
+							'className' => 'DerivativeDetail',
+							'foreignKey' => 'sample_master_id'
+						);
+					}
+				}
+					
+				//persistent bind
+				$model->bindModel(array(
+					'hasOne' => $has_one,
+					'belongsTo' => array(
+						$control_class => array(
+							'className' => $control_class,
+							$control_field
+						)
+					)
+				), false);
+					
+				//updating structure
+				if(($pos = strpos($ctrl_data['form_alias'], ',')) !== false){
+					$structure_alias = $structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1);
+				}
+					
+				ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
+					
+			}else if(count($ctrl_ids) > 0){
+				//more than one
+				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
+			}
 		}
 	}
 	

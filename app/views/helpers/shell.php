@@ -98,7 +98,7 @@ class ShellHelper extends Helper {
 		}else{
 			$logged_in = false;
 		}
-		$return .= "<fieldset style='min-width: 100%; display: inline-block;'>";//the fieldset is present to manage the display for wide forms such as addgrids		
+		$return .= "<fieldset class='mainFieldset'>";//the fieldset is present to manage the display for wide forms such as addgrids		
 		$return .= '
 			<!-- start #header -->
 			<div id="header"><div>
