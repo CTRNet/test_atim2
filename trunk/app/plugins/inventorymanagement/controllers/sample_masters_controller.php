@@ -784,7 +784,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set url to redirect
 		if($url_to_cancel == null){
-			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+			$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
+			$url_to_cancel = isset($this->data['BatchSet']) ?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id'];
 		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		

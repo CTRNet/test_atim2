@@ -156,7 +156,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		$aliquot_control = $this->AliquotControl->findById($this->data[0]['realiquot_into']);
-		if(empty($aliquot_control)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(empty($aliquot_control)){
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
 		
 		$this->set('aliquot_control_id',$aliquot_control['AliquotControl']['id']);
 		
