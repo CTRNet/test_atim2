@@ -44,11 +44,11 @@ function deletePreset(id){
 function applyPreset(data){
 	if(data == "reset"){
 		//built-in reset
-		$("#tree_root").find("select").val("");
-		$("#tree_root").find("select").first().val(1);
+		$(".tree_root").find("select").val("");
+		$(".tree_root").find("select").first().val(1);
 	}else if(data == "readonly"){
 		//built-in readonly
-		$("#tree_root").find("select").each(function(){
+		$(".tree_root").find("select").each(function(){
 			var selectElement = this;
 			$($(this).parent().parent().children()[2]).each(function(){
 				var html = $(this).html();
@@ -67,19 +67,19 @@ function applyPreset(data){
 				}
 			});
 		});
-		$("#tree_root").find("select").first().val(1);
+		$(".tree_root").find("select").first().val(1);
 	}else{
 		//acos ids operations
 		data = $.parseJSON(data);
 		data.allow = data.allow.split(",");
 		data.deny = data.deny.split(",");
 
-		$("#tree_root").find("select").val("");
+		$(".tree_root").find("select").val("");
 		for(var i in data.allow){
-			$("#tree_root").find("select[name=data\\[" + data.allow[i] + "\\]\\[Aco\\]\\[state\\]]").val(1);
+			$(".tree_root").find("select[name=data\\[" + data.allow[i] + "\\]\\[Aco\\]\\[state\\]]").val(1);
 		}
 		for(var i in data.deny){
-			$("#tree_root").find("select[name=data\\[" + data.deny[i] + "\\]\\[Aco\\]\\[state\\]]").val(-1);
+			$(".tree_root").find("select[name=data\\[" + data.deny[i] + "\\]\\[Aco\\]\\[state\\]]").val(-1);
 		}
 	}
 	$("#loadPresetPopup").popup('close');
@@ -103,10 +103,10 @@ function savePresetPopup(){
 }
 
 function savePreset(){
-	$("#tree_root").find("a.submit").hide();
+	$(".tree_root").find("a.submit").hide();
 	var allow = new Array();
 	var deny = new Array();
-	$("#tree_root").find("select").each(function(){
+	$(".tree_root").find("select").each(function(){
 		if($(this).val() == 1){
 			allow.push($(this).attr("name").match("[0-9]+")[0]);
 		}else if($(this).val() == -1){
