@@ -2748,3 +2748,71 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('save recipient','Save Recipient Data','Enregistrer données du destinataire');
 
 DROP TABLE datamart_browsing_results_revs;
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'qry_%_search' OR alias like 'qry_%_results');
+DELETE FROM structures WHERE alias like 'qry_%_search' OR alias like 'qry_%_results';
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'basic_aliquot_search%');
+DELETE FROM structures WHERE alias like 'basic_aliquot_search%';
+
+UPDATE structure_formats 
+SET flag_index = '1'
+WHERE flag_index = '0' AND flag_search = '1'
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('shipments', 'specimens', 'derivatives'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model IN ('Shipment', 'SpecimenDetail','DerivativeDetail') 
+AND field IN ('facility','time_at_room_temp_mn', 'reception_by','shipped_by','shipping_account_nbr','creation_site','creation_by', 'supplier_dept', 'recipient'));
+
+UPDATE structure_formats 
+SET flag_index = '0',flag_search = '0'
+WHERE flag_index = '0' AND flag_search = '1'
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('sd_spe_tissues', 'familyhistories','participants'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model IN ('SampleDetail', 'FamilyHistory','Participant') 
+AND field IN ('pathology_reception_datetime', 'previous_primary_code_system','race'));
+
+UPDATE structure_formats 
+SET flag_index = '1'
+WHERE flag_index = '0' AND flag_search = '1'
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('aliquot_masters', 'participants', 'participantmessages'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model IN ('AliquotMaster', 'ParticipantMessage','Participant') 
+AND field IN ('sex','expiry_date', 'in_stock_detail'));
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id from structures WHERE alias = 'storagemasters');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='storage_code_help' AND `language_label`='storage code' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='' AND `field`='layout_description' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=60' AND `default`='' AND `language_help`='' AND `language_label`='storage layout description' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='barcode' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='barcode' AND `language_tag`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '8', '', '1', 'storage selection label', '0', '', '0', '', '0', '', '1', 'size=20,url=/storagelayout/storage_masters/autoComplete/', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='path' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='storage path' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '12', '', '1', 'parent storage', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_x' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='position into parent storage' AND `language_tag`=''), '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='storagemasters'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE storage_controls SET form_alias = 'storagemasters' WHERE form_alias LIKE '%std_undetail_stg_with_surr_tmp%';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id from structures WHERE alias = 'std_undetail_stg_with_surr_tmp');
+DELETE FROM structures WHERE alias = 'std_undetail_stg_with_surr_tmp';
+
+DELETE FROM structure_formats
+WHERE structure_id IN (SELECT id from structures WHERE alias != 'storagemasters')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE model IN ('StorageMaster', 'Generated', 'FunctionManagement') 
+AND field IN ('code', 'layout_description' ,'storage_control_id', 'barcode', 'short_label', 'selection_label', 'path', 
+'recorded_storage_selection_label', 'parent_storage_coord_x', 'parent_storage_coord_y', 'notes'));
+
+UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='std_undetail_stg_with_tmp') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code') AND `flag_confidential`='0');
+
+UPDATE structures SET alias = 'storage_temperature' WHERE alias = 'std_undetail_stg_with_tmp';
+
+UPDATE storage_controls SET form_alias = 'storagemasters,storage_temperature' WHERE form_alias = 'std_undetail_stg_with_tmp';
+
+DELETE FROM structure_formats 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `field` IN ('temperature', 'temp_unit'))
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('std_tma_blocks', 'std_incubators', 'std_rooms')) ;
+
+UPDATE storage_controls SET form_alias = 'storagemasters,storage_temperature,std_incubators' WHERE form_alias = 'std_incubators';
+UPDATE storage_controls SET form_alias = 'storagemasters,storage_temperature,std_rooms' WHERE form_alias = 'std_rooms';
+
