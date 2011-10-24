@@ -33,6 +33,19 @@ class StorageMaster extends StoragelayoutAppModel {
 		return $return;
 	}
 	
+	private function insideItself(){
+		$parent_id = $this->data['StorageMaster']['parent_id'];
+		while(!empty($parent_id)){
+			$parent = $this->find('first', array('conditions' => array('StorageMaster.id' => $parent_id)));
+			assert(!empty($parent));
+			if($parent['StorageMaster']['id'] == $this->data['StorageMaster']['id']){
+				return true;
+			}
+			$parent_id = $parent['StorageMaster']['parent_id'];
+		}
+		return false;
+	}
+	
 	function validates($options = array()){
 		pr('WARNING!!: storage data can be updated into StorageMaster->validates() function: be sure to reset data into controller using $this->StorageMaster->data!');
 
@@ -47,9 +60,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		// Update storage data
 		$this->data['StorageMaster']['parent_id'] = isset($parent_storage_data['StorageMaster']['id'])? $parent_storage_data['StorageMaster']['id'] : null;
 		
-		if(array_key_exists('id', $this->data['StorageMaster']) && (!empty($parent_storage_data))
-			&& ($this->find('count', array('conditions' => array('StorageMaster.id' => $this->data['StorageMaster']['id'], 'StorageMaster.lft <= '.$parent_storage_data['StorageMaster']['lft'], 'StorageMaster.rght >= '.$parent_storage_data['StorageMaster']['rght']), 'recursive' => -1)))
-		){
+		if(array_key_exists('id', $this->data['StorageMaster']) && $this->insideItself()){
 			$this->validationErrors['recorded_storage_selection_label'] = 'you can not store your storage inside itself';
 
 		} else if(!empty($parent_storage_data) && ($parent_storage_data['StorageControl']['is_tma_block'])) {
@@ -585,7 +596,8 @@ class StorageMaster extends StoragelayoutAppModel {
 				$storage_data_to_update = array();
 				$storage_data_to_update['StorageMaster']['selection_label'] = $this->createSelectionLabel($new_children_to_update, $parent_storage_data);
 	
-				$this->id = $studied_children_id;					
+				$this->id = $studied_children_id;
+				$this->data = null;
 				if(!$this->save($storage_data_to_update, false)) { 
 					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}		
