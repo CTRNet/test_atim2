@@ -306,14 +306,14 @@ class BrowserController extends DatamartAppController {
 			$this->set('top', "/datamart/browser/browse/".$node_id."/");
 			$this->set('node_id', $node_id);
 			$this->set('type', "checklist");
-			$this->set('checklist_key', $this->Browser->checklist_model_name_to_search.".".$this->Browser->checklist_use_key);
+			$this->set('checklist_key', $this->Browser->checklist_model->name.".".$this->Browser->checklist_use_key);
 			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
 			
 			$dropdown_options = $this->Browser->getDropdownOptions(
 				$browsing['DatamartStructure']['id'], 
 				$node_id, 
 				$browsing['DatamartStructure']['plugin'], 
-				$this->Browser->checklist_model_name_to_search,
+				$this->Browser->checklist_model->name,
 				$browsing['DatamartStructure']['model'],
 				$this->Browser->checklist_use_key,
 				$browsing['DatamartStructure']['use_key'], 
@@ -339,13 +339,13 @@ class BrowserController extends DatamartAppController {
 			$this->set("dropdown_options", $dropdown_options);
 			$this->Structures->set("datamart_browser_start");
 			
-			if($this->Browser->checklist_model_name_to_search != $browsing['DatamartStructure']['model']){
+			if($this->Browser->checklist_model->name != $browsing['DatamartStructure']['model']){
 				$browsing['DatamartStructure']['index_link'] = str_replace(
 					$browsing['DatamartStructure']['model'], 
-					$this->Browser->checklist_model_name_to_search,
+					$this->Browser->checklist_model->name,
 					str_replace(
 						$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'], 
-						$this->Browser->checklist_model_name_to_search.".".$this->Browser->checklist_use_key, 
+						$this->Browser->checklist_model->name.".".$this->Browser->checklist_use_key, 
 						$browsing['DatamartStructure']['index_link']
 					)
 				);

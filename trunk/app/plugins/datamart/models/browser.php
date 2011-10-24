@@ -3,7 +3,7 @@ class Browser extends DatamartAppModel {
 	var $useTable = false;
 	
 	public $checklist_header = array();
-	public $checklist_model_name_to_search = null;
+	public $checklist_model = null;
 	public $checklist_use_key = null;
 	public $checklist_sub_models_id_filter = null;
 	public $result_structure = null;
@@ -993,7 +993,6 @@ class Browser extends DatamartAppModel {
 			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);
 			$ids = explode(",", $current_browsing['BrowsingResult']['id_csv']);
 			$ids[] = 0;
-			$use_key = null;
 			
 			$control_id = empty($current_browsing['DatamartStructure']['control_master_model']) ? false : $current_model->find('all', array(
 				'fields' => array($current_browsing['DatamartStructure']['control_field']),
@@ -1003,38 +1002,40 @@ class Browser extends DatamartAppModel {
 			
 			$structure = null;
 			$header_sub_type = " ";
+			$structure = $structures_component->getFormById($current_browsing['DatamartStructure']['structure_id']);
 			if($control_id && count($control_id) == 1){
 				//we can use the specific structure
-				$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_master_model'], true);
-				$use_key = 'id';
 				
 				//load the structure
+				$control_id = $control_id[0][$current_browsing['DatamartStructure']['model']][$current_browsing['DatamartStructure']['control_field']]; 
 				$control_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_model'], true);
 				$control_model_data = $control_model->find('first', array(
 					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'), 
-					'conditions' => array($current_browsing['DatamartStructure']['control_model'].".id" => $control_id[0][$current_browsing['DatamartStructure']['model']][$current_browsing['DatamartStructure']['control_field']]))
+					'conditions' => array($current_browsing['DatamartStructure']['control_model'].".id" => $control_id))
 				);
-				$structure = $structures_component->get('form', $control_model_data[$current_browsing['DatamartStructure']['control_model']]['form_alias']);
+				
 				$header_sub_type = " > ".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
 				
-				if($this->checklist_model_name_to_search == null){
-					$this->checklist_model_name_to_search = $current_browsing['DatamartStructure']['control_master_model'];
-					$this->checklist_use_key = $use_key;
-					$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
-				}
-			}else{
-				//must use the generic structure (or its empty...)
-				$use_key = $current_browsing['DatamartStructure']['use_key'];
-				$structure = $structures_component->getFormById($current_browsing['DatamartStructure']['structure_id']);
-				if($this->checklist_model_name_to_search == null){
-					$this->checklist_model_name_to_search = $current_browsing['DatamartStructure']['model'];
-					$this->checklist_use_key = $use_key;
-					$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
-				}
+				//init base model
+				AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_master_model'], true);
+				$structure_alias = $structure['Structure']['alias'];
+				AppController::buildDetailBinding(
+					$current_model, 
+					array($current_model->name.'.'.$current_browsing['DatamartStructure']['control_field'] => $control_id), 
+					&$structure_alias
+				);
 				
-				if(!empty($current_browsing['DatamartStructure']['control_master_model'])){
-					AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
-				}
+				$structure = $structures_component->get('form', $structure_alias);
+
+			}else if(!empty($current_browsing['DatamartStructure']['control_master_model'])){
+				//must use the generic structure (or its empty...)
+				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
+			}
+			
+			if($this->checklist_model == null){
+				$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
+				$this->checklist_use_key = $current_browsing['DatamartStructure']['use_key'];
+				$this->checklist_model = $current_model;
 			}
 
 			//structure merge, add 100 * iteration count to display column
@@ -1060,13 +1061,13 @@ class Browser extends DatamartAppModel {
 			}
 			
 			//update header
-			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$use_key => $ids)));
+			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$current_browsing['DatamartStructure']['use_key'] => $ids)));
 			$header[] = __($current_browsing['DatamartStructure']['display_name'], true).$header_sub_type."(".$count.")";
 			$this->nodes[] = array(
 				self::NODE_ID => $node, 
 				self::IDS => $ids, 
 				self::MODEL => $current_model, 
-				self::USE_KEY => $use_key,
+				self::USE_KEY => $current_browsing['DatamartStructure']['use_key'],
 				self::ANCESTOR_IS_CHILD => $ancestor_is_child,
 				self::JOIN_FIELD => $join_field
 			);
@@ -1077,7 +1078,7 @@ class Browser extends DatamartAppModel {
 		
 		//prepare buffer conditions
 		$this->buildBufferedSearchParameters($primary_node_ids);
-
+		
 		$this->count = $this->nodes[0][self::MODEL]->find('count', array('joins' => $this->search_parameters['joins'], 'conditions' => $this->search_parameters['conditions'], 'recursive' => 0));
 		$this->checklist_header = implode(" - ", $header); 
 		$this->result_structure = $result_structure;
