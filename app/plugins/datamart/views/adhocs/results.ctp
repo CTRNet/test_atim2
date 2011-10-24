@@ -4,7 +4,7 @@
 		$structure_links = array(
 			'top'=>'/datamart/adhocs/process',
 			'checklist' => array(
-				$data_for_detail['Adhoc']['model'].'.id]['=>'%%'.$data_for_detail['Adhoc']['model'].'.id'.'%%'
+				$checklist_key.'][' => '%%'.$data_for_detail['Adhoc']['model'].'.id'.'%%'
 			)
 		);
 		
