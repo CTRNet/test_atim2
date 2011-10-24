@@ -709,8 +709,8 @@ class StorageMaster extends StoragelayoutAppModel {
 				//this is is a cell
 				if($rcv_data[$type][$init_data_id]['x'] == 't'){
 					//trash
-					$init_data_unit[$type][$x_key] = null;
-					$init_data_unit[$type][$y_key] = null;
+					$init_data_unit[$type][$x_key] = '';
+					$init_data_unit[$type][$y_key] = '';
 					$init_data_unit[$type][$storage_parent_key] = null;
 					
 					if($type == "StorageMaster") {
@@ -728,6 +728,7 @@ class StorageMaster extends StoragelayoutAppModel {
 					//unclassified
 					$init_data_unit[$type][$x_key] = '';
 					$init_data_unit[$type][$y_key] = '';
+					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
 					
 				}else{
 					//positioned
