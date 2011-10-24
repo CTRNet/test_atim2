@@ -124,12 +124,12 @@ class StorageMaster extends StoragelayoutAppModel {
 			}
 		}	
 			
-		$this->IsDuplicatedStorageBarCode($this->data);		
+		$this->isDuplicatedStorageBarCode($this->data);		
 		parent::validates($options);
 		return empty($this->validationErrors);
 	}
 	
-	function IsDuplicatedStorageBarCode($storage_data) {
+	function isDuplicatedStorageBarCode($storage_data) {
 		if(empty($storage_data['StorageMaster']['barcode'])) {
 			return false;
 		}
@@ -709,7 +709,6 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * @param storage_control
 	 */
 	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, $storage_control){
-		//for($i = count($data_array) - 1; $i >= 0; -- $i){
 		foreach($data_array as &$init_data_unit){
 			$init_data_id = $init_data_unit[$type]['id'];
 			if(($init_data_unit[$type][$x_key] != $rcv_data[$type][$init_data_id]['x'] && !(in_array($rcv_data[$type][$init_data_id]['x'], array('u', 't')) && $init_data_unit[$type][$x_key] == ''))  
@@ -725,7 +724,7 @@ class StorageMaster extends StoragelayoutAppModel {
 					$init_data_unit[$type][$y_key] = '';
 					$init_data_unit[$type][$storage_parent_key] = null;
 					
-					if($type == "StorageMaster") {
+					if($type == "StorageMaster"){
 						// Set new selection label 
 						$init_data_unit[$type]['selection_label'] = $this->getSelectionLabel($init_data_unit);	
 						
@@ -747,6 +746,18 @@ class StorageMaster extends StoragelayoutAppModel {
 					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']); 
 					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
 					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
+				}
+				
+				if($type == "StorageMaster"){
+					//check if within itself
+					$this->data = $init_data_unit;
+					if($this->insideItself()){
+						$init_data_unit[$type][$x_key] = '';
+						$init_data_unit[$type][$y_key] = '';
+						$init_data_unit[$type][$storage_parent_key] = '';
+						$data = $this->findById($init_data_id);
+						AppController::addWarningMsg(sprintf(__('trying to put storage [%s] within itself failed', true), $this->getLabel($data, 'StorageMaster', 'selection_label')).' '.__('storage parent defined to none', true));
+					}
 				}
 				
 				//clean the array asap to gain efficiency
