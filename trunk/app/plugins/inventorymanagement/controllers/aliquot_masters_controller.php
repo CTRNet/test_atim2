@@ -92,8 +92,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}	
 		
 		// Set url to redirect
-		$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
-		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id'];
+		$url_to_cancel = 'javascript:history.back()';
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
@@ -684,7 +683,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(isset($this->data['BatchSet'])) {
 				$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
-				$url_to_cancel = '/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'];
+				$url_to_cancel = 'javascript:history.back()';
 			} else if(isset($this->data['node'])) {
 				$url_to_cancel = '/datamart/browser/browse/' . $this->data['node']['id'];
 			} else if(isset($this->data['url_to_cancel'])) {
@@ -1304,7 +1303,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$ids = array();
 		if(!empty($aliquot_id)){
 			$ids = array($aliquot_id);
-		}else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
+		}else{
 			if(isset($this->data['AliquotMaster'])) {
 				$ids = $this->data['AliquotMaster']['id'];
 			} else if(isset($this->data['ViewAliquot'])) {
@@ -1318,8 +1317,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				return;
 			}
 			$ids = array_filter($ids);	
-		} else {
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}		
 		$ids[] = 0;
 		
@@ -1335,13 +1332,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('aliquot_id', $aliquot_id);
 		
 		// Set url to redirect
-		$url_to_cancel = null;
-		if(!empty($aliquot_id)){		
-			$url_to_cancel = '/inventorymanagement/aliquot_masters/detail/' . $aliquots[0]['AliquotMaster']['collection_id'] . '/' . $aliquots[0]['AliquotMaster']['sample_master_id'] . '/' . $aliquots[0]['AliquotMaster']['id'] . '/';				
-		}else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
-			$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
-			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id'];
-		}
+		$url_to_cancel = 'javascript:history.back()';
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Check aliquot & sample types of the selected aliquots are identical
