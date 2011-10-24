@@ -1177,7 +1177,8 @@ class SampleMastersController extends InventorymanagementAppController {
 		if(!isset($this->data['ViewAliquot']['aliquot_master_id'])){
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		$this->set('url_to_cancel', isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id']);
+		$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
+		$this->set('url_to_cancel', isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id']);
 		
 		$aliquot_ids = array_filter($this->data['ViewAliquot']['aliquot_master_id']);
 		if(empty($aliquot_ids)){
