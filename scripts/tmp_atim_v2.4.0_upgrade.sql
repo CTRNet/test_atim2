@@ -2741,7 +2741,7 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('shipping data','Shipping Data','Données d''expédition'),
 ('recipient data','Recipient','Destinataire'),
 ('select recipient','Select Recipient','Sélectionner le destinataire'),
-('save recipient','Save Recipient Data','Sauvegarder info destinataire');
+('save recipient','Save Recipient Data','Enregistrer données du destinataire');
 
 
 
