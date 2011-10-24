@@ -139,8 +139,12 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("and %d more", "And %d more", "Et %d de plus"),
 ("surgery without extension", "Surgery without extension", "Chirurgie sans extension"),
 ("information about the diagnosis module is available %s here",
- "Information about the diagnosis module is available <a href='%s' target='blank'>here</a>",
- "L'information à propos du module de diagnostic est disponible <a href='%s' target='blank'>ici</a>");
+ "Information about the diagnosis module is available <a href='%s' target='blank'>here</a>.",
+ "L'information à propos du module de diagnostic est disponible <a href='%s' target='blank'>ici</a>. (Anglais)"),
+("trying to put storage [%s] within itself failed", 
+ "Trying to put storage [%s] within itself failed,
+ "La tentative de mettre l'entreposage [%s] à l'intérieur de lui-même a échouée."),
+("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun.");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -2743,6 +2747,4 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('select recipient','Select Recipient','Sélectionner le destinataire'),
 ('save recipient','Save Recipient Data','Enregistrer données du destinataire');
 
-
-
-
+DROP TABLE datamart_browsing_results_revs;
