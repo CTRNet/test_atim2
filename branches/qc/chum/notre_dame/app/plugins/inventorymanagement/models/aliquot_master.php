@@ -170,7 +170,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$current_volume = round(($initial_volume - $total_used_volume), 5);
 				if($current_volume < 0){
 					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume bellow 0", true);
+					$tmp_msg = __("the aliquot with barcode [%s] has reached a volume bellow 0", true);
 					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 				}
 			}
@@ -274,14 +274,14 @@ class AliquotMaster extends InventoryManagementAppModel {
 			// Check the aliquot storage definition
 			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
 			
-			$pursue = false;
+			$set_storage = false;
 			foreach(array('storage_data', 'storage_definition_error', 'position_x_error', 'position_y_error', 'change_position_x_to_uppercase', 'change_position_y_to_uppercase') as $key){
 				if(!empty($arr_storage_selection_results[$key])){
-					$pursue = true;
+					$set_storage = true;
 				}
 			}
 			
-			if($pursue){
+			if($set_storage){
 				// Update aliquot data
 				$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
 				if($arr_storage_selection_results['change_position_x_to_uppercase']){
@@ -336,6 +336,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 						}
 					}
 				}
+			}else{
+				$aliquot_data['AliquotMaster']['storage_master_id'] = null;
 			}
 
 		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_x'])) 

@@ -254,3 +254,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE collections SET collection_datetime_accuracy='' WHERE collection_datetime_accuracy IS NULL;
 
 DELETE FROM structure_formats WHERE id IN(4270, 4269, 4265, 4273, 4266, 2792, 4267, 4268, 4271, 4272, 4275, 4277, 4280);
+
+UPDATE `structure_formats` SET flag_override_setting=0, `setting` =  '' WHERE  `structure_formats`.`id` IN(2463, 2447);
+UPDATE structure_fields SET settings='class=range file' WHERE id=588;
+

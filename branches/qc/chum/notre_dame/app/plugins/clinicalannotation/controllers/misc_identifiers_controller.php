@@ -174,19 +174,11 @@ class MiscIdentifiersController extends ClinicalannotationAppController {
 		
 		// MANAGE DATA
 		
-		$belongs_to_details = array(
-			'belongsTo' => array(
-				'MiscIdentifierControl' => array(
-					'className' => 'Clinicalannotation.MiscIdentifierControl',
-					'foreignKey' => 'misc_identifier_control_id')));
-
-		$this->MiscIdentifier->bindModel($belongs_to_details);						
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));
 		if($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
 			AppController::getInstance()->redirect("/pages/err_confidential");
 		}		
-		$this->MiscIdentifier->unbindModel(array('belongsTo' => array('MiscIdentifierControl')));
-
+		
 		if(empty($misc_identifier_data) || (!isset($misc_identifier_data['MiscIdentifierControl'])) || empty($misc_identifier_data['MiscIdentifierControl']['id'])) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		$is_incremented_identifier = (empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])? false: true);

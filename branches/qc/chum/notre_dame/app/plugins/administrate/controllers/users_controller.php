@@ -90,6 +90,12 @@ class UsersController extends AdministrateAppController {
 			$this->data['Group']['id'] = $group_id;
 			
 			$submitted_data_validates = true;
+			
+			if($user_id == $_SESSION['Auth']['User']['id'] && !$this->data['User']['flag_active']){
+				unset($this->data['User']['flag_active']);
+				AppController::addWarningMsg(__('you cannot deactivate yourself', true));
+			}
+			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
