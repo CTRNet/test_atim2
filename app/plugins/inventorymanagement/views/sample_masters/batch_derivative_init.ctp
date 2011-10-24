@@ -3,7 +3,7 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'add', 
-		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('derivative type selection', true)),
+		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('derivative type selection', true), 'stretch' => false),
 		'links' => array(
 			'top' => ($skip_lab_book_selection_step? '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id : '/inventorymanagement/sample_masters/batchDerivativeInit2/'.$aliquot_master_id),
 			'bottom' => array('cancel' => $url_to_cancel)),
