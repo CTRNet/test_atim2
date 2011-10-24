@@ -45,6 +45,7 @@ class Adhoc extends DatamartAppModel {
 			
 		if ( isset($variables['Adhoc.id']) && (!empty($variables['Adhoc.id'])) ) {
 			$adhoc_data = $this->find('first', array('conditions'=>array('Adhoc.id' => $variables['Adhoc.id']), 'recursive' => '-1'));
+			if(isset($adhoc_data['Adhoc']['description'])) $adhoc_data['Adhoc']['description'] = __($adhoc_data['Adhoc']['description'], true);
 			
 			if(!empty($adhoc_data)) {
 				$return['menu'] = array(__($adhoc_data['Adhoc']['title'], true));
