@@ -162,7 +162,14 @@ class OrderItemsController extends OrderAppController {
 		$url_to_redirect = '/menus';
 		$launch_save_process = false;
 		
-		if(empty($this->data) || isset($this->data['BatchSet']) || isset($this->data['node'])) {
+			
+		if(isset($this->data['0']['aliquot_ids_to_add'])){
+		// A - User just clicked on submit button
+			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
+			$url_to_redirect = $this->data['0']['url_to_cancel'];
+			$launch_save_process = true;
+
+		}else{
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -180,11 +187,11 @@ class OrderItemsController extends OrderAppController {
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
 				
 					
-			} else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
+			} else {
 				// Add aliquots from batchset
 						
 				// Build redirect url
-				$url_to_redirect = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+				$url_to_redirect = 'javascript:history.back()';
 			
 				$studied_aliquot_master_ids = array();
 				if(isset($this->data['AliquotMaster'])) {
@@ -214,8 +221,6 @@ class OrderItemsController extends OrderAppController {
 					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				
-			} else {
-				$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 			}
 			
 			// A.2- Validate submitted aliquot ids
@@ -249,16 +254,6 @@ class OrderItemsController extends OrderAppController {
 				$aliquot_ids_to_add = $studied_aliquot_master_ids;
 			}	
 					
-		} else {
-			
-			// B- User just clicked on submit button
-			
-			if(!isset($this->data['0']['aliquot_ids_to_add']) || !isset($this->data['0']['url_to_cancel'])) { 
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}
-			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
-			$url_to_redirect = $this->data['0']['url_to_cancel'];
-			$launch_save_process = true;
 		}
 		
 		// MANAGE DATA
