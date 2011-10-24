@@ -92,7 +92,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}	
 		
 		// Set url to redirect
-		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+		$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
+		$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id'];
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
@@ -682,6 +683,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} 
 			
 			if(isset($this->data['BatchSet'])) {
+				$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
 				$url_to_cancel = '/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'];
 			} else if(isset($this->data['node'])) {
 				$url_to_cancel = '/datamart/browser/browse/' . $this->data['node']['id'];
@@ -1337,7 +1339,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(!empty($aliquot_id)){		
 			$url_to_cancel = '/inventorymanagement/aliquot_masters/detail/' . $aliquots[0]['AliquotMaster']['collection_id'] . '/' . $aliquots[0]['AliquotMaster']['sample_master_id'] . '/' . $aliquots[0]['AliquotMaster']['id'] . '/';				
 		}else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
-			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+			$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
+			$url_to_cancel = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $id : '/datamart/browser/browse/' . $this->data['node']['id'];
 		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		
@@ -1965,7 +1968,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->flash($msg, $url_to_cancel);
 					return;
 				} else {
-					$this->AliquotMaster->validationErrors[] = $msg;
+					AppController::addWarningMsg($msg);
 				}
 			}
 			
