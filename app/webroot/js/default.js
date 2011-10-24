@@ -903,7 +903,7 @@ function initActions(){
 		});
 		
 		//focus on first field
-		$("input, select, textarea").first().focus();
+		$("input:visible, select:visible, textarea:visible").first().focus();
 		
 		//on login page, displays a warning if the server is more than ~2 min late compared to the client
 		if(window.loginPage != undefined){
