@@ -2904,8 +2904,6 @@ SET FOREIGN_KEY_CHECKS=1;
 -- CUSTOM QUERY EXAMPLE
 -- -------------------------------------------------------------------
 
-DELETE FROM datamart_adhoc_permissions WHERE datamart_adhoc_id  = (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_1_Demo');
-DELETE FROM datamart_adhoc WHERE title = 'QR_AQ_1_Demo';
 INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
 (null, 'QR_AQ_1_Demo', 'QR_AQ_1_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'QR_AQ_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
  'SELECT 
@@ -2960,3 +2958,178 @@ INSERT INTO i18n (id, en, fr) VALUES
 ('QR_AQ_1_Demo_Description',
  'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)',
  'Search based on Participant + Aliquots criteria & Display Participant + Aliquots data<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe'', <b>form_alias_for_results</b> = ''QR_AQ_complexe'', <b>flag_use_control_for_results</b> = 1)');
+
+-- Ex 2:
+ 
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
+(null, 'QR_AQ_2_Demo', 'QR_AQ_2_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe', 'aliquot_masters_for_collection_tree_view', 'aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/', 
+ 'SELECT 
+AliquotMaster.id,
+AliquotMaster.sample_master_id,
+AliquotMaster.collection_id,
+Participant.id,
+Participant.participant_identifier,
+Participant.sex,
+AliquotMaster.barcode,
+AliquotMaster.aliquot_label,
+SampleControl.sample_type,
+AliquotControl.aliquot_type,
+AliquotDetail.block_type,
+AliquotMaster.in_stock,
+AliquotMaster.storage_coord_x,
+AliquotMaster.storage_coord_y,
+StorageMaster.selection_label,
+StorageMaster.temperature,
+StorageMaster.temp_unit
+FROM participants AS Participant
+INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
+INNER JOIN collections AS Collection ON Collection.id = link.collection_id
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id
+INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id 
+INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id
+INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id 
+LEFT JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+LEFT JOIN ad_blocks AS AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id 
+WHERE TRUE
+AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
+AND Participant.sex = "@@Participant.sex@@" 
+AND SampleCpontrol.sample_type = "@@SampleControl.sample_type@@" 
+AND AliquotControl.aliquot_type = "@@AliquotControl.aliquot_type@@"  
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@"
+ORDER BY Participant.participant_identifier;', '');
+
+INSERT INTO datamart_adhoc_permissions (group_id,datamart_adhoc_id) VALUES ('1', (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_2_Demo'));
+
+-- Ex 3:
+ 
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
+(null, 'QR_AQ_3_Demo', 'QR_AQ_3_Demo_Description', 'Inventorymanagement', 'AliquotMaster', 'QR_AQ_complexe_3', 'QR_AQ_complexe_3', 'storage detail=>/storagelayout/storage_masters/detail/%%StorageMaster.id%%/|aliquot detail=>/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%/', 
+'SELECT 
+Collection.id,
+SampleMaster.id,
+AliquotMaster.id,
+StorageMaster.id, 
+Collection.acquisition_label,
+AliquotMaster.barcode, 
+Collection.bank_id, 
+SampleControl.sample_type, 
+AliquotControl.aliquot_type, 
+AliquotMaster.aliquot_label,
+AliquotMaster.in_stock,
+AliquotMaster.storage_datetime, 
+StorageMaster.short_label, 
+StorageMaster.selection_label, 
+AliquotMaster.storage_coord_x, 
+AliquotMaster.storage_coord_y, 
+StorageMaster.temperature, 
+StorageMaster.temp_unit 
+FROM collections AS Collection 
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id
+INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id  
+INNER JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id
+INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id 
+INNER JOIN storage_masters AS StorageMaster ON AliquotMaster.storage_master_id = StorageMaster.id 
+WHERE TRUE
+AND Collection.acquisition_label = "@@Collection.acquisition_label@@"
+AND AliquotMaster.barcode = "@@AliquotMaster.barcode@@" 
+AND Collection.bank_id = "@@Collection.bank_id@@"
+AND SampleControl.sample_type = "@@SampleControl.sample_type@@" 
+AND AliquotMaster.aliquot_control_id IN (SELECT id FROM aliquot_controls WHERE aliquot_type = "tube")
+AND AliquotMaster.in_stock = "@@AliquotMaster.in_stock@@" 
+AND AliquotMaster.storage_datetime >= "@@AliquotMaster.storage_datetime_start@@" 
+AND AliquotMaster.storage_datetime <= "@@AliquotMaster.storage_datetime_end@@" 
+AND (StorageMaster.short_label = "@@StorageMaster.short_label@@"
+AND (StorageMaster.short_label >= "@@StorageMaster.short_label_start@@" 
+AND StorageMaster.short_label <= "@@StorageMaster.short_label_end@@"))
+AND StorageMaster.temperature >= "@@StorageMaster.temperature_start@@" 
+AND StorageMaster.temperature <= "@@StorageMaster.temperature_end@@" 
+AND StorageMaster.temp_unit = "@@StorageMaster.temp_unit@@" 
+ORDER BY AliquotMaster.barcode;', '');
+
+INSERT INTO datamart_adhoc_permissions (group_id,datamart_adhoc_id) VALUES ('1', (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_3_Demo'));
+
+INSERT INTO structures(`alias`) VALUES ('QR_AQ_complexe_3');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'barcode', 'input',  NULL , '0', 'tool=csv', '', '', 'barcode', ''), 
+('Inventorymanagement', 'AliquotMaster', 'aliquot_masters', 'aliquot_label', 'input',  NULL , '0', 'tool=csv', '', '', 'aliquot label', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='tool=csv' AND `default`='' AND `language_help`='' AND `language_label`='barcode' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='SampleControl' AND `field`='sample_type' AND `type`='select'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `field`='aliquot_type' AND `type`='select'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='yes - available' AND `language_help`='aliquot_in_stock_help' AND `language_label`='aliquot in stock' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='initial storage date' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='short_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '1', 'class=range', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='position into storage' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='storage temperature' AND `language_tag`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_collection_bank_defintion' AND `language_label`='collection bank' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='inv_acquisition_label_defintion' AND `language_label`='acquisition_label' AND `language_tag`=''), '0', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_AQ_complexe_3'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='tool=csv' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+ 
+INSERT INTO i18n (id, en, fr) VALUES 
+('QR_AQ_3_Demo_Description',
+ 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search Stored Sample Tube (using many fields having different type)<br/> (<b>model</b> = ''AliquotMaster'', <b>form_alias_for_search</b> = ''QR_AQ_complexe_3'', <b>form_alias_for_results</b> = ''QR_AQ_complexe_3'', <b>flag_use_control_for_results</b> = 1)');
+ 
+-- Ex 4:
+ 
+DELETE FROM datamart_adhoc_permissions WHERE datamart_adhoc_id  = (SELECT id FROM datamart_adhoc WHERE title = 'QR_AQ_3_Demo');
+DELETE FROM datamart_adhoc WHERE title = 'QR_AQ_3_Demo';
+
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
+(null, 'QR_SM_4_Demo', 'QR_SM_4_Demo_Description', 'Inventorymanagement', 'SampleMaster', 'QR_SM_complexe', 'QR_SM_complexe', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/|sample detail=>/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/', 
+ 'SELECT 
+SampleMaster.id,
+SampleMaster.collection_id,
+Participant.id,
+Participant.participant_identifier,
+Participant.sex,
+SampleControl.sample_type,
+SampleMaster.sample_code
+FROM participants AS Participant
+INNER JOIN clinical_collection_links AS link ON link.participant_id = Participant.id
+INNER JOIN collections AS Collection ON Collection.id = link.collection_id
+INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id
+INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+WHERE TRUE
+AND Participant.participant_identifier = "@@Participant.participant_identifier@@" 
+AND Participant.sex = "@@Participant.sex@@" 
+AND SampleControl.sample_type = "@@SampleControl.sample_type@@"
+ORDER BY Participant.participant_identifier;', '');
+
+INSERT INTO datamart_adhoc_permissions (group_id,datamart_adhoc_id) VALUES ('1', (SELECT id FROM datamart_adhoc WHERE title = 'QR_SM_4_Demo'));
+
+INSERT INTO structures(`alias`) VALUES ('QR_SM_complexe');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='help_participant identifier' AND `language_label`='participant identifier' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sex')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_sex' AND `language_label`='sex' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), (SELECT id FROM structure_fields WHERE `model`='SampleControl' AND `field`='sample_type' AND `type`='select'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='QR_SM_complexe'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `type`='input'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO i18n (id, en, fr) VALUES  
+ ('QR_SM_4_Demo_Description',
+ 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_control_for_results</b> = 1)',
+ 'Search based on Participant + Samples criteria & Display Participant + Samples data<br/> (<b>model</b> = ''SampleMaster'', <b>form_alias_for_search</b> = ''QR_SM_complexe'', <b>form_alias_for_results</b> = ''QR_SM_complexe'', <b>flag_use_control_for_results</b> = 1)');
+ 
+-- Ex 5:
+ 
+INSERT INTO `datamart_adhoc` (`id`, `title`, `description`, `plugin`, `model`, `form_alias_for_search`, `form_alias_for_results`, `form_links_for_results`, `sql_query_for_results`, `function_for_results`) VALUES
+(null, 'QR_PART_5_Demo', 'QR_PART_5_Demo_Description', 'Clinicalannotation', 'Participant', 'participants', 'participants', 'participant detail=>/clinicalannotation/participants/profile/%%Participant.id%%/', 
+'', 'demoFuncParticipant');
+
+INSERT INTO datamart_adhoc_permissions (group_id,datamart_adhoc_id) VALUES ('1', (SELECT id FROM datamart_adhoc WHERE title = 'QR_PART_5_Demo'));
+
+INSERT INTO i18n (id, en, fr) VALUES  
+('QR_PART_5_Demo_Description',
+ 'Straight participants search using a function instead of a query',
+ 'Straight participants search using a function instead of a query');
+ 
+DELETE FROM datamart_adhoc_permissions WHERE datamart_adhoc_id = (SELECT id FROM datamart_adhoc WHERE title = 'QR_PART_5_Demo');
+
+
+
+
