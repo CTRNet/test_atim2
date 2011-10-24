@@ -74,7 +74,6 @@ table {
 body {
 	margin: 0;
 	padding: 0;
-	background-color: #f2f2ff;
 	font: 11px/1.2em "Lucida Grande", Futura, Helvetica, Arial, Verdana, sans-serif;
 }
 
@@ -91,6 +90,12 @@ div.outerWrapper div.wrapper {
 
 div.outerWrapper{
 	min-height: 300px;
+}
+
+fieldset.mainFieldset{
+	min-width: 100%; 
+	display: inline-block;
+	background-color: #f2f2ff;
 }
 
 #header {
@@ -1556,14 +1561,6 @@ div.wrapper table.structure td .databrowser td, div.table div {
 
 div.wrapper table.structure td .databrowser td .info td{
 	width: auto;
-}
-
-.databrowser td div{
-/*	position: relative;
-	width: 26px;
-	height: 20px;
-	background-position: center;
-	background-repeat: no-repeat;*/
 }
 
 .databrowser img {
