@@ -16,9 +16,9 @@ class AliquotMasterCustom extends AliquotMaster {
 			}
 			$return = array(
 					'menu'	        	=> array(null, $result['AliquotMaster']['aliquot_label']),
-					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['aliquot_label']),
 					'data'				=> $result,
-					'structure alias'	=> 'aliquotmasters'
+					'structure alias'	=> 'aliquot_masters'
 			);
 		}
 		
@@ -68,20 +68,21 @@ class AliquotMasterCustom extends AliquotMaster {
 				if(empty($prefix)) $prefix = 'VC';
 			case 'dna':
 			case 'rna':
+				$space = empty($prefix)? '': ' ';
 				if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'ascite') {
-					$prefix .= ' ASC';
+					$prefix .= $space.'ASC';
 				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'blood') {
-					$prefix .= ' Sang';
+					$prefix .= $space.'Sang';
 				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'peritoneal wash') {
-					$prefix .= ' PW';
+					$prefix .= $space.'PW';
 				} else {
 					//tissue
 					if($view_sample['ViewSample']['initial_specimen_sample_type'] != 'tissue') AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					
 					if(!isset($this->SampleMaster)) $this->SampleMaster = AppModel::atimNew('Inventorymanagement', 'SampleMaster', true);
-					$tissue_detail = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
+					$tissue_detail = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['initial_specimen_sample_id']), 'recursive' => '0'));
 					if(empty($tissue_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-					$prefix .= ' '.$tissue_detail['SampleDetail']['chuq_tissue_code'];					
+					$prefix .= $space.$tissue_detail['SampleDetail']['chuq_tissue_code'];					
 				}
 				break;
 				
