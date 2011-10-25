@@ -50,11 +50,10 @@ function initCopyControl(){
 function copyLine(line){
 	copyBuffer = new Object();
 	$(line).find("input:not([type=hidden], .pasteDisabled), select:not(.pasteDisabled), textarea:not(.pasteDisabled), input.accuracy").each(function(){
-		var nameArray = $(this).attr("name").split("][");
+		var nameArray = $(this).prop("name").split("][");
 		var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-		if($(this).attr("type") == "checkbox"){
-			name += $(this).val();
-			copyBuffer[name] = $(this).attr("checked");
+		if($(this).prop("type") == "checkbox"){
+			copyBuffer[name] = $(this).prop("checked");
 		}else{
 			copyBuffer[name] = $(this).val();
 		}
@@ -68,13 +67,12 @@ function copyLine(line){
  */
 function pasteLine(line){
 	$(line).find("input:not([type=hidden]), select, textarea").each(function(){
-		if(!$(this).attr("readonly") && !$(this).attr("disabled")){
-			var nameArray = $(this).attr("name").split("][");
+		if(!$(this).prop("readonly") && !$(this).prop("disabled")){
+			var nameArray = $(this).prop("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
-			if($(this).attr("type") == "checkbox"){
-				name += $(this).val(); 
+			if($(this).prop("type") == "checkbox"){
 				if(copyBuffer[name] != undefined){
-					$(this).attr("checked", copyBuffer[name]);
+					$(this).prop("checked", copyBuffer[name]);
 				}
 			}else if(copyBuffer[name] != undefined){
 				$(this).val(copyBuffer[name]);
@@ -99,7 +97,7 @@ function pasteLine(line){
  */
 function enableCopyCtrl(){
 	$(":hidden").each(function(){
-		if($(this).attr("name") != undefined && $(this).attr("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
+		if($(this).prop("name") != undefined && $(this).prop("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
 			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='form paste' title='" + STR_PASTE + "'></a></span>");
 			bindCopyCtrl($(this).parent());
 			$(this).remove();
