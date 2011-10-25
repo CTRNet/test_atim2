@@ -2830,4 +2830,8 @@ VALUES
 
 INSERT INTO i18n (id,en,fr) VALUES ('shipments', 'Shipments', 'Envois'), ('order items', 'Order Items', 'Articles de Commande');
 
+UPDATE datamart_structures SET index_link = '/order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/' WHERE display_name = 'shipments';
+UPDATE datamart_structures SET index_link = '/order/order_items/listall/%%OrderLine.order_id%%/%%OrderLine.id%%/' WHERE display_name = 'order items';
+
+
 
