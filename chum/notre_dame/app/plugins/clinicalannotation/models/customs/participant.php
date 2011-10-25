@@ -34,6 +34,7 @@ class ParticipantCustom extends Participant {
 				$title = implode(" ", $temp_array);
 			}else{
 				$result = $this->findById($variables['Participant.id']);
+				$result[0]['identifiers'] = '';
 				$title = __('n/a', true);
 			}
 			
