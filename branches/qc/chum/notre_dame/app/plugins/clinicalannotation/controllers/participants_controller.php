@@ -24,63 +24,46 @@ class ParticipantsController extends ClinicalannotationAppController {
 		'Participant'=>array('limit'=>pagination_amount,'order'=>'Participant.last_name ASC, Participant.first_name ASC'),
 		'MiscIdentifier'=>array('limit'=>pagination_amount,'order'=>'MiscIdentifierControl.misc_identifier_name ASC')); 
 	
-	function index() {
-		$_SESSION['ctrapp_core']['search'] = NULL; // clear SEARCH criteria
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }	
-	}
-	
-	function search() {
-		// if SEARCH form data, parse and create conditions
-		if ( $this->data ) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions();
-		
-		// MANAGE DATA
-		$this->data = $this->paginate($this->Participant, $_SESSION['ctrapp_core']['search']['criteria']);
-
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );		
-				
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Participant']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/clinicalannotation/participants/search';
+	function search($search_id = ''){
+		$this->searchHandler($search_id, $this->Participant, 'participants', '/clinicalannotation/participants/search');
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }	
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		if(empty($search_id)){
+			//index
+			$this->render('index');
+		}
 	}
 
-	function profile( $participant_id ) {
-		if (!$participant_id) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
+	function profile($participant_id){
 		// MANAGE DATA
-		
-		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
-		$this->data = $participant_data;
+		$this->data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
 		
 		// Set data for identifier list
 		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		$this->set('participant_identifiers_data', $participant_identifiers_data);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		// Set form for identifier list
-		
 		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');		
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if($hook_link){
+			require($hook_link); 
+		}
 	}
 	
 	function add() {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/index') );
-
+		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/participants/search') );
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -290,7 +273,7 @@ class ParticipantsController extends ClinicalannotationAppController {
 					$this->Participant->save($this->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->data['Participant'])));
 				}
 				
-				$_SESSION['ctrapp_core']['search']['criteria'] = array("Participant.id" => $ids);
+				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = array("Participant.id" => $ids);
 				$this->atimFlash('your data has been updated', '/clinicalannotation/Participants/search/');
 			}
 			

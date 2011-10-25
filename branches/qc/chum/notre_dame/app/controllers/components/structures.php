@@ -35,6 +35,9 @@ class StructuresComponent extends Object {
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
+					$structure['Structure']['CodingIcdCheck'] = 1;
+				}
 			}
 		}
 		
@@ -115,8 +118,14 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		
-		if(($return = Cache::read($alias, "structures")) === false){
+		$return = Cache::read($alias, "structures");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Structure caching issue. (null)');
+			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');

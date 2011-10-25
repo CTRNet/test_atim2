@@ -16,11 +16,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 			'className'    => 'Storagelayout.StorageMaster',            
 			'foreignKey'    => 'storage_master_id'));
 	
-	var $hasOne = array(
-		'SpecimenDetail' => array(
-			'className'   => 'Inventorymanagement.SpecimenDetail',
-			 	'foreignKey'  => 'sample_master_id',
-			 	'dependent' => true)
+	var $virtualFields = array(
+		'in_stock_order'	=> 'IF(AliquotMaster.in_stock = "yes - available", 1, IF(AliquotMaster.in_stock = "yes - not available", 2, 3))'
 	);
 	
 	private static $warning_field = "barcode";//can be overriden into a custom model
@@ -30,7 +27,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	private $barcodes = array();//barcode validation, key = barcode, value = id
 
-	static public $volume_condition = array('OR' => array(array('AliquotMaster.aliquot_volume_unit' => NULL), array('AliquotMaster.aliquot_volume_unit' => ''))); 
+	static public $volume_condition = array('OR' => array(array('AliquotControl.volume_unit' => NULL), array('AliquotControl.volume_unit' => '')));
+
+	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 		
 	function summary($variables=array()) {
 		$return = false;
@@ -42,10 +41,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$result['AliquotMaster']['storage_coord_y'] = "";
 			}
 			$return = array(
-					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
-					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['barcode']),
 					'data'				=> $result,
-					'structure alias'	=> 'aliquotmasters'
+					'structure alias'	=> 'aliquot_masters'
 			);
 		}
 		
@@ -170,7 +169,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$current_volume = round(($initial_volume - $total_used_volume), 5);
 				if($current_volume < 0){
 					$current_volume = 0;
-					$tmp_msg = __("the aliquot with barcode [%s] has reached a volume bellow 0", true);
+					$tmp_msg = __("the aliquot with barcode [%s] has a reached a volume below 0", true);
 					AppController::addWarningMsg(sprintf($tmp_msg, $aliquot_data['AliquotMaster']['barcode']));
 				}
 			}
@@ -209,15 +208,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		//---------------------------------------------------------
 		$this->data = array();	//
 		$this->id = $aliquot_master_id;
-		$this->read();
-		$save_required = false;
-		foreach($aliquot_data_to_save as $key_to_save => $value_to_save){
-			if($this->data['AliquotMaster'][$key_to_save] != $value_to_save){
-				$save_required = true;
-			}
-		}
-		
-		if($save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
+		if(!$this->save(array("AliquotMaster" => $aliquot_data_to_save))){
 			return false;
 		}
 		return true;
@@ -274,14 +265,14 @@ class AliquotMaster extends InventoryManagementAppModel {
 			// Check the aliquot storage definition
 			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);
 			
-			$set_storage = false;
+			$pursue = false;
 			foreach(array('storage_data', 'storage_definition_error', 'position_x_error', 'position_y_error', 'change_position_x_to_uppercase', 'change_position_y_to_uppercase') as $key){
 				if(!empty($arr_storage_selection_results[$key])){
-					$set_storage = true;
+					$pursue = true;
 				}
 			}
 			
-			if($set_storage){
+			if($pursue){
 				// Update aliquot data
 				$aliquot_data['AliquotMaster']['storage_master_id'] = isset($arr_storage_selection_results['storage_data']['StorageMaster']['id'])? $arr_storage_selection_results['storage_data']['StorageMaster']['id'] : null;
 				if($arr_storage_selection_results['change_position_x_to_uppercase']){
@@ -336,13 +327,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 						}
 					}
 				}
-			}else{
-				$aliquot_data['AliquotMaster']['storage_master_id'] = null;
 			}
 
-		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_x'])) 
-			|| (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_y'])) 
-		){
+		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
@@ -421,7 +408,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$collection_model = AppModel::getInstance("Inventorymanagement", "Collection", true);
 		$sample_master_model = AppModel::getInstance("Inventorymanagement", "SampleMaster", true);
 		$derivative_detail_model = AppModel::getInstance("Inventorymanagement", "DerivativeDetail", true);
-		switch($sample_master_data['SampleMaster']['sample_category']) {
+		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
 				$collection_data = $collection_model->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
@@ -574,6 +561,28 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		return $results;
 	}
+	
+	function beforeFind($queryData){
+		$queryData['joins'][] = array(
+			'table' => 'sample_masters',
+			'alias'	=> 'sample_master_dup',
+			'type'	=> 'INNER',
+			'conditions' => array('AliquotMaster.sample_master_id = sample_master_dup.id')
+		);
+		$queryData['joins'][] = array(
+			'table' => 'sample_controls',
+			'alias'	=> 'SampleControl',
+			'type'	=> 'INNER',
+			'conditions' => array('sample_master_dup.sample_control_id = SampleControl.id')
+		);
+		if(empty($queryData['fields'])){
+			$queryData['fields'] = array('*');
+		}
+		
+		return $queryData;
+	}
+	
+	static function joinOnAliquotDup($on_field){
+		return array('table' => 'aliquot_masters', 'alias' => 'aliquot_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = aliquot_masters_dup.id'));
+	}
 }
-
-?>

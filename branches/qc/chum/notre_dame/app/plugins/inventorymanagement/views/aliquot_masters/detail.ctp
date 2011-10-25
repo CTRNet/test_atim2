@@ -25,8 +25,8 @@
 		'realiquot' =>  array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
 		'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
-	$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/inventorymanagement/sample_masters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
+	$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
@@ -41,12 +41,7 @@
 		
 	} else {
 		// General detail form display
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-		
-		$structure_links['bottom']['new search'] = $search_type_links;
+//		$structure_links['bottom'] = array_merge( array('new search' => InventorymanagementAppController::$search_links), $structure_links['bottom']); 
 	}
 	
 	// Set override
