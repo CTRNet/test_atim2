@@ -142,7 +142,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Information about the diagnosis module is available <a href='%s' target='blank'>here</a>.",
  "L'information à propos du module de diagnostic est disponible <a href='%s' target='blank'>ici</a>. (Anglais)"),
 ("trying to put storage [%s] within itself failed", 
- "Trying to put storage [%s] within itself failed,
+ "Trying to put storage [%s] within itself failed",
  "La tentative de mettre l'entreposage [%s] à l'intérieur de lui-même a échouée."),
 ("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun.");
 
