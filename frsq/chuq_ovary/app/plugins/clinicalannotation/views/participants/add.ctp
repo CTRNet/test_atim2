@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'top'=>'/clinicalannotation/participants/add',
 		'bottom'=>array(
-			'cancel'=>'/clinicalannotation/participants/index'
+			'cancel'=>'/clinicalannotation/participants/search'
 		)
 	);
 	

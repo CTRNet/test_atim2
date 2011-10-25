@@ -35,6 +35,9 @@ class StructuresComponent extends Object {
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
+					$structure['Structure']['CodingIcdCheck'] = 1;
+				}
 			}
 		}
 		
@@ -115,8 +118,14 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		
-		if(($return = Cache::read($alias, "structures")) === false){
+		$return = Cache::read($alias, "structures");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Structure caching issue. (null)');
+			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
@@ -521,24 +530,14 @@ class StructuresComponent extends Object {
 		}
 
 		list($pulldown_model, $pulldown_function) = split('::', $source);
+		$pulldown_plugin = NULL;
+		if (strpos($pulldown_model,'.') !== false){
+			$combined_plugin_model_name = $pulldown_model;
+			list($pulldown_plugin, $pulldown_model) = explode('.',$combined_plugin_model_name);
+		}
+
 		$pulldown_result = array();
-		if ($pulldown_model && App::import('Model',$pulldown_model)){
-
-			// setup VARS for custom model (if any)
-			$custom_pulldown_object = $pulldown_model.'Custom';
-			$custom_pulldown_plugin = NULL;
-			$custom_pulldown_model = NULL;
-
-			// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-			$pulldown_plugin = NULL;
-			if ( strpos($pulldown_model,'.')!==false ) {
-				$combined_plugin_model_name = $pulldown_model;
-				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
-			}
-
-			// load MODEL
-			$pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true);
-
+		if ($pulldown_model && ($pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true))){
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
 		}

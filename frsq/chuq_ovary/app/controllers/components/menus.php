@@ -40,7 +40,14 @@ class MenusComponent extends Object {
 		
 		
 		$cache_name = str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias);
-		if(($return = Cache::read($cache_name, "menus")) === false){
+		$return = Cache::read($cache_name, "menus");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Menu caching issue. (null)');
+			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu = new Menu;

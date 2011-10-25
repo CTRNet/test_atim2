@@ -21,7 +21,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 	}
 	
 	//updating headings
-	updateHeading($parent_structure['Sfs'], 'parent sample');
+	updateHeading($parent_structure['Sfs'], 'sample');
 	updateHeading($aliquots_structure['Sfs'], 'used aliquot');
 	updateHeading($aliquots_volume_structure['Sfs'], 'used aliquot');
 
@@ -33,7 +33,7 @@ if(isset($this->data[0]['parent']['AliquotMaster'])){
 }
 
 $links = array(
-	'top' 		=> '/inventorymanagement/quality_ctrls/add/',
+	'top' 		=> '/inventorymanagement/quality_ctrls/add/'.$sample_master_id_parameter,
 	'bottom'	=> array('cancel' => $cancel_button)
 );
 
@@ -41,7 +41,7 @@ $options_parent = array(
 	'type'		=> 'edit',
 	'links'		=> $links,
 	'settings'	=> array(
-		'header'		=> __('quality control creation process', true) . ' - ' . __('creation', true) ." #",
+		'header'		=> __('quality control creation process', true) . ' - ' . __('creation', true),
 		'form_top'		=> false,
 		'actions'		=> false,
 		'form_bottom'	=> false,
@@ -75,6 +75,8 @@ $hook_link = $structures->hook('loop');
 $final_structure_parent = null;
 $final_structure_children = null;
 
+$one_parent = (sizeof($this->data) == 1)? true : false;
+
 while($data = array_shift($this->data)){
 	$parent = $data['parent'];
 	$prefix = isset($parent['AliquotMaster']) ? $parent['AliquotMaster']['id'] : $parent['ViewSample']['sample_master_id'];
@@ -90,11 +92,12 @@ while($data = array_shift($this->data)){
 		//last row
 		$final_options_children['settings']['actions'] = true;
 		$final_options_children['settings']['form_bottom'] = true;
+		$final_options_children['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="'.$cancel_button.'"/>';
 	}
 	
 	$final_options_parent['data'] = $parent;
 	
-	$final_options_parent['settings']['header'] .= ++ $counter;
+	$final_options_parent['settings']['header'] .=  $one_parent? '' : " #".(++ $counter);
 	$final_options_parent['settings']['name_prefix'] = $prefix;
 	
 	$final_options_children['settings']['name_prefix'] = $prefix;
@@ -103,6 +106,7 @@ while($data = array_shift($this->data)){
 	if(isset($parent['AliquotControl']['volume_unit']) && strlen($parent['AliquotControl']['volume_unit']) > 0){
 		$final_structure_parent = $parent_structure_w_vol;
 		$final_structure_children = $children_structure_w_vol;
+		$final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
 	}else{
 		$final_structure_parent = $parent_structure;
 		$final_structure_children = $children_structure;

@@ -29,6 +29,8 @@ class SampleMaster extends InventorymanagementAppModel {
 
 	public static $aliquot_master_model = null;
 		
+	static public $join_sample_control_on_dup = array('table' => 'sample_controls', 'alias' => 'SampleControl', 'type' => 'LEFT', 'conditions' => array('sample_masters_dup.sample_control_id =SampleControl.id'));
+		
 	function specimenSummary($variables=array()) {
 		$return = false;
 		
@@ -217,6 +219,10 @@ class SampleMaster extends InventorymanagementAppModel {
 		}
 		
 		return $formatted_data;
+	}
+	
+	static function joinOnSampleDup($on_field){
+		return array('table' => 'sample_masters', 'alias' => 'sample_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = sample_masters_dup.id'));
 	}
 }
 
