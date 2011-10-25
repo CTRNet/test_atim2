@@ -404,7 +404,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
 			$this->data['SampleControl']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];			
-			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];	
 			
 			// Set either specimen or derivative additional data
 			if($is_specimen){
@@ -660,11 +659,11 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-		
 		// Get the sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '0'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if(empty($sample_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 		
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
