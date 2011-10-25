@@ -2352,7 +2352,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
 (SELECT id FROM structure_permissible_values WHERE value="expired" AND language_alias="expired"), "3", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
-(SELECT id FROM structure_permissible_values WHERE value="desactivated" AND language_alias="desactivated"), "4", "1");;
+(SELECT id FROM structure_permissible_values WHERE value="desactivated" AND language_alias="desactivated"), "4", "1");
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('in development', 'In Development', 'En développement'),('activated', 'Activated', 'Activé'),('expired', 'Expired', 'Expiré'),('desactivated', 'Desactivated', 'Désactivé');
@@ -2833,5 +2833,6 @@ INSERT INTO i18n (id,en,fr) VALUES ('shipments', 'Shipments', 'Envois'), ('order
 UPDATE datamart_structures SET index_link = '/order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/' WHERE display_name = 'shipments';
 UPDATE datamart_structures SET index_link = '/order/order_items/listall/%%OrderLine.order_id%%/%%OrderLine.id%%/' WHERE display_name = 'order items';
 
+UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' );
 
 
