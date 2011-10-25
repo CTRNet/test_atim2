@@ -43,8 +43,8 @@ class SampleMaster extends InventorymanagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu'				=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
-				'title' 			=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'data' 				=> $specimen_data,
 	 			'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -65,8 +65,8 @@ class SampleMaster extends InventorymanagementAppModel {
 				 	
 			// Set summary	 	
 	 		$return = array(
-					'menu' 				=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
-					'title' 			=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 					'data' 				=> $derivative_data,
 	 				'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -215,7 +215,7 @@ class SampleMaster extends InventorymanagementAppModel {
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
 		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
 		}
 		
 		return $formatted_data;

@@ -103,7 +103,6 @@ class AdhocsController extends DatamartAppController {
 			$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
 			return;
 		}
-		
 	   	$this->set( 'data_for_detail', $adhoc );
 		$this->Structures->set('datamart_browser_start', 'atim_structure_for_add');
 		$this->Structures->set($adhoc['Adhoc']['form_alias_for_results'], 'atim_structure_for_results');
@@ -198,36 +197,16 @@ class AdhocsController extends DatamartAppController {
 		}
 		
 		// save for display
-		$dm_structure = $this->DatamartStructure->find('first', array('conditions' => array('OR' => array('model' => $adhoc['Adhoc']['model'], 'control_master_model' => $adhoc['Adhoc']['model'])), 'recursive' => -1));
-		$checklist_key = null; 
-		if(empty($dm_structure)){
-			$actions = $this->BatchSet->getDropdownOptions(
-				$adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], 
-				"id", 
-				$adhoc['Adhoc']['form_alias_for_results'], 
-				$adhoc['Adhoc']['model'], 
-				"id"
-			);
-			$checklist_key = $adhoc['Adhoc']['model'].'.id';
-		}else{
-			$actions = $this->BatchSet->getDropdownOptions(
-				$adhoc['Adhoc']['plugin'], 
-				$adhoc['Adhoc']['model'], 
-				"id", 
-				$adhoc['Adhoc']['form_alias_for_results'], 
-				$dm_structure['DatamartStructure']['model'], 
-				$dm_structure['DatamartStructure']['use_key']
-			);
+		$actions = $this->BatchSet->getDropdownOptions($adhoc['Adhoc']['plugin'], $adhoc['Adhoc']['model'], "id", $adhoc['Adhoc']['form_alias_for_results'], $adhoc['Adhoc']['model'], "id");
+		
+		if($this->DatamartStructure->getIdByModelName($adhoc['Adhoc']['model']) != null){
 			$actions[] = array(
 				"value"		=> 0,
 				"default"	=> __("initiate browsing", true),
 				"action"	=> "datamart/browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
 			);
-			$checklist_key = $dm_structure['DatamartStructure']['model'].'.'.$dm_structure['DatamartStructure']['use_key'];
 		}
-		$this->set('checklist_key', $checklist_key);
 		$this->set('actions', $actions);
-		
 	}
 	
 	function process() {
