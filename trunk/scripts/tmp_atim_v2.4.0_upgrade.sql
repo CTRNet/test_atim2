@@ -2835,4 +2835,7 @@ UPDATE datamart_structures SET index_link = '/order/order_items/listall/%%OrderL
 
 UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' );
 
-
+UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tablename='' AND field='tissue_size_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_size_unit');
+UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tablename='' AND field='tissue_weight_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_weight_unit');
+UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit');
+UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tablename='' AND field='pellet_volume_unit';
