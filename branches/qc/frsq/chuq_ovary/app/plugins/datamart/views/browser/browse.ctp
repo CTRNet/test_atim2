@@ -1,10 +1,11 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		$this->Paginator->options['url'] = array($node_id);
+		$this->Paginator->options['url'] = array($node_id.'/'.$control_id.'/'.$merge_to);
 		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
+	$links['bottom']['new'] = '/datamart/browser/browse/';
 	if($type == "checklist"){
 		$links['top'] = $top;
 		if(is_array($this->data)){
@@ -34,15 +35,21 @@
 		$type = "add";
 		?>
 		<input type="hidden" name="data[node][id]" value="<?php echo($node_id); ?>"/>
-		<?php 
+		<?php
+
+		if($unused_parent){
+			$links['bottom']['unused parents'] = '/datamart/browser/unusedParent/'.$node_id;
+		}
 	}else{
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$links['bottom'] = array("new" => "/datamart/browser/browse/");
+	
+	
+	
 	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : __("select an action", true)))));
 ?>
-<script type="text/javascript">
+<script>
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";

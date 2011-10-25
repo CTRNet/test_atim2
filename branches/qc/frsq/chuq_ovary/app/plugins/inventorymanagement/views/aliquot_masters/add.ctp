@@ -1,10 +1,12 @@
 <?php
-	
 	$options = array(
 			"links"		=> array(
-				"top" => '/inventorymanagement/aliquot_masters/add/'.$sample_master_id,
+				"top" => '/inventorymanagement/aliquot_masters/add/'.$sample_master_id.'/0',
 				'bottom' => array('cancel' => $url_to_cancel)));
 
+	if($is_ajax){
+		$options['links']['top'] .= '/1';
+	}
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
 		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)));
@@ -65,3 +67,13 @@ var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
 </script>
+
+<?php 
+if($is_ajax){
+	$display = $shell->validationErrors().ob_get_contents();
+	ob_end_clean();
+	$display = ob_get_contents().$display;
+	ob_clean();
+	$shell->validationErrors = null;
+	echo json_encode(array('goToNext' => false, 'display' => $display, 'id' => null));
+}

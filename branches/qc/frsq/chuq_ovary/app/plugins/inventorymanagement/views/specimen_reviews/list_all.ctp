@@ -2,7 +2,7 @@
 
 	$add_links = array();
 	foreach ( $review_controls as $review_control ) {
-		$add_links[ __($review_control['SpecimenReviewControl']['specimen_sample_type'],true).' - '.__($review_control['SpecimenReviewControl']['review_type'],true) ] =  '/inventorymanagement/specimen_reviews/add/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$review_control['SpecimenReviewControl']['id'];
+		$add_links[ __($review_control['SampleControl']['sample_type'],true).' - '.__($review_control['SpecimenReviewControl']['review_type'],true) ] =  '/inventorymanagement/specimen_reviews/add/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/'.$review_control['SpecimenReviewControl']['id'];
 	}
 	ksort($add_links);
 

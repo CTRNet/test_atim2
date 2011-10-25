@@ -3,7 +3,7 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'add', 
-		'settings' => array('header' => __('realiquoting process', true) . ' - ' . __('aliquot type selection', true)),
+		'settings' => array('header' => __('realiquoting process', true) . ' - ' . __('aliquot type selection', true), 'stretch' => false), 
 		'links' => array(
 			'top' => ($skip_lab_book_selection_step? '/inventorymanagement/aliquot_masters/'.$realiquoting_function.'/'.$aliquot_id : '/inventorymanagement/aliquot_masters/realiquotInit2/'.$process_type.'/'.$aliquot_id),
 			'bottom' => array('cancel' => $url_to_cancel)),
