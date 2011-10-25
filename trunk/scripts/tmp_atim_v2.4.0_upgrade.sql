@@ -2816,3 +2816,18 @@ AND structure_id IN (SELECT id FROM structures WHERE alias IN ('std_tma_blocks',
 UPDATE storage_controls SET form_alias = 'storagemasters,storage_temperature,std_incubators' WHERE form_alias = 'std_incubators';
 UPDATE storage_controls SET form_alias = 'storagemasters,storage_temperature,std_rooms' WHERE form_alias = 'std_rooms';
 
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`, `index_link`, `batch_edit_link`) VALUES
+(null, 'Order', 'OrderItem', (SELECT id FROM structures WHERE alias = 'orderitems'), 'order items', 'id', '', '', '', '/order/order_items/listall/%%OrderItem.order_id%%/%%OrderItem.order_line_id%%/', '');
+INSERT into datamart_browsing_controls (id1,id2,flag_active_1_to_2,flag_active_2_to_1,use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 1, 1, 'OrderItem.aliquot_master_id');
+
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`, `index_link`, `batch_edit_link`) VALUES
+(null, 'Order', 'Shipment', (SELECT id FROM structures WHERE alias = 'shipments'), 'shipments', 'id', '', '', '', '/order/shipments/detail/%%Shipment.order_id%%/%%Sshipment.id%%/', '');
+INSERT into datamart_browsing_controls (id1,id2,flag_active_1_to_2,flag_active_2_to_1,use_field)
+VALUES
+((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'Shipment'), 1, 1, 'OrderItem.shipment_id');
+
+INSERT INTO i18n (id,en,fr) VALUES ('shipments', 'Shipments', 'Envois'), ('order items', 'Order Items', 'Articles de Commande');
+
+
