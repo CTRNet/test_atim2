@@ -1,7 +1,7 @@
 <?php
  	
 	// --------------------------------------------------------------------------------
-	// Update Derivatives Sample Labels of an uodated Specimen
+	// Update Derivatives Sample Labels of an updated Specimen
 	// -------------------------------------------------------------------------------- 	
 	if($is_specimen && ($sample_data['SampleMaster']['sample_label'] != $this->data['SampleMaster']['sample_label'])) {
 		$specimen_sample_label = $this->data['SampleMaster']['sample_label'];

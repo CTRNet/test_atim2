@@ -17,8 +17,8 @@ class SampleMasterCustom extends SampleMaster {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu'				=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
-				'title' 			=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
+				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
+				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
 				'data' 				=> $specimen_data,
 	 			'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -39,8 +39,8 @@ class SampleMasterCustom extends SampleMaster {
 			
 			// Set summary	 	
 	 		$return = array(
-					'menu' 				=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
-					'title' 			=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
+					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
+					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
 					'data' 				=> $derivative_data,
 	 				'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -58,14 +58,14 @@ class SampleMasterCustom extends SampleMaster {
 	 	}
 
 		// ** Set Data **
-		
+
 		if(!array_key_exists('sample_category', $sample_data['SampleControl'])
-		|| !array_key_exists('sample_type', $sample_data['SampleMaster'])
+		|| !array_key_exists('sample_type', $sample_data['SampleControl'])
 		|| !array_key_exists('sample_type_code', $sample_data['SampleControl'])){ 
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		$sample_category = $sample_data['SampleControl']['sample_category'];
-		$sample_type = $sample_data['SampleMaster']['sample_type'];
+		$sample_type = $sample_data['SampleControl']['sample_type'];
 		$sample_type_code = $sample_data['SampleControl']['sample_type_code'];
 
 		$specimen_type_code = null;
@@ -207,10 +207,9 @@ class SampleMasterCustom extends SampleMaster {
 		return $new_sample_label;
 	}	 
 	 
-	function validateLabTypeCodeAndLaterality(&$data_to_validate) {				
-		$process_validates= true;
-		
-		if($data_to_validate['SampleMaster']['sample_category'] === 'specimen') {
+	private function validateLabTypeCodeAndLaterality(&$data_to_validate) {				
+		$process_validates = true;
+		if($data_to_validate['SampleControl']['sample_category'] === 'specimen') {
 			// Load model to control data
 			$lab_type_laterality_match = AppModel::getInstance('Inventorymanagement', 'LabTypeLateralityMatch', true);		
 			
@@ -220,7 +219,7 @@ class SampleMasterCustom extends SampleMaster {
 			|| !array_key_exists('type_code', $data_to_validate['SpecimenDetail'])) { 
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
-			$tmp_specimen_type = $data_to_validate['SampleMaster']['sample_type'];
+			$tmp_specimen_type = $data_to_validate['SampleControl']['sample_type'];
 			$tmp_selected_type_code = $data_to_validate['SpecimenDetail']['type_code'];
 									
 			if($tmp_specimen_type == 'tissue') { 				
@@ -299,6 +298,29 @@ class SampleMasterCustom extends SampleMaster {
 		return $process_validates;	
 	}
 
+	
+	function formatParentSampleDataForDisplay($parent_sample_data) {
+		$formatted_data = array();
+		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_label'] . ' / ' . $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+		}
+	
+		return $formatted_data;
+	}
+	
+	function validates($options = array()){
+		$result = parent::validates($options);
+		
+		// --------------------------------------------------------------------------------
+		// Check selected type code for all specimen plus set read only fields for tissue
+		// (tissue source, nature, laterality)
+		// --------------------------------------------------------------------------------
+		if(!$this->validateLabTypeCodeAndLaterality($this->data)){
+			$result = false;
+		}
+		
+		return $result;
+	}
 }
 
 ?>
