@@ -2797,7 +2797,7 @@ DELETE FROM structure_formats WHERE structure_id IN (SELECT id from structures W
 DELETE FROM structures WHERE alias = 'std_undetail_stg_with_surr_tmp';
 
 DELETE FROM structure_formats
-WHERE structure_id IN (SELECT id from structures WHERE alias != 'storagemasters')
+WHERE structure_id IN (SELECT id from structures WHERE alias IN ('std_rooms', 'std_undetail_stg_with_tmp', 'std_incubators', 'std_tma_blocks'))
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE model IN ('StorageMaster', 'Generated', 'FunctionManagement') 
 AND field IN ('code', 'layout_description' ,'storage_control_id', 'barcode', 'short_label', 'selection_label', 'path', 
 'recorded_storage_selection_label', 'parent_storage_coord_x', 'parent_storage_coord_y', 'notes'));
