@@ -101,7 +101,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		foreach($aliquots_to_update as $new_aliquot) {
 			$this->data = array();
 			$this->id = $new_aliquot['AliquotMaster']['id'];
-			$barcode = 'tmp_'.str_replace(" ", "", $new_aliquot['SampleMaster']['sample_code']).'_'.$new_aliquot['AliquotMaster']['id'];
+			$barcode = $new_aliquot['AliquotMaster']['id'];
 			if(!$this->save(array('AliquotMaster' => array('barcode' => $barcode)), false)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}	
 	}

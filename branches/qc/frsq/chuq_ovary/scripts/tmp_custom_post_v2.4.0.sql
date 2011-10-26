@@ -47,3 +47,110 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'sd_spe%') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field like 'chuq_evaluated_spent_time_from_coll%');
 UPDATE structure_fields SET `language_tag`='' WHERE model='SpecimenDetail' AND tablename='' AND field='chuq_evaluated_spent_time_from_coll_unit';
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+sampc.sample_category,
+samp.deleted,
+
+tiss.chuq_tissue_code
+
+FROM sample_masters as samp
+INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
+WHERE samp.deleted != 1;
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+alc.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created,
+al.deleted,
+
+tiss.chuq_tissue_code
+
+FROM aliquot_masters AS al
+INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
+INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN sample_controls AS sampc ON samp.sample_control_id = sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id=parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
+WHERE al.deleted != 1;
+
+
+
+
+
+
+
+
