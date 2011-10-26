@@ -68,7 +68,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$menu_data = null;
 		$cancel_button = '/menus/';
 		if(isset($this->data['BatchSet'])) {
-			$cancel_button = '/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'];
+			$cancel_button = '/datamart/batch_sets/listall/' . (isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0);
 		} else if(isset($this->data['node'])) {
 			$cancel_button = '/datamart/browser/browse/' . $this->data['node']['id'];
 		} else if(isset($this->data['url_to_cancel'])) {
