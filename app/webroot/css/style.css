@@ -1663,59 +1663,83 @@ div.wrapper table.structure td .databrowser td .info td{
 
 .databrowser td div.container{
 	/* default icon */
-	background-image: url(../img/icons/fam_fam_silk_help.png);
+	background: url(../img/icons/fam_fam_silk_help.png) center no-repeat;
 	position: relative;
 	width: 26px;
 	height: 20px;
 }
 
 /* databrowser search table icons */
-.databrowser td.aliquots div.container{
-	background: url(../img/icons/aliquot_16x16.png) center no-repeat;
+.databrowser td.aliquots div.container, a.aliquots{
+	background-image: url(../img/icons/aliquot_16x16.png) !important;
 }
-.databrowser td.collections div.container{
-	background: url(../img/icons/collection_16x16.png) center no-repeat;
+.databrowser td.collections div.container, a.collections{
+	background-image: url(../img/icons/collection_16x16.png) !important;
 }
-.databrowser td.samples div.container{
-	background: url(../img/icons/flask_16x16.png) center no-repeat;
+.databrowser td.samples div.container, a.samples{
+	background-image: url(../img/icons/flask_16x16.png) !important;
 }
-.databrowser td.participants div.container{
-	background: url(../img/icons/Contact_16x16.png) center no-repeat;
+.databrowser td.participants div.container, a.participants{
+	background-image: url(../img/icons/Contact_16x16.png) !important;
+}
+.databrowser td.storages div.container, a.storages{
+	background-image: url(../img/icons/storage_16x16.png) !important;
+}
+.databrowser td.identification div.container, a.identification{
+	background-image: url(../img/icons/identifiers_16x16.png) !important;
+}
+.databrowser td.aliquot.uses div.container, a.aliquot.uses{
+	background-image: url(../img/icons/aliquotUse_16x16.png) !important;
+}
+.databrowser td.consents div.container, a.consents{
+	background-image: url(../img/icons/consent_16x16.png) !important;
+}
+.databrowser td.diagnosis div.container, a.diagnosis{
+	background-image: url(../img/icons/dx_16x16.png) !important;
+}
+.databrowser td.treatments div.container, a.treatments{
+	background-image: url(../img/icons/seringue_16x16.png)  !important;
+}
+.databrowser td.family.histories div.container, a.family.histories{
+	background-image: url(../img/icons/family_16x16.png)  !important;
+}
+.databrowser td.quality.controls div.container, a.quality.controls{
+	background-image: url(../img/icons/qualityControl_16x16.png)  !important;
+}
+.databrowser td.participant.messages div.container, a.participant.messages{
+	background-image: url(../img/icons/post_it_16x16.png)  !important;
+}
+.databrowser td.annotation div.container, a.annotation{
+	background-image: url(../img/icons/annotation_16x16.png)  !important;
+}
+.databrowser td.specimen.review div.container, a.specimen.review{
+	background-image: url(../img/icons/path_review_16x16.png)  !important;
+}
+.databrowser td.shipments div.container, a.shipments{
+	background-image: url(../img/icons/truck_16x16.png)  !important;
+}
+.databrowser td.order.items div.container, a.order.items{
+	background-image: url("../img/icons/Shopping Cart_16x16.png")  !important;
 }
 
-.databrowser td.storages div.container{
-	background: url(../img/icons/storage_16x16.png) center no-repeat;
-}
-
-.databrowser td.identification div.container{
-	background: url(../img/icons/identifiers_16x16.png) center no-repeat;
-}
-.databrowser td.aliquot.uses div.container{
-	background: url(../img/icons/aliquotUse_16x16.png) center no-repeat;
-}
-.databrowser td.consents div.container{
-	background: url(../img/icons/consent_16x16.png) center no-repeat;
-}
-.databrowser td.diagnosis div.container{
-	background: url(../img/icons/dx_16x16.png) center no-repeat;
-}
-.databrowser td.treatments div.container{
-	background: url(../img/icons/seringue_16x16.png) center no-repeat;
-}
-.databrowser td.family.histories div.container{
-	background: url(../img/icons/family_16x16.png) center no-repeat;
-}
-.databrowser td.quality.controls div.container{
-	background: url(../img/icons/qualityControl_16x16.png) center no-repeat;
-}
-.databrowser td.participant.messages div.container{
-	background: url(../img/icons/post_it_16x16.png) center no-repeat;
-}
-.databrowser td.annotation div.container{
-	background: url(../img/icons/annotation_16x16.png) center no-repeat;
-}
-.databrowser td.specimen.review div.container{
-	background: url(../img/icons/path_review_16x16.png) center no-repeat;
+.databrowser td.aliquots div.container, a.aliquots, 
+.databrowser td.collections div.container, a.collections,
+.databrowser td.samples div.container, a.samples,
+.databrowser td.participants div.container, a.participants,
+.databrowser td.storages div.container, a.storages,
+.databrowser td.identification div.container, a.identifications,
+.databrowser td.aliquot.uses div.container, a.aliquot.uses,
+.databrowser td.consents div.container, a.consents,
+.databrowser td.diagnosis div.container, a.diagnosis,
+.databrowser td.treatments div.container, a.treatments,
+.databrowser td.family.histories div.container, a.family.histories,
+.databrowser td.quality.controls div.container, a.quality.controls,
+.databrowser td.participant.messages div.container, a.participant.messages,
+.databrowser td.annotation div.container, a.annotation,
+.databrowser td.specimen.review div.container, a.specimen.review,
+.databrowser td.shipments div.container, a.shipments,
+.databrowser td.order.items div.container, a.order.items{
+	background-position: left imporant!; 
 }
 
 .databrowser div.controls, .databrowser div.content{
@@ -1732,92 +1756,20 @@ div.wrapper table.structure td .databrowser td .info td{
 	position: absolute;
 }
 
-/* databrowser action dropdown icons */
-ul.actionDropdown a.aliquots{
-	background-image: url(../img/icons/aliquot_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.collections{
-	background-image: url(../img/icons/collection_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.samples{
-	background-image: url(../img/icons/flask_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.participants{
-	background-image: url(../img/icons/Contact_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.storages{
-	background-image: url(../img/icons/storage_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.identification{
-	background-image: url(../img/icons/identifiers_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.aliquot.uses{
-	background-image: url(../img/icons/aliquotUse_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.consents{
-	background-image: url(../img/icons/consent_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.diagnosis{
-	background-image: url(../img/icons/dx_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.treatments{
-	background-image: url(../img/icons/seringue_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.family.histories{
-	background-image: url(../img/icons/family_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.quality.controls{
-	background-image: url(../img/icons/qualityControl_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.participant.messages{
-	background-image: url(../img/icons/post_it_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.annotation{
-	background-image: url(../img/icons/annotation_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
-ul.actionDropdown a.specimen.review{
-	background-image: url(../img/icons/path_review_16x16.png);
-	background-position: left center;
-	background-repeat: no-repeat;
-}
 ul.actionDropdown a.disabled{
 	font-style: italic;
 	color: grey;
 }
 
 ul.actionDropdown a, ul.actionDropdown li:hover a{
+	background-position: left center;
+	background-repeat: no-repeat;
 	text-indent: 14px;
 }
 ul.actionDropdown li a{
 	padding-left: 20px;
+	background-position: left center;
+	background-repeat: no-repeat;
 }
 
 .databrowser div.info{
