@@ -2839,3 +2839,4 @@ UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tab
 UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tablename='' AND field='tissue_weight_unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_weight_unit');
 UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit');
 UPDATE structure_fields SET `language_tag`='' WHERE model='SampleDetail' AND tablename='' AND field='pellet_volume_unit';
+UPDATE structure_fields SET `language_tag`='' WHERE model='AliquotDetail' AND tablename='' AND field='used_blood_volume_unit';
