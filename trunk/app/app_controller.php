@@ -671,17 +671,18 @@ class AppController extends Controller {
 				$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 			}
 			
-			if(
-				$model->name == 'ViewAliquot' && 
-				count($this->data) > 0 && 
-				!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && 
-				isset($this->data[0]['alc']['aliquot_type'])
-			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "alc" model.
-				foreach($this->data as &$data_unit){
-					$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+			//BUG COUNTER!!! TODO: Remove in future versions if it's gone. 
+			//Some fields are mysteriously missing from the result set when there are inner joins
+			if($model->name == 'ViewAliquot' && count($this->data) > 0){ 
+				if(!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['alc']['aliquot_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+					}
+				}
+				if(!array_key_exists('sample_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['sampc']['sample_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot'] += $data_unit['sampc'];
+					}
 				}
 			}else if(
 				$model->name == 'ViewSample' && 
@@ -689,13 +690,13 @@ class AppController extends Controller {
 				!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
 				isset($this->data[0]['sampc']['sample_type'])
 			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "sampc" model.
 				foreach($this->data as &$data_unit){
 					$data_unit['ViewSample'] += $data_unit['sampc'];
 				}
 			}
+			//--------------------------
+			
+			
 		
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
 			if($search_id == -1){
