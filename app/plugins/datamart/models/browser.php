@@ -963,9 +963,8 @@ class Browser extends DatamartAppModel {
 		$node_id = $browsing['BrowsingResult']['id'];
 		$main_data = array();//$this->checklist_data;
 		$descending = null;
-		$result_structure = array();
+		$result_structure = array('Structure' => array());
 		$header = array();
-		unset($result_structure['Structure']);
 		self::$browsing_control_model = AppModel::getInstance("Datamart", "BrowsingControl", true);
 		self::$browsing_result_model = AppModel::getInstance("Datamart", "BrowsingResult", true);
 		$nodes_to_fetch = array();
@@ -1044,6 +1043,13 @@ class Browser extends DatamartAppModel {
 				$result_structure['Sfs'][] = $sfs;
 			}
 			
+			//arrange Structure to be able to print structure alias when in debug mode
+			if(!array_key_exists(0, $structure['Structure'])){
+				$structure['Structure'] = array($structure['Structure']);
+			}
+			$result_structure['Structure'] = array_merge($result_structure['Structure'], $structure['Structure']);
+			
+			
 			$ancestor_is_child = false;
 			$join_field = null;
 			if($last_browsing != null){
@@ -1090,7 +1096,7 @@ class Browser extends DatamartAppModel {
 		
 		$lines = $this->nodes[0][self::MODEL]->find('all', $this->search_parameters);
 		$this->offset += $chunk_size;
-		
+
 		$this->rows_buffer = array();
 		$this->models_buffer = array();
 		foreach($lines as $line){
