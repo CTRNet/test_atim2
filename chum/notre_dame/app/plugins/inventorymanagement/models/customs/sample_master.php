@@ -214,7 +214,7 @@ class SampleMasterCustom extends SampleMaster {
 			$lab_type_laterality_match = AppModel::getInstance('Inventorymanagement', 'LabTypeLateralityMatch', true);		
 			
 			// Get Data
-			if(!array_key_exists('sample_type', $data_to_validate['SampleMaster'])
+			if(!array_key_exists('sample_type', $data_to_validate['SampleControl'])
 			|| !array_key_exists('SpecimenDetail', $data_to_validate)
 			|| !array_key_exists('type_code', $data_to_validate['SpecimenDetail'])) { 
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
