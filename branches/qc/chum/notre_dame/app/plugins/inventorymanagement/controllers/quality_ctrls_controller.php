@@ -66,14 +66,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		$this->set('sample_master_id_parameter', $sample_master_id);
 		
 		$menu_data = null;
-		$cancel_button = '/menus/';
-		if(isset($this->data['BatchSet'])) {
-			$cancel_button = '/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'];
-		} else if(isset($this->data['node'])) {
-			$cancel_button = '/datamart/browser/browse/' . $this->data['node']['id'];
-		} else if(isset($this->data['url_to_cancel'])) {
-			$cancel_button = $this->data['url_to_cancel'];
-		}
+		$this->setUrlToCancel();
+		$cancel_button = $this->data['url_to_cancel'];
 		unset($this->data['url_to_cancel']);
 		
 		if($sample_master_id != null){
@@ -276,11 +270,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				
 				}else{
 					//different samples, show the result into a tmp batchset
-					$_SESSION['tmp_batch_set']['BatchId'] = range($last_qc_id - count($qc_data_to_save) + 1, $last_qc_id);
-					
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('QualityCtrl');
-					$target = '/datamart/batch_sets/listall/0/';
+					$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('QualityCtrl'),
+						'flag_tmp' => true
+					));
+					$batch_set_model->saveWithIds($batch_set_data, range($last_qc_id - count($qc_data_to_save) + 1, $last_qc_id));
+					$target = '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId();
 				}
 				
 				

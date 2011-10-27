@@ -671,17 +671,18 @@ class AppController extends Controller {
 				$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 			}
 			
-			if(
-				$model->name == 'ViewAliquot' && 
-				count($this->data) > 0 && 
-				!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && 
-				isset($this->data[0]['alc']['aliquot_type'])
-			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "alc" model.
-				foreach($this->data as &$data_unit){
-					$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+			//BUG COUNTER!!! TODO: Remove in future versions if it's gone. 
+			//Some fields are mysteriously missing from the result set when there are inner joins
+			if($model->name == 'ViewAliquot' && count($this->data) > 0){ 
+				if(!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['alc']['aliquot_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+					}
+				}
+				if(!array_key_exists('sample_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['sampc']['sample_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot'] += $data_unit['sampc'];
+					}
 				}
 			}else if(
 				$model->name == 'ViewSample' && 
@@ -689,13 +690,13 @@ class AppController extends Controller {
 				!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
 				isset($this->data[0]['sampc']['sample_type'])
 			){
-				//BUG COUNTER!!! TODO: Remove in future versions if it's gone. When
-				//fetching detail nodes on ViewAliquot, the aliquot_type field moves
-				//to "sampc" model.
 				foreach($this->data as &$data_unit){
 					$data_unit['ViewSample'] += $data_unit['sampc'];
 				}
 			}
+			//--------------------------
+			
+			
 		
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
 			if($search_id == -1){
@@ -814,6 +815,28 @@ class AppController extends Controller {
 		foreach($tmp as $label => $link){
 			$menu_options[preg_replace('/^[0-9]+-/', '', $label)] = $link;
 		}
+	}
+	
+	/**
+	 * Sets url_to_cancel based on $this->data['url_to_cancel']
+	 * If nothing exists, javascript:history.go(-1) is used.
+	 * If a similar entry exists, the value is decremented.
+	 * Otherwise, url_to_cancel is uses as such. 
+	 */
+	function setUrlToCancel(){
+		if(isset($this->data['url_to_cancel'])){
+			$pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
+			$matches = array();
+			if(preg_match($pattern, $this->data['url_to_cancel'], $matches)){
+				$back = empty($matches[1]) ? -2 : $matches[1] - 1;  
+				$this->data['url_to_cancel'] = 'javascript:history.go('.$back.')';
+			}
+			
+		}else{
+			$this->data['url_to_cancel'] = 'javascript:history.go(-1)'; 
+		}
+		
+		$this->set('url_to_cancel', $this->data['url_to_cancel']);
 	}
 }
 

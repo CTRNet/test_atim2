@@ -68,7 +68,7 @@ class BatchSet extends DatamartAppModel {
 		$conditions = array(
 			'BatchSet.id' => $batch_set_id,
 			
-			'or'	=> array(
+			'OR'	=> array(
 				'BatchSet.group_id'	=> $_SESSION['Auth']['User']['group_id'],
 				'BatchSet.user_id'	=> $_SESSION['Auth']['User']['id']
 			)
@@ -110,7 +110,8 @@ class BatchSet extends DatamartAppModel {
 			'OR' => array(
 				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
 				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
-				'BatchSet.sharing_status' => 'all')
+				'BatchSet.sharing_status' => 'all'),
+			'BatchSet.flag_tmp' => false
 		);
 		if($ignore_id != null){
 			$available_batchsets_conditions["BatchSet.id Not"] = $ignore_id;
@@ -126,9 +127,10 @@ class BatchSet extends DatamartAppModel {
 	 */
 	public function isUserAuthorizedToRw(array $batchset, $must_be_unlocked){
 		if(empty($batchset) 
-		|| (!(array_key_exists('user_id', $batchset['BatchSet'])
-		&& array_key_exists('group_id', $batchset['BatchSet'])
-		&& array_key_exists('sharing_status', $batchset['BatchSet'])))) {
+			|| (!(array_key_exists('user_id', $batchset['BatchSet'])
+			&& array_key_exists('group_id', $batchset['BatchSet'])
+			&& array_key_exists('sharing_status', $batchset['BatchSet'])))
+		) {
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
@@ -197,6 +199,40 @@ class BatchSet extends DatamartAppModel {
 				$data['BatchSet']['flag_use_query_results'] = false;
 			}
 		}
+	}
+	
+	function saveWithIds(array $batch_set_data, array $ids){
+		$batch_id_model = AppModel::getInstance('datamart', 'BatchId', true);
+		$bt = debug_backtrace();
+		
+		$batch_set_data['BatchSet']['user_id'] 			= $_SESSION['Auth']['User']['id'];
+		$batch_set_data['BatchSet']['group_id']			= $_SESSION['Auth']['User']['group_id'];
+		$batch_set_data['BatchSet']['sharing_status']	= 'user';
+		
+		if(!$this->save($batch_set_data)){
+			$this->redirect('/pages/err_plugin_system_error?Amethod='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
+		}
+			
+		$batch_set_id = $this->getLastInsertId();
+		$batch_ids = array();
+		foreach($ids as $id){
+			$batch_ids[] = array(
+				'set_id'	=> $batch_set_id,
+				'lookup_id'	=> $id
+			);
+		}
+			
+		if(!$batch_id_model->saveAll($batch_ids)){
+			$this->redirect('/pages/err_plugin_system_error?Bmethod='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
+		}
+	}
+	
+	function deleteCurrentUserTmp(){
+		$batch_id_model = AppModel::getInstance('datamart', 'BatchId', true);
+		$set_ids = $this->find('list', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 'BatchSet.flag_tmp' => true)));
+		$set_ids = array_keys($set_ids);
+		$batch_id_model->deleteAll(array('BatchId.set_id' => $set_ids));
+		$this->deleteAll(array('BatchSet.id' => $set_ids));
 	}
 }
 

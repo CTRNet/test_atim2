@@ -20,12 +20,8 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$add_to_batchset_hidden_field = null;
-	if(isset($data_for_detail['BatchSet']['id'])){
-		$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>';
-	}else{
-		$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][datamart_structure_id]" value="'.$data_for_detail['BatchSet']['datamart_structure_id'].'"/>';
-	}
+	//$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>';
+	$add_to_batchset_hidden_field = $this->Form->input('BatchSet.id', array('type' => 'hidden', 'value' => $data_for_detail['BatchSet']['id']));
 	
 	$structures->build( $atim_structure_for_results, array(
 		'type' 		=> 'index', 
@@ -57,14 +53,15 @@
 			)), $structure_links['bottom']);
 	}
 	
-	$extras = array();
-	if(isset($datamart_structure_id)){
-		$extras = array(
-			"<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>"
-			.'<input type="hidden" name="data[BatchSet][id]" value="'.$atim_menu_variables['BatchSet.id'].'"/>'
-		);
-	}
-	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => $extras));
+	$structures->build($atim_structure_for_process, array(
+		'type' =>'add', 
+		'settings'=>array(
+			'form_top'=>false, 
+			'header' => __('actions', null)), 
+			'links'=>$structure_links, 
+			'data'=>array()
+		)
+	);
 		
 ?>
 <div id="popup" class="std_popup question">
