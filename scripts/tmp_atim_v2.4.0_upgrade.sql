@@ -144,7 +144,11 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("trying to put storage [%s] within itself failed", 
  "Trying to put storage [%s] within itself failed",
  "La tentative de mettre l'entreposage [%s] à l'intérieur de lui-même a échouée."),
-("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun.");
+("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun."),
+("number of matching participants", "Number of matching participants", "Nombre de participants correspondants"),
+("report_4_desc", 
+ "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
+ "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché.");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -518,7 +522,6 @@ stor.temperature,
 stor.temp_unit,
 
 al.created,
-al.deleted
 
 FROM aliquot_masters AS al
 INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
@@ -559,8 +562,7 @@ parent_samp.sample_control_id AS parent_sample_control_id,
 sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
-sampc.sample_category,
-samp.deleted
+sampc.sample_category
 
 FROM sample_masters as samp
 INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
@@ -2950,3 +2952,9 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 ALTER TABLE datamart_batch_sets
  ADD COLUMN flag_tmp BOOLEAN NOT NULL DEFAULT FALSE AFTER locked;
+
+UPDATE structure_fields SET  `language_label`='number of matching participants' WHERE model='0' AND tablename='' AND field='matching_participant_number' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+
+UPDATE datamart_reports
+ SET description='report_4_desc' WHERE id='4';
