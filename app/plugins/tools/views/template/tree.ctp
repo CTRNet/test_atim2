@@ -65,6 +65,7 @@ if(isset($is_ajax)){
 ?>
 
 <script>
+	var STR_ADD = "<?php __('add'); ?>";
 	var modelsData = '<?php echo addslashes(json_encode($js_data)); ?>';
 	var wizardTreeData = '<?php echo json_encode($tree_data); ?>';
 	var nodeId = 0;
@@ -145,9 +146,8 @@ if(isset($is_ajax)){
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select><input type='number' size='1'></input>", new Array(
-					{ "label" : STR_CANCEL, "icon" : "cancel", "action" : function(){ $("#addDialog").popup("close"); } }, 
-					{ "label" : STR_OK, "icon" : "detail", "action" : function(){
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1'></input>", new Array( 
+					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
 								data.datamart_structure_id = $("#addDialog select").val() > 0 ? 5 : 1;
