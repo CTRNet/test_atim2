@@ -779,9 +779,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set url to redirect
 		if($url_to_cancel == null){
-			$url_to_cancel = 'javascript:history.back()';
+			$this->setUrlToCancel();
+		}else{
+			$this->set('url_to_cancel', $url_to_cancel);
 		}
-		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
 		$init_data = $this->batchInit(
@@ -840,7 +841,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$this->setUrlToCancel();
 		if(isset($this->data['AliquotMaster']['ids'])){
 			$this->set('aliquot_master_ids', $this->data['AliquotMaster']['ids']);
 		}
@@ -939,7 +940,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$this->setUrlToCancel();
 		unset($this->data['url_to_cancel']);
 		
 		$joins = array(array(
@@ -1129,23 +1130,25 @@ class SampleMastersController extends InventorymanagementAppController {
 					$this->AliquotMaster->save($aliquot, false);
 					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
 				}
-				if(!empty($child_ids)){
-					//prevent double access bug to empty our BatchId
-					$_SESSION['tmp_batch_set']['BatchId'] = $child_ids;
-				}
-				
-				$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
-				
+
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
 				
 				if(is_null($unique_aliquot_master_data)) {
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
+					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewSample'),
+						'flag_tmp' => true
+					));
+					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
+					$this->flash('your data has been saved', '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
-					if(!isset($unique_aliquot_master_data['AliquotMaster'])) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
 					$this->flash('your data has been saved','/inventorymanagement/aliquot_masters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $unique_aliquot_master_data['AliquotMaster']['sample_master_id']. '/' . $aliquot_master_id);					
 				}
 				

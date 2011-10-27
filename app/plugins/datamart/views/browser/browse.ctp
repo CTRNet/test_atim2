@@ -47,7 +47,17 @@
 	
 	
 	
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : __("select an action", true)))));
+	$structures->build($atim_structure, array(
+		'type' => $type, 
+		'links' => $links, 
+		'data' => array(), 
+		'settings' => array(
+			'form_top' => !$is_datagrid, 
+			"header" => (isset($header) ? $header : __("select an action", true))
+		), 'extras' => array(
+			'end' => $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id))
+		)
+	));
 ?>
 <script>
 var datamartActions = true;
