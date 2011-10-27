@@ -404,7 +404,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			$this->data['SampleMaster']['collection_id'] = $collection_id;
 			$this->data['SampleMaster']['sample_control_id'] = $sample_control_data['SampleControl']['id'];
 			$this->data['SampleControl']['sample_type'] = $sample_control_data['SampleControl']['sample_type'];			
-			$this->data['SampleMaster']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];	
 			
 			// Set either specimen or derivative additional data
 			if($is_specimen){
@@ -660,11 +659,11 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function delete($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-		
 		// Get the sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '0'));
-		if(empty($sample_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if(empty($sample_data)) { 
+			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 		
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
@@ -780,9 +779,10 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		// Set url to redirect
 		if($url_to_cancel == null){
-			$url_to_cancel = 'javascript:history.back()';
+			$this->setUrlToCancel();
+		}else{
+			$this->set('url_to_cancel', $url_to_cancel);
 		}
-		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
 		$init_data = $this->batchInit(
@@ -841,7 +841,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		$this->set('sample_master_ids', $this->data['SampleMaster']['ids']);
 		$this->set('sample_master_control_id', $this->data['SampleMaster']['sample_control_id']);
 		$this->set('parent_sample_control_id', $this->data['ParentToDerivativeSampleControl']['parent_sample_control_id']);
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$this->setUrlToCancel();
 		if(isset($this->data['AliquotMaster']['ids'])){
 			$this->set('aliquot_master_ids', $this->data['AliquotMaster']['ids']);
 		}
@@ -940,7 +940,7 @@ class SampleMastersController extends InventorymanagementAppController {
 			'DerivativeDetail.creation_datetime' => date('Y-m-d G:i')));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$this->setUrlToCancel();
 		unset($this->data['url_to_cancel']);
 		
 		$joins = array(array(
@@ -995,12 +995,12 @@ class SampleMastersController extends InventorymanagementAppController {
 			$record_counter = 0;
 			$aliquots_data = array();
 			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
-			$tmp = current($prev_data);
-			$is_aliquot = isset($tmp['AliquotMaster']);
+			$set_source_aliquot = false;
 			foreach($prev_data as $parent_id => &$children){
 				$parent = null;
 				$record_counter++;
 				if(isset($children['AliquotMaster'])){
+					$set_source_aliquot = true;					
 					$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 					$parent = $this->AliquotMaster->find('first', array(
 						'conditions'	=> array('AliquotMaster.id' => $parent_id),
@@ -1040,8 +1040,6 @@ class SampleMastersController extends InventorymanagementAppController {
 					
 					$child['DerivativeDetail']['sync_with_lab_book'] = $sync_with_lab_book;
 					$child['DerivativeDetail']['lab_book_master_id'] = $lab_book_id;
-					
-					$child['AliquotMaster']['id'] = $is_aliquot ? null : $parent_id;
 					
 					foreach($validation_iterations as $validation_model_name){
 						if(array_key_exists($validation_model_name, $child)) {
@@ -1105,7 +1103,7 @@ class SampleMastersController extends InventorymanagementAppController {
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 
-						if(array_key_exists('AliquotMaster', $child)){
+						if($set_source_aliquot){
 							//record aliquot use -> source_aliquots
 							$this->SourceAliquot->id = null;
 							$this->SourceAliquot->data = array();
@@ -1132,23 +1130,25 @@ class SampleMastersController extends InventorymanagementAppController {
 					$this->AliquotMaster->save($aliquot, false);
 					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
 				}
-				if(!empty($child_ids)){
-					//prevent double access bug to empty our BatchId
-					$_SESSION['tmp_batch_set']['BatchId'] = $child_ids;
-				}
-				
-				$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewSample');
-				
+
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
 				
 				if(is_null($unique_aliquot_master_data)) {
-					$this->flash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
+					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewSample'),
+						'flag_tmp' => true
+					));
+					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
+					$this->flash('your data has been saved', '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
-					if(!isset($unique_aliquot_master_data['AliquotMaster'])) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
 					$this->flash('your data has been saved','/inventorymanagement/aliquot_masters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $unique_aliquot_master_data['AliquotMaster']['sample_master_id']. '/' . $aliquot_master_id);					
 				}
 				

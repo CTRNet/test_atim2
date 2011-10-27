@@ -201,16 +201,21 @@ class StructuresHelper extends Helper {
 	private function updateDataWithAccuracy(array &$data, array &$structure){
 		if(!empty($structure['Accuracy']) && !empty($data)){
 			$single_node = false;
+			$goto_end = false;
 			foreach($data as $data_l1){
 				foreach($data_l1 as $data_l2){
 					if(!is_array($data_l2)){
 						$single_node = true;
 						$data = array($data);
 					}
-					goto loop_end;
+					$goto_end = true;
+					break;
+				}
+				if($goto_end){
+					break;
 				}
 			}
-			loop_end:
+			
 
 			foreach($data as &$data_line){
 				foreach($structure['Accuracy'] as $model => $fields){

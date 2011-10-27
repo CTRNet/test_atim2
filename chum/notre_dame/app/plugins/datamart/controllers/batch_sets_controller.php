@@ -47,52 +47,40 @@ class BatchSetsController extends DatamartAppController {
 		$this->BatchSet->completeData($this->data);
 	}
 	
-	function listall($batch_set_id = 0){
+	function listall($batch_set_id){
 		$this->Structures->set('querytool_batch_set', 'atim_structure_for_detail');
 		$lookup_ids = array();
 		$atim_menu_variables = array('BatchSet.id' => $batch_set_id);
 		
-		if($batch_set_id > 0){
-			$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
-			
-			//check permissions
-			if($batch_set['BatchSet']['datamart_adhoc_id']){
-				$adhoc_data = $this->Adhoc->findById($batch_set['BatchSet']['datamart_adhoc_id']);
-				if(empty($adhoc_data['AdhocPermission'])){
-					$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
-					return;
-				}
-			}else if($batch_set['BatchSet']['datamart_structure_id']){
-				$datamart_structure_data = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
-				if(!AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])){
-					$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
-					return;
-				}
-			}
-			if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
+		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+		
+		//check permissions
+		if($batch_set['BatchSet']['datamart_adhoc_id']){
+			$adhoc_data = $this->Adhoc->findById($batch_set['BatchSet']['datamart_adhoc_id']);
+			if(empty($adhoc_data['AdhocPermission'])){
+				$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
 				return;
 			}
-			foreach ( $batch_set['BatchId'] as $fields ) {
-				$lookup_ids[] = $fields['lookup_id'];
+		}else if($batch_set['BatchSet']['datamart_structure_id']){
+			$datamart_structure_data = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
+			if(!AppController::checkLinkPermission($datamart_structure_data['DatamartStructure']['index_link'])){
+				$this->flash(__("You are not authorized to access that location.", true), 'javascript:history.back()');
+				return;
 			}
-		}else if(isset($_SESSION['tmp_batch_set'])){
-			$batch_set['BatchSet'] = array(
-				'user_id'				=> $_SESSION['Auth']['User']['id'],
-				'datamart_structure_id'	=> $_SESSION['tmp_batch_set']['datamart_structure_id'],
-				'title'					=> '<span class="red">'.strtoupper(__('temporary batch set', true)).'</span>',
-				'description'			=> '',
-				'sharing_status'		=> '',
-				'created_by'			=> '',
-				'created'				=> AppController::getFormatedDatetimeString(date("Y-m-d H:i")),
-				'flag_use_query_results'=> false,
-				'locked'				=> false
-			);
-			$atim_menu_variables['BatchSet.temporary_batchset'] = true;
-			$lookup_ids = array_merge($lookup_ids, $_SESSION['tmp_batch_set']['BatchId']);
-			$this->set('datamart_structure_id', $_SESSION['tmp_batch_set']['datamart_structure_id']);
-		}else{
-			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			
+			if($batch_set['BatchSet']['flag_tmp']){
+				$batch_set['BatchSet']['title'] = '<span class="red">'.strtoupper(__('temporary batch set', true)).'</span>';
+				$atim_menu_variables['BatchSet.temporary_batchset'] = true;
+			}
 		}
+		
+		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
+			return;
+		}
+		foreach ( $batch_set['BatchId'] as $fields ) {
+			$lookup_ids[] = $fields['lookup_id'];
+		}
+			
 		$this->set( 'atim_menu_variables',  $atim_menu_variables);
 		
 		// add COUNT of IDS to array results, for form list 
@@ -192,10 +180,10 @@ class BatchSetsController extends DatamartAppController {
 		$this->set( 'results', AppModel::sortWithUrl($results, $this->passedArgs)); // set for display purposes...
 		$this->set( 'data_for_detail', $batch_set );
 		$this->set( 'atim_structure_for_results', $atim_structure_for_results);
+		$tmp = array();
 		if(isset($atim_structure_for_results['Structure']['alias'])){
 			$batch_set['BatchSet']['structure_alias'] = $atim_structure_for_results['Structure']['alias'];
 		}else{
-			$tmp = array();
 			foreach($atim_structure_for_results['Structure'] as $struct){
 				$tmp[] = $struct['alias'];
 			}
@@ -212,24 +200,23 @@ class BatchSetsController extends DatamartAppController {
 				$lookup_key_name,
 				$batch_set_id
 			);
-			if($batch_set_id != 0){
-				$tmp = array(0 => array(
-						'value' => '0',
-						'default' => __('remove from batch set', true),
-						'action' => '/datamart/batch_sets/remove/'.$batch_set_id.'/'
-				));
-				if(!is_numeric($batch_set['BatchSet']['datamart_structure_id'])){
-					$tmp[1] = array(
-						'value' => '0',
-						'default' => __('create generic batch set', true),
-						'action' => '/datamart/batch_sets/add/-1'
-					);
-				}	
-				$actions[0]['children'] = array_merge(
-					$tmp,
-					$actions[0]['children']
+			
+			$tmp = array(0 => array(
+					'value' => '0',
+					'default' => __('remove from batch set', true),
+					'action' => '/datamart/batch_sets/remove/'.$batch_set_id.'/'
+			));
+			if(!is_numeric($batch_set['BatchSet']['datamart_structure_id'])){
+				$tmp[1] = array(
+					'value' => '0',
+					'default' => __('create generic batch set', true),
+					'action' => '/datamart/batch_sets/add/-1'
 				);
-			}
+			}	
+			$actions[0]['children'] = array_merge(
+				$tmp,
+				$actions[0]['children']
+			);
 
 			if($this->DatamartStructure->getIdByModelName($batch_set['BatchSet']['model']) != null){
 				$actions[] = array(
@@ -430,6 +417,7 @@ class BatchSetsController extends DatamartAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->BatchSet->id = $batch_set_id;
+			$this->data['BatchSet']['flag_tmp'] = false;
 			if ( $this->BatchSet->save($this->data) ){
 				$this->atimFlash( 'your data has been updated','/datamart/batch_sets/listall/'.$batch_set_id );
 			}

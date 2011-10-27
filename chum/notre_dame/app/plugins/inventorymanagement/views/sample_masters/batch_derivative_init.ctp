@@ -5,7 +5,7 @@
 		'type' => 'add', 
 		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('derivative type selection', true), 'stretch' => false),
 		'links' => array(
-			'top' => ($skip_lab_book_selection_step? '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id : '/inventorymanagement/sample_masters/batchDerivativeInit2/'.$aliquot_master_id),
+			'top' => ($skip_lab_book_selection_step ? '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id : '/inventorymanagement/sample_masters/batchDerivativeInit2/'.$aliquot_master_id),
 			'bottom' => array('cancel' => $url_to_cancel)),
 		'extras' => '<input type="hidden" name="data[SampleMaster][ids]" value="'.$ids.'"/>
 					<input type="hidden" name="data[AliquotMaster][ids]" value="'.(isset($aliquot_ids) ? $aliquot_ids : "").'"/>
