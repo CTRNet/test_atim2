@@ -45,7 +45,10 @@
 	}
 	$links['top'] = $top;
 	
-	
+	$extras = array();
+	if(isset($node_id)){
+		$extras['end'] = $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
+	}
 	
 	$structures->build($atim_structure, array(
 		'type' => $type, 
@@ -54,9 +57,7 @@
 		'settings' => array(
 			'form_top' => !$is_datagrid, 
 			"header" => (isset($header) ? $header : __("select an action", true))
-		), 'extras' => array(
-			'end' => $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id))
-		)
+		), 'extras' => $extras
 	));
 ?>
 <script>
