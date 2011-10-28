@@ -2958,3 +2958,5 @@ UPDATE structure_fields SET  `language_label`='number of matching participants' 
 
 UPDATE datamart_reports
  SET description='report_4_desc' WHERE id='4';
+ 
+UPDATE menus SET flag_active=false WHERE id IN('core_CAN_41_1_3_5');
