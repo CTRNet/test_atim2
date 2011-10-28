@@ -144,7 +144,12 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("trying to put storage [%s] within itself failed", 
  "Trying to put storage [%s] within itself failed",
  "La tentative de mettre l'entreposage [%s] à l'intérieur de lui-même a échouée."),
-("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun.");
+("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun."),
+("number of matching participants", "Number of matching participants", "Nombre de participants correspondants"),
+("report_4_desc", 
+ "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
+ "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché."),
+("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -517,8 +522,7 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
-al.created,
-al.deleted
+al.created
 
 FROM aliquot_masters AS al
 INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
@@ -559,8 +563,7 @@ parent_samp.sample_control_id AS parent_sample_control_id,
 sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
-sampc.sample_category,
-samp.deleted
+sampc.sample_category
 
 FROM sample_masters as samp
 INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
@@ -2735,8 +2738,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES 
 ('time at room temp (mn)', 'Time at room temperature (mn)', 'Temps à température ambiante (mn)'),
 ('time_at_room_temp_mn_help', 
-'Time spent between the collection time and the initial specimen storage time at low temperature (minutes).', 
-'Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes).');
+"Time spent between the collection time and the initial specimen storage time at low temperature (minutes). Ex.: Time between blood sampling and blood storage by the nurse.", 
+"Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes). Ex.: Temps entre une prise de sang et l'entreposage du sang par l'infirmère.");
 
 UPDATE structure_formats SET `language_heading`='shipping data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipment_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='recipient data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='recipient' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -2950,3 +2953,11 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 ALTER TABLE datamart_batch_sets
  ADD COLUMN flag_tmp BOOLEAN NOT NULL DEFAULT FALSE AFTER locked;
+
+UPDATE structure_fields SET  `language_label`='number of matching participants' WHERE model='0' AND tablename='' AND field='matching_participant_number' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+
+UPDATE datamart_reports
+ SET description='report_4_desc' WHERE id='4';
+ 
+UPDATE menus SET flag_active=false WHERE id IN('core_CAN_41_1_3_5');

@@ -273,7 +273,7 @@ function preparePost(){
  * @return
  */
 function moveStorage(scope, recycle){
-	var elements = scope.find("ul");
+	var elements = scope.find("table.storageLayout ul");
 	for(var i = 0; i < elements.length; ++ i){
 		var id = elements[i].id;
 		if(id != null && id.indexOf("s_") == 0){

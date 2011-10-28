@@ -1786,7 +1786,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model->saveWithIds($batch_set_data, $new_aliquot_ids);
 					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $this->data['url_to_cancel']);
+					$aliquot = $this->AliquotMaster->findById($aliquot_id);
+					$aliquot = $aliquot['AliquotMaster'];
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/'.$aliquot['collection_id'].'/'.$aliquot['sample_master_id'].'/'.$aliquot['id']);
 				}
 					
 			} else {
@@ -2140,7 +2142,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				}else{
 					$aliquot = $this->AliquotMaster->findById($aliquot_master_id);
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $this->data['url_to_cancel']);
+					$aliquot = $aliquot['AliquotMaster'];
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/'.$aliquot['collection_id'].'/'.$aliquot['sample_master_id'].'/'.$aliquot['id']);
 				}
 			
 			} else {
