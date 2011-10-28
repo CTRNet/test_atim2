@@ -48,13 +48,13 @@ function postParticipantRead(Model $m){
 }
 
 function createParticipantCollections(Model $m){
-
 	$participant_id = $m->last_id;
 	$line =  $m->line;
 	$inventory_data_from_file =  $m->values;
 	$ns = $inventory_data_from_file['NS'];
 	
 	$collections = array();
+	$warning_messages = array('high'=>array(), 'medium'=>array(), 'low'=>array());
 	
 	//Get Spent Time
 	
@@ -75,19 +75,19 @@ function createParticipantCollections(Model $m){
 			preg_match('/([0-9]+MIN\.)/', $new, $matches_mn);	
 			
 			if(!empty($matches_day)) {
-				if(sizeof($matches_day) != 2) { pr($matches_day);die('a1'); }
+				if(sizeof($matches_day) != 2) { pr($matches_day);die('spent_time_data_a1'); }
 				$value = str_replace('JOUR', '', $matches_day[0]);
 				$unit = 'd';
 				$tissue = str_replace($matches_day[0], '', $new);
 				
 			} else if(!empty($matches_hour)) {
-				if(sizeof($matches_hour) != 2)  {  pr($matches_hour);die('a2'); }
+				if(sizeof($matches_hour) != 2)  {  pr($matches_hour);die('spent_time_data_a2'); }
 				$value = str_replace('H', '', $matches_hour[0]);
 				$unit = 'h';
 				$tissue = str_replace($matches_hour[0], '', $new);
 				
 			} else if(!empty($matches_mn)) {
-				if(sizeof($matches_mn) != 2) {  pr($matches_mn);die('a3'); }
+				if(sizeof($matches_mn) != 2) {  pr($matches_mn);die('spent_time_data_a3'); }
 				$value = str_replace('MIN.', '', $matches_mn[0]);
 				$unit = 'mn';
 				$tissue = str_replace($matches_mn[0], '', $new);
@@ -95,16 +95,16 @@ function createParticipantCollections(Model $m){
 			} else {
 				echo"<pre>$new";
 				print_r($times);
-				die('98466733');
+				die('spent_time_data_98466733');
 			} 
 		
 			if(empty($tissue)) {
-				if(!empty($spent_time['default'])) { die('3131313'); }
+				if(!empty($spent_time['default'])) { die('spent_time_data_3131313'); }
 				$spent_time['default'] = array('value' => $value, 'unit' => $unit);
 			} else {
-				if(!empty($spent_time['default'])) { die('3131313'); }
+				if(!empty($spent_time['default'])) { die('spent_time_data_3131313'); }
 				if(isset($spent_time['details'][$tissue])) {
-					echo "<br><FONT COLOR=\"red\" >Line ".$m->line." WARNING: Spent time defined twice for tissue ($tissue)!</FONT><br>";
+					$warning_messages['medium'][] = "Spent time defined twice for tissue ($tissue)!";
 				} else {
 					$spent_time['details'][$tissue] = array('value' => $value, 'unit' => $unit);
 				}
@@ -135,12 +135,12 @@ function createParticipantCollections(Model $m){
 								$suffix = '###'.$suffix_counter.'###';
 								$suffix_counter++;
 							}	
-							echo "<br><FONT COLOR=\"green\" >WARNING: Line ".$m->line." [TISSUS][WARNING]: TISSUS code {$new_tissue} is created at least twice!</FONT><br>";						
+							$warning_messages['low'][] = "Tissue code {$new_tissue} is created at least twice (see column TISSUS).";						
 						}
 						$collections[$new_tissue.$suffix] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_tissue], 'aliquots' => array(), 'derivatives' => array());
 						
 					}else {
-						die("<br><FONT COLOR=\"red\" >Line ".$m->line." [TISSUS][ERROR]: TISSUS code {$new_tissue} is unknown!</FONT><br>");
+						$warning_messages['high'][] = "Tissue code {$new_tissue} is unknown (see column TISSUS & tissueCode2Details).";
 					}
 				}
 				$nbr_of_tissues_to_create--;
@@ -174,18 +174,21 @@ function createParticipantCollections(Model $m){
 			$new_source = str_replace($nbr_of_aliquots_to_create,'', $new_source);
 			
 			if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
-			if(!array_key_exists($new_source, Config::$tissueCode2Details)) die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [OCT][ERROR]: Parent type '$new_source' of an oct tube is not supported.</FONT><br>");
+			if(!array_key_exists($new_source, Config::$tissueCode2Details)) {
+				$warning_messages['high'][] = "Parent type '$new_source' of an oct tube is not supported. (see column OCT & tissueCode2Details). Defined tissue code as 'AP' for the block to temporary solve the issue.";
+				$new_source = 'AP';	
+			}
 				
 			if(!array_key_exists($new_source, $collections)) {
 				//Create parent
-				echo "<br><FONT>[OCT][WARNING]: Line ".$m->line." / NS = $ns Created parent '$new_source' for an 'oct tube' value equal to '$new_source' because this one does not exist into 'SOURCE' column.</FONT><br>";
+				$warning_messages['low'][] = "Created parent '$new_source' for an 'OCT tube' value (see OCT column) because this one does not exist into 'TISSUS' column.";
 				$collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 			}
 
 			$box = array_shift($boxes);
 			if(is_null($box)) die('ERR0098373');
 			preg_match('/^([0-9]+)$/', $box, $matches);
-			if(!empty($box) && !isset($matches[1])) { echo "<br><FONT COLOR=\"green\" >[OCT][WARNING]: Line ".$m->line." / NS = $ns OCT box value [$box] looks like wrong (not numeric)!</FONT><br>";}
+			if(!empty($box) && !isset($matches[1]) && $box != 'WRONG_BOX') $warning_messages['medium'][] = "OCT box value [$box] looks like wrong (not numeric - see 'N0 BOÎTE OCT' column).";
 			while($nbr_of_aliquots_to_create) { 
 				$collections[$new_source]['aliquots'][] = array('type' =>$aliquot_type, 'storage' => $box); 
 				$nbr_of_aliquots_to_create--;
@@ -211,11 +214,9 @@ function createParticipantCollections(Model $m){
 		$boxes =(empty($boxes))? array('') : $boxes;
 		if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0]; } }	
 		if(sizeof($boxes) != sizeof($tissue_sources)) {
-//TODO	add die error		die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$inventory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"); 
-
-echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$inventory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"; 
-$boxes = array('WRONG_BOX');
-for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0];	}		
+			$warning_messages['high'][] = "The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] (from 'N0 BOÎTE TISSU' column) does not match the tissue data [".$inventory_data_from_file['TISSU']."] (defined into 'TISSU' column) : Check wrong coma, '/', '.', etc. Created box with label 'WRONG_BOX' to temporary solve the issue.";
+			$boxes = array('WRONG_BOX');
+			for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0];	}		
 		}
 		
 		// Set product
@@ -226,20 +227,19 @@ for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0];	}
 			
 			if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
 			if(!array_key_exists($new_source, Config::$tissueCode2Details)) {
-//TODO	add die error				die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR]: Parent type '$new_source' of an TISSU tube is not supported.</FONT><br>");
-echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR]: Parent type '$new_source' of an TISSU tube is not supported.</FONT><br>";
-$new_source = 'AP';				
+				$warning_messages['high'][] = "Tissue code {$new_source} is unknown for a tissue tube (see column TISSU & tissueCode2Details). Defined tissue code as 'AP' for the tube to temporary solve the issue.";
+				$new_source = 'AP';			
 			}	
 			if(!array_key_exists($new_source, $collections)) {
 				//Create parent
-				echo "<br><FONT>[TISSU][WARNING]: Line ".$m->line." / NS = $ns Created parent '$new_source' for an 'TISSU tube' value equal to '$new_source' because this one does not exist into 'SOURCE' column.</FONT><br>";
+				$warning_messages['low'][] = "Created parent '$new_source' for a tissue tube value (see TISSU column) because this one is not already defined by the content of the 'OCT' or 'TISSUS' columns.";
 				$collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 			}
 
 			$box = array_shift($boxes);
 			if(is_null($box)) die('ERR0098374');
 			preg_match('/^([0-9]+)$/', $box, $matches);
-			if(!empty($box) && !isset($matches[1])) { echo "<br><FONT COLOR=\"green\" >[TISSU][WARNING]: Line ".$m->line." / NS = $ns TISSU box value [$box] looks like wrong (not numeric)!</FONT><br>";}
+			if(!empty($box) && !isset($matches[1]) && $box != 'WRONG_BOX') $warning_messages['medium'][] = "Tissue box value [$box] looks like wrong (not numeric - see 'N0 BOÎTE TISSU' column).";
 			while($nbr_of_aliquots_to_create) { 
 				$collections[$new_source]['aliquots'][] = array('type' =>$aliquot_type, 'storage' => $box); 
 				$nbr_of_aliquots_to_create--;
@@ -256,7 +256,7 @@ $new_source = 'AP';
 	$ffpe_cell_data = $inventory_data_from_file['FFPE'];
 	if(!empty($ffpe_cell_data)) {
 		//Get all different types of source
-		$ffpe_cell_data = str_replace( array(" ", "P/", "/"), array("", "", ","), strtoupper($ffpe_cell_data));
+		$ffpe_cell_data = str_replace( array(" ", "P/,", "P/", "/"), array("", "", "", ","), strtoupper($ffpe_cell_data));
 		$ffpe_cell_data = preg_replace('/^(.+)\,$/', '$1', $ffpe_cell_data);
 		$ffpe_sources = explode(',', $ffpe_cell_data);
 
@@ -277,14 +277,14 @@ $new_source = 'AP';
 				
 			if(!array_key_exists($new_source, $collections)) {
 				//Create parent
-				echo "<br><FONT>[FFPE][WARNING]: Line ".$m->line." / NS = $ns Created parent '$new_source' for an 'ffpe tube' value equal to '$new_source' because this one does not exist into 'SOURCE' column.</FONT><br>";
+				$warning_messages['low'][] = "Created parent '$new_source' for a ffpe tube value (see TISSU column) because this one is not already defined by the content of the previous columns like OCT', 'TISSUS', etc.";
 				$collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 			}
 
 			$box = array_shift($boxes);
 			if(is_null($box)) die('ERR0098376');
 			preg_match('/^([0-9]+)$/', $box, $matches);
-			if(!empty($box) && !isset($matches[1])) { echo "<br><FONT COLOR=\"green\" >[FFPE][WARNING]: Line ".$m->line." / NS = $ns FFPE box value [$box] looks like wrong (not numeric)!</FONT><br>";}
+			if(!empty($box) && !isset($matches[1]) && $box != 'WRONG_BOX') $warning_messages['medium'][] = "FFPE box value [$box] looks like wrong (not numeric - see 'N0 BOÎTE FFPE' column).";
 			while($nbr_of_aliquots_to_create) { 
 				$collections[$new_source]['aliquots'][] = array('type' =>$aliquot_type, 'storage' => $box); 
 				$nbr_of_aliquots_to_create--;
@@ -319,9 +319,9 @@ $new_source = 'AP';
 				if(isset($merged_blood_data[$new_blood_type]) && sizeof($merged_blood_data[$new_blood_type]) == $nbr_of_aliquots_to_create) {
 					// Same data into the 2 worksheets.... nothing to do
 				} else if(isset($merged_blood_data[$new_blood_type]) && sizeof($merged_blood_data[$new_blood_type]) != $nbr_of_aliquots_to_create) {
-					echo "<br><FONT COLOR=\"green\" >[BLOOD][WARNING]: Line ".$m->line." / NS = $ns Nbr of [$new_blood_type] is not the same into teh 2 worksheets (".sizeof($merged_blood_data[$new_blood_type])." != $nbr_of_aliquots_to_create)!</FONT><br>";
-					$nbr_to_add = $nbr_of_aliquots_to_create - sizeof($merged_blood_data[$new_blood_type]);
+ 					$nbr_to_add = $nbr_of_aliquots_to_create - sizeof($merged_blood_data[$new_blood_type]);
 					$nbr_to_add = ($nbr_to_add < 0)? 0 : $nbr_to_add;
+					$warning_messages['medium'][] = "Nbr of [$new_blood_type] is not the same into the 2 sent worksheets (blood boxes worksheet and main file column 'SANG-PLASMA-SÉRUM- CULOT ENRICHI ' : ".sizeof($merged_blood_data[$new_blood_type])." != $nbr_of_aliquots_to_create). Will add $nbr_to_add tubes in no box.";
 						
 					while($nbr_to_add) {
 						$merged_blood_data[$new_blood_type][] = array('box' => '');
@@ -367,7 +367,7 @@ $new_source = 'AP';
 					$collections['blood']['derivatives']['blood cell']['aliquots'] = array_merge($collections['blood']['derivatives']['blood cell']['aliquots'], $aliquots_array);						
 					break;
 				case 'ARLT':
-//TODO confirm ARLT management
+//TODO see 4
 					if(!isset($collections['blood']['derivatives']['blood cell (arlt)'])) $collections['blood']['derivatives']['blood cell (arlt)'] = array('type' => 'blood cell (arlt)', 'details' => null, 'aliquots' => array(), 'derivatives' => array());						
 					$collections['blood']['derivatives']['blood cell (arlt)']['aliquots'] = array_merge($collections['blood']['derivatives']['blood cell (arlt)']['aliquots'], $aliquots_array);						
 					break;							
@@ -382,7 +382,7 @@ $new_source = 'AP';
 	// ---------------------------------------------------------------------------------------------------------
 	// [ASCITE] + [NO BÔITE ASC,S, RNALATER] + [NO BÔTE ASCITE (NC)] : sample => ascite,LP , aliquot => tube --
 	
-//TODO Does [NO BÔITE ASC,S, RNALATER] mean ascite, serum and blood RNAlater?	
+//TODO see 5
 
 	$ascite_cell_data = $inventory_data_from_file['ASCITE'];
 	$ascite_boxes_cell_data = $inventory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')];
@@ -403,7 +403,7 @@ $new_source = 'AP';
 		$ascite_cell_data_without_nc =  str_replace(array($ncs_string, ',,'), array('', ','), $ascite_cell_data);
 		if($nc_tubes_nbrs) {
 			preg_match('/^([0-9]+)$/',  $nc_boxes_cell_data, $matches);
-			if(!empty($nc_boxes_cell_data) && !isset($matches[1])) { die( "<br><FONT COLOR=\"red\" >[ASCITE][WARNING]: Line ".$m->line." / NS = $ns NC box value [$nc_boxes_cell_data] looks like wrong (not numeric)!</FONT><br>");}
+			if(!empty($nc_boxes_cell_data) && !isset($matches[1]) && $nc_boxes_cell_data != 'WRONG_BOX') $warning_messages['medium'][] = "NC box value [$nc_boxes_cell_data] looks like wrong (not numeric - see 'NO BÔTE ASCITE (NC)' column).";
 			$nc_box = $nc_boxes_cell_data;
 
 			if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
@@ -425,8 +425,11 @@ $new_source = 'AP';
 			$boxes = explode(',', str_replace(array(" ", "/", "."), array("", ",", ","), $ascite_boxes_cell_data));
 			$boxes =(empty($boxes))? array('') : $boxes;
 			if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($ascite_without_ncs); $i++) { $boxes[] = $boxes[0]; } }	
-			if(sizeof($boxes) != sizeof($ascite_without_ncs)) {
-				die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [ASCITE][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')]."] does not match the ascite defintion [".$inventory_data_from_file['ASCITE']."] (check wrong coma, etc).</FONT><br>"); 
+			if(sizeof($boxes) != sizeof($ascite_without_ncs)) 
+			{
+				$warning_messages['high'][] = "The box definitions [".$inventory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')]."] (from 'NO BÔITE ASC,S, RNALATER' column) does not match the ascite defintion [".$inventory_data_from_file['ASCITE']."] (defined into 'ASCITE' column) ". empty($nc_boxes_cell_data)? '' : "(considering NC box has been deifined [$nc_boxes_cell_data] into 'NO BÔTE ASCITE (NC)' column)"." : Check wrong coma, '/', '.', etc. Created box with label 'WRONG_BOX' to temporary solve the issue.";
+				$boxes = array('WRONG_BOX');
+				for($i = 1; $i < sizeof($ascite_without_ncs); $i++) { $boxes[] = $boxes[0];	}	
 			}
 							
 			// Set product
@@ -459,7 +462,7 @@ $new_source = 'AP';
 					$collections['peritoneal wash']['aliquots'] = array_merge($collections['peritoneal wash']['aliquots'], $aliquots) ;
 					
 				} else if($new_source == 'S'){
-//TODO Confirm S means serum
+//TODO see 6
 					if(!isset($collections['blood'])) $collections['blood'] = array('type' => 'blood', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 					if(!isset($collections['blood']['derivatives']['serum'])) $collections['blood']['derivatives']['serum'] = array('type' => 'serum', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 					$collections['blood']['derivatives']['serum']['aliquots'] = array_merge($collections['blood']['derivatives']['serum']['aliquots'], $aliquots) ;	
@@ -486,8 +489,7 @@ $new_source = 'AP';
 				if(key($collections) == 'peritoneal wash') die ("ERR: Peritoneal wash PC not supported!");
 				$specimens = array(key($collections));
 			} else {
-//TODO add die error die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC intial specimen is not defined and can not be defined by the system.</FONT><br>");
-echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC intial specimen is not defined and can not be defined by the system.</FONT><br>";			
+				$warning_messages['high'][] = "The PC intial specimen is not defined or can not be defined by the migration process (see column 'PC').";
 			}		
 		} else {
 			$specimens = explode(',', $pc_cell_data);
@@ -501,34 +503,14 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				
 				$aliquots = array();
 				while($nbr_of_aliquots_to_create) { 
-//TODO confirm no box for PC
+//TODO see 7
 					$aliquots[] = array('type' => 'tube', 'storage' => ''); 
 					$nbr_of_aliquots_to_create--;
 				}
 				
 				if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
 				if(array_key_exists($new_source, Config::$tissueCode2Details)) {
-					// SOURCE = TISSUE
-				
-//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-//						// Try to match with existing ovary
-//						$ovaries_already_recorded = '';
-//						$ov_list_to_display = '';
-//						foreach($collections as $key_source => $tmp) {
-//							if(in_array($key_source, $m->ovCodes)) {
-//								$ovaries_already_recorded[] = $key_source;
-//								$ov_list_to_display .= $key_source.', ';
-//							}
-//						}
-//						if(sizeof($ovaries_already_recorded) == 1) {
-//							$source_already_recorded = $ovaries_already_recorded[0];
-//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-//							$new_source = $source_already_recorded;
-//						} else if(sizeof($ovaries_already_recorded) > 1) {
-//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-//						}	
-//					}
-				
+					// SOURCE = TISSUE				
 					if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 					if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
 					$collections[$new_source]['derivatives']['cell culture']['aliquots'] = array_merge($collections[$new_source]['derivatives']['cell culture']['aliquots'], $aliquots);
@@ -575,27 +557,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			
 			if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
 			if(array_key_exists($new_source, Config::$tissueCode2Details)) {
-					// SOURCE = TISSUE
-				
-//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-//						// Try to match with existing ovary
-//						$ovaries_already_recorded = '';
-//						$ov_list_to_display = '';
-//						foreach($collections as $key_source => $tmp) {
-//							if(in_array($key_source, $m->ovCodes)) {
-//								$ovaries_already_recorded[] = $key_source;
-//								$ov_list_to_display .= $key_source.', ';
-//							}
-//						}
-//						if(sizeof($ovaries_already_recorded) == 1) {
-//							$source_already_recorded = $ovaries_already_recorded[0];
-//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-//							$new_source = $source_already_recorded;
-//						} else if(sizeof($ovaries_already_recorded) > 1) {
-//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-//						}	
-//					}
-				
+				// SOURCE = TISSUE				
 				if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
 				$collections[$new_source]['derivatives']['cell culture']['aliquots'] = array_merge($collections[$new_source]['derivatives']['cell culture']['aliquots'], $aliquots);
@@ -645,27 +607,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			
 			if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
 			if(array_key_exists($new_source, Config::$tissueCode2Details)) {
-					// SOURCE = TISSUE
-				
-//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-//						// Try to match with existing ovary
-//						$ovaries_already_recorded = '';
-//						$ov_list_to_display = '';
-//						foreach($collections as $key_source => $tmp) {
-//							if(in_array($key_source, $m->ovCodes)) {
-//								$ovaries_already_recorded[] = $key_source;
-//								$ov_list_to_display .= $key_source.', ';
-//							}
-//						}
-//						if(sizeof($ovaries_already_recorded) == 1) {
-//							$source_already_recorded = $ovaries_already_recorded[0];
-//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-//							$new_source = $source_already_recorded;
-//						} else if(sizeof($ovaries_already_recorded) > 1) {
-//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-//						}	
-//					}
-				
+				// SOURCE = TISSUE
 				if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
 				if(!isset($collections[$new_source]['derivatives']['cell culture']['derivatives']['rna'])) $collections[$new_source]['derivatives']['cell culture']['derivatives']['rna'] = array('type' => 'rna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -673,7 +615,6 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			
 			} else if($new_source == 'ASC') {
 				// SOURCE = ASCITE
-			
 				if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -715,27 +656,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			
 			if(array_key_exists($new_source, Config::$tissueCodeSynonimous)) $new_source = Config::$tissueCodeSynonimous[$new_source];
 			if(array_key_exists($new_source, Config::$tissueCode2Details)) {
-					// SOURCE = TISSUE
-				
-//					if(($new_source == 'OV') && (!array_key_exists($new_source, $collections))) {
-//						// Try to match with existing ovary
-//						$ovaries_already_recorded = '';
-//						$ov_list_to_display = '';
-//						foreach($collections as $key_source => $tmp) {
-//							if(in_array($key_source, $m->ovCodes)) {
-//								$ovaries_already_recorded[] = $key_source;
-//								$ov_list_to_display .= $key_source.', ';
-//							}
-//						}
-//						if(sizeof($ovaries_already_recorded) == 1) {
-//							$source_already_recorded = $ovaries_already_recorded[0];
-//							echo "<br><FONT COLOR=\"green\" >Line ".$m->line." [VC]: Changed the parent defintion for a 'VC' value from {OV} to {$source_already_recorded} because only one ovary type has already been defined as collected for this participant.</FONT><br>";
-//							$new_source = $source_already_recorded;
-//						} else if(sizeof($ovaries_already_recorded) > 1) {
-//							echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][WARNING]: Unable to define parent for a 'VC' value equals to {$new_source} because there is too many existing parents that could be applied (".$ov_list_to_display."). Will create a new {OV}.</FONT><br>";
-//						}	
-//					}
-				
+				// SOURCE = TISSUE
 				if(!isset($collections[$new_source])) $collections[$new_source] = array('type' => 'tissue', 'details' => Config::$tissueCode2Details[$new_source], 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections[$new_source]['derivatives']['cell culture'])) $collections[$new_source]['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
 				if(!isset($collections[$new_source]['derivatives']['cell culture']['derivatives']['dna'])) $collections[$new_source]['derivatives']['cell culture']['derivatives']['dna'] = array('type' => 'dna', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -743,7 +664,6 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			
 			} else if($new_source == 'ASC') {
 				// SOURCE = ASCITE
-			
 				if(!isset($collections['ascite'])) $collections['ascite'] = array('type' => 'ascite', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections['ascite']['derivatives']['ascite cell'])) $collections['ascite']['derivatives']['ascite cell'] = array('type' => 'ascite cell', 'details' => null, 'aliquots' => array(), 'derivatives' => array());
 				if(!isset($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'])) $collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture'] = array('type' => 'cell culture', 'details' => null, 'aliquots' => array(), 'derivatives' => array());		
@@ -755,16 +675,16 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 			}
 		}	
 	}
-
+	
 	// Display data for check
-	displayCollection($ns, $m, $participant_id, $collections, $spent_time);
+	displayCollection($ns, $m, $participant_id, $collections, $spent_time, $warning_messages);
 	
 	// Add collection notes
 	$collections['NOTES'] = $inventory_data_from_file['REMARQUE'];
 	$collection_notes = $collections['NOTES'];
 	
 	//INSERT PROCESS
-
+	
 	createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_time);
 
 }
@@ -773,18 +693,20 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 // Display functions
 //=========================================================================================================
 
-function displayCollection($ns, &$m, $participant_id, $collections, $spent_time) {	
-	echo "<br>:::::::::::::: SAMPLES SUMMARY - NS = $ns ::::::::::::::<br>";
+function displayCollection($ns, &$m, $participant_id, $collections, $spent_time, $warning_messages) {	
+	
+	echo "<br>:::::::::::::: SAMPLES SUMMARY - NS = $ns (Line: ".$m->line.") ::::::::::::::<br>";
 	
 	$space = '. . . . . . ';
 	if(empty($collections)) {
-		echo "<br><FONT COLOR=\"red\" >Line ".$m->line." [WARNING]: No sample defined for this participant!</FONT><br>";
+		Config::$summary_msg['errors'][] = "[NS = $ns / Line: ".$m->line."] No sample defined for this participant!";
+		echo "<br><FONT COLOR=\"red\" >@@ERROR@@ ==> No sample defined for this participant!</FONT><br>";
 	} else {
 		foreach($collections as $specimen_key => $data) {
 			// Manage Specimen
 			switch($specimen_key) {
 				case 'blood':
-					echo '<br><FONT COLOR=\"red\" >** BLOOD</FONT><br>';
+					echo "<br><FONT COLOR=\"blue\" >** BLOOD</FONT><br>";
 					break;
 				
 				case 'ascite':
@@ -799,7 +721,7 @@ function displayCollection($ns, &$m, $participant_id, $collections, $spent_time)
 						$spent_time['default']['unit'];
 					}					
 					
-					echo '<br><FONT COLOR=\"red\" >** ASCITE '.$pent_time_message.'</FONT><br>';
+					echo "<br><FONT COLOR=\"blue\" >** ASCITE </FONT>'.$pent_time_message.'<br>";
 					break;
 				
 				case 'peritoneal wash':
@@ -814,7 +736,7 @@ function displayCollection($ns, &$m, $participant_id, $collections, $spent_time)
 						$spent_time['default']['unit'];
 					}					
 					
-					echo '<br><FONT COLOR=\"red\" >** Peritoneal Wash '.$pent_time_message.'</FONT><br>';
+					echo "<br><FONT COLOR=\"blue\" >** Peritoneal Wash </FONT>'.$pent_time_message.'<br>";
 					break;
 								
 				default:
@@ -840,7 +762,7 @@ function displayCollection($ns, &$m, $participant_id, $collections, $spent_time)
 							$spent_time['default']['unit'];
 					}					
 					
-					echo '<br><FONT COLOR=\"red\" >** TISSUE </FONT>(code : '.$data['details']['code'].', source : '.$data['details']['source'].', laterality : '.$data['details']['laterality'].', type : '.$data['details']['type'].' '.$pent_time_message .')<br>';		
+					echo "<br><FONT COLOR=\"blue\" >** TISSUE </FONT>(code : ".$data['details']['code'].', source : '.$data['details']['source'].', laterality : '.$data['details']['laterality'].', type : '.$data['details']['type'].' '.$pent_time_message .')<br>';		
 			}
 						
 			// Display Aliquot
@@ -850,11 +772,38 @@ function displayCollection($ns, &$m, $participant_id, $collections, $spent_time)
 			displayDerivatives($m, $participant_id, $data['derivatives'], $space, $space);
 		}
 	}
+	
+	foreach($warning_messages as $level => $msgs) {
+		$color = '';
+		$type_msg = '';
+		switch($level) {
+			case 'high':
+				$color = 'red';
+				$type_msg = '@@ERROR@@';
+				break;
+			case 'medium':
+				$color = '#C35617';
+				$type_msg = '@@WARNING@@';
+				break;
+			case 'low':
+				$color = 'green';
+				$type_msg = '@@MESSAGE@@';
+				break;
+			default:
+				die('ERR 999d8as8dasd');
+		}
+		
+		foreach($msgs as $new_msg) {
+			Config::$summary_msg[$type_msg][] = utf8_decode("[NS = $ns / Line: ".$m->line."] $new_msg");
+			echo utf8_decode("<br><FONT COLOR=\"$color\" >$type_msg ==> $new_msg</FONT>");	
+		}
+	}	
+	
 	echo "<br>";
 }
 function displayAliquots(&$m, $participant_id, $aliquot_data, $space_to_use){
 	foreach($aliquot_data as $new_aliquot) {
-		echo $space_to_use."|==> @ 1 ".$new_aliquot['type']." (Box: ".(empty($new_aliquot['storage'])? '-': $new_aliquot['storage']).")<br>";
+		echo $space_to_use."|==> ".$new_aliquot['type']." (Box: ".(empty($new_aliquot['storage'])? '-': $new_aliquot['storage']).")<br>";
 	}
 }
 
@@ -863,7 +812,7 @@ function displayDerivatives(&$m, $participant_id, $derivative_data, $space_to_us
 	
 	if(!empty($derivative_data['details']))die('ERR: 98736621cacacsasccsa line'.$m->line);
 	foreach($derivative_data as $new_derivative) {
-		echo $space_to_use.'|==> <FONT COLOR=\"red\" >* '.strtoupper($new_derivative['type']).' </FONT><br>';
+		echo $space_to_use."|==> <FONT COLOR=\"blue\" >* ".strtoupper($new_derivative['type']).' </FONT><br>';
 		displayAliquots($m, $participant_id, $new_derivative['aliquots'], $space.$space_to_use);
 		displayDerivatives($m, $participant_id, $new_derivative['derivatives'], $space.$space_to_use,$space);
 	}

@@ -54,7 +54,13 @@ class Config{
 	static $bloodBoxesData = array();
 	static $storages = array();	
 	
-	static $summary_msg = array('NS without consent' => array(), 'NS without NO DOS' => array(), 'NS without NO PATHO' => array());	
+	static $summary_msg = array(
+		'NS without consent' => array(), 
+		'NS without NO DOS' => array(), 
+		'NS without NO PATHO' => array(), 
+		'@@ERROR@@' => array(),  
+		'@@WARNING@@' => array(),  
+		'@@MESSAGE@@' => array());	
 	
 }
 
@@ -106,11 +112,23 @@ echo " - tumour grade 'H' = ''<br>";
 echo " - figo 'X' = ''<br>";
 echo " - figo 'IC vs IIC' = 'Ic'<br>";
 
-echo "<br><FONT COLOR=\"red\" >TO CONFIRM WITH USER : Blood type CE = blood cell and ARLT = blood cell with flag Erythrocyte + nothing can be created from erythrocyte?</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : Does [NO BÔITE ASC,S, RNALATER] mean ascite, serum and blood RNAlater?</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : S value into 'ASCITE' = SERUM?</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : No box for PC aliquots?</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : Are LP, ASCITE, etc stored into the same box (NO BÔITE ASC,S, RNALATER)?</FONT><br>";
+echo "<br>** 4 ** Blood Cell Confirmation<br>";
+echo " - CE = blood cell<br>";
+echo " - ARLT = blood cell having flag 'flag Erythrocyte' set to 'Yes'<br>";
+echo " - No derivative can be created from Erythrocyte (ARLT)<br>";
+
+echo utf8_decode("<br>** 5 ** 'NO BÔITE ASC,S, RNALATER' column Confirmation<br>");
+echo " - ASC = ascite<br>";
+echo " - S = serum<br>";
+echo " - RNALATER = blood RNAlater<br>";
+echo " - Are LP, Ascite, serum, etc stored into the same box?<br>";
+
+echo "<br>** 6 ** 'ASCITE' column Confirmation<br>";
+echo " - S = serum<br>";
+echo " - LP = peritoneal wash<br>";
+
+echo "<br>** 7 ** 'PC' column Confirmation<br>";
+echo " - No storage (box) has to be defined for cell culture (PC)<br>";
 
 echo "<br><FONT COLOR=\"red\" ><br>=====================================================================
 </FONT><br>";	
@@ -118,6 +136,35 @@ echo "<br><FONT COLOR=\"red\" ><br>=============================================
 }
 
 function addonFunctionEnd(){
+	global $connection;
+	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
+	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
+	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
+	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE aliquot_masters SET barcode= id";
+	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	echo "<br><FONT COLOR=\"red\" >
+	=====================================================================<br>
+	addonFunctionEnd: CCL
+	<br>=====================================================================
+	</FONT><br>";
+	
+	if(!empty(Config::$summary_msg['@@ERROR@@'])) {
+		echo "<br><FONT COLOR=\"red\" >Errors summary (".sizeof(Config::$summary_msg['@@ERROR@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@ERROR@@'] as $msg) {
+			echo "$msg<br>";
+		}
+	}	
+	
+	if(!empty(Config::$summary_msg['@@WARNING@@'])) {
+		echo "<br><FONT COLOR=\"red\" >Warnings summary (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@WARNING@@'] as $msg) {
+			echo "$msg<br>";
+		}
+	}
+		
 	if(!empty(Config::$summary_msg['NS without consent'])) {
 		echo "<br><FONT COLOR=\"red\" >Following NS have no consent data (created obtained consent by default):</FONT><br>";
 		echo implode(" ,",Config::$summary_msg['NS without consent'])."<br>";
@@ -133,22 +180,12 @@ function addonFunctionEnd(){
 		echo implode(" ,",Config::$summary_msg['NS without NO PATHO'])."<br>";
 	}
 	
-	global $connection;
-	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
-	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
-	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
-	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE aliquot_masters SET barcode= id";
-	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-return;	
-
 	if(!empty(Config::$bloodBoxesData)) {
-		die("<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet : ".implode(" ,",array_keys(Config::$bloodBoxesData))."</FONT><br>");
+		echo "<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet:</FONT><br>";
+		echo implode(" ,",array_keys(Config::$bloodBoxesData))."<br>";
 	}
 	
-	completeInventoryRevsTable();	
+//	completeInventoryRevsTable();	
 }
 
 //=========================================================================================================
