@@ -26,9 +26,8 @@ Config::$models['ConsentMaster'] = $model;
 
 function postConsentRead(Model $m){
 	if(empty($m->values['CT'])) {
-		echo "<br><FONT COLOR=\"red\" >Line ".$m->line.": Consent status is empty!</FONT><br>";
+		Config::$summary_msg['NS without consent'][] = $m->values['NS'];
 		$m->values['CT'] = "O";
-	}
-	
+	}	
 	return true;
 }

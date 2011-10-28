@@ -17,9 +17,6 @@ $model->custom_data = array();
 Config::$models['PathoMiscIdentfier'] = $model;
 
 function postPathoNbrRead(Model $m){
-	if(empty($m->values['NO PATHO'])) {
-		echo "<br><FONT COLOR=\"red\" >Line ".$m->line.": NO PATHO is empty!</FONT><br>";
-	}
-	
+	if(empty($m->values['NO PATHO'])) Config::$summary_msg['NS without NO PATHO'][] = $m->values['NS'];
 	return true;
 }

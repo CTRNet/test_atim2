@@ -10,7 +10,7 @@ class Config{
 	static $db_port 		= "3306";
 	static $db_user 		= "root";
 	static $db_pwd			= "";
-	static $db_schema		= "chuq";
+	static $db_schema		= "chuq_ovary";
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
 	
@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/scripts/v2.3.0/data/chuq_all_data.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/data/fall_version/BanqueBachvarov_work_file_20111026.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -53,6 +53,9 @@ class Config{
 	static $ovCodes = array();
 	static $bloodBoxesData = array();
 	static $storages = array();	
+	
+	static $summary_msg = array('NS without consent' => array(), 'NS without NO DOS' => array(), 'NS without NO PATHO' => array());	
+	
 }
 
 //add you start queries here
@@ -76,27 +79,76 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImpo
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImporterConfig/tablesMapping/diagnoses.php'; 
 
 function addonFunctionStart(){
+	
 	setStaticDataForCollection();
+	
+echo "<br><FONT COLOR=\"red\" >
+=====================================================================<br>
+addonFunctionStart: TODO
+<br>=====================================================================
+</FONT><br>";
 
-echo "<br><FONT COLOR=\"red\" >CLEAN UP FILE with user</FONT><br>";
+echo "<br>** 1 ** Clen up file with user<br>";
 
-echo "<br><FONT COLOR=\"red\" >TO CONFIRM WITH USER : Synonimous into Config::tissueCodeSynonimous</FONT><br>";
+echo "<br>** 2  ** Validate tissueCode2Details<br>";
+foreach(Config::$tissueCode2Details as $code => $details) {
+	echo " -- <b>$code</b> => source  = '<b>".$details['source']."</b>' / laterality = '<b>".$details['laterality']."</b>' / type  = '<b>".$details['type']."</b>'<br>";
+}
+
+echo "<br>** 3 ** Validate tissueCodeSynonimous<br>";
+foreach(Config::$tissueCodeSynonimous as $code => $details) {
+	echo " -- file code [$code] = [$details]<br>";
+}
+
+echo "<br>** 3 ** Validate following matches for diagnosis<br>";
+echo " - tumour grade 'X' = ''<br>";
+echo " - tumour grade 'H' = ''<br>";
+echo " - figo 'X' = ''<br>";
+echo " - figo 'IC vs IIC' = 'Ic'<br>";
+
 echo "<br><FONT COLOR=\"red\" >TO CONFIRM WITH USER : Blood type CE = blood cell and ARLT = blood cell with flag Erythrocyte + nothing can be created from erythrocyte?</FONT><br>";
 echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : Does [NO BÔITE ASC,S, RNALATER] mean ascite, serum and blood RNAlater?</FONT><br>";
 echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : S value into 'ASCITE' = SERUM?</FONT><br>";
 echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : No box for PC aliquots?</FONT><br>";
 echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : Are LP, ASCITE, etc stored into the same box (NO BÔITE ASC,S, RNALATER)?</FONT><br>";
 
-echo "<br><FONT COLOR=\"red\" >CONFIRMER WITH USER : ....</FONT><br>";
+echo "<br><FONT COLOR=\"red\" ><br>=====================================================================
+</FONT><br>";	
 
 }
 
 function addonFunctionEnd(){
+	if(!empty(Config::$summary_msg['NS without consent'])) {
+		echo "<br><FONT COLOR=\"red\" >Following NS have no consent data (created obtained consent by default):</FONT><br>";
+		echo implode(" ,",Config::$summary_msg['NS without consent'])."<br>";
+	}
+	
+	if(!empty(Config::$summary_msg['NS without NO DOS'])) {
+		echo "<br><FONT COLOR=\"red\" >Following NS have no NO DOS:</FONT><br>";
+		echo implode(" ,",Config::$summary_msg['NS without NO DOS'])."<br>";
+	}
+	
+	if(!empty(Config::$summary_msg['NS without NO PATHO'])) {
+		echo "<br><FONT COLOR=\"red\" >Following NS have no NO PATHO:</FONT><br>";
+		echo implode(" ,",Config::$summary_msg['NS without NO PATHO'])."<br>";
+	}
+	
+	global $connection;
+	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
+	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
+	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
+	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE aliquot_masters SET barcode= id";
+	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+return;	
+
 	if(!empty(Config::$bloodBoxesData)) {
 		die("<br><FONT COLOR=\"red\" >Following NS are just listed into the blood box worksheet : ".implode(" ,",array_keys(Config::$bloodBoxesData))."</FONT><br>");
 	}
 	
-	completeInvetoryRevsTable();	
+	completeInventoryRevsTable();	
 }
 
 //=========================================================================================================
@@ -319,8 +371,9 @@ function parseAndAddBoxData($content, $box, &$boxes_data, $line_counter) {
 	}
 }
 
-function completeInvetoryRevsTable() {
-	
+function completeInventoryRevsTable() {
+//TODO
+return;	
 	global $connection;
 	
 	if(Config::$insert_revs){
@@ -365,8 +418,8 @@ function completeInvetoryRevsTable() {
 					break;
 					
 				case 'sample_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, version_created) "
-						."SELECT id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, version_created) "
+						."SELECT id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, NOW() FROM ".$table_name;
 					break;					
 					
 					
@@ -397,8 +450,8 @@ function completeInvetoryRevsTable() {
 					break;	
 
 				case 'aliquot_masters':		
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, aliquot_type, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, version_created) "
-						."SELECT id, sample_master_id, aliquot_type, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, version_created) "
+						."SELECT id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, NOW() FROM ".$table_name;
 					break;	
 
 				case 'ad_blocks':
@@ -412,8 +465,8 @@ function completeInvetoryRevsTable() {
 					break;	
 			
 				case 'storage_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, code, storage_type, storage_control_id, set_temperature, rght, lft, selection_label, short_label, version_created) "
-						."SELECT id, code, storage_type, storage_control_id, set_temperature, rght, lft, selection_label, short_label, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, code, storage_control_id, rght, lft, selection_label, short_label, version_created) "
+						."SELECT id, code, storage_control_id, rght, lft, selection_label, short_label, NOW() FROM ".$table_name;
 					break;					
 				case 'std_boxs':	
 					$query = "INSERT INTO ".$table_name."_revs (id, storage_master_id, version_created) "
