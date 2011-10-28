@@ -148,7 +148,8 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("number of matching participants", "Number of matching participants", "Nombre de participants correspondants"),
 ("report_4_desc", 
  "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
- "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché.");
+ "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché."),
+("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -521,7 +522,7 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
-al.created,
+al.created
 
 FROM aliquot_masters AS al
 INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
@@ -2737,8 +2738,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES 
 ('time at room temp (mn)', 'Time at room temperature (mn)', 'Temps à température ambiante (mn)'),
 ('time_at_room_temp_mn_help', 
-'Time spent between the collection time and the initial specimen storage time at low temperature (minutes).', 
-'Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes).');
+"Time spent between the collection time and the initial specimen storage time at low temperature (minutes). Ex.: Time between blood sampling and blood storage by the nurse.", 
+"Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes). Ex.: Temps entre une prise de sang et l'entreposage du sang par l'infirmère.");
 
 UPDATE structure_formats SET `language_heading`='shipping data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipment_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='recipient data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='recipient' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
