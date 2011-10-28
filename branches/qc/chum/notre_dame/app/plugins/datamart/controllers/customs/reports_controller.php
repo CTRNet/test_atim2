@@ -160,10 +160,12 @@ class ReportsControllerCustom extends ReportsController {
 			
 			$aliquot_master_ids[] = 0;
 			$aliquots = $this->Report->query(
-				"SELECT al.barcode, al.aliquot_label, samp.sample_type, al.aliquot_type,
+				"SELECT al.barcode, al.aliquot_label, samp_control.sample_type, al_control.aliquot_type,
 				col.collection_datetime, spec_det.reception_datetime, der_det.creation_datetime, al.storage_datetime
 				FROM aliquot_masters AS al 
+				INNER JOIN aliquot_controls AS al_control ON al.aliquot_control_id=al_control.id
 				INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+				INNER JOIN sample_controls AS samp_control ON samp.sample_control_id=samp_control.id
 				INNER JOIN collections AS col ON col.id = al.collection_id AND col.deleted != 1
 				INNER JOIN sample_masters AS spec ON spec.id = samp.initial_specimen_sample_id AND spec.deleted != 1			
 				INNER JOIN specimen_details AS spec_det ON spec.id = spec_det.sample_master_id AND spec_det.deleted != 1
@@ -173,8 +175,8 @@ class ReportsControllerCustom extends ReportsController {
 			$data = array();
 			foreach($aliquots as $new_record) {
 				$new_data = array();
-				$new_data['SampleMaster']['sample_type'] = $new_record['samp']['sample_type'];
-				$new_data['AliquotMaster']['aliquot_type'] = $new_record['al']['aliquot_type'];
+				$new_data['SampleControl']['sample_type'] = $new_record['samp_control']['sample_type'];
+				$new_data['AliquotControl']['aliquot_type'] = $new_record['al_control']['aliquot_type'];
 				$new_data['AliquotMaster']['aliquot_label'] = $new_record['al']['aliquot_label'];
 				$new_data['AliquotMaster']['barcode'] = $new_record['al']['barcode'];
 				
@@ -357,28 +359,30 @@ class ReportsControllerCustom extends ReportsController {
 		// Work on specimen
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
+			"SELECT COUNT(*), sm_control.sample_type
+			FROM sample_masters AS sm
+			INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id 
 			INNER JOIN collections AS col ON col.id = sm.collection_id 
-			WHERE sm.sample_category = 'specimen'
+			WHERE sm_control.sample_category = 'specimen'
 			AND ($conditions)
 			AND ($bank_conditions)
 			AND sm.deleted != '1'
 			GROUP BY sample_type;");
 		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm']['sample_type']),
+			$tmp_res_final[$data['sm_control']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm_control']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}	
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+				SELECT DISTINCT link.participant_id, sm_control.sample_type  
 				FROM sample_masters AS sm 
+				INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'specimen'
+				AND sm_control.sample_category = 'specimen'
 				AND ($conditions)
 				AND ($bank_conditions)
 				AND sm.deleted != '1'
@@ -390,30 +394,32 @@ class ReportsControllerCustom extends ReportsController {
 		// Work on derivative
 		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
+			"SELECT COUNT(*), sm_control.sample_type
 			FROM sample_masters AS sm 
+			INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id
 			INNER JOIN collections AS col ON col.id = sm.collection_id 
 			INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-			WHERE sm.sample_category = 'derivative'
+			WHERE sm_control.sample_category = 'derivative'
 			AND ($bank_conditions)
 			AND ($conditions)
 			AND sm.deleted != '1'
 			GROUP BY sample_type;");
 		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm']['sample_type']),
+			$tmp_res_final[$data['sm_control']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm_control']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+				SELECT DISTINCT link.participant_id, sm_control.sample_type  
 				FROM sample_masters AS sm 
+				INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
 				INNER JOIN clinical_collection_links AS link ON link.collection_id = sm.collection_id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'derivative'
+				AND sm_control.sample_category = 'derivative'
 				AND ($conditions)
 				AND ($bank_conditions)
 				AND sm.deleted != '1'
