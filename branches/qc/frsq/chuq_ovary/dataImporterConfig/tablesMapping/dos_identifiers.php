@@ -17,9 +17,6 @@ $model->custom_data = array();
 Config::$models['DosMiscIdentfier'] = $model;
 
 function postDosNbrRead(Model $m){
-	if(empty($m->values['NO DOS'])) {
-		echo "<br><FONT COLOR=\"red\" >Line ".$m->line.": NO DOS is empty!</FONT><br>";
-	}
-	
+	if(empty($m->values['NO DOS'])) Config::$summary_msg['NS without NO DOS'][] = $m->values['NS'];
 	return true;
 }

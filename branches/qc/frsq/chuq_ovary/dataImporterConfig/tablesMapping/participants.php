@@ -1,5 +1,6 @@
 <?php
 $pkey = "NS";
+
 $child = array('ConsentMaster','DiagnosisMaster','PathoMiscIdentfier','DosMiscIdentfier','MdeieMiscIdentfier');
 $fields = array(
 	"participant_identifier" => "NS", 
@@ -32,26 +33,33 @@ $model->custom_data = array(
 Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
+	$set_1448_date = false;	
+	if(($m->values['NS'] == '1448') && ($m->values['DN'] == '1944')) {
+		$set_1448_date = true;	
+		echo "<br><FONT COLOR=\"green\" >WARNING: Line ".$m->line." [DN][WARNING]: DN has been hard-coded to '1905-04-27' check date into atim for NS = 1448!</FONT><br>";						
+		$m->values['DN'] = '';
+	}
+
 	excelDateFix($m);
 	
-//echo "** New Participant : NS = ".$m->values['NS']." (Line: ".$m->line.")";
+	if($set_1448_date) $m->values['DN'] = '1905-04-27';
 	
 	return true;
 }
 
 function createParticipantCollections(Model $m){
-	
+
 	$participant_id = $m->last_id;
 	$line =  $m->line;
-	$invantory_data_from_file =  $m->values;
-	$ns = $invantory_data_from_file['NS'];
+	$inventory_data_from_file =  $m->values;
+	$ns = $inventory_data_from_file['NS'];
 	
 	$collections = array();
 	
 	//Get Spent Time
 	
 	$spent_time = array('default' => null, 'details' => array());
-	$spent_time_data = $invantory_data_from_file[utf8_decode('Délais chir.')];
+	$spent_time_data = $inventory_data_from_file[utf8_decode('Délais chir.')];
 	if(!empty($spent_time_data)) {
 		$times = explode('/', strtoupper(str_replace(' ', '', $spent_time_data)));
 		foreach($times as $new) {
@@ -107,7 +115,7 @@ function createParticipantCollections(Model $m){
 	// ------------------------------------------------------------------------------
 	// [TISSUS] : sample => tissue --------------------------------------------------
 	
-	$tissu_cell_data = $invantory_data_from_file['TISSUS'];
+	$tissu_cell_data = $inventory_data_from_file['TISSUS'];
 	if(!empty($tissu_cell_data)) {
 		$tissues = explode(',', strtoupper(str_replace(' ', '', $tissu_cell_data)));
 		foreach($tissues as $new_tissue) {
@@ -146,7 +154,7 @@ function createParticipantCollections(Model $m){
 	// [OCT] + [N0 BOÎTE OCT] : sample => tissue , aliquot => oct block ---------
 	$aliquot_type = 'oct block';
 	
-	$oct_cell_data = $invantory_data_from_file['OCT'];
+	$oct_cell_data = $inventory_data_from_file['OCT'];
 	if(!empty($oct_cell_data)) {
 		//Get all different types of source
 		$oct_cell_data = str_replace( array(" ", "OCT/", "/"), array("", "", ","), strtoupper($oct_cell_data));
@@ -154,10 +162,10 @@ function createParticipantCollections(Model $m){
 		$oct_sources = explode(',', $oct_cell_data);
 
 		// Set boxes array per source types
-		$boxes = explode(',', str_replace(array(" ", "/", "."), array("", ",", ","), $invantory_data_from_file[utf8_decode('N0 BOÎTE OCT')]));
+		$boxes = explode(',', str_replace(array(" ", "/", "."), array("", ",", ","), $inventory_data_from_file[utf8_decode('N0 BOÎTE OCT')]));
 		$boxes =(empty($boxes))? array('') : $boxes;
 		if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($oct_sources); $i++) { $boxes[] = $boxes[0]; } }	
-		if(sizeof($boxes) != sizeof($oct_sources)) die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [OCT][ERROR] 1: The box definitions [".$invantory_data_from_file[utf8_decode('N0 BOÎTE OCT')]."] does not match the oct defintion [".$invantory_data_from_file['OCT']."] (check wrong coma, etc).</FONT><br>"); 
+		if(sizeof($boxes) != sizeof($oct_sources)) die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [OCT][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE OCT')]."] does not match the oct defintion [".$inventory_data_from_file['OCT']."] (check wrong coma, etc).</FONT><br>"); 
 		
 		// Set product
 		foreach($oct_sources as $new_source) {
@@ -191,7 +199,7 @@ function createParticipantCollections(Model $m){
 	// [TISSU] + [N0 BOÎTE TISSU] : sample => tissue , aliquot => frozen tube ---------
 	$aliquot_type = 'frozen tube';
 	
-	$tissu_cell_data = $invantory_data_from_file['TISSU'];
+	$tissu_cell_data = $inventory_data_from_file['TISSU'];
 	if(!empty($tissu_cell_data)) {
 		//Get all different types of source
 		$tissu_cell_data = str_replace( array(" ", "T/", "/"), array("", "", ","), strtoupper($tissu_cell_data));
@@ -199,13 +207,13 @@ function createParticipantCollections(Model $m){
 		$tissue_sources = explode(',', $tissu_cell_data);
 
 		// Set boxes array per source types
-		$boxes = explode(',', str_replace(array(" ", "/", ".", "-"), array("", ",", ",", ","), $invantory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]));
+		$boxes = explode(',', str_replace(array(" ", "/", ".", "-"), array("", ",", ",", ","), $inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]));
 		$boxes =(empty($boxes))? array('') : $boxes;
 		if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0]; } }	
 		if(sizeof($boxes) != sizeof($tissue_sources)) {
-//TODO	add die error		die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$invantory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$invantory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"); 
+//TODO	add die error		die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$inventory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"); 
 
-echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$invantory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$invantory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"; 
+echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [TISSU][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE TISSU')]."] does not match the TISSU defintion [".$inventory_data_from_file['TISSU']."] (check wrong coma, etc).</FONT><br>"; 
 $boxes = array('WRONG_BOX');
 for($i = 1; $i < sizeof($tissue_sources); $i++) { $boxes[] = $boxes[0];	}		
 		}
@@ -245,7 +253,7 @@ $new_source = 'AP';
 	// [FFPE] + [N0 BOÎTE FFPE] : sample => tissue , aliquot => paraffin block --
 	$aliquot_type = 'paraffin block';
 	
-	$ffpe_cell_data = $invantory_data_from_file['FFPE'];
+	$ffpe_cell_data = $inventory_data_from_file['FFPE'];
 	if(!empty($ffpe_cell_data)) {
 		//Get all different types of source
 		$ffpe_cell_data = str_replace( array(" ", "P/", "/"), array("", "", ","), strtoupper($ffpe_cell_data));
@@ -253,10 +261,10 @@ $new_source = 'AP';
 		$ffpe_sources = explode(',', $ffpe_cell_data);
 
 		// Set boxes array per source types
-		$boxes = explode(',', str_replace(array(" ", "/", "."), array("", ",", ","), $invantory_data_from_file[utf8_decode('N0 BOÎTE FFPE')]));
+		$boxes = explode(',', str_replace(array(" ", "/", "."), array("", ",", ","), $inventory_data_from_file[utf8_decode('N0 BOÎTE FFPE')]));
 		$boxes =(empty($boxes))? array('') : $boxes;
 		if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($ffpe_sources); $i++) { $boxes[] = $boxes[0]; } }	
-		if(sizeof($boxes) != sizeof($ffpe_sources)) die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [FFPE][ERROR] 1: The box definitions [".$invantory_data_from_file[utf8_decode('N0 BOÎTE FFPE')]."] does not match the ffpe defintion [".$invantory_data_from_file['FFPE']."] (check wrong coma, etc).</FONT><br>"); 
+		if(sizeof($boxes) != sizeof($ffpe_sources)) die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [FFPE][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('N0 BOÎTE FFPE')]."] does not match the ffpe defintion [".$inventory_data_from_file['FFPE']."] (check wrong coma, etc).</FONT><br>"); 
 		
 		// Set product
 		foreach($ffpe_sources as $new_source) {
@@ -293,7 +301,7 @@ $new_source = 'AP';
 	$merged_blood_data = array_key_exists($ns, Config::$bloodBoxesData)? Config::$bloodBoxesData[$ns] : array();
 	unset(Config::$bloodBoxesData[$ns]);
 
-	$blood_cell_data = $invantory_data_from_file[utf8_decode('SANG-PLASMA-SÉRUM- CULOT ENRICHI ')];
+	$blood_cell_data = $inventory_data_from_file[utf8_decode('SANG-PLASMA-SÉRUM- CULOT ENRICHI ')];
 	if(!empty($blood_cell_data) || !empty($merged_blood_data)) {
 
 		if(!empty($blood_cell_data)) {
@@ -376,9 +384,9 @@ $new_source = 'AP';
 	
 //TODO Does [NO BÔITE ASC,S, RNALATER] mean ascite, serum and blood RNAlater?	
 
-	$ascite_cell_data = $invantory_data_from_file['ASCITE'];
-	$ascite_boxes_cell_data = $invantory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')];
-	$nc_boxes_cell_data = $invantory_data_from_file[utf8_decode('NO BÔTE ASCITE (NC)')];
+	$ascite_cell_data = $inventory_data_from_file['ASCITE'];
+	$ascite_boxes_cell_data = $inventory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')];
+	$nc_boxes_cell_data = $inventory_data_from_file[utf8_decode('NO BÔTE ASCITE (NC)')];
 	
 	if(!empty($ascite_cell_data)) {
 		$ascite_cell_data = str_replace(' ', '', $ascite_cell_data);
@@ -418,7 +426,7 @@ $new_source = 'AP';
 			$boxes =(empty($boxes))? array('') : $boxes;
 			if(sizeof($boxes) == 1) { for($i = 1; $i < sizeof($ascite_without_ncs); $i++) { $boxes[] = $boxes[0]; } }	
 			if(sizeof($boxes) != sizeof($ascite_without_ncs)) {
-				die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [ASCITE][ERROR] 1: The box definitions [".$invantory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')]."] does not match the ascite defintion [".$invantory_data_from_file['ASCITE']."] (check wrong coma, etc).</FONT><br>"); 
+				die("<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [ASCITE][ERROR] 1: The box definitions [".$inventory_data_from_file[utf8_decode('NO BÔITE ASC,S, RNALATER')]."] does not match the ascite defintion [".$inventory_data_from_file['ASCITE']."] (check wrong coma, etc).</FONT><br>"); 
 			}
 							
 			// Set product
@@ -468,7 +476,7 @@ $new_source = 'AP';
 	// ------------------------------------------------------------------------------
 	// [PC] : sample => cell culture ------------------------------------------------
 	
-	$pc_cell_data = $invantory_data_from_file['PC'];
+	$pc_cell_data = $inventory_data_from_file['PC'];
 	if(!empty($pc_cell_data)) {
 		$pc_cell_data = strtoupper(str_replace(array(' ', 'PC/', 'PC'), array('', '', ''), $pc_cell_data));	
 
@@ -534,7 +542,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 					$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'], $aliquots);
 								
 				} else {
-					die("<br><FONT COLOR=\"red\" >Line ".$m->line." [PC][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['PC']."].</FONT><br>");
+					die("<br><FONT COLOR=\"red\" >Line ".$m->line." [PC][ERROR]: Source '$new_source' is not supported [".$inventory_data_from_file['PC']."].</FONT><br>");
 				}
 			}
 		}
@@ -545,7 +553,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 	// ------------------------------------------------------------------------------
 	// [VC] : sample => cell culture ------------------------------------------------
 	
-	$vc_cell_data = $invantory_data_from_file['VC'];
+	$vc_cell_data = $inventory_data_from_file['VC'];
 	if(!empty($vc_cell_data)) {
 		$vc_cell_data = strtoupper(str_replace(array(' ', '-bt#'), array('','#'), $vc_cell_data));
 
@@ -601,7 +609,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['aliquots'], $aliquots);
 							
 			} else {
-				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['VC']."].</FONT><br>");
+				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [VC][ERROR]: Source '$new_source' is not supported [".$inventory_data_from_file['VC']."].</FONT><br>");
 			}
 		}
 	} 
@@ -611,8 +619,8 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 	// ---------------------------------------------------------------------------------------------------------
 	// [RNA (PC)] + [N0 BOÎTE  RNA (PC)] : sample => RNA , aliquot => tube -------------------------------------
 
-	$rna_cell_data = $invantory_data_from_file['RNA (PC)'];
-	$rna_boxes_cell_data = $invantory_data_from_file[utf8_decode('N0 BOÎTE  RNA (PC) ')];
+	$rna_cell_data = $inventory_data_from_file['RNA (PC)'];
+	$rna_boxes_cell_data = $inventory_data_from_file[utf8_decode('N0 BOÎTE  RNA (PC) ')];
 	
 	if(!empty($rna_cell_data)) {
 		$rna_cell_data = str_replace(array(' ', 'RNA/', '/'), array('','',','), $rna_cell_data);
@@ -673,7 +681,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['rna']['aliquots'], $aliquots);
 				
 			} else {
-				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [RNA][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['RNA (PC)']."].</FONT><br>");
+				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [RNA][ERROR]: Source '$new_source' is not supported [".$inventory_data_from_file['RNA (PC)']."].</FONT><br>");
 			}
 		}	
 	}//--- End of RNA	
@@ -681,8 +689,8 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 	// ---------------------------------------------------------------------------------------------------------
 	// [DNA] + [N0 BOÎTE  DNA (PC)] : sample => DNA , aliquot => tube -------------------------------------
 
-	$dna_cell_data = str_replace(' ', '', $invantory_data_from_file['DNA']);
-	$dna_boxes_cell_data = $invantory_data_from_file[utf8_decode('N0 BOÎTE DNA (PC)')];
+	$dna_cell_data = str_replace(' ', '', $inventory_data_from_file['DNA']);
+	$dna_boxes_cell_data = $inventory_data_from_file[utf8_decode('N0 BOÎTE DNA (PC)')];
 	
 	if(!empty($dna_cell_data)) {
 		$dna_cell_data = str_replace(array(' ', 'DNA/', '/'), array('','',','), $dna_cell_data);
@@ -743,7 +751,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 				$collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna']['aliquots'] = array_merge($collections['ascite']['derivatives']['ascite cell']['derivatives']['cell culture']['derivatives']['dna']['aliquots'], $aliquots);
 				
 			} else {
-				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA][ERROR]: Source '$new_source' is not supported [".$invantory_data_from_file['DNA']."].</FONT><br>");
+				die("<br><FONT COLOR=\"red\" >Line ".$m->line." [DNA][ERROR]: Source '$new_source' is not supported [".$inventory_data_from_file['DNA']."].</FONT><br>");
 			}
 		}	
 	}
@@ -752,7 +760,7 @@ echo "<br><FONT COLOR=\"red\" >Line ".$m->line." / NS = $ns [PC][ERROR]: The PC 
 	displayCollection($ns, $m, $participant_id, $collections, $spent_time);
 	
 	// Add collection notes
-	$collections['NOTES'] = $invantory_data_from_file['REMARQUE'];
+	$collections['NOTES'] = $inventory_data_from_file['REMARQUE'];
 	$collection_notes = $collections['NOTES'];
 	
 	//INSERT PROCESS
@@ -910,9 +918,7 @@ function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_
 		// Create sample
 		$insert = array(
 			"sample_code" 					=> "'tmp_tissue'", 
-			"sample_category"				=> "'specimen'", 
 			"sample_control_id"				=> Config::$sample_aliquot_controls['blood']['sample_control_id'], 
-			"sample_type"					=> "'blood'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'blood'", 
 			"collection_id"					=> "'".$blood_collection_id."'", 
@@ -996,9 +1002,7 @@ function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_
 			case 'ascite':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite']['sample_control_id'], 
-					"sample_type"					=> "'ascite'", 
 					"initial_specimen_sample_id"	=> "NULL", 
 					"initial_specimen_sample_type"	=> "'ascite'", 
 					"collection_id"					=> "'".$tissue_collection_id."'", 
@@ -1038,9 +1042,7 @@ function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_
 			case 'peritoneal wash':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['peritoneal wash']['sample_control_id'], 
-					"sample_type"					=> "'peritoneal wash'", 
 					"initial_specimen_sample_id"	=> "NULL", 
 					"initial_specimen_sample_type"	=> "'peritoneal wash'", 
 					"collection_id"					=> "'".$tissue_collection_id."'", 
@@ -1086,9 +1088,7 @@ function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_
 				
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'specimen'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['tissue']['sample_control_id'], 
-					"sample_type"					=> "'tissue'", 
 					"initial_specimen_sample_id"	=> "NULL", 
 					"initial_specimen_sample_type"	=> "'tissue'", 
 					"collection_id"					=> "'".$tissue_collection_id."'", 
@@ -1155,9 +1155,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'plasma':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=>  Config::$sample_aliquot_controls['plasma']['sample_control_id'], 
-					"sample_type"					=> "'plasma'", 
 					"initial_specimen_sample_id"	=> $initial_specimen_sample_id, 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> $collection_id, 
@@ -1193,9 +1191,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'serum':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['serum']['sample_control_id'], 
-					"sample_type"					=> "'serum'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1232,9 +1228,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'blood cell (arlt)':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['blood cell']['sample_control_id'], 
-					"sample_type"					=> "'blood cell'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1269,9 +1263,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'dna':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['dna']['sample_control_id'], 
-					"sample_type"					=> "'dna'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1308,9 +1300,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'rna':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['rna']['sample_control_id'], 
-					"sample_type"					=> "'rna'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1347,9 +1337,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'ascite supernatant':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite supernatant']['sample_control_id'], 
-					"sample_type"					=> "'ascite supernatant'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1386,9 +1374,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'ascite cell':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['ascite cell']['sample_control_id'], 
-					"sample_type"					=> "'ascite cell'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1422,9 +1408,7 @@ function createDerivative($ns, $participant_id, $collection_id, $initial_specime
 			case 'cell culture':
 				$insert = array(
 					"sample_code" 					=> "'tmp_tissue'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['cell culture']['sample_control_id'], 
-					"sample_type"					=> "'cell culture'", 
 					"initial_specimen_sample_id"	=> "'".$initial_specimen_sample_id."'", 
 					"initial_specimen_sample_type"	=> "'".$initial_specimen_sample_type."'", 
 					"collection_id"					=> "'".$collection_id."'", 
@@ -1533,13 +1517,11 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 			
 				$insert = array(
 					"code" => "'-1'",
-					"storage_type"			=> "'box'",
 					"storage_control_id"	=> "8",
 					"short_label"			=> "'".$box_number."'",
 					"selection_label"		=> "'".$box_number."'",
 					"lft"		=> "'".(Config::$storages['next_left'])."'",
-					"rght"		=> "'".(Config::$storages['next_left'] + 1)."'",
-					"set_temperature"	=> "'FALSE'"
+					"rght"		=> "'".(Config::$storages['next_left'] + 1)."'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO storage_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
@@ -1562,7 +1544,6 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 		// CREATE ALIQUOT
 		
 		$master_insert = array(
-			"aliquot_type" => null,
 			"aliquot_control_id" => null,
 			"in_stock" => "'yes - available'",
 			"collection_id" => $collection_id,
@@ -1591,7 +1572,6 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 					$prefix = "'RL $ns 00-00-0000'";
 					$detail_insert['chuq_blood_solution'] = "'RNA later'";
 				}
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = $prefix;				
 				break;
@@ -1604,13 +1584,11 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 				if(empty($prefix)) $prefix = 'SE';
 			case 'ascite cell-tube':
 				if(empty($prefix)) $prefix = 'NC';
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";							
 				break;				
 				
 			case 'tissue-frozen tube':
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
 				break;	
@@ -1619,7 +1597,6 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 				$prefix = 'FFPE';
 			case 'tissue-oct block':
 				if(empty($prefix)) $prefix = 'OCT';
-				$master_insert['aliquot_type'] = "'block'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $specimen_code $ns 00-00-0000'";	
 				$detail_insert['block_type'] = ($prefix == 'OCT')? "'OCT'" : "'paraffin'";		
@@ -1628,7 +1605,6 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 
 			case 'dna-tube':
 			case 'rna-tube':
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";					
 				break;	
@@ -1639,19 +1615,16 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 				if(empty($prefix)) $prefix = 'ARLT';
 			case 'cell culture-tube':
 				if(empty($prefix)) $prefix = 'VC '.$specimen_code;
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$prefix $ns 00-00-0000'";				
 				break;	
 				
 			case 'ascite-tube':
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
 				break;
 
 			case 'peritoneal wash-tube':
-				$master_insert['aliquot_type'] = "'tube'";
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
 				$master_insert['aliquot_label'] = "'$specimen_code $ns 00-00-0000'";						
 				break;
@@ -1664,8 +1637,6 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 		$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($master_insert)).") VALUES (".implode(", ", array_values($master_insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$aliquot_master_id = mysqli_insert_id($connection);
-		$query = "UPDATE aliquot_masters SET barcode= CONCAT('tmp_','".$sample_master_id."','_','".$aliquot_master_id."') WHERE id=".$aliquot_master_id;
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
 		$query = "INSERT INTO $detail_table (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
