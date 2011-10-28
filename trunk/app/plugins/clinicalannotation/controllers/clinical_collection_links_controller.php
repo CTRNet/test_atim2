@@ -166,11 +166,14 @@ class ClinicalCollectionLinksController extends ClinicalannotationAppController 
 					//we found the one that interests us
 					$consent['ClinicalCollectionLink'] = $unit;
 					$consent_found = true;
-					goto consent_end;
+					break;
 				}
 			}
+			
+			if($consent_found){
+				break;
+			}
 		}
-		consent_end:
 		
 		$this->set('consent_data', $consent_data );
 		$this->set('found_consent', $consent_found);
