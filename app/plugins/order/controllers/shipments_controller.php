@@ -255,12 +255,12 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['in_stock'] = 'no';
 					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
 					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
+					$aliquot_master['AliquotMaster']['storage_coord_x'] = '';
+					$aliquot_master['AliquotMaster']['storage_coord_y'] = '';
 		
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($aliquot_master, false)) { 
+					if(!$this->AliquotMaster->save($aliquot_master, false)) {
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 					
