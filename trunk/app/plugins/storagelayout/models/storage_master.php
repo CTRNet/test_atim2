@@ -124,7 +124,14 @@ class StorageMaster extends StoragelayoutAppModel {
 			}
 		}	
 			
-		$this->isDuplicatedStorageBarCode($this->data);		
+		$this->isDuplicatedStorageBarCode($this->data);
+
+		if(isset($this->data['StorageMaster']['temperature']) && !empty($this->data['StorageMaster']['temperature'])
+			&& (!isset($this->data['StorageMaster']['temp_unit']) || empty($this->data['StorageMaster']['temp_unit'])))
+		{
+			$this->validationErrors['temp_unit'][] = 'when defining a temperature, the temperature unit is required';
+		}
+		
 		parent::validates($options);
 		return empty($this->validationErrors);
 	}
