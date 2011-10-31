@@ -217,12 +217,9 @@ class StorageMastersController extends StoragelayoutAppController {
 				
 				// Create storage code
 				if($bool_save_done) {
-					$storage_data_to_update = array();
-					$storage_data_to_update['StorageMaster']['code'] = $this->StorageMaster->createCode($storage_master_id, $this->data, $storage_control_data);
-
-					$this->StorageMaster->id = $storage_master_id;					
-					if(!$this->StorageMaster->save($storage_data_to_update, false)) {
-						$bool_save_done = false;
+					if(!$this->StorageMaster->query("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;") 
+					|| !$this->StorageMaster->query("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;")) {
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 				}
 				
@@ -640,25 +637,21 @@ class StorageMastersController extends StoragelayoutAppController {
 			$conditions['or'][] = $tmp_condition;
 			$conditions['or'][] = array('StorageMaster.Selection_label LIKE' => $term2a, 'StorageMaster.code LIKE' => $term2b.'%');
 		}
+
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => $conditions,
-			'fields' => array('StorageMaster.selection_label', 'GROUP_CONCAT(StorageMaster.code) AS codes'),
-			'group' => array('StorageMaster.selection_label'),
-			'recursive' => -1,
+			'fields' => array('StorageMaster.selection_label', 'StorageMaster.code', 'StorageControl.storage_type'),
+			'order' => array('StorageMaster.selection_label ASC, StorageMaster.code ASC'),
+			'recursive' => 0,
 			'limit' => 10
 		));
+		
 		//build javascript textual array
 		$result = "";
 		$count = 0;
 		foreach($storage_masters as $storage_master){
-			$codes = explode(",", $storage_master[0]['codes']);
-			foreach($codes as $code){
-				$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$code.']", ';
-				++ $count;
-				if($count > 9){
-					break;
-				}
-			}
+			$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$storage_master['StorageMaster']['code'].'] / '.__($storage_master['StorageControl']['storage_type'], true).'", ';
+			++ $count;
 			if($count > 9){
 				break;
 			}

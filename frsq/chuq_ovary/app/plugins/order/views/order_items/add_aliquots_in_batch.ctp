@@ -24,9 +24,8 @@
 	
 	//2- ORDER ITEMS DATA ENTRY
 	
-	$extras = '
-		<input type="hidden" name="data[0][aliquot_ids_to_add]" value="'.$aliquot_ids_to_add.'"/>
-		<input type="hidden" name="data[0][url_to_cancel]" value="'.$url_to_cancel.'"/>';
+	$extras = $this->Form->input('0.aliquot_ids_to_add', array('type' => 'hidden', 'value' => $aliquot_ids_to_add))
+		.$this->Form->input('url_to_cancel', array('type' => 'hidden', 'value' => $url_to_cancel));
 	
 	$final_atim_structure = $atim_structure_orderitems_data;
 	$final_options = array(

@@ -35,8 +35,6 @@ class OrderItemsController extends OrderAppController {
 	}	
 	
 	function listall( $order_id, $order_line_id ) {
-  		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
 		// MANAGE DATA
 	
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
@@ -166,7 +164,8 @@ class OrderItemsController extends OrderAppController {
 		if(isset($this->data['0']['aliquot_ids_to_add'])){
 		// A - User just clicked on submit button
 			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
-			$url_to_redirect = $this->data['0']['url_to_cancel'];
+			$this->setUrlToCancel();
+			$url_to_redirect = $this->data['url_to_cancel'];
 			$launch_save_process = true;
 
 		}else{
@@ -181,7 +180,9 @@ class OrderItemsController extends OrderAppController {
 				
 				// Get aliquot data
 				$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
-				if(empty($aliquot_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+				if(empty($aliquot_data)) { 
+					$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				
 				// Build redirect url
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
@@ -191,7 +192,8 @@ class OrderItemsController extends OrderAppController {
 				// Add aliquots from batchset
 						
 				// Build redirect url
-				$url_to_redirect = 'javascript:history.back()';
+				$this->setUrlToCancel();
+				$url_to_redirect = $this->data['url_to_cancel'];
 			
 				$studied_aliquot_master_ids = array();
 				if(isset($this->data['AliquotMaster'])) {
@@ -313,7 +315,10 @@ class OrderItemsController extends OrderAppController {
 			$submitted_data_validates = true;			
 
 			// Get aliquot data
-			$selected_order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $this->data['OrderItem']['order_line_id']), 'recursive' => '-1'));
+			$selected_order_line_data = null;
+			if(isset($this->data['OrderItem']['order_line_id'])){
+				$selected_order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $this->data['OrderItem']['order_line_id']), 'recursive' => '-1'));
+			}
 			if(empty($selected_order_line_data)) {
 				$submitted_data_validates = false;
 				$this->OrderItem->validationErrors[] = __("invalid order line", true);

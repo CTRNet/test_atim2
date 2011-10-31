@@ -837,6 +837,7 @@ function initActions(){
 		if($(".ajax_search_results").length == 1){
 			$(".ajax_search_results").parent().hide();
 			$("input.submit").prop("onclick", "").unbind('unclick').click(function(){
+				$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 				$(".ajax_search_results").parent().show();
 				$.post($("form").attr("action"), $("form").serialize(), function(data){

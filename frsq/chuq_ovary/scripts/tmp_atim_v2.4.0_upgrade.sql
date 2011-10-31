@@ -144,7 +144,15 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("trying to put storage [%s] within itself failed", 
  "Trying to put storage [%s] within itself failed",
  "La tentative de mettre l'entreposage [%s] à l'intérieur de lui-même a échouée."),
-("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun.");
+("storage parent defined to none", "Storage parent defined to none.", "Le parent de l'entreposage a été défini à aucun."),
+("number of matching participants", "Number of matching participants", "Nombre de participants correspondants"),
+("report_4_desc", 
+ "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
+ "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché."),
+("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés"),
+("when defining a temperature, the temperature unit is required",
+ "When defining a temperature, the temperature unit is required.",
+ "Quand une température est définie, l'unité de température est requise.");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
@@ -517,8 +525,7 @@ al.storage_coord_y,
 stor.temperature,
 stor.temp_unit,
 
-al.created,
-al.deleted
+al.created
 
 FROM aliquot_masters AS al
 INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
@@ -559,8 +566,7 @@ parent_samp.sample_control_id AS parent_sample_control_id,
 sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
-sampc.sample_category,
-samp.deleted
+sampc.sample_category
 
 FROM sample_masters as samp
 INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
@@ -2735,8 +2741,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES 
 ('time at room temp (mn)', 'Time at room temperature (mn)', 'Temps à température ambiante (mn)'),
 ('time_at_room_temp_mn_help', 
-'Time spent between the collection time and the initial specimen storage time at low temperature (minutes).', 
-'Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes).');
+"Time spent between the collection time and the initial specimen storage time at low temperature (minutes). Ex.: Time between blood sampling and blood storage by the nurse.", 
+"Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes). Ex.: Temps entre une prise de sang et l'entreposage du sang par l'infirmère.");
 
 UPDATE structure_formats SET `language_heading`='shipping data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipment_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='recipient data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='recipient' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -2947,3 +2953,48 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SampleMaster' AND `tablename`='' AND `field`='parent_sample_type' AND `language_label`='parent sample type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sample_type') AND `language_help`='generated_parent_sample_sample_type_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+ALTER TABLE datamart_batch_sets
+ ADD COLUMN flag_tmp BOOLEAN NOT NULL DEFAULT FALSE AFTER locked;
+
+UPDATE structure_fields SET  `language_label`='number of matching participants' WHERE model='0' AND tablename='' AND field='matching_participant_number' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+
+UPDATE datamart_reports
+ SET description='report_4_desc' WHERE id='4';
+ 
+UPDATE menus SET flag_active=false WHERE id IN('core_CAN_41_1_3_5');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'temperature', 'float',  NULL , '0', '', '', '', 'temperature', ''), 
+('Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'temp_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code') , '0', '', '', '', '', 'unit');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='temperature' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='temperature' AND `language_tag`=''), '0', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unit'), '0', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+UPDATE structure_formats SET `display_order`='27' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='100', `language_heading`='system data' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='storagemasters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code');
+
+ALTER TABLE storage_controls
+	DROP COLUMN storage_type_code;
+
+UPDATE storage_masters SET code = id;
+UPDATE storage_masters_revs SET code = id;
+
+UPDATE structure_formats SET `display_order`='610', `language_heading`='system data', `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE sample_controls
+	DROP COLUMN sample_type_code;
+
+UPDATE sample_masters SET sample_code = id;
+UPDATE sample_masters_revs SET sample_code = id;	
+
+
+
+
+
+
+

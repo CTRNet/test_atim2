@@ -290,7 +290,7 @@ class CollectionsController extends InventorymanagementAppController {
 		AppController::applyTranslation($sample_controls, 'SampleControl', 'sample_type');
 		
 		$aliquot_control_model = AppModel::getInstance('inventorymanagement', 'AliquotControl', true);
-		$aliquot_controls = $aliquot_control_model->find('all');
+		$aliquot_controls = $aliquot_control_model->find('all', array('fields' => array('id', 'sample_control_id', 'aliquot_type'), 'conditions' => array('flag_active' => 1), 'recursive' => -1));
 		$aliquot_controls = AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true);
 		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
 		

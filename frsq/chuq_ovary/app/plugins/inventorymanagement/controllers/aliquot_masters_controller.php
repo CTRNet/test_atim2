@@ -341,7 +341,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(empty($errors)){
 				
 				//save
-				if($is_batch_process) $_SESSION['tmp_batch_set']['BatchId'] = array();
+				$batch_ids = array();
 				foreach($this->data as $created_aliquots){
 					foreach($created_aliquots['children'] as $new_aliquot) {	
 						$this->AliquotMaster->id = null;
@@ -353,8 +353,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 						if(!$this->AliquotMaster->save($new_aliquot, false)){ 
 							$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 
-						$child_id = $this->AliquotMaster->getLastInsertId();
-						if($is_batch_process) $_SESSION['tmp_batch_set']['BatchId'][] =$child_id;
+						
+						if($is_batch_process){
+							$batch_ids[] = $this->AliquotMaster->getLastInsertId();
+						}
 					}
 				}
 				
@@ -365,8 +367,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 				if($is_batch_process) {
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0');
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquot'),
+						'flag_tmp'				=> true
+					));
+					$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+					
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
 					if($this->RequestHandler->isAjax()){
 						ob_end_clean();
@@ -638,7 +646,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		$initial_display = false;
 		$aliquot_ids = array();
-		$url_to_cancel = isset( $this->data['url_to_cancel'])?  $this->data['url_to_cancel'] : '/menus/';
+		$this->setUrlToCancel();
+		$url_to_cancel = $this->data['url_to_cancel'];
 		unset($this->data['url_to_cancel']);
 		
 		if($aliquot_master_id != null){
@@ -680,15 +689,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(!empty($unconsented_aliquots)){
 				AppController::addWarningMsg(__('aliquot(s) without a proper consent', true).": ".count($unconsented_aliquots));
 			} 
-			
-			if(isset($this->data['BatchSet'])) {
-				$id = isset($this->data['BatchSet']['id']) ? $this->data['BatchSet']['id'] : 0;
-				$url_to_cancel = 'javascript:history.back()';
-			} else if(isset($this->data['node'])) {
-				$url_to_cancel = '/datamart/browser/browse/' . $this->data['node']['id'];
-			} else if(isset($this->data['url_to_cancel'])) {
-				$url_to_cancel = $this->data['url_to_cancel'];
-			}			
 		}
 		
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
@@ -816,16 +816,23 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}else{
 					//batch
 					$last_id = $this->AliquotInternalUse->getLastInsertId();
-					$_SESSION['tmp_batch_set']['BatchId'] = range($last_id - count($uses_to_save) + 1, $last_id);
-					foreach($_SESSION['tmp_batch_set']['BatchId'] as &$batch_id){
+					$batch_ids = range($last_id - count($uses_to_save) + 1, $last_id);
+					foreach($batch_ids as &$batch_id){
 						//add the "6" suffix to work with the view
 						$batch_id = $batch_id."6";
 					}
 					
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquotUse');
 					
-					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/0/');
+					$batch_set_data = array('BatchSet' => array( 
+						'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquotUse'),
+						'flag_tmp' => true
+					));
+					
+					$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
+					
+					$this->atimFlash('your data has been saved', '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 					
 				}
 			}else{
@@ -1302,6 +1309,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get ids of the studied aliquots
 		$ids = array();
 		if(!empty($aliquot_id)){
+			$aliquot = $this->AliquotMaster->redirectIfNonExistent($aliquot_id, __METHOD__, __LINE__, true);
+			$aliquot = $aliquot['AliquotMaster'];
+			$this->data['url_to_cancel'] = sprintf('/inventorymanagement/aliquot_masters/detail/%d/%d/%d', $aliquot['collection_id'], $aliquot['sample_master_id'], $aliquot['id']);
 			$ids = array($aliquot_id);
 		}else{
 			if(isset($this->data['AliquotMaster'])) {
@@ -1330,10 +1340,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		$this->set('aliquot_id', $aliquot_id);
-		
-		// Set url to redirect
-		$url_to_cancel = 'javascript:history.back()';
-		$this->set('url_to_cancel', $url_to_cancel);
+		$this->setUrlToCancel();
 		
 		// Check aliquot & sample types of the selected aliquots are identical
 		$aliquot_ctrl_id = $aliquots[0]['AliquotMaster']['aliquot_control_id'];
@@ -1413,7 +1420,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_from', $this->data['realiquot_from']);
 		$this->set('realiquot_into', $this->data[0]['realiquot_into']);
 		$this->set('ids', $this->data[0]['ids']);
-		$this->set('url_to_cancel', (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus');
+		$this->setUrlToCancel();
 		
 		switch($process_type) {
 			case 'creation':
@@ -1530,8 +1537,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume');
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
 		
-		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
-		$this->set('url_to_cancel', $url_to_cancel);
+		$this->setUrlToCancel();
 		
 		// set data for initial data to allow bank to override data
 		$created_aliquot_override_data = array(
@@ -1706,10 +1712,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			// 3- SAVE PROCESS
 			
-			if(empty($errors)) { 
-
-				$_SESSION['tmp_batch_set']['BatchId'] = array();	// Set session data to display batchset
-				
+			if(empty($errors)) {
+				$new_aliquot_ids = array(); 
 				foreach($this->data as $parent_id => $parent_and_children){
 					
 					// A- Save parent aliquot data
@@ -1747,7 +1751,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 						$child_id = $this->AliquotMaster->getLastInsertId();
 						if(empty($aliquot_id)){
-							$_SESSION['tmp_batch_set']['BatchId'][] = $child_id;
+							$new_aliquot_ids[] = $child_id;//FMLHHH
 						}
 							
 						// C- Save realiquoting data	
@@ -1774,10 +1778,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-					$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
+					$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewAliquot'),
+						'flag_tmp' => true 
+					));
+					$batch_set_model->saveWithIds($batch_set_data, $new_aliquot_ids);
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
+					$aliquot = $this->AliquotMaster->findById($aliquot_id);
+					$aliquot = $aliquot['AliquotMaster'];
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/'.$aliquot['collection_id'].'/'.$aliquot['sample_master_id'].'/'.$aliquot['id']);
 				}
 					
 			} else {
@@ -1870,10 +1881,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail');
 			$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		}
-			
-		// Set url to cancel
-		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';
-		$this->set('url_to_cancel', $url_to_cancel);
+		
+		$this->setUrlToCancel();
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -2068,10 +2077,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)) {
 				
-				//C- Save Process
-			
-				$_SESSION['tmp_batch_set']['BatchId'] = array();	// Set session data to display batchset
+				$new_aliquot_ids = array();
 				
+				//C- Save Process
 				foreach($this->data as $parent_id => $parent_and_children){
 					
 					// Save parent aliquot data
@@ -2093,7 +2101,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// Save realiquoting data
-					
 					foreach($parent_and_children['children'] as $children_aliquot) {
 						if($children_aliquot['FunctionManagement']['use']){
 			  				//save realiquoting
@@ -2108,7 +2115,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 							}
 								
 							// Set data for batchset
-							$_SESSION['tmp_batch_set']['BatchId'][] = $children_aliquot['AliquotMaster']['id'];	
+							$new_aliquot_ids[] = $children_aliquot['AliquotMaster']['id'];	
 						}
 					}
 					
@@ -2117,9 +2124,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
-				$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
-				$_SESSION['tmp_batch_set']['datamart_structure_id'] = $datamart_structure->getIdByModelName('ViewAliquot');
-
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
@@ -2128,9 +2132,18 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//redirect
 				
 				if($aliquot_master_id == null){
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/0');
+					$datamart_structure = AppModel::getInstance("datamart", "DatamartStructure", true);
+					$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+					$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewAliquot'),
+						'flag_tmp' => true 
+					));
+					$batch_set_model->saveWithIds($batch_set_data, $new_aliquot_ids);
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/datamart/batch_sets/listall/'.$batch_set_model->getLastInsertId());
 				}else{
-					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), $url_to_cancel);
+					$aliquot = $this->AliquotMaster->findById($aliquot_master_id);
+					$aliquot = $aliquot['AliquotMaster'];
+					$this->atimFlash(__('your data has been saved',true).'<br>'.__('aliquot storage data were deleted (if required)',true), '/inventorymanagement/aliquot_masters/detail/'.$aliquot['collection_id'].'/'.$aliquot['sample_master_id'].'/'.$aliquot['id']);
 				}
 			
 			} else {
