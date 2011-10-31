@@ -16,6 +16,10 @@ class StorageMaster extends StoragelayoutAppModel {
 	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)
 	const POSITION_DOUBLE_SET = 3;//the position is being defined more than once
 	
+	const CONFLICTS_IGNORE = 0;
+	const CONFLICTS_WARN = 1;
+	const CONFLICTS_ERR = 2;
+	
 	function summary($variables = array()) {
 		$return = false;
 		
@@ -115,7 +119,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']
 					);
-					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == self::CONFLICTS_WARN){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
@@ -888,6 +892,49 @@ class StorageMaster extends StoragelayoutAppModel {
 		
 		
 		return StorageMaster::POSITION_FREE;
+	}
+	
+	/**
+	 * Checks conflicts for batch layout
+	 */
+	function checkBatchLayoutConflicts(&$data, $model_name, $label_name, &$cumul_storage_data){
+		$conflicts_found = false;
+		if(isset($data[$model_name])){
+			foreach($data[$model_name] as &$model_data){
+				$storage_id = $model_data['s'];
+				if($storage_id == 'u' || $storage_id == 't'){
+					continue;
+				}
+				if(!array_key_exists($storage_id, $cumul_storage_data)){
+					$storage = $this->findById($storage_id);
+					$cumul_storage_data[$storage_id] = $storage;
+					$cumul_storage_data[$storage_id]['printed_label'] = $this->getLabel($storage, 'StorageMaster', 'selection_label');
+				}
+					
+				if(isset($cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']])){
+					$msg = sprintf(__('conflict detected in storage [%s] at position [%s, %s]', true),
+						$cumul_storage_data[$storage_id]['printed_label'],
+						$model_data['x'],
+						$model_data['y']
+					);
+					//react
+					if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_WARN){
+						AppController::addWarningMsg($msg);
+						$conflicts_found = true;
+					}else if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR){
+						$this->validationErrors[] = ($msg.' '.__('unclassifying additional items', true));
+						$model_data['x'] = '';
+						$model_data['y'] = '';
+						$conflicts_found = true;
+					}
+				}else{
+					//save the item label
+					$cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']] = $this->getLabel($cumul_storage_data[$storage_id], $model_name, $label_name);
+				}
+			}
+		}
+		
+		return $conflicts_found;
 	}
 }
 
