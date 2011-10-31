@@ -139,8 +139,10 @@ class SampleMaster extends InventorymanagementAppModel {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
+	 * @deprecated
 	 */
 	function createCode($sample_master_id, $sample_master_data, $sample_control_data){	
+		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		$sample_code = $sample_control_data['SampleControl']['sample_type_code'] . ' - '. $sample_master_id;		
 		return $sample_code;		
 	}

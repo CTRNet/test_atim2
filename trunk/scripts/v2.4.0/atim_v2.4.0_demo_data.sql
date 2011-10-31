@@ -1552,6 +1552,8 @@ INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_control_id`, `initial
 (27, 'AMP-RNA - 27', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', '2011-10-19 18:42:37', 1, '2011-10-19 18:42:38', 1, 0),
 (28, 'AMP-RNA - 28', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', '2011-10-19 18:42:38', 1, '2011-10-19 18:42:39', 1, 0);
 
+UPDATE sample_masters SET sample_code = id;
+
 --
 -- Dumping data for table `sample_masters_revs`
 --
@@ -1614,6 +1616,8 @@ INSERT INTO `sample_masters_revs` (`id`, `sample_code`, `sample_control_id`, `in
 (27, 'AMP-RNA - 27', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 55, '2011-10-19 18:42:38'),
 (28, '', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 56, '2011-10-19 18:42:39'),
 (28, 'AMP-RNA - 28', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 57, '2011-10-19 18:42:39');
+
+UPDATE sample_masters_revs SET sample_code = id;
 
 --
 -- Dumping data for table `sd_der_amp_rnas`
