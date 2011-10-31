@@ -149,7 +149,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("report_4_desc", 
  "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
  "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché."),
-("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés");
+("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés"),
+("when defining a temperature, the temperature unit is required",
+ "When defining a temperature, the temperature unit is required.",
+ "Quand une température est définie, l'unité de température est requise.");
 
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
