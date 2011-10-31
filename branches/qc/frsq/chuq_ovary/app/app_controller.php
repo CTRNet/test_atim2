@@ -816,6 +816,28 @@ class AppController extends Controller {
 			$menu_options[preg_replace('/^[0-9]+-/', '', $label)] = $link;
 		}
 	}
+	
+	/**
+	 * Sets url_to_cancel based on $this->data['url_to_cancel']
+	 * If nothing exists, javascript:history.go(-1) is used.
+	 * If a similar entry exists, the value is decremented.
+	 * Otherwise, url_to_cancel is uses as such. 
+	 */
+	function setUrlToCancel(){
+		if(isset($this->data['url_to_cancel'])){
+			$pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
+			$matches = array();
+			if(preg_match($pattern, $this->data['url_to_cancel'], $matches)){
+				$back = empty($matches[1]) ? -2 : $matches[1] - 1;  
+				$this->data['url_to_cancel'] = 'javascript:history.go('.$back.')';
+			}
+			
+		}else{
+			$this->data['url_to_cancel'] = 'javascript:history.go(-1)'; 
+		}
+		
+		$this->set('url_to_cancel', $this->data['url_to_cancel']);
+	}
 }
 
 	AppController::init();

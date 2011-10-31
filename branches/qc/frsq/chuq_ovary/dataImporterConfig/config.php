@@ -132,7 +132,7 @@ echo " - No storage (box) has to be defined for cell culture (PC)<br>";
 
 echo "<br><FONT COLOR=\"red\" ><br>=====================================================================
 </FONT><br>";	
-
+flush();
 }
 
 function addonFunctionEnd(){

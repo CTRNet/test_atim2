@@ -1552,6 +1552,8 @@ INSERT INTO `sample_masters` (`id`, `sample_code`, `sample_control_id`, `initial
 (27, 'AMP-RNA - 27', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', '2011-10-19 18:42:37', 1, '2011-10-19 18:42:38', 1, 0),
 (28, 'AMP-RNA - 28', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', '2011-10-19 18:42:38', 1, '2011-10-19 18:42:39', 1, 0);
 
+UPDATE sample_masters SET sample_code = id;
+
 --
 -- Dumping data for table `sample_masters_revs`
 --
@@ -1614,6 +1616,8 @@ INSERT INTO `sample_masters_revs` (`id`, `sample_code`, `sample_control_id`, `in
 (27, 'AMP-RNA - 27', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 55, '2011-10-19 18:42:38'),
 (28, '', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 56, '2011-10-19 18:42:39'),
 (28, 'AMP-RNA - 28', 17, 17, 'tissue', 3, 19, 'rna', 1, NULL, '', '', 1, 57, '2011-10-19 18:42:39');
+
+UPDATE sample_masters_revs SET sample_code = id;
 
 --
 -- Dumping data for table `sd_der_amp_rnas`
@@ -2458,6 +2462,7 @@ INSERT INTO `storage_masters` (`id`, `code`, `storage_control_id`, `parent_id`, 
 (20, 'TMA609 - 20', 20, 14, 27, 28, '938912', 'TMA-007', 'fr1-3-r2-TMA-TMA-007', '', '', '', '-82.00', 'celsius', '', '2011-10-19 13:20:47', 1, '2011-10-19 13:20:48', 1, 0),
 (21, 'B2D100 - 21', 18, 7, 6, 7, '41221123123', 'TISS1', 'fr1-2-r43-TISS1', '', '', '', '-82.00', 'celsius', '', '2011-10-19 14:28:50', 1, '2011-10-19 14:28:51', 1, 0);
 
+UPDATE storage_masters SET code = id;
 --
 -- Dumping data for table `storage_masters_revs`
 --
@@ -2524,6 +2529,8 @@ INSERT INTO `storage_masters_revs` (`id`, `code`, `storage_control_id`, `parent_
 (20, 'TMA609 - 20', 20, 14, 25, 26, '938912', 'TMA-007', 'fr1-3-r2-TMA-TMA-007', '', '', '', '-82.00', 'celsius', '', 1, 59, '2011-10-19 13:20:48'),
 (21, '', 18, 7, 0, 0, '41221123123', 'TISS1', 'fr1-2-r43-TISS1', '', '', '', '-82.00', 'celsius', '', 1, 60, '2011-10-19 14:28:51'),
 (21, 'B2D100 - 21', 18, 7, 6, 7, '41221123123', 'TISS1', 'fr1-2-r43-TISS1', '', '', '', '-82.00', 'celsius', '', 1, 61, '2011-10-19 14:28:52');
+
+UPDATE storage_masters_revs SET code = id;	
 
 --
 -- Dumping data for table `structure_permissible_values_customs`

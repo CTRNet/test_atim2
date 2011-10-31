@@ -684,8 +684,9 @@ function createParticipantCollections(Model $m){
 	$collection_notes = $collections['NOTES'];
 	
 	//INSERT PROCESS
+	flush();
 	
-	createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_time);
+//	createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_time);
 
 }
 
