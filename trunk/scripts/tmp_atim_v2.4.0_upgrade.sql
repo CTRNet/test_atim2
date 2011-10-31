@@ -152,8 +152,11 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés"),
 ("when defining a temperature, the temperature unit is required",
  "When defining a temperature, the temperature unit is required.",
- "Quand une température est définie, l'unité de température est requise.");
-
+ "Quand une température est définie, l'unité de température est requise."),
+("conflict detected in storage [%s] at position [%s, %s]", 
+ "Conflict detected in storage [%s] at position [%s, %s].",
+ "Conflit détecté dans l'entreposate [%s] à la position [%s, %s]."),
+("unclassifying additional items", "Unclassifying additional items", "Déclassification des éléments supplémentaires.");  
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -2993,8 +2996,5 @@ UPDATE sample_masters SET sample_code = id;
 UPDATE sample_masters_revs SET sample_code = id;	
 
 
-
-
-
-
-
+ALTER TABLE storage_controls
+ CHANGE check_conficts check_conflicts TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=no, 1=warn, anything else=error';
