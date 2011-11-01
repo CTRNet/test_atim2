@@ -460,6 +460,12 @@ function initActions(){
 		return currElement;
 	}
 	
+	/**
+	 * @param id
+	 * @param title
+	 * @param content
+	 * @param buttons Array containing json containing keys icon, label and action
+	 */
 	function buildDialog(id, title, content, buttons){
 		var buttonsHtml = "";
 		if(buttons != null && buttons.length > 0){

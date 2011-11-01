@@ -461,14 +461,10 @@ class SampleMastersController extends InventorymanagementAppController {
 					$sample_master_id = $this->SampleMaster->getLastInsertId();
 				
 					// Record additional sample data
-					$sample_data_to_update = array();
-					$sample_data_to_update['SampleMaster']['sample_code'] = $this->SampleMaster->createCode($sample_master_id, $this->data, $sample_control_data);
-					if($is_specimen) { 
-						
-						$sample_data_to_update['SampleMaster']['initial_specimen_sample_id'] = $sample_master_id; }
-					
-					$this->SampleMaster->id = $sample_master_id;					
-					if(!$this->SampleMaster->save($sample_data_to_update, false)) { 
+					$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
+					if($is_specimen) $query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id, sample_masters.initial_specimen_sample_id = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
+					if(!$this->SampleMaster->query($query_to_update) 
+					|| !$this->SampleMaster->query(str_replace("sample_masters", "sample_masters_revs", $query_to_update))) {
 						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 					
@@ -1090,9 +1086,9 @@ class SampleMastersController extends InventorymanagementAppController {
 						$child_id = $this->SampleMaster->getLastInsertId();
 						
 						// Update sample code
-						$child['SampleMaster']['sample_code'] = $this->SampleMaster->createCode($this->SampleMaster->id, $child, $children_control_data);
-						$this->SampleMaster->id = $child_id;
-						if(!$this->SampleMaster->save($child, false)){ 
+						$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id WHERE sample_masters.id = $child_id;";
+						if(!$this->SampleMaster->query($query_to_update) 
+						|| !$this->SampleMaster->query(str_replace("sample_masters", "sample_masters_revs", $query_to_update))) {
 							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 

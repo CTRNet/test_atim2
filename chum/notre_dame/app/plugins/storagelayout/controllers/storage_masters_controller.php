@@ -217,12 +217,9 @@ class StorageMastersController extends StoragelayoutAppController {
 				
 				// Create storage code
 				if($bool_save_done) {
-					$storage_data_to_update = array();
-					$storage_data_to_update['StorageMaster']['code'] = $this->StorageMaster->createCode($storage_master_id, $this->data, $storage_control_data);
-
-					$this->StorageMaster->id = $storage_master_id;					
-					if(!$this->StorageMaster->save($storage_data_to_update, false)) {
-						$bool_save_done = false;
+					if(!$this->StorageMaster->query("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;") 
+					|| !$this->StorageMaster->query("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;")) {
+						$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 				}
 				
@@ -531,6 +528,13 @@ class StorageMastersController extends StoragelayoutAppController {
 			$aliquots_initial_data = isset($data['AliquotMaster']) ? $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => array_keys($data['AliquotMaster'])))) : array();
 			$tmas_initial_data = isset($data['TmaSlide']) ? $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.id' => array_keys($data['TmaSlide'])))) : array();
 			
+			//manual validate/alteration of positions based on position conflict checks
+			$storage_config = array();
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $conflicts_found;
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $conflicts_found;
+			$err = $this->StorageMaster->validationErrors;
+			
 			//update StorageMaster
 			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data['StorageControl']);
 			
@@ -539,8 +543,13 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			//Update TmaSlide
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data['StorageControl']);
-			
-			$this->atimFlash('your data has been saved', '/storagelayout/storage_masters/storageLayout/' . $storage_master_id);
+
+			if($conflicts_found ){
+				AppController::addWarningMsg(__('your data has been saved', true), true);
+				$this->StorageMaster->validationErrors = $err;
+			}else{
+				$this->atimFlash('your data has been saved', '/storagelayout/storage_masters/storageLayout/' . $storage_master_id);
+			}
 		}
 		$this->data = array();
 		
@@ -640,25 +649,21 @@ class StorageMastersController extends StoragelayoutAppController {
 			$conditions['or'][] = $tmp_condition;
 			$conditions['or'][] = array('StorageMaster.Selection_label LIKE' => $term2a, 'StorageMaster.code LIKE' => $term2b.'%');
 		}
+
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => $conditions,
-			'fields' => array('StorageMaster.selection_label', 'GROUP_CONCAT(StorageMaster.code) AS codes'),
-			'group' => array('StorageMaster.selection_label'),
-			'recursive' => -1,
+			'fields' => array('StorageMaster.selection_label', 'StorageMaster.code', 'StorageControl.storage_type'),
+			'order' => array('StorageMaster.selection_label ASC, StorageMaster.code ASC'),
+			'recursive' => 0,
 			'limit' => 10
 		));
+		
 		//build javascript textual array
 		$result = "";
 		$count = 0;
 		foreach($storage_masters as $storage_master){
-			$codes = explode(",", $storage_master[0]['codes']);
-			foreach($codes as $code){
-				$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$code.']", ';
-				++ $count;
-				if($count > 9){
-					break;
-				}
-			}
+			$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$storage_master['StorageMaster']['code'].'] / '.__($storage_master['StorageControl']['storage_type'], true).'", ';
+			++ $count;
 			if($count > 9){
 				break;
 			}

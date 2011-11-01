@@ -64,6 +64,9 @@ class BatchSet extends DatamartAppModel {
 		return $return;
 	}
 	
+	/**
+	 * @deprecated: Use a standard find and then call isUserAuthorizedToRw
+	 */
 	function getBatchSet($batch_set_id){
 		$conditions = array(
 			'BatchSet.id' => $batch_set_id,

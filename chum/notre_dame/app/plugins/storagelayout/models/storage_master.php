@@ -16,6 +16,10 @@ class StorageMaster extends StoragelayoutAppModel {
 	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)
 	const POSITION_DOUBLE_SET = 3;//the position is being defined more than once
 	
+	const CONFLICTS_IGNORE = 0;
+	const CONFLICTS_WARN = 1;
+	const CONFLICTS_ERR = 2;
+	
 	function summary($variables = array()) {
 		$return = false;
 		
@@ -115,7 +119,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']
 					);
-					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == self::CONFLICTS_WARN){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
@@ -124,7 +128,14 @@ class StorageMaster extends StoragelayoutAppModel {
 			}
 		}	
 			
-		$this->isDuplicatedStorageBarCode($this->data);		
+		$this->isDuplicatedStorageBarCode($this->data);
+
+		if(isset($this->data['StorageMaster']['temperature']) && !empty($this->data['StorageMaster']['temperature'])
+			&& (!isset($this->data['StorageMaster']['temp_unit']) || empty($this->data['StorageMaster']['temp_unit'])))
+		{
+			$this->validationErrors['temp_unit'][] = 'when defining a temperature, the temperature unit is required';
+		}
+		
 		parent::validates($options);
 		return empty($this->validationErrors);
 	}
@@ -379,10 +390,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		$selected_storages = array();
 		if(preg_match_all("/([^\b]+)\[([^\[]+)\]/", $storage_label_and_code, $matches, PREG_SET_ORDER) > 0){
 			// Auto complete tool has been used
-			$selected_storages = $this->find('all', array('conditions' => array('selection_label' => $matches[0][1], 'code' => $matches[0][2])));
+			$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $matches[0][1], 'StorageMaster.code' => $matches[0][2])));
 		} else {
 			// consider $storage_label_and_code contains just seleciton label
-			$selected_storages = $this->find('all', array('conditions' => array('selection_label' => $storage_label_and_code)));
+			$selected_storages = $this->find('all', array('conditions' => array('StorageMaster.selection_label' => $storage_label_and_code)));
 		}
 		
 		if(sizeof($selected_storages) == 1) {
@@ -411,7 +422,7 @@ class StorageMaster extends StoragelayoutAppModel {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
-			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . ']';
+			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.__($storage_data['StorageControl']['storage_type'],true);
 		}
 	
 		return $formatted_data;
@@ -430,14 +441,14 @@ class StorageMaster extends StoragelayoutAppModel {
 	 */ 
 	 
 	function getStoragePath($studied_storage_master_id) {
-		$storage_path_data = $this->getpath($studied_storage_master_id);
+		$storage_path_data = $this->getpath($studied_storage_master_id, null, '0');
 
 		$path_to_display = '';
 		$separator = '';
 		if(!empty($storage_path_data)){
 			foreach($storage_path_data as $new_parent_storage_data) { 
-				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code']; 
-				$separator = ' >> ';
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code'] . " (".__($new_parent_storage_data['StorageControl']['storage_type'],true).")"; 
+				$separator = ' > ';
 			}
 		}
 			
@@ -599,7 +610,7 @@ class StorageMaster extends StoragelayoutAppModel {
 				$this->id = $studied_children_id;
 				$this->data = null;
 				if(!$this->save($storage_data_to_update, false)) { 
-					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}		
 	
 				// Re-populate the list of parent storages to study
@@ -625,9 +636,11 @@ class StorageMaster extends StoragelayoutAppModel {
 	 * @author N. Luc
 	 * @since 2008-01-31
 	 * @updated A. Suggitt
+	 * @deprecated
 	 */
 	function createCode($storage_master_id, $storage_data, $storage_control_data) {
-		$storage_code = $storage_control_data['StorageControl']['storage_type_code'] . ' - ' . $storage_master_id;
+		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		$storage_code = $storage_master_id;
 		
 		return $storage_code;
 	}
@@ -879,6 +892,51 @@ class StorageMaster extends StoragelayoutAppModel {
 		
 		
 		return StorageMaster::POSITION_FREE;
+	}
+	
+	/**
+	 * Checks conflicts for batch layout
+	 */
+	function checkBatchLayoutConflicts(&$data, $model_name, $label_name, &$cumul_storage_data){
+		$conflicts_found = false;
+		if(isset($data[$model_name])){
+			foreach($data[$model_name] as &$model_data){
+				$storage_id = $model_data['s'];
+				if($storage_id == 'u' || $storage_id == 't'){
+					continue;
+				}
+				if(!array_key_exists($storage_id, $cumul_storage_data)){
+					$storage = $this->findById($storage_id);
+					$cumul_storage_data[$storage_id] = $storage;
+					$cumul_storage_data[$storage_id]['printed_label'] = $this->getLabel($storage, 'StorageMaster', 'selection_label');
+				}
+					
+				if(isset($cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']])){
+					$msg = sprintf(__('conflict detected in storage [%s] at position [%s, %s]', true),
+						$cumul_storage_data[$storage_id]['printed_label'],
+						$model_data['x'],
+						$model_data['y']
+					);
+					//react
+					if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_WARN){
+						AppController::addWarningMsg($msg);
+						$conflicts_found = true;
+					}else if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR){
+						$this->validationErrors[] = ($msg.' '.__('unclassifying additional items', true));
+						$model_data['x'] = '';
+						$model_data['y'] = '';
+						$conflicts_found = true;
+					}
+				}else{
+					//save the item label
+					$model = AppModel::getInstance(null, $model_name, true);
+					$model_full_data = $model->findById($model_data['id']);
+					$cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']] = $this->getLabel($model_full_data, $model_name, $label_name);
+				}
+			}
+		}
+		
+		return $conflicts_found;
 	}
 }
 
