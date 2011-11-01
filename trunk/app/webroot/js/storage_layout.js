@@ -38,7 +38,7 @@ function initStorageLayout(){
 	};
 	
 	//handle the "pick a storage to drag and drop to" button and popup
-	$.get(root_url + '/storagelayout/storage_masters/search/', function(data){
+	$.get(root_url + 'storagelayout/storage_masters/search/', function(data){
 		var isVisible = $("#default_popup:visible").length;
 		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
 		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
@@ -73,7 +73,7 @@ function initStorageLayout(){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
 						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
-						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
+						$.get(root_url + 'storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
@@ -268,7 +268,7 @@ function preparePost(){
 			}
 		});
 		
-		//submitted = true;
+		submitted = true;
 		if(gotConflicts){
 			if($('#conflictPopup').length == 0){
 				buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
