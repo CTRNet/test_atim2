@@ -75,4 +75,6 @@ var detailString = "<?php echo(__("detail")); ?>";
 var loadingStr = "<?php __("loading"); ?>";
 var storageLayout = true;
 var STR_NAVIGATE_UNSAVED_DATA = "<?php __('STR_NAVIGATE_UNSAVED_DATA') ?>";
+var STR_VALIDATION_ERROR = "<?php __('validation error'); ?>";
+var STR_STORAGE_CONFLICT_MSG = "<?php __('storage_conflict_msg'); ?>";
 </script>
