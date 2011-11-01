@@ -929,7 +929,9 @@ class StorageMaster extends StoragelayoutAppModel {
 					}
 				}else{
 					//save the item label
-					$cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']] = $this->getLabel($cumul_storage_data[$storage_id], $model_name, $label_name);
+					$model = AppModel::getInstance(null, $model_name, true);
+					$model_full_data = $model->findById($model_data['id']);
+					$cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']] = $this->getLabel($model_full_data, $model_name, $label_name);
 				}
 			}
 		}

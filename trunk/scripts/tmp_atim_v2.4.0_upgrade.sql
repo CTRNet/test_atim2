@@ -156,7 +156,9 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("conflict detected in storage [%s] at position [%s, %s]", 
  "Conflict detected in storage [%s] at position [%s, %s].",
  "Conflit détecté dans l'entreposate [%s] à la position [%s, %s]."),
-("unclassifying additional items", "Unclassifying additional items.", "Déclassification des éléments supplémentaires.");  
+("unclassifying additional items", "Unclassifying additional items.", "Déclassification des éléments supplémentaires."),
+("validation error", "Validation error", "Erreur de validation"),
+("storage_conflict_msg", "You cannot put more than one element in a cell space. See cells in red.", "Vous ne pouvez pas mettre plus d'un élément par cellule. Vérifier les cellules rouges.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
