@@ -149,8 +149,16 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("report_4_desc", 
  "The samples count within collections created within specified time frame and bank. The results are grouped by samples type. The count of matching participants is also displayed.",
  "Le compte des échantillons à l'intérieur des collections créées dans l'intervalle de temps et la banque spécifiés. Les résultats sont groupés par types d'échantillons. Le compte des participants correspondants est aussi affiché."),
-("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés");
-
+("define realiquoted children", "Define realiquoted children", "Définir des enfants réaliquotés"),
+("when defining a temperature, the temperature unit is required",
+ "When defining a temperature, the temperature unit is required.",
+ "Quand une température est définie, l'unité de température est requise."),
+("conflict detected in storage [%s] at position [%s, %s]", 
+ "Conflict detected in storage [%s] at position [%s, %s].",
+ "Conflit détecté dans l'entreposate [%s] à la position [%s, %s]."),
+("unclassifying additional items", "Unclassifying additional items.", "Déclassification des éléments supplémentaires."),
+("validation error", "Validation error", "Erreur de validation"),
+("storage_conflict_msg", "You cannot put more than one element in a cell space. See cells in red.", "Vous ne pouvez pas mettre plus d'un élément par cellule. Vérifier les cellules rouges.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -2961,3 +2969,34 @@ UPDATE datamart_reports
  SET description='report_4_desc' WHERE id='4';
  
 UPDATE menus SET flag_active=false WHERE id IN('core_CAN_41_1_3_5');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'temperature', 'float',  NULL , '0', '', '', '', 'temperature', ''), 
+('Inventorymanagement', 'ViewAliquot', 'view_aliquots', 'temp_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code') , '0', '', '', '', '', 'unit');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='temperature' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='temperature' AND `language_tag`=''), '0', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='unit'), '0', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+UPDATE structure_formats SET `display_order`='27' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='100', `language_heading`='system data' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='storagemasters') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='code');
+
+ALTER TABLE storage_controls
+	DROP COLUMN storage_type_code;
+
+UPDATE storage_masters SET code = id;
+UPDATE storage_masters_revs SET code = id;
+
+UPDATE structure_formats SET `display_order`='610', `language_heading`='system data', `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE sample_controls
+	DROP COLUMN sample_type_code;
+
+UPDATE sample_masters SET sample_code = id;
+UPDATE sample_masters_revs SET sample_code = id;	
+
+
+ALTER TABLE storage_controls
+ CHANGE check_conficts check_conflicts TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=no, 1=warn, anything else=error';

@@ -170,5 +170,5 @@ foreach($data['children'] as $children_array){
 	$children_display[] = $children_array['DisplayData'];
 }
 
-echo json_encode(array('valid' => 1, 'content' => $content, 'positions' => $children_display));
+echo json_encode(array('valid' => 1, 'content' => $content, 'positions' => $children_display, 'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']));
 

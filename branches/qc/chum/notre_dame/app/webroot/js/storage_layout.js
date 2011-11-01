@@ -27,6 +27,7 @@ function initStorageLayout(){
 		}
 		$("#firstStorageRow").find(".dragme").data("top", true);
 		$("#firstStorageRow").find(".droppable").data("top", true);
+		$("#firstStorageRow").data('checkConflicts', data.check_conflicts);
 	});
 	
 	
@@ -37,7 +38,7 @@ function initStorageLayout(){
 	};
 	
 	//handle the "pick a storage to drag and drop to" button and popup
-	$.get(root_url + '/storagelayout/storage_masters/search/', function(data){
+	$.get(root_url + 'storagelayout/storage_masters/search/', function(data){
 		var isVisible = $("#default_popup:visible").length;
 		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
 		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
@@ -72,12 +73,13 @@ function initStorageLayout(){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
 						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
-						$.get(root_url + '/storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
+						$.get(root_url + 'storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
 								$("#secondStorageRow").find(".dragme").data("top", false);
 								$("#secondStorageRow").find(".droppable").data("top", false);
+								$("#secondStorageRow").data('checkConflicts', data.check_conflicts);
 							}
 						});
 					}
@@ -248,22 +250,46 @@ function recycleItem(scope, item) {
  */
 function preparePost(){
 	if(!submitted){
-		//submitted = true;
-		var cells = '';
-		var elements = $(".dragme");
-		for(var i = elements.length - 1; i >= 0; --i){
-			itemData = getJsonFromClass($(elements[i]).prop("class"));
-			var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
-			cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
+		//check conflicts
+		var idStr = '';
+		if($('#firstStorageRow').data('checkConflicts') == 2){
+			idStr = '#firstStorageRow';
 		}
-		if(cells.length > 0){
-			cells = cells.substr(0, cells.length - 1);
+		if($('#secondStorageRow').data('checkConflicts') == 2){
+			idStr += ',#secondStorageRow';
 		}
-		var form = getParentElement($("#firstStorageRow"), "FORM");
-		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
-	}else{
-		return false;
+		var gotConflicts = false;
+		$(idStr).find("table ul").each(function(){
+			if($(this).find('li').length > 1){
+				$(this).parent().css('background-color', 'lightCoral');
+				gotConflicts = true;
+			}else{
+				$(this).parent().css('background-color', 'transparent');
+			}
+		});
+		
+		submitted = true;
+		if(gotConflicts){
+			if($('#conflictPopup').length == 0){
+				buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
+			}
+			$('#conflictPopup').popup();
+		}else{
+			var cells = '';
+			var elements = $(".dragme");
+			for(var i = elements.length - 1; i >= 0; --i){
+				itemData = getJsonFromClass($(elements[i]).prop("class"));
+				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
+				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
+			}
+			if(cells.length > 0){
+				cells = cells.substr(0, cells.length - 1);
+			}
+			var form = getParentElement($("#firstStorageRow"), "FORM");
+			$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
+		}
 	}
+	
 }
 
 /**

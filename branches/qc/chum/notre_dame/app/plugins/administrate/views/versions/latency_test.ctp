@@ -26,7 +26,7 @@ function testLatency(hammer){
 
 function testLatency2(id){
 	var pingTime = new Date();
-	$.get(root_url + "/administrate/versions/latencyTest", "", function(data){
+	$.get(root_url + "administrate/versions/latencyTest", "", function(data){
 		var pongTime = new Date();
 		var latency = pongTime.getTime() - pingTime.getTime();
 		$("textarea").append(id + ": " + (latency) + "ms\n");

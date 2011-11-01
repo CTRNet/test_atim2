@@ -65,14 +65,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	/**
-	 * @deprecated
-	 */
-	function listAll($collection_id, $sample_master_id, $filter_option = null) {		
-		pr('deprecated');
-		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-	}
-	
 	function addInit(){
 		// Get Data
 		$model = null;
