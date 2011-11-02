@@ -3000,3 +3000,6 @@ UPDATE sample_masters_revs SET sample_code = id;
 
 ALTER TABLE storage_controls
  CHANGE check_conficts check_conflicts TINYINT UNSIGNED NOT NULL DEFAULT '1' COMMENT '0=no, 1=warn, anything else=error';
+ 
+ALTER TABLE participants
+ DROP KEY unique_participant_identifier;
