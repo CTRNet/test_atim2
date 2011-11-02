@@ -5,6 +5,26 @@ class AliquotMasterCustom extends AliquotMaster {
 	var $useTable = 'aliquot_masters';	
 	var $name = 'AliquotMaster';	
 	
+	function summary($variables=array()) {
+		$return = false;
+		
+		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
+			
+			$result = $this->find('first', array('conditions'=>array('AliquotMaster.collection_id'=>$variables['Collection.id'], 'AliquotMaster.sample_master_id'=>$variables['SampleMaster.id'], 'AliquotMaster.id'=>$variables['AliquotMaster.id'])));
+			if(!isset($result['AliquotMaster']['storage_coord_y'])){
+				$result['AliquotMaster']['storage_coord_y'] = "";
+			}
+			$return = array(
+					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type'], true) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'data'				=> $result,
+					'structure alias'	=> 'aliquot_masters'
+			);
+		}
+		
+		return $return;
+	}
+	
 	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
 			
 		// Parameters check: Verify parameters have been set
