@@ -16,7 +16,7 @@
 		
 		// Get specimen derivatives list
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
-		$specimen_derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.initial_specimen_sample_id' => $sample_master_id, 'SampleMaster.sample_category' => 'derivative')));
+		$specimen_derivatives_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.initial_specimen_sample_id' => $sample_master_id, 'SampleControl.sample_category' => 'derivative')));
 		
 		// Update derivative samples label
 		foreach($specimen_derivatives_list as $new_derivative) {
@@ -25,7 +25,7 @@
 		
 			$this->SampleMaster->data = array();
 			$this->SampleMaster->id = $new_derivative['SampleMaster']['id'];
-			if(!$this->SampleMaster->save($derivative_data_to_save)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			if(!$this->SampleMaster->save($derivative_data_to_save, false)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}			
 			

@@ -61,12 +61,12 @@ class SampleMasterCustom extends SampleMaster {
 
 		if(!array_key_exists('sample_category', $sample_data['SampleControl'])
 		|| !array_key_exists('sample_type', $sample_data['SampleControl'])
-		|| !array_key_exists('sample_type_code', $sample_data['SampleControl'])){ 
+		|| !array_key_exists('qc_nd_sample_type_code', $sample_data['SampleControl'])){ 
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		$sample_category = $sample_data['SampleControl']['sample_category'];
 		$sample_type = $sample_data['SampleControl']['sample_type'];
-		$sample_type_code = $sample_data['SampleControl']['sample_type_code'];
+		$qc_nd_sample_type_code = $sample_data['SampleControl']['qc_nd_sample_type_code'];
 
 		$specimen_type_code = null;
 		$specimen_sequence_number = null;
@@ -159,7 +159,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'plasma':
 			case 'serum':
 			case 'pleural fluid cell':
-				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label;
+				$new_sample_label = $qc_nd_sample_type_code. ' ' . $initial_specimen_label;
     			break;
     							
     		case 'cell culture':
@@ -174,7 +174,7 @@ class SampleMasterCustom extends SampleMaster {
     				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
     			
-				$new_sample_label = $sample_type_code. ' ' . $initial_specimen_label.
+				$new_sample_label = $qc_nd_sample_type_code. ' ' . $initial_specimen_label.
 					((empty($sample_data['SampleDetail']['cell_passage_number']) && (strcmp($sample_data['SampleDetail']['cell_passage_number'], '0') != 0))? '': ' P'.$sample_data['SampleDetail']['cell_passage_number']);
     			break;	
     					
@@ -184,7 +184,7 @@ class SampleMasterCustom extends SampleMaster {
     				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
     			}
     			
-				$new_sample_label = $sample_type_code . ' ' . $initial_specimen_label;
+				$new_sample_label = $qc_nd_sample_type_code . ' ' . $initial_specimen_label;
 				
 				if(is_numeric($sample_data['SampleMaster']['parent_id'])){
 					$parent_element = $this->findById($sample_data['SampleMaster']['parent_id']);
@@ -207,8 +207,10 @@ class SampleMasterCustom extends SampleMaster {
 		return $new_sample_label;
 	}	 
 	 
-	private function validateLabTypeCodeAndLaterality(&$data_to_validate) {				
+	private function validateLabTypeCodeAndLaterality(&$data_to_validate) {	
+		
 		$process_validates = true;
+		
 		if($data_to_validate['SampleControl']['sample_category'] === 'specimen') {
 			// Load model to control data
 			$lab_type_laterality_match = AppModel::getInstance('Inventorymanagement', 'LabTypeLateralityMatch', true);		
