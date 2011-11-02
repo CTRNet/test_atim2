@@ -622,9 +622,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
 				
-				$this->atimFlash('your data has been deleted', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/inventorymanagement/aliquot_masters/listAll/' . $collection_id . '/' . $sample_master_id);
+				$this->flash('error deleting data - contact administrator', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/inventorymanagement/aliquot_masters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
