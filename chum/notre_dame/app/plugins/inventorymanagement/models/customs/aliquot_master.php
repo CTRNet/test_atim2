@@ -94,7 +94,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			if($view_sample['ViewSample']['sample_category'] == 'specimen'){
 				// Specimen Aliquot
 				if(!isset($this->SpecimenDetail)) $this->SpecimenDetail = AppModel::getInstance('Clinicalannotation', 'SpecimenDetail', true);
-				
+				//TODO 'Clinicalannotation', 'SpecimenDetail' Wrong plugin...
 				$specimen_detail = $this->SpecimenDetail->find('first', array('conditions' => array('sample_master_id' => $view_sample['ViewSample']['sample_master_id'])));
 				if(empty($specimen_detail)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				
@@ -119,18 +119,12 @@ class AliquotMasterCustom extends AliquotMaster {
 	}
 	
 	function regenerateAliquotBarcode() {
-		$this->unbindModel(array(
-		'hasOne' => array('SpecimenDetail'),
-		'belongsTo' => array('Collection','StorageMaster')));
-		$aliquots_to_update = $this->find('all', array('conditions' => array('AliquotMaster.barcode' => '')));
-		foreach($aliquots_to_update as $new_aliquot) {
-			$this->data = array();
-			$this->id = $new_aliquot['AliquotMaster']['id'];
-			$barcode = 'tmp_'.str_replace(" ", "", $new_aliquot['SampleMaster']['sample_code']).'_'.$new_aliquot['AliquotMaster']['id'];
-			if(!$this->save(array('AliquotMaster' => array('barcode' => $barcode)), false)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}	
+		$query_to_update = "UPDATE aliquot_masters SET aliquot_masters.barcode = aliquot_masters.id WHERE aliquot_masters.barcode = '';";
+		if(!$this->query($query_to_update) 
+		|| !$this->query(str_replace("aliquot_masters", "aliquot_masters_revs", $query_to_update))) {
+			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 	}
-	
 }
 
 ?>

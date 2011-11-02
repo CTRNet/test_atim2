@@ -25,23 +25,23 @@ class CollectionCustom extends Collection{
 		
 		// Get collection samples list
 		$this->SampleMaster->unbindModel(array('hasMany' => array('AliquotMaster'), 'belongsTo' => array('Collection')));
-		$collection_samples_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => 'SampleMaster.initial_specimen_sample_id ASC, SampleMaster.sample_category DESC'));
-			
+		$collection_samples_list = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => 'SampleMaster.initial_specimen_sample_id ASC, SampleControl.sample_category ASC'));
+		
 		// Update collection samples label
 		$specimens_sample_labels_from_id = array();
 		foreach($collection_samples_list as $new_collection_sample) {	
 			$new_sample_label = null;	
-			if($new_collection_sample['SampleMaster']['sample_category'] == 'specimen') {
+			if($new_collection_sample['SampleControl']['sample_category'] == 'specimen') {
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier);
 				$specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['id']] = $new_sample_label;
 			} else {
-				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+				if(!isset($specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']])) { pr($new_collection_sample);pr($specimens_sample_labels_from_id);exit;AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_sample_label = $this->SampleMaster->createSampleLabel($collection_id, $new_collection_sample, $bank_participant_identifier, $specimens_sample_labels_from_id[$new_collection_sample['SampleMaster']['initial_specimen_sample_id']]);
 			}
 						
 			// Save new label
 			$this->SampleMaster->id = $new_collection_sample['SampleMaster']['id'];
-			if(!$this->SampleMaster->save(array('SampleMaster' => array('sample_label' => $new_sample_label)))) {
+			if(!$this->SampleMaster->save(array('SampleMaster' => array('sample_label' => $new_sample_label)), false)) {
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
