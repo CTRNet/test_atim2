@@ -105,6 +105,7 @@ class TemplateController extends AppController {
 			}else{
 				//non ajax is made to save the tree
 				$tree = json_decode('['.$this->data['tree'].']');
+				pr($tree);
 				array_shift($tree);//remove root
 				$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
 				$found_nodes = array();//already in db found nodes
@@ -124,7 +125,7 @@ class TemplateController extends AppController {
 						$this->TemplateNode->save(array('TemplateNode' => array(
 							'template_id'			=> $template_id,
 							'parent_id'				=> $parent_id,
-							'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
+							'datamart_structure_id'	=> $node->datamart_structure_id,
 							'control_id'			=> abs($node->controlId),
 							'quantity'				=> $node->quantity
 						)));
