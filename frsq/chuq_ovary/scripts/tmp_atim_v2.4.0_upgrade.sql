@@ -2992,9 +2992,7 @@ ALTER TABLE sample_controls
 UPDATE sample_masters SET sample_code = id;
 UPDATE sample_masters_revs SET sample_code = id;	
 
-
-
-
+UPDATE sample_controls SET form_alias = 'sample_masters,sd_undetailed_derivatives,derivatives' WHERE sample_type = 'blood cell';
 
 
 
