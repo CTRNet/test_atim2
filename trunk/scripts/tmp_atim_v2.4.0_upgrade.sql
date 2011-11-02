@@ -98,7 +98,7 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("there are no unused parent items", "There are no unused parent items", "Il n'y a pas d'éléments parents non utilisés"),
 ("unused parents", "Unused parents", "Parents non utilisés"),
 ("full export as CSV file", "Full export as CSV file", "Export complet comme fichier CSV"),
-('copy for new collection', 'Copy for New col.', "Copier pour nouvelle col."),
+('copy for new collection', 'Copy for New coll.', "Copier pour nouvelle coll."),
 ("user", "User", "Utilisateur"),
 ("owner", "Owner", "Propriétaire"),
 ("visibility", "Visibility", "Visibilité"),
