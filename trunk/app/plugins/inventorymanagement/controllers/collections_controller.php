@@ -335,6 +335,7 @@ class CollectionsController extends InventorymanagementAppController {
 		
 		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => false, 'name' => 'TemplateInit'));
 		$this->TemplateInit->_schema = array();
+		$to_begin_msg = true;//can be overriden in hooks
 		$this->Structures->set('empty', 'template_init_structure');
 		
 		$this->set('collection_id', $collection_id);
@@ -370,6 +371,10 @@ class CollectionsController extends InventorymanagementAppController {
 				$_SESSION['InventoryManagement']['TemplateInit'] = $this->data;
 				$this->set('goToNext', true);
 			}
+		}
+		
+		if($to_begin_msg){
+			AppController::addInfoMsg(__('to begin, click submit', true));
 		}
 	}
 }
