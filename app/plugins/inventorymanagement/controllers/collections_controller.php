@@ -267,9 +267,9 @@ class CollectionsController extends InventorymanagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atim_delete($collection_id, true)) {
-				$this->atimFlash('your data has been deleted', '/inventorymanagement/collections/index/');
+				$this->atimFlash('your data has been deleted', '/inventorymanagement/collections/search/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/index/');
+				$this->flash('error deleting data - contact administrator', '/inventorymanagement/collections/search/');
 			}		
 		
 		} else {
