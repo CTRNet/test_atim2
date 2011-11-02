@@ -102,9 +102,9 @@ function txPostWrite(Model $m){
 			for($i = 1; $i <= 4; $i ++){
 				$current_drug = $m->values['Chemotherapy Precision Drug'.$i];
 				if(!empty($current_drug)){
-
+					$current_drug = trim($current_drug);
 					if(!in_array($current_drug,  Config::$drugs)) {
-						echo "<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line [".$m->line."]\n";
+						echo '<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line ['.$m->line."]\n";
 					}
 					
 					$query = "INSERT INTO txe_chemos(tx_master_id, drug_id, deleted) VALUES "
