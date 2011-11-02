@@ -88,51 +88,28 @@ function addonFunctionStart(){
 	
 	setStaticDataForCollection();
 	
-echo "<br><FONT COLOR=\"red\" >
-=====================================================================<br>
-addonFunctionStart: TODO
-<br>=====================================================================
-</FONT><br>";
+	echo "<br><FONT COLOR=\"red\" >
+	=====================================================================<br>
+	addonFunctionStart: TODO
+	<br>=====================================================================
+	</FONT><br>";
+	
+	echo "<br>** 1 ** Clen up file with user<br>";
+	
+	echo "<br>** 2  ** Validate tissueCode2Details<br>";
+	foreach(Config::$tissueCode2Details as $code => $details) {
+		echo " -- <b>$code</b> => source  = '<b>".$details['source']."</b>' / laterality = '<b>".$details['laterality']."</b>' / type  = '<b>".$details['type']."</b>'<br>";
+	}
+	
+	echo "<br>** 3 ** Validate tissueCodeSynonimous<br>";
+	foreach(Config::$tissueCodeSynonimous as $code => $details) {
+		echo " -- file code [$code] = [$details]<br>";
+	}
+	
+	echo "<br><FONT COLOR=\"red\" ><br>=====================================================================
+	</FONT><br>";	
+	flush();
 
-echo "<br>** 1 ** Clen up file with user<br>";
-
-echo "<br>** 2  ** Validate tissueCode2Details<br>";
-foreach(Config::$tissueCode2Details as $code => $details) {
-	echo " -- <b>$code</b> => source  = '<b>".$details['source']."</b>' / laterality = '<b>".$details['laterality']."</b>' / type  = '<b>".$details['type']."</b>'<br>";
-}
-
-echo "<br>** 3 ** Validate tissueCodeSynonimous<br>";
-foreach(Config::$tissueCodeSynonimous as $code => $details) {
-	echo " -- file code [$code] = [$details]<br>";
-}
-
-echo "<br>** 3 ** Validate following matches for diagnosis<br>";
-echo " - tumour grade 'X' = ''<br>";
-echo " - tumour grade 'H' = ''<br>";
-echo " - figo 'X' = ''<br>";
-echo " - figo 'IC vs IIC' = 'Ic'<br>";
-
-echo "<br>** 4 ** Blood Cell Confirmation<br>";
-echo " - CE = blood cell<br>";
-echo " - ARLT = blood cell having flag 'flag Erythrocyte' set to 'Yes'<br>";
-echo " - No derivative can be created from Erythrocyte (ARLT)<br>";
-
-echo utf8_decode("<br>** 5 ** 'NO BÔITE ASC,S, RNALATER' column Confirmation<br>");
-echo " - ASC = ascite<br>";
-echo " - S = serum<br>";
-echo " - RNALATER = blood RNAlater<br>";
-echo " - Are LP, Ascite, serum, etc stored into the same box?<br>";
-
-echo "<br>** 6 ** 'ASCITE' column Confirmation<br>";
-echo " - S = serum<br>";
-echo " - LP = peritoneal wash<br>";
-
-echo "<br>** 7 ** 'PC' column Confirmation<br>";
-echo " - No storage (box) has to be defined for cell culture (PC)<br>";
-
-echo "<br><FONT COLOR=\"red\" ><br>=====================================================================
-</FONT><br>";	
-flush();
 }
 
 function addonFunctionEnd(){
@@ -185,7 +162,9 @@ function addonFunctionEnd(){
 		echo implode(" ,",array_keys(Config::$bloodBoxesData))."<br>";
 	}
 	
-//	completeInventoryRevsTable();	
+	echo "<br>";
+	
+	completeInventoryRevsTable();	
 }
 
 //=========================================================================================================
@@ -409,8 +388,7 @@ function parseAndAddBoxData($content, $box, &$boxes_data, $line_counter) {
 }
 
 function completeInventoryRevsTable() {
-//TODO
-return;	
+	
 	global $connection;
 	
 	if(Config::$insert_revs){
@@ -497,8 +475,8 @@ return;
 					break;	
 			
 				case 'ad_tubes':
-					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, chuq_blood_solution, version_created) "
-						."SELECT id, aliquot_master_id, chuq_blood_solution, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, chuq_blood_solution, chuq_blood_cell_stored_into_rlt, version_created) "
+						."SELECT id, aliquot_master_id, chuq_blood_solution, chuq_blood_cell_stored_into_rlt, NOW() FROM ".$table_name;
 					break;	
 			
 				case 'storage_masters':
