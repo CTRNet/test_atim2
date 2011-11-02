@@ -74,7 +74,6 @@ sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
 sampc.sample_category,
-samp.deleted,
 
 tiss.chuq_tissue_code
 
@@ -128,7 +127,6 @@ stor.temperature,
 stor.temp_unit,
 
 al.created,
-al.deleted,
 
 tiss.chuq_tissue_code
 
@@ -147,9 +145,37 @@ LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.del
 LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
 WHERE al.deleted != 1;
 
+-- drop eruthrocyte
 
+ALTER TABLE sd_der_blood_cells
+  DROP COLUMN `chuq_is_erythrocyte`;
+ALTER TABLE sd_der_blood_cells_revs
+   DROP COLUMN `chuq_is_erythrocyte`;
 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='chuq_sd_der_blood_cells');
+DELETE FROM structures WHERE alias='chuq_sd_der_blood_cells';
+DELETE FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_blood_cells' AND `field`='chuq_is_erythrocyte' AND `type`='yes_no';
+UPDATE sample_controls SET form_alias = 'sample_masters,sd_undetailed_derivatives,derivatives,' WHERE sample_type = 'blood cell';
 
+-- add arlt
+
+ALTER TABLE ad_tubes
+  ADD COLUMN `chuq_blood_cell_stored_into_rlt` char(1) DEFAULT '' AFTER `chuq_blood_solution`;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN `chuq_blood_cell_stored_into_rlt` char(1) DEFAULT '' AFTER `chuq_blood_solution`;
+
+SET @alq_id = (SELECT id from aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood cell') AND aliquot_type = 'tube');
+UPDATE aliquot_controls SET form_alias = CONCAT(form_alias,',chuq_blood_cell_rlt') WHERE id = @alq_id;
+
+INSERT INTO structures(`alias`) VALUES ('chuq_blood_cell_rlt');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'chuq_blood_cell_stored_into_rlt', 'yes_no',  NULL , '0', '', '', '', 'blood cells stored into rlt', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chuq_blood_cell_rlt'), 
+(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='chuq_blood_cell_stored_into_rlt'), 
+'1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('blood cells stored into rlt','Stored into RLT','Entreposé dans RLT');
 
 
 
