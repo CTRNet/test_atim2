@@ -159,7 +159,13 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("unclassifying additional items", "Unclassifying additional items.", "Déclassification des éléments supplémentaires."),
 ("validation error", "Validation error", "Erreur de validation"),
 ("storage_conflict_msg", "You cannot put more than one element in a cell space. See cells in red.", "Vous ne pouvez pas mettre plus d'un élément par cellule. Vérifier les cellules rouges."),
-("to begin, click submit", "To begin, click submit.", "Pour commencer, cliquez sur envoyer."); 
+("to begin, click submit", "To begin, click submit.", "Pour commencer, cliquez sur envoyer."),
+("csv encoding", "CSV encoding", "Encodage CSV"),
+("help_csv_encoding",
+ "Defines the character encoding for CSV files. Unless you're having characters problems, ISO-8859-1 is recommended. Otherwise switch to UTF-8. However note that Microsoft Excel hardly works with UTF-8.",
+ "Défini l'encodage des caractères pour les fichiers CSV. À moins que vous n'ayez des problèmes, ISO-8859-1 est recommandé. Sinon, passez à UTF-8. Notez toutefois que Microsoft Excel fonctionne difficilement avec UTF-8."),
+("UTF-8", "UTF-8", "UTF-8"),
+("ISO-8859-1", "ISO-8859-1", "ISO-8859-1");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -3004,3 +3010,20 @@ ALTER TABLE storage_controls
  
 ALTER TABLE participants
  DROP KEY unique_participant_identifier;
+ 
+ALTER TABLE configs
+ ADD COLUMN define_csv_encoding VARCHAR(15) NOT NULL DEFAULT 'ISO-8859-1' AFTER define_csv_separator;
+ 
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('csv_encoding', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ISO-8859-1", "ISO-8859-1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="csv_encoding"),  (SELECT id FROM structure_permissible_values WHERE value="ISO-8859-1" AND language_alias="ISO-8859-1"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("UTF-8", "UTF-8");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="csv_encoding"),  (SELECT id FROM structure_permissible_values WHERE value="UTF-8" AND language_alias="UTF-8"), "1", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Config', 'configs', 'define_csv_encoding', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='csv_encoding') , '0', '', '', 'help_csv_encoding', 'csv encoding', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='preferences'), (SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_csv_encoding' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='csv_encoding')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_csv_encoding' AND `language_label`='csv encoding' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_date_format' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='define_date_format') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_time_format' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='time_format') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='preferences') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_show_summary' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');

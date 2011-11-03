@@ -1132,7 +1132,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		echo $this->Csv->render($options['settings']['csv_header']);
+		echo $this->Csv->render($options['settings']['csv_header'], csv_encoding);
 	}
 
 
