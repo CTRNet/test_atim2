@@ -159,3 +159,154 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_icm_generics') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='inform_discovery_on_other_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_icm_generics') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='inform_significant_discovery' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+
+ALTER TABLE sample_controls
+  ADD COLUMN qc_nd_sample_type_code VARCHAR(50) NOT NULL DEFAULT '' AFTER 	sample_category;
+
+UPDATE sample_controls SET qc_nd_sample_type_code = 'A' WHERE sample_type = 'ascite';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'B' WHERE sample_type = 'blood';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'T' WHERE sample_type = 'tissue';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'U' WHERE sample_type = 'urine';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'ASC-C' WHERE sample_type = 'ascite cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'ASC-S' WHERE sample_type = 'ascite supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'BLD-C' WHERE sample_type = 'blood cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PBMC' WHERE sample_type = 'pbmc';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PLS' WHERE sample_type = 'plasma';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'SER' WHERE sample_type = 'serum';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'C-CULT' WHERE sample_type = 'cell culture';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'DNA' WHERE sample_type = 'dna';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'RNA' WHERE sample_type = 'rna';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'CONC-U' WHERE sample_type = 'concentrated urine';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'CENT-U' WHERE sample_type = 'centrifuged urine';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'AMP-RNA' WHERE sample_type = 'amplified rna';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'LB' WHERE sample_type = 'b cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'cDNA' WHERE sample_type = 'cdna';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'T-LYS' WHERE sample_type = 'tissue lysate';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'T-SUSP' WHERE sample_type = 'tissue suspension';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PW' WHERE sample_type = 'peritoneal wash';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'CF' WHERE sample_type = 'cystic fluid';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'OF' WHERE sample_type = 'other fluid';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PW-C' WHERE sample_type = 'peritoneal wash cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PW-S' WHERE sample_type = 'peritoneal wash supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'CF-C' WHERE sample_type = 'cystic fluid cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'CF-S' WHERE sample_type = 'cystic fluid supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'OF-C' WHERE sample_type = 'other fluid cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'OF-S' WHERE sample_type = 'other fluid supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PC-F' WHERE sample_type = 'pericardial fluid';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PL-F' WHERE sample_type = 'pleural fluid';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PC-C' WHERE sample_type = 'pericardial fluid cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PC-S' WHERE sample_type = 'pericardial fluid supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PL-C' WHERE sample_type = 'pleural fluid cell';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PL-S' WHERE sample_type = 'pleural fluid supernatant';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'C-LYSATE' WHERE sample_type = 'cell lysate';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'PROT' WHERE sample_type = 'protein';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'BM' WHERE sample_type = 'bone marrow';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'BM-SUSP' WHERE sample_type = 'bone marrow suspension';
+UPDATE sample_controls SET qc_nd_sample_type_code = 'No-BC' WHERE sample_type = 'no-b cell';
+
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+UPDATE participants SET participant_identifier = id;
+UPDATE participants_revs SET participant_identifier = id;
+
+UPDATE structure_formats SET `display_order`='16', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
+
+DELETE FROM structure_formats
+WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'sd_%')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sample_code' AND model = 'SampleMaster');
+
+UPDATE aliquot_masters SET barcode = id;
+UPDATE aliquot_masters_revs SET barcode = id;
+
+REPLACE INTO i18n (id,en,fr) VALUES ('aliquot barcode', 'Aliquot System Code', 'Aliquot - Code système');
+
+-- Section above already executed on prod 2011-11-03
+-- -------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='-1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='33', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='used aliquot' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Section above already executed on prod 2011-11-03
+-- -------------------------------------------------------------------------------------------------------
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+misc_ctrl.misc_identifier_name AS identifier_name,
+ident.identifier_value AS identifier_value,
+
+col.acquisition_label, 
+col.visit_label AS visit_label,
+
+specimen_control.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_samp_control.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+samp_control.sample_type,
+samp.sample_control_id,
+samp.sample_label AS sample_label,
+
+al.barcode,
+al.aliquot_label AS aliquot_label,
+al_control.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created
+
+FROM aliquot_masters as al
+INNER JOIN aliquot_controls AS al_control ON al.aliquot_control_id=al_control.id
+INNER JOIN sample_masters as samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN sample_controls AS samp_control ON samp.sample_control_id=samp_control.id
+LEFT JOIN sample_masters as specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimen_control ON specimen.sample_control_id=specimen_control.id
+LEFT JOIN sample_masters as parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_samp_control ON parent_samp.sample_control_id=parent_samp_control.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+LEFT JOIN misc_identifier_controls AS misc_ctrl ON col.bank_id = misc_ctrl.bank_id AND misc_ctrl.flag_active = 1
+LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = misc_ctrl.id AND ident.participant_id = part.id AND ident.deleted != 1
+WHERE al.deleted != 1;
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('tmp_tube_storage_method' ,'tmp_tube_storage_solution'));
+DELETE FROM structure_fields WHERE field IN ('tmp_tube_storage_method' ,'tmp_tube_storage_solution');
+
+
+
+
+
+
+
+
+
