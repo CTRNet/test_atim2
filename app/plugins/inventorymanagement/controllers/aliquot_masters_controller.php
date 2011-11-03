@@ -395,99 +395,112 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('is_ajax', $this->RequestHandler->isAjax());
 	}
 	
+	/**
+	 * @param unknown_type $collection_id
+	 * @param unknown_type $sample_master_id
+	 * @param unknown_type $aliquot_master_id
+	 * @param unknown_type $is_from_tree_view_or_layout 0-Normal, 1-Tree view, 2-Stoarge layout
+	 */
 	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
-		// $is_from_tree_view_or_layout : 0-Normal, 1-Tree view, 2-Stoarge layout
+		$command = empty($this->data) || !in_array($this->data, array('uses', 'storage_history')) ? null : $this->data;   
 		
-		if((!$collection_id) || (!$sample_master_id) || (!$aliquot_master_id)){
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
-		if($is_from_tree_view_or_layout){
-			Configure::write('debug', 0);
-		}
-		// MANAGE DATA
+		if($command == 'uses'){
+			//should be in it's own function, but here because of permissions...
+			$this->data = $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id);
+			$this->Structures->set('viewaliquotuses');
+			$hook_link = $this->hook('format_uses');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			$this->render('uses');
+			
+		}else if($command == 'storage_history'){
+			//should be in it's own function, but here because of permissions...
+			$this->data = $this->AliquotMaster->getStorageHistory($aliquot_master_id);
+			$this->Structures->set('custom_aliquot_storage_history');
+			$hook_link = $this->hook('format_storage');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			$this->render('storage_history');
+			
+		}else{
+			if($is_from_tree_view_or_layout){
+				Configure::write('debug', 0);
+			}
+			// MANAGE DATA
+		
+			// Get the aliquot data
+			$joins = array(
+				array('table' => 'specimen_details',
+					'alias' => 'SpecimenDetail',
+					'type' => 'LEFT',
+					'conditions' => array('SpecimenDetail.sample_master_id = AliquotMaster.sample_master_id')),
+				array('table' => 'derivative_details',
+					'alias' => 'DerivativeDetail',
+					'type' => 'LEFT',
+					'conditions' => array('DerivativeDetail.sample_master_id = AliquotMaster.sample_master_id'))			
+			);
+	    	$condtions = array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id);
+			$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => $condtions, 'joins' => $joins));
+			if(empty($aliquot_data)) { 
+				$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+			}		
+			
+			// Set times spent since either sample collection/reception or sample creation and sample storage		
+			switch($aliquot_data['SampleControl']['sample_category']) {
+				case 'specimen':
+					$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+					$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+					break;
+				case 'derivative':
+					$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+					$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
+					break;
+					
+				default:
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			
+			// Set aliquot data
+			$this->set('aliquot_master_data', $aliquot_data);
+			$this->data = array();
+			
+			// Set storage data
+			$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
+			
+			// MANAGE FORM, MENU AND ACTION BUTTONS
 	
-		// Get the aliquot data
-		$joins = array(
-			array('table' => 'specimen_details',
-				'alias' => 'SpecimenDetail',
-				'type' => 'LEFT',
-				'conditions' => array('SpecimenDetail.sample_master_id = AliquotMaster.sample_master_id')),
-			array('table' => 'derivative_details',
-				'alias' => 'DerivativeDetail',
-				'type' => 'LEFT',
-				'conditions' => array('DerivativeDetail.sample_master_id = AliquotMaster.sample_master_id'))			
-		);
-    	$condtions = array('AliquotMaster.collection_id' => $collection_id, 'AliquotMaster.sample_master_id' => $sample_master_id, 'AliquotMaster.id' => $aliquot_master_id);
-		$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => $condtions, 'joins' => $joins));
-		if(empty($aliquot_data)) { 
-			$this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
-		
-		// Set times spent since either sample collection/reception or sample creation and sample storage		
-		switch($aliquot_data['SampleControl']['sample_category']) {
-			case 'specimen':
-				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$aliquot_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['SpecimenDetail']['reception_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				break;
-			case 'derivative':
-				$aliquot_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['Collection']['collection_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				$aliquot_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($aliquot_data['DerivativeDetail']['creation_datetime'], $aliquot_data['AliquotMaster']['storage_datetime']));
-				break;
-				
-			default:
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		
-		// Set aliquot data
-		$this->set('aliquot_master_data', $aliquot_data);
-		$this->data = array();
-		
-		// Set storage data
-		$this->set('aliquot_storage_data', empty($aliquot_data['StorageMaster']['id'])? array(): array('StorageMaster' => $aliquot_data['StorageMaster']));
-		
-		// Set aliquot uses
-		if(!$is_from_tree_view_or_layout) {		
-			$this->set('aliquots_uses_data', $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id));
-		}
-
-		//storage history
-		$storage_data = $this->AliquotMaster->getStorageHistory($aliquot_master_id);
-		$this->set('storage_data', $storage_data);
-				
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-
-		// Get the current menu object.
-		$atim_menu_link = ($aliquot_data['SampleControl']['sample_category'] == 'specimen')? 
-			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
-			'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
-		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
-		
-		// Set structure
-		$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
-		if(!$is_from_tree_view_or_layout) {
-			$this->Structures->set('viewaliquotuses', 'aliquots_uses_structure');
-			$this->Structures->set('custom_aliquot_storage_history', 'custom_aliquot_storage_history');
-		}
-		
-		// Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
-		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
-		
-		// Define if aliquot is included into an order
-		$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
-		if(!empty($order_item)){
-			$this->set('order_line_id', $order_item['OrderLine']['id']);
-			$this->set('order_id', $order_item['OrderLine']['order_id']);
-		}
-		
-		$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id), 'recursive' => -1));
-		$ptdsc_model = AppModel::getInstance('inventorymanagement', 'ParentToDerivativeSampleControl', true);
-		$ptdsc = $ptdsc_model->find('first', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id' => $sample_master['SampleMaster']['sample_control_id']), 'recursive' => -1));
-		$this->set('can_create_derivative', !empty($ptdsc));
-		
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
+			// Get the current menu object.
+			$atim_menu_link = ($aliquot_data['SampleControl']['sample_category'] == 'specimen')? 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
+				'/inventorymanagement/aliquot_masters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+			$this->set('atim_menu', $this->Menus->get($atim_menu_link));
+			$this->set('atim_menu_variables', array('Collection.id' => $collection_id, 'SampleMaster.id' => $sample_master_id, 'SampleMaster.initial_specimen_sample_id' => $aliquot_data['SampleMaster']['initial_specimen_sample_id'], 'AliquotMaster.id' => $aliquot_master_id));
+			
+			// Set structure
+			$this->Structures->set($aliquot_data['AliquotControl']['form_alias']);
+			$this->Structures->set('empty', 'empty_structure');
+	
+			// Define if this detail form is displayed into the collection content tree view, storage tree view, storage layout
+			$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
+			
+			// Define if aliquot is included into an order
+			$order_item = $this->OrderItem->find('first', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_master_id)));
+			if(!empty($order_item)){
+				$this->set('order_line_id', $order_item['OrderLine']['id']);
+				$this->set('order_id', $order_item['OrderLine']['order_id']);
+			}
+			
+			$sample_master = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_id), 'recursive' => -1));
+			$ptdsc_model = AppModel::getInstance('inventorymanagement', 'ParentToDerivativeSampleControl', true);
+			$ptdsc = $ptdsc_model->find('first', array('conditions' => array('ParentToDerivativeSampleControl.parent_sample_control_id' => $sample_master['SampleMaster']['sample_control_id']), 'recursive' => -1));
+			$this->set('can_create_derivative', !empty($ptdsc));
+			
+			$hook_link = $this->hook('format');
+			if( $hook_link ) { 
+				require($hook_link); 
+			}
 		}
 	}
 	
