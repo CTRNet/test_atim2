@@ -16,7 +16,7 @@ function initDropdownConfig(){
 	$("form tfoot").append("<tr><td colspan=5 style='padding-top: 20px;'>" + alphabeticalOrderingStr + "<input type='checkbox' name='data[0][default_order] value='1' id='" + checkboxId + "' " + (alphaOrderChecked ? "checked" : "") + "/></td></tr>");
 	
 	function refreshDisplay(){
-		if($("#" + checkboxId).attr("checked")){
+		if($("#" + checkboxId).prop("checked")){
 			$(dragNDropTable).find("tbody tr").removeClass("draggableRow").css("cursor", "default");
 			$(dragNDropTable).find("tbody td").mousedown(disableDradNDropTable);
 		}else{

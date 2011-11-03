@@ -8,14 +8,13 @@
 	
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
-		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, "language_heading" => __('parent aliquot (for update)',true))
 	));
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
-		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
-		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, "language_heading" => __('created children aliquot(s)', true))
 	));
-
+		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if($hook_link){
@@ -48,7 +47,7 @@
 				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
-		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
+		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('children creation', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
 		$final_options_parent['data'] = $parent;
 		
@@ -61,7 +60,7 @@
 		}else{
 			$final_parent_structure = $in_stock_detail_volume;
 		}
-		
+				
 		if( $hook_link ) { 
 			require($hook_link); 
 		}

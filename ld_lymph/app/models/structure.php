@@ -125,6 +125,8 @@ class Structure extends AppModel {
 							$rule_array['message'] = __($validation['language_message'], true);
 						}else if($rule_array['rule'] == 'notEmpty'){
 							$rule_array['message'] = __("this field is required", true);
+						}else if($rule_array['rule'] == 'isUnique'){
+							$rule_array['message'] = __("this field must be unique", true);
 						}
 				
 						if(strlen($sf['language_label']) > 0 && isset($rule_array['message'])){

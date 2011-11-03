@@ -7,6 +7,7 @@
 	$settings = array();
 	
 	//Basic
+	$structure_links['bottom']['new search'] = array('link' => '/storagelayout/storage_masters/search/', 'icon' => 'search');
 	$structure_links['bottom']['edit'] = '/storagelayout/storage_masters/edit/' . $atim_menu_variables['StorageMaster.id'];
 	if($is_tma) {
 		// No children storage could be added to a TMA block
@@ -20,9 +21,10 @@
 		ksort($add_links);
 		$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);					
 	}
-	if(!empty($parent_storage_id)) $structure_links['bottom']['see parent storage'] = '/storagelayout/storage_masters/detail/' . $parent_storage_id;
+	if(!empty($parent_storage_id)){
+		$structure_links['bottom']['see parent storage'] = '/storagelayout/storage_masters/detail/' . $parent_storage_id;
+	}
 	$structure_links['bottom']['delete'] = '/storagelayout/storage_masters/delete/' . $atim_menu_variables['StorageMaster.id'];
-	$structure_links['bottom']['search'] = '/storagelayout/storage_masters/index/';
 
 	//Clean up based on form type 
 	if($is_from_tree_view_or_layout == 1) {
