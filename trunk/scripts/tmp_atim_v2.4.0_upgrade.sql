@@ -165,7 +165,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
  "Defines the character encoding for CSV files. Unless you're having characters problems, ISO-8859-1 is recommended. Otherwise switch to UTF-8. However note that Microsoft Excel hardly works with UTF-8.",
  "Défini l'encodage des caractères pour les fichiers CSV. À moins que vous n'ayez des problèmes, ISO-8859-1 est recommandé. Sinon, passez à UTF-8. Notez toutefois que Microsoft Excel fonctionne difficilement avec UTF-8."),
 ("UTF-8", "UTF-8", "UTF-8"),
-("ISO-8859-1", "ISO-8859-1", "ISO-8859-1");
+("ISO-8859-1", "ISO-8859-1", "ISO-8859-1"),
+("links were not copied since the destination is an independant collection",
+ "Links were not copied since the destination is an independant collection.",
+ "Les liens n'ont pas été copiés puisque la destination est une collection indépendante.");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
