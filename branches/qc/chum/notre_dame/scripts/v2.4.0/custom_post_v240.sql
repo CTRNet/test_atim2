@@ -253,7 +253,7 @@ link.diagnosis_master_id,
 link.consent_master_id,
 
 part.participant_identifier, 
-misc_ctrl.misc_identifier_name AS identifier_name,
+mic.misc_identifier_name AS identifier_name,
 ident.identifier_value AS identifier_value,
 
 col.acquisition_label, 
@@ -295,18 +295,10 @@ INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 
 LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
 LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
-LEFT JOIN misc_identifier_controls AS misc_ctrl ON col.bank_id = misc_ctrl.bank_id AND misc_ctrl.flag_active = 1
-LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = misc_ctrl.id AND ident.participant_id = part.id AND ident.deleted != 1
+LEFT JOIN banks ON col.bank_id = banks.id AND banks.deleted != 1
+LEFT JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = banks.misc_identifier_control_id AND ident.participant_id = part.id AND ident.deleted != 1
+LEFT JOIN misc_identifier_controls AS mic ON ident.misc_identifier_control_id=mic.id
 WHERE al.deleted != 1;
 
 DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('tmp_tube_storage_method' ,'tmp_tube_storage_solution'));
 DELETE FROM structure_fields WHERE field IN ('tmp_tube_storage_method' ,'tmp_tube_storage_solution');
-
-
-
-
-
-
-
-
-
