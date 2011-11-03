@@ -113,9 +113,11 @@ class CollectionsController extends InventorymanagementAppController {
 		$need_to_save = !empty($this->data);
 		if(empty($this->data) || isset($this->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(!empty($copy_source)){
-				$this->Structures->set('collections,col_copy_binding_opt');
 				if(empty($this->data)){
 					$this->data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
+				}
+				if($this->data['Collection']['collection_property'] == 'participant collection'){
+					$this->Structures->set('collections,col_copy_binding_opt');
 				}
 			}
 			$this->data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a', true);
@@ -165,26 +167,30 @@ class CollectionsController extends InventorymanagementAppController {
 						}
 					}else{
 						$classic_ccl_insert = true;
+						$copy_links_option = isset($this->data['FunctionManagement']['col_copy_binding_opt']) ? (int)$this->data['FunctionManagement']['col_copy_binding_opt'] : 0;
 						if($copy_source){
-							$copy_links_option = (int)$this->data['FunctionManagement']['col_copy_binding_opt'];
-							if($copy_links_option > 1 && $copy_links_option < 6){
-								$classic_ccl_insert = false;
-								$ccl_array = array(
-									'collection_id' 		=> $collection_id, 
-									'participant_id' 		=> $copy_src_data['ClinicalCollectionLink']['participant_id'],
-									'consent_master_id' 	=> $copy_src_data['ClinicalCollectionLink']['consent_master_id'],
-									'diagnosis_master_id'	=> $copy_src_data['ClinicalCollectionLink']['diagnosis_master_id']
-								);
-								if($copy_links_option == 3 || $copy_links_option == 2){
-									unset($ccl_array['consent_master_id']);
-								}
-								if($copy_links_option == 4 || $copy_links_option == 2){
-									unset($ccl_array['diagnosis_master_id']);
-								}
-
-								if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => $ccl_array))){
-									//copying links
-									$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+							if($copy_links_option > 0 && $this->data['Collection']['collection_property'] == 'independent collection'){
+								AppController::addWarningMsg(__('links were not copied since the destination is an independant collection', true));
+							}else{
+								if($copy_links_option > 1 && $copy_links_option < 6){
+									$classic_ccl_insert = false;
+									$ccl_array = array(
+										'collection_id' 		=> $collection_id, 
+										'participant_id' 		=> $copy_src_data['ClinicalCollectionLink']['participant_id'],
+										'consent_master_id' 	=> $copy_src_data['ClinicalCollectionLink']['consent_master_id'],
+										'diagnosis_master_id'	=> $copy_src_data['ClinicalCollectionLink']['diagnosis_master_id']
+									);
+									if($copy_links_option == 3 || $copy_links_option == 2){
+										unset($ccl_array['consent_master_id']);
+									}
+									if($copy_links_option == 4 || $copy_links_option == 2){
+										unset($ccl_array['diagnosis_master_id']);
+									}
+	
+									if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => $ccl_array))){
+										//copying links
+										$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+									}
 								}
 							}
 						}
