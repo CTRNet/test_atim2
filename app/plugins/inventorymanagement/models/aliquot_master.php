@@ -304,7 +304,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 				if(empty($this->validationErrors['storage_coord_x']) 
 					&& empty($this->validationErrors['storage_coord_y'])
 					&& array_key_exists('StorageControl', $arr_storage_selection_results['storage_data']) 
-					&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+					&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts']
 					&& (strlen($aliquot_data['AliquotMaster']['storage_coord_x']) > 0 || strlen($aliquot_data['AliquotMaster']['storage_coord_y']) > 0)
 				){
 					$exception = $this->id ? array('AliquotMaster' => $this->id) : array();
@@ -328,7 +328,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 							$aliquot_data['AliquotMaster']['storage_coord_x'],
 							$aliquot_data['AliquotMaster']['storage_coord_y']
 						);
-						if($arr_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+						if($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1){
 							AppController::addWarningMsg($msg);
 						}else{
 							$this->validationErrors['storage_coord_x'] = $msg;
