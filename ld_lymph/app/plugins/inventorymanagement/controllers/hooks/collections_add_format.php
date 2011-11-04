@@ -3,8 +3,7 @@
  	// --------------------------------------------------------------------------------
 	// Set default value
 	// -------------------------------------------------------------------------------- 
-	if(empty($this->data)) {
-		$this->set('default_bank', '1');	
-	}
 	
-?>
+	if(!$need_to_save && !isset($this->data['Collection']['bank_id'])) {
+		$this->data['Collection']['bank_id'] = 1;
+	}
