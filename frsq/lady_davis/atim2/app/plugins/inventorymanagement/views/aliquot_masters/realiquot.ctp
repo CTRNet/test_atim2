@@ -8,21 +8,24 @@
 	
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
-		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, "language_heading" => __('parent aliquot (for update)',true))
 	));
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
-		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false),
-		"override"	=> array("AliquotMaster.aliquot_type" => $aliquot_type)
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, "language_heading" => __('created children aliquot(s)', true))
 	));
-
+		
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
 	if($hook_link){
 		require($hook_link); 
 	}
+	
+	$hook_link = $structures->hook('loop');
 
 	$counter = 0;
+	$final_parent_structure = null;
+	$final_children_structure = null;
 	while($data = array_shift($this->data)){
 		$counter++;
 		$parent = $data['parent'];
@@ -44,7 +47,7 @@
 				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
-		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('creation', true) . (empty($aliquot_id)? " #".$counter : '');
+		$final_options_parent['settings']['header'] = __('realiquoting process', true) . ' - ' . __('children creation', true) . (empty($aliquot_id)? " #".$counter : '');
 		$final_options_parent['settings']['name_prefix'] = $parent['AliquotMaster']['id'];
 		$final_options_parent['data'] = $parent;
 		
@@ -52,7 +55,17 @@
 		$final_options_children['override']= $created_aliquot_override_data;
 		$final_options_children['data'] = $data['children'];
 		
-		$structures->build($in_stock_detail, $final_options_parent);
+		if(empty($parent['AliquotControl']['volume_unit'])){
+			$final_parent_structure = $in_stock_detail;
+		}else{
+			$final_parent_structure = $in_stock_detail_volume;
+		}
+				
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
+		
+		$structures->build($final_parent_structure, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
 	}
 ?>

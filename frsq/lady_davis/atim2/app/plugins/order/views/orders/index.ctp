@@ -1,24 +1,32 @@
 <?php
 
-	$search_type_links = array();
-	$search_type_links['order'] = array('link'=> '/order/orders/index/', 'icon' => 'search');
-	$search_type_links['order item'] = array('link'=> '/order/order_items/index/', 'icon' => 'search');
-	$search_type_links['shipment'] = array('link'=> '/order/shipments/index/', 'icon' => 'search');
-	
 	$structure_links = array(
-		'top'=>array('search'=>'/order/orders/search/'),
-		'bottom'=>array('add'=>'/order/orders/add/', 'new search' => $search_type_links)
+		'bottom'=>array(
+			'new search' => OrderAppController::$search_links,
+			'add'=>'/order/orders/add/'
+		)
 	);
 	
-	$structure_override = array();	
-	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'search', 'links'=>$structure_links, 'override'=>$structure_override,'settings' => array('header' => __('search type', null).': '.__('order', null)));
+	$final_options = array(
+		'type'=>'search', 
+		'links'=> array('top'=>array('search'=>'/order/orders/search/'.AppController::getNewSearchId())), 
+		'settings' => array('header' => __('search type', null).': '.__('order', null), 'actions' => false)
+	);
+	
+	$final_atim_structure2 = $empty_structure;
+	$final_options2 = array(
+		'links'		=> $structure_links,
+		'extras'	=> '<div class="ajax_search_results"></div>'
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$structures->build( $final_atim_structure, $final_options );
+	$structures->build( $final_atim_structure2, $final_options2 );
 ?>

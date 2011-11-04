@@ -3,13 +3,15 @@ class User extends AppModel {
 
 	var $belongsTo = array('Group');
 	
-	var $actsAs = array('Acl' => array('requester')); 
+	var $actsAs = array('Acl' => array('requester'));
+
+	const PASSWORD_MINIMAL_LENGTH = 6;
 	
 	function parentNode() {    
 		
 		if (!$this->id && empty($this->data)) {        
 			return null;    
-		}    
+		}
 		
 		$data = $this->data;    
 		
@@ -17,7 +19,7 @@ class User extends AppModel {
 			$data = $this->read();    
 		}    
 		
-		if (!$data['User']['group_id']) {        
+		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {        
 			return null;    
 		} else {        
 			return array('Group' => array('id' => $data['User']['group_id']));    
@@ -53,6 +55,39 @@ class User extends AppModel {
 			$result[$data['User']['id']] = $data['User']['first_name'] . ' ' . $data['User']['last_name']; 
 		}
 		return $result;
+	}
+	
+	function savePassword(array $data, $error_flash_link, $success_flash_link){
+		
+		$this->validatePassword($data, $error_flash_link);
+		
+		//all good! save
+		$data['User']['password'] = Security::hash($data['User']['new_password'], null, true);
+
+		unset($data['User']['new_password'], $data['User']['confirm_password']);
+		
+		$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+		if ( $this->save( $data ) ) {
+			AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
+		}
+	}
+	
+	/**
+	 * Will throw a flash message if the password is not valid
+	 * @param array $data
+	 */
+	function validatePassword(array $data){
+		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
+			//do nothing
+
+		}else{
+			if ($data['User']['new_password'] !== $data['User']['confirm_password']){
+				$this->validationErrors['password'][] = 'passwords do not match'; 
+			}
+			if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
+				$this->validationErrors['password'][] = 'passwords minimal length';
+			}
+		}
 	}
 
 }

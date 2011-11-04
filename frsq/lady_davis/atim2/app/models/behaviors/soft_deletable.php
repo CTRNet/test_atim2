@@ -38,7 +38,7 @@ class SoftDeletableBehavior extends ModelBehavior
      */ 
     function setup(&$Model, $settings = array()) 
     { 
-        $default = array('field' => 'deleted', 'field_date' => 'deleted_date', 'delete' => true, 'find' => true); 
+        $default = array('field' => 'deleted', /*'field_date' => 'deleted_date',*/ 'delete' => true, 'find' => true); 
 
         if (!isset($this->__settings[$Model->alias])) 
         { 

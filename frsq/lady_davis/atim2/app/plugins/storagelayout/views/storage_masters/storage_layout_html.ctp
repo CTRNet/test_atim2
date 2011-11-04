@@ -1,22 +1,54 @@
 <?php 
-//This is an entire custom page. ATiM forms are immitated
+/**
+ * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
+ * @param unknown_type $var The variable to loop on, must be null on the first iteration
+ * @param unknown_type $reverseOrder True to reverse the order
+ * @param unknown_type $limit The limit of the axis
+ * @return true if you must continue to loop, false otherwise
+ * @alter Increments/decrements the value of var
+ */
+function axisLoopCondition(&$var, $reverseOrder, $limit){
+	if($var == null){
+		if($reverseOrder){
+			$var = $limit;
+		}else{
+			$var = 1;
+		}
+	}else{
+		if($reverseOrder){
+			-- $var;
+		}else{
+			++ $var;
+		}
+	}
+	return $var > 0 && $var <= $limit;
+}
+ob_start();
 ?>
-<table class="structure" cellspacing="0">
-	<tbody>
-		<tr>
-			<td class="this_column_1 total_columns_1">
-	<div style="border-style:solid; border-width:1px; min-height: 50px; margin: 10px;">
-		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;">
-			<span class="ui-icon ui-icon-calculator" style="float: left;"></span><?php echo(__("storage", true)); ?></h4>
-	<table id="table" class='storageLayout'>
+ <div style="display: table-cell; vertical-align: top;">
+ 	<ul style='margin-right: 10px';>
+ 		<li><span class="button RecycleStorage" style='width: 80%;'><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items", true)); ?></span></li>
+ 		<li><span class="button TrashStorage" style='width: 80%;'><span class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items", true)); ?></span></li>
+ 	</ul>
+ </div>
+ <div style="display: table-cell; padding-top: -10px; vertical-align: top;">
+	<div>
+		<h4 class="ui-widget-header">
+			<span class='help storage'>
+				<div><?php __('help_storage_layout_storage') ?></div>
+			</span>
+			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
+			<?php echo __($data['parent']['StorageControl']['storage_type'], true) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
+		</h4>
+		<table class='storageLayout' style="width: 100%;">
 <?php
 	if($data['parent']['StorageControl']['coord_x_type'] == 'list'){
-		if($data['parent']['StorageControl']['horizontal_display']){
+		if(isset($data['parent']['StorageControl']['horizontal_display']) && $data['parent']['StorageControl']['horizontal_display']){
 			echo("<tr>");
 			foreach($data['parent']['list'] as $list_item){
 				echo("<td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
-				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
+				.'<ul id="s_'.$atim_menu_variables['StorageMaster.id'].'_c_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				.'</td>');
 			}
 			echo("</tr>\n");
@@ -24,7 +56,7 @@
 			foreach($data['parent']['list'] as $list_item){
 				echo("<tr><td class='droppable mycell'>"
 				.'<b>'.$list_item['StorageCoordinate']['coordinate_value'].'</b>'
-				.'<ul id="cell_'.$list_item['StorageCoordinate']['id'].'_1"/>'
+				.'<ul id="s_'.$atim_menu_variables['StorageMaster.id'].'_c_'.$list_item['StorageCoordinate']['id'].'_1"/>'
 				."</td></tr>\n");
 			}
 		}
@@ -86,7 +118,7 @@
 					}
 				}
 				echo("<td class='droppable'>"
-				.'<b>'.$display_value."</b><ul id='cell_".$use_value."' /></td>");
+				.'<b>'.$display_value."</b><ul id='s_".$atim_menu_variables['StorageMaster.id']."_c_".$use_value."' /></td>");
 			}
 			echo("</tr>\n");
 		}
@@ -95,136 +127,48 @@
 	//NOTE: No hook supported!
 	
 ?>
-	</table>
-	<div style="text-align: right;">
-		<span id="Reset" class="button"><span class="ui-icon ui-icon-gear"></span><?php echo(__("reset", true)); ?></span> 
-		<span id="RecycleStorage" class="button"><span class="ui-icon ui-icon-refresh"></span><?php echo(__("unclassify all storage's items", true)); ?></span>
-		<span id="TrashStorage" class="button"><span class="ui-icon ui-icon-close"></span><?php echo(__("remove all storage's items", true)); ?></span>
+		</table>
 	</div>
-	</div>
-	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
-		<h4 class="ui-widget-header" style="height: 15px;  padding-right: 5px;  margin-bottom: 5px;">
-			<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassified", true)); ?>
-		</h4>
-		<ul id="unclassified" style="margin-right: 5px;"></ul>
-		<span id="TrashUnclassified" class="button"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
-	</div>
-	<div class="droppable" style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px;">
-		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px; margin-bottom: 5px;">
-			<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
-		</h4>
-		<ul id="trash" style="margin-right: 5px;"></ul>
-		<span id="RecycleTrash" class="button"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
-	</div>
-	<div style="border-style:solid; border-width:1px; display: inline-block; vertical-align: top; margin-left: 10px; width: 200px;">
-		<h4 class="ui-widget-header" style="height: 15px; padding-right: 5px;">
-			<?php echo(__("legend", true)); ?>
-		</h4>
-		<ul style="margin-left: 10px;">
-			<li class="StorageMaster" style="list-style-type: none;"><?php echo(__("storage", true)); ?></li>
-			<li class="AliquotMaster" style="list-style-type: none;"><?php echo(__("aliquot", true)); ?></li>
-			<li class="TmaSlide" style="list-style-type: none;"><?php echo(__("tma slide", true)); ?></li>
-		</ul>
-	</div>
-
-	<div style="margin-top: 10px;">
-		<form method="post">
-			<input type="hidden" id="data" name="data" value="no data" />
-					<div class="bottom_button" style='padding-top: 5px;'>
-						<a href="#" id="submit_button_link" onclick="$('#submitButton').click();" class="form submit" tabindex="1020"><?php echo(__('submit', true));  ?></a>
-					</div>
-
-		<div style="display: inline-block;">
-		<div style="display: none; background-color: transparent; font-size: 120%;"
-			id="saveWarning">
-			<span class="ui-icon ui-icon-alert" style="float: left;"></span> 
-			<span style="color: #ff0000;"><?php echo(__("warning", true).": ".__("the data has been modified", true).". "); echo(" ".__("do not forget to save")."."); //yes, 2 echo, but there is a bug with only one"?></span>
-		</div>
-		</div>
-		</form>
-	</div>
-	<div id="debug"></div>
-</td></tr></tbody></table>
-
-<div class="actions">
-	
 </div>
-<div id="popup" class="std_popup"></div>
-<style type="text/css">
-.dragme{
-	list-style-type:none;
-	clear: both;
-}
-.handle{
-	cursor: move;
-	vertical-align: top;
-}
-.mycell{
-	padding: 5px;
-}
-.StorageMaster{
-	color: #cc0000;
-}
-.AliquotMaster{
-	color: #00cc00;
-}
-.TmaSlide{
-	color: #0000cc;
-}
-</style>
-
+<div style="display: table-cell; vertical-align: top;">
+	<ul class='trash_n_unclass'>
+		<li class='trash_n_unclass'>
+			<div style="width: 100%; border:solid 1px; display: inline-block; vertical-align: top;">
+				<h4 class="ui-widget-header" style="white-space: nowrap;">
+					<span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassified", true)); ?>
+					<span class='help storage'>
+						<div><?php __('help_storage_layout_unclassified') ?></div>
+					</span>
+				</h4>
+				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
+					<ul id="s_<?php echo $atim_menu_variables['StorageMaster.id']; ?>_c_u_u" class="unclassified" style="margin-right: 5px;"></ul>
+					<span class="button TrashUnclassified"><span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove all unclassified", true)); ?></span>
+				</div>	
+			</div>
+		</li>
+		<li class='trash_n_unclass'>
+			<div style="width: 100%; border:solid 1px; display: inline-block; vertical-align: top;">
+				<h4 class="ui-widget-header" style="white-space: nowrap;">
+					<span class="ui-icon ui-icon-close" style="float: left;"></span><?php echo(__("remove", true)); ?>
+					<span class='help storage'>
+						<div><?php __('help_storage_layout_remove') ?></div>
+					</span>
+				</h4>
+				<div class="droppable" style="padding-top: 5px; border: solid 1px transparent;">
+					<ul id="s_t_c_t_t" class="trash" style="margin-right: 5px;"></ul>
+					<span class="button RecycleTrash"><span class="ui-icon ui-icon-refresh" style="float: left;"></span><?php echo(__("unclassify all removed", true)); ?></span>
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>
 <?php 
-/**
- * Increments/decrements the var according to the reverseOrder option and returns true/false based on reverseOrder and the limit
- * @param unknown_type $var The variable to loop on, must be null on the first iteration
- * @param unknown_type $reverseOrder True to reverse the order
- * @param unknown_type $limit The limit of the axis
- * @return true if you must continue to loop, false otherwise
- * @alter Increments/decrements the value of var
- */
-function axisLoopCondition(&$var, $reverseOrder, $limit){
-	if($var == null){
-		if($reverseOrder){
-			$var = $limit;
-		}else{
-			$var = 1;
-		}
-	}else{
-		if($reverseOrder){
-			-- $var;
-		}else{
-			++ $var;
-		}
-	}
-	return $var > 0 && $var <= $limit;
+$content = ob_get_clean();
+
+$children_display = array();
+foreach($data['children'] as $children_array){
+	$children_display[] = $children_array['DisplayData'];
 }
 
-//the following script is a json transfer from php to javascript
-?>
-<script>
+echo json_encode(array('valid' => 1, 'content' => $content, 'positions' => $children_display, 'check_conflicts' => $data['parent']['StorageControl']['check_conflicts']));
 
-var orgItems = '([<?php
-	$first = true;
-	foreach($data['children'] as $children_array){
-		$display_data = $children_array['DisplayData'];
-		if(!$first){
-			echo(",'\n+ '");
-		}else{
-			$first = false;
-		}
-		echo('{"id" : "'.$display_data['id'].'", '
-			.'"x" : "'.$display_data['x'].'", '
-			.'"y" : "'.$display_data['y'].'", '
-			.'"label" : "'.$display_data['label'].'", '
-			.'"link" : "'.$display_data['link'].'", '
-			.'"icon_name" : "'.$display_data['icon_name'].'", '
-			.'"type" : "'.$display_data['type'].'"}');
-	}
-?>])';
-
-var removeString = "<?php echo(__("remove")); ?>";
-var unclassifyString = "<?php echo(__("unclassify")); ?>";
-var detailString = "<?php echo(__("detail")); ?>";
-var loadingStr = "<?php __("loading"); ?>";
-var storageLayout = true;
-</script>
