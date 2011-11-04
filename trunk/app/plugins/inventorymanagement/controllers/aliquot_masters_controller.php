@@ -1756,7 +1756,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 						$child_id = $this->AliquotMaster->getLastInsertId();
 						if(empty($aliquot_id)){
-							$new_aliquot_ids[] = $child_id;//FMLHHH
+							$new_aliquot_ids[] = $child_id;
 						}
 							
 						// C- Save realiquoting data	
