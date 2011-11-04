@@ -1710,7 +1710,7 @@ UPDATE menus SET language_title = 'collection content - tree view' WHERE id = 'i
 UPDATE menus SET language_title = 'specimen details and aliquots' WHERE id = 'inv_CAN_221';
 UPDATE menus SET language_title = 'derivative details and aliquots' WHERE id = 'inv_CAN_2221';
 
-INSERT INTO i18n (id,en,fr) VALUES
+REPLACE INTO i18n (id,en,fr) VALUES
 ('collection content - tree view', 'Samples & Aliquots', 'Échantillons & Aliquots'),
 ('specimen details and aliquots', 'Details & Aliquots', 'Détails & Aliquots'),
 ('derivative details and aliquots', 'Details & Aliquots', 'Détails & Aliquots');
@@ -1750,7 +1750,7 @@ INSERT INTO structure_validations
 ((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner'), 'notEmpty', '', ''),
 ((SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility'), 'notEmpty', '', '');
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('default values', 'Default Values', 'Valeurs par défaut'),
 ('samples and aliquots creation from template','Samples and Aliquots Creation from Template', 'Création échantillons et aliquots selon modèle'),
 ('add from template', 'Add From Template', 'Créer selon modèle'),
@@ -1817,18 +1817,18 @@ UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHER
 UPDATE structure_formats SET `display_order` = (`display_order` + 1000) WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquot_without_vol');
 UPDATE structure_formats SET `display_order` = (`display_order` + 1000) WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquot_with_vol');
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('created children aliquot(s)', 'Children Aliquot(s)', 'Aliquot(s) ''enfant'''),
 ('parent aliquot (for update)', 'Parent Aliquot (For update)', 'Aliquot ''parent'' (pour mise à jour)');
 
 UPDATE structure_fields SET language_help = 'parent_used_volume_help' WHERE field = 'parent_used_volume';
 
-INSERT INTO i18n (id,en,fr) VALUES ('parent_used_volume_help', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot ''parent'' utilisé pour créer l''aliquot ''enfant''.');
+REPLACE INTO i18n (id,en,fr) VALUES ('parent_used_volume_help', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot ''parent'' utilisé pour créer l''aliquot ''enfant''.');
 
 UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('selected children aliquot(s)', 'Children Aliquot(s)', 'Aliquot(s) ''enfant''');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, 
@@ -1842,11 +1842,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='define as source' WHERE structure_id=(SELECT id FROM structures WHERE alias='sourcealiquots') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='use' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
 
-INSERT INTO i18n (id,en,fr) VALUES ('define as source', 'Define as Source', 'Définir comme source');
-REPLACE INTO i18n (id,en,fr) VALUES
- ('aliquot internal use code', 'Use Defintion', 'Définition de l''utilisation'), 
- ('aliquot used volume', 'Used Volume', 'Volume utilisé');
-INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
+('define as source', 'Define as Source', 'Définir comme source'),
+('aliquot internal use code', 'Use Defintion', 'Définition de l''utilisation'), 
+('aliquot used volume', 'Used Volume', 'Volume utilisé'),
 ('used aliquot (for update)', 'Used Aliquot (For update)', 'Aliquot utilisé (pour mise à jour)'),
 ('internal use creation', 'Internal Use Creation', 'Création utilisation interne');
 
@@ -1858,22 +1857,20 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
 
 DELETE FROM i18n WHERE id IN ('children creation', 'children selection', 'at least one child has to be defined');
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
-('children creation', 'Children Creation', 'Création des ''enfants'''),
-('children selection', 'Children Selection', 'Sélection des ''enfants'''),
-('at least one child has to be defined', 'At least one child has not been defined!', 'Au moins un enfant doit être défini!');
-
-REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
-('at least one child has to be created', '', 'At least one child aliquot has to be created!', 'Au moins un aliquot ''enfant'' doit être créé!'),
-('define realiquoted children', '', 'Define Realiquoted Children', 'Définir aliquots ''enfants'''),
-('no aliquot has been defined as realiquoted child', '', 'No aliquot has been defined as realiquoted child!', 'Aucun aliquot n''a été défini comme aliquot ''enfant''!'),
-('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', '', 'No new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', 'Aucun nouvel aliquot ne peut actuellement être défini comme aliquot ''enfant'' pour les aliquots ''parents'' suivants'),
-('no new sample aliquot could be actually defined as realiquoted child', '', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
-('parent/child', '', 'Parent/Child', 'Parent/Enfant'),
-('parent_used_volume_help', '', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot ''parent'' utilisé pour créer l''aliquot ''enfant''.'),
-('realiquoted children selection', '', 'Realiquoted Children Selection', 'Sélection des aliquots ''enfant'''),
-('select children aliquot type', '', 'Children Aliquot Type', 'Type de l''aliquot ''enfant'''),
-('selected children aliquot(s)', '', 'Children Aliquot(s)', 'Aliquot(s) ''enfant''');
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('children creation', 'Children Creation', 'Création des enfants'),
+('children selection', 'Children Selection', 'Sélection des enfants'),
+('at least one child has to be defined', 'At least one child has not been defined!', 'Au moins un enfant doit être défini!'),
+('at least one child has to be created', 'At least one child aliquot has to be created!', 'Au moins un aliquot enfant doit être créé!'),
+('define realiquoted children', 'Define Realiquoted Children', 'Définir aliquots enfants'),
+('no aliquot has been defined as realiquoted child', 'No aliquot has been defined as realiquoted child!', 'Aucun aliquot n''a été défini comme aliquot enfant!'),
+('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', 'No new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)', 'Aucun nouvel aliquot ne peut actuellement être défini comme aliquot enfant pour les aliquots parents suivants'),
+('no new sample aliquot could be actually defined as realiquoted child', 'No new sample aliquot could be actually defined as realiquoted child!', 'Aucun nouvel aliquot de l''échantillon ne peut actuellement être défini comme aliquot ré-aliquoté (enfant)!'),
+('parent/child', 'Parent/Child', 'Parent/Enfant'),
+('parent_used_volume_help', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot parent utilisé pour créer l''aliquot enfant.'),
+('realiquoted children selection', 'Realiquoted Children Selection', 'Sélection des aliquots enfant'),
+('select children aliquot type', 'Children Aliquot Type', 'Type de l''aliquot enfant'),
+('selected children aliquot(s)', 'Children Aliquot(s)', 'Aliquot(s) enfant');
 
 UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -1886,7 +1883,7 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses_volume') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('aliquot source (for update)', 'Aliquot Source (For update)', 'Aliquot source (pour mise à jour)'),
 ('derivatives', 'Derivatives', 'Dérivés');
 
@@ -1930,8 +1927,10 @@ UPDATE structure_fields SET  `language_label`='qc run id', language_help = 'qc_r
 UPDATE structure_formats SET `language_heading`='quality control' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id');
 
 DELETE FROM i18n WHERE id IN ('qc run id', 'qc code');
-INSERT INTO i18n (id,en,fr) VALUES ('qc run id', 'QC #', 'QC #'),('qc code', 'QC System Code', 'QC Code système');
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('system data' ,'System Data', 'Données système'),
+REPLACE INTO i18n (id,en,fr) VALUES 
+('qc run id', 'QC #', 'QC #'),
+('qc code', 'QC System Code', 'QC Code système'),
+('system data' ,'System Data', 'Données système'),
 ('qc_run_id_help','Number or identifier assigned to your test.','Numéro ou identifiant attribué à votre test.'),
 ('qc_code_help', 'Unique code generated by the system.', 'Code unique généré par le système.');
 
@@ -1943,7 +1942,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='aliquot_label'), '1', '31', '', '1', 'used aliquot label', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE structure_formats SET `display_order`='32', `flag_override_label`='1', `language_label`='used aliquot type' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='aliquot_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('used aliquot barcode', 'Used Aliquot Barcode', 'Barcode de l''aliquot testé'),
 ('used aliquot type', 'Type', 'Type'),
 ('used aliquot label', 'Label', 'Étiquette');
@@ -1957,7 +1956,7 @@ UPDATE menus SET use_link = '/inventorymanagement/sample_masters/listAllDerivati
 UPDATE structure_formats SET flag_search = 0 WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'ad_%') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'current_volume');
 UPDATE structure_formats SET display_order = (display_order + 400) WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'sd_der%');
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('at least one quality control has to be created for each item','At least one quality control has to be created for each item!','Au moins un contrôle de qualité doit être créé par item.'),
 ('error: unable to define date','Error: Unable to define date.','Erreur: Impossible de définir la date.'),
 ('password is required','Password is required.','Le mot de passe est requis.'),
@@ -1977,12 +1976,12 @@ UPDATE structure_formats SET `flag_index`='1' WHERE display_order > @position AN
 REPLACE INTO i18n (id,en,fr) VALUES 
 ('sample code', 'Sample System Code', 'Échantillon - Code système');
 UPDATE structure_fields SET  language_help = 'sample_code_help', language_label = 'sample code' WHERE field='sample_code';
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('sample_code_help', 'Unique code generated by the system.', 'Code unique généré par le système.');
+REPLACE INTO i18n (id,en,fr) VALUES ('sample_code_help', 'Unique code generated by the system.', 'Code unique généré par le système.');
 UPDATE structure_formats SET language_label = '', flag_override_label = '0' WHERE language_label = 'code' AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sample_code');
 REPLACE INTO i18n (id,en,fr) VALUES ('storage code', 'Storage System Code', 'Entreposage - Code système');
 UPDATE structure_formats SET language_tag = 'storage code' WHERE language_tag = 'code' AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'code' AND model = 'StorageMaster');
 UPDATE structure_fields SET  language_help = 'storage_code_help' WHERE field='code' AND model = 'StorageMaster';
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('storage_code_help', 'Unique code generated by the system.', 'Code unique généré par le système.');
+REPLACE INTO i18n (id,en,fr) VALUES ('storage_code_help', 'Unique code generated by the system.', 'Code unique généré par le système.');
 
 SELECT '****************' as msg_3
 UNION
@@ -2130,7 +2129,7 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown" AND language_alias="other - primary unknown"), "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"),  (SELECT id FROM structure_permissible_values WHERE value="other - gross metastatic disease" AND language_alias="other - gross metastatic disease"), "1");
 
-INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('breast - breast', '', 'Breast - Breast', 'Sein - Sein'),
 
 ('central nervous system - brain', '', 'Central Nervous System - Brain', 'Système Nerveux Central - Cerveau'),
@@ -2346,8 +2345,10 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('unknown primary has been redefined. complete primary data.', 'Unknown primary has been redefined. Please complete new data.', 'Le diagnostic primaire ''Inconnu'' a été re-défini. Veuillez mettre à jour les données.'),
 ('redefine unknown primary', 'Redefine Prim. Diag.', 'Re-définir Diag. Prim.');
 
-REPLACE INTO i18n (id,en,fr) VALUES ('related diagnosis','Related Diagnosis Event','Évenement du diagnostic connexe');
-INSERT INTO i18n (id,en,fr) VALUES ('diagnosis history','History','Historic'), ('diagnosis event', 'Event', 'Évenement');
+REPLACE INTO i18n (id,en,fr) VALUES 
+('related diagnosis','Related Diagnosis Event','Évenement du diagnostic connexe'),
+('diagnosis history','History','Historic'), 
+('diagnosis event', 'Event', 'Évenement');
 
 INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='SopMaster' AND `field`='code'), 'isUnique', ''), 
@@ -2363,7 +2364,7 @@ UPDATE structure_fields SET type='select', structure_value_domain = (SELECT id F
 
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
 VALUES
-("in development", "in development"),('activated','activated'),("expired","expired"),('desactivated','desactivated');
+("in development", "in development"),('activated','activated'),("expired","expired"),('deactivated','deactivated');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
 (SELECT id FROM structure_permissible_values WHERE value="in development" AND language_alias="in development"), "1", "1"),
@@ -2373,10 +2374,10 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
 (SELECT id FROM structure_permissible_values WHERE value="expired" AND language_alias="expired"), "3", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="sop_status"),  
-(SELECT id FROM structure_permissible_values WHERE value="desactivated" AND language_alias="desactivated"), "4", "1");
+(SELECT id FROM structure_permissible_values WHERE value="deactivated" AND language_alias="deactivated"), "4", "1");
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('in development', 'In Development', 'En développement'),('activated', 'Activated', 'Activé'),('expired', 'Expired', 'Expiré'),('desactivated', 'Desactivated', 'Désactivé');
+('in development', 'In Development', 'En développement'),('activated', 'Activated', 'Activé'),('expired', 'Expired', 'Expiré'),('deactivated', 'deactivated', 'Désactivé');
 
 UPDATE structure_formats 
 SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
@@ -2397,20 +2398,20 @@ ALTER TABLE study_summaries_revs
 
 UPDATE menus set language_title = 'study and project' WHERE id = 'tool_CAN_100';
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('study and project', 'Study & Project', 'Étude & Projet');
 
 UPDATE structure_fields SET language_label = 'study / project' WHERE field = 'study_summary_id';
 UPDATE structure_fields SET language_label = 'default study / project' WHERE field = 'default_study_summary_id';
 
-INSERT INTO i18n (id,en,fr) VALUES ('study / project', 'Study/Project', 'Étude/Projet'), ('default study / project', 'Default Study/Project', 'Étude/Projet (par défaut)');
+REPLACE INTO i18n (id,en,fr) VALUES ('study / project', 'Study/Project', 'Étude/Projet'), ('default study / project', 'Default Study/Project', 'Étude/Projet (par défaut)');
 
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='end_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('study/project is assigned to an aliquot', 
 'Your data cannot be deleted! This study/project is linked to aliquot creation.', 
 'Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à une création d''aliquot.'),
@@ -2531,7 +2532,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('see diagnosis summary', 'Diagnosis', 'Diagnostique'),
 ('see event summary', 'Annotation', 'Annotation'),
 ('see treatment summary', 'Treatment', 'Traitement'),
-('category & diagnosis control type', 'Cat. & Type', 'Cat & Type');
+('category & diagnosis control type', 'Cat. & Type', 'Cat. & Type');
 
 INSERT INTO structures(`alias`) VALUES ('view_diagnosis');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
@@ -2657,7 +2658,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='help_primary code' AND `language_label`='disease code' AND `language_tag`=''), '1', '140', '', '1', '', '1', 'disease_code_short_label', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcdo3s/autocomplete/topo,tool=/codingicd/CodingIcdo3s/tool/topo' AND `default`='' AND `language_help`='help_topography' AND `language_label`='topography' AND `language_tag`=''), '1', '150', '', '1', '', '1', 'topography_short_label', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('disease_code_short_label', 'Code', 'Code'),
 ('topography_short_label', 'Topo', 'Topo'),
 ('date signed', 'Signed', 'Signé');
@@ -2740,7 +2741,7 @@ DELETE FROM structure_fields WHERE id NOT IN (SELECT structure_field_id FROM str
 UPDATE structure_fields SET language_help = 'inv_creation_datetime_defintion' WHERE field = 'creation_datetime' AND model = 'DerivativeDetail';
 UPDATE structure_fields SET language_help = 'inv_reception_datetime_defintion' WHERE field = 'reception_datetime' AND model = 'SpecimenDetail';
 
-INSERT INTO i18n (id,en,fr) VALUES ('inv_creation_datetime_defintion', 'Date of the samples creation (extraction, centrifugation, etc).', 'Date de la création des échantillons (extraction, centrifugation, etc).');
+REPLACE INTO i18n (id,en,fr) VALUES ('inv_creation_datetime_defintion', 'Date of the samples creation (extraction, centrifugation, etc.).', 'Date de la création des échantillons (extraction, centrifugation, etc.).');
 
 ALTER TABLE specimen_details
 	ADD COLUMN time_at_room_temp_mn INT DEFAULT NULL AFTER supplier_dept;
@@ -2753,16 +2754,16 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='specimens'), 
 (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='time_at_room_temp_mn'), '1', '405', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
 
-INSERT INTO i18n (id,en,fr) VALUES 
-('time at room temp (mn)', 'Time at room temperature (mn)', 'Temps à température ambiante (mn)'),
+REPLACE INTO i18n (id,en,fr) VALUES 
+('time at room temp (mn)', 'Time at room temperature (min)', 'Temps à température ambiante (min)'),
 ('time_at_room_temp_mn_help', 
 "Time spent between the collection time and the initial specimen storage time at low temperature (minutes). Ex.: Time between blood sampling and blood storage by the nurse.", 
-"Temps écoulé entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (minutes). Ex.: Temps entre une prise de sang et l'entreposage du sang par l'infirmère.");
+"Temps écoulé entre l'heure de collection et l'heure ou les spécimens ont été placés à basse température (minutes). Ex.: Temps entre une prise de sang et l'entreposage du sang par l'infirmère.");
 
 UPDATE structure_formats SET `language_heading`='shipping data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipment_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='recipient data' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='recipient' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-INSERT INTO i18n (id,en,fr) VALUES 
+REPLACE INTO i18n (id,en,fr) VALUES 
 ('shipping data','Shipping Data','Données d''expédition'),
 ('recipient data','Recipient','Destinataire'),
 ('select recipient','Select Recipient','Sélectionner le destinataire'),
@@ -2849,7 +2850,7 @@ INSERT into datamart_browsing_controls (id1,id2,flag_active_1_to_2,flag_active_2
 VALUES
 ((SELECT id FROM datamart_structures WHERE model = 'OrderItem'), (SELECT id FROM datamart_structures WHERE model = 'Shipment'), 1, 1, 'OrderItem.shipment_id');
 
-INSERT INTO i18n (id,en,fr) VALUES ('shipments', 'Shipments', 'Envois'), ('order items', 'Order Items', 'Articles de Commande');
+REPLACE INTO i18n (id,en,fr) VALUES ('shipments', 'Shipments', 'Envois'), ('order items', 'Order Items', 'Articles de Commande');
 
 UPDATE datamart_structures SET index_link = '/order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/' WHERE display_name = 'shipments';
 UPDATE datamart_structures SET index_link = '/order/order_items/listall/%%OrderLine.order_id%%/%%OrderLine.id%%/' WHERE display_name = 'order items';
