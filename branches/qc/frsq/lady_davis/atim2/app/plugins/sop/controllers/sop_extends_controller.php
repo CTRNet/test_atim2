@@ -10,11 +10,12 @@ class SopExtendsController extends SopAppController {
 	var $paginate = array('SopMaster'=>array('limit' => pagination_amount,'order'=>'SopMaster.id DESC'));
 	
 	function listall($sop_master_id){
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->set('atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
 		
 		$sop_master_data = $this->SopMaster->find('first', array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
-		$this->SopExtend = new SopExtend(false, $sop_master_data['SopControl']['extend_tablename']);
+		$this->SopExtend = AppModel::atimInstantiateExtend($this->SopExtend, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 		$this->Structures->set($use_form_alias);
 		
@@ -27,14 +28,14 @@ class SopExtendsController extends SopAppController {
 	}
 	
 	function detail($sop_master_id=null, $sop_extend_id=null) {
-		
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->set('atim_menu_variables', array('SopMaster.id'=>$sop_master_id, 'SopExtend.id'=>$sop_extend_id));
 		
 		// Get treatment master row for extended data
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 		
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
+		$this->SopExtend = AppModel::atimInstantiateExtend($this->SopExtend, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias );
 
@@ -48,13 +49,14 @@ class SopExtendsController extends SopAppController {
 	}
 
 	function add($sop_master_id=null) {
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->set('atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
 		
 		// Get treatment master row for extended data
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
+		$this->SopExtend = AppModel::atimInstantiateExtend($this->SopExtend, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias );
 
@@ -72,7 +74,7 @@ class SopExtendsController extends SopAppController {
 	}
 
 	function edit($sop_master_id=null, $sop_extend_id=null) {
-		
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->set('atim_menu_variables', array(
 			'SopMaster.id'=>$sop_master_id,
 			'SopExtend.id'=>$sop_extend_id
@@ -82,7 +84,7 @@ class SopExtendsController extends SopAppController {
 		$sop_master_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
 				
 		// Set form alias/tablename to use
-		$this->SopExtend = new SopExtend( false, $sop_master_data['SopControl']['extend_tablename'] );
+		$this->SopExtend = AppModel::atimInstantiateExtend($this->SopExtend, $sop_master_data['SopControl']['extend_tablename']);
 		$use_form_alias = $sop_master_data['SopControl']['extend_form_alias'];
 	    $this->Structures->set($use_form_alias);
 
@@ -104,7 +106,7 @@ class SopExtendsController extends SopAppController {
 	}
 
 	function delete($sop_master_id=null, $sop_extend_id=null) {
-
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$this->hook();
 	
 		$this->SopExtend->del( $sop_extend_id );

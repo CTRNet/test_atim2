@@ -1,7 +1,6 @@
 <?php
 
 class UsersController extends AdministrateAppController {
-	//TODO: add a feature to move a user from a group to another	
 	var $uses = array('User', 'Group');
 	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
 	
@@ -40,11 +39,17 @@ class UsersController extends AdministrateAppController {
 				if(!empty($tmp_data)){
 					$this->User->validationErrors[] = __('this user name is already in use', true);
 				}
-				$this->data['Generated']['field1'] = Security::hash($this->data['Generated']['field1'], null, true);
-				$submitted_data_validates = true;
-				if($this->data['User']['password'] != $this->data['Generated']['field1']){
-					$this->User->validationErrors[] = __('password and password validation do not match', true);
+				
+				$hashed_pwd = Security::hash($this->data['Generated']['field1'], null, true);
+				$password_data = array('User' => array('new_password' => $this->data['Generated']['field1'], 'confirm_password' => $this->data['Generated']['field1']));
+				if($this->data['User']['password'] != $hashed_pwd){
+					$password_data['User']['new_password'] = '';
 				}
+				
+				$this->User->validatePassword($password_data);
+				
+				$this->data['Generated']['field1'] = Security::hash($this->data['Generated']['field1'], null, true);
+				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->data['User']['group_id'] = $group_id;
 				$this->data['User']['flag_active'] = true;
 				
@@ -55,6 +60,10 @@ class UsersController extends AdministrateAppController {
 				
 				if($submitted_data_validates) {
 					if($this->User->save($this->data)){
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
 						$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
@@ -82,6 +91,12 @@ class UsersController extends AdministrateAppController {
 			$this->data['Group']['id'] = $group_id;
 			
 			$submitted_data_validates = true;
+			
+			if($user_id == $_SESSION['Auth']['User']['id'] && !$this->data['User']['flag_active']){
+				unset($this->data['User']['flag_active']);
+				AppController::addWarningMsg(__('you cannot deactivate yourself', true));
+			}
+			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
@@ -89,6 +104,10 @@ class UsersController extends AdministrateAppController {
 			
 			if($submitted_data_validates) {
 				if($this->User->save($this->data)){
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved', '/administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}
@@ -99,6 +118,40 @@ class UsersController extends AdministrateAppController {
 			$this->redirect( '/pages/err_no_data', null, true );
 		}
 	}
+	
+	function delete($group_id, $user_id){
+		//to be used in a hook
+		$arr_allow_deletion = array(
+			"allow_deletion"	=> $user_id != $_SESSION['Auth']['User']['id'],
+			"msg"				=> null
+		);
+		
+		if(!$arr_allow_deletion['allow_deletion']){
+			$arr_allow_deletion['msg'] = 'you cannot delete yourself';
+		}
+
+		$hook_link = $this->hook('delete');
+		if($hook_link){
+			require($hook_link);
+		}
+
+		if ($arr_allow_deletion['allow_deletion']) {
+			$this->User->atim_delete($user_id);
+			$this->atimFlash(__('your data has been deleted', true), "/administrate/users/listall/".$group_id);
+		} else {
+			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
+		}
+	}
+	
+	function search($search_id = 0){
+		$this->set( 'atim_menu', $this->Menus->get('/administrate/groups') );
+		$this->searchHandler($search_id, $this->User, 'users', '/administrate/users/search');
+		$this->Structures->set('empty', 'empty_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
 }
 
-?>

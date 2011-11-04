@@ -110,14 +110,14 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new participant
 		if(!isset($this->Participant)) {
-			$this->Participant = AppModel::atimNew("Clinicalannotation", "Participant", true);
+			$this->Participant = AppModel::getInstance("Clinicalannotation", "Participant", true);
 		}
 		$conditions = $search_on_date_range? array("Participant.created >= '$start_date_for_sql'", "Participant.created <= '$end_date_for_sql'") : array();
 		$data['0']['new_participants_nbr'] = $this->Participant->find('count', (array('conditions' => $conditions)));		
 
 		// Get new consents obtained
 		if(!isset($this->ConsentMaster)) {
-			$this->ConsentMaster = AppModel::atimNew("Clinicalannotation", "ConsentMaster", true);
+			$this->ConsentMaster = AppModel::getInstance("Clinicalannotation", "ConsentMaster", true);
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
 		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		
@@ -165,67 +165,60 @@ class ReportsController extends DatamartAppController {
 		$tmp_res_final = array();
 		
 		// Work on specimen
-		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN collections AS col ON col.id = sm.collection_id 
-			WHERE sm.sample_category = 'specimen'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
+		$sample_master_model = AppModel::getInstance('Inventorymanagement', 'SampleMaster', true);
+		
+		$res_1 = $sample_master_model->find('all', array(
+			'fields' => array('COUNT(*)', 'SampleControl.sample_type', 'SampleControl.sample_category'),
+			'conditions' => $search_on_date_range ? array('Collection.collection_datetime >=' => $start_date_for_sql, 'Collection.collection_datetime <=' => $end_date_for_sql) : array(),
+			'group'	=> 'SampleControl.sample_type',
+			'recursive' => 0
+		));
+		
 		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm']['sample_type']),
+			$tmp_res_final[$data['SampleControl']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => $data['SampleControl']['sample_category'], 'sample_type'=> $data['SampleControl']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}	
+		}
+
+		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_2 = $this->Report->query(
-			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+			"SELECT COUNT(*), participant_id, res.sample_type FROM (
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'specimen'
+				AND sc.sample_category = 'specimen'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
 		
 		// Work on derivative
-		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-			WHERE sm.sample_category = 'derivative'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
-		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm']['sample_type']),
-				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
-				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = sm.collection_id 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'derivative'
+				AND sc.sample_category = 'derivative'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
+		
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
-		
 		// Format data for report
 		foreach($tmp_res_final as $new_sample_type_data) {
 			$res_final[] = $new_sample_type_data;
@@ -242,7 +235,7 @@ class ReportsController extends DatamartAppController {
 	
 	function bankActiviySummaryPerPeriod($parameters) {
 		if(empty($parameters[0]['report_date_range_period']['0'])) {
-			return array('error_msg' => 'no perido has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
+			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
 		$month_period = ($parameters[0]['report_date_range_period']['0'] == 'month')? true:false;
 		
@@ -367,7 +360,9 @@ class ReportsController extends DatamartAppController {
 			'error_msg' => null);
 
 		// Get aliquot id
-		if(!isset($this->AliquotMaster)) $this->AliquotMaster = AppModel::atimNew("inventorymanagement", "AliquotMaster", true);
+		if(!isset($this->AliquotMaster)){
+			$this->AliquotMaster = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
+		} 
 		
 		$aliquot_master_ids = array();
 		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
@@ -390,40 +385,64 @@ class ReportsController extends DatamartAppController {
 			}
 					
 			$aliquot_master_ids[] = 0;
-			$aliquots = $this->Report->query(
-				"SELECT al.barcode, samp.sample_type, al.aliquot_type,
-				col.collection_datetime, spec_det.reception_datetime, der_det.creation_datetime, al.storage_datetime
-				FROM aliquot_masters AS al 
-				INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
-				INNER JOIN collections AS col ON col.id = al.collection_id AND col.deleted != 1
-				INNER JOIN sample_masters AS spec ON spec.id = samp.initial_specimen_sample_id AND spec.deleted != 1			
-				INNER JOIN specimen_details AS spec_det ON spec.id = spec_det.sample_master_id AND spec_det.deleted != 1
-				LEFT JOIN derivative_details AS der_det ON der_det.sample_master_id = samp.id AND der_det.deleted != 1
-				WHERE al.deleted != 1 AND al.id IN (".implode(',', $aliquot_master_ids).")"); 
+			
+			$joins = array(
+				array(
+					'table'	=> 'aliquot_controls',
+					'alias'	=> 'AliquotControl',
+					'type'	=> 'INNER',
+					'conditions' => array('AliquotMaster.aliquot_control_id = AliquotControl.id')
+				), array(
+					'table'	=> 'sample_masters',
+					'alias'	=> 'SampleMaster',
+					'type'	=> 'INNER',
+					'conditions' => array('AliquotMaster.sample_master_id = SampleMaster.id')
+				), array(
+					'table' => 'collections',
+					'alias' => 'Collection',
+					'type'	=> 'INNER',
+					'conditions' => array('SampleMaster.collection_id = Collection.id')
+				), array(
+					'table' => 'sample_masters',
+					'alias' => 'Specimen',
+					'type' => 'INNER',
+					'conditions' => array('SampleMaster.initial_specimen_sample_id = Specimen.id')
+				), array(
+					'table' => 'specimen_details',
+					'alias' => 'SpecimenDetail',
+					'type'	=> 'INNER',
+					'conditions' => array('SpecimenDetail.sample_master_id = Specimen.id')
+				), array(
+					'table' => 'derivative_details',
+					'alias'	=> 'DerivativeDetail',
+					'type'	=> 'LEFT',
+					'conditions' => array('DerivativeDetail.sample_master_id = SampleMaster.id')
+				)
+			);
+			
+			$aliquot_master_model = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
+			$data = $aliquot_master_model->find('all', array(
+				'fields'		=> array('*'),
+				'conditions'	=> array('AliquotMaster.id' => $aliquot_master_ids),
+				'joins'			=> $joins,
+				'recursive'		=> -1
+			));
 
-			$data = array();
-			foreach($aliquots as $new_record) {
-				$new_data = array();
-				$new_data['SampleMaster']['sample_type'] = $new_record['samp']['sample_type'];
-				$new_data['AliquotMaster']['aliquot_type'] = $new_record['al']['aliquot_type'];
-				$new_data['AliquotMaster']['barcode'] = $new_record['al']['barcode'];
-				
-				$coll_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['col']['collection_datetime'], $new_record['al']['storage_datetime']);
-				$rec_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['spec_det']['reception_datetime'], $new_record['al']['storage_datetime']);
-				$creat_to_stor_spent_time_msg = AppModel::getSpentTime($new_record['der_det']['creation_datetime'], $new_record['al']['storage_datetime']);
-						
+			foreach($data as &$data_unit){
+				$coll_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['Collection']['collection_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+				$rec_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['SpecimenDetail']['reception_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+				$creat_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['DerivativeDetail']['creation_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+
 				if($default_unit == 'mn') {
-					$new_data['Generated']['coll_to_stor_spent_time_msg'] = empty($coll_to_stor_spent_time_msg['message'])? (((($coll_to_stor_spent_time_msg['days']*24) + $coll_to_stor_spent_time_msg['hours'])*60) + $coll_to_stor_spent_time_msg['minutes']): '';
-					$new_data['Generated']['rec_to_stor_spent_time_msg'] = empty($rec_to_stor_spent_time_msg['message'])? (((($rec_to_stor_spent_time_msg['days']*24) + $rec_to_stor_spent_time_msg['hours'])*60) + $rec_to_stor_spent_time_msg['minutes']): '';
-					$new_data['Generated']['creat_to_stor_spent_time_msg'] = empty($creat_to_stor_spent_time_msg['message'])? (((($creat_to_stor_spent_time_msg['days']*24) + $creat_to_stor_spent_time_msg['hours'])*60) + $creat_to_stor_spent_time_msg['minutes']): '';
-										
+					$data_unit['Generated']['coll_to_stor_spent_time_msg'] = empty($coll_to_stor_spent_time_msg['message'])? (((($coll_to_stor_spent_time_msg['days']*24) + $coll_to_stor_spent_time_msg['hours'])*60) + $coll_to_stor_spent_time_msg['minutes']): '';
+					$data_unit['Generated']['rec_to_stor_spent_time_msg'] = empty($rec_to_stor_spent_time_msg['message'])? (((($rec_to_stor_spent_time_msg['days']*24) + $rec_to_stor_spent_time_msg['hours'])*60) + $rec_to_stor_spent_time_msg['minutes']): '';
+					$data_unit['Generated']['creat_to_stor_spent_time_msg'] = empty($creat_to_stor_spent_time_msg['message'])? (((($creat_to_stor_spent_time_msg['days']*24) + $creat_to_stor_spent_time_msg['hours'])*60) + $creat_to_stor_spent_time_msg['minutes']): '';
+
 				} else {
-					$new_data['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg);
-					$new_data['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg);
-					$new_data['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg);
+					$data_unit['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg);
+					$data_unit['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg);
+					$data_unit['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg);
 				}
-				
-				$data[] = $new_data;
 			}
 			
 			$array_to_return['data'] = $data;

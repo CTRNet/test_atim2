@@ -19,21 +19,19 @@
 		}
 		ksort($add_links);
 	
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-		
-		$bottom = array(
-			'add' => $add_links,
-			'new search' => $search_type_links);
+		$bottom = array();
+		$bottom['add specimen'] = $add_links;		
+		if(!empty($templates)){
+			$bottom['add from template'] = $templates;
+		}
+		$bottom['new search'] = InventorymanagementAppController::$search_links;
 	}
 
 	$structure_links = array(
 		'tree'=>array(
 			'SampleMaster' => array(
 				'detail' => array(
-					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/' . true . '/' . true,
+					'link' => '/inventorymanagement/sample_masters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/1/',
 					'icon' => 'flask'
 				),
 				'access to all data' => array(
@@ -43,7 +41,7 @@
 			),
 			'AliquotMaster' => array(
 				'detail' => array(
-					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' . true . '/' . true,
+					'link' => '/inventorymanagement/aliquot_masters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
 					'icon' => 'aliquot'
 				),
 				'access to all data' => array(

@@ -9,7 +9,12 @@
 	
 	if($full_detail_screen) {
 		$settings['actions'] = false;
-		$structure_links['bottom'] = array_merge(array('edit synchronization option' => '/labbook/lab_book_masters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id']), $structure_links['bottom']);
+		$structure_links['bottom'] = array_merge(
+			array(
+				'new search' => array('link' => '/labbook/lab_book_masters/search/', 'icon' => 'search'),
+				'edit synchronization option' => '/labbook/lab_book_masters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id']
+			), $structure_links['bottom']
+		);
 	}
 	
 	$final_atim_structure = $atim_structure; 

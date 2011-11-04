@@ -1,5 +1,6 @@
 <?php
 	$extras = '<input type="hidden" name="data[SampleMaster][ids]" value="'.$sample_master_ids.'"/>
+				<input type="hidden" name="data[AliquotMaster][ids]" value="'.(isset($aliquot_master_ids) ? $aliquot_master_ids : "").'"/>
 				<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$sample_master_control_id.'"/>
 				<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
@@ -13,7 +14,7 @@
 		'type' => 'add', 
 		'settings' => array('header' => __('derivative creation process', true) . ' - ' . __('lab book selection', true)),
 		'links' => array(
-			'top' => '/inventorymanagement/sample_masters/batchDerivative/',
+			'top' => '/inventorymanagement/sample_masters/batchDerivative/'.$aliquot_master_id,
 			'bottom' => $bottom
 		), 
 		'extras' => $extras);
