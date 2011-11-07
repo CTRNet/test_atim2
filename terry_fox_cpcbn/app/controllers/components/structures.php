@@ -4,6 +4,8 @@ class StructuresComponent extends Object {
 	var $controller;
 	static $singleton;
 	
+	public static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
+	
 	function initialize( &$controller, $settings=array() ) {
 		$this->controller =& $controller;
 		StructuresComponent::$singleton = $this;
@@ -19,7 +21,7 @@ class StructuresComponent extends Object {
 		if(!is_array($alias)){
 			$alias = explode(",", $alias);			
 		}
-		$structure = array('Structure' => array(), 'Sfs' => array());
+		$structure = array('Structure' => array(), 'Sfs' => array(), 'Accuracy' => array());
 		$all_structures = array();
 		foreach($alias as $alias_unit){
 			$struct_unit = $this->getSingleStructure($alias_unit);
@@ -28,15 +30,20 @@ class StructuresComponent extends Object {
 				//reset validate for newly loaded structure models
 				$this->controller->{ $model }->validate = array();
 			}
+
 			if(isset($struct_unit['structure']['Sfs'])){
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
+				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
+					$structure['Structure']['CodingIcdCheck'] = 1;
+				}
 			}
 		}
 		
-		//rules are formatted, apply them
-		foreach($all_structures as $struct_unit){
+		foreach($all_structures as &$struct_unit){
 			foreach ($struct_unit['rules'] as $model => $rules){
+				//rules are formatted, apply them
 				$this->controller->{ $model }->validate = array_merge($this->controller->{ $model }->validate, $rules);
 			}
 		}
@@ -46,7 +53,38 @@ class StructuresComponent extends Object {
 		}else if(count($structure['Structure']) == 1){
 			$structure['Structure'] = $structure['Structure'][0];
 		}
+		
 		$this->controller->set($structure_name, $structure);
+	}
+	/**
+	 * Stores data into model accuracy_config. Will be used for validation. Stores the same data into the structure.
+	 * @param array $structure
+	 */
+	private function updateAccuracyChecks(&$structure){
+		$structure['Accuracy'] = array();
+		foreach($structure['Sfs'] as &$field){
+			if(($field['type'] == 'date' || $field['type'] == 'datetime')){
+				$tablename = null;
+				$model = AppModel::getInstance($field['plugin'], $field['model'], false);
+				if($model !== false && !empty($model->_schema) && ($field['tablename'] == $model->table || empty($field['tablename']))){
+					$tablename = $model->table;
+				}else if(!empty($field['tablename'])){
+					$model = new AppModel(array('table' => $field['tablename'], 'name' => $field['model'], 'alias' => $field['model']));
+					$tablename = $field['tablename'];
+				}
+				
+				if($tablename != null){
+					if(!array_key_exists($tablename, AppModel::$accuracy_config)){
+						$model->buildAccuracyConfig();
+					}
+					if(isset(AppModel::$accuracy_config[$tablename][$field['field']])){
+						$structure['Accuracy'][$field['model']][$field['field']] = $field['field'].'_accuracy';
+					}
+				}else if($field['model'] != 'custom' && Configure::read('debug') > 0){
+						AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
+				}
+			}
+		}
 	}
 	
 	function get($mode = null, $alias = NULL){
@@ -71,6 +109,8 @@ class StructuresComponent extends Object {
 		}else if($mode == 'form'){
 			$result = $result['structure'];
 		}
+
+		$this->updateAccuracyChecks($result);
 		return $result;
 	}
 	
@@ -78,28 +118,14 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		$structure_cache_directory = "../tmp/cache/structures/";
-		$fname = $structure_cache_directory.".".$alias.".cache";
-		if(file_exists($fname) && Configure::read('ATiMStructureCache.disable') != 1){
-			$fhandle = fopen($fname, 'r');
-			$return = unserialize(fread($fhandle, filesize($fname)));
-			fclose($fhandle);
-		}else{
-			if(Configure::read('ATiMStructureCache.disable')){
-				//clear structure cache
-				try{
-					if ($dh = opendir($structure_cache_directory)) {
-				        while (($file = readdir($dh)) !== false) {
-				            if(filetype($structure_cache_directory . $file) == "file"){
-				            	unlink($structure_cache_directory . $file);
-				            }
-				        }
-				        closedir($dh);
-				    }
-				}catch(Exception $e){
-					//do nothing, it's a race condition with someone else
-				}
+		$return = Cache::read($alias, "structures");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Structure caching issue. (null)');
 			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
@@ -113,13 +139,13 @@ class StructuresComponent extends Object {
 								)
 				);
 				
-				if ( $result ) $return = $result;
+				if ( $result ){
+					$return = $result;
+				}
 			}
-			if(Configure::read('ATiMStructureCache.disable') != 1){
-				$fhandle = fopen($fname, 'w');
-				fwrite($fhandle, serialize($return));
-				fflush($fhandle);
-				fclose($fhandle);
+			
+			if(Configure::read('debug') == 0){
+				Cache::write($alias, $return, "structures");
 			}
 		}
 		
@@ -128,13 +154,15 @@ class StructuresComponent extends Object {
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				foreach($return['structure']['Sfs'] as $sfs){
 					if(strpos($sfs['setting'], $trigger) !== false){
-						$key = AppModel::atimNew('codingicd', $key, true);
+						AppModel::getInstance('codingicd', $key, true);
 						$return['structure']['Structure']['CodingIcdCheck'] = true;
 						break;
 					}
 				}
 			}
+			$this->updateAccuracyChecks($return['structure']);
 		}
+		
 		return $return;
 	}
 	
@@ -156,15 +184,16 @@ class StructuresComponent extends Object {
 		}
 	}
 	
-	function parse_search_conditions($atim_structure = NULL){
+	function parseSearchConditions($atim_structure = NULL, $auto_accuracy = true){
 		// conditions to ultimately return
 		$conditions = array();
 		
 		// general search format, after parsing STRUCTURE
 		$form_fields = array();
+		$accuracy_fields = array();
 		
 		// if no STRUCTURE provided, try and get one
-		if($atim_structure===NULL){
+		if($atim_structure === NULL){
 			$atim_structure = $this->getSingleStructure();
 			$atim_structure = $atim_structure['structure'];
 		}
@@ -182,25 +211,28 @@ class StructuresComponent extends Object {
 				//it includes numbers, dates, and fields fith the "range" setting. For the later, value  _start
 				$form_fields_key = $value['model'].'.'.$value['field'];
 				$value_type = $value['type'];
-				if ($value_type == 'number'
-				|| $value_type == 'integer'
-				|| $value_type == 'integer_positive'
-				|| $value_type == 'float'
-				|| $value_type == 'float_positive' 
-				|| $value_type == 'date' 
-				|| $value_type == 'datetime'
-				|| $value_type == 'time'
-				|| (strpos($value['setting'], "range") !== false)
-						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])) {
-					$form_fields[$form_fields_key.'_start']['plugin']		= $value['plugin'];
-					$form_fields[$form_fields_key.'_start']['model']		= $value['model'];
-					$form_fields[$form_fields_key.'_start']['field']		= $value['field'];
-					$form_fields[$form_fields_key.'_start']['key']			= $form_fields_key.' >=';
+				if (in_array($value_type, self::$range_types)
+					|| (strpos($value['setting'], "range") !== false)
+						&& isset($this->controller->data[$value['model']][$value['field'].'_start'])
+				){
+					$key_start = $form_fields_key.'_start';
+					$form_fields[$key_start]['plugin']		= $value['plugin'];
+					$form_fields[$key_start]['model']		= $value['model'];
+					$form_fields[$key_start]['field']		= $value['field'];
+					$form_fields[$key_start]['key']			= $form_fields_key.' >=';
 					
-					$form_fields[$form_fields_key.'_end']['plugin']			= $value['plugin'];
-					$form_fields[$form_fields_key.'_end']['model']			= $value['model'];
-					$form_fields[$form_fields_key.'_end']['field']			= $value['field'];
-					$form_fields[$form_fields_key.'_end']['key']			= $form_fields_key.' <=';
+					$key_end = $form_fields_key.'_end';
+					$form_fields[$key_end]['plugin']			= $value['plugin'];
+					$form_fields[$key_end]['model']			= $value['model'];
+					$form_fields[$key_end]['field']			= $value['field'];
+					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
+					
+					if(isset($atim_structure['Accuracy'][$value['model']][$value['field']])){
+						$accuracy_fields[] = $key_start;
+						$accuracy_fields[] = $key_end;
+						$form_fields[$key_start.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
+						$form_fields[$key_end.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
+					}
 				}else if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
 					// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
 					$form_fields[$form_fields_key]['plugin']= $value['plugin'];
@@ -218,7 +250,7 @@ class StructuresComponent extends Object {
 				}
 				
 				//CocingIcd magic
-				if(isset($simplified_structure['Structure']['codingIcdCheck']) && $simplified_structure['Structure']['codingIcdCheck']){
+				if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
 					foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $setting_lookup){
 						if(strpos($value['setting'], $setting_lookup) !== false){
 							$form_fields[$form_fields_key]['cast_icd'] = $key;
@@ -235,11 +267,14 @@ class StructuresComponent extends Object {
 			}
 		}
 		
+		App::import('Sanitize');
+		
 		// parse DATA to generate SQL conditions
 		// use ONLY the form_fields array values IF data for that MODEL.KEY combo was provided
 		foreach($this->controller->data as $model => $fields){
 			if(is_array($fields)){
 				foreach($fields as $key => $data){
+					$key = str_replace("_with_file_upload", "", $key);
 					$form_fields_key = $model.'.'.$key;
 					// if MODEL data was passed to this function, use it to generate SQL criteria...
 					if(count($form_fields)){
@@ -250,7 +285,7 @@ class StructuresComponent extends Object {
 								
 								// set $DATA array based on contents of uploaded FILE
 								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-								
+								unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
 								// in each LINE, get FIRST csv value, and attach to DATA array
 								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
 								    $data[] = $csv_data[0];
@@ -263,7 +298,7 @@ class StructuresComponent extends Object {
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
 							if(is_array($data) && $model != "0"){
-									$format_data_model = AppModel::atimNew($form_fields[$form_fields_key]['plugin'], $model, true);
+									$format_data_model = AppModel::getInstance($form_fields[$form_fields_key]['plugin'], $model, true);
 									$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 									if(is_array($data)){
 										$data = array_unique($data);
@@ -285,15 +320,55 @@ class StructuresComponent extends Object {
 									$data = $instance->getCastedSearchParams($data, $form_fields[$form_fields_key]['exact']);
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
+										foreach($data as &$unit){
+											$unit = Sanitize::escape($unit);
+										}
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
-										$data = '%'.$data.'%';
+										$data = '%'.Sanitize::escape($data).'%';
 									}
 								}
 								
 								if(isset($data)){
-									$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+									if($auto_accuracy && in_array($form_fields_key, $accuracy_fields)){
+										//accuracy treatment
+										if(isset($this->controller->data['exact_search'])){
+											$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+											$conditions[ $form_fields[$form_fields_key.'_accuracy']['key'] ] = array('c', ' ');
+										}else{
+											$tmp_cond = array();
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => $data,
+												$form_fields[$form_fields_key.'_accuracy']['key'] => array('c', ' ')
+											);
+											if(strpos($data, " ") !== false){
+												//datetime
+												list($data, $time) = explode(" ", $data);
+												list($hour, ) = explode(":", $time);
+												$tmp_cond[] = array(
+													$form_fields[$form_fields_key]['key'] => sprintf("%s %s:00:00", $data, $hour),
+													$form_fields[$form_fields_key.'_accuracy']['key'] => 'i'
+												);
+												$tmp_cond[] = array(
+													$form_fields[$form_fields_key]['key'] => $data." 00:00:00",
+													$form_fields[$form_fields_key.'_accuracy']['key'] => 'h'
+												);
+											}
+											list($year, $month) = explode("-", $data);
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => sprintf("%s-%s-01 00:00:00", $year, $month),
+												$form_fields[$form_fields_key.'_accuracy']['key'] => 'd'
+											);
+											$tmp_cond[] = array(
+												$form_fields[$form_fields_key]['key'] => sprintf("%s-01-01 00:00:00", $year),
+												$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
+											);
+											$conditions[] = array("OR" => $tmp_cond);
+										}
+									}else{
+										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
+									}
 								}
 							}
 						}
@@ -301,6 +376,7 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
+
 		return $conditions;
 	}
 	
@@ -454,24 +530,14 @@ class StructuresComponent extends Object {
 		}
 
 		list($pulldown_model, $pulldown_function) = split('::', $source);
+		$pulldown_plugin = NULL;
+		if (strpos($pulldown_model,'.') !== false){
+			$combined_plugin_model_name = $pulldown_model;
+			list($pulldown_plugin, $pulldown_model) = explode('.',$combined_plugin_model_name);
+		}
+
 		$pulldown_result = array();
-		if ($pulldown_model && App::import('Model',$pulldown_model)){
-
-			// setup VARS for custom model (if any)
-			$custom_pulldown_object = $pulldown_model.'Custom';
-			$custom_pulldown_plugin = NULL;
-			$custom_pulldown_model = NULL;
-
-			// if model name is PLUGIN.MODEL string, need to split and drop PLUGIN name after import but before NEW
-			$pulldown_plugin = NULL;
-			if ( strpos($pulldown_model,'.')!==false ) {
-				$combined_plugin_model_name = $pulldown_model;
-				list($pulldown_plugin,$pulldown_model) = explode('.',$combined_plugin_model_name);
-			}
-
-			// load MODEL
-			$pulldown_model_object = AppModel::atimNew($pulldown_plugin, $pulldown_model, true);
-
+		if ($pulldown_model && ($pulldown_model_object = AppModel::getInstance($pulldown_plugin, $pulldown_model, true))){
 			// run model::function
 			$pulldown_result = $pulldown_model_object->{$pulldown_function}($args);
 		}

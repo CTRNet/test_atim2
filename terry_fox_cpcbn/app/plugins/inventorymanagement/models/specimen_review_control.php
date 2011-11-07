@@ -5,7 +5,10 @@ class SpecimenReviewControl extends InventoryManagementAppModel {
 	var $belongsTo = array(       
 		'AliquotReviewControl' => array(           
 			'className'    => 'Inventorymanagement.AliquotReviewControl',            
-			'foreignKey'    => 'aliquot_review_control_id'));
+			'foreignKey'    => 'aliquot_review_control_id'),
+		'SampleControl' => array(
+			'className'   => 'Inventorymanagement.SampleControl',
+			 	'foreignKey'  => 'sample_control_id'));
 	
 	/**
 	 * Get permissible values array gathering all existing specimen type of reviews.
@@ -18,7 +21,7 @@ class SpecimenReviewControl extends InventoryManagementAppModel {
 		$result = array();
 
 		foreach($this->find('all', array('conditions' => array('SpecimenReviewControl.flag_active' => 1))) as $new_control) {
-			$result[$new_control['SpecimenReviewControl']['specimen_sample_type']] = __($new_control['SpecimenReviewControl']['specimen_sample_type'], true);
+			$result[$new_control['SpecimenReviewControl']['sample_control_id']] = __($new_control['SampleControl']['sample_type'], true);
 		}
 				
 		return $result;

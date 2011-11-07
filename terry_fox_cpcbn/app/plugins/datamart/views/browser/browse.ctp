@@ -1,9 +1,11 @@
 <?php
 	if(isset($node_id) && $node_id != 0){
-		echo(Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot));
+		$this->Paginator->options['url'] = array($node_id.'/'.$control_id.'/'.$merge_to);
+		echo Browser::getPrintableTree($node_id, isset($merged_ids) ? $merged_ids : array(), $this->webroot);
 	}
 	//use add as type to avoid advanced search usage
 	$settings = array();
+	$links['bottom']['new'] = '/datamart/browser/browse/';
 	if($type == "checklist"){
 		$links['top'] = $top;
 		if(is_array($this->data)){
@@ -16,7 +18,7 @@
 			}
 			$tmp_header = isset($header) ? $header : "";
 			$header = __("select an action", true);
-			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
+			$structures->build($result_structure, array('type' => "index", 'links' => $links, 'settings' => array('form_bottom' => false, 'actions' => false, 'pagination' => false, 'sorting' => true, 'form_inputs'=>false, 'header' => $tmp_header, 'data_miss_warn' => !isset($merged_ids))));
 		}else{
 			//overflow
 			?>
@@ -25,7 +27,7 @@
 				.sprintf(__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", true), __('browse', true), __('batchset', true))); ?>.</li>
 			</ul>
 			<?php
-			$structures->build($empty, array('type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
+			$structures->build($empty, array('data' => array(), 'type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
 			$key_parts = explode(".", $checklist_key);
 			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".$this->data."'/>\n");
 		}
@@ -33,15 +35,32 @@
 		$type = "add";
 		?>
 		<input type="hidden" name="data[node][id]" value="<?php echo($node_id); ?>"/>
-		<?php 
+		<?php
+
+		if($unused_parent){
+			$links['bottom']['unused parents'] = '/datamart/browser/unusedParent/'.$node_id;
+		}
 	}else{
 		$is_datagrid = false;
 	}
 	$links['top'] = $top;
-	$links['bottom'] = array("new" => "/datamart/browser/browse/");
-	$structures->build($atim_structure, array('type' => $type, 'links' => $links, 'data' => array(), 'settings' => array('form_top' => !$is_datagrid, "header" => (isset($header) ? $header : __("select an action", true)))));
+	
+	$extras = array();
+	if(isset($node_id)){
+		$extras['end'] = $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
+	}
+	
+	$structures->build($atim_structure, array(
+		'type' => $type, 
+		'links' => $links, 
+		'data' => array(), 
+		'settings' => array(
+			'form_top' => !$is_datagrid, 
+			"header" => (isset($header) ? $header : __("select an action", true))
+		), 'extras' => $extras
+	));
 ?>
-<script type="text/javascript">
+<script>
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php __("you need to select at least one item"); ?>";

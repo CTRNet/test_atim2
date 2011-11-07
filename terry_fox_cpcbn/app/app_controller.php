@@ -4,6 +4,7 @@ class AppController extends Controller {
 	// var $uses			= array('Config', 'Aco', 'Aro', 'Permission');
 	private static $missing_translations = array();
 	private static $me = NULL;
+	private static $acl = null;
 	public static $beignFlash = false;
 	var $uses = array('Config');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager' );
@@ -17,6 +18,11 @@ class AppController extends Controller {
 	
 	function beforeFilter() {
 		AppController::$me = $this;
+		if(Configure::read('debug') != 0){
+			Cache::clear(false, "structures");
+			Cache::clear(false, "menus");
+		}
+		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language')); 
@@ -41,7 +47,7 @@ class AppController extends Controller {
 			
 			$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
 			$log_activity_data['UserLog']['url']  = $this->here;
-			$log_activity_data['UserLog']['visited'] = date('Y-m-d h:i:s');
+			$log_activity_data['UserLog']['visited'] = now();
 			// $log_activity_data['UserLog']['allowed'] = $this->_othCheckPermission($row) ? '1' : '0';
 			$log_activity_data['UserLog']['allowed'] = 1;
 			
@@ -55,7 +61,13 @@ class AppController extends Controller {
 			$log_activity_model->save($log_activity_data);
 			
 		// menu grabbed for HEADER
-			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools') );
+			$atim_sub_menu_for_header = array();
+			$menu_model = AppModel::getInstance("", "Menu", true);
+			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
+			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
+		
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
+			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
 			
 		// menu, passed to Layout where it would be rendered through a Helper
 			$this->set( 'atim_menu_variables', array() );
@@ -219,7 +231,7 @@ class AppController extends Controller {
 		// parse result, set configs/defines
 		if ( $config_results ) {
 			Configure::write('Config.language', $config_results['Config']['config_language']);
-			foreach ( $config_results['Config'] as $config_key=>$config_data ) {
+			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
 					
 					// break apart CONFIG key
@@ -244,21 +256,6 @@ class AppController extends Controller {
 		}
 		if(Configure::read('debug') == 0){
 			set_error_handler("myErrorHandler");
-		}
-	}
-	
-	/**
-	 * Recursively removes empty parts of an array. It includes empty arrays.
-	 * @param array &$arr The array to clean
-	 */
-	static function cleanArray(&$arr){
-		foreach($arr as $k => $foo){
-			if(is_array($arr[$k])){
-				AppController::cleanArray($arr[$k]);
-			}
-			if(empty($arr[$k]) || (is_array($arr[$k]) && count($arr[$k]) == 0) || (is_string($arr[$k]) && strlen(trim($arr[$k])) == 0)){
-				unset($arr[$k]);
-			}
 		}
 	}
 	
@@ -292,7 +289,7 @@ class AppController extends Controller {
 	 */
 	static function getFormatedDateString($year, $month, $day, $nbsp_spaces = true, $short_months = true){
 		$result = null;
-		if($year == 0 && $month == 0 && $day == 0){
+		if(empty($year) && empty($month) && empty($day)){
 			$result = "";
 		}else{
 			$divider = $nbsp_spaces ? "&nbsp;" : " ";
@@ -301,11 +298,11 @@ class AppController extends Controller {
 				$month = $month > 0 && $month < 13 ? $month_str[(int)$month] : "-";
 			}
 			if(date_format == 'MDY') {
-				$result = $month.$divider.$day.$divider.$year;
+				$result = $month.(empty($month) ? "" : $divider).$day.(empty($day) ? "" : $divider).$year;
 			}else if (date_format == 'YMD') {
-				$result = $year.$divider.$month.$divider.$day;
+				$result = $year.(empty($month) ? "" : $divider).$month.(empty($day) ? "" : $divider).$day;
 			}else { // default of DATE_FORMAT=='DMY'
-				$result = $day.$divider.$month.$divider.$year;
+				$result = $day.(empty($day) ? "" : $divider).$month.(empty($month) ? "" : $divider).$year;
 			}
 		}
 		return $result;
@@ -318,7 +315,9 @@ class AppController extends Controller {
 			if($hour == 0){
 				$hour = 12;
 			}
-			return $hour.":".$minutes.($nbsp_spaces ? "&nbsp;" : " ").$meridiem;
+			return $hour.(empty($minutes) ? '' : ":".$minutes.($nbsp_spaces ? "&nbsp;" : " ")).$meridiem;
+		}else if(empty($minutes)){
+			return $hour.__('hour_sign', true);
 		}else{
 			return $hour.":".$minutes;
 		}
@@ -327,17 +326,38 @@ class AppController extends Controller {
 	/**
 	 * 
 	 * Enter description here ...
-	 * @param $datetime_string String with format yyyy-MM-dd hh:mm:ss
+	 * @param $datetime_string String with format yyyy[-MM[-dd[ hh[:mm:ss]]]] (missing parts represent the accuracy
 	 * @param boolean $nbsp_spaces True if white spaces must be printed as &nbsp;
 	 * @param boolean $short_months True if months names should be short (used if $month is an int)
 	 * @return string The formated datestring with user preferences
 	 */
 	static function getFormatedDatetimeString($datetime_string, $nbsp_spaces = true, $short_months = true){
-		list($date, $time) = explode(" ", $datetime_string);
-		list($year, $month, $day) = explode("-", $date);
-		list($hour, $minutes, ) = explode(":", $time);
+		$month = null;
+		$day = null;
+		$hour = null;
+		$minutes = null;
+		if(strpos($datetime_string, ' ') === false){
+			$date = $datetime_string;
+		}else{
+			list($date, $time) = explode(" ", $datetime_string);
+			if(strpos($time, ":") === false){
+				$hour = $time;
+			}else{
+				list($hour, $minutes, ) = explode(":", $time);
+			}
+		}
+		
+		$date = explode("-", $date);
+		$year = $date[0];
+		switch(count($date)){
+			case 3:
+				$day = $date[2];
+			case 2:
+				$month = $date[1];
+				break;
+		}
 		$formated_date = self::getFormatedDateString($year, $month, $day, $nbsp_spaces);
-		return $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
+		return $hour === null ? $formated_date : $formated_date.($nbsp_spaces ? "&nbsp;" : " ").self::getFormatedTimeString($hour, $minutes, $nbsp_spaces);
 	}
 	
 	/**
@@ -442,7 +462,19 @@ class AppController extends Controller {
 	}
 	
 	static function addWarningMsg($msg){
-		$_SESSION['ctrapp_core']['warning_msg'][] = $msg;
+		if(isset($_SESSION['ctrapp_core']['warning_msg'][$msg])){
+			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
+		}else{
+			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
+		}
+	}
+	
+	static function addInfoMsg($msg){
+		if(isset($_SESSION['ctrapp_core']['info_msg'][$msg])){
+			$_SESSION['ctrapp_core']['info_msg'][$msg] ++;
+		}else{
+			$_SESSION['ctrapp_core']['info_msg'][$msg] = 1;
+		}
 	}
 	
 	static function getStackTrace(){
@@ -482,7 +514,6 @@ class AppController extends Controller {
 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], mktime() + $session_delay, "/");
 		}
-		return $session_delay;
 	}
 	
 	/**
@@ -528,19 +559,284 @@ class AppController extends Controller {
 	 * @param array $in_array
 	 * @param string $model The model ($in_array[$model])
 	 * @param string $field The field (new key = $in_array[$model][$field])
+	 * @param bool $unique If true, the array block will be directly under the model.field, not in an array.
 	 * @return array
 	 */
-	static function defineArrayKey($in_array, $model, $field){
+	static function defineArrayKey($in_array, $model, $field, $unique = false){
 		$out_array = array();
-		foreach($in_array as $val){
-			if(isset($val[$model])){
-				$out_array[$val[$model][$field]][] = $val;
-			}else{
-				//the key cannot be foud
-				$out_array[-1][] = $val;
+		if($unique){
+			foreach($in_array as $val){
+				$out_array[$val[$model][$field]] = $val;
 			}
+		}else{
+			foreach($in_array as $val){
+				if(isset($val[$model])){
+					$out_array[$val[$model][$field]][] = $val;
+				}else{
+					//the key cannot be foud
+					$out_array[-1][] = $val;
+				}
+			}
+			
 		}
 		return $out_array;
+	}
+	
+	/**
+	 * Recursively removes entries returning true on empty($value).
+	 * @param array &$data
+	 */
+	static function removeEmptyValues(array &$data){
+		foreach($data as $key => &$val){
+			if(is_array($val)){
+				self::removeEmptyValues($val);
+			}
+			if(empty($val)){
+				unset($data[$key]);
+			}
+		}
+	}
+	
+	static function getNewSearchId(){
+		return $_SESSION['Auth']['User']['search_id'] ++;
+	}
+	
+	/**
+	* @param string $link The link to check
+	* @return True if the user can access that page, false otherwise
+	*/
+	static function checkLinkPermission($link){
+		$parts = Router::parse($link);
+		$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']).'/' : '');
+		$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
+		$aco_alias .= ($parts['action'] ? $parts['action'] : '');
+	
+		if (self::$acl == null) {
+			self::$acl = new SessionAclComponent();
+			self::$acl->initialize($this);
+		}
+		
+		$instance = AppController::getInstance();
+	
+		return strpos($aco_alias,'controllers/Users') !== false
+		|| strpos($aco_alias,'controllers/Pages') !== false
+		|| $aco_alias == "controllers/Menus/index"
+		|| self::$acl->check('Group::'.$instance->Session->read('Auth.User.group_id'), $aco_alias);
+	}
+	
+	static function applyTranslation(&$in_array, $model, $field){
+		foreach($in_array as &$part){
+			$part[$model][$field] = __($part[$model][$field], true); 
+		}
+	}
+	
+	/**
+	 * Finds and paginate search results. Stores search in cache. 
+	 * Handles detail level when there is a unique ctrl_id. 
+	 * Defines/updates the result structure.
+	 * Sets 'result_are_unique_ctrl' as true if the results are based on a unique ctrl id, 
+	 * 	false otherwise. (Non master/detail models will return false) 
+	 * @param int $search_id The search id used by the pagination
+	 * @param Object $model The model to search upon
+	 * @param string $structure_alias The structure alias to parse the search conditions on
+	 * @param string $url The base url to use in the pagination links (meaning without the search_id)
+	 * @param bool $ignore_detail If true, even if the model is a master_detail ,the detail level won't be loaded
+	 * @param mixed $limit If false, will make a paginate call, if an int greater than 0, will make a find with the limit
+	 */
+	function searchHandler($search_id, $model, $structure_alias, $url, $ignore_detail = false, $limit = false){
+		//setting structure
+		$structure = $this->Structures->get('form', $structure_alias);
+		$this->set('atim_structure', $structure);
+		if(empty($search_id)){
+			$this->Structures->set('empty', 'empty_structure');
+		}else{
+			if($this->data){
+				//newly submitted search, parse conditions and store in session
+				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = $this->Structures->parseSearchConditions($structure);
+			}else if(!isset($_SESSION['ctrapp_core']['search'][$search_id]['criteria'])){
+				self::addWarningMsg(__('you cannot resume a search that was made in a previous session', true));
+				$this->redirect('/menus');
+				exit;
+			}
+	
+			//check if the current model is a master/detail one or a similar view
+			if(!$ignore_detail){
+				self::buildDetailBinding($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], $structure_alias);
+				$this->Structures->set($structure_alias);
+			}
+			
+			if($limit){
+				$this->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
+			}else{
+				$this->data = $this->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			}
+			
+			//BUG COUNTER!!! TODO: Remove in future versions if it's gone. 
+			//Some fields are mysteriously missing from the result set when there are inner joins
+			if($model->name == 'ViewAliquot' && count($this->data) > 0){ 
+				if(!array_key_exists('aliquot_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['alc']['aliquot_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot']['aliquot_type'] = $data_unit['alc']['aliquot_type'];
+					}
+				}
+				if(!array_key_exists('sample_type', $this->data[0]['ViewAliquot']) && isset($this->data[0]['sampc']['sample_type'])){
+					foreach($this->data as &$data_unit){
+						$data_unit['ViewAliquot'] += $data_unit['sampc'];
+					}
+				}
+			}else if(
+				$model->name == 'ViewSample' && 
+				count($this->data) > 0 && 
+				!array_key_exists('sample_type', $this->data[0]['ViewSample']) && 
+				isset($this->data[0]['sampc']['sample_type'])
+			){
+				foreach($this->data as &$data_unit){
+					$data_unit['ViewSample'] += $data_unit['sampc'];
+				}
+			}
+			//--------------------------
+			
+			
+		
+			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
+			if($search_id == -1){
+				//don't use the last search button if search id = -1
+				unset($_SESSION['ctrapp_core']['search'][$search_id]);
+			}else{
+				$_SESSION['ctrapp_core']['search'][$search_id]['results'] = $this->params['paging'][$model->name]['count'];
+				$_SESSION['ctrapp_core']['search'][$search_id]['url'] = $url;
+			}
+		}
+
+		if($this->RequestHandler->isAjax()) {
+			Configure::write ( 'debug', 0 );
+			$this->set ( 'is_ajax', true );
+		}
+	}
+	
+	/**
+	 * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
+	 * @param AppModel &$model
+	 * @param array $criteria Search criterias
+	 * @param string &$structure_alias
+	 */
+	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
+		if(($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
+			//determine if the results contain only one control id
+			$base_model = isset($model->base_model) ? $model->base_model : $model->name;
+			$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
+			$ctrl_ids = $model->find('all', array(
+				'fields'		=> array($model->name.'.'.$control_field), 
+				'conditions'	=> $criteria,
+				'group'			=> array($model->name.'.'.$control_field),
+				'limit'			=> 2
+			));
+			if(count($ctrl_ids) == 1){
+				//only one ctrl, attach detail
+				$has_one = array();
+				$master_class_name = null;
+				if($view){
+					$master_class_name = str_replace('View', '', $model->name).'Master';
+					$has_one[$master_class_name] = array(
+						'className' => $master_class_name,
+						'foreignKey' => 'id'
+					);
+				}else{
+					$master_class_name = $model->name;
+				}
+					
+				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
+				$ctrl_model = AppModel::getInstance('', $control_class, true);
+				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
+				$ctrl_data = current($ctrl_data);
+				//put a new instance of the detail model in the cache
+				ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
+				new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
+					
+				//has one and win
+				$has_one[$detail_class] = array(
+					'className' => $detail_class,
+					'foreignKey' => $master_foreign
+				);
+					
+				if($master_class_name == 'SampleMaster'){
+					//join specimen/derivative details
+					if($ctrl_data['sample_category'] == 'specimen'){
+						$has_one['SpecimenDetail'] = array(
+							'className' => 'SpecimenDetail',
+							'foreignKey' => 'sample_master_id'
+						);
+					}else{
+						//derivative
+						$has_one['DerivativeDetail'] = array(
+							'className' => 'DerivativeDetail',
+							'foreignKey' => 'sample_master_id'
+						);
+					}
+				}
+					
+				//persistent bind
+				$model->bindModel(array(
+					'hasOne' => $has_one,
+					'belongsTo' => array(
+						$control_class => array(
+							'className' => $control_class,
+							$control_field
+						)
+					)
+				), false);
+					
+				//updating structure
+				if(($pos = strpos($ctrl_data['form_alias'], ',')) !== false){
+					$structure_alias = $structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1);
+				}
+					
+				ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
+					
+			}else if(count($ctrl_ids) > 0){
+				//more than one
+				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed", true));
+			}
+		}
+	}
+	
+	/**
+	* Builds menu options based on 1-display_order and 2-translation
+	* @param array $menu_options An array containing arrays of the form array('order' => #, 'label' => '', 'link' => '')
+	* The label must be translated already.
+	*/
+	static function buildBottomMenuOptions(array &$menu_options){
+		$tmp = array();
+		foreach($menu_options as $menu_option){
+			$tmp[sprintf("%05d", $menu_option['order']).'-'.$menu_option['label']] = $menu_option['link'];
+		}
+		ksort($tmp);
+		$menu_options = array();
+		foreach($tmp as $label => $link){
+			$menu_options[preg_replace('/^[0-9]+-/', '', $label)] = $link;
+		}
+	}
+	
+	/**
+	 * Sets url_to_cancel based on $this->data['url_to_cancel']
+	 * If nothing exists, javascript:history.go(-1) is used.
+	 * If a similar entry exists, the value is decremented.
+	 * Otherwise, url_to_cancel is uses as such. 
+	 */
+	function setUrlToCancel(){
+		if(isset($this->data['url_to_cancel'])){
+			$pattern = '/^javascript:history.go\((-?[0-9]*)\)$/';
+			$matches = array();
+			if(preg_match($pattern, $this->data['url_to_cancel'], $matches)){
+				$back = empty($matches[1]) ? -2 : $matches[1] - 1;  
+				$this->data['url_to_cancel'] = 'javascript:history.go('.$back.')';
+			}
+			
+		}else{
+			$this->data['url_to_cancel'] = 'javascript:history.go(-1)'; 
+		}
+		
+		$this->set('url_to_cancel', $this->data['url_to_cancel']);
 	}
 }
 

@@ -3,7 +3,6 @@
 class MenusComponent extends Object {
 	
 	var $controller;
-	static $menu_cache_directory = "../tmp/cache/menus/";
 	
 	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Aco');
@@ -40,18 +39,15 @@ class MenusComponent extends Object {
 		}
 		
 		
-		$fname = MenusComponent::$menu_cache_directory.str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias).".cache";
-		
-		if(file_exists($fname) && !(Configure::read('ATiMMenuCache.disable')) ){
-			
-			$fhandle = fopen($fname, 'r');
-			$return = unserialize(fread($fhandle, filesize($fname)));
-			fclose($fhandle);
-		}else{		
-			if( Configure::read('ATiMMenuCache.disable') ){
-				MenusComponent::clearCache();
+		$cache_name = str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias);
+		$return = Cache::read($cache_name, "menus");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Menu caching issue. (null)');
 			}
-			
+		}
+		if(!$return){
 			if ( $alias ) {
 				App::import('model', 'Menu');
 				$this->Component_Menu = new Menu;
@@ -122,16 +118,9 @@ class MenusComponent extends Object {
 					);
 					if ( $current_level && count($current_level) ) {
 						
-						foreach ( $current_level as &$current_item ) {
-							$current_item['Menu']['at'] = $current_item['Menu']['id']==$source_id ? true : false;
-							
-							$parts = Router::parse($current_item['Menu']['use_link']);
-							$aco_alias = 'controllers/'.($parts['plugin'] ? Inflector::camelize($parts['plugin']) : 'App').'/';
-							$aco_alias .= ($parts['controller'] ? Inflector::camelize($parts['controller']).'/' : '');
-							$aco_alias .= ($parts['action'] ? $parts['action'] : '');
-							
-							$current_item['Menu']['allowed'] = $this->SessionAcl->check($aro_alias, $aco_alias);
-							
+						foreach($current_level as &$current_item){
+							$current_item['Menu']['at'] = $current_item['Menu']['id'] == $source_id;
+							$current_item['Menu']['allowed'] = AppController::checkLinkPermission($current_item['Menu']['use_link']); //$this->SessionAcl->check($aro_alias, $aco_alias);
 						}
 						
 						$menu[] = $current_level;
@@ -153,33 +142,13 @@ class MenusComponent extends Object {
 				
 			}
 			
-			if( !(Configure::read('ATiMMenuCache.disable')) ){
-				$fhandle = fopen($fname, 'w');
-				fwrite($fhandle, serialize($return));
-				fflush($fhandle);
-				fclose($fhandle);
+			if(Configure::read('debug') == 0){
+				Cache::write($cache_name, $return, "menus");
 			}
-			
 		}
 		
 		return $return;
 		
-	}
-
-	static function clearCache(){
-		//clear menu cache
-		try{
-			if ($dh = opendir(MenusComponent::$menu_cache_directory)) {
-				while (($file = readdir($dh)) !== false) {
-					if(filetype(MenusComponent::$menu_cache_directory . $file) == "file"){
-						unlink(MenusComponent::$menu_cache_directory . $file);
-					}
-				}
-				closedir($dh);
-			}
-		}catch(Exception $e){
-			//do nothing, it's a race condition with someone else
-		}
 	}
 }
 

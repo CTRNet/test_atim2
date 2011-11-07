@@ -19,12 +19,13 @@
 		$structure_links['bottom']['add to order'] = array("link" => '/order/order_items/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
 	}		
 	
-	$structure_links['bottom']['add uses'] = array("link" => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
+	$structure_links['bottom']['add uses'] = array("link" => '/inventorymanagement/aliquot_masters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
 	
 	$structure_links['bottom']['realiquoting'] = array(
 		'realiquot' =>  array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
 		'define realiquoted children' => array("link" => '/inventorymanagement/aliquot_masters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
+	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/inventorymanagement/sample_masters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
 	$structure_links['bottom']['delete'] = '/inventorymanagement/aliquot_masters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 
 	if($is_from_tree_view_or_layout == 1) {
@@ -40,23 +41,14 @@
 		
 	} else {
 		// General detail form display
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-		
-		$structure_links['bottom']['new search'] = $search_type_links;
+//		$structure_links['bottom'] = array_merge( array('new search' => InventorymanagementAppController::$search_links), $structure_links['bottom']); 
 	}
 	
-	// Set override
-	
-	$structure_override = array();
-
 	$final_atim_structure = $atim_structure;
 	if($is_from_tree_view_or_layout){
 		// DISPLAY ONLY ALIQUOT DETAIL FORM
 		// 1- ALIQUOT DETAIL	
-		$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'data' => $aliquot_master_data, 'settings' => $settings);
+		$final_options = array('links'=>$structure_links, 'data' => $aliquot_master_data, 'settings' => $settings);
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquot_detail_1');
@@ -70,7 +62,10 @@
 	}else{
 		// DISPLAY BOTH ALIQUOT DETAIL FORM AND ALIQUOT USES LIST
 		// 1- ALIQUOT DETAIL	
-		$final_options = array('override' => $structure_override, 'settings' => array('actions' => false), 'data' => $aliquot_master_data);
+		$final_options = array(
+			'settings' => array('actions' => false), 
+			'data' => $aliquot_master_data
+		);
 		
 		// CUSTOM CODE
 		$hook_link = $structures->hook('aliquot_detail_2');
@@ -85,8 +80,12 @@
 		$structure_links['index'] = array(
 		   'detail' => '/inventorymanagement/aliquot_masters/redirectToAliquotUseDetail/%%ViewAliquotUse.detail_url%%');
 		
-		$final_atim_structure = $aliquots_uses_structure;
-		$final_options = array('data' => $aliquots_uses_data, 'type' => 'index', 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('uses', null), 'actions' => false, 'pagination' => false));
+		$final_atim_structure = $empty_structure;
+		$final_options = array(
+			'data' => array(), 
+			'settings' => array('header' => __('uses', null), 'actions' => false),
+			'extras'	=> '<div class="uses"><div class="loading">---'.__('loading', true).'---</div></div>'
+		);
 
 		// CUSTOM CODE
 		$hook_link = $structures->hook('uses');
@@ -99,8 +98,12 @@
 
 		// 3- STORAGE HISTORY	
 		unset($structure_links['index']);
-		$final_atim_structure = $custom_aliquot_storage_history;
-		$final_options = array('data' => $storage_data, 'type' => 'index', 'links'=>$structure_links, 'settings' => array('header' => __('storage history', null), 'pagination' => false));
+		$final_atim_structure = $empty_structure;
+		$final_options = array(
+			'links'		=> $structure_links,
+			'settings'	=> array('header' => __('storage history', null)),
+			'extras'	=> '<div class="storage_history"><div class="loading">---'.__('loading', true).'---</div></div>'
+		);
 		
 		$hook_link = $structures->hook('storage_history');
 		if($hook_link){
