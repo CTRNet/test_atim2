@@ -917,6 +917,7 @@ class StructuresHelper extends Helper {
 				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
 				$options['remove_line_ctrl'] = $remove_line_ctrl;
 				$header_data = $this->buildDisplayHeader($table_index, $options);
+				echo '<thead>',$header_data['header'],'</thead>';
 				
 				if($options['type'] == "addgrid" && count($data) == 0){
 					//display at least one line
