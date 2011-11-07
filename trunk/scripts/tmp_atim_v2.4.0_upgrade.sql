@@ -3034,3 +3034,47 @@ UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id F
 
 INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='Config' AND `tablename`='configs' AND `field`='define_csv_encoding' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='csv_encoding')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_csv_encoding' AND `language_label`='csv encoding' AND `language_tag`=''), 'notEmpty', '');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'view_sample_joined_to_parent');
+DELETE FROM structures WHERE alias = 'view_sample_joined_to_parent';
+
+SELECT '****************' as msg_6
+UNION
+SELECT 'The structure sample_masters_for_search_result has been deleted and replaced by sample_masters in SampleMasterSummary' as msg_6
+UNION
+SELECT IF((SELECT (
+SELECT COUNT(*) FROM structure_formats 
+WHERE structure_field_id IN (SELECT structure_field_id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result') AND flag_summary = '1')
+AND structure_field_id NOT IN (SELECT structure_field_id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters'))
+)as SCORE) > 0, 
+'Fields does not matche between the 2 structures. Please run following queries and update manually sample_masters structrues.', 
+'Fields matche between the 2 structures. Please run following queries.') AS msg_6
+UNION 
+SELECT "
+UPDATE structure_formats SET flag_summary = 0 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters');
+UPDATE structure_formats sf_sm, structure_formats sf_old
+SET sf_sm.flag_summary = 1 
+WHERE sf_sm.structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters')
+AND sf_sm.structure_field_id = sf_old.structure_field_id 
+AND sf_old.structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result') 
+AND sf_old.flag_summary = '1';
+DELETE from structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result');
+DELETE from structures WHERE alias = 'sample_masters_for_search_result';
+" AS msg_6
+UNION ALL
+SELECT '****************' as msg_6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
