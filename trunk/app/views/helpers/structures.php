@@ -720,8 +720,10 @@ class StructuresHelper extends Helper {
 				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
-				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings'])
-					.self::getTimeInputs($field_name, $time, $table_row_part['settings']);
+				
+				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings']);
+				unset($table_row_part['settings']['required']);
+				$display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" ||
@@ -915,7 +917,6 @@ class StructuresHelper extends Helper {
 				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
 				$options['remove_line_ctrl'] = $remove_line_ctrl;
 				$header_data = $this->buildDisplayHeader($table_index, $options);
-				echo "<thead class='fmlh'>",$header_data['header'],"</thead>";
 				
 				if($options['type'] == "addgrid" && count($data) == 0){
 					//display at least one line
@@ -2239,7 +2240,10 @@ class StructuresHelper extends Helper {
 			$year_attributes['class'] .= " year_accuracy ";
 			$year = substr($year, 2);
 		}
-		
+		if(isset($attributes['required'])){
+			$year_attributes['required'] = $attributes['required'];
+			unset($attributes['required']);
+		}
 		if(datetime_input_type == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
