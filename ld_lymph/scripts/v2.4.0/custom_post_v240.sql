@@ -64,31 +64,72 @@ INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_act
 (null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='collection_datetime'), 'notEmpty', '', 'value is required');
 
 ALTER TABLE sample_masters
-  ADD COLUMN specimen_number INT(7) NOT NULL AFTER sample_code;
+  ADD COLUMN ld_lymph_specimen_number INT(7) NOT NULL AFTER sample_code;
 ALTER TABLE sample_masters_revs
-  ADD COLUMN specimen_number INT(7) NOT NULL AFTER sample_code;
+  ADD COLUMN ld_lymph_specimen_number INT(7) NOT NULL AFTER sample_code;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Inventorymanagement', 'SampleMaster', 'sample_masters', 'specimen_number', 'integer',  NULL , '0', 'size=6', '', '', 'specimen number', '');
+('Inventorymanagement', 'SampleMaster', 'sample_masters', 'ld_lymph_specimen_number', 'integer',  NULL , '0', 'size=6', '', '', 'specimen number', '');
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
-(null, (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='specimen_number'), 'notEmpty', '', 'value is required');
+(null, (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='ld_lymph_specimen_number'), 'notEmpty', '', 'value is required');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='sample_masters'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='specimen_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+((SELECT id FROM structures WHERE alias='sample_masters'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='ld_lymph_specimen_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='specimens'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='specimen_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
-(null, (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='specimen_number'), 'isUnique', '', 'specimen number should be unique');
+((SELECT id FROM structures WHERE alias='specimens'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='ld_lymph_specimen_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('specimen number', 'Specimen #', 'Spécimen #'), 
 ('specimen number should be unique', 'Specimen number should be unique!', 'Le numéro du spécimen doit être unique!');
-UPDATE structure_formats SET `display_order`='320' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='specimen_number');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='derivatives'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='ld_lymph_specimen_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='320' WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='ld_lymph_specimen_number');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'ViewSample', '', 'ld_lymph_specimen_number', 'input',  NULL , '0', 'size=6', '', '', 'specimen number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='ld_lymph_specimen_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='specimen number' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='ld_lymph_specimen_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '', '0', '', '0', '', '1', 'input', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
 
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
 
+part.participant_identifier, 
 
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+sampc.sample_category,
+samp.ld_lymph_specimen_number
+
+FROM sample_masters as samp
+INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+INSERT INTO i18n (id,en,fr) VALUES ('the specimen number should be unique','The specimen number should be unique!','Le numéro de specimen doit être unique!');
 
 -- ----------------------------------------------------------------------------------------
 -- SOP
 -- ----------------------------------------------------------------------------------------
-
 
 DELETE FROM sop_controls WHERE id != 2;
 INSERT INTO `sop_controls` (`id`, `sop_group`, `type`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `flag_active`) 
