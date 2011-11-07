@@ -1,10 +1,4 @@
 <?php 
-
-	$search_type_links = array();
-	$search_type_links['order'] = array('link'=> '/order/orders/index/', 'icon' => 'search');
-	$search_type_links['order item'] = array('link'=> '/order/order_items/index/', 'icon' => 'search');
-	$search_type_links['shipment'] = array('link'=> '/order/shipments/index/', 'icon' => 'search');
-	
 	// 1- SHIPMENT DETAILS
 	
 	$structure_links = array();
@@ -29,10 +23,10 @@
 	);
 
 	$structure_links['bottom'] = array(
+		'new search' => OrderAppController::$search_links,
 		'edit' => '/order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 		'add items to shipment' => array('link' => '/order/shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'add_to_shipment'),
-		'delete' => '/order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-		'new search' => $search_type_links
+		'delete' => '/order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
 	);
 	
 	$structure_override = array();

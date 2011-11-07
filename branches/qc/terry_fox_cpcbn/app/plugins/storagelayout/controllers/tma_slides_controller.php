@@ -26,7 +26,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 		
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$storage_data['StorageControl']['is_tma_block']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// Get TMA slide liste
 		$this->data = $this->paginate($this->TmaSlide, array('TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id));
@@ -61,7 +61,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$storage_data['StorageControl']['is_tma_block']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -100,11 +100,17 @@ class TmaSlidesController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 			
 			if($submitted_data_validates) {
 				// Save data	
 				if ($this->TmaSlide->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been saved', '/storagelayout/tma_slides/listAll/' . $tma_block_storage_master_id);				
 				}
 			}
@@ -123,7 +129,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$storage_data['StorageControl']['is_tma_block']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
@@ -167,7 +173,7 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$storage_data['StorageControl']['is_tma_block']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
@@ -218,12 +224,18 @@ class TmaSlidesController extends StoragelayoutAppController {
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }		
+			if( $hook_link ) { 
+				require($hook_link); 
+			}		
 
 			if($submitted_data_validates) {
 				// Save tma slide data
 				$this->TmaSlide->id = $tma_slide_id;		
-				if($this->TmaSlide->save($this->data, false)) { 				
+				if($this->TmaSlide->save($this->data, false)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash('your data has been updated', '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id); 
 				}
 			}	
@@ -240,14 +252,14 @@ class TmaSlidesController extends StoragelayoutAppController {
 		if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
 		// Verify storage is tma block
-		if(strcmp($storage_data['StorageControl']['is_tma_block'], 'TRUE') != 0) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(!$storage_data['StorageControl']['is_tma_block']) { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 		
 		// Get the tma slide data
 		$tma_slide_data = $this->TmaSlide->find('first', array('conditions' => array('TmaSlide.id' => $tma_slide_id, 'TmaSlide.tma_block_storage_master_id' => $tma_block_storage_master_id)));
 		if(empty($tma_slide_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowTMASlideDeletion($tma_slide_id);
+		$arr_allow_deletion = $this->allowDeletion($tma_slide_id);
 		
 		// CUSTOM CODE
 		
@@ -265,28 +277,6 @@ class TmaSlidesController extends StoragelayoutAppController {
 			$this->flash($arr_allow_deletion['msg'], '/storagelayout/tma_slides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 		}		
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */	
-	
-	/**
-	 * Check tma slide can be deleted.
-	 * 
-	 * @param $tma_slide_id Id of the tma slide when this one is known.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2009-09-14
-	 */
-	 
-	function allowTMASlideDeletion($tma_slide_id){
-		return array('allow_deletion' => true, 'msg' => '');
-	}
-	
 }
 
 ?>

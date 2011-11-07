@@ -12,9 +12,9 @@ class DatamartAppModel extends AppModel {
 	 * @param int $batch_set_id The id of the current batch set
 	 */	
 	function getDropdownOptions($plugin_name, $model_name, $model_pkey, $structure_name, $data_model, $data_pkey, $batch_set_id = null){
-		$batch_set = AppModel::atimNew("datamart", "BatchSet", true);
-		$datamart_structures = AppModel::atimNew("datamart", "DatamartStructure", true);
-		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'DatamartStructure.model' => $data_model)));
+		$batch_set = AppModel::getInstance("datamart", "BatchSet", true);
+		$datamart_structures = AppModel::getInstance("datamart", "DatamartStructure", true);
+		$d_struct = $datamart_structures->find('first', array('conditions' => array('DatamartStructure.plugin' => $plugin_name, 'OR' => array('DatamartStructure.model' => $data_model, 'DatamartStructure.control_master_model' => $data_model))));
 		$datamart_structure_id = count($d_struct) ? $d_struct['DatamartStructure']['id'] : 0;
 		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id, $batch_set_id);
 		$batch_set_menu[] = array(
@@ -36,7 +36,7 @@ class DatamartAppModel extends AppModel {
 			'children' => $batch_set_menu
 		);
 		
-		$structure_functions = AppModel::atimNew("datamart", "DatamartStructureFunction", true);
+		$structure_functions = AppModel::getInstance("datamart", "DatamartStructureFunction", true);
 		$functions = $structure_functions->find('all', array('conditions' => array('DatamartStructureFunction.datamart_structure_id' => $datamart_structure_id, 'DatamartStructureFunction.flag_active' => true)));
 		if(count($functions)){
 			$functions_menu = array();
@@ -53,7 +53,7 @@ class DatamartAppModel extends AppModel {
 				'children' => $functions_menu
 			);
 		}
-		$csv_action = 'csv/csv/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
+		$csv_action = 'datamart/csv/csv/%d/'.$plugin_name.'/'.$model_name.'/'.$model_pkey.'/'.$structure_name.'/';
 		if(strlen($data_model)){
 			$csv_action .= $data_model.'/';
 			if(strlen($data_pkey)){
@@ -63,7 +63,12 @@ class DatamartAppModel extends AppModel {
 		$result[] = array(
 			'value' => '0',
 			'default' => __('export as CSV file (comma-separated values)', true),
-			'action' => $csv_action
+			'action' => sprintf($csv_action, 0)
+		);
+		$result[] = array(
+			'value' => '0',
+			'default' => __('full export as CSV file', true),
+			'action' => sprintf($csv_action, 1)
 		);
 		
 		return $result;

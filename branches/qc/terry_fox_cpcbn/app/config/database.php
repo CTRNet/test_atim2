@@ -80,11 +80,11 @@ class DATABASE_CONFIG {
 
 	var $default = array(
 		'driver' => 'mysql',
-		'persistent' => false,
+		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'ctrnet_trunk',
+		'password' => 'root',
+		'database' => 'atim_new',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

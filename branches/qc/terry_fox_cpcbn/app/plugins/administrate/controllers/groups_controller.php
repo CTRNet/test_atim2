@@ -2,7 +2,7 @@
 
 class GroupsController extends AdministrateAppController {
 	
-	var $uses = array('Group',	'Aco', 'Aro');
+	var $uses = array('Group',	'Aco', 'Aro', 'User');
 	
 	var $paginate = array('Group'=>array('limit' => pagination_amount,'order'=>'Group.name ASC')); 
 	
@@ -27,6 +27,10 @@ class GroupsController extends AdministrateAppController {
 			if(empty($group_data)){
 				$this->Group->create();
 				if ($this->Group->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					
 					$group_id = $this->Group->id;
 					
@@ -58,6 +62,10 @@ class GroupsController extends AdministrateAppController {
 		if (!empty($this->data)) {
 			$this->Group->id = $group_id;
 			if ($this->Group->save($this->data)) {
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash('your data has been updated', '/administrate/groups/detail/'.$group_id);
 			} else {
 				$this->flash('The Group could not be saved. Please, try again.', '/administrate/groups/edit/'.$group_id);
@@ -95,10 +103,10 @@ class GroupsController extends AdministrateAppController {
 			$this->flash('Invalid id for Group', '/administrate/groups/index/');
 		}
 		
-		$this->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));	
+		$this->data = $this->User->find('first',array('conditions'=>array('User.group_id'=>$group_id)));
 		$this->hook();
 
-		if(empty($this->data['User'])){
+		if(empty($this->data)){
 			if ($this->Group->atim_delete($group_id)) {
 				$this->atimFlash('Group deleted', '/administrate/groups/index/');
 			}
