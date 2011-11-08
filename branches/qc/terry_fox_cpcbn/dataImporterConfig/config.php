@@ -1,140 +1,266 @@
 <?php
-$database['ip'] = "127.0.0.1";
-$database['port'] = "8889";
-$database['user'] = "root";
-$database['pwd'] = "root";
-$database['schema'] = "atim_tf_prostate";
-$database['charset'] = "utf8";
-
-$config['printQueries'] = false;
-$config['insertRevs'] = false;
-$config['input type'] = "xls";
-$config['xls input file'] = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-McGill.V2.3.xls";
-
-$config['xls header rows'] = 2;
-date_default_timezone_set("America/Montreal");
-
-$addonQueries['end'][] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
-(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
-FROM id_linking AS p 
-INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
-$addonQueries['end'][] = "UPDATE collections AS c 
-INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
-SET c.acquisition_label=CONCAT(ccl.participant_id, '-', c.id)
-WHERE c.id IN(SELECT mysql_id FROM id_linking AS l WHERE l.csv_reference='collections')";  
-$addonQueries['end'][] = "TRUNCATE id_linking";
-$addonQueries['end'][] = "UPDATE misc_identifiers AS i
-INNER JOIN misc_identifier_controls AS c ON i.misc_identifier_control_id=c.id
-SET i.identifier_name=c.misc_identifier_name, i.identifier_abrv=c.misc_identifier_name_abbrev";
-$addonQueries['end'][] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
-
-
-global $created;
-$created_id = 1;
-
-class MyTime{
-	public static $months = array(
-		"january"	=> "01",
-		"janvier"	=> "01",
-		"jan"		=> "01",
-		"february"	=> "02",
-		"février"	=> "02",
-		"fevrier"	=> "02",
-		"fev"		=> "02",
-		"fév"		=> "02",
-		"march"		=> "03",
-		"mars"		=> "03",
-		"mar"		=> "03",
-		"april"		=> "04",
-		"avril"		=> "04",
-		"apr"		=> "04",
-		"avr"		=> "04",
-		"may"		=> "05",
-		"mai"		=> "05",
-		"june"		=> "06",
-		"juin"		=> "06",
-		"july"		=> "07",
-		"jul"		=> "07",
-		"juillet"	=> "07",
-		"august"	=> "08",
-		"août"		=> "08",
-		"aout"		=> "08",
-		"aug"		=> "08",
-		"aou"		=> "08",
-		"september"	=> "09",
-		"septembre"	=> "09",
-		"sep"		=> "09",
-		"sept"		=> "09",
-		"october"	=> "10",
-		"octobre"	=> "10",
-		"oct"		=> "10",
-		"november"	=> "11",
-		"novembre"	=> "11",
-		"nov"		=> "11",
-		"december"	=> "12",
-		"décembre"	=> "12",
-		"decembre"	=> "12",
-		"dec"		=> "12",
-		"déc"		=> "12"
-	);
+#drop database atim_tf_prostate; create database atim_tf_prostate; use atim_tf_prostate;
+class Config{
+	const	INPUT_TYPE_CSV = 1;
+	const	INPUT_TYPE_XLS = 2;
 	
-	public static $full_date_pattern 	= '/^([^ \t0-9]+)[ \t]*([0-9]{1,2})(th)?[ \t]*[\,| \t][ \t]*([0-9]{4})$/';
-	public static $short_date_pattern	= '/^([^ \t0-9\,]+)[ \t]*[\,]?[ \t]*([0-9]{4})$/';
+	//Configure as needed-------------------
+	//db config
+	static $db_ip			= "127.0.0.1";
 	
-	public static $uncertainty_level = array('c' => 0, 'd' => 1, 'm' => 2, 'y' => 3, 'u' => 4);
+	static $db_port 		= "8889";
+	static $db_user 		= "root";
+	static $db_pwd			= "root";
+	static $db_schema		= "atim_tf_prostate";
+	
+	static $db_charset		= "utf8";
+	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
+	
+	static $timezone		= "America/Montreal";
+	
+	static $input_type		= Config::INPUT_TYPE_XLS;
+	
+	//if reading excel file
+	
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
+	static $xls_header_rows = 2;
+
+	static $print_queries	= false;//wheter to output the dataImporter generated queries
+	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
+	
+	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
+	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
+	//--------------------------------------
+	
+	
+	//this shouldn't be edited here
+	static $db_connection	= null;
+	
+	static $addon_queries_end	= array();//queries to run at the start of the import process
+	static $addon_queries_start	= array();//queries to run at the end of the import process
+	
+	static $parent_models	= array();//models to read as parent
+	
+	static $models			= array();
+	
+	static $value_domains	= array();
+	
+	static $config_files	= array();
+	
+	static function addModel(Model $m, $ref_name){
+		if(array_key_exists($ref_name, Config::$models)){
+			die("Defining model ref name [".$ref_name."] more than once\n");
+		}
+		Config::$models[$ref_name] = $m;
+	}
+
+	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
+	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
+	
+	static $sample_aliquot_controls = array();
+	static $banks = array();
+	static $drugs	= array();
+	static $tissue_source = array();
+	
+	static $identifiers = array();
 }
 
-function postRead(Model $m){
-	//rearrange dates
-	foreach($m->custom_data['date_fields'] as $date_field => $accuracy_field){
-		$m->values[$date_field] = trim($m->values[$date_field]);
-		//echo "IN DATE: ",$m->values[$date_field]," -> ";
-		$matches = array();
-		if(preg_match_all(MyTime::$full_date_pattern, $m->values[$date_field], $matches, PREG_OFFSET_CAPTURE) > 0){
-			if(isset(MyTime::$months[strtolower($matches[1][0][0])])){
-				$m->values[$date_field] = $matches[4][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-".sprintf("%02d", $matches[2][0][0]);
-				if(strlen($m->values[$date_field]) != 10){
-					echo "WARNING ON DATE [",$old_val,"] (A.1) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
-				}
-			}else{
-				echo "WARNING ON DATE: unknown month [",$matches[1][0][0],"] (A.2) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
-			}
-		}else if(preg_match_all(MyTime::$short_date_pattern, $m->values[$date_field], $matches, PREG_OFFSET_CAPTURE) > 0){
-			$old_val = $m->values[$date_field];
-			$m->values[$date_field] = $matches[2][0][0]."-".MyTime::$months[strtolower($matches[1][0][0])]."-01";
-			if(strlen($m->values[$date_field]) != 10){
-				echo "WARNING ON DATE [",$old_val,"] month[".strtolower($matches[1][0][0])."](B) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
-			}
-			if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['m']){
-				$m->values[$accuracy_field] = 'm';
-			}
-		}else if(is_numeric($m->values[$date_field])){
-			if($m->values[$date_field] < 2500){
-				//only year
-				$m->values[$date_field] = $m->values[$date_field]."-01-01";
-				if($accuracy_field != null && MyTime::$uncertainty_level[$m->values[$accuracy_field]] < MyTime::$uncertainty_level['y']){
-					$m->values[$accuracy_field] = 'y';
-				}
-			}else{
-				//excel date integer representation
-				$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-				$xls_offset = 36526;//2000-01-01
-				$m->values[$date_field] = date("Y-m-d", $php_offset + (($m->values[$date_field] - $xls_offset) * 86400));
-			}
-			
-		}else if(strlen($m->values[$date_field]) > 0 && preg_match_all('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $m->values[$date_field], $matches) === 0 && $accuracy_field != NULL){
-			//not a standard date, consider unknown
-			$m->values[$accuracy_field] = "u";
-			if(strlen($m->values[$date_field]) != 10){
-				echo "WARNING ON DATE [",$m->values[$date_field],"] (C) on sheet [".$m->file."] at line [".$m->line."] on field [".$date_field."]\n";
-			}
-		}
-		//echo $m->values[$date_field],"\n";
+//add you start queries here
+Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
+Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
+
+//add your end queries here
+//Config::$addon_queries_end[] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
+//	(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
+//	FROM id_linking AS p 
+//	INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
+//Config::$addon_queries_end[] = "TRUNCATE id_linking";
+//Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
+//Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
+//add some value domains names that you want to use in post read/write functions
+//Config::$value_domains[] = "...";
+
+//Config::$value_domains[] = new ValueDomain("qc_tf_eoc_event_drug", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+//Config::$value_domains[] = new ValueDomain("qc_tf_surgery_type", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+//Config::$value_domains[] = new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+
+Config::$value_domains['qc_tf_ct_scan_precision']= new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+Config::$value_domains['tissue_laterality']= new ValueDomain("tissue_laterality", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+Config::$value_domains['qc_tf_tissue_type']= new ValueDomain("qc_tf_tissue_type", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+
+//add the parent models here
+Config::$parent_models[] = "participants";
+Config::$parent_models[] = "inventory";
+
+//add your configs
+$relative_path = '../atim_tf_prostate/dataImporterConfig/tablesMapping/';
+Config::$config_files[] = $relative_path.'inventory.php';
+Config::$config_files[] = $relative_path.'participants.php';
+Config::$config_files[] = $relative_path.'dx_primary.php';
+Config::$config_files[] = $relative_path.'dx_biopsy.php';
+
+
+function mainDxCondition(Model $m){
+	//used as pre insert, not a real test
+	global $primary_number;
+	$m->values['primary_number'] = $primary_number ++;
+	
+	$m->custom_data['last_participant_id'] = $m->parent_model->last_id;
+	return true;
+}
+
+function addonFunctionStart(){
+	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id']);
+	}
+	
+	// SET banks
+	$query = "SELECT id, name, misc_identifier_control_id FROM banks";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$banks[$row['name']] = array(
+			'id' => $row['id'],
+			'misc_identifier_control_id' => $row['misc_identifier_control_id']);
+	}	
+	
+	$query = "SELECT generic_name FROM drugs";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$drugs[] = $row['generic_name'];
+	}	
+	
+	$query = "select id,sample_type from sample_controls where sample_type in ('tissue','blood', 'ascite', 'serum', 'plasma', 'dna', 'blood cell')";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'aliquots' => array());
+	}	
+	if(sizeof(Config::$sample_aliquot_controls) != 7) die("get sample controls failed");
+	
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'volume_unit' => $row['volume_unit']);
+		}	
+	}
+
+	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
+		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
+		."WHERE name LIKE 'tissue source'";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$tissue_source[] = $row['value'];
+	}
+	Config::$tissue_source[] = '';	
+}
+
+function checkAndAddIdentifier($identifier_value, $identifier_control_id){
+	$key = sprintf("%s-%d", $identifier_value, $identifier_control_id);
+	if(array_key_exists($key, Config::$identifiers)){
+		global $insert;
+		$insert = false;
+		echo "ERROR: identifier value [",$identifier_value,"] already exists for control id [",$identifier_control_id,"]\n";
+	}else{
+		Config::$identifiers[$key] = null;
 	}
 }
 
-require_once("tablesMapping/participants.php");
-require_once("tablesMapping/qc_tf_dxd_cpcbn.php");
-require_once("tablesMapping/qc_tf_ed_cpcbn.php");
+function addonFunctionEnd(){
+	
+	// DIAGNOSIS / TRT / EVENT LINKS CREATION
+	
+	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) GROUP BY participant_id HAVING c > 1";
+	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
+	$ids = array();
+	while($row = $result->fetch_assoc()){
+		$ids[] = $row['participant_id'];
+	}
+	mysqli_free_result($result);
+	
+	if(!empty($ids)){
+		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one.\n";
+	}
+	
+	$ids[] = 0;
+	$query = "UPDATE event_masters "
+		."LEFT JOIN diagnosis_masters ON event_masters.participant_id=diagnosis_masters.participant_id "
+		."SET event_masters.diagnosis_master_id=diagnosis_masters.id "
+		."WHERE event_masters.created >= (SELECT start_time FROM start_time) AND event_masters.participant_id NOT IN(".implode(", ", $ids).")";
+	mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed");
+	
+	if(Config::$insert_revs){
+		$query = "UPDATE event_masters_revs INNER JOIN event_masters ON event_masters.id = event_masters_revs.id SET event_masters_revs.diagnosis_master_id = event_masters.diagnosis_master_id";
+		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
+	}	
 
-?>
+	$query = "UPDATE tx_masters "
+		."LEFT JOIN diagnosis_masters ON tx_masters.participant_id=diagnosis_masters.participant_id "
+		."SET tx_masters.diagnosis_master_id=diagnosis_masters.id "
+		."WHERE tx_masters.created >= (SELECT start_time FROM start_time) AND tx_masters.participant_id NOT IN(".implode(", ", $ids).")";
+	mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed");
+
+	if(Config::$insert_revs){
+		$query = "UPDATE tx_masters_revs INNER JOIN tx_masters ON tx_masters.id = tx_masters_revs.id SET tx_masters_revs.diagnosis_master_id = tx_masters.diagnosis_master_id";
+		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
+	}	
+	
+	// COLLECTION / PARTICIPANTS LINKS CREATION
+	
+	$query = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
+		(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
+		FROM id_linking AS p 
+		INNER JOIN id_linking AS c ON c.csv_reference='inventory' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
+	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	
+	if(Config::$insert_revs){
+		$query = "INSERT INTO clinical_collection_links_revs (id, participant_id, collection_id, modified_by, version_created) "
+			."(SELECT id, participant_id, collection_id, modified_by, NOW() FROM clinical_collection_links WHERE collection_id IN (SELECT c.mysql_id FROM id_linking AS c WHERE c.csv_reference='collections'))";
+		mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
+	
+	$query = "TRUNCATE id_linking";
+	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	
+	// EMPTY DATES CLEAN UP
+	
+	$date_times_to_check = array(
+		'collections.collection_datetime',
+		'diagnosis_masters.dx_date',
+		'event_masters.event_date',
+		'participants.date_of_birth',
+		'participants.date_of_death',
+		'participants.qc_tf_suspected_date_of_death',
+		'participants.qc_tf_last_contact',
+		'tx_masters.start_date',
+		'tx_masters.finish_date');
+
+	foreach($date_times_to_check as $table_field) {
+		$names = explode(".", $table_field);
+		
+		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
+		
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");			
+		}
+	}
+	
+	// LAST DATA UPDATE
+	
+	$query = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	if(Config::$insert_revs){
+		$query = "UPDATE participants_revs SET vital_status='deceased' WHERE vital_status='dead'";
+		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	}
+	
+	$query = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	if(Config::$insert_revs){
+		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
+		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	}
+}
