@@ -12,8 +12,6 @@
 				if(!isset($new_derivative_unit['SampleMaster']['initial_specimen_sample_id'])) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				if(!isset($spe_nbr_from_specimen_id[$new_derivative_unit['SampleMaster']['initial_specimen_sample_id']])) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				$new_derivative_unit['SampleMaster']['ld_lymph_specimen_number'] = $spe_nbr_from_specimen_id[$new_derivative_unit['SampleMaster']['initial_specimen_sample_id']];
-				
 			}
-			
 		}
 	}
