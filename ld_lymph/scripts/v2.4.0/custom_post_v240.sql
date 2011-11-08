@@ -127,6 +127,13 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 WHERE samp.deleted != 1;
 INSERT INTO i18n (id,en,fr) VALUES ('the specimen number should be unique','The specimen number should be unique!','Le numéro de specimen doit être unique!');
 
+UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE field = 'barcode' AND model IN ('AliquotMaster', 'ViewAliquot');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('aliquot barcode', 'Label', 'Étiquette');
+REPLACE INTO i18n (id,en,fr) VALUES ('aliquot barcode', 'Label', 'Étiquette');
+UPDATE structure_formats 
+SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'aliquot_label');
+
 -- ----------------------------------------------------------------------------------------
 -- SOP
 -- ----------------------------------------------------------------------------------------
@@ -147,6 +154,9 @@ WHERE structure_field_id IN (SELECT id from structure_fields WHERE field = 'sop_
 UPDATE structure_formats 
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
 WHERE structure_field_id IN (SELECT id from structure_fields WHERE field = 'sop_master_id' AND model like '%collection%');
+
+
+
 
 
 
