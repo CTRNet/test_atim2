@@ -67,7 +67,7 @@ class TmaSlide extends StoragelayoutAppModel {
 				&& empty($this->validationErrors['storage_coord_x'])
 				&& empty($this->validationErrors['storage_coord_y'])
 				&& isset($arr_storage_selection_results['storage_data']['StorageControl'])
-				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts']
 				&& (strlen($tma_slide_data['TmaSlide']['storage_coord_x']) > 0 || strlen($tma_slide_data['TmaSlide']['storage_coord_y']) > 0)
 			){
 				$exception = $this->id ? array("TmaSlide" => $this->id) : array();
@@ -91,7 +91,7 @@ class TmaSlide extends StoragelayoutAppModel {
 						$this->data['TmaSlide']['storage_coord_x'],
 						$this->data['TmaSlide']['storage_coord_y']
 					);
-					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
