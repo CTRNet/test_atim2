@@ -3040,15 +3040,18 @@ DELETE FROM structures WHERE alias = 'view_sample_joined_to_parent';
 
 SELECT '****************' as msg_6
 UNION
-SELECT 'The structure sample_masters_for_search_result has been deleted and replaced by sample_masters in SampleMasterSummary' as msg_6
+SELECT 'The structure sample_masters_for_search_result has to be deleted and replaced by sample_masters in SampleMaster.Summary()' as msg_6
 UNION
 SELECT IF((SELECT (
-SELECT COUNT(*) FROM structure_formats 
+SELECT COUNT(*)
+FROM structure_formats 
 WHERE structure_field_id IN (SELECT structure_field_id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result') AND flag_summary = '1')
+AND structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result')
 AND structure_field_id NOT IN (SELECT structure_field_id FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters'))
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'acquisition_label')
 )as SCORE) > 0, 
-'Fields does not matche between the 2 structures. Please run following queries and update manually sample_masters structrues.', 
-'Fields matche between the 2 structures. Please run following queries.') AS msg_6
+'Please run following queries and update manually sample_masters structrues to add fields that will miss into summary.', 
+'Please run following queries.') AS msg_6
 UNION 
 SELECT "
 UPDATE structure_formats SET flag_summary = 0 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters');
