@@ -18,7 +18,7 @@ function postDxBiopsyRead(Model $m){
 	}
 	excelDateFix($m);
 	
-	$query = "SELECT id FROM diagnosis_masters WHERE participant_id=".$m->parent_model->last_id." LIMIT 2";
+	$query = "SELECT id FROM diagnosis_masters WHERE participant_id=".$m->parent_model->last_id." AND parent_id IS NULL LIMIT 2";
 	$result = mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = mysqli_fetch_all($result);
 	if(count($row) == 1){

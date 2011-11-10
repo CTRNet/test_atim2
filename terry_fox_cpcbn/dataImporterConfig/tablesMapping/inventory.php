@@ -19,20 +19,24 @@ function postInventoryWrite(Model $m){
 	if(!$m->custom_data['specimen_type_value_domain']->isValidValue($m->values['Collected Specimen Type'])){
 		echo 'WARNING: Invalid value ['.$m->values['Collected Specimen Type'].'] for Collected Specimen Type on line '.$m->line."\n";
 	}
+	Database::insertRevForLastRow('sample_masters');
 	
 	//sd_spe_tissues
 	$query = 'INSERT INTO sd_spe_tissues (sample_master_id, qc_tf_collected_specimen_type, deleted) VALUES('.$last_id.', "'.$m->values['Collected Specimen Type'].'", 0)';
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	Database::insertRevForLastRow('sd_spe_tissues');
 	
 	//aliquot_masters
 	$query = 'INSERT INTO aliquot_masters (sample_master_id, collection_id, aliquot_control_id, created, created_by, modified, modified_by, deleted) VALUES '
 		.sprintf('(%d, %d, 33, NOW(), %d, NOW(), %d, 0)', $last_id, $m->last_id, Config::$db_created_id, Config::$db_created_id);
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$last_id = $connection->insert_id;
+	Database::insertRevForLastRow('aliquot_masters');
 	
 	//ad_tissue_cores
 	$query = 'INSERT INTO ad_tissue_cores (aliquot_master_id, deleted) VALUES ('.$last_id.', 0)';
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	Database::insertRevForLastRow('ad_tissue_cores');
 }
 
 $model = new Model(3, $pkey, array(), true, NULL, NULL, 'collections', $fields);

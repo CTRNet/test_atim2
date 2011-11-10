@@ -3,7 +3,10 @@
 $pkey = "Patient # in biobank";
 $child = array(
 	'dx_primary',
-	'dx_biopsy'
+	'dx_biopsy',
+	'event_psa',
+	'tx_radiotherapy',
+	'tx_hormonotherapy'
 );
 $fields = array(
 //	"title" => "",
@@ -47,6 +50,8 @@ function postParticipantRead(Model $m){
 	} else {
 		die ("ERROR: Bank '".$m->values['Bank']."' is unknown [".$m->file."] at line [". $m->line."]\n");
 	}
+	
+	$m->custom_data['diagnosis_master_id'] = null;
 
 	return true;
 }
@@ -88,7 +93,8 @@ $model->custom_data = array(
 		$fields["date_of_birth"]					=> current(array_keys($fields["date_of_birth_accuracy"])), 
 		$fields["date_of_death"]					=> current(array_keys($fields["date_of_death_accuracy"])), 
 		$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_suspected_date_of_death_accuracy"])), 
-		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_accuracy"])))
+		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_accuracy"]))
+	)
 );
 
 $model->post_read_function = 'postParticipantRead';

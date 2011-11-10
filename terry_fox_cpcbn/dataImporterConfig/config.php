@@ -22,7 +22,8 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
+//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-clinical data V3 1-VPC-05_2011.xls';
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -98,6 +99,11 @@ Config::$config_files[] = $relative_path.'inventory.php';
 Config::$config_files[] = $relative_path.'participants.php';
 Config::$config_files[] = $relative_path.'dx_primary.php';
 Config::$config_files[] = $relative_path.'dx_biopsy.php';
+Config::$config_files[] = $relative_path.'dx_metastasis.php';
+Config::$config_files[] = $relative_path.'dx_recurrence.php';
+Config::$config_files[] = $relative_path.'event_psa.php';
+Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
+Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
 
 
 function mainDxCondition(Model $m){
@@ -171,7 +177,7 @@ function addonFunctionEnd(){
 	
 	// DIAGNOSIS / TRT / EVENT LINKS CREATION
 	
-	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) GROUP BY participant_id HAVING c > 1";
+	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) AND parent_id IS NULL GROUP BY participant_id HAVING c > 1";
 	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
 	$ids = array();
 	while($row = $result->fetch_assoc()){
@@ -180,12 +186,12 @@ function addonFunctionEnd(){
 	mysqli_free_result($result);
 	
 	if(!empty($ids)){
-		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one.\n";
+		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one primary dx.\n";
 	}
 	
 	$ids[] = 0;
 	$query = "UPDATE event_masters "
-		."LEFT JOIN diagnosis_masters ON event_masters.participant_id=diagnosis_masters.participant_id "
+		."LEFT JOIN diagnosis_masters ON event_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
 		."SET event_masters.diagnosis_master_id=diagnosis_masters.id "
 		."WHERE event_masters.created >= (SELECT start_time FROM start_time) AND event_masters.participant_id NOT IN(".implode(", ", $ids).")";
 	mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed");
@@ -196,7 +202,7 @@ function addonFunctionEnd(){
 	}	
 
 	$query = "UPDATE tx_masters "
-		."LEFT JOIN diagnosis_masters ON tx_masters.participant_id=diagnosis_masters.participant_id "
+		."LEFT JOIN diagnosis_masters ON tx_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
 		."SET tx_masters.diagnosis_master_id=diagnosis_masters.id "
 		."WHERE tx_masters.created >= (SELECT start_time FROM start_time) AND tx_masters.participant_id NOT IN(".implode(", ", $ids).")";
 	mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed");
@@ -220,7 +226,7 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	}
 	
-	$query = "TRUNCATE id_linking";
+	$query = "DELETE FROM id_linking";
 	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	// EMPTY DATES CLEAN UP
