@@ -91,6 +91,7 @@ if(isset($is_ajax)){
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
 				$("#tmp_add").html(data.page);
 				$("form").first().attr("action", $("#tmp_add form").attr("action")).find("table").first().replaceWith($("#tmp_add table").first());
+				$(".wrapper").find(".validation").remove();
 				$(".wrapper").prepend($(".validation"));
 				$("#tmp_add").remove();
 				if(!data.has_errors){
