@@ -6,7 +6,9 @@ $child = array(
 	'dx_biopsy',
 	'event_psa',
 	'tx_radiotherapy',
-	'tx_hormonotherapy'
+	'tx_hormonotherapy',
+	'tx_chemotherapy',
+	'tx_surgery'
 );
 $fields = array(
 //	"title" => "",
@@ -52,7 +54,6 @@ function postParticipantRead(Model $m){
 	}
 	
 	$m->custom_data['diagnosis_master_id'] = null;
-
 	return true;
 }
 
