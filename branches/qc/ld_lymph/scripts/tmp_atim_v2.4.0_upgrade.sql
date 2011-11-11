@@ -168,7 +168,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("ISO-8859-1", "ISO-8859-1", "ISO-8859-1"),
 ("links were not copied since the destination is an independant collection",
  "Links were not copied since the destination is an independant collection.",
- "Les liens n'ont pas été copiés puisque la destination est une collection indépendante.");
+ "Les liens n'ont pas été copiés puisque la destination est une collection indépendante."),
+("manage recipients", "Manage recipients", "Administrer les destinataires"),
+('study start', 'Study Start', "Début de l'Étude"),
+('study end', 'Study End', "Fin de l'Étude");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -3067,17 +3070,27 @@ DELETE from structures WHERE alias = 'sample_masters_for_search_result';
 UNION ALL
 SELECT '****************' as msg_6;
 
+UPDATE menus SET use_link='/study/study_summaries/search/' WHERE id='tool_CAN_100';
+UPDATE structure_fields SET  `language_tag`='study_tooo' WHERE model='StudySummary' AND tablename='study_summaries' AND field='end_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='study start' WHERE model='StudySummary' AND tablename='study_summaries' AND field='start_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='study end',  `language_tag`='' WHERE model='StudySummary' AND tablename='study_summaries' AND field='end_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+
+DELETE FROM structure_formats
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model LIKE 'Event%' AND field IN ('disease_site', 'event_group', 'event_type'))
+AND `flag_add`='0' AND `flag_add_readonly`='0' AND `flag_edit`='0' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_addgrid`='0' AND `flag_addgrid_readonly`='0' AND `flag_editgrid`='0' AND `flag_editgrid_readonly`='0' AND `flag_summary`='0' AND `flag_batchedit`='0' AND `flag_batchedit_readonly`='0' AND `flag_index`='0' AND `flag_detail` = '0';
+UPDATE structure_fields SET tablename = 'event_controls' WHERE model = 'EventControl';
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model LIKE 'Event%' AND field IN ('disease_site', 'event_group', 'event_type') AND type = 'input');
+DELETE FROM structure_fields WHERE model LIKE 'Event%' AND field IN ('disease_site', 'event_group', 'event_type') AND type = 'input';
+DELETE FROM structures WHERE alias = 'event_summary';
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (null, 'event_group_list', 'open', '', 'Clinicalannotation.EventControl::getEventGroupPermissibleValues');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventControl', 'event_controls', 'event_group', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='event_group_list') , '0', '', '', '', 'event group', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_group' AND `type`='select' ), '2', '-5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET language_label = 'event_group' WHERE language_label = 'event group'; 
 
 
 
 
-
-
-
-
-
-
-
-
-
- 
