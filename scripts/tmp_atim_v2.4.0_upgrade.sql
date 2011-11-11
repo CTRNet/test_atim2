@@ -168,7 +168,10 @@ REPLACE INTO i18n(id, en, fr) VALUES
 ("ISO-8859-1", "ISO-8859-1", "ISO-8859-1"),
 ("links were not copied since the destination is an independant collection",
  "Links were not copied since the destination is an independant collection.",
- "Les liens n'ont pas été copiés puisque la destination est une collection indépendante.");
+ "Les liens n'ont pas été copiés puisque la destination est une collection indépendante."),
+("manage recipients", "Manage recipients", "Administrer les destinataires"),
+('study start', 'Study Start', "Début de l'Étude"),
+('study end', 'Study End', "Fin de l'Étude");
 
 UPDATE i18n SET id='the aliquot with barcode [%s] has reached a volume bellow 0', en='The aliquot with barcode [%s] has reached a volume below 0.' WHERE id='the aliquot with barcode [%s] has reached a volume bellow 0';
 UPDATE i18n SET id='cap report - perihilar bile duct' WHERE id='cap peport - perihilar bile duct';
@@ -3067,17 +3070,7 @@ DELETE from structures WHERE alias = 'sample_masters_for_search_result';
 UNION ALL
 SELECT '****************' as msg_6;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
+UPDATE menus SET use_link='/study/study_summaries/search/' WHERE id='tool_CAN_100';
+UPDATE structure_fields SET  `language_tag`='study_tooo' WHERE model='StudySummary' AND tablename='study_summaries' AND field='end_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='study start' WHERE model='StudySummary' AND tablename='study_summaries' AND field='start_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='study end',  `language_tag`='' WHERE model='StudySummary' AND tablename='study_summaries' AND field='end_date' AND `type`='date' AND structure_value_domain  IS NULL ;
