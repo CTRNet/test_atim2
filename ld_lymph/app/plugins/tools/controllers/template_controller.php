@@ -105,7 +105,6 @@ class TemplateController extends AppController {
 			}else{
 				//non ajax is made to save the tree
 				$tree = json_decode('['.$this->data['tree'].']');
-				pr($tree);
 				array_shift($tree);//remove root
 				$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
 				$found_nodes = array();//already in db found nodes
