@@ -445,6 +445,19 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field`='baseline_b_desc' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field` LIKE '%comorbid%');
 
+ALTER TABLE `ld_lymph_dx_lymphomas` 
+  ADD `lymphoma_type` varchar(250) NOT NULL DEFAULT '' AFTER diagnosis_master_id;
+ALTER TABLE `ld_lymph_dx_lymphomas_revs` 
+  ADD `lymphoma_type` varchar(250) NOT NULL DEFAULT '' AFTER diagnosis_master_id;
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'custom_lymphoma_type_list', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''lymphoma types'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
+VALUES ('lymphoma types', '1', '250');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'ld_lymph_dx_lymphomas', 'lymphoma_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_lymphoma_type_list') , '0', '', '', '', 'lymphoma type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field`='lymphoma_type'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+INSERT IGNORE INTO i18n (id,en) VALUES ('lymphoma type','Type');
+
 -- Lymphoma progression
 
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
@@ -949,6 +962,9 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 
 INSERT IGNORE INTO i18n (id,en) VALUES ('biopsy' , 'Biopsy');
 
+DROP TABLE IF EXISTS `ld_lymph_ed_biopsies`;
+DROP TABLE IF EXISTS `ld_lymph_ed_biopsies_revs`;
+
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_master_id` int(11) NOT NULL DEFAULT '0',
@@ -959,34 +975,34 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies` (
   `biopsy_reviewer` varchar(50) DEFAULT '',
   `hitological_dx` text,
   `who_class` varchar(50) DEFAULT '',
-  `other_investigations` text,
+  `other_investigations` text, 
   
-  `immuno_mum1` varchar(250) DEFAULT '',
+  `immuno_mum1` varchar(50) DEFAULT '',	
   `immuno_date` date DEFAULT null,
-  `immuno_cd10` decimal(7,5) DEFAULT NULL,	
-  `immuno_bcl2_pr` decimal(7,5) DEFAULT NULL,	
-  `immuno_bcl6_pr` decimal(7,5) DEFAULT NULL,	
+  `immuno_cd10` varchar(50) DEFAULT '',	
+  `immuno_bcl2_pr` varchar(50) DEFAULT '',	
+  `immuno_bcl6_pr` varchar(50) DEFAULT '',	
   `immuno_pheno_b_t` varchar(20) DEFAULT '',
   `immuno_ki67_percent` decimal(5,2) DEFAULT null,
-  `immuno_cd68` decimal(7,5) DEFAULT NULL,	
+  `immuno_cd68` varchar(50) DEFAULT '',	
   `immuno_notes` text,	
   
   `cytomet_flow_number` varchar(250) DEFAULT '',
   `cytomet_date` date DEFAULT null,
   `cytomet_center` varchar(250) DEFAULT '',
-  `cytomet_cd20` decimal(7,5) DEFAULT NULL,		
-  `cytomet_cd19` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd10` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd5` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd23` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd2` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd3` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd4` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd8` decimal(7,5) DEFAULT NULL,	
-  `cytomet_lambda` decimal(7,5) DEFAULT NULL,	
-  `cytomet_kappa` decimal(7,5) DEFAULT NULL,	
+  `cytomet_cd20` varchar(50) DEFAULT '',		
+  `cytomet_cd19` varchar(50) DEFAULT '',	
+  `cytomet_cd10` varchar(50) DEFAULT '',	
+  `cytomet_cd5` varchar(50) DEFAULT '',	
+  `cytomet_cd23` varchar(50) DEFAULT '',	
+  `cytomet_cd2` varchar(50) DEFAULT '',	
+  `cytomet_cd3` varchar(50) DEFAULT '',	
+  `cytomet_cd4` varchar(50) DEFAULT '',	
+  `cytomet_cd8` varchar(50) DEFAULT '',	
+  `cytomet_lambda` varchar(50) DEFAULT '',	
+  `cytomet_kappa` varchar(50) DEFAULT '',	
   `cytomet_other_title` varchar(100) DEFAULT '',		
-  `cytomet_other_value` decimal(7,5) DEFAULT NULL,	  
+  `cytomet_other_value` varchar(50) DEFAULT '',	  
   
   `molecular_date` date DEFAULT null,
   `molecular_center` varchar(250) DEFAULT '',
@@ -999,10 +1015,10 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies` (
   `cytogen_date`date DEFAULT null,
   `cytogen_technique` varchar(100) DEFAULT '',	
   `cytogen_technique_precision` varchar(250) DEFAULT '',
-  `cytogen_bcl2_tr` decimal(7,5) DEFAULT NULL,		
-  `cytogen_bcl6_tr` decimal(7,5) DEFAULT NULL,	
-  `cytogen_myc_tr` decimal(7,5) DEFAULT NULL,	
-  `cytogen_cyclin_d1_tr` decimal(7,5) DEFAULT NULL,	
+  `cytogen_bcl2_tr` varchar(50) DEFAULT '',		
+  `cytogen_bcl6_tr` varchar(50) DEFAULT '',	
+  `cytogen_myc_tr` varchar(50) DEFAULT '',	
+  `cytogen_cyclin_d1_tr` varchar(50) DEFAULT '',	
   `cytogen_karyotype` varchar(250) DEFAULT '',		  
   
   `deleted` int(11) NOT NULL DEFAULT '0',
@@ -1025,32 +1041,32 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies_revs` (
   `who_class` varchar(50) DEFAULT '',
   `other_investigations` text, 
   
-  `immuno_mum1` varchar(250) DEFAULT '',
+  `immuno_mum1` varchar(50) DEFAULT '',	
   `immuno_date` date DEFAULT null,
-  `immuno_cd10` decimal(7,5) DEFAULT NULL,	
-  `immuno_bcl2_pr` decimal(7,5) DEFAULT NULL,	
-  `immuno_bcl6_pr` decimal(7,5) DEFAULT NULL,	
+  `immuno_cd10` varchar(50) DEFAULT '',	
+  `immuno_bcl2_pr` varchar(50) DEFAULT '',	
+  `immuno_bcl6_pr` varchar(50) DEFAULT '',	
   `immuno_pheno_b_t` varchar(20) DEFAULT '',
   `immuno_ki67_percent` decimal(5,2) DEFAULT null,
-  `immuno_cd68` decimal(7,5) DEFAULT NULL,	
+  `immuno_cd68` varchar(50) DEFAULT '',	
   `immuno_notes` text,	
   
   `cytomet_flow_number` varchar(250) DEFAULT '',
   `cytomet_date` date DEFAULT null,
   `cytomet_center` varchar(250) DEFAULT '',
-  `cytomet_cd20` decimal(7,5) DEFAULT NULL,		
-  `cytomet_cd19` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd10` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd5` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd23` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd2` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd3` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd4` decimal(7,5) DEFAULT NULL,	
-  `cytomet_cd8` decimal(7,5) DEFAULT NULL,	
-  `cytomet_lambda` decimal(7,5) DEFAULT NULL,	
-  `cytomet_kappa` decimal(7,5) DEFAULT NULL,	
+  `cytomet_cd20` varchar(50) DEFAULT '',		
+  `cytomet_cd19` varchar(50) DEFAULT '',	
+  `cytomet_cd10` varchar(50) DEFAULT '',	
+  `cytomet_cd5` varchar(50) DEFAULT '',	
+  `cytomet_cd23` varchar(50) DEFAULT '',	
+  `cytomet_cd2` varchar(50) DEFAULT '',	
+  `cytomet_cd3` varchar(50) DEFAULT '',	
+  `cytomet_cd4` varchar(50) DEFAULT '',	
+  `cytomet_cd8` varchar(50) DEFAULT '',	
+  `cytomet_lambda` varchar(50) DEFAULT '',	
+  `cytomet_kappa` varchar(50) DEFAULT '',	
   `cytomet_other_title` varchar(100) DEFAULT '',		
-  `cytomet_other_value` decimal(7,5) DEFAULT NULL,	  
+  `cytomet_other_value` varchar(50) DEFAULT '',	  
   
   `molecular_date` date DEFAULT null,
   `molecular_center` varchar(250) DEFAULT '',
@@ -1063,10 +1079,10 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies_revs` (
   `cytogen_date`date DEFAULT null,
   `cytogen_technique` varchar(100) DEFAULT '',	
   `cytogen_technique_precision` varchar(250) DEFAULT '',
-  `cytogen_bcl2_tr` decimal(7,5) DEFAULT NULL,		
-  `cytogen_bcl6_tr` decimal(7,5) DEFAULT NULL,	
-  `cytogen_myc_tr` decimal(7,5) DEFAULT NULL,	
-  `cytogen_cyclin_d1_tr` decimal(7,5) DEFAULT NULL,	
+  `cytogen_bcl2_tr` varchar(50) DEFAULT '',		
+  `cytogen_bcl6_tr` varchar(50) DEFAULT '',	
+  `cytogen_myc_tr` varchar(50) DEFAULT '',	
+  `cytogen_cyclin_d1_tr` varchar(50) DEFAULT '',	
   `cytogen_karyotype` varchar(250) DEFAULT '',	
   
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1380,6 +1396,46 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('flow cytometry lab','Flow Cytometry Lab'),
 ('molecular lab','Molecular Lab'),
 ('cytogenetics lab','Cytogenetics Lab');
+
+INSERT INTO structure_value_domains(`domain_name`) VALUES ('pos_neg_equivocal');
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("positive", "positive"),("negative","negative"),("equivocal","equivocal");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="pos_neg_equivocal"),  
+(SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="pos_neg_equivocal"),  
+(SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="pos_neg_equivocal"),  
+(SELECT id FROM structure_permissible_values WHERE value="equivocal" AND language_alias="equivocal"), "3", "1");
+
+UPDATE structure_fields 
+SET type = 'select', setting = '', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="pos_neg_equivocal")
+WHERE tablename = 'ld_lymph_ed_biopsies'
+AND field IN (
+'immuno_cd10',
+'immuno_bcl2_pr',
+'immuno_bcl6_pr',
+'immuno_cd68',	
+'immuno_mum1',
+'cytomet_cd20',	
+'cytomet_cd19',
+'cytomet_cd10',
+'cytomet_cd5',
+'cytomet_cd23',
+'cytomet_cd2',
+'cytomet_cd3',
+'cytomet_cd4',
+'cytomet_cd8',
+'cytomet_lambda',
+'cytomet_kappa',	
+'cytomet_other_value',  
+
+'cytogen_bcl2_tr',	
+'cytogen_bcl6_tr',
+'cytogen_myc_tr',
+'cytogen_cyclin_d1_tr');
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('equivocal','Equivocal');
 
 -- TREATMENT ------------------------------------------------------------------------------
 
