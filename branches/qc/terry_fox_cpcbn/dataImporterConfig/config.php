@@ -22,12 +22,12 @@ class Config{
 	
 	//if reading excel file
 	
-//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-clinical data V3 1-VPC-05_2011.xls';
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
+//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-clinical data V3 1-VPC-05_2011.xls';
 	static $xls_header_rows = 2;
 
-	static $print_queries	= false;//wheter to output the dataImporter generated queries
-	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
+	static $print_queries	= false;//whether to output the dataImporter generated queries
+	static $insert_revs		= false;//whether to insert generated queries data in revs as well
 	
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
@@ -104,6 +104,8 @@ Config::$config_files[] = $relative_path.'dx_recurrence.php';
 Config::$config_files[] = $relative_path.'event_psa.php';
 Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
 Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
+Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
+Config::$config_files[] = $relative_path.'tx_surgery.php';
 
 
 function mainDxCondition(Model $m){

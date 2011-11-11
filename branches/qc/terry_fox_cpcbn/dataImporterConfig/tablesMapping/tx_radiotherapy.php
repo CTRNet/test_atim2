@@ -26,11 +26,13 @@ function txRadiotherapyPostRead(Model $m){
 	}
 	
 	excelDateFix($m);
+	return true;
+}
+
+function txRadiotherapyInsertCondition(Model $m){
+	$m->values['diagnosis_master_id'] = $m->parent_model->custom_data['diagnosis_master_id'];
 	if($m->parent_model->custom_data['diagnosis_master_id'] == null){
-		$m->values['diagnosis_master_id'] = null;
 		echo 'WARNING: tx radiotherapy at line ['.$m->line."] has no associated primary dx\n";
-	}else{
-		$m->values['diagnosis_master_id'] = $m->parent_model->custom_data['diagnosis_master_id'];
 	}
 	
 	return true;
@@ -45,4 +47,5 @@ $model = new MasterDetailModel(2, $pkey, $child, false, 'participant_id', $pkey,
 );
 
 $model->post_read_function = 'txRadiotherapyPostRead';
+$model->insert_condition_function = 'txRadiotherapyInsertCondition';
 Config::addModel($model, 'tx_radiotherapy');

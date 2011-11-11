@@ -22,13 +22,6 @@ function txChemotherapyPostRead(Model $m){
 	}
 	
 	excelDateFix($m);
-	if($m->parent_model->custom_data['diagnosis_master_id'] == null){
-		$m->values['diagnosis_master_id'] = null;
-		echo 'WARNING: tx chemiotherapy at line ['.$m->line."] has no associated primary dx\n";
-	}else{
-		$m->values['diagnosis_master_id'] = $m->parent_model->custom_data['diagnosis_master_id'];
-	}
-	
 	return true;
 }
 
@@ -57,6 +50,15 @@ function txChemotherapyPostWrite(Model $m){
 	}
 }
 
+function txChemotherapyInsertCondition(Model $m){
+	$m->values['diagnosis_master_id'] = $m->parent_model->custom_data['diagnosis_master_id'];
+	if($m->parent_model->custom_data['diagnosis_master_id'] == null){
+		echo 'WARNING: tx chemiotherapy at line ['.$m->line."] has no associated primary dx\n";
+	}
+	
+	return true;
+}
+
 $model = new MasterDetailModel(2, $pkey, $child, false, 'participant_id', $pkey, 'tx_masters', $fields, 'txd_chemos', 'tx_master_id', $detail_fields);
 $model->custom_data = array(
 	"date_fields" => array(
@@ -67,4 +69,5 @@ $model->custom_data = array(
 
 $model->post_read_function = 'txChemotherapyPostRead';
 $model->post_write_function = 'txChemotherapyPostWrite';
+$model->insert_condition_function = 'txChemotherapyInsertCondition';
 Config::addModel($model, 'tx_chemotherapy');

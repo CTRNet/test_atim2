@@ -26,13 +26,12 @@ function dxRecurrencePostRead(Model $m){
 	}
 	
 	excelDateFix($m);
-	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	
 	return true;
 }
 
-function dxRecurrencePostWrite(Model $m){
-	die('DEAD');
+function dxRecurrenceInsertCondition(Model $m){
+	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
+	return true;
 }
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'parent_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_recurrence_bio', 'diagnosis_master_id', $detail_fields);
@@ -43,5 +42,5 @@ $model->custom_data = array(
 );
 
 $model->post_read_function = 'dxRecurrencePostRead';
-// $model->post_write_function = 'dxRecurrencePostWrite';
+$model->insert_condition_function = 'dxRecurrenceInsertCondition';
 Config::addModel($model, 'dx_recurrence');

@@ -157,19 +157,16 @@ function postDxRead(Model $m){
 	global $connection;
 	excelDateFix($m);
 	
-	if(empty($m->values['Date of diagnostics Date'])){
+	if($m->values['Patient # in biobank'] == $m->custom_data['last_pkey']){
+		//only one primary dx per participant
+		if(!empty($m->values['Date of diagnostics Date'])){
+			echo 'WARNING: Primary dx already created but a new one is being defined at dx line ['.$m->line."]\n";
+		}
 		checkBatch1Fields($m);
 		checkBatch2Fields($m);
-		
 		return false;
 	}
-	
-	$query = "SELECT COUNT(*) FROM diagnosis_masters WHERE participant_id=".$m->parent_model->last_id." AND parent_id IS NULL";
-	$result = mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$row = mysqli_fetch_all($result);
-	if($row[0][0] > 1){
-		echo 'WARNING: More than one dx exists for participant at line ['.$m->parent_model->line."]\n";
-	}
+	$m->custom_data['last_pkey'] = $m->values['Patient # in biobank']; 
 	
 	$m->values['Age at Time of Diagnosis (yr)'] = (int)$m->values['Age at Time of Diagnosis (yr)'];
 	return true;
@@ -179,6 +176,9 @@ function postDxWrite(Model $m){
 	global $connection;
 	$query = 'UPDATE diagnosis_masters SET primary_id=id WHERE id='.$m->last_id;
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	if($m->parent_model->custom_data['diagnosis_master_id'] != null){
+		echo 'WARNING: More than one primary dx exists for participant having a Dx at line ['.$m->line."]\n";
+	}
 	$m->parent_model->custom_data['diagnosis_master_id'] = $m->last_id;
 }
 
@@ -187,7 +187,7 @@ $model->custom_data = array(
 	"date_fields" => array(
 		$fields["dx_date"]							=> key($fields["dx_date_accuracy"]),
 		$detail_fields['hormonorefractory_date_hr']	=> NULL
-	) 
+	), 'last_pkey' => null
 );
 
 $model->post_read_function = 'postDxRead';

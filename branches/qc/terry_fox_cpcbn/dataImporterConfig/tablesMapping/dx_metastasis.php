@@ -17,8 +17,11 @@ function dxMetastasisPostRead(Model $m){
 	} 
 	
 	excelDateFix($m);
+	return true;
+}
+
+function dxMetastasisInsertCondition(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	
 	return true;
 }
 
@@ -30,4 +33,5 @@ $model->custom_data = array(
 );
 
 $model->post_read_function = 'dxMetastasisPostRead';
+$model->insert_condition_function = 'dxMetastasisInsertCondition';
 Config::addModel($model, 'dx_metastasis');
