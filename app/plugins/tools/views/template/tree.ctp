@@ -86,6 +86,7 @@ if(isset($is_ajax)){
 			$("form").append("<input type='hidden' name='data[tree]' value='" + tree + "'/>");
 			$("form").append("<input type='hidden' name='data[description]' value='" + $("input[name=tmp_description]").val() + "'/>");
 
+			//posting the tree
 			$.post($("form").attr("action"), $("form").serialize(), function(data){
 				data = $.parseJSON(data);
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
@@ -147,7 +148,7 @@ if(isset($is_ajax)){
 		});
 		$(scope).find(".add").unbind('click').click(function(){
 			if($("#addDialog").length == 0){
-				buildDialog("addDialog", "", "<select></select><input type='number' size='1'></input>", new Array( 
+				buildDialog("addDialog", "", "<select></select><input type='number' size='1' min='1' max='50'></input>", new Array( 
 					{ "label" : STR_ADD, "icon" : "add", "action" : function(){
 							if(numberValidation($("#addDialog input"), null)){
 								data = new Object();
@@ -197,7 +198,7 @@ if(isset($is_ajax)){
 			type = 'collection';
 		}else if(treeData.datamart_structure_id == 1){
 			type = 'aliquot';
-			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' value='" + treeData.quantity + "'/>";
+			label = modelsData.aliquot_controls[Math.abs(treeData.control_id)]["AliquotControl"]["aliquot_type"] + " <input type='number' size='1' min='1' max='100' value='" + treeData.quantity + "'/>";
 		}else{
 			type = 'sample';
 			label = modelsData.sample_controls[treeData.control_id]["SampleControl"]["sample_type"];
@@ -223,7 +224,8 @@ if(isset($is_ajax)){
 		li.find(".leftPart a").css("cursor", "default");
 		li.find("input").change(function(){
 			if(numberValidation($(this), treeData.quantity)){
-				$(li).data("quantity", $(this).val());
+				$(this).parents('li:first').data("quantity", $(this).val());
+				
 			}
 		});
 		$(li).data({
