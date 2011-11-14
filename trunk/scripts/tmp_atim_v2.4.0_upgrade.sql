@@ -3075,6 +3075,8 @@ UPDATE structure_fields SET  `language_tag`='study_tooo' WHERE model='StudySumma
 UPDATE structure_fields SET  `language_label`='study start' WHERE model='StudySummary' AND tablename='study_summaries' AND field='start_date' AND `type`='date' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `language_label`='study end',  `language_tag`='' WHERE model='StudySummary' AND tablename='study_summaries' AND field='end_date' AND `type`='date' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 DELETE FROM structure_formats
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE model LIKE 'Event%' AND field IN ('disease_site', 'event_group', 'event_type'))
 AND `flag_add`='0' AND `flag_add_readonly`='0' AND `flag_edit`='0' AND `flag_edit_readonly`='0' AND `flag_search`='0' AND `flag_search_readonly`='0' AND `flag_addgrid`='0' AND `flag_addgrid_readonly`='0' AND `flag_editgrid`='0' AND `flag_editgrid_readonly`='0' AND `flag_summary`='0' AND `flag_batchedit`='0' AND `flag_batchedit_readonly`='0' AND `flag_index`='0' AND `flag_detail` = '0';
@@ -3090,7 +3092,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET language_label = 'event_group' WHERE language_label = 'event group'; 
-
-
-
 
