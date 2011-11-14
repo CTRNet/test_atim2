@@ -735,8 +735,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						
 			$this->data['SampleMaster']['id'] = array($aliquot_master['SampleMaster']['id']);
 			$this->set("aliquot_ids", $aliquot_master_id);
-			$url_to_cancel = 'inventorymanagement/aliquot_masters/detail/'.$aliquot_master['SampleMaster']['collection_id'].'/'.$aliquot_master['SampleMaster']['id'].'/'.$aliquot_master_id;
-			
+			$url_to_cancel = '/inventorymanagement/aliquot_masters/detail/'.$aliquot_master['SampleMaster']['collection_id'].'/'.$aliquot_master['SampleMaster']['id'].'/'.$aliquot_master_id;
 			$is_menu_already_set = true;
 			$this->setAliquotMenu($aliquot_master);
 			
