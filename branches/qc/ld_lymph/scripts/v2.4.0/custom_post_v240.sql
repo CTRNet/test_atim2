@@ -5,6 +5,10 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('lymphoma','Lymphoma','Lymphome');
 -- INVENTORY
 -- ----------------------------------------------------------------------------------------
 
+UPDATE structure_formats 
+SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
+WHERE structure_field_id IN (SELECT id from structure_fields WHERE field = 'acquisition_label');
+
 UPDATE banks SET name = 'Lymphoma', description = '' WHERE id = 1;
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id'), 'notEmpty', '', 'value is required');
@@ -235,6 +239,10 @@ REPLACE INTO i18n (id,en,fr) VALUES ('dx_date', 'Date', 'Date');
 UPDATE diagnosis_controls SET flag_active = 0;
 UPDATE diagnosis_controls SET flag_active = 1 WHERE controls_type = 'primary diagnosis unknown';
 
+UPDATE structure_formats 
+SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
+WHERE structure_id = (SELECT id from structures WHERE alias = 'view_diagnosis') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('topography','icd10_code'));
+
 -- Lymphoma
 
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
@@ -248,7 +256,7 @@ WHERE structure_id IN (SELECT id from structures WHERE alias IN ('dx_primary', '
 DROP TABLE IF EXISTS `ld_lymph_dx_lymphomas`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_dx_lymphomas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `diagnosis_master_id` int(11) NOT NULL,
   
   `primary_hematologist` varchar(50) DEFAULT '',
     
@@ -285,7 +293,7 @@ ALTER TABLE `ld_lymph_dx_lymphomas`
 DROP TABLE IF EXISTS `ld_lymph_dx_lymphomas_revs`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_dx_lymphomas_revs` (
   `id` int(11) NOT NULL,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL,
   
   `primary_hematologist` varchar(50) DEFAULT '',
   
@@ -406,7 +414,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_fields SET  `setting`='size=30' WHERE model='DiagnosisDetail' AND tablename='ld_lymph_dx_lymphomas' AND field='primary_hematologist' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_formats SET display_column = 2, display_order = concat('1',display_order) WHERE structure_id = (SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field` LIKE '%comorbidi%');
-UPDATE structure_fields SET  `setting`='size=30',  `language_label`='',  `language_tag`='comorbidities precision' WHERE model='DiagnosisDetail' AND tablename='ld_lymph_dx_lymphomas' AND field='comorbidities_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=30' WHERE model='DiagnosisDetail' AND tablename='ld_lymph_dx_lymphomas' AND field='comorbidities_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 INSERT IGNORE INTO i18n (id,en) VALUES 
 ('primary hematologist' , 'Primary Hematologist'),
@@ -484,14 +492,24 @@ WHERE structure_id = (SELECT id FROM structures WHERE alias='ld_lymph_dx_progres
 AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_progressions' AND `field`='ld_lymph_trt_at_progression');
 
 ALTER TABLE dxd_progressions
-  ADD `ld_lymph_progression_site` text AFTER ld_lymph_trt_at_progression;
+  ADD `ld_lymph_progression_site` varchar(100) DEFAULT '' AFTER ld_lymph_trt_at_progression,
+  ADD `ld_lymph_progression_site_desc` text AFTER ld_lymph_progression_site;
 ALTER TABLE dxd_progressions_revs
-  ADD `ld_lymph_progression_site` text AFTER ld_lymph_trt_at_progression; 
+  ADD `ld_lymph_progression_site` varchar(100) DEFAULT '' AFTER ld_lymph_trt_at_progression,
+  ADD `ld_lymph_progression_site_desc` text AFTER ld_lymph_progression_site;
+ 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'custom_lymphoma_progression_sites', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''lymphoma progression sites'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
+VALUES ('lymphoma progression sites', '1', '100');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'dxd_progressions', 'ld_lymph_progression_site', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'site', '');
+('Clinicalannotation', 'DiagnosisDetail', 'dxd_progressions', 'ld_lymph_progression_site', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name = 'custom_lymphoma_progression_sites') , '0', '', '', '', 'site', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'dxd_progressions', 'ld_lymph_progression_site_desc', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'site precision', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ld_lymph_dx_progression'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_progressions' AND `field`='ld_lymph_progression_site'), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_progression'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_progressions' AND `field`='ld_lymph_progression_site'), '2', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_progression'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_progressions' AND `field`='ld_lymph_progression_site_desc'), '2', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('site precision', 'Site Precision');
 
 -- CNS Relapse
 
@@ -508,7 +526,7 @@ INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_activ
 DROP TABLE IF EXISTS `ld_lymph_dxd_histo_transformations`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_dxd_histo_transformations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `diagnosis_master_id` int(11) NOT NULL,
   
   `type_of_transformation` varchar(20) DEFAULT '',
   `hyper_ca2plus` char(1) DEFAULT '',
@@ -532,7 +550,7 @@ ALTER TABLE `ld_lymph_dxd_histo_transformations`
 DROP TABLE IF EXISTS `ld_lymph_dxd_histo_transformations_revs`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_dxd_histo_transformations_revs` (
   `id` int(11) NOT NULL,
-  `diagnosis_master_id` int(11) DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL,
   
   `type_of_transformation` varchar(20) DEFAULT '',
   `hyper_ca2plus` char(1) DEFAULT '',
@@ -622,6 +640,19 @@ UPDATE structure_formats SET `language_heading`='values' WHERE structure_id=(SEL
 UPDATE structure_fields SET  `language_label`='',  `language_tag`='ldh value' WHERE model='DiagnosisDetail' AND tablename='ld_lymph_dxd_histo_transformations' AND field='ldh_value' AND `type`='float' AND structure_value_domain  IS NULL ;
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dxd_histo_transformations' AND `field`='new_b_symptoms' );
 
+ALTER TABLE ld_lymph_dxd_histo_transformations
+  ADD path_nbr varchar(100) DEFAULT '' AFTER new_b_symptoms;
+ALTER TABLE ld_lymph_dxd_histo_transformations_revs
+  ADD path_nbr varchar(100) DEFAULT '' AFTER new_b_symptoms;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'ld_lymph_dxd_histo_transformations', 'path_nbr', 'input',  NULL , '0', 'size=20', '', '', 'path nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dxd_histo_transformations' AND `field`='path_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='path nbr' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dxd_histo_transformations' AND `field`='path_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('path nbr','Path #');
+
 -- EVENT ----------------------------------------------------------------------------------
 
 UPDATE menus
@@ -636,7 +667,7 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_labs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_master_id` int(11) NOT NULL DEFAULT '0',
+  `event_master_id` int(11) NOT NULL,
 
   `hb_g_per_l` decimal(7,2) DEFAULT null,  
   `ptl_10x9_per_l` decimal(7,2) DEFAULT null,  
@@ -664,7 +695,7 @@ ALTER TABLE `ld_lymph_ed_labs`
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_labs_revs` (
   `id` int(11) NOT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
   
   `hb_g_per_l` decimal(7,2) DEFAULT null,  
   `ptl_10x9_per_l` decimal(7,2) DEFAULT null,  
@@ -773,7 +804,7 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_imagings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_master_id` int(11) NOT NULL DEFAULT '0',
+  `event_master_id` int(11) NOT NULL,
   
   `nodules_nbr` int(4) DEFAULT null,  
   `largest_tumor_diam_cm` decimal(7,2) DEFAULT null,  
@@ -807,7 +838,7 @@ ALTER TABLE `ld_lymph_ed_imagings`
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_imagings_revs` (
   `id` int(11) NOT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
   
   `nodules_nbr` int(4) DEFAULT null,  
   `largest_tumor_diam_cm` decimal(7,2) DEFAULT null,  
@@ -955,6 +986,18 @@ UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id 
 
 UPDATE structure_formats SET `display_column`='1' WHERE  structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND `display_column`='2' ;
 
+ALTER TABLE `ld_lymph_ed_imagings`
+  ADD scan_nbr varchar(100) DEFAULT '' AFTER event_master_id;
+ALTER TABLE `ld_lymph_ed_imagings_revs`
+  ADD scan_nbr varchar(100) DEFAULT '' AFTER event_master_id;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'scan_nbr', 'input',  NULL , '0', 'size=20', '', '', 'scan nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='scan_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='scan nbr' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+
+INSERT INTO i18n (id,en) VALUES ('scan nbr', 'Scan #');
+
 -- biopsy
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
@@ -967,7 +1010,7 @@ DROP TABLE IF EXISTS `ld_lymph_ed_biopsies_revs`;
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `event_master_id` int(11) NOT NULL DEFAULT '0',
+  `event_master_id` int(11) NOT NULL,
 
   `site` varchar(50) DEFAULT '',
   `surgery_nbr` varchar(50) DEFAULT '',
@@ -1031,7 +1074,7 @@ ALTER TABLE `ld_lymph_ed_biopsies`
 
 CREATE TABLE IF NOT EXISTS `ld_lymph_ed_biopsies_revs` (
   `id` int(11) NOT NULL,
-  `event_master_id` int(11) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
   
   `site` varchar(50) DEFAULT '',
   `surgery_nbr` varchar(50) DEFAULT '',
@@ -1138,6 +1181,21 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('biopsy reviewer' , 'Path reviewed by MD'),
 ('other investigations' , 'Other Investigations');
 
+ALTER TABLE `ld_lymph_ed_biopsies`
+  ADD path_nbr varchar(100) DEFAULT '' AFTER surgery_nbr;
+ALTER TABLE `ld_lymph_ed_biopsies_revs`
+  ADD path_nbr varchar(100) DEFAULT '' AFTER surgery_nbr;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_biopsies', 'path_nbr', 'input',  NULL , '0', 'size=20', '', '', 'path nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_biopsies'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_biopsies' AND `field`='path_nbr'), '1', '52', 'pathology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+
+UPDATE structure_formats SET `display_order`='51' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_biopsies' AND `field`='path_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='50' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_biopsies' AND `field`='surgery_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='49' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_biopsies' AND `field`='site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 --
 
 INSERT INTO structures(`alias`) VALUES ('ld_lymph_ed_patho_summary');
@@ -1178,10 +1236,10 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='immuno_mum1'), 
-'2', '100', 'immunohistochemistry', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+'2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='immuno_date'), 
-'2', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+'2', '100', 'immunohistochemistry', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='immuno_cd10'), 
 '2', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
@@ -1237,10 +1295,10 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytomet_flow_number'), 
-'2', '200', 'flow cytometry lab', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+'2', '201', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytomet_date'), 
-'2', '201', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+'2', '200', 'flow cytometry lab', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytomet_center'), 
 '2', '202', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
@@ -1348,13 +1406,13 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_case_number'), 
-'3', '400', 'cytogenetics lab', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
-((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
-(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_cyto_number'), 
 '3', '401', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
-(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_date'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_cyto_number'), 
 '3', '402', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_date'), 
+'3', '400', 'cytogenetics lab', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_patho_summary'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_patho_summary' AND `field`='cytogen_technique'), 
 '3', '403', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
@@ -1437,19 +1495,152 @@ AND field IN (
 
 INSERT IGNORE INTO i18n (id,en) VALUES ('equivocal','Equivocal');
 
+-- bone marrow
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'ld lymph.', 'clinical', 'bone marrow', 1, 'ld_lymph_ed_bone_marrows', 'ld_lymph_ed_bone_marrows', 0, 'clinical|ld lymph.|bone marrow');
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('bone marrow' , 'Bone Marrow');
+
+CREATE TABLE IF NOT EXISTS `ld_lymph_ed_bone_marrows` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  
+  `path_nbr` varchar(100) DEFAULT '',
+  `result` varchar(50) DEFAULT '',
+  `hitological_dx` text,	
+   
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;  
+
+ALTER TABLE `ld_lymph_ed_bone_marrows`
+  ADD CONSTRAINT `FK_ld_lymph_ed_bone_marrows_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `ld_lymph_ed_bone_marrows_revs` (
+  `id` int(11) NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+ 
+  `path_nbr` varchar(100) DEFAULT '',
+  `result` varchar(50) DEFAULT '',
+  `hitological_dx` text,	
+    
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_ed_bone_marrows');
+
+INSERT INTO structure_value_domains(`domain_name`) VALUES ('ld_lymph_pos_neg');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ld_lymph_pos_neg"),  
+(SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ld_lymph_pos_neg"),  
+(SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "2", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'path_nbr', 'input', NULL, '0', 'size=20', '', '', 'path nbr', ''),
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name = 'ld_lymph_pos_neg'), '0', '', '', '', 'result', ''),
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'hitological_dx', 'textarea', NULL, '0', 'rows=3,cols=20', '', '', 'hitological dx', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='event_form_type' AND `language_tag`=''), '1', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '1', '-9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'); 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_bone_marrows' AND `field`='path_nbr'), 
+'1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_bone_marrows' AND `field`='result'), 
+'1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_bone_marrows' AND `field`='hitological_dx'), 
+'1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- reasearch study
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'ld lymph.', 'study', 'reasearch study', 1, 'ld_lymph_ed_reasearch_studies', 'ld_lymph_ed_reasearch_studies', 0, 'study|ld lymph.|reasearch study');
+
+INSERT IGNORE INTO i18n (id,en) VALUES ('reasearch study' , 'Reasearch Study'),('consent date', 'Consent Date');
+
+CREATE TABLE IF NOT EXISTS `ld_lymph_ed_reasearch_studies` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  
+  `name` varchar(100) DEFAULT '',
+  `consent_date` date DEFAULT null,
+   
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;  
+
+ALTER TABLE `ld_lymph_ed_reasearch_studies`
+  ADD CONSTRAINT `FK_ld_lymph_ed_reasearch_studies_event_masters` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `ld_lymph_ed_reasearch_studies_revs` (
+  `id` int(11) NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+ 
+  `name` varchar(100) DEFAULT '',
+  `consent_date` date DEFAULT null,
+    
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_ed_reasearch_studies');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_reasearch_studies', 'name', 'input', NULL, '0', 'size=20', '', '', 'name', ''),
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_reasearch_studies', 'consent_date', 'date', NULL, '0', '', '', '', 'consent date', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='event_form_type' AND `language_tag`=''), '1', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '1', '-9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'); 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_reasearch_studies' AND `field`='name'), 
+'1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), 
+(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_reasearch_studies' AND `field`='consent_date'), 
+'1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
 -- TREATMENT ------------------------------------------------------------------------------
 
--- primary
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='tx_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- chemotherapy - frail (palliative) - radiotherapy
 
 UPDATE tx_controls SET flag_active = '0';
 INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
-(null, 'treatment', 'ld lymph.', 1, 'ld_lymph_txd_treatments', 'ld_lymph_txd_treatments', NULL, NULL, 0, NULL, NULL, 'ld lymph.|treatment');
+(null, 'radiotherapy', 'ld lymph.', 1, 'ld_lymph_txd_treatments', 'ld_lymph_txd_treatments', NULL, NULL, 0, NULL, NULL, 'ld lymph.|radiotherapy'),
+(null, 'chemotherapy', 'ld lymph.', 1, 'ld_lymph_txd_treatments', 'ld_lymph_txd_treatments,ld_lymph_txd_chemos', NULL, NULL, 0, NULL, NULL, 'ld lymph.|chemotherapy'),
+(null, 'frail (palliative)', 'ld lymph.', 1, 'ld_lymph_txd_treatments', 'ld_lymph_txd_treatments,ld_lymph_txd_chemos', NULL, NULL, 0, NULL, NULL, 'ld lymph.|frail (palliative)');
 
 DROP TABLE IF EXISTS `ld_lymph_txd_treatments`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_txd_treatments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
-  `treatment_type` varchar(50) DEFAULT '',
   `chemo_regimen` text,
   `dose_modified` char(1) DEFAULT '',
   `dose_modified_precision` text,
@@ -1477,7 +1668,6 @@ DROP TABLE IF EXISTS `ld_lymph_txd_treatments_revs`;
 CREATE TABLE IF NOT EXISTS `ld_lymph_txd_treatments_revs` (
   `id` int(11) NOT NULL,
 
-  `treatment_type` varchar(50) DEFAULT '',
   `chemo_regimen` text,
   `dose_modified` char(1) DEFAULT '',
   `dose_modified_precision` text,
@@ -1497,18 +1687,6 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_txd_treatments_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-INSERT INTO structures(`alias`) VALUES ('ld_lymph_txd_treatments');
-
-INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'ld_lymph_primary_trt_types', 'open', '', NULL);
-INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES ("observation","observation"),("frail","frail palliative"),("chemo","chemo");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
-((SELECT id FROM structure_value_domains WHERE domain_name="ld_lymph_primary_trt_types"),  
-(SELECT id FROM structure_permissible_values WHERE value="observation" AND language_alias="observation"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="ld_lymph_primary_trt_types"),  
-(SELECT id FROM structure_permissible_values WHERE value="frail" AND language_alias="frail palliative"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="ld_lymph_primary_trt_types"),  
-(SELECT id FROM structure_permissible_values WHERE value="chemo" AND language_alias="chemo"), "3", "1");
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'ld_lymph_trt_responses', 'open', '', NULL);
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) 
@@ -1536,17 +1714,19 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "4", "1");
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'treatment_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_primary_trt_types') , '0', '', '', '', 'primary treatment type', ''), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'chemo_regimen', 'textarea', NULL , '0', 'rows=3,cols=30', '', '', 'chemo regimen', ''), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'dose_modified', 'yes_no',  NULL , '0', '', '', '', 'dose modified', ''), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'dose_modified_precision', 'textarea', NULL , '0', 'rows=3,cols=30', '', '', 'dose modified precision', ''), 
+
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'response', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_responses') , '0', '', '', '', 'response', ''), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'response_based_on', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_response_based_on') , '0', '', '', '', 'based on', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'response_based_on_other', 'input',  NULL , '0', 'size=30', '', '', 'based on other', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'response_based_on_other', 'input',  NULL , '0', 'size=30', '', '', '', 'based on other'), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'mid_cycle_pet_ct_date', 'date',  NULL , '0', '', '', '', 'mid cycle pet ct date', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'suv_mid', 'float',  NULL , '0', '', '', '', 'suv mid', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'suv_mid', 'float',  NULL , '0', '', '', '', '', 'suv mid'), 
 ('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'final_pet_ct_date', 'date',  NULL , '0', '', '', '', 'final pet ct date', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'suv_final', 'float',  NULL , '0', '', '', '', 'suv final', '');
+('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_treatments', 'suv_final', 'float',  NULL , '0', '', '', '', '', 'suv final');
+
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_txd_treatments');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='tx_controls' AND `field`='tx_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_method' AND `language_label`='' AND `language_tag`=''), '1', '1', 'clin_treatment', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
@@ -1554,20 +1734,22 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='treatment_type'), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='chemo_regimen'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='dose_modified' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dose modified' AND `language_tag`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='dose_modified_precision'), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_responses')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='response' AND `language_tag`=''), '3', '30', 'response', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response_based_on' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_response_based_on')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='based on' AND `language_tag`=''), '3', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response_based_on_other' AND `type`='input' AND `structure_value_domain`  IS NULL ), '3', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='mid_cycle_pet_ct_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mid cycle pet ct date' AND `language_tag`=''), '3', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='suv_mid' AND `type`='float' ), '3', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='final_pet_ct_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='final pet ct date' AND `language_tag`=''), '3', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='suv_final' AND `type`='float'), '3', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_responses')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='response' AND `language_tag`=''), '2', '30', 'response', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response_based_on' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_trt_response_based_on')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='based on' AND `language_tag`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response_based_on_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='based on other' AND `language_tag`=''), '2', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='mid_cycle_pet_ct_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mid cycle pet ct date' AND `language_tag`=''), '2', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='suv_mid' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='suv mid' AND `language_tag`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='final_pet_ct_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='final pet ct date' AND `language_tag`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='suv_final' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='suv final' AND `language_tag`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_txd_chemos');
 
-INSERT INTO i18n (id,en) VALUES
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='chemo_regimen'), '2', '21', 'chemotherapy data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='dose_modified' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dose modified' AND `language_tag`=''), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='dose_modified_precision'), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES
 ('based on' ,'Based On'),
 ('based on CT' ,'CT'),
 ('based on other' ,'Other Description'),
@@ -1588,26 +1770,50 @@ INSERT INTO i18n (id,en) VALUES
 ('primary treatment type' ,'Type'),
 ('SD trt responses' ,'SD'),
 ('suv final' ,'SUVfinal'),
-('suv mid' ,'SUVmid');
+('suv mid' ,'SUVmid'),
+('frail (palliative)','Frail (palliative)'),
+('chemotherapy data','Chemo Data'),
+('radiotherapy','Radiotherapy');
 
 UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `language_heading`='description' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='treatment_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ld_lymph_primary_trt_types') AND `flag_confidential`='0');
-UPDATE structure_fields SET  `language_label`='',  `language_tag`='based on other' WHERE model='TreatmentDetail' AND tablename='ld_lymph_txd_treatments' AND field='response_based_on_other' AND `type`='input' AND structure_value_domain  IS NULL ;
-UPDATE structure_fields SET  `language_label`='',  `language_tag`='suv mid' WHERE model='TreatmentDetail' AND tablename='ld_lymph_txd_treatments' AND field='suv_mid' AND `type`='float' AND structure_value_domain  IS NULL ;
-UPDATE structure_fields SET  `language_label`='',  `language_tag`='suv final' WHERE model='TreatmentDetail' AND tablename='ld_lymph_txd_treatments' AND field='suv_final' AND `type`='float' AND structure_value_domain  IS NULL ;
 
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='chemo_regimen' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='dose_modified_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_treatments' AND `field`='response_based_on_other' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- observation
+  
+INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+(null, 'observation', 'ld lymph.', 1, 'ld_lymph_txd_observations', 'ld_lymph_txd_observations', NULL, NULL, 0, NULL, NULL, 'ld lymph.|observation');
+  
+DROP TABLE IF EXISTS `ld_lymph_txd_observations`;
+CREATE TABLE IF NOT EXISTS `ld_lymph_txd_observations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
 
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='disease_site' );
+  `tx_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `tx_master_id` (`tx_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-UPDATE structure_formats SET `display_column`='2' 
-WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_treatments') 
-AND display_order > 15;
+ALTER TABLE `ld_lymph_txd_observations`
+  ADD CONSTRAINT `FK_ld_lymph_txd_observations_tx_masters` FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters` (`id`);
 
+DROP TABLE IF EXISTS `ld_lymph_txd_observations_revs`;
+CREATE TABLE IF NOT EXISTS `ld_lymph_txd_observations_revs` (
+  `id` int(11) NOT NULL,
+
+  `tx_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_txd_observations');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_observations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='tx_controls' AND `field`='tx_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_method' AND `language_label`='' AND `language_tag`=''), '1', '1', 'clin_treatment', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_observations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_start_date' AND `language_label`='start date' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_observations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_observations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+  
 -- stem cell transplant
 
 INSERT INTO `tx_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
@@ -1645,19 +1851,25 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUES ('stem cell transplant', 'Stem Cell Transplant');
 
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='tx_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='tx_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_stem_cell_transplants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- ---------------------------------------------------------
+-- DEMO
+-- -------------------------------------------------------
 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('custom cst v1', 'custom cst v1', 'custom cst v1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'consent form versions'));
 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('lymphoma custom 1', 'lymphoma custom 1', 'lymphoma custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma types'));
 
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('lymphoma prog custom 1', 'lymphoma prog custom 1', 'lymphoma prog custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma progression sites'));
 
-
-
-
-
-
-
+UPDATE users set flag_active=1;
+update groups set flag_show_confidential = 1;
 
 
