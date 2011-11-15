@@ -124,7 +124,7 @@ class TemplateController extends AppController {
 						$this->TemplateNode->save(array('TemplateNode' => array(
 							'template_id'			=> $template_id,
 							'parent_id'				=> $parent_id,
-							'datamart_structure_id'	=> $node->controlId > 0 ? 5 : 1,
+							'datamart_structure_id'	=> $node->datamart_structure_id,
 							'control_id'			=> abs($node->controlId),
 							'quantity'				=> $node->quantity
 						)));

@@ -52,7 +52,7 @@ class BatchSetsController extends DatamartAppController {
 		$lookup_ids = array();
 		$atim_menu_variables = array('BatchSet.id' => $batch_set_id);
 		
-		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+		$batch_set = $this->BatchSet->redirectIfNonExistent($batch_set_id, __METHOD__, __LINE__, true);
 		
 		//check permissions
 		if($batch_set['BatchSet']['datamart_adhoc_id']){
@@ -74,7 +74,7 @@ class BatchSetsController extends DatamartAppController {
 			}
 		}
 		
-		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
+		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)){
 			return;
 		}
 		foreach ( $batch_set['BatchId'] as $fields ) {
@@ -481,7 +481,7 @@ class BatchSetsController extends DatamartAppController {
 	}
 	
 	function remove($batch_set_id) {
-		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+		$batch_set = $this->BatchSet->redirectIfNonExistent($batch_set_id, __METHOD__, __LINE__, true);
 		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)){
 			return;
 		}
@@ -525,7 +525,7 @@ class BatchSetsController extends DatamartAppController {
 	 */
 	function generic($batch_set_id, $create_new){
 		//validate access
-		$batch_set = $this->BatchSet->getBatchSet($batch_set_id);
+		$batch_set = $this->BatchSet->redirectIfNonExistent($batch_set_id, __METHOD__, __LINE__, true);
 		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, false)) {
 			return;
 		}

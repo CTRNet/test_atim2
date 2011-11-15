@@ -528,6 +528,13 @@ class StorageMastersController extends StoragelayoutAppController {
 			$aliquots_initial_data = isset($data['AliquotMaster']) ? $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => array_keys($data['AliquotMaster'])))) : array();
 			$tmas_initial_data = isset($data['TmaSlide']) ? $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.id' => array_keys($data['TmaSlide'])))) : array();
 			
+			//manual validate/alteration of positions based on position conflict checks
+			$storage_config = array();
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'StorageMaster', 'selection_label', $storage_config);
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'AliquotMaster', 'barcode', $storage_config) || $conflicts_found;
+			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $conflicts_found;
+			$err = $this->StorageMaster->validationErrors;
+			
 			//update StorageMaster
 			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data['StorageControl']);
 			
@@ -536,8 +543,13 @@ class StorageMastersController extends StoragelayoutAppController {
 			
 			//Update TmaSlide
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data['StorageControl']);
-			
-			$this->atimFlash('your data has been saved', '/storagelayout/storage_masters/storageLayout/' . $storage_master_id);
+
+			if($conflicts_found ){
+				AppController::addWarningMsg(__('your data has been saved', true), true);
+				$this->StorageMaster->validationErrors = $err;
+			}else{
+				$this->atimFlash('your data has been saved', '/storagelayout/storage_masters/storageLayout/' . $storage_master_id);
+			}
 		}
 		$this->data = array();
 		

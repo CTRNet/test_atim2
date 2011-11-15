@@ -233,10 +233,11 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 				
 					if($parent_id == 0){
 						// Set primary_id of a Primary
-						$data_to_update = array();
-						$data_to_update['DiagnosisMaster']['primary_id'] = $diagnosis_master_id;
-						$this->DiagnosisMaster->id = $diagnosis_master_id;					
-						if(!$this->DiagnosisMaster->save($data_to_update, false)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);	
+						$query_to_update = "UPDATE diagnosis_masters SET diagnosis_masters.primary_id = diagnosis_masters.id WHERE diagnosis_masters.id = $diagnosis_master_id;";
+						if(!$this->DiagnosisMaster->query($query_to_update) 
+						|| !$this->DiagnosisMaster->query(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update))) {
+							$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					}
 					
 					$hook_link = $this->hook('postsave_process');
