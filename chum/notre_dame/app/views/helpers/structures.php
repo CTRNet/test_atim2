@@ -720,8 +720,10 @@ class StructuresHelper extends Helper {
 				if($options['type'] != "search" && isset(AppModel::$accuracy_config[$table_row_part['tablename']][$table_row_part['field']])){
 					$display = "<div class='accuracy_target_blue'></div>";
 				}
-				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings'])
-					.self::getTimeInputs($field_name, $time, $table_row_part['settings']);
+				
+				$display .= self::getDateInputs($field_name, $date, $table_row_part['settings']);
+				unset($table_row_part['settings']['required']);
+				$display .= self::getTimeInputs($field_name, $time, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "time"){
 				$display = self::getTimeInputs($field_name, $current_value, $table_row_part['settings']);
 			}else if($table_row_part['type'] == "select" ||
@@ -915,7 +917,7 @@ class StructuresHelper extends Helper {
 				$add_line_ctrl = ($options['type'] == 'addgrid' || $options['type'] == 'editgrid') && $options['settings']['add_fields'];
 				$options['remove_line_ctrl'] = $remove_line_ctrl;
 				$header_data = $this->buildDisplayHeader($table_index, $options);
-				echo "<thead class='fmlh'>",$header_data['header'],"</thead>";
+				echo '<thead>',$header_data['header'],'</thead>';
 				
 				if($options['type'] == "addgrid" && count($data) == 0){
 					//display at least one line
@@ -1132,7 +1134,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		echo $this->Csv->render($options['settings']['csv_header']);
+		echo $this->Csv->render($options['settings']['csv_header'], csv_encoding);
 	}
 
 
@@ -2239,7 +2241,10 @@ class StructuresHelper extends Helper {
 			$year_attributes['class'] .= " year_accuracy ";
 			$year = substr($year, 2);
 		}
-		
+		if(isset($attributes['required'])){
+			$year_attributes['required'] = $attributes['required'];
+			unset($attributes['required']);
+		}
 		if(datetime_input_type == "dropdown"){
 			foreach($pref_date as $part){
 				if($part == "Y"){
@@ -2253,11 +2258,11 @@ class StructuresHelper extends Helper {
 		}else{
 			foreach($pref_date as $part){
 				if($part == "Y"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('type' => 'number', 'min' => 1900, 'max' => 2100,  'value' => $year, 'size' => 4, 'maxlength' => 4)))."<div>".__('year', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".year", array_merge($year_attributes, array('type' => 'number', 'min' => 1900, 'max' => 2100,  'value' => $year, 'size' => 6, 'maxlength' => 4)))."<div>".__('year', true)."</div></span>";
 				}else if($part == "M"){
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 12, 'value' => $month, 'size' => 2, 'maxlength' => 2)))."<div>".__('month', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".month", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 12, 'value' => $month, 'size' => 3, 'maxlength' => 2)))."<div>".__('month', true)."</div></span>";
 				}else{
-					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 31, 'value' => $day, 'size' => 2, 'maxlength' => 2)))."<div>".__('day', true)."</div></span>";
+					$result .= '<span class="tooltip">'.$this->Form->text($name.".day", array_merge($attributes, array('type' => 'number', 'min' => 1, 'max' => 31, 'value' => $day, 'size' => 3, 'maxlength' => 2)))."<div>".__('day', true)."</div></span>";
 				}
 			}
 		}
@@ -2313,8 +2318,8 @@ class StructuresHelper extends Helper {
 			$result .= $this->Form->hour($name, time_format == 24, $hour, $attributes);
 			$result .= $this->Form->minute($name, $minutes, $attributes);
 		}else{
-			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('value' => $hour, 'size' => 2)))."<div>".__('hour', true)."</div></span>";
-			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('value' => $minutes, 'size' => 2)))."<div>".__('minutes', true)."</div></span>";
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('type' => 'number', 'value' => $hour, 'size' => 3, 'min' => time_format == 12 ? 1 : 0, 'max' => time_format == 12 ? 12 : 23)))."<div>".__('hour', true)."</div></span>";
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('type' => 'number', 'value' => $minutes, 'size' => 3, 'min' => 0, 'max' => 60)))."<div>".__('minutes', true)."</div></span>";
 		}
 		if(time_format == 12){
 			$result .= $this->Form->meridian($name, $meridian, $attributes, array('value' => $meridian));

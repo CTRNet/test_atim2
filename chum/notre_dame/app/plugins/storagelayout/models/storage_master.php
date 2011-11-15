@@ -94,7 +94,7 @@ class StorageMaster extends StoragelayoutAppModel {
 				&& empty($this->validationErrors['parent_storage_coord_x'])
 				&& empty($this->validationErrors['parent_storage_coord_y'])
 				&& isset($parent_storage_selection_results['storage_data']['StorageControl'])
-				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts']
 				&& (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)
 			){
 				$exception = $this->id ? array("StorageMaster" => $this->id) : array();
@@ -119,7 +119,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']
 					);
-					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == self::CONFLICTS_WARN){
+					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTS_WARN){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
@@ -422,6 +422,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
+			if(!array_key_exists('StorageControl', $storage_data)){
+				$storage_control_model = AppModel::getInstance('storagelayout', 'StorageControl', true);
+				$storage_data += $storage_control_model->findById($storage_data['StorageMaster']['storage_control_id']);
+			}
 			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.__($storage_data['StorageControl']['storage_type'],true);
 		}
 	
