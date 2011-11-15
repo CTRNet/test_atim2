@@ -15,14 +15,10 @@ class TreatmentMasterCustom extends TreatmentMaster {
 			$precision = isset($variables['TreatmentExtend.menu_precision'])? ' - ' . __($variables['TreatmentExtend.menu_precision'], null): '';
 			
 			$return = array(
-				'Summary'	 => array(
-					'menu'    		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE) . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE) . $precision),
-					'title'	 		=> array( NULL, __($result['TreatmentMaster']['disease_site'], TRUE)  . ' - ' . __($result['TreatmentMaster']['tx_method'], TRUE)),
-
-					'description'	=> array(
-						__('start date', TRUE)  =>  $result['TreatmentMaster']['start_date']
-					)
-				)
+				'menu'    			=> array( NULL, __($result['TreatmentControl']['disease_site'], TRUE) . ' - ' . __($result['TreatmentControl']['tx_method'], TRUE) . $precision),
+				'title'	 			=> array( NULL, __($result['TreatmentControl']['disease_site'], TRUE)  . ' - ' . __($result['TreatmentControl']['tx_method'], TRUE)),
+				'structure alias'	=> $result['TreatmentControl']['form_alias'],
+				'data'				=> $result
 			);
 		}
 		
