@@ -149,6 +149,13 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 'Specimen number should be an integer value of 5 digits, the 2 first one being the year of the collection!', 
 'Le numéro du spécimen doit être entier de 5 chiffres dont les 2 premiers definissent l''année de la collection!');
 
+UPDATE specimen_review_controls SET flag_active = 0;
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/inventorymanagement/specimen_reviews/%';
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- ----------------------------------------------------------------------------------------
 -- SOP
 -- ----------------------------------------------------------------------------------------
@@ -1544,7 +1551,7 @@ VALUES
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'path_nbr', 'input', NULL, '0', 'size=20', '', '', 'path nbr', ''),
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name = 'ld_lymph_pos_neg'), '0', '', '', '', 'result', ''),
-('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'hitological_dx', 'textarea', NULL, '0', 'rows=3,cols=20', '', '', 'hitological dx', '');
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_bone_marrows', 'hitological_dx', 'textarea', NULL, '0', 'rows=3,cols=40', '', '', 'hitological dx', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='disease_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='event_form_type' AND `language_tag`=''), '1', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
@@ -1564,6 +1571,16 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_bone_marrows' AND `field`='hitological_dx'), 
 '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE event_controls SET event_type = 'bone marrow biopsy' WHERE event_type = 'bone marrow';
+INSERT IGNORE INTO i18n (id,en) VALUES ('bone marrow biopsy' , 'Bone Marrow Biopsy');
+
+UPDATE structure_formats SET display_column = 2
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_bone_marrows' AND `field`='hitological_dx');
+UPDATE structure_formats SET display_column = 2
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ld_lymph_ed_bone_marrows') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='event_summary');
 
 -- reasearch study
 
@@ -1620,6 +1637,17 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), 
 (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_reasearch_studies' AND `field`='consent_date'), 
 '1', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+UPDATE structure_formats SET display_column = 2
+WHERE structure_id = (SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='event_summary');
+
+-- EVENT ALL & MASTER
+
+UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'notes'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='event_summary');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- TREATMENT ------------------------------------------------------------------------------
 
