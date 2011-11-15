@@ -257,7 +257,7 @@ class PermissionManagerComponent extends Object {
 			foreach($result as $toRemove){
 				$alias = $toRemove['Aco']['alias'];
 				$this->log[] = 'Removed Aco node '. $path.'/'.$alias.' ('.$toRemove['Aco']['id'].')';
-				$aco->del($toRemove['Aco']['id']);
+				$aco->delete($toRemove['Aco']['id']);
 			}
 			return true;
 		}

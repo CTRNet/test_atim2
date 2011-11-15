@@ -16,24 +16,17 @@ class MenusController extends AppController {
 	}
 	
 	function index($set_of_menus=NULL){
-		// get ANNOUNCEMENTS for main menu
 		if ( !$set_of_menus ) {
-			$this->set( 'announcements_data', $this->Announcement->find( 'all', array('conditions'=> array(
-					'date_start <=' => now(),
-					'date_end >=' => now(),
-					'group_id' => array(0, $_SESSION['Auth']['User']['group_id'])
-				),
-				'order'=>'date DESC'))
-			);
-		
 			$menu_data = $this->Menu->find('all',array('conditions'=> array(
 					"Menu.parent_id" => "MAIN_MENU_1",
 					"Menu.flag_active" => 1
 				), 
 				'order'=>'Menu.display_order ASC')
 			);
-			
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
+			
+			$participant_message_model = AppModel::getInstance('Clinicalannotation', 'ParticipantMessage', true);
+			$this->set('due_messages_count', $participant_message_model->find('count', array('conditions' => array('ParticipantMessage.done' => 0, 'ParticipantMessage.due_date <' => now()))));
 		}else if($set_of_menus == "tools"){
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
 						$menu_data = $this->Menu->find('all',array('conditions'=> array(

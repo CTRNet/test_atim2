@@ -1,10 +1,12 @@
 <?php
-	
 	$options = array(
 			"links"		=> array(
-				"top" => '/inventorymanagement/aliquot_masters/add/'.$sample_master_id,
+				"top" => '/inventorymanagement/aliquot_masters/add/'.$sample_master_id.'/0',
 				'bottom' => array('cancel' => $url_to_cancel)));
 
+	if($is_ajax){
+		$options['links']['top'] .= '/1';
+	}
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
 		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)));
@@ -16,7 +18,11 @@
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
+	
+	$hook_link = $structures->hook('loop');
 		
 	$first = true;
 	$counter = 0;
@@ -45,6 +51,10 @@
 		
 		$final_options_children['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];
 		$final_options_children['data'] = $data['children'];
+		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 				
 		if($is_batch_process) $structures->build($sample_info, $final_options_parent);
 		$structures->build($atim_structure, $final_options_children);
@@ -57,3 +67,13 @@ var copyingStr = "<?php echo(__("copying")); ?>";
 var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
 var copyControl = true;
 </script>
+
+<?php 
+if($is_ajax){
+	$display = $shell->validationErrors().ob_get_contents();
+	ob_end_clean();
+	$display = ob_get_contents().$display;
+	ob_clean();
+	$shell->validationErrors = null;
+	echo json_encode(array('goToNext' => false, 'display' => $display, 'id' => null));
+}

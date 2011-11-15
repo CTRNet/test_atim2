@@ -30,7 +30,7 @@ class ReportsController extends DatamartAppController {
 		|| empty($report['Report']['form_type_for_results'])) {
 			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-
+		
 		// Set menu variables
 		$this->set( 'atim_menu_variables', array('Report.id' => $report_id));
 
@@ -50,10 +50,10 @@ class ReportsController extends DatamartAppController {
 				$data_to_build_report = empty($this->data)? array() : $this->data;
 				$_SESSION['report']['search_criteria'] = $data_to_build_report;
 			}
-		
+	
 			$this->data = null;			
 			
-			$data_returned_by_fct = call_user_func_array(array($this , $report['Report']['function']), $data_to_build_report);
+			$data_returned_by_fct = call_user_func_array(array($this , $report['Report']['function']), array($data_to_build_report));
 			if(empty($data_returned_by_fct) 
 			|| (!array_key_exists('header', $data_returned_by_fct))
 			|| (!array_key_exists('data', $data_returned_by_fct)) 
@@ -95,29 +95,29 @@ class ReportsController extends DatamartAppController {
 	
 	function bankActiviySummary($parameters) {
 		// 1- Build Header
-		$start_date_for_display = AppController::getFormatedDateString($parameters['report_date_range_start']['year'], $parameters['report_date_range_start']['month'], $parameters['report_date_range_start']['day']);
-		$end_date_for_display = AppController::getFormatedDateString($parameters['report_date_range_end']['year'], $parameters['report_date_range_end']['month'], $parameters['report_date_range_end']['day']);
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
 		$header = array(
-			'title' => __('from',true).' '.(empty($parameters['report_date_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters['report_date_range_end']['year'])?'?':$end_date_for_display), 
+			'title' => __('from',true).' '.(empty($parameters[0]['report_date_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters[0]['report_date_range_end']['year'])?'?':$end_date_for_display), 
 			'description' => 'n/a');
 
 		// 2- Search data
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_date_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_date_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
 
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
 		
 		// Get new participant
 		if(!isset($this->Participant)) {
-			$this->Participant = AppModel::atimNew("Clinicalannotation", "Participant", true);
+			$this->Participant = AppModel::getInstance("Clinicalannotation", "Participant", true);
 		}
 		$conditions = $search_on_date_range? array("Participant.created >= '$start_date_for_sql'", "Participant.created <= '$end_date_for_sql'") : array();
 		$data['0']['new_participants_nbr'] = $this->Participant->find('count', (array('conditions' => $conditions)));		
 
 		// Get new consents obtained
 		if(!isset($this->ConsentMaster)) {
-			$this->ConsentMaster = AppModel::atimNew("Clinicalannotation", "ConsentMaster", true);
+			$this->ConsentMaster = AppModel::getInstance("Clinicalannotation", "ConsentMaster", true);
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
 		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		
@@ -148,15 +148,15 @@ class ReportsController extends DatamartAppController {
 	
 	function sampleAndDerivativeCreationSummary($parameters) {
 		// 1- Build Header
-		$start_date_for_display = AppController::getFormatedDateString($parameters['report_datetime_range_start']['year'], $parameters['report_datetime_range_start']['month'], $parameters['report_datetime_range_start']['day']);
-		$end_date_for_display = AppController::getFormatedDateString($parameters['report_datetime_range_end']['year'], $parameters['report_datetime_range_end']['month'], $parameters['report_datetime_range_end']['day']);
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_end']['year'], $parameters[0]['report_datetime_range_end']['month'], $parameters[0]['report_datetime_range_end']['day']);
 		$header = array(
-			'title' => __('from',true).' '.(empty($parameters['report_datetime_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters['report_datetime_range_end']['year'])?'?':$end_date_for_display), 
+			'title' => __('from',true).' '.(empty($parameters[0]['report_datetime_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters[0]['report_datetime_range_end']['year'])?'?':$end_date_for_display), 
 			'description' => 'n/a');
 
 		// 2- Search data
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_datetime_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_datetime_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
 		
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
@@ -165,67 +165,60 @@ class ReportsController extends DatamartAppController {
 		$tmp_res_final = array();
 		
 		// Work on specimen
-		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN collections AS col ON col.id = sm.collection_id 
-			WHERE sm.sample_category = 'specimen'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
+		$sample_master_model = AppModel::getInstance('Inventorymanagement', 'SampleMaster', true);
+		
+		$res_1 = $sample_master_model->find('all', array(
+			'fields' => array('COUNT(*)', 'SampleControl.sample_type', 'SampleControl.sample_category'),
+			'conditions' => $search_on_date_range ? array('Collection.collection_datetime >=' => $start_date_for_sql, 'Collection.collection_datetime <=' => $end_date_for_sql) : array(),
+			'group'	=> 'SampleControl.sample_type',
+			'recursive' => 0
+		));
+		
 		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm']['sample_type']),
+			$tmp_res_final[$data['SampleControl']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => $data['SampleControl']['sample_category'], 'sample_type'=> $data['SampleControl']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}	
+		}
+
+		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_2 = $this->Report->query(
-			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+			"SELECT COUNT(*), participant_id, res.sample_type FROM (
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
 				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'specimen'
+				AND sc.sample_category = 'specimen'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
 		
 		// Work on derivative
-		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
-			"SELECT COUNT(*), sm.sample_type
-			FROM sample_masters AS sm 
-			INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-			WHERE sm.sample_category = 'derivative'
-			AND ($conditions)
-			AND sm.deleted != '1'
-			GROUP BY sample_type;");
-		foreach($res_1 as $data) {
-			$tmp_res_final[$data['sm']['sample_type']] = array(
-				'SampleMaster' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm']['sample_type']),
-				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sm.sample_type  
+				SELECT DISTINCT link.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
-				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = sm.collection_id 
+				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
+				INNER JOIN collections AS col ON col.id = sm.collection_id 
+				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
 				WHERE link.participant_id IS NOT NULL 
 				AND link.participant_id != '0'
-				AND sm.sample_category = 'derivative'
+				AND sc.sample_category = 'derivative'
 				AND ($conditions)
 				AND sm.deleted != '1'
-			) AS res GROUP BY res.sample_type;");
+			) AS res GROUP BY res.sample_type;"
+		);
+		
 		foreach($res_2 as $data) {
 			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
-		
 		// Format data for report
 		foreach($tmp_res_final as $new_sample_type_data) {
 			$res_final[] = $new_sample_type_data;
@@ -241,21 +234,21 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function bankActiviySummaryPerPeriod($parameters) {
-		if(empty($parameters['report_date_range_period']['0'])) {
-			return array('error_msg' => 'no perido has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
+		if(empty($parameters[0]['report_date_range_period']['0'])) {
+			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
-		$month_period = ($parameters['report_date_range_period']['0'] == 'month')? true:false;
+		$month_period = ($parameters[0]['report_date_range_period']['0'] == 'month')? true:false;
 		
 		// 1- Build Header
-		$start_date_for_display = AppController::getFormatedDateString($parameters['report_date_range_start']['year'], $parameters['report_date_range_start']['month'], $parameters['report_date_range_start']['day']);
-		$end_date_for_display = AppController::getFormatedDateString($parameters['report_date_range_end']['year'], $parameters['report_date_range_end']['month'], $parameters['report_date_range_end']['day']);
+		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
+		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
 		$header = array(
-			'title' => __('from',true).' '.(empty($parameters['report_date_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters['report_date_range_end']['year'])?'?':$end_date_for_display), 
+			'title' => __('from',true).' '.(empty($parameters[0]['report_date_range_start']['year'])?'?':$start_date_for_display).' '.__('to',true).' '.(empty($parameters[0]['report_date_range_end']['year'])?'?':$end_date_for_display), 
 			'description' => 'n/a');
 
 		// 2- Search data
-		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_date_range_start'], 'start');
-		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters['report_date_range_end'], 'end');
+		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_start'], 'start');
+		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_date_range_end'], 'end');
 
 		$search_on_date_range = true;
 		if((strpos($start_date_for_sql, '-9999') === 0) && (strpos($end_date_for_sql, '9999') === 0)) $search_on_date_range = false;
@@ -358,5 +351,104 @@ class ReportsController extends DatamartAppController {
 		
 		return $array_to_return;
 	}	
+	
+	function aliquotSpentTimesCalulations($parameters, $default_unit = 'full') {
+		$array_to_return = array(
+			'header' => null, 
+			'data' => null, 
+			'columns_names' => null,
+			'error_msg' => null);
+
+		// Get aliquot id
+		if(!isset($this->AliquotMaster)){
+			$this->AliquotMaster = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
+		} 
+		
+		$aliquot_master_ids = array();
+		if(isset($parameters['ViewAliquot']['aliquot_master_id'])) {
+			if(is_array($parameters['ViewAliquot']['aliquot_master_id'])) {
+				$aliquot_master_ids = array_filter($parameters['ViewAliquot']['aliquot_master_id']);
+			} else {
+				$aliquot_master_ids = explode(',', $parameters['ViewAliquot']['aliquot_master_id']);
+			}	
+		} else if(isset($parameters['AliquotMaster']) && array_key_exists('barcode', $parameters['AliquotMaster'])) {
+			$aliquot_master_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.barcode" => $parameters['AliquotMaster']['barcode']), 'recursive' => -1));
+		} else {
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		if(empty($aliquot_master_ids)) {
+			$array_to_return['error_msg'] = 'no aliquot has been found';
+		} else {
+			if(isset($parameters['0']['report_spent_time_display_mode'])) {
+				$default_unit = $parameters['0']['report_spent_time_display_mode'][0];
+			}
+					
+			$aliquot_master_ids[] = 0;
+			
+			$joins = array(
+				array(
+					'table'	=> 'aliquot_controls',
+					'alias'	=> 'AliquotControl',
+					'type'	=> 'INNER',
+					'conditions' => array('AliquotMaster.aliquot_control_id = AliquotControl.id')
+				), array(
+					'table'	=> 'sample_masters',
+					'alias'	=> 'SampleMaster',
+					'type'	=> 'INNER',
+					'conditions' => array('AliquotMaster.sample_master_id = SampleMaster.id')
+				), array(
+					'table' => 'collections',
+					'alias' => 'Collection',
+					'type'	=> 'INNER',
+					'conditions' => array('SampleMaster.collection_id = Collection.id')
+				), array(
+					'table' => 'sample_masters',
+					'alias' => 'Specimen',
+					'type' => 'INNER',
+					'conditions' => array('SampleMaster.initial_specimen_sample_id = Specimen.id')
+				), array(
+					'table' => 'specimen_details',
+					'alias' => 'SpecimenDetail',
+					'type'	=> 'INNER',
+					'conditions' => array('SpecimenDetail.sample_master_id = Specimen.id')
+				), array(
+					'table' => 'derivative_details',
+					'alias'	=> 'DerivativeDetail',
+					'type'	=> 'LEFT',
+					'conditions' => array('DerivativeDetail.sample_master_id = SampleMaster.id')
+				)
+			);
+			
+			$aliquot_master_model = AppModel::getInstance("inventorymanagement", "AliquotMaster", true);
+			$data = $aliquot_master_model->find('all', array(
+				'fields'		=> array('*'),
+				'conditions'	=> array('AliquotMaster.id' => $aliquot_master_ids),
+				'joins'			=> $joins,
+				'recursive'		=> -1
+			));
+
+			foreach($data as &$data_unit){
+				$coll_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['Collection']['collection_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+				$rec_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['SpecimenDetail']['reception_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+				$creat_to_stor_spent_time_msg = AppModel::getSpentTime($data_unit['DerivativeDetail']['creation_datetime'], $data_unit['AliquotMaster']['storage_datetime']);
+
+				if($default_unit == 'mn') {
+					$data_unit['Generated']['coll_to_stor_spent_time_msg'] = empty($coll_to_stor_spent_time_msg['message'])? (((($coll_to_stor_spent_time_msg['days']*24) + $coll_to_stor_spent_time_msg['hours'])*60) + $coll_to_stor_spent_time_msg['minutes']): '';
+					$data_unit['Generated']['rec_to_stor_spent_time_msg'] = empty($rec_to_stor_spent_time_msg['message'])? (((($rec_to_stor_spent_time_msg['days']*24) + $rec_to_stor_spent_time_msg['hours'])*60) + $rec_to_stor_spent_time_msg['minutes']): '';
+					$data_unit['Generated']['creat_to_stor_spent_time_msg'] = empty($creat_to_stor_spent_time_msg['message'])? (((($creat_to_stor_spent_time_msg['days']*24) + $creat_to_stor_spent_time_msg['hours'])*60) + $creat_to_stor_spent_time_msg['minutes']): '';
+
+				} else {
+					$data_unit['Generated']['coll_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($coll_to_stor_spent_time_msg);
+					$data_unit['Generated']['rec_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($rec_to_stor_spent_time_msg);
+					$data_unit['Generated']['creat_to_stor_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay($creat_to_stor_spent_time_msg);
+				}
+			}
+			
+			$array_to_return['data'] = $data;
+		}
+		
+		return $array_to_return;
+	}
 	
 }

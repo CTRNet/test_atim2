@@ -19,8 +19,7 @@ class OrderLinesController extends OrderAppController {
 		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// Set data
-		$this->setDataForOrderLinesList($order_id);
-		$this->data = array();
+		$this->data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0));
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -35,13 +34,17 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function add( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if ( !$order_id ) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		// MANAGE DATA
 		
 		// Check order
 		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -58,32 +61,49 @@ class OrderLinesController extends OrderAppController {
 
 		if ( !empty($this->data) ) {
 			// Set sample and aliquot control id
-			$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
-			if(sizeof($product_controls) != 2)  { $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
-			$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
-			$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
+			if(empty($this->data['FunctionManagement']['sample_aliquot_control_id'])){
+				$this->OrderLine->set($this->data);
+				$this->OrderLine->validates();
+				//manual error on custom field
+				$this->OrderLine->validationErrors['sample_aliquot_control_id'] = __('this field is required', true)." (".__('product type', true).")";
+			}else{
+				$product_controls = explode("|", $this->data['FunctionManagement']['sample_aliquot_control_id']);
+				if(sizeof($product_controls) != 2)  { 
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				$this->data['OrderLine']['sample_control_id'] = $product_controls[0];
+				$this->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
+					
+				// Set order id
+				$this->data['OrderLine']['order_id'] = $order_id;
+				$this->data['OrderLine']['status'] = 'pending';
+					
+				$submitted_data_validates = true;
 				
-			// Set order id
-			$this->data['OrderLine']['order_id'] = $order_id;
-			$this->data['OrderLine']['status'] = 'pending';
-				
-			$submitted_data_validates = true;
-			
-			$hook_link = $this->hook('presave_process');
-			if($hook_link){
-				require($hook_link);
-			}
-				
-			if ($submitted_data_validates) {
-				if( $this->OrderLine->save($this->data) ) {
-					$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
+				$hook_link = $this->hook('presave_process');
+				if($hook_link){
+					require($hook_link);
+				}
+					
+				if ($submitted_data_validates) {
+					if( $this->OrderLine->save($this->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
+						$this->atimFlash( 'your data has been saved','/order/order_lines/detail/'.$order_id.'/'.$this->OrderLine->id );
+					}
 				}
 			} 
+		}else{
+			$this->data = array('OrderLine' => array('study_summary_id' => $order_data['Order']['default_study_summary_id']));
 		}
 	}
 
 	function edit( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		// MANAGE DATA
 		
@@ -124,6 +144,10 @@ class OrderLinesController extends OrderAppController {
 			if ($submitted_data_validates) {
 				$this->OrderLine->id = $order_line_id;
 				if($this->OrderLine->save($this->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 					$this->atimFlash( 'your data has been updated','/order/order_lines/detail/'.$order_id.'/'.$order_line_id );
 				}
 			}
@@ -137,20 +161,6 @@ class OrderLinesController extends OrderAppController {
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
 		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
-		// Add completion information
-		$shipped_counter = 0;
-		$items_counter = 0;
-		foreach($order_line_data['OrderItem'] as $new_item) {
-			++ $items_counter;
-			if($new_item['status'] == 'shipped'){
-				++ $shipped_counter;
-			}
-		 }
-		 
-		$completion = empty($order_line_data['OrderItem'])? 'n/a': $shipped_counter.'/'.$items_counter;
-		$order_line_data['Generated']['order_line_completion'] = $completion;
-
 		$this->data = $order_line_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -174,7 +184,7 @@ class OrderLinesController extends OrderAppController {
 		}
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowOrderLineDeletion($order_line_id);
+		$arr_allow_deletion = $this->OrderLine->allowDeletion($order_line_id);
 		
 		$hook_link = $this->hook('delete');
 		if($hook_link){
@@ -191,32 +201,6 @@ class OrderLinesController extends OrderAppController {
 			$this->flash($arr_allow_deletion['msg'], '/order/order_lines/detail/' . $order_id . '/' . $order_line_id);
 		}
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if an order line can be deleted.
-	 *
-	 * @param $order_line_id Id of the studied order line.
-	 *
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 *
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-
-	function allowOrderLineDeletion($order_line_id){
-		// Check no order item exists
-		$returned_nbr = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'item exists for the deleted order line'); }
-
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
-	
 }
 
 ?>

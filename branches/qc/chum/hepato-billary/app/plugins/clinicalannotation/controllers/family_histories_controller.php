@@ -114,13 +114,19 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				
 				// 4- SAVE
 				
 				if ( $this->FamilyHistory->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been saved','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
 				}				
 			}
@@ -163,7 +169,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }			
+			if( $hook_link ) { 
+				require($hook_link); 
+			}			
 			
 			if($submitted_data_validates) {
 				
@@ -171,6 +179,10 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 				
 				$this->FamilyHistory->id = $family_history_id;
 				if ( $this->FamilyHistory->save($this->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash( 'your data has been updated','/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id );
 				}				
 			}
@@ -185,7 +197,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
 		if(empty($family_history_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
 
-		$arr_allow_deletion = $this->allowFamilyHistoryDeletion($family_history_id);
+		$arr_allow_deletion = $this->FamilyHistory->allowDeletion($family_history_id);
 		
 		// CUSTOM CODE
 		
@@ -206,30 +218,6 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			$this->flash($arr_allow_deletion['msg'], '/clinicalannotation/family_histories/detail/'.$participant_id.'/'.$family_history_id);
 		}	
 	}
-
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if a record can be deleted.
-	 * 
-	 * @param $family_history_id Id of the studied record.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowFamilyHistoryDeletion($family_history_id){
-		//$returned_nbr = $this->LinkedModel->find('count', array('conditions' => array('LinkedModel.family_history_id' => $family_history_id), 'recursive' => '-1'));
-		//if($returned_nbr > 0) { return array('allow_deletion' => false, 'msg' => 'a LinkedModel exists for the deleted family history'); }
-		
-		return array('allow_deletion' => true, 'msg' => '');
-	}	
 }
 
 ?>
