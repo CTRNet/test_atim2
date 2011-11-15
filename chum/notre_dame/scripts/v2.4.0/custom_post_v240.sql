@@ -234,6 +234,13 @@ UPDATE ad_tubes SET mycoplasma_free='n' WHERE mycoplasma_free='0';
 UPDATE ad_tubes_revs SET mycoplasma_free='y' WHERE mycoplasma_free='1';
 UPDATE ad_tubes_revs SET mycoplasma_free='n' WHERE mycoplasma_free='0';
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters');
+UPDATE structure_formats AS sfo
+INNER JOIN structures AS s ON sfo.structure_id=s.id
+INNER JOIN structure_fields AS sfi ON sfo.structure_field_id=sfi.id
+SET sfo.structure_id=(SELECT id FROM structures WHERE alias='consent_masters')
+WHERE s.alias='cd_icm_generics' AND sfi.model='ConsentMaster';
+UPDATE consent_controls SET form_alias='consent_masters,cd_icm_generics';
 
 -- Section above already executed on prod 2011-11-03
 -- -------------------------------------------------------------------------------------------------------
@@ -339,4 +346,5 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
 UPDATE structure_formats SET `display_order`='24' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='querytool_batch_set') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='BatchSet' AND `tablename`='datamart_batch_sets' AND `field`='description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
