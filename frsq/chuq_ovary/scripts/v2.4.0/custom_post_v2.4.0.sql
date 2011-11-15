@@ -2,6 +2,8 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='end_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_fields SET language_label = 'aliquot system code' WHERE model LIKE '%Aliquot%' AND field = 'barcode';
+
 -- CONSENT
 
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'chuq_cd_consents');
@@ -47,47 +49,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias like 'sd_spe%') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field like 'chuq_evaluated_spent_time_from_coll%');
 UPDATE structure_fields SET `language_tag`='' WHERE model='SpecimenDetail' AND tablename='' AND field='chuq_evaluated_spent_time_from_coll_unit';
-
-DROP VIEW view_samples;
-CREATE VIEW view_samples AS 
-SELECT 
-samp.id AS sample_master_id,
-samp.parent_id AS parent_sample_id,
-samp.initial_specimen_sample_id,
-samp.collection_id AS collection_id,
-
-col.bank_id, 
-col.sop_master_id, 
-link.participant_id, 
-link.diagnosis_master_id, 
-link.consent_master_id,
-
-part.participant_identifier, 
-
-col.acquisition_label, 
-
-specimenc.sample_type AS initial_specimen_sample_type,
-specimen.sample_control_id AS initial_specimen_sample_control_id,
-parent_sampc.sample_type AS parent_sample_type,
-parent_samp.sample_control_id AS parent_sample_control_id,
-sampc.sample_type,
-samp.sample_control_id,
-samp.sample_code,
-sampc.sample_category,
-
-tiss.chuq_tissue_code
-
-FROM sample_masters as samp
-INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
-INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
-LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
-LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
-LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
-LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
-LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
-LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
-WHERE samp.deleted != 1;
 
 DROP VIEW view_aliquots;
 CREATE VIEW view_aliquots AS 
@@ -144,6 +105,47 @@ LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
 WHERE al.deleted != 1;
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+link.participant_id, 
+link.diagnosis_master_id, 
+link.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+sampc.sample_category,
+
+tiss.chuq_tissue_code
+
+FROM sample_masters as samp
+INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
+LEFT JOIN clinical_collection_links AS link ON col.id = link.collection_id AND link.deleted != 1
+LEFT JOIN participants AS part ON link.participant_id = part.id AND part.deleted != 1
+LEFT JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = samp.initial_specimen_sample_id AND tiss.deleted != 1
+WHERE samp.deleted != 1;
 
 -- drop eruthrocyte
 
