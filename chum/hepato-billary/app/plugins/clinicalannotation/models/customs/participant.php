@@ -5,47 +5,41 @@ class ParticipantCustom extends Participant {
 	var $name = 'Participant';
 	
 	function summary( $variables=array() ) {
-		$return = false;
+		$return = array();
 		
-		if ( isset($variables['Participant.id']) ) {
+		if(isset($variables['Participant.id'])){
 			
-			$has_many_details = array(
-				'hasMany' => array('MiscIdentifier' => array(
-					'className' => 'Clinicalannotation.MiscIdentifier',
-					'foreignKey' => 'participant_id',
-					'conditions' => array("MiscIdentifier.identifier_name LIKE 'hepato_bil_bank_participant_id'"))));			
-			
-			$this->bindModel($has_many_details, false);			
-			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'], )));
-			$this->unbindModel(array('hasMany' => array('MiscIdentifier')), false);
-						
-		  	//Add No Labs to description
-			$bank_identifier = '';
-			if((!empty($result['MiscIdentifier'])) && ($result['MiscIdentifier'][0]['identifier_name'] == 'hepato_bil_bank_participant_id')) {
-				$bank_identifier = $result['MiscIdentifier'][0]['identifier_value'];
-			}			
-			
-			$return = array(
-				'Summary'	 => array(
-					'menu'			=>	array( NULL, ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
-					'title'			=>	array( NULL, __('participant', TRUE) . ': ' . ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
-					
-					'description'		=>	array(
-						__('hepato_bil_bank_participant_id', true) => $bank_identifier,
-						'' => '&nbsp;',
-						__('date of birth', TRUE)			=>	$result['Participant']['date_of_birth'],
-						__('vital status', TRUE)			=>	array($result['Participant']['vital_status'], 'vital_status'), // select-option
-						__('sex', TRUE)						=>	array($result['Participant']['sex'], 'sex'), // select-option
-						__('participant code', TRUE)	=>	$result['Participant']['participant_identifier']
-					)
-				)
+			$result = $this->find('first', array('conditions' => array('Participant.id' => $variables['Participant.id'])));
+			$result['FunctionManagement'] = array(
+				'health_insurance_card'				=> null,
+				'hepato_bil_bank_participant_id'	=> null,
+				'saint_luc_hospital_nbr'			=> null
 			);
 			
-			//Add No Labs to description
-			if(!empty($result['MiscIdentifier'])) $return['Summary']['description'][''] = '&nbsp;';
-			foreach($result['MiscIdentifier'] as $new_no_lab) {
-				$return['Summary']['description'][__($new_no_lab['identifier_name'], TRUE)] = $new_no_lab['identifier_value'];
-			}		
+			$misc_identifier_model = AppModel::getInstance('clinicalannotation', 'MiscIdentifier', true);
+			$identifiers = $misc_identifier_model->find('all', array('conditions' => array('Participant.id' => $variables['Participant.id'], 'MiscIdentifier.misc_identifier_control_id < ' => 4)));
+			
+		  	//Add No Labs to description
+			foreach($identifiers as $identifier){
+				switch($identifier['MiscIdentifier']['misc_identifier_control_id']){
+					case 1:
+						$result['FunctionManagement']['health_insurance_card'] = $identifier['MiscIdentifier']['identifier_value']; 
+					case 2:
+						$result['FunctionManagement']['saint_luc_hospital_nbr'] = $identifier['MiscIdentifier']['identifier_value'];
+					case 3:
+						$result['FunctionManagement']['hepato_bil_bank_participant_id'] = $identifier['MiscIdentifier']['identifier_value'];
+					default:
+						
+				}				
+			}
+			
+			$return = array(
+				'menu'				=>	array( NULL, ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
+				'title'				=>	array( NULL, __('participant', TRUE) . ': ' . ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
+				'structure alias'	=> 'participants,qc_hb_ident_summary',
+				'data'				=> $result
+			);
+			
 		}
 		
 		return $return;
