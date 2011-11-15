@@ -1342,8 +1342,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE aliquot_controls SET form_alias=CONCAT(form_alias, ',ad_hemolysis') WHERE aliquot_type='tube' AND sample_control_id IN(9, 10);
 
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id=(SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id=(SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_serums') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_plasmas') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field='hemolysis_signs' AND model='SampleDetail');
 
 UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_details' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
