@@ -29,6 +29,8 @@ class SampleMaster extends InventorymanagementAppModel {
 
 	public static $aliquot_master_model = null;
 		
+	static public $join_sample_control_on_dup = array('table' => 'sample_controls', 'alias' => 'SampleControl', 'type' => 'LEFT', 'conditions' => array('sample_masters_dup.sample_control_id =SampleControl.id'));
+		
 	function specimenSummary($variables=array()) {
 		$return = false;
 		
@@ -41,10 +43,10 @@ class SampleMaster extends InventorymanagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu'				=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
-				'title' 			=> array(null, __($specimen_data['SampleMaster']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'data' 				=> $specimen_data,
-	 			'structure alias' 	=> 'sample_masters_for_search_result'
+	 			'structure alias' 	=> 'sample_masters'
 			);
 		}	
 		
@@ -63,10 +65,10 @@ class SampleMaster extends InventorymanagementAppModel {
 				 	
 			// Set summary	 	
 	 		$return = array(
-					'menu' 				=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
-					'title' 			=> array(null, __($derivative_data['SampleMaster']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
+					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 					'data' 				=> $derivative_data,
-	 				'structure alias' 	=> 'sample_masters_for_search_result'
+	 				'structure alias' 	=> 'sample_masters'
 			);
 		}	
 		
@@ -137,8 +139,10 @@ class SampleMaster extends InventorymanagementAppModel {
 	 * 
 	 * @author N. Luc
 	 * @since 2007-06-20
+	 * @deprecated
 	 */
 	function createCode($sample_master_id, $sample_master_data, $sample_control_data){	
+		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		$sample_code = $sample_control_data['SampleControl']['sample_type_code'] . ' - '. $sample_master_id;		
 		return $sample_code;		
 	}
@@ -213,10 +217,14 @@ class SampleMaster extends InventorymanagementAppModel {
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
 		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleMaster']['sample_type'], TRUE) . ']';
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
 		}
 		
 		return $formatted_data;
+	}
+	
+	static function joinOnSampleDup($on_field){
+		return array('table' => 'sample_masters', 'alias' => 'sample_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = sample_masters_dup.id'));
 	}
 }
 

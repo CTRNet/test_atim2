@@ -35,6 +35,9 @@ class StructuresComponent extends Object {
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
+					$structure['Structure']['CodingIcdCheck'] = 1;
+				}
 			}
 		}
 		
@@ -115,8 +118,14 @@ class StructuresComponent extends Object {
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
 		
-		
-		if(($return = Cache::read($alias, "structures")) === false){
+		$return = Cache::read($alias, "structures");
+		if($return === null){
+			$return = false;
+			if(Configure::read('debug') == 2){
+				AppController::addWarningMsg('Structure caching issue. (null)');
+			}
+		}
+		if(!$return){
 			if ( $alias ) {
 				
 				App::import('model', 'Structure');
@@ -211,12 +220,14 @@ class StructuresComponent extends Object {
 					$form_fields[$key_start]['model']		= $value['model'];
 					$form_fields[$key_start]['field']		= $value['field'];
 					$form_fields[$key_start]['key']			= $form_fields_key.' >=';
+					$form_fields[$key_start]['tablename']	= $value['tablename'];
 					
 					$key_end = $form_fields_key.'_end';
 					$form_fields[$key_end]['plugin']			= $value['plugin'];
 					$form_fields[$key_end]['model']			= $value['model'];
 					$form_fields[$key_end]['field']			= $value['field'];
 					$form_fields[$key_end]['key']			= $form_fields_key.' <=';
+					$form_fields[$key_end]['tablename']	= $value['tablename'];
 					
 					if(isset($atim_structure['Accuracy'][$value['model']][$value['field']])){
 						$accuracy_fields[] = $key_start;
@@ -224,20 +235,21 @@ class StructuresComponent extends Object {
 						$form_fields[$key_start.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
 						$form_fields[$key_end.'_accuracy']['key'] = $form_fields_key.'_accuracy'; 
 					}
-				}else if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
-					// for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
-					$form_fields[$form_fields_key]['plugin']= $value['plugin'];
-					$form_fields[$form_fields_key]['model']	= $value['model'];
-					$form_fields[$form_fields_key]['field']	= $value['field'];
 					
-					$form_fields[$form_fields_key]['key']		= $value['model'].'.'.$value['field'];
-				}else {
-					// all other types, a generic SQL fragment...
+				}else{ 
 					$form_fields[$form_fields_key]['plugin']	= $value['plugin'];
-					$form_fields[$form_fields_key]['model']	= $value['model'];
-					$form_fields[$form_fields_key]['field']	= $value['field'];
+					$form_fields[$form_fields_key]['model']		= $value['model'];
+					$form_fields[$form_fields_key]['field']		= $value['field'];
+					$form_fields[$form_fields_key]['tablename']	= $value['tablename'];
 					
-					$form_fields[$form_fields_key]['key']		= $form_fields_key.' LIKE';
+					if ( $value_type == 'select' || isset($this->controller->data['exact_search'])){
+						//for SELECT pulldowns, where an EXACT match is required, OR passed in DATA is an array to use the IN SQL keyword
+						$form_fields[$form_fields_key]['key']		= $value['model'].'.'.$value['field'];
+						
+					}else{
+						// all other types, a generic SQL fragment...
+						$form_fields[$form_fields_key]['key']		= $form_fields_key.' LIKE';
+					}						
 				}
 				
 				//CocingIcd magic
@@ -290,6 +302,14 @@ class StructuresComponent extends Object {
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
 							if(is_array($data) && $model != "0"){
 									$format_data_model = AppModel::getInstance($form_fields[$form_fields_key]['plugin'], $model, true);
+									
+									if($format_data_model->table != $form_fields[$form_fields_key]['tablename']){
+										//reload the model with the proper table (likely a detail model)
+										$model_name = $format_data_model->name;
+										ClassRegistry::removeObject($model_name);//flush the old detail from cache, we'll need to reinstance it
+										$format_data_model = new AppModel(array('table' => $form_fields[$form_fields_key]['tablename'], 'name' => $model_name, 'alias' => $model_name));
+									}
+									
 									$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
 									if(is_array($data)){
 										$data = array_unique($data);
@@ -367,7 +387,6 @@ class StructuresComponent extends Object {
 				}
 			}
 		}
-
 		return $conditions;
 	}
 	

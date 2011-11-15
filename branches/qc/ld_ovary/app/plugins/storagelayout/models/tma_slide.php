@@ -66,9 +66,11 @@ class TmaSlide extends StoragelayoutAppModel {
 			if(empty($this->validationErrors['recorded_storage_selection_label'])
 				&& empty($this->validationErrors['storage_coord_x'])
 				&& empty($this->validationErrors['storage_coord_y'])
-				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+				&& isset($arr_storage_selection_results['storage_data']['StorageControl'])
+				&& $arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts']
 				&& (strlen($tma_slide_data['TmaSlide']['storage_coord_x']) > 0 || strlen($tma_slide_data['TmaSlide']['storage_coord_y']) > 0)
 			){
+				$exception = $this->id ? array("TmaSlide" => $this->id) : array();
 				$position_status = $this->StorageMaster->positionStatusQuick(
 					$arr_storage_selection_results['storage_data']['StorageMaster']['id'], 
 					array(
@@ -82,15 +84,14 @@ class TmaSlide extends StoragelayoutAppModel {
 				}else if($position_status == StorageMaster::POSITION_DOUBLE_SET){
 					$msg = __('you have set more than one element in storage [%s] at position [%s, %s]', true);
 				}
-
 				if($msg != null){
 					$msg = sprintf(
 						$msg,
 						$arr_storage_selection_results['storage_data']['StorageMaster']['selection_label'],
-						$this->data['StorageMaster']['parent_storage_coord_x'],
-						$this->data['StorageMaster']['parent_storage_coord_y']
+						$this->data['TmaSlide']['storage_coord_x'],
+						$this->data['TmaSlide']['storage_coord_y']
 					);
-					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
