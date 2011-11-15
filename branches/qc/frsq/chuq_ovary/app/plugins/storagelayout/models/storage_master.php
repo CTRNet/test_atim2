@@ -16,6 +16,10 @@ class StorageMaster extends StoragelayoutAppModel {
 	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)
 	const POSITION_DOUBLE_SET = 3;//the position is being defined more than once
 	
+	const CONFLICTS_IGNORE = 0;
+	const CONFLICTS_WARN = 1;
+	const CONFLICTS_ERR = 2;
+	
 	function summary($variables = array()) {
 		$return = false;
 		
@@ -90,7 +94,7 @@ class StorageMaster extends StoragelayoutAppModel {
 				&& empty($this->validationErrors['parent_storage_coord_x'])
 				&& empty($this->validationErrors['parent_storage_coord_y'])
 				&& isset($parent_storage_selection_results['storage_data']['StorageControl'])
-				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conficts']
+				&& $parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts']
 				&& (strlen($this->data['StorageMaster']['parent_storage_coord_x']) > 0 || strlen($this->data['StorageMaster']['parent_storage_coord_y']) > 0)
 			){
 				$exception = $this->id ? array("StorageMaster" => $this->id) : array();
@@ -115,7 +119,7 @@ class StorageMaster extends StoragelayoutAppModel {
 						$this->data['StorageMaster']['parent_storage_coord_x'],
 						$this->data['StorageMaster']['parent_storage_coord_y']
 					);
-					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conficts'] == 1){
+					if($parent_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == self::CONFLICTS_WARN){
 						AppController::addWarningMsg($msg);
 					}else{
 						$this->validationErrors['parent_storage_coord_x'] = $msg;
@@ -418,6 +422,10 @@ class StorageMaster extends StoragelayoutAppModel {
 		$formatted_data = '';
 		
 		if((!empty($storage_data)) && isset($storage_data['StorageMaster']['id']) && (!empty($storage_data['StorageMaster']['id']))) {
+			if(!array_key_exists('StorageControl', $storage_data)){
+				$storage_control_model = AppModel::getInstance('storagelayout', 'StorageControl', true);
+				$storage_data += $storage_control_model->findById($storage_data['StorageMaster']['storage_control_id']);
+			}
 			$formatted_data = $storage_data['StorageMaster']['selection_label'] . ' [' . $storage_data['StorageMaster']['code'] . '] / '.__($storage_data['StorageControl']['storage_type'],true);
 		}
 	
@@ -888,6 +896,51 @@ class StorageMaster extends StoragelayoutAppModel {
 		
 		
 		return StorageMaster::POSITION_FREE;
+	}
+	
+	/**
+	 * Checks conflicts for batch layout
+	 */
+	function checkBatchLayoutConflicts(&$data, $model_name, $label_name, &$cumul_storage_data){
+		$conflicts_found = false;
+		if(isset($data[$model_name])){
+			foreach($data[$model_name] as &$model_data){
+				$storage_id = $model_data['s'];
+				if($storage_id == 'u' || $storage_id == 't'){
+					continue;
+				}
+				if(!array_key_exists($storage_id, $cumul_storage_data)){
+					$storage = $this->findById($storage_id);
+					$cumul_storage_data[$storage_id] = $storage;
+					$cumul_storage_data[$storage_id]['printed_label'] = $this->getLabel($storage, 'StorageMaster', 'selection_label');
+				}
+					
+				if(isset($cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']])){
+					$msg = sprintf(__('conflict detected in storage [%s] at position [%s, %s]', true),
+						$cumul_storage_data[$storage_id]['printed_label'],
+						$model_data['x'],
+						$model_data['y']
+					);
+					//react
+					if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_WARN){
+						AppController::addWarningMsg($msg);
+						$conflicts_found = true;
+					}else if($cumul_storage_data[$storage_id]['StorageControl']['check_conflicts'] == StorageMaster::CONFLICTS_ERR){
+						$this->validationErrors[] = ($msg.' '.__('unclassifying additional items', true));
+						$model_data['x'] = '';
+						$model_data['y'] = '';
+						$conflicts_found = true;
+					}
+				}else{
+					//save the item label
+					$model = AppModel::getInstance(null, $model_name, true);
+					$model_full_data = $model->findById($model_data['id']);
+					$cumul_storage_data[$storage_id]['pos'][$model_data['x']][$model_data['y']] = $this->getLabel($model_full_data, $model_name, $label_name);
+				}
+			}
+		}
+		
+		return $conflicts_found;
 	}
 }
 

@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => '',
-		'database' => 'chuq',
+		'database' => 'chuq_ovary',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

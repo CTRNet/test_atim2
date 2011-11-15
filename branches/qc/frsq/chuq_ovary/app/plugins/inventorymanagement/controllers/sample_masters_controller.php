@@ -57,10 +57,8 @@ class SampleMastersController extends InventorymanagementAppController {
 	}
 	
 	function contentTreeView($collection_id, $sample_master_id = 0, $is_ajax = false){
-		if(!$collection_id) { 
-			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
+		$this->Collection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, false);
 		
 		if($is_ajax){
 			$this->layout = 'ajax';
@@ -737,8 +735,7 @@ class SampleMastersController extends InventorymanagementAppController {
 						
 			$this->data['SampleMaster']['id'] = array($aliquot_master['SampleMaster']['id']);
 			$this->set("aliquot_ids", $aliquot_master_id);
-			$url_to_cancel = 'inventorymanagement/aliquot_masters/detail/'.$aliquot_master['SampleMaster']['collection_id'].'/'.$aliquot_master['SampleMaster']['id'].'/'.$aliquot_master_id;
-			
+			$url_to_cancel = '/inventorymanagement/aliquot_masters/detail/'.$aliquot_master['SampleMaster']['collection_id'].'/'.$aliquot_master['SampleMaster']['id'].'/'.$aliquot_master_id;
 			$is_menu_already_set = true;
 			$this->setAliquotMenu($aliquot_master);
 			
