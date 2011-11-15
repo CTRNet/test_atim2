@@ -2315,6 +2315,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		if(datetime_input_type == "dropdown"){
+			unset($attributes['options']);//Fixes an IE8 issue with $.serialize
 			$result .= $this->Form->hour($name, time_format == 24, $hour, $attributes);
 			$result .= $this->Form->minute($name, $minutes, $attributes);
 		}else{
