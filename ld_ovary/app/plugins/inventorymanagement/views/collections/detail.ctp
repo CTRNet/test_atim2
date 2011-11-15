@@ -15,29 +15,27 @@
 		ksort($add_links);
 		
 		$bottom_links = array('edit' => '/inventorymanagement/collections/edit/' . $atim_menu_variables['Collection.id']);
+		$bottom_links['copy for new collection'] = array('link' => '/inventorymanagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy');
+		$bottom_links['add specimen'] = $add_links;
+		$bottom_links['add from template'] = $templates;
 		if(empty($participant_id)){
-			$bottom_links['participant'] = '/underdevelopment/';
+			$bottom_links['participant data'] = '/underdevelopment/';
 		}else{
-			$bottom_links['participant'] = array(
-				'detail'		=> '/clinicalannotation/participants/profile/' . $participant_id,
-				'collections'	=> array(
-					'icon'	=> 'detail',
+			$bottom_links['participant data'] = array(
+				'profile'		=> array(
+					'icon'	=> 'participant',
+					'link'	=> '/clinicalannotation/participants/profile/' . $participant_id),
+				'participant inventory'	=> array(
+					'icon'	=> 'participant',
 					'link'	=> '/clinicalannotation/product_masters/productsTreeView/' . $participant_id
 					) 
-					
 			);
 		}
-		$bottom_links['add specimen'] = $add_links;
+				
 		$bottom_links['delete'] = '/inventorymanagement/collections/delete/' . $atim_menu_variables['Collection.id'];
-		$structure_links['bottom'] = $bottom_links;
 		
-		// General detail form display
-		$search_type_links = array();
-		$search_type_links['collections'] = array('link'=> '/inventorymanagement/collections/index/', 'icon' => 'search');
-		$search_type_links['samples'] = array('link'=> '/inventorymanagement/sample_masters/index/', 'icon' => 'search');
-		$search_type_links['aliquots'] = array('link'=> '/inventorymanagement/aliquot_masters/index/', 'icon' => 'search');
-	
-		$structure_links['bottom']['new search'] = $search_type_links;
+		$structure_links['bottom'] = array_merge(array('new search' => InventorymanagementAppController::$search_links), $bottom_links);
+		
 	}
 	
 	$structure_override = array();

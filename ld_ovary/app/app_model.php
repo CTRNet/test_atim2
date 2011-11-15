@@ -42,11 +42,6 @@ class AppModel extends Model {
 			}
 		}
 		parent::__construct($id, $table, $ds);
-		
-		if(!isset(self::$auto_validation[$this->name])){
-			$this->buildAutoValidation($this->name, $this);
-		}
-		
 	}
 	
 	/**
@@ -160,7 +155,22 @@ class AppModel extends Model {
 	}
 	
 	function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra){
-		return $this->find('all', array('conditions' => $conditions, 'order' => $order, 'limit' => $limit, 'offset' => $limit * ($page > 0 ? $page - 1 : 0), 'recursive' => $recursive, 'extra' => $extra));
+		$params = array(
+			'fields'	=> $fields, 
+			'conditions'=> $conditions, 
+			'order'		=> $order, 
+			'limit'		=> $limit, 
+			'offset'	=> $limit * ($page > 0 ? $page - 1 : 0), 
+			'recursive' => $recursive, 
+			'extra'		=> $extra
+		);
+		
+		if(isset($extra['joins'])) {
+			$params['joins'] = $extra['joins'];
+			unset($extra['joins']);
+		}
+		
+		return $this->find('all', $params);
 	}
 	
 /**
@@ -303,10 +313,15 @@ class AppModel extends Model {
 	
 	public function buildAccuracyConfig(){
 		$tmp_acc = array();
-		foreach($this->_schema as $field_name => $foo){
-			if(strpos($field_name, "_accuracy") === strlen($field_name) - 9){
-				$tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+		if(isset($this->_schema)){
+			foreach($this->_schema as $field_name => $foo){
+				if(strpos($field_name, "_accuracy") === strlen($field_name) - 9){
+					$tmp_acc[substr($field_name, 0, strlen($field_name) - 9)] = $field_name;
+				}
 			}
+		}else{
+			AppController::addWarningMsg('failed to build accuracy config for model ['.$this->name.'] because there is no schema. '
+				.'To avoid this warning message you can add an empty array as a schema to your model. Eg.: <code>$model->_schema = array();</code>');
 		}
 		self::$accuracy_config[$this->table] = $tmp_acc;
 	}
@@ -316,8 +331,11 @@ class AppModel extends Model {
 			//build accuracy settings for that table
 			$this->buildAccuracyConfig();
 		}
-		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
+			if(!isset($this->data[$this->name][$date_field])){
+				continue;
+			}
+			
 			$current = &$this->data[$this->name][$date_field];
 			if(empty($current)){
 				$this->data[$this->name][$accuracy_field] = '';
@@ -326,20 +344,38 @@ class AppModel extends Model {
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
-				$time = null;
 				if(strpos($day, ' ') !== false){
+					$time = null;
 					list($day, $time) = explode(" ", $day);
 					list($hour, $minute) = explode(":", $time);
 				}
+				
+				
+				//used to avoid altering the date when its invalid
+				$go_to_next_field = false;
+				$plus_minus = false;
+				if(strpos($year, '±') === 0){
+					$plus_minus = true;
+					$year = substr($year, 2);
+				}
+				foreach(array($year, $month, $day, $hour, $minute) as $field){
+					if(!empty($field) && !is_numeric($field)){
+						$go_to_next_field = true;
+						break;
+					}
+				}
+				if($go_to_next_field){
+					continue;//if one of them is not empty AND not numeric
+				}
+				
 				if(!empty($year)){
-					if(strpos($year, '±') === 0 || (empty($month) && empty($day) && empty($hour) && empty($minute))){
+					if($plus_minus || (empty($month) && empty($day) && empty($hour) && empty($minute))){
 						$month = '01';
 						$day = '01';
 						$hour = '00';
 						$minute = '00';
-						if(strpos($year, '±') === 0){
+						if($plus_minus){
 							$this->data[$this->name][$accuracy_field] = 'y';
-							$year = substr(trim($year), 2);
 						}else{
 							$this->data[$this->name][$accuracy_field] = 'm';
 						}
@@ -371,6 +407,18 @@ class AppModel extends Model {
 	
 	function validates($options = array()){
 		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
+		
+		if(!isset(self::$auto_validation[$this->name]) &&
+			isset($this->Behaviors->MasterDetail) &&
+			(strpos($this->name, 'Detail') === false ||
+			!array_key_exists(str_replace('Detail', 'Master', $this->name), $this->Behaviors->MasterDetail->__settings))
+		){
+			//build master validation (detail validation are built within the validation function)
+			self::buildAutoValidation($this->name, $this);
+			if(array_key_exists($this->name, self::$auto_validation)){
+				$this->validate = array_merge_recursive($this->validate, self::$auto_validation[$this->name]);
+			}
+		}
 		$this->setDataAccuracy();
 
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
@@ -407,7 +455,9 @@ class AppModel extends Model {
 				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					//attach auto validation
 					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
+					
 					if(!isset(self::$auto_validation[$auto_validation_name])){
+						//build detail validation on the fly
 						$this->buildAutoValidation($auto_validation_name, $detail_class_instance);
 					}
 					$detail_class_instance->validate = AppController::getInstance()->{$detail_class}->validate;
@@ -428,38 +478,6 @@ class AppModel extends Model {
 		}
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
-	}
-	
-	/**
-	 * Use this function to build an ATiM model. It ensures that custom models are loaded properly.
-	 * @param string $plugin_name
-	 * @param string $class_name
-	 * @param boolean $error_view_on_null If true, will redirect to an error page when the import fails
-	 * @return An ATiM model 
-	 * 
-	 * @deprecated use AppModel::getInstance to get an instance. One will be created if none exists. If you
-	 * want a new one, use ClassRegistry::init.
-	 * TODO: delete for ATiM 2.4
-	 */
-	static function atimNew($plugin_name, $class_name, $error_view_on_null){
-		$import_name = (strlen($plugin_name) > 0 ? $plugin_name."." : "").$class_name;
-		if(!class_exists($class_name, false) && !App::import('Model', $import_name)){
-			if($error_view_on_null){
-				$app = AppController::getInstance();
-				$app->redirect( '/pages/err_model_import_failed?p[]='.$import_name, NULL, TRUE );
-				exit;
-			}else{
-				return NULL;
-			}
-		}
-		$custom_class_name = $class_name."Custom";
-		$loaded_class = class_exists($custom_class_name) ? new $custom_class_name() : new $class_name();
-		$loaded_class->Behaviors->Revision->setup($loaded_class);//activate shadow model
-		
-		if(Configure::read('debug') > 0){
-			AppController::addWarningMsg("AppModel::atimNew is deprecated. ClassRegistry::init if you want a new instance or AppModel::getInstance if you want some instance.");
-		}
-		return $loaded_class;
 	}
 	
 	static function getInstance($plugin_name, $class_name, $error_view_on_null){
@@ -701,6 +719,30 @@ class AppModel extends Model {
 	 */
 	function allowDeletion($id){
 		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Redirects to the missing data page if a model id cannot be fetched
+	 * @param int $id
+	 * @param string $method The method name to display in the error message
+	 * @param string $line The line number to display in the error message
+	 * @param bool $return Returns the data line if it exists
+	 * @return null if $return is true and the data exists, the data, null otherwise
+	 */
+	function redirectIfNonExistent($id, $method, $line, $return = false){
+		$this->id = $id;
+		$result = null;
+		if(!$this->exists()){
+			AppController::getInstance()->redirect( '/pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
+		}
+		if($return){
+			if($this->primaryKey == 'id'){
+				$result = $this->findById($id); 
+			}else{
+				$result = $this->find('first', array('conditions' => array($this->name.'.'.$this->primaryKey => $id)));
+			}
+		}
+		return $result;
 	}
 }
 

@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'top'=>'/drug/drugs/add/',
 		'bottom'=>array(
-			'cancel'=>'/drug/drugs/index/'
+			'cancel'=>'/drug/drugs/search/'
 		)
 	);
 	

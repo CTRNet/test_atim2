@@ -13,7 +13,7 @@ class EventControl extends ClinicalannotationAppModel {
 				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
 				'title'			=>	array( NULL, __('annotation', TRUE) ),
 				'data'				=> $result,
-				'structure alias'	=> 'event_summary'
+				'structure alias'	=> 'eventmasters'
 			);
 		}
 		
@@ -39,6 +39,18 @@ class EventControl extends ClinicalannotationAppModel {
 		return $result;
 	}
 	
+	function getEventGroupPermissibleValues() {
+		$result = array();
+		
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
+			$result[$event_control['EventControl']['event_group']] = __($event_control['EventControl']['event_group'], true);
+		}
+		asort($result);
+		
+		return $result;
+	}
+	
 	/**
 	 * Get permissible values array gathering all existing event types.
 	 *
@@ -56,6 +68,19 @@ class EventControl extends ClinicalannotationAppModel {
 		asort($result);
 		
 		return $result;
+	}
+	
+	function buildAddLinks($event_ctrl_data, $participant_id, $event_group){
+		$links = array();
+		foreach($event_ctrl_data as $event_ctrl){
+			$links[] = array(
+					'order' => $event_ctrl['EventControl']['display_order'],
+					'label' => __($event_ctrl['EventControl']['disease_site'], true).' - '.__($event_ctrl['EventControl']['event_type'], true),
+					'link' => '/clinicalannotation/event_masters/add/'.$event_group.'/'.$participant_id.'/'.$event_ctrl['EventControl']['id']
+			);
+		}
+		AppController::buildBottomMenuOptions($links);
+		return $links;
 	}
 }
 

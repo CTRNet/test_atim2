@@ -2,10 +2,18 @@
 
 class AliquotReviewMaster extends InventoryManagementAppModel {
 
-	var $belongsTo = array(        
-		'AliquotReviewControl' => array(            
+	var $belongsTo = array(
+		'AliquotMaster' => array(
+			'className'	=> 'InventoryManagement.AliquotMaster',
+			'foreignKey' => 'aliquot_master_id'        
+		), 'AliquotReviewControl' => array(            
 			'className'    => 'Inventorymanagement.AliquotReviewControl',            
-			'foreignKey'    => 'aliquot_review_control_id'));
+			'foreignKey'    => 'aliquot_review_control_id'
+		), 'SpecimenReviewMaster' => array(
+			'className' => 'SpecimenReviewMaster',
+			'foreignKey' => 'specimen_review_master_id'
+		)
+	);
 		
 	/**
 	 * Get permissible values array gathering all existing aliquots that could be used for review.
@@ -24,10 +32,10 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 			
 			$conditions = array('AliquotMaster.sample_master_id' => $sample_master_id);
 			if(!empty($specific_aliquot_type)){
-				$conditions['AliquotMaster.aliquot_type'] = $specific_aliquot_type;
+				$conditions['AliquotControl.aliquot_type'] = $specific_aliquot_type;
 			}
 			
-			foreach($this->AliquotMaster->find('all', array('conditions' => $conditions, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '-1')) as $new_aliquot) {
+			foreach($this->AliquotMaster->find('all', array('conditions' => $conditions, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0')) as $new_aliquot) {
 					$result[$new_aliquot['AliquotMaster']['id']] = $new_aliquot['AliquotMaster']['barcode'];					
 			}
 		}

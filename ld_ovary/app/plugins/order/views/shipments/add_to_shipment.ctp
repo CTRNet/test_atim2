@@ -10,7 +10,13 @@
 	$structure_override = array();
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'editgrid', 'links'=>$structure_links, 'settings' => $structure_settings, 'override'=>$structure_override);
+	$final_options = array(
+		'type'		=> 'editgrid', 
+		'links'		=> $structure_links, 
+		'settings'	=> $structure_settings, 
+		'override'	=> $structure_override,
+		'extras' => "<a href='#' class='checkAll'>".__('check all', true)."</a> | <a href='#' class='uncheckAll'>".__('uncheck all', true)."</a>"
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
