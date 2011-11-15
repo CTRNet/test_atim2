@@ -17,7 +17,7 @@
 		
 	$structures->build($template_init_structure, $structure_build_options);
 	
-	$display = $shell->validationErrors().ob_get_contents();
+	$display = $shell->validationHtml().ob_get_contents();
 	ob_end_clean();
 	$display = ob_get_contents().$display;
 	ob_clean();

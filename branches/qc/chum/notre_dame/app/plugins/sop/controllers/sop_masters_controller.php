@@ -9,7 +9,7 @@ class SopMastersController extends SopAppController {
 		$this->data = $this->paginate($this->SopMaster, array());
 		
 		// find all EVENTCONTROLS, for ADD form
-		$this->set( 'sop_controls', $this->SopControl->find('all', array()) );
+		$this->set( 'sop_controls', $this->SopControl->find('all', array('conditions' => array('SopControl.flag_active' => '1'))) );
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -19,7 +19,7 @@ class SopMastersController extends SopAppController {
 		if (!$sop_control_id ) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 		
 		$this->set( 'atim_menu_variables', array('SopControl.id'=>$sop_control_id)); 
-		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id)));
+		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id, 'SopControl.flag_active' => '1')));
 		if(empty($this_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		
 		// set FORM ALIAS based off VALUE from CONTROL table

@@ -794,6 +794,21 @@ function initActions(){
 		return false;
 	}
 	
+	function loadUsesAndStorageHistory(url){
+		$.post(document.URL, {data : "uses"}, function(data){
+			var origHeight = $("div.uses").height();
+			$("div.uses").html(data);
+			var newHeight = $("div.uses").height();
+			$("div.uses").css('height', origHeight).animate({height: newHeight}, 500);
+		});
+		$.post(url, {data : "storage_history"}, function(data){
+			var origHeight = $("div.storage_history").height();
+			$("div.storage_history").html(data);
+			var newHeight = $("div.storage_history").height();
+			$("div.storage_history").css('height', origHeight).animate({height: newHeight}, 500);
+		});
+	}
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -951,6 +966,10 @@ function initActions(){
 			$(this).parent().find("span, a").toggle();
 			return false;
 		});
+		
+		if(document.URL.match(/inventorymanagement\/aliquot_masters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
+			loadUsesAndStorageHistory(document.URL);
+		}
 	}
 
 	function globalInit(scope){

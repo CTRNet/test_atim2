@@ -20,8 +20,8 @@ class SopMaster extends SopAppModel
 			$result = $this->find('first', array('conditions'=>array('SopMaster.id'=>$variables['SopMaster.id'])));
 			
 			$return = array(
-				'menu'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
-				'title'			=>	array( NULL, __($result['SopMaster']['title'], TRUE)),
+				'menu'			=>	array( NULL, __($result['SopMaster']['code'], TRUE)),
+				'title'			=>	array( NULL, __($result['SopMaster']['code'], TRUE)),
 				'data'			=> $result,
 				'structure alias'=>'sopmasters'
 			);
