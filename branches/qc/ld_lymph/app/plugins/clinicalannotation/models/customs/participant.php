@@ -13,7 +13,7 @@ class ParticipantCustom extends Participant {
 			
 			$return = array(
 					'menu'				=>	array( NULL, __('participant',true).' #'.($result['Participant']['participant_identifier']) ),
-					'title'				=>	array( NULL, ' #'.($result['Participant']['participant_identifier']) ),
+					'title'				=>	array( NULL, __('participant',true).' #'.($result['Participant']['participant_identifier']) ),
 					'structure alias' 	=> 'participants',
 					'data'				=> $result
 			);
