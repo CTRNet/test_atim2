@@ -20,6 +20,11 @@ class AnnouncementsController extends AdministrateAppController {
 			$this->data['Announcement']['group_id'] = $group_id;
 			$this->data['Announcement']['user_id'] = $user_id;
 			if ( $this->Announcement->save($this->data) ) {
+			
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) { 
+					require($hook_link); 
+				}
 				$this->atimFlash( 'your data has been updated','/administrate/announcements/detail/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
 			}
 		}
@@ -44,7 +49,13 @@ class AnnouncementsController extends AdministrateAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->Announcement->id = $announcement_id;
-			if ( $this->Announcement->save($this->data) ) $this->atimFlash( 'your data has been updated','/administrate/announcements/detail/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
+			if ( $this->Announcement->save($this->data)){
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				$this->atimFlash( 'your data has been updated','/administrate/announcements/detail/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
+			}
 		} else {
 			$this->data = $this->Announcement->find('first',array('conditions'=>array('Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id, 'Announcement.id'=>$announcement_id)));
 		}

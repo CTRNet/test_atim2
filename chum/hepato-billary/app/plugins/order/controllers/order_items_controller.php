@@ -19,47 +19,29 @@ class OrderItemsController extends OrderAppController {
 		'ViewAliquot' => array('limit' =>pagination_amount , 'order' => 'ViewAliquot.barcode DESC'), 
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-						
-		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
-		
+	function search($search_id = 0) {
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
+		$this->searchHandler($search_id, $this->OrderItem, 'orderitems', '/inventorymanagement/order_items/search');
+
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
-	}
-	
-	function search() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-
-		$oderitems_structure = $this->Structures->get('form', 'orderitems');
-		$this->set('atim_structure', $oderitems_structure);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parse_search_conditions($oderitems_structure);
 		
-		$this->data = $this->paginate($this->OrderItem, $_SESSION['ctrapp_core']['search']['criteria']);
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['OrderItem']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/order_items/search';
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}	
 	
 	function listall( $order_id, $order_line_id ) {
-  		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
 		// MANAGE DATA
 	
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
 		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 
 		// Set data
-		$this->setDataForOrderItemsList($order_line_id);
-		$this->data = array();
+		$this->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 		
 		// Get order shipment list
 		$order_shipment_list = array();
@@ -80,13 +62,17 @@ class OrderItemsController extends OrderAppController {
 	}
 
 	function add( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (( !$order_id ) || ( !$order_line_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		// MANAGE DATA
 	
 		// Check order line
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_line_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -141,7 +127,9 @@ class OrderItemsController extends OrderAppController {
 					$new_order_line_data['OrderLine']['status'] = 'pending';
 					
 					$this->OrderLine->id = $order_line_data['OrderLine']['id'];
-					if(!$this->OrderLine->save($new_order_line_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }
+					if(!$this->OrderLine->save($new_order_line_data)) { 
+						$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
@@ -150,8 +138,14 @@ class OrderItemsController extends OrderAppController {
 					
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_data['AliquotMaster']['id'];
-					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }
-					
+					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
+						$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
+
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					// Redirect
 					$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
 				}
@@ -162,12 +156,19 @@ class OrderItemsController extends OrderAppController {
   	function addAliquotsInBatch($aliquot_master_id = null){
   		
   		// MANAGE SET OF ALIQUOT IDS TO WORK ON
-		$order_line_id = null;
-  		$aliquot_ids_to_add = null;
+		$aliquot_ids_to_add = null;
 		$url_to_redirect = '/menus';
 		$launch_save_process = false;
 		
-		if(empty($this->data) || isset($this->data['BatchSet']) || isset($this->data['node'])) {
+			
+		if(isset($this->data['0']['aliquot_ids_to_add'])){
+		// A - User just clicked on submit button
+			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
+			$this->setUrlToCancel();
+			$url_to_redirect = $this->data['url_to_cancel'];
+			$launch_save_process = true;
+
+		}else{
 			// A- User just launched the process: set ids in session
 			
 			// A.1- Get ids
@@ -179,17 +180,20 @@ class OrderItemsController extends OrderAppController {
 				
 				// Get aliquot data
 				$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
-				if(empty($aliquot_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+				if(empty($aliquot_data)) { 
+					$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				
 				// Build redirect url
 				$url_to_redirect = '/inventorymanagement/aliquot_masters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
 				
 					
-			} else if(isset($this->data['BatchSet'])|| isset($this->data['node'])){
+			} else {
 				// Add aliquots from batchset
 						
 				// Build redirect url
-				$url_to_redirect = isset($this->data['BatchSet'])?'/datamart/batch_sets/listall/' . $this->data['BatchSet']['id'] : '/datamart/browser/browse/' . $this->data['node']['id'];
+				$this->setUrlToCancel();
+				$url_to_redirect = $this->data['url_to_cancel'];
 			
 				$studied_aliquot_master_ids = array();
 				if(isset($this->data['AliquotMaster'])) {
@@ -198,6 +202,11 @@ class OrderItemsController extends OrderAppController {
 					$studied_aliquot_master_ids = $this->data['ViewAliquot']['aliquot_master_id'];
 				} else {
 					$this->redirect('/pages/err_order_system_errors', null, true); 
+				}
+				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
+					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+					$this->flash(__("batch init - number of submitted records too big", true), "javascript:history.back();", 5);
+					return;
 				}
 				$studied_aliquot_master_ids = array_filter($studied_aliquot_master_ids);
 				$this->data = null;
@@ -214,8 +223,6 @@ class OrderItemsController extends OrderAppController {
 					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 				
-			} else {
-				$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true );
 			}
 			
 			// A.2- Validate submitted aliquot ids
@@ -249,17 +256,6 @@ class OrderItemsController extends OrderAppController {
 				$aliquot_ids_to_add = $studied_aliquot_master_ids;
 			}	
 					
-		} else {
-			
-			// B- User just clicked on submit button
-			
-			$order_line_id = $this->data['OrderLine']['id'];
-			if(!isset($this->data['0']['aliquot_ids_to_add']) || !isset($this->data['0']['url_to_cancel'])) { 
-				$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}
-			$aliquot_ids_to_add = explode(',',$this->data['0']['aliquot_ids_to_add']);
-			$url_to_redirect = $this->data['0']['url_to_cancel'];
-			$launch_save_process = true;
 		}
 		
 		// MANAGE DATA
@@ -267,30 +263,45 @@ class OrderItemsController extends OrderAppController {
 		$this->set('aliquot_ids_to_add', implode(',',$aliquot_ids_to_add));
 		
 		// Get data of aliquots to add
-		$aliquots_data = $this->paginate($this->ViewAliquot, array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add));
+		$aliquots_data = $this->ViewAliquot->find('all', array('conditions' => array('ViewAliquot.aliquot_master_id'=>$aliquot_ids_to_add)));
 		$this->set('aliquots_data' , $aliquots_data);	
+		
+		//warn unconsented aliquots
+		$unconsented_aliquots = $this->AliquotMaster->getUnconsentedAliquots(array('id' => $aliquot_ids_to_add));
+		if(!empty($unconsented_aliquots)){
+			AppController::addWarningMsg(__('this list contains aliquot(s) without a proper consent', true)." (".count($unconsented_aliquots).")"); 
+		}
 				
 		// Build data for order line selection
-		$this->OrderLine->unbindModel(array('hasMany' => array('OrderItem')));		
-		$order_line_data = $this->OrderLine->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC, OrderLine.date_required ASC'));
-		if(!$order_line_data) {
+		$order_line_data_tmp = $this->OrderLine->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC, OrderLine.date_required ASC'));
+		if(!$order_line_data_tmp) {
 			$this->flash('no order line to complete is actually defined', $url_to_redirect);
 			return;
+		}
+				
+		$order_line_data = array();
+		foreach($order_line_data_tmp as $new_line) {
+			$order_id = $new_line['Order']['id'];
+			if(!isset($order_line_data[$order_id])) $order_line_data[$order_id] = array('order' => $new_line['Order'], 'lines' => array());
+			if(isset($this->data['OrderItem']['order_line_id']) && ($this->data['OrderItem']['order_line_id'] == $new_line['OrderLine']['id'])) {
+				$new_line['OrderItem']['order_line_id'] = $this->data['OrderItem']['order_line_id'];
+			}
+			$order_line_data[$order_id]['lines'][] = $new_line;
 		}
 		$this->set('order_line_data', $order_line_data);
 		
 		// Set url for cancel button
-		$this->set('url_to_cancel', $url_to_redirect);	
-		
+		$this->set('url_to_cancel', $url_to_redirect);
+	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Structures
 		$this->Structures->set('view_aliquot_joined_to_sample_and_collection', 'atim_structure_for_aliquots_list');
 		$this->Structures->set('orderitems_to_addAliquotsInBatch', 'atim_structure_orderitems_data');
-		$this->Structures->set('order_lines_to_addAliquotsInBatch', 'atim_structure');
+		$this->Structures->set('orderlines', 'atim_structure');
 		
 		// Menu
-		$this->set('atim_menu', $this->Menus->get("/order/orders/index/"));
+		$this->set('atim_menu', $this->Menus->get("/order/orders/search/"));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -304,7 +315,10 @@ class OrderItemsController extends OrderAppController {
 			$submitted_data_validates = true;			
 
 			// Get aliquot data
-			$selected_order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $order_line_id), 'recursive' => '-1'));
+			$selected_order_line_data = null;
+			if(isset($this->data['OrderItem']['order_line_id'])){
+				$selected_order_line_data = $this->OrderLine->find('first', array('conditions' => array('OrderLine.id' => $this->data['OrderItem']['order_line_id']), 'recursive' => '-1'));
+			}
 			if(empty($selected_order_line_data)) {
 				$submitted_data_validates = false;
 				$this->OrderItem->validationErrors[] = __("invalid order line", true);
@@ -326,12 +340,13 @@ class OrderItemsController extends OrderAppController {
 					// Add order item
 					$new_order_item_data = array();
 					$new_order_item_data['OrderItem']['status'] = 'pending';
-					$new_order_item_data['OrderItem']['order_line_id'] = $order_line_id;
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->data['OrderItem']);
 					
 					$this->OrderItem->id = null;
-					if(!$this->OrderItem->save($new_order_item_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+					if(!$this->OrderItem->save($new_order_item_data)) { 
+						$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
 					
 					// Update aliquot master status
 					$new_aliquot_master_data = array();
@@ -340,18 +355,27 @@ class OrderItemsController extends OrderAppController {
 					
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $added_aliquot_master_id;
-					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
+						$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
 				}
 				
 				// Update Order Line status
 				$new_order_line_data = array();
 				$new_order_line_data['OrderLine']['status'] = 'pending';
 				
-				$this->OrderLine->id = $order_line_id;
-				if(!$this->OrderLine->save($new_order_line_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }
+				$this->OrderLine->id = $this->data['OrderItem']['order_line_id'];
+				if(!$this->OrderLine->save($new_order_line_data)) { 
+					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash('your data has been saved', '/order/order_items/listall/'.$order_id.'/'.$this->data['OrderItem']['order_line_id'].'/');
 			}
 		}
 	}
@@ -432,10 +456,16 @@ class OrderItemsController extends OrderAppController {
 				}
 			} else {
 				// Launch save process
+				$hook_link = $this->hook('postsave_process');
 				foreach($this->data as $order_item){
 					// Save data
 					$this->OrderItem->id = $order_item['OrderItem']['id'];
-					if(!$this->OrderItem->save($order_item['OrderItem'], false)) { $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); }
+					if(!$this->OrderItem->save($order_item['OrderItem'], false)) { 
+						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+					}
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
 				}
 				
 				// Redirect
@@ -445,19 +475,25 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function delete( $order_id, $order_line_id, $order_item_id ) {
-		if (( !$order_id ) || ( !$order_line_id ) || ( !$order_item_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (( !$order_id ) || ( !$order_line_id ) || ( !$order_item_id )) { 
+			$this->redirect( '/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		// MANAGE DATA
 		
 		// Get data
 		$order_item_data = $this->OrderItem->find('first', array('conditions' => array('OrderItem.id' => $order_item_id, 'OrderLine.id' => $order_line_id)));
-		if(empty($order_item_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
+		if(empty($order_item_data)) { 
+			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}			
 		
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowOrderItemDeletion($order_item_data);
+		$arr_allow_deletion = $this->OrderItem->allowDeletion($order_item_data);
 			
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 		
 		$url = '/order/order_items/listall/'.$order_id.'/'.$order_line_id.'/';
 		
@@ -473,20 +509,26 @@ class OrderItemsController extends OrderAppController {
 				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
-				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }				
+				if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
+					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				
 				// Update order line status
 				$new_status = 'pending';
 				$order_item_count = $this->OrderItem->find('count', array('conditions' => array('OrderItem.order_line_id' => $order_line_id), 'recursive' => '-1'));
 				if($order_item_count != 0) {
 					$order_item_not_shipped_count = $this->OrderItem->find('count', array('conditions' => array('OrderItem.status != "shipped"', 'OrderItem.order_line_id' => $order_line_id, 'OrderItem.deleted != 1'), 'recursive' => '-1'));
-					if($order_item_not_shipped_count == 0) { $new_status = 'shipped'; }
+					if($order_item_not_shipped_count == 0) { 
+						$new_status = 'shipped'; 
+					}
 				}
 				$order_line_data = array();
 				$order_line_data['OrderLine']['status'] = $new_status;
 				
 				$this->OrderLine->id = $order_line_id;
-				if(!$this->OrderLine->save($order_line_data)) { $this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); }
+				if(!$this->OrderLine->save($order_line_data)) { 
+					$this->redirect( '/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
+				}
 				
 				// Redirect
 				$this->atimFlash('your data has been deleted - update the aliquot in stock data', $url);
@@ -496,30 +538,6 @@ class OrderItemsController extends OrderAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
-	}
-  	
-	/* --------------------------------------------------------------------------
-	 * ADDITIONAL FUNCTIONS
-	 * -------------------------------------------------------------------------- */
-
-	/**
-	 * Check if an item can be deleted.
-	 * 
-	 * @param $order_line_data Data of the studied order item.
-	 * 
-	 * @return Return results as array:
-	 * 	['allow_deletion'] = true/false
-	 * 	['msg'] = message to display when previous field equals false
-	 * 
-	 * @author N. Luc
-	 * @since 2007-10-16
-	 */
-	 
-	function allowOrderItemDeletion($order_line_data){
-		// Check aliquot is not gel matrix used to create either core
-		if(!empty($order_line_data['Shipment']['id'])) { return array('allow_deletion' => false, 'msg' => 'this item cannot be deleted because it was already shipped'); }	
-		
-		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 ?>
