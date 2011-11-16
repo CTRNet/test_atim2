@@ -206,3 +206,6 @@ UPDATE structure_formats
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
 WHERE structure_id IN (SELECT id from structures WHERE alias = 'view_diagnosis')
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('icd10_code','topography'));
+
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='Participant' AND tablename='participants' AND field='participant_identifier';
+INSERT INTO i18n (id,en,fr) VALUES ('tumoral', 'Tumoral', 'Tumoral');
