@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/data/fall_version/BanqueBachvarov_work_file_20111026.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/data/fall_version/BanqueBachvarov_work_file_20111101.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -120,6 +120,13 @@ function addonFunctionEnd(){
 	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
 	
 	$query = "UPDATE aliquot_masters SET barcode= id";
+	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE aliquot_masters_revs SET barcode= id";
+	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE diagnosis_masters SET primary_id = id";
+	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters_revs SET primary_id = id";
 	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 	echo "<br><FONT COLOR=\"red\" >

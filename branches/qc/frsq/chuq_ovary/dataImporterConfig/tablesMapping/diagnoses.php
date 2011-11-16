@@ -42,7 +42,7 @@ $detail_fields = array(
 		"IB"=>"Ib",
 		"IIIB?"=>"IIIb",
 		"?"=>"",
-		"1A"=>"1a")),
+		"1A"=>"Ia")),
 	);
 
 //see the Model class definition for more info

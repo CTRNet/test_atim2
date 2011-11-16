@@ -688,7 +688,7 @@ function createParticipantCollections(Model $m){
 	displayCollection($ns, $m, $participant_id, $collections, $spent_time);
 	
 	// Add collection notes
-	$collections['NOTES'] = $inventory_data_from_file['REMARQUE'];
+	$collections['NOTES'] = utf8_encode($inventory_data_from_file['REMARQUE']);
 	$collection_notes = $collections['NOTES'];
 	
 	//INSERT PROCESS
