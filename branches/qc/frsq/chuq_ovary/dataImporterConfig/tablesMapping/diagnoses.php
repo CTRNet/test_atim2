@@ -59,6 +59,10 @@ function postDiagnosisRead(Model $m){
 	$m->values['Diagnostic'] = utf8_encode($m->values['Diagnostic']);
 	$m->values['GR'] = utf8_encode($m->values['GR']);
 	
+	if(empty($m->values['Diagnostic']) && empty($m->values['GR']) && empty($m->values['FIGO'])) {
+		return false;	
+	}
+	
 	return true;
 }
 

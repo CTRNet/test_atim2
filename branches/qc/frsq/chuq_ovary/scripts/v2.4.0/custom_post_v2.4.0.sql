@@ -209,3 +209,5 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('icd1
 
 UPDATE structure_fields SET  `type`='integer_positive' WHERE model='Participant' AND tablename='participants' AND field='participant_identifier';
 INSERT INTO i18n (id,en,fr) VALUES ('tumoral', 'Tumoral', 'Tumoral');
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id'), 'notEmpty', '', 'value is required');
