@@ -323,7 +323,7 @@ function createParticipantCollections(Model $m){
 
 		if(!empty($blood_cell_data)) {
 			// Merge data from box worksheet witht data of main worksheet
-			$blood_cell_data = str_replace(array(" ", 'sang', 'RNAlater'), array("", 'Sang', 'RL'), $blood_cell_data);
+			$blood_cell_data = str_replace(array(" ", 'sang', 'RNAlater', 'RNA(RLT)'), array("", 'Sang', 'RL', 'ARLT'), $blood_cell_data);
 			$blood_cell_data = preg_replace('/^(.+)\,$/', '$1', $blood_cell_data);
 			$blood_data_from_all_file = explode(',', $blood_cell_data);		
 
@@ -404,6 +404,12 @@ function createParticipantCollections(Model $m){
 	$nc_boxes_cell_data = $inventory_data_from_file[utf8_decode('NO BÔTE ASCITE (NC)')];
 	
 	if(!empty($ascite_cell_data)) {
+		
+		if($ascite_cell_data=='3LP,3SLP, LP(NC)') {
+			$ascite_cell_data = '3LP';
+			$m->warning_messages['high'][] = "Only LP has been created for following [ASCITE] data : ['3LP,3SLP, LP(NC)']. Please complete collection using ATiM.";	
+		}
+		
 		$ascite_cell_data = str_replace(' ', '', $ascite_cell_data);
 		
 		// MANAGE NC
