@@ -307,6 +307,10 @@ class StructuresComponent extends Object {
 										//reload the model with the proper table (likely a detail model)
 										$model_name = $format_data_model->name;
 										ClassRegistry::removeObject($model_name);//flush the old detail from cache, we'll need to reinstance it
+										
+										if(empty($form_fields[$form_fields_key]['tablename']) && Configure::read('debug') > 0){
+											AppController::addWarningMsg('There is no tablename for field ['.$form_fields[$form_fields_key]['key'].']');
+										}
 										$format_data_model = new AppModel(array('table' => $form_fields[$form_fields_key]['tablename'], 'name' => $model_name, 'alias' => $model_name));
 									}
 									
