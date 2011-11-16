@@ -1,5 +1,7 @@
 <?php
 class EventMasterCustom extends EventMaster{
+	var $useTable = 'event_masters';
+	var $name = 'EventMaster';
 
 	/**
 	 * Calculate BMI value for clinical.hepatobiliary.presentation data
