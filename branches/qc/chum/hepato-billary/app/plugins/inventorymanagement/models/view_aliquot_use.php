@@ -39,7 +39,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'DerivativeDetail.creation_datetime_accuracy',
 				self::USE_BY			=> 'DerivativeDetail.creation_by',
 				self::CREATED			=> 'SourceAliquot.created',
-				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|listAllSourceAliquots|",sample_derivative.collection_id ,"|",sample_derivative.id)',
+				self::DETAIL_URL		=> 'CONCAT("/inventorymanagement/aliquot_masters/listAllSourceAliquots/",sample_derivative.collection_id ,"/",sample_derivative.id)',
 				self::SAMPLE_MASTER_ID	=> 'sample_source.id',
 				self::COLLECTION_ID		=> 'sample_source.collection_id'
 			), "Realiquoting" => array(
@@ -58,7 +58,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'Realiquoting.realiquoting_datetime_accuracy',
 				self::USE_BY			=> 'Realiquoting.realiquoted_by',
 				self::CREATED			=> 'Realiquoting.created',
-				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|listAllRealiquotedParents|",AliquotMasterChildren.collection_id,"|",AliquotMasterChildren.sample_master_id,"|",AliquotMasterChildren.id)',
+				self::DETAIL_URL		=> 'CONCAT("/inventorymanagement/aliquot_masters/listAllRealiquotedParents/",AliquotMasterChildren.collection_id,"/",AliquotMasterChildren.sample_master_id,"/",AliquotMasterChildren.id)',
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "QualityCtrl" => array(
@@ -76,7 +76,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'QualityCtrl.date_accuracy',
 				self::USE_BY			=> 'QualityCtrl.run_by',
 				self::CREATED			=> 'QualityCtrl.created',
-				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|quality_ctrls|detail|",AliquotMaster.collection_id,"|",AliquotMaster.sample_master_id,"|",QualityCtrl.id)',
+				self::DETAIL_URL		=> 'CONCAT("/inventorymanagement/quality_ctrls/detail/",AliquotMaster.collection_id,"/",AliquotMaster.sample_master_id,"/",QualityCtrl.id)',
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "OrderItem" => array(
@@ -95,7 +95,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'Shipment.datetime_shipped_accuracy',
 				self::USE_BY			=> 'Shipment.shipped_by',
 				self::CREATED			=> 'Shipment.created',
-				self::DETAIL_URL		=> 'CONCAT("|order|shipments|detail|",Shipment.order_id,"|",Shipment.id)',
+				self::DETAIL_URL		=> 'CONCAT("/order/shipments/detail/",Shipment.order_id,"/",Shipment.id)',
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "AliquotReviewMaster" => array(
@@ -114,7 +114,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'SpecimenReviewMaster.review_date_accuracy',
 				self::USE_BY			=> '""',
 				self::CREATED			=> 'AliquotReviewMaster.created',
-				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|specimen_reviews|detail|",AliquotMaster.collection_id,"|",AliquotMaster.sample_master_id,"|",SpecimenReviewMaster.id)',
+				self::DETAIL_URL		=> 'CONCAT("/inventorymanagement/specimen_reviews/detail/",AliquotMaster.collection_id,"/",AliquotMaster.sample_master_id,"/",SpecimenReviewMaster.id)',
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			), "AliquotInternalUse" => array(
@@ -133,7 +133,7 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 				self::USE_DATETIME_ACCU	=> 'AliquotInternalUse.use_datetime_accuracy',
 				self::USE_BY			=> 'AliquotInternalUse.used_by',
 				self::CREATED			=> 'AliquotInternalUse.created',
-				self::DETAIL_URL		=> 'CONCAT("|inventorymanagement|aliquot_masters|detailAliquotInternalUse|",AliquotMaster.id,"|",AliquotInternalUse.id)',
+				self::DETAIL_URL		=> 'CONCAT("/inventorymanagement/aliquot_masters/detailAliquotInternalUse/",AliquotMaster.id,"/",AliquotInternalUse.id)',
 				self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 				self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 			)
