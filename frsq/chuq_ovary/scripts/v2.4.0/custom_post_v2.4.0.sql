@@ -228,12 +228,6 @@ UPDATE structure_fields SET tablename = 'sd_der_cell_cultures' WHERE model = 'Sa
 UPDATE structure_fields SET tablename = 'ad_tubes' WHERE model = 'ALiquotDetail' AND field IN ('cell_count','cell_count_unit','concentration','concentration_unit', 'cell_viability', 'chuq_blood_solution');
 UPDATE structure_fields SET tablename = 'ad_blocks' WHERE model = 'ALiquotDetail' AND field IN ('block_type');
 
-
-SELECT sc.sample_type, ac.aliquot_type,ac.form_alias FROM `aliquot_controls` as ac inner join sample_controls as sc
-ON ac.sample_control_id = sc.id
-WHERE (sc.sample_type like '%ascite%' OR sc.sample_type like '%peritoneal%'
-OR sc.sample_type in ('blood', 'plasma', 'serum', 'blood cell', 'tissue', 'dna','rna', 'cell culture')) and ac.`flag_active` = 1
-
 ALTER TABLE sd_spe_bloods
   ADD chuq_request_nbr varchar(100) DEFAULT NULL AFTER blood_type;
 ALTER TABLE sd_spe_bloods_revs
