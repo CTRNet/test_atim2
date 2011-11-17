@@ -14,6 +14,7 @@
 	
 	$this->data = $this->EventMaster->setIntensiveCareDuration($this->data);
 	
+	$this->EventMaster->set($this->data);
 	$this->EventMaster->setScores($event_control_data['EventControl']['event_type']);
 	
 ?>

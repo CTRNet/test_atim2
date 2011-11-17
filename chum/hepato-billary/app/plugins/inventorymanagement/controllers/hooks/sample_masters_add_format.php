@@ -82,7 +82,7 @@ if(empty($this->data)) {
 		if(empty($data)) {
 			// No existing derivative for the parent... find other collection blood derivative
 			$data = $this->SampleMaster->find('first', array(
-				'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.sample_type' => array('pbmc', 'plasma', 'serum')), 
+				'conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => array('pbmc', 'plasma', 'serum')), 
 				'order' => array('SampleMaster.created DESC')));	
 		}	
 			

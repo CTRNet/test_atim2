@@ -112,9 +112,9 @@ class EventMasterCustom extends EventMaster{
 				
 			$criteria = array();
 			if(!is_null($participant_id)) $criteria['TreatmentMaster.participant_id'] = $participant_id;
-			$criteria[] = "TreatmentMaster.tx_method LIKE 'surgery'";
+			$criteria[] = "TreatmentControl.tx_method LIKE 'surgery'";
 			foreach($this->TreatmentMaster->find('all', array('conditions'=>$criteria, 'order' => 'TreatmentMaster.start_date DESC')) as $new_surgery) {
-				$result[$new_surgery['TreatmentMaster']['id']] = __($new_surgery['TreatmentMaster']['disease_site'], true) . ' - ' . __($new_surgery['TreatmentMaster']['tx_method'], true) . ' ' . $new_surgery['TreatmentMaster']['start_date'];
+				$result[$new_surgery['TreatmentMaster']['id']] = __($new_surgery['TreatmentMaster']['disease_site'], true) . ' - ' . __($new_surgery['TreatmentControl']['tx_method'], true) . ' ' . $new_surgery['TreatmentMaster']['start_date'];
 			}
 				
 			$this->set('surgeries_for_lab_report', $result);
