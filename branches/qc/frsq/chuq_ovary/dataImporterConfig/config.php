@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/data/fall_version/BanqueBachvarov_work_file_20111101.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/data/D_Day/BanqueBachvarov_migration_v2.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -87,6 +87,14 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chuq_ovary/dataImpo
 function addonFunctionStart(){
 	
 	setStaticDataForCollection();
+
+	$file_path = Config::$xls_file_path;
+	echo "<br><FONT COLOR=\"green\" >
+	=====================================================================<br>
+	DATA EXPORT PROCESS : CHUQ_OVARY<br>
+	source_file = $file_path<br>
+	<br>=====================================================================
+	</FONT><br>";		
 	
 	echo "<br><FONT COLOR=\"red\" >
 	=====================================================================<br>

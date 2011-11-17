@@ -4103,7 +4103,7 @@ msgstr	"Le compte des échantillons à l'intérieur des collections créées dan
 msgid	"reproductive history"
 msgstr	"Gynécologie"
 msgid	"request nbr"
-msgstr	"Requˆte #"
+msgstr	"Requête #"
 msgid	"requested"
 msgstr	"Demandé"
 msgid	"research"
