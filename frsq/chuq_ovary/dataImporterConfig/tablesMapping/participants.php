@@ -1038,7 +1038,7 @@ function createCollectionAndSpecimen($ns, $participant_id, $collections, $spent_
 				$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
 
-				$specimen_code = 'PW';
+				$specimen_code = 'LP';
 				break;
 							
 			default:
@@ -1461,7 +1461,7 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 					$box_number = 'ASC '.$new_aliquot['storage'];
 					break;
 				case 'peritoneal wash-tube':
-					$box_number = 'PW '.$new_aliquot['storage'];
+					$box_number = 'LP '.$new_aliquot['storage'];
 					break;
 				default:
 					die ('ERR_9849983 '.$sample_type.'-'.$new_aliquot['type']);
@@ -1529,7 +1529,7 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 				$prefix = "'Sang $ns 00-00-0000'";
 			case 'blood-RNALater tube':	
 				if(empty($prefix)) {
-					$prefix = "'RL $ns 00-00-0000'";
+					$prefix = "'RNALater $ns 00-00-0000'";
 					$detail_insert['chuq_blood_solution'] = "'RNA later'";
 				}
 				$master_insert['aliquot_control_id'] = $aliquot_control_id;
@@ -1573,7 +1573,7 @@ function createAliquot($ns, $participant_id, $collection_id, $sample_master_id, 
 				$prefix = 'BC';
 			case 'blood cell-ARLT tube':
 				if(empty($prefix)) {
-					$prefix = 'ARLT';
+					$prefix = 'RNA(RLT)';
 					$detail_insert['chuq_blood_cell_stored_into_rlt'] = "'y'";
 				}
 			case 'cell culture-tube':
