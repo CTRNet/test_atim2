@@ -211,3 +211,41 @@ UPDATE structure_fields SET  `type`='integer_positive' WHERE model='Participant'
 INSERT INTO i18n (id,en,fr) VALUES ('tumoral', 'Tumoral', 'Tumoral');
 INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
 (null, (SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='bank_id'), 'notEmpty', '', 'value is required');
+
+ALTER TABLE chuq_dx_all_sites DROP COLUMN deleted_date;
+ALTER TABLE chuq_ed_labs DROP COLUMN deleted_date;
+
+SET @id = (SELECT id FROM `datamart_structures` WHERE `model` LIKE 'SpecimenReviewMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 = @id OR id2 = @id;
+SET @id = (SELECT id FROM `datamart_structures` WHERE `model` LIKE 'TreatmentMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 = @id OR id2 = @id;
+
+
+UPDATE structure_fields SET tablename = 'sd_spe_tissues' WHERE model = 'SampleDetail' AND field IN ('chuq_tissue_code','tissue_laterality', 'tissue_size', 'tissue_size_unit', 'tissue_weight', 'tissue_weight_unit','chuq_ap_tissue_precision');
+UPDATE structure_fields SET tablename = 'sd_spe_bloods' WHERE model = 'SampleDetail' AND field = 'blood_type';
+UPDATE structure_fields SET tablename = 'sd_der_cell_cultures' WHERE model = 'SampleDetail' AND field IN ('cell_passage_number','culture_status');
+
+UPDATE structure_fields SET tablename = 'ad_tubes' WHERE model = 'ALiquotDetail' AND field IN ('cell_count','cell_count_unit','concentration','concentration_unit', 'cell_viability', 'chuq_blood_solution');
+UPDATE structure_fields SET tablename = 'ad_blocks' WHERE model = 'ALiquotDetail' AND field IN ('block_type');
+
+
+SELECT sc.sample_type, ac.aliquot_type,ac.form_alias FROM `aliquot_controls` as ac inner join sample_controls as sc
+ON ac.sample_control_id = sc.id
+WHERE (sc.sample_type like '%ascite%' OR sc.sample_type like '%peritoneal%'
+OR sc.sample_type in ('blood', 'plasma', 'serum', 'blood cell', 'tissue', 'dna','rna', 'cell culture')) and ac.`flag_active` = 1
+
+ALTER TABLE sd_spe_bloods
+  ADD chuq_request_nbr varchar(100) DEFAULT NULL AFTER blood_type;
+ALTER TABLE sd_spe_bloods_revs
+  ADD chuq_request_nbr varchar(100) DEFAULT NULL AFTER blood_type;  
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_bloods', 'chuq_request_nbr', 'input',  NULL , '0', '', '', '', 'request nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='chuq_request_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='request nbr' AND `language_tag`=''), '1', '445', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('request nbr','Request #','Requête #');
+
+UPDATE structure_fields SET  `type`='integer_positive', setting = 'size=20' WHERE model LIKE 'View%' AND field='participant_identifier';
+
+

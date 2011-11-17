@@ -133,7 +133,7 @@ class SampleMastersController extends InventorymanagementAppController {
 		
 		$derivatives_data = array();
 		$derivatives_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $specimen_sample_master_id, 'SampleMaster.initial_specimen_sample_id != SampleMaster.id'), 'recursive' => 0)); 
-		
+			
 		if(empty($derivatives_data)) {
 			$this->Structures->set('sample_masters,sd_undetailed_derivatives', 'no_data_structure');
 			$this->data = array();

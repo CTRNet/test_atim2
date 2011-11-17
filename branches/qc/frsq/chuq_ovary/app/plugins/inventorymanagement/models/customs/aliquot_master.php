@@ -45,7 +45,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'SASC';
 				break;	
 			case 'blood':
-				$prefix = 'RL/Sang?';
+				$prefix = 'RNAlater/Sang?';
 				break;	
 			case 'plasma':
 				$prefix = 'P';
@@ -54,18 +54,21 @@ class AliquotMasterCustom extends AliquotMaster {
 				$prefix = 'SE';
 				break;					
 			case 'blood cell':
-				$prefix = 'BC/ARLT?';
+				$prefix = 'BC/RNA(RLT)?';
 				break;	
 			case 'peritoneal wash':
 			case 'peritoneal wash cell':
 			case 'peritoneal wash supernatant':
-				$prefix = 'PW';
+				$prefix = 'LP';
 				break;	
 			
 			case 'tissue':	
-				if($aliquot_control_data['AliquotControl']['aliquot_type'] == 'block') $prefix = 'OCT/FFPE?';	
 			case 'cell culture':				
-				if(empty($prefix)) $prefix = 'VC';
+				if($view_sample['ViewSample']['sample_type'] == 'tissue') {
+					if($aliquot_control_data['AliquotControl']['aliquot_type'] == 'block') $prefix = 'OCT/FFPE?';
+				} else {
+					$prefix = 'VC';
+				}
 			case 'dna':
 			case 'rna':
 				$space = empty($prefix)? '': ' ';
@@ -74,7 +77,7 @@ class AliquotMasterCustom extends AliquotMaster {
 				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'blood') {
 					$prefix .= $space.'Sang';
 				} else if($view_sample['ViewSample']['initial_specimen_sample_type'] == 'peritoneal wash') {
-					$prefix .= $space.'PW';
+					$prefix .= $space.'LP';
 				} else {
 					//tissue
 					if($view_sample['ViewSample']['initial_specimen_sample_type'] != 'tissue') AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
