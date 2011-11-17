@@ -2,7 +2,7 @@
 
 class TreatmentMasterCustom extends TreatmentMaster {
 	
-	var $useTable = 'tx_masters';
+	var $useTable = 'treatment_masters';
 	var $name = 'TreatmentMaster';
 
 	function summary( $variables=array() ) {
