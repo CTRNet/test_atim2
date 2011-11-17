@@ -110,13 +110,14 @@ class BrowserController extends DatamartAppController {
 			}
 			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
 			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
-			
+
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 			if(isset($this->data[$parent['DatamartStructure']['model']]) && isset($this->data['Browser'])){
 				//save selected subset if parent model found and from a checklist 
 				$ids = array();
 				if(count($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]) == 1 
-				&& strpos($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false){
+					&& strpos($this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false
+				){
 					//all ids in one field
 					$ids = explode(",", $this->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]);
 				}else{
@@ -144,7 +145,7 @@ class BrowserController extends DatamartAppController {
 					"id_csv" => $id_csv,
 					"raw" => false
 				));
-				
+
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 				if(!empty($tmp)){
 					//current set already exists, use it
@@ -169,6 +170,7 @@ class BrowserController extends DatamartAppController {
 			$model_key_name = null;
 			$use_sub_model = null;
 			$first_iteration = true;
+			
 			//direct access, save nodes
 			foreach($direct_id_arr as $control_id){
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $control_id)));
@@ -190,6 +192,22 @@ class BrowserController extends DatamartAppController {
 					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
 					$model_key_name = "id";
 					$use_sub_model = true;
+					
+					//add detail tablename to result_structure (use to parse search parameters) where needed
+					$detail_model_name = str_replace('Master', 'Detail', $model_to_import);
+					if($detail_model_name == $model_to_import){
+						AppController::addWarningMsg('The replacement to get the detail model name failed');
+					}else{
+						$this->id = null;//removes a bogus warning on Config::read
+						foreach($result_structure['Sfs'] as &$field){
+							if($field['model'] == $detail_model_name && $field['tablename'] != $alternate_info['detail_tablename']){
+								if(Config::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
+									AppController::addWarningMsg('A loaded detail field has a different tablename ['.$field['tablename'].'] than what the control table states ['.$alternate_info['detail_tablename'].']');
+								}
+								$field['tablename'] = $alternate_info['detail_tablename'];
+							}
+						}
+					}
 				}else{
 					$model_to_import = $browsing['DatamartStructure']['model'];
 					$model_name_to_search = $browsing['DatamartStructure']['model'];
@@ -208,6 +226,7 @@ class BrowserController extends DatamartAppController {
 				
 				$org_search_conditions['search_conditions'] = $search_conditions;
 				$org_search_conditions['exact_search'] = isset($this->data['exact_search']);
+
 				if($node_id != 0){
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
