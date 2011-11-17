@@ -1,7 +1,6 @@
 <?php
 
 class TreatmentControl extends ClinicalannotationAppModel {
-	var $useTable = 'tx_controls';
 	
 	/**
 	 * Get permissible values array gathering all existing treatment disease sites.

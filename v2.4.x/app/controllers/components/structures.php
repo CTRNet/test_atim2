@@ -303,15 +303,16 @@ class StructuresComponent extends Object {
 							if(is_array($data) && $model != "0"){
 									$format_data_model = AppModel::getInstance($form_fields[$form_fields_key]['plugin'], $model, true);
 									
-									if($format_data_model->table != $form_fields[$form_fields_key]['tablename']){
-										//reload the model with the proper table (likely a detail model)
-										$model_name = $format_data_model->name;
-										ClassRegistry::removeObject($model_name);//flush the old detail from cache, we'll need to reinstance it
-										
-										if(empty($form_fields[$form_fields_key]['tablename']) && Configure::read('debug') > 0){
+									if($format_data_model->table != $form_fields[$form_fields_key]['tablename'] && strpos($model, 'Detail') !== false){
+										//reload the model with the proper table if it's a detail model
+										if(!empty($form_fields[$form_fields_key]['tablename'])){
+											$model_name = $format_data_model->name;
+											ClassRegistry::removeObject($model_name);//flush the old detail from cache, we'll need to reinstance it
+											$format_data_model = new AppModel(array('table' => $form_fields[$form_fields_key]['tablename'], 'name' => $model_name, 'alias' => $model_name));
+											
+										}else if(Configure::read('debug') > 0){
 											AppController::addWarningMsg('There is no tablename for field ['.$form_fields[$form_fields_key]['key'].']');
 										}
-										$format_data_model = new AppModel(array('table' => $form_fields[$form_fields_key]['tablename'], 'name' => $model_name, 'alias' => $model_name));
 									}
 									
 									$data = $format_data_model->deconstruct($form_fields[$form_fields_key]['field'], $data, strpos($key, "_end") == strlen($key) - 4, true);
