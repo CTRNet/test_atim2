@@ -3,6 +3,8 @@
 	// --------------------------------------------------------------------------------
 	// Generate default barcode
 	// -------------------------------------------------------------------------------- 	
- 	if($submitted_data_validates) { $this->generateDefaultAliquotBarcode($sample_data); }
+	if(empty($errors)){
+		$this->AliquotMaster->generateDefaultAliquotBarcode($this->data); 
+	}
 	
 ?>

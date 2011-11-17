@@ -4,6 +4,8 @@ if(isset($default_acquisition_label)){
 }
 
 if(!empty($this->data)){
-	$final_options['override']['Collection.collection_site'] = "Hopital Saint-Luc";
+	$final_options['override']['Collection.collection_site'] = "saint-luc hospital";
+	$final_options['override']['Collection.bank_id'] = "1";
 }
+
 ?>

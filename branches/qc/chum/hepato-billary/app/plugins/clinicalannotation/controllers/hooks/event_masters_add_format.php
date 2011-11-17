@@ -19,9 +19,9 @@
 		// Should be unique
 		$tmp_conditions = array(
 			'EventMaster.participant_id'=>$participant_id,
-			'EventMaster.disease_site'=>$event_control_data['EventControl']['disease_site'],
-			'EventMaster.event_group'=>$event_group,
-			'EventMaster.event_type'=>$event_control_data['EventControl']['event_type']);
+			'EventControl.disease_site'=>$event_control_data['EventControl']['disease_site'],
+			'EventControl.event_group'=>$event_group,
+			'EventControl.event_type'=>$event_control_data['EventControl']['event_type']);
 		
 		$existing_event_count = $this->EventMaster->find('count', array('conditions'=>array($tmp_conditions)));
 		if($existing_event_count != 0) {

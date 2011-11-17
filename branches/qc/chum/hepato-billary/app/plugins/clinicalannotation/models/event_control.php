@@ -8,7 +8,6 @@ class EventControl extends ClinicalannotationAppModel {
 		if ( isset($variables['EventControl.id']) ) {
 			
 			$result = $this->find('first', array('conditions'=>array('EventControl.id'=>$variables['EventControl.id'])));
-			
 			$return = array(
 				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
 				'title'			=>	array( NULL, __('annotation', TRUE) ),
