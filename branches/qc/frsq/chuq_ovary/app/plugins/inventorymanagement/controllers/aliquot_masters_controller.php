@@ -846,10 +846,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function redirectToAliquotUseDetail($url) {
-		$this->redirect(str_replace('|', '/', $url));
-	}
-	
 	function detailAliquotInternalUse($aliquot_master_id, $aliquot_use_id) {
 		if((!$aliquot_master_id) || (!$aliquot_use_id)) { 
 			$this->redirect('/pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
