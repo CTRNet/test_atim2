@@ -394,7 +394,16 @@ class BrowserController extends DatamartAppController {
 			if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
 				$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
 				$alternate_alias = $alternate_info['form_alias'];
-				$this->Structures->set($alternate_alias);
+				
+				//get the structure and remove fields from the control table
+				$structure = $this->Structures->get('form', $alternate_alias);
+				foreach($structure['Sfs'] as $key => $field){
+						if($field['model'] == $browsing['DatamartStructure']['control_model']){
+							unset($structure['Sfs'][$key]);
+						}
+				}
+				$this->set('atim_structure', $structure);
+				
 				$last_control_id .= "-".$sub_structure_id;
 				$this->set("header", array("title" => __("search", true), "description" => __($browsing['DatamartStructure']['display_name'], true)." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 			}else{
