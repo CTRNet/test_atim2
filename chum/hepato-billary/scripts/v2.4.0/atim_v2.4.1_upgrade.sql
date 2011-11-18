@@ -39,7 +39,7 @@ ALTER TABLE txd_surgeries
 ALTER TABLE txd_surgeries_revs
  CHANGE tx_master_id treatment_master_id INT NOT NULL;
  
-SELECT IF(MAX(id) > 4, 'You need to alter your existing treatment details table. The field "tx_master_id" should now be renamed to "treatment_master_id2.', '') AS msg FROM treatment_controls;
+SELECT IF(MAX(id) > 4, 'You need to alter your existing treatment details table. The field "tx_master_id" should now be renamed to "treatment_master_id".', '') AS msg FROM treatment_controls;
 
 DROP VIEW view_aliquot_uses;
 CREATE VIEW `view_aliquot_uses` AS select concat(`source`.`id`,1) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'sample derivative creation' AS `use_definition`,`samp`.`sample_code` AS `use_code`,'' AS `use_details`,`source`.`used_volume` AS `used_volume`,`aliqc`.`volume_unit` AS `aliquot_volume_unit`,`der`.`creation_datetime` AS `use_datetime`,`der`.`creation_datetime_accuracy` AS `use_datetime_accuracy`,`der`.`creation_by` AS `used_by`,`source`.`created` AS `created`,concat('inventorymanagement/aliquot_masters/listAllSourceAliquots/',`samp`.`collection_id`,'/',`samp`.`id`) AS `detail_url`,`samp2`.`id` AS `sample_master_id`,`samp2`.`collection_id` AS `collection_id` from (((((`source_aliquots` `source` 

@@ -29,7 +29,6 @@ class SampleControl extends InventorymanagementAppModel {
 	}
 	
 	function getParentSampleTypePermissibleValues() {
-		die('HERE');
 		return $this->getSamplesPermissibleValues(false, false, false);
 	}
 	
@@ -84,7 +83,7 @@ class SampleControl extends InventorymanagementAppModel {
 			}
 		}else{
 			foreach($controls as $control){
-				$result[$control[$model_name]['sample_type']] = __($control['DerivativeControl']['sample_type'], true);
+				$result[$control[$model_name]['sample_type']] = __($control[$model_name]['sample_type'], true);
 			}
 		}
 		asort($result);
