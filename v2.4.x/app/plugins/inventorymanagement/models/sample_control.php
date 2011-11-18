@@ -29,7 +29,6 @@ class SampleControl extends InventorymanagementAppModel {
 	}
 	
 	function getParentSampleTypePermissibleValues() {
-		die('HERE');
 		return $this->getSamplesPermissibleValues(false, false, false);
 	}
 	
