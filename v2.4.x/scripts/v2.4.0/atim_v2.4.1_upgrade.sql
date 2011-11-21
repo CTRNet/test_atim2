@@ -99,4 +99,7 @@ UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FR
 DELETE FROM structure_formats WHERE structure_id IN (SELECT st.id FROM event_controls as ec INNER JOIN structures as st ON st.alias = ec.form_alias) AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('disease_site', 'event_type', 'event_date', 'event_group'));
 UPDATE event_controls SET form_alias = CONCAT('eventmasters,',form_alias);
 
+-- diagnosis controls & undetailled diag
 
+UPDATE diagnosis_controls SET controls_type = 'undetailed' WHERE controls_type IN ('basic secondary', 'basic remission', 'basic progression', 'basic recurrence');
+INSERT INTO i18n (id,en,fr) VALUES ('undetailed' ,'Undetailed', 'non détaillée');
