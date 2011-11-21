@@ -81,3 +81,22 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type_from_id')  WHERE model='ViewSample' AND tablename='' AND field='parent_sample_control_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type_from_id')  WHERE model='ViewAliquot' AND tablename='' AND field='parent_sample_control_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type')  WHERE model='ViewAliquot' AND tablename='' AND field='parent_sample_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type');
+
+-- Split Treatment forms
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'treatmentmasters') AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field IN ('tx_method', 'start_date', 'disease_site'));
+DELETE FROM structure_formats WHERE structure_id IN (SELECT st.id FROM treatment_controls as tc INNER JOIN structures as st ON st.alias = tc.form_alias) AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('tx_method', 'start_date', 'disease_site'));
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE treatment_controls SET form_alias = CONCAT('treatmentmasters,',form_alias);
+UPDATE structure_fields SET language_label = 'start date or trt date' WHERE field = 'start_date' AND model = 'TreatmentMaster';
+INSERT INTO i18n (id,en,fr) VALUES ('start date or trt date', 'Trt. Date/Start date', 'Date Trt./Date de commencement');
+
+-- Split Annotation forms
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'eventmasters') AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field IN ('disease_site', 'event_type', 'event_date', 'event_group'));
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id IN (SELECT st.id FROM event_controls as ec INNER JOIN structures as st ON st.alias = ec.form_alias) AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('disease_site', 'event_type', 'event_date', 'event_group'));
+UPDATE event_controls SET form_alias = CONCAT('eventmasters,',form_alias);
+
+
