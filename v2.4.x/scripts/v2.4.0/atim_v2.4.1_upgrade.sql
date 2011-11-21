@@ -103,3 +103,48 @@ UPDATE event_controls SET form_alias = CONCAT('eventmasters,',form_alias);
 
 UPDATE diagnosis_controls SET controls_type = 'undetailed' WHERE controls_type IN ('basic secondary', 'basic remission', 'basic progression', 'basic recurrence');
 INSERT INTO i18n (id,en,fr) VALUES ('undetailed' ,'Undetailed', 'non détaillée');
+
+-- Add event comorbidity
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+( null, 'all', 'clinical', 'comorbidity', 1, 'eventmasters,ed_all_comorbidities', 'ed_all_comorbidities', 0, 'clinical|all|comorbidity');
+
+CREATE TABLE IF NOT EXISTS `ed_all_comorbidities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `title` varchar(50) DEFAULT NULL,
+  `icd10_code` varchar(10) DEFAULT NULL,
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE IF NOT EXISTS `ed_all_comorbidities_revs` (
+  `id` int(11) NOT NULL,
+  
+  `title` varchar(50) DEFAULT NULL,
+  `icd10_code` varchar(10) DEFAULT NULL,
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ed_all_comorbidities`
+  ADD CONSTRAINT `ed_all_comorbidities_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('ed_all_comorbidities');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ed_all_comorbidities', 'title', 'input',  NULL , '0', '', '', '', 'title', ''), 
+('Clinicalannotation', 'EventDetail', 'ed_all_comorbidities', 'icd10_code', 'autocomplete',  NULL , '0', 'size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who', '', '', 'disease code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_comorbidities'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_comorbidities'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='title' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='title' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_comorbidities'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='' AND `language_label`='disease code' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('comorbidity','Comorbidity','Comorbidité');
