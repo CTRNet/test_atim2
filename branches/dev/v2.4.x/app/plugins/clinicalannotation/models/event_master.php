@@ -9,6 +9,24 @@ class EventMaster extends ClinicalannotationAppModel {
 	   )    
 	);
 	
+	function summary( $variables=array() ) {
+		$return = false;
+	
+		if ( isset($variables['EventMaster.id'])) {
+				
+			$result = $this->find('first', array('conditions'=>array('EventMaster.id'=>$variables['EventMaster.id'])));
+				
+			$return = array(
+					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'title'			=>	array( NULL, __('annotation', TRUE) ),
+					'data'				=> $result,
+					'structure alias'	=> 'eventmasters'
+			);
+		}
+	
+		return $return;
+	}
+	
 	/**
 	 * Compares dx data with a cap report and generates warning when there are
 	 * mismatches.
