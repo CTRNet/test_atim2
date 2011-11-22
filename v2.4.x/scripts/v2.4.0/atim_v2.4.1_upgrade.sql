@@ -3,7 +3,7 @@
 
 -- Update version information
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.4.1', NOW(), '> 3884');
+('2.4.1', NOW(), '3918');
 
 REPLACE INTO i18n(id, en, fr) VALUES
 ('core_app_version', '2.4.1', '2.4.1');
