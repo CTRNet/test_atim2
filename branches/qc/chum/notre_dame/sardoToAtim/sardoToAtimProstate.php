@@ -99,7 +99,8 @@ SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
 $xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-15 Export complet prostate.XLS');
-//$xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/the other file');
+// $xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-18 export prostate recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
+
