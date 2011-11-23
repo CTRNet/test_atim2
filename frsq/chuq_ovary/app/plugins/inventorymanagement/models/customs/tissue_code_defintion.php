@@ -41,7 +41,7 @@ class TissueCodeDefintion extends InventorymanagementAppModel {
 		if(!array_key_exists('chuq_tissue_code', $data['SampleDetail'])) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		if(empty($data['SampleDetail']['chuq_tissue_code'])) return;
 		$def = $this->find('first', array('conditions' => array('TissueCodeDefintion.tissue_code' => $data['SampleDetail']['chuq_tissue_code'])));
-		if(empty($def)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(empty($def)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
 		$data['SampleDetail']['tissue_source'] = $def['TissueCodeDefintion']['tissue_source'];
 		$data['SampleDetail']['tissue_nature'] = $def['TissueCodeDefintion']['tissue_nature'];
