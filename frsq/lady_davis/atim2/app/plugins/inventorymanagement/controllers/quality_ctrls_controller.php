@@ -89,7 +89,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}else if(array_key_exists('ViewSample', $this->data)){
 			$menu_data = $this->data['ViewSample']['sample_master_id']; 
 		
-		}else{
+		}else if(!empty($this->data)){
 			//submitted data
 			$tmp_data = current($this->data);
 			$model = array_key_exists('AliquotMaster', $tmp_data) ? 'AliquotMaster' : 'SampleMaster';
@@ -105,6 +105,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
 				}
 			}
+		}else{
+			$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->setBatchMenu(array('SampleMaster' => $menu_data));
 		$this->set('cancel_button', $cancel_button);
@@ -479,4 +481,3 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	}
 }
 ?>
-
