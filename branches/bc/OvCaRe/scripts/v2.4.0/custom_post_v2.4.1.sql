@@ -210,12 +210,22 @@ INSERT INTO i18n (id,en) VALUES ('recurrent disease', 'Recurrent Disease');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 ALTER TABLE ovcare_dxd_primaries ADD COLUMN `progression_free_time_months` int(7) DEFAULT NULL AFTER recurrent_disease;
-ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `progression_free_time_months` char(1) DEFAULT NULL AFTER recurrent_disease;
+ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `progression_free_time_months` int(7) DEFAULT NULL AFTER recurrent_disease;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'progression_free_time_months', 'integer_positive',  NULL , '0', 'size=6', '', '', 'progression free time months', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='progression_free_time_months'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
-INSERT INTO i18n (id,en) VALUES ('progression free time months', 'Progression Free Time (Months)');
+INSERT INTO i18n (id,en) VALUES ('progression free time months', 'Progression Free Time in Months');
+
+ALTER TABLE ovcare_dxd_primaries ADD COLUMN `initial_surgery_date` date DEFAULT NULL AFTER recurrent_disease;
+ALTER TABLE ovcare_dxd_primaries ADD COLUMN `initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER initial_surgery_date;
+ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `initial_surgery_date` date DEFAULT NULL AFTER recurrent_disease;
+ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER initial_surgery_date;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_surgery_date', 'date',  NULL , '0', '', '', '', 'initial surgery date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_surgery_date'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+INSERT INTO i18n (id,en) VALUES ('initial surgery date', 'Initial Surgery Date');
 
 
 -- **** Treatment ****
