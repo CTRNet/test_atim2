@@ -2,24 +2,6 @@
 
 class EventControl extends ClinicalannotationAppModel {
 	
-	function summary( $variables=array() ) {
-		$return = false;
-		
-		if ( isset($variables['EventControl.id']) ) {
-			
-			$result = $this->find('first', array('conditions'=>array('EventControl.id'=>$variables['EventControl.id'])));
-			
-			$return = array(
-				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
-				'title'			=>	array( NULL, __('annotation', TRUE) ),
-				'data'				=> $result,
-				'structure alias'	=> 'event_summary'
-			);
-		}
-		
-		return $return;
-	}
-
 	/**
 	 * Get permissible values array gathering all existing event disease sites.
 	 *
@@ -33,6 +15,18 @@ class EventControl extends ClinicalannotationAppModel {
 		// Build tmp array to sort according translation
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
 			$result[$event_control['EventControl']['disease_site']] = __($event_control['EventControl']['disease_site'], true);
+		}
+		asort($result);
+		
+		return $result;
+	}
+	
+	function getEventGroupPermissibleValues() {
+		$result = array();
+		
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
+			$result[$event_control['EventControl']['event_group']] = __($event_control['EventControl']['event_group'], true);
 		}
 		asort($result);
 		

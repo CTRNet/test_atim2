@@ -724,7 +724,16 @@ class AppController extends Controller {
 		if(($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
 			//determine if the results contain only one control id
 			$base_model = isset($model->base_model) ? $model->base_model : $model->name;
-			$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
+			$control_field = null;
+			if($view){
+				if($model->name == 'ViewAliquot'){
+					$control_field = 'aliquot_control_id';
+				}else{
+					$control_field = 'sample_control_id';
+				}
+			}else{
+				$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
+			}
 			$ctrl_ids = $model->find('all', array(
 				'fields'		=> array($model->name.'.'.$control_field), 
 				'conditions'	=> $criteria,

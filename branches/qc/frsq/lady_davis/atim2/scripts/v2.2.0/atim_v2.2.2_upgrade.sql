@@ -20,7 +20,7 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="datetime_accuracy_indicator"),  (SELECT id FROM structure_permissible_values WHERE value="h" AND language_alias="datetime_accuracy_indicator_h"), "0", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="datetime_accuracy_indicator"),  (SELECT id FROM structure_permissible_values WHERE value="i" AND language_alias="datetime_accuracy_indicator_i"), "0", "1");
 
-INSERT INTO i18n (id, en, fr) VALUES
+REPLACE INTO i18n (id, en, fr) VALUES
 ("datetime_accuracy_indicator_h", "h", "h"),
 ("datetime_accuracy_indicator_i", "i", "i"),
 ("you cannot delete yourself", "You cannot delete yourself", "Vous ne pouvez pas vous effacer vous-même");

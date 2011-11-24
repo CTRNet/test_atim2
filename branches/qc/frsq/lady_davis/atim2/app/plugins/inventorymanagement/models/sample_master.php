@@ -46,7 +46,7 @@ class SampleMaster extends InventorymanagementAppModel {
 				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'data' 				=> $specimen_data,
-	 			'structure alias' 	=> 'sample_masters_for_search_result'
+	 			'structure alias' 	=> 'sample_masters'
 			);
 		}	
 		
@@ -68,7 +68,7 @@ class SampleMaster extends InventorymanagementAppModel {
 					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_code']),
 					'data' 				=> $derivative_data,
-	 				'structure alias' 	=> 'sample_masters_for_search_result'
+	 				'structure alias' 	=> 'sample_masters'
 			);
 		}	
 		
