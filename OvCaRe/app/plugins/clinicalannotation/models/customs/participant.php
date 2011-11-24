@@ -29,6 +29,8 @@ class ParticipantCustom extends Participant {
 	
 
 	function beforeSave($options) {
+		// Set Data For Diagnosis Update (step1)
+		$this->data['OvcareFunctionManagement']['is_last_followup_date_updated'] = false;
 		
 		if(!empty($this->id)) {
 			// Participant data has just been updated
@@ -70,10 +72,22 @@ class ParticipantCustom extends Participant {
 					}
 				}
 			}
+			
+			// Set Data For Diagnosis Update (step2)
+			$previous_followup_date = $previous_participant_data['Participant']['ovcare_last_followup_date'].'-'.$previous_participant_data['Participant']['ovcare_last_followup_date_accuracy'];
+			$followup_date = $this->data['Participant']['ovcare_last_followup_date'].'-'.$this->data['Participant']['ovcare_last_followup_date_accuracy'];		
+			if($previous_followup_date != $followup_date) $this->data['OvcareFunctionManagement']['is_last_followup_date_updated'] = true;
 		}
-
+		
 		return true;
 	}
-
+	
+	function afterSave($created) {
+		if($this->data['OvcareFunctionManagement']['is_last_followup_date_updated']) {
+			$diagnosis_master_model = AppModel::getInstance("Clinicalannotation", "DiagnosisMaster", true);
+			$diagnosis_master_model->updateAllSurvivaleTimes($this->id);
+		}
+		unset($this->data['OvcareFunctionManagement']);
+	}
 }
 ?>
