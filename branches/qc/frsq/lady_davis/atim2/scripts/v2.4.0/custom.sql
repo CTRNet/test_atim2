@@ -1,3 +1,4 @@
+-- run post 2.4.1
 DROP VIEW qc_lady_supplier_depts1;
 CREATE VIEW qc_lady_supplier_depts1 AS
 SELECT collection_id, supplier_dept AS supplier_dept 
