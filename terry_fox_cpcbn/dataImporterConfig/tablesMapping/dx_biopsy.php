@@ -4,11 +4,11 @@ $child = array(
 	
 );
 $fields = array(
-	"participant_id" => $pkey,
-	'event_date'	=> 'Surgery/Biopsy Date of surgery/biopsy',
-	'event_date_accuracy' => array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'event_control_id' => '@51', //biopsy
-	'diagnosis_master_id' => '#dx_master_id'	
+	"participant_id"		=> $pkey,
+	'event_date'			=> 'Surgery/Biopsy Date of surgery/biopsy',
+	'event_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'event_control_id'		=> '@51', //biopsy
+	'diagnosis_master_id'	=> '#dx_master_id'	
 );
 
 function postDxBiopsyRead(Model $m){

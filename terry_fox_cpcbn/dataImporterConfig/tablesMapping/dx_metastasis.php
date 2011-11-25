@@ -2,10 +2,10 @@
 $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
-	'participant_id' => '#participant_id',
-	'dx_date' => 'Development of metastasis date of diagnosis of metastasis',
-	'diagnosis_control_id' => '@21', //Secondary - Metastasis
-	'parent_id'	=> $pkey
+	'participant_id' 		=> '#participant_id',
+	'dx_date' 				=> 'Development of metastasis date of diagnosis of metastasis',
+	'diagnosis_control_id'	=> '@21', //Secondary - Metastasis
+	'parent_id'				=> $pkey
 );
 $detail_fields = array(
 	'type'	=> array('Development of metastasis Type of metastasis' => new ValueDomain('qc_tf_metastasis_type', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))

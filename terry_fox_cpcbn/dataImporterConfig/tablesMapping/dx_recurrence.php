@@ -2,11 +2,11 @@
 $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
-	'participant_id' => '#participant_id',
-	'dx_date' => 'Date of biochemical recurrence Date',
-	'dx_date_accuracy' => array('Date of biochemical recurrence Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'diagnosis_control_id' => '@22', //Recurrence - Biochemical
-	'parent_id'	=> $pkey
+	'participant_id'		=> '#participant_id',
+	'dx_date'				=> 'Date of biochemical recurrence Date',
+	'dx_date_accuracy'		=> array('Date of biochemical recurrence Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'diagnosis_control_id'	=> '@22', //Recurrence - Biochemical
+	'parent_id'				=> $pkey
 );
 
 $detail_fields = array(

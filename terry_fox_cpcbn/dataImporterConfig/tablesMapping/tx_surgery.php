@@ -2,11 +2,11 @@
 $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
-	'participant_id' => $pkey,
-	'start_date' => 'Surgery/Biopsy Date of surgery/biopsy',
-	'start_date_accuracy' => array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'diagnosis_master_id' => '#diagnosis_master_id',
-	'tx_control_id' => '@3'//radiotherapy
+	'participant_id' 		=> $pkey,
+	'start_date' 			=> 'Surgery/Biopsy Date of surgery/biopsy',
+	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'diagnosis_master_id'	=> '#diagnosis_master_id',
+	'tx_control_id'			=> '@3'//radiotherapy
 );
 $detail_fields = array(
 	'qc_tf_type' => array('Surgery/Biopsy Type of surgery' => new ValueDomain('qc_tf_surgery_type', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
