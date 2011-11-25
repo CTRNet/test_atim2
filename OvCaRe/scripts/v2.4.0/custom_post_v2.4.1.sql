@@ -117,6 +117,12 @@ CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries` (
 	clinical_history text,
 	clinical_diagnosis text,
 	
+	`initial_surgery_date` date DEFAULT NULL,
+	`initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',
+	`initial_recurrence_date` date DEFAULT NULL,
+	`initial_recurrence_date_accuracy` char(1) NOT NULL DEFAULT '',
+	`progression_free_time_months` int(7) DEFAULT NULL,
+
 	stage varchar(10) DEFAULT NULL,
 	substage varchar(10) DEFAULT NULL,
 	
@@ -136,6 +142,12 @@ CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries_revs` (
 	clinical_history text,
 	clinical_diagnosis text,
 	
+	`initial_surgery_date` date DEFAULT NULL,
+	`initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',
+	`initial_recurrence_date` date DEFAULT NULL,
+	`initial_recurrence_date_accuracy` char(1) NOT NULL DEFAULT '',
+	`progression_free_time_months` int(7) DEFAULT NULL,
+
 	stage varchar(10) DEFAULT NULL,
 	substage varchar(10) DEFAULT NULL,
 	
@@ -183,49 +195,60 @@ INSERT INTO structures(`alias`) VALUES ('ovcare_dx_primaries');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'clinical_history', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', 'clinical history', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'clinical_diagnosis', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'clinical diagnosis', ''), 
+
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_surgery_date', 'date',  NULL , '0', '', '', '', 'initial surgery date', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_recurrence_date', 'date',  NULL , '0', '', '', '', 'initial recurrence date', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'progression_free_time_months', 'integer_positive',  NULL , '0', 'size=6', '', '', 'progression free time months', ''),
+
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'stage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage') , '0', '', '', '', 'stage', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'substage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage') , '0', '', '', '', 'substage', ''), 
+
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade') , '0', '', '', '', 'review grade', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_comment', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review comment', ''), 
 ('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_diagnosis', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review diagnosis', '');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='clinical_history' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical history' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='clinical_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+
+((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_surgery_date'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_recurrence_date'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='progression_free_time_months'), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='stage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '20', 'staging', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='substage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='substage' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='review grade' AND `language_tag`=''), '3', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_comment' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review comment' AND `language_tag`=''), '3', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review diagnosis' AND `language_tag`=''), '3', '40', 'review', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
-INSERT INTO i18n (id,en) VALUES ('clinical diagnosis','Clinical Diagnosis'),('review comment','Review Comment'),('review grade','Review Grade'),('review diagnosis','Review Diagnosis'),('review','Review'),('substage','Substage'),('stage','Stage'),('who code','WHO Code');
-
-ALTER TABLE ovcare_dxd_primaries ADD COLUMN `recurrent_disease` char(1) DEFAULT '' AFTER clinical_diagnosis;
-ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `recurrent_disease` char(1) DEFAULT '' AFTER clinical_diagnosis;
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'recurrent_disease', 'yes_no',  NULL , '0', '', '', '', 'recurrent disease', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='recurrent_disease'), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
-INSERT INTO i18n (id,en) VALUES ('recurrent disease', 'Recurrent Disease');
+INSERT INTO i18n (id,en) VALUES 
+('clinical diagnosis','Clinical Diagnosis'),
+('review comment','Review Comment'),
+('review grade','Review Grade'),
+('review diagnosis','Review Diagnosis'),
+('review','Review'),
+('substage','Substage'),
+('stage','Stage'),
+('who code','WHO Code'),
+('progression free time months', 'Progression Free Time in Months'),
+('initial surgery date', 'Initial Surgery Date'),
+('initial recurrence date', 'Initial Recurrence Date');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_help`='1', `language_help`='ovcare_help_survival' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET `language_help`='ovcare_initial_surgery_date' WHERE field = 'initial_surgery_date';
+UPDATE structure_fields SET `language_help`='ovcare_initial_recurrence_date' WHERE field = 'initial_recurrence_date';
+UPDATE structure_fields SET `language_help`='ovcare_progression_free_time_months' WHERE field = 'progression_free_time_months';
 
-ALTER TABLE ovcare_dxd_primaries ADD COLUMN `progression_free_time_months` int(7) DEFAULT NULL AFTER recurrent_disease;
-ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `progression_free_time_months` int(7) DEFAULT NULL AFTER recurrent_disease;
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'progression_free_time_months', 'integer_positive',  NULL , '0', 'size=6', '', '', 'progression free time months', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='progression_free_time_months'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
-INSERT INTO i18n (id,en) VALUES ('progression free time months', 'Progression Free Time in Months');
+INSERT INTO i18n (id,en) VALUES 
+('ovcare_initial_surgery_date', 'Date of the first surgery defined from list of surgeries whose date is not empty and that have been linked to this diagnosis.'),
+('ovcare_initial_recurrence_date', 'Date of the first diagnosis recurrence defined from list of recurrences whose date is not empty and that have been linked to this diagnosis.'),
+('ovcare_help_survival', 'Spent time (in months) between the intial surgery date and the last follow-up date.'),
+('ovcare_progression_free_time_months', 'When the initial recurrence date is defined, this value is equal to the spent time (in months) between the intial surgery date and this recurrence date. When the initial recurrence date is not defined, this value is equal to the spent time (in months) between the intial surgery date and the last follow-up date.');
 
-ALTER TABLE ovcare_dxd_primaries ADD COLUMN `initial_surgery_date` date DEFAULT NULL AFTER recurrent_disease;
-ALTER TABLE ovcare_dxd_primaries ADD COLUMN `initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER initial_surgery_date;
-ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `initial_surgery_date` date DEFAULT NULL AFTER recurrent_disease;
-ALTER TABLE ovcare_dxd_primaries_revs ADD COLUMN `initial_surgery_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER initial_surgery_date;
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_surgery_date', 'date',  NULL , '0', '', '', '', 'initial surgery date', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_surgery_date'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
-INSERT INTO i18n (id,en) VALUES ('initial surgery date', 'Initial Surgery Date');
+INSERT INTO i18n (id,en) VALUEs ('the dates accuracy is not sufficient: the field [%%field%%] can not be generated','The dates accuracy is not sufficient: the field [%%field%%] can not be generated!');
 
 
 -- **** Treatment ****
