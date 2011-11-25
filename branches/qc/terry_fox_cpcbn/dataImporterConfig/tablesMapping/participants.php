@@ -11,36 +11,20 @@ $child = array(
 	'tx_surgery'
 );
 $fields = array(
-//	"title" => "",
-//	"first_name" => "",
-//	"middle_name" => "",
-//	"last_name" => "",
-	"date_of_birth" => "Date of Birth Date",
-	"date_of_birth_accuracy" => array("Date of Birth Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-//	"marital_status" => "",
-//	"language_preferred" => "",
-//	"sex" => "",
-//	"race" => "",
-	"vital_status" => array("Death status" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
-	"date_of_death" => "Registered Date of Death Date",
-	"date_of_death_accuracy" => array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-//	"cod_icd10_code" => "",
-//	"secondary_cod_icd10_code" => "",
-//	"cod_confirmation_source" => "",
-	"participant_identifier" => "@tmp_id",
-//	"last_chart_checked_date" => "",
-	"qc_tf_suspected_date_of_death" => "Suspected Date of Death Date",
-	"qc_tf_suspected_date_of_death_accuracy" => array("Suspected Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_family_history" => array("Family History (prostatite/cancer)" => new ValueDomain("qc_tf_fam_hist_prostate_cancer", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-
-
-// 	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
-	"qc_tf_last_contact" => "Date of last contact Date",
-	"qc_tf_last_contact_accuracy" => array("Date of last contact Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	"qc_tf_bank_id"				=> "#qc_tf_bank_id",
-	'qc_tf_death_from_prostate_cancer' => array('Death from prostate cancer' => array('yes' => 'y', 'no' => 'n', '' => '')),
-	'qc_tf_follow_up_months'	=> 'follow-up time (months)'
-// 	"notes" => "notes"
+	"date_of_birth" 							=> "Date of Birth Date",
+	"date_of_birth_accuracy" 					=> array("Date of Birth Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"vital_status" 								=> array("Death status" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
+	"date_of_death" 							=> "Registered Date of Death Date",
+	"date_of_death_accuracy" 					=> array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"participant_identifier" 					=> "@tmp_id",
+	"qc_tf_suspected_date_of_death" 			=> "Suspected Date of Death Date",
+	"qc_tf_suspected_date_of_death_accuracy"	=> array("Suspected Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_family_history" 						=> array("Family History (prostatite/cancer)" => new ValueDomain("qc_tf_fam_hist_prostate_cancer", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"qc_tf_last_contact" 						=> "Date of last contact Date",
+	"qc_tf_last_contact_accuracy" 				=> array("Date of last contact Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_bank_id"								=> "#qc_tf_bank_id",
+	'qc_tf_death_from_prostate_cancer' 			=> array('Death from prostate cancer' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
+	'qc_tf_follow_up_months'					=> 'follow-up time (months)'
 );
 
 function postParticipantRead(Model $m){

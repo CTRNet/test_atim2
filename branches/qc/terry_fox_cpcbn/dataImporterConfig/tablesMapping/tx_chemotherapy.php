@@ -2,14 +2,14 @@
 $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
-	'participant_id' => $pkey,
-	'start_date' => 'Dates of event Date of event (beginning)',
-	'start_date_accuracy' => array('Dates of event Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'finish_date' => 'Dates of event Date of event (end)',
-	'finish_date_accuracy' => array('Dates of event Accuracy End' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'diagnosis_master_id' => '#diagnosis_master_id',
-	'tx_control_id' => '@1',//radiotherapy
-	'notes'	=> 'note'
+	'participant_id' 		=> $pkey,
+	'start_date' 			=> 'Dates of event Date of event (beginning)',
+	'start_date_accuracy' 	=> array('Dates of event Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'finish_date' 			=> 'Dates of event Date of event (end)',
+	'finish_date_accuracy' 	=> array('Dates of event Accuracy End' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'diagnosis_master_id'	=> '#diagnosis_master_id',
+	'tx_control_id' 		=> '@1',//radiotherapy
+	'notes'					=> 'note'
 );
 
 function txChemotherapyPostRead(Model $m){
@@ -44,7 +44,7 @@ function txChemotherapyPostWrite(Model $m){
 				}
 				Database::insertRevForLastRow('txe_chemos');
 			}else{
-				echo 'WARNING: Unknwon drug at field ['.$key.'] in event at line ['.$m->line."]\n";
+				echo 'WARNING: Unknwon drug ['.$m->values[$key].'] at field ['.$key.'] in event at line ['.$m->line."]\n";
 			}
 		}
 	}

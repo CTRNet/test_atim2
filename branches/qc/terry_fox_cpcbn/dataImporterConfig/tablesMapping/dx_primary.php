@@ -5,25 +5,25 @@ $child = array(
 	'dx_recurrence'
 );
 $fields = array(
-	'participant_id' => $pkey,
-	'dx_date' => 'Date of diagnostics Date',
-	'dx_date_accuracy'	=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'diagnosis_control_id' => '@14', //CPCBN dx
-	'age_at_dx' => 'Age at Time of Diagnosis (yr)'
+	'participant_id' 		=> $pkey,
+	'dx_date' 				=> 'Date of diagnostics Date',
+	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'diagnosis_control_id'	=> '@14', //CPCBN dx
+	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
 );
 
 $detail_fields = array(
-	'tool'	=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
-	'gleason_score' => 'Gleason score at biopsy',
-	'number_of_biopsies' => 'number of biospies (optional)',
-	'ptnm' => array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'gleason_score_rp' => array('Gleason sum RP' => new ValueDomain('qc_tf_gleason_sum_rp', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'presence_of_lymph_node_invasion' => array('Presence of lymph node invasion' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
-	'presence_of_capsular_penetration' => array('Presence of capsular penetration' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
-	'presence_of_seminal_vesicle_invasion' => array('Presence of seminal vesicle invasion' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
-	'margin' => array('Margin' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
-	'hormonorefractory_status' => array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'hormonorefractory_date_hr' => 'hormonorefractory status date of HR status diagnosis'
+	'tool'									=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
+	'gleason_score' 						=> 'Gleason score at biopsy',
+	'number_of_biopsies' 					=> 'number of biospies (optional)',
+	'ptnm' 									=> array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'gleason_score_rp' 						=> array('Gleason sum RP' => new ValueDomain('qc_tf_gleason_sum_rp', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'presence_of_lymph_node_invasion' 		=> array('Presence of lymph node invasion' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
+	'presence_of_capsular_penetration' 		=> array('Presence of capsular penetration' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
+	'presence_of_seminal_vesicle_invasion'	=> array('Presence of seminal vesicle invasion' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
+	'margin' 								=> array('Margin' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
+	'hormonorefractory_status' 				=> array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'hormonorefractory_date_hr' 			=> 'hormonorefractory status date of HR status diagnosis'
 );
 
 function checkBatch1Fields(Model $m){

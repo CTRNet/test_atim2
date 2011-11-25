@@ -2,16 +2,16 @@
 $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
-	'participant_id' => $pkey,
-	'event_date' => 'Dates of event Date of event (beginning)',
-	'event_date_accuracy' => array('Dates of event Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'diagnosis_master_id' => '#diagnosis_master_id',
-	'event_control_id' => '@52'//psa
+	'participant_id'		=> $pkey,
+	'event_date' 			=> 'Dates of event Date of event (beginning)',
+	'event_date_accuracy'	=> array('Dates of event Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'diagnosis_master_id'	=> '#diagnosis_master_id',
+	'event_control_id' 		=> '@52'//psa
 );
 $detail_fields = array(
-	'event_date_end' => 'Dates of event Date of event (end)',
-	'event_date_end_accuracy' => array('Dates of event Accuracy End' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
-	'psa_ng_per_ml' => 'PSA (ng/ml)'
+	'event_date_end'			=> 'Dates of event Date of event (end)',
+	'event_date_end_accuracy'	=> array('Dates of event Accuracy End' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'psa_ng_per_ml' 			=> 'PSA (ng/ml)'
 );
 
 function eventPsaPostRead(Model $m){
