@@ -22,8 +22,10 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-clinical data HDQ Dec2010 Q.xls';
-//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-clinical data V3 1-VPC-05_2011.xls';
+//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/HDQ-CPCBN-3.0-clinical data HDQ Dec2010 Q.xls';
+//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCBN-McGill.V3.1.xls';
+//  	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/TFRI-CPCN CHUM v3.1.xls';
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/Prostate/vpc CPCBN 2011.xls';
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//whether to output the dataImporter generated queries
@@ -203,14 +205,14 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
 	}	
 
-	$query = "UPDATE tx_masters "
-		."LEFT JOIN diagnosis_masters ON tx_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
-		."SET tx_masters.diagnosis_master_id=diagnosis_masters.id "
-		."WHERE tx_masters.created >= (SELECT start_time FROM start_time) AND tx_masters.participant_id NOT IN(".implode(", ", $ids).")";
+	$query = "UPDATE treatment_masters "
+		."LEFT JOIN diagnosis_masters ON treatment_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
+		."SET treatment_masters.diagnosis_master_id=diagnosis_masters.id "
+		."WHERE treatment_masters.created >= (SELECT start_time FROM start_time) AND treatment_masters.participant_id NOT IN(".implode(", ", $ids).")";
 	mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed");
 
 	if(Config::$insert_revs){
-		$query = "UPDATE tx_masters_revs INNER JOIN tx_masters ON tx_masters.id = tx_masters_revs.id SET tx_masters_revs.diagnosis_master_id = tx_masters.diagnosis_master_id";
+		$query = "UPDATE treatment_masters_revs INNER JOIN txreatment_masters ON treatment_masters.id = treatment_masters_revs.id SET treatment_masters_revs.diagnosis_master_id = treatment_masters.diagnosis_master_id";
 		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
 	}	
 	
@@ -241,8 +243,8 @@ function addonFunctionEnd(){
 		'participants.date_of_death',
 		'participants.qc_tf_suspected_date_of_death',
 		'participants.qc_tf_last_contact',
-		'tx_masters.start_date',
-		'tx_masters.finish_date');
+		'treatment_masters.start_date',
+		'treatment_masters.finish_date');
 
 	foreach($date_times_to_check as $table_field) {
 		$names = explode(".", $table_field);

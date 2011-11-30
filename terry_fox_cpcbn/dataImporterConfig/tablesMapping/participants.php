@@ -17,6 +17,7 @@ $fields = array(
 	"date_of_death" 							=> "Registered Date of Death Date",
 	"date_of_death_accuracy" 					=> array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"participant_identifier" 					=> "@tmp_id",
+	"sex"										=> "@m",
 	"qc_tf_suspected_date_of_death" 			=> "Suspected Date of Death Date",
 	"qc_tf_suspected_date_of_death_accuracy"	=> array("Suspected Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"qc_tf_family_history" 						=> array("Family History (prostatite/cancer)" => new ValueDomain("qc_tf_fam_hist_prostate_cancer", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
@@ -45,7 +46,7 @@ function postParticipantWrite(Model $m){
 	global $connection;
 	global $primary_number;
 	$primary_number = 1;
-	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id;
+	$query = "UPDATE participants SET participant_identifier=RIGHT(CONCAT('00000', id), 5) WHERE id=".$m->last_id;
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	if(!isset($m->values['misc_identifier_control_id'])){
 		die("Participant misc_identifier_control_id is required");
