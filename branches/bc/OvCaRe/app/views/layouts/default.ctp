@@ -1,7 +1,7 @@
 <?php 
 $headers_were_sent = headers_sent();
 if(!$headers_were_sent){
-//	ob_start('ob_gzhandler');
+	ob_start('ob_gzhandler');
 	header ('Content-type: text/html; charset=utf-8');
 	AppController::atimSetCookie();
 }
