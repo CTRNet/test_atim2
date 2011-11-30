@@ -3,7 +3,7 @@
 
 -- Update version information
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.4.1', NOW(), '> 3884');
+('2.4.1', NOW(), '3918');
 
 REPLACE INTO i18n(id, en, fr) VALUES
 ('core_app_version', '2.4.1', '2.4.1');
@@ -88,8 +88,8 @@ DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WH
 DELETE FROM structure_formats WHERE structure_id IN (SELECT st.id FROM treatment_controls as tc INNER JOIN structures as st ON st.alias = tc.form_alias) AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('tx_method', 'start_date', 'disease_site'));
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE treatment_controls SET form_alias = CONCAT('treatmentmasters,',form_alias);
-UPDATE structure_fields SET language_label = 'start date or trt date' WHERE field = 'start_date' AND model = 'TreatmentMaster';
-INSERT INTO i18n (id,en,fr) VALUES ('start date or trt date', 'Trt. Date/Start date', 'Date Trt./Date de commencement');
+UPDATE structure_fields SET language_label = 'date/start date' WHERE field = 'start_date' AND model = 'TreatmentMaster';
+INSERT INTO i18n (id,en,fr) VALUES ('date/start date', 'Date/Start date', 'Date/Date de commencement');
 
 -- Split Annotation forms
 
@@ -148,3 +148,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_all_comorbidities'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='icd10_code' AND `type`='autocomplete' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10,url=/codingicd/CodingIcd10s/autocomplete/who,tool=/codingicd/CodingIcd10s/tool/who' AND `default`='' AND `language_help`='' AND `language_label`='disease code' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 INSERT INTO i18n (id,en,fr) VALUES ('comorbidity','Comorbidity','Comorbidité');
+
+UPDATE menus SET use_summary='Clinicalannotation.EventMaster::summary' WHERE use_summary='Clinicalannotation.EventControl::summary';

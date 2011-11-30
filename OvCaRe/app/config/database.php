@@ -83,8 +83,8 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_new',
+		'password' => '',
+		'database' => 'ovcare',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);
