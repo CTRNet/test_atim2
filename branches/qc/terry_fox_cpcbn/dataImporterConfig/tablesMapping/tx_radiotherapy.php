@@ -8,7 +8,7 @@ $fields = array(
 	'finish_date' 			=> 'Dates of event Date of event (end)',
 	'finish_date_accuracy'	=> array('Dates of event Accuracy End' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	'diagnosis_master_id' 	=> '#diagnosis_master_id',
-	'tx_control_id' 		=> '@2',//radiotherapy
+	'treatment_control_id' 	=> '@2',//radiotherapy
 	'notes'					=> 'note'
 );
 $detail_fields = array(
@@ -38,7 +38,7 @@ function txRadiotherapyInsertCondition(Model $m){
 	return true;
 }
 
-$model = new MasterDetailModel(2, $pkey, $child, false, 'participant_id', $pkey, 'tx_masters', $fields, 'txd_radiations', 'tx_master_id', $detail_fields);
+$model = new MasterDetailModel(2, $pkey, $child, false, 'participant_id', $pkey, 'treatment_masters', $fields, 'txd_radiations', 'treatment_master_id', $detail_fields);
 	$model->custom_data = array(
 		"date_fields" => array(
 			$fields["start_date"]	=> key($fields["start_date_accuracy"]),

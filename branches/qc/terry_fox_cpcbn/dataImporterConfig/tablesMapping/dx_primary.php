@@ -16,7 +16,7 @@ $detail_fields = array(
 	'tool'									=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
 	'gleason_score' 						=> 'Gleason score at biopsy',
 	'number_of_biopsies' 					=> 'number of biospies (optional)',
-	'ptnm' 									=> array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'ptnm' 									=> array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'gleason_score_rp' 						=> array('Gleason sum RP' => new ValueDomain('qc_tf_gleason_sum_rp', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'presence_of_lymph_node_invasion' 		=> array('Presence of lymph node invasion' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
 	'presence_of_capsular_penetration' 		=> array('Presence of capsular penetration' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),

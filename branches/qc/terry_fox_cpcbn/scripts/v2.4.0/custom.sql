@@ -10,11 +10,13 @@ ALTER TABLE banks DROP COLUMN qc_tf_misc_identifier_control_id;
 
 INSERT INTO misc_identifier_controls (misc_identifier_name, flag_active, display_order, misc_identifier_format, flag_once_per_participant, flag_confidential) VALUES
 ('HDQ', 1, 0, NULL, 1, 1),
-('VPC', 1, 0, NULL, 1, 1);
+('VPC', 1, 0, NULL, 1, 1),
+('CHUM', 1, 0, NULL, 1, 1);
 
 INSERT INTO banks(name, description, misc_identifier_control_id, created_by, modified_by) VALUES
 ('HDQ', '', 3, 1, 1),
-('VPC', '', 4, 1, 1);
+('VPC', '', 4, 1, 1),
+('CHUM', '', 5, 1, 1);
 
 UPDATE structure_value_domains SET domain_name='qc_tf_fam_hist_prostate_cancer' WHERE domain_name='family history prostate cancer';
 
@@ -27,9 +29,11 @@ CREATE TABLE qc_tf_ed_biopsy(
  FOREIGN KEY (`event_master_id`) REFERENCES `event_masters`(`id`)
 )Engine=InnoDb;
 CREATE TABLE qc_tf_ed_biopsy_revs(
- id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ id INT UNSIGNED NOT NULL,
  event_master_id INT NOT NULL,
- deleted BOOLEAN NOT NULL DEFAULT FALSE
+ deleted BOOLEAN NOT NULL DEFAULT FALSE,
+ version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ version_created DATE NOT NULL
 )Engine=InnoDb;
 
 INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
@@ -77,7 +81,7 @@ CREATE TABLE qc_tf_dxd_cpcbn(
  presence_of_capsular_penetration CHAR(1) NOT NULL DEFAULT '',
  presence_of_seminal_vesicle_invasion CHAR(1) NOT NULL DEFAULT '',
  margin CHAR(1) NOT NULL DEFAULT '',
- hormonorefractory_status CHAR(1) NOT NULL DEFAULT '',
+ hormonorefractory_status VARCHAR(50) NOT NULL DEFAULT '',
  hormonorefractory_date_hr DATE,
  deleted BOOLEAN DEFAULT FALSE
 )Engine=InnoDb;
@@ -93,7 +97,7 @@ CREATE TABLE qc_tf_dxd_cpcbn_revs(
  presence_of_capsular_penetration CHAR(1) NOT NULL DEFAULT '',
  presence_of_seminal_vesicle_invasion CHAR(1) NOT NULL DEFAULT '',
  margin CHAR(1) NOT NULL DEFAULT '',
- hormonorefractory_status CHAR(1) NOT NULL DEFAULT '',
+ hormonorefractory_status VARCHAR(50) NOT NULL DEFAULT '',
  hormonorefractory_date_hr DATE,
  version_id int(11) NOT NULL AUTO_INCREMENT,
  version_created datetime NOT NULL,
@@ -256,34 +260,43 @@ CREATE TABLE qc_tf_ed_psa(
  FOREIGN KEY (`event_master_id`) REFERENCES `event_masters`(`id`)
 )Engine=InnoDb;
 CREATE TABLE qc_tf_ed_psa_revs(
- id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ id INT UNSIGNED NOT NULL,
  event_master_id INT NOT NULL,
  event_date_end DATE DEFAULT NULL,
  event_date_end_accuracy CHAR(1) NOT NULL DEFAULT '',
  psa_ng_per_ml FLOAT UNSIGNED DEFAULT NULL,
  notes TEXT,
- deleted BOOLEAN NOT NULL DEFAULT FALSE
-)Engine=InnoDb;
-
-INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
-('all', 'lab', 'psa', 1, 'eventmasters', 'qc_tf_ed_psa', 0, 'lab|all|psa');
-
-CREATE TABLE qc_tf_txd_hormonotherapy(
- id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- tx_master_id INT NOT NULL,
  deleted BOOLEAN NOT NULL DEFAULT FALSE,
- FOREIGN KEY (`tx_master_id`) REFERENCES `tx_masters`(`id`)
+ version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ version_created DATE NOT NULL
 )Engine=InnoDb;
-CREATE TABLE qc_tf_txd_hormonotherapy_revs(
+
+UPDATE event_controls SET flag_active=0 WHERE id!=51;
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('all', 'lab', 'psa', 1, 'eventmasters,qc_tf_ed_psa', 'treatmentmasters', 0, 'lab|all|psa');
+	         
+CREATE TABLE qc_tf_txd_hormonotherapies(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- tx_master_id INT NOT NULL,
- deleted BOOLEAN NOT NULL DEFAULT FALSE
+ treatment_master_id INT NOT NULL,
+ created DATE NOT NULL,
+ created_by INT UNSIGNED NOT NULL,
+ modified DATE NOT NULL,
+ modified_by INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT FALSE,
+ FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters`(`id`)
+)Engine=InnoDb;
+CREATE TABLE qc_tf_txd_hormonotherapies_revs(
+ id INT UNSIGNED NOT NULL,
+ treatment_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT FALSE,
+ version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ version_created DATE NOT NULL
 )Engine=InnoDb;
 
-INSERT INTO tx_controls (tx_method, disease_site, flag_active, detail_tablename, form_alias, extend_tablename, extend_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label) VALUES 
-('hormonotherapy', 'all', 1, 'qc_tf_ed_hormonotherapy', 'qc_tf_ed_hormonotherapy', NULL, NULL, 0, NULL, NULL, 'all|hormonotherapy');
+INSERT INTO treatment_controls (tx_method, disease_site, flag_active, detail_tablename, form_alias, extend_tablename, extend_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label) VALUES 
+('hormonotherapy', 'all', 1, 'qc_tf_txd_hormonotherapies', 'treatmentmasters,qc_tf_ed_hormonotherapy', NULL, NULL, 0, NULL, NULL, 'all|hormonotherapy');
 
-UPDATE tx_controls SET flag_active=1 WHERE id IN(1,2);
+UPDATE treatment_controls SET flag_active=1 WHERE id IN(1,2, 3);
 
 ALTER TABLE txd_radiations
  ADD COLUMN qc_tf_dose VARCHAR(50) NOT NULL DEFAULT ''; 
@@ -297,6 +310,46 @@ INSERT INTO drugs_revs (id, generic_name, type, modified_by, version_created) VA
 (1, '5-ARI', 'chemotherapy', 1, NOW()), 
 (2, 'taxotere', 'chemotherapy', 1, NOW());
 
-UPDATE tx_controls SET flag_active=1 WHERE id=3;
 DELETE FROM structure_value_domains_permissible_values  WHERE structure_permissible_value_id=(SELECT id FROM structure_permissible_values WHERE value='biopsy')
 AND structure_value_domain_id=(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_surgery_type');  
+
+UPDATE structure_fields SET  `type`='y_n_u' WHERE model='Participant' AND tablename='participants' AND field='qc_tf_death_from_prostate_cancer' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_ed_psa');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_tf_ed_psa', 'psa_ng_per_ml', 'float_positive',  NULL , '0', '', '', '', 'psa ng per ml', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ed_psa'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_tf_ed_psa' AND `field`='psa_ng_per_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='psa ng per ml' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('psa', 'PSA', 'PSA'),
+('psa ng per ml', 'PSA (ng/ml)', 'PSA (ng/ml)'),
+("tool", "Tool", "Outil"),
+("last contact", "Last contact", "Dernier contact"),
+("follow up (months)", "Follow up (months)", "Suivi (mois)"),
+("death from prostate cancer", "Death from prostate cancer", "Mort du cancer de la prostate"),
+("suspected date of death", "Suspected date of death", "Date suspectée du décès");
+
+UPDATE structure_permissible_values SET value='PSA follow by a treatment', language_alias='PSA follow by a treatment' WHERE value='PSA follow by a  treatment';
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active=false WHERE id IN('clin_CAN_26', 'clin_CAN_27', 'clin_CAN_30', 'clin_CAN_33', 'clin_CAN_68', 'clin_CAN_9');
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
+
+ALTER TABLE collections_revs
+ DROP COLUMN qc_tf_collected_specimen_type;
+
+ALTER TABLE qc_tf_ed_cpcbn_revs
+ MODIFY COLUMN id INT NOT NULL;
+
+ALTER TABLE sd_spe_tissues_revs
+ ADD COLUMN qc_tf_collected_specimen_type VARCHAR(50) NOT NULL DEFAULT '';
+ 
+INSERT INTO structures(`alias`) VALUES ('qc_tf_ed_hormonotherapy');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_ed_hormonotherapy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '4', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+ 
