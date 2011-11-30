@@ -315,6 +315,10 @@ UPDATE menus SET use_link = @use_link WHERE id = 'clin_CAN_4';
 UPDATE event_controls SET flag_active = 0;
 INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
 ('ovcare', 'lab', 'experimental results', 1, 'eventmasters,ovcare_ed_lab_experimental_results', 'ovcare_ed_lab_experimental_results', 0, 'lab|ovcare|experimental results');
+INSERT INTO i18n (id,en) VALUEs ('experimental results', 'Experimental Results');
+
+UPDATE structure_fields SET `language_label`='last update date' WHERE model='EventMaster' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en) VALUEs ('last update date', 'Last Update Date');
 
 CREATE TABLE IF NOT EXISTS `ovcare_ed_lab_experimental_results` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1003,7 +1007,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 
 SET @structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_lab_experimental_results');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-(@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_results' AND `field`='brca1_germline_nuc_acid'), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+(@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_results' AND `field`='brca1_germline_nuc_acid'), '1', '101', 'results', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 (@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_results' AND `field`='brca1_germline_amino_acid'), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 (@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_results' AND `field`='brca1_somatic_nuc_acid'), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 (@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_results' AND `field`='brca1_vus'), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
@@ -1236,7 +1240,8 @@ ALTER TABLE `ovcare_ed_lab_experimental_results`
 ALTER TABLE `ovcare_ed_lab_experimental_results_revs`
   CHANGE `tma_mdm2_restain_08.05.09` `tma_mdm2_restain_08_05_09` varchar(50) DEFAULT NULL;
 
-INSERT INTO i18n (id,en) VALUES
+INSERT IGNORE INTO i18n (id,en) VALUES
+('results','Results'),
 ('brca1 germline nuc acid','BRCA1 Germline Nuc Acid'),
 ('brca1 germline amino acid','BRCA1 Germline Amino Acid'),
 ('brca1 somatic nuc acid','BRCA1 Somatic Nuc Acid'),
@@ -1481,10 +1486,6 @@ UPDATE structure_formats
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sop_master_id');
 
-UPDATE specimen_review_controls SET flag_active = 0;
-UPDATE aliquot_review_controls SET flag_active = 0;
-UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/inventorymanagement/specimen_reviews/%';
-
 
 -- **** COLLECTION ****
 
@@ -1667,7 +1668,7 @@ INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `u
 VALUES 
 ('steve kalloger', 'Steve Kalloger', '', 1, @cont_id, @id, NOW());
 
--- Tissue
+-- Tissue --
 
 INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'ovcare tissue sources',1,50);
 UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(\'ovcare tissue sources\')' WHERE domain_name = 'tissue_source_list';
@@ -1684,10 +1685,260 @@ SET @id = LAST_INSERT_ID();
 INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
 VALUES 
 ('endometrial', 'Endometrial', '', 1, @cont_id, @id, NOW());
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('omentum', 'Omentum', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('omentum', 'Omentum', '', 1, @cont_id, @id, NOW());
 
 UPDATE structure_formats 
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'patho_dpt_block_code');
+
+-- DNA RNA --
+
+UPDATE sample_controls SET form_alias = CONCAT(form_alias,',ovcare_dna_rna_extract_method') WHERE sample_type IN ('dna','rna');
+
+ALTER TABLE sd_der_dnas 
+	ADD COLUMN `ovcare_extraction_method` varchar(50) AFTER sample_master_id,
+	ADD COLUMN `ovcare_enzyme_tx` varchar(50) AFTER ovcare_extraction_method;
+ALTER TABLE sd_der_dnas_revs 
+	ADD COLUMN `ovcare_extraction_method` varchar(50) AFTER sample_master_id,
+	ADD COLUMN `ovcare_enzyme_tx` varchar(50) AFTER ovcare_extraction_method;
+ALTER TABLE sd_der_rnas 
+	ADD COLUMN `ovcare_extraction_method` varchar(50) AFTER sample_master_id,
+	ADD COLUMN `ovcare_enzyme_tx` varchar(50) AFTER ovcare_extraction_method;
+ALTER TABLE sd_der_rnas_revs 
+	ADD COLUMN `ovcare_extraction_method` varchar(50) AFTER sample_master_id,
+	ADD COLUMN `ovcare_enzyme_tx` varchar(50) AFTER ovcare_extraction_method;
+
+INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'ovcare dna rna extraction methods',1,50);
+INSERT INTO `structure_value_domains` VALUES (null,'ovcare_dna_rna_extraction_methods','open','','StructurePermissibleValuesCustom::getCustomDropdown(\'ovcare dna rna extraction methods\')');
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare dna rna extraction methods');
+SET @new_val = ('Trizol');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('Phenol Chloroform');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('DNA FFPE Tissue kit');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('RNeasy Kit (Qiagen)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('puregene Kit (Qiagen)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('RNeasy FFPE Kit (Qiagen)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('m48 Kit (Qiagen)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('mirVana (Ambion) ');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('DNeasy Blood & Tissue Kit (Qiagen)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+
+INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'ovcare dna rna enzyme txs',1,50);
+INSERT INTO `structure_value_domains` VALUES (null,'ovcare_dna_rna_enzyme_txs','open','','StructurePermissibleValuesCustom::getCustomDropdown(\'ovcare dna rna enzyme txs\')');
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare dna rna enzyme txs');
+SET @new_val = ('None');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('Other');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('RNAse Column');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('RNAse');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('DNAse Column');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('DNAse (Source RNA)');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+SET @new_val = ('RNAse H');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+(LOWER(@new_val), @new_val, '', 1, @cont_id, @id, NOW());
+
+INSERT INTO structures (alias) VALUES ('ovcare_dna_rna_extract_method');
+INSERT INTO `structure_fields` (`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `flag_confidential`) VALUES
+('Inventorymanagement', 'SampleDetail', '', 'ovcare_extraction_method', 'extraction method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'ovcare_dna_rna_extraction_methods'), '', 0),
+('Inventorymanagement', 'SampleDetail', '', 'ovcare_enzyme_tx', 'enzyme tx', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'ovcare_dna_rna_enzyme_txs'), '', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias = 'ovcare_dna_rna_extract_method'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='ovcare_extraction_method'), '1', '500', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias = 'ovcare_dna_rna_extract_method'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='ovcare_enzyme_tx'), '1', '501', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO i18n (id,en) VALUES ('extraction method','Extraction Method'),('enzyme tx','Enzyme Tx');
+
+
+-- **** ALIQUOT ****
+
+UPDATE structure_formats 
+SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'lot_number' AND model = 'AliquotDetail');
+
+-- Tissue tube --
+
+SET @tissue_tube_control_id = (SELECT id from aliquot_controls WHERE aliquot_type = 'tube' and sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue' ));
+UPDATE aliquot_controls SET form_alias = CONCAT(form_alias,',ovcare_tissue_tube_storage_method') WHERE id = @tissue_tube_control_id;
+
+ALTER TABLE ad_tubes ADD COLUMN `ovcare_storage_method` varchar(50) AFTER hemolysis_signs;
+ALTER TABLE ad_tubes_revs ADD COLUMN `ovcare_storage_method` varchar(50) AFTER hemolysis_signs;
+
+INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'ovcare tissue tube storage methods',1,50);
+INSERT INTO `structure_value_domains` VALUES (null,'ovcare_tissue_tube_storage_methods','open','','StructurePermissibleValuesCustom::getCustomDropdown(\'ovcare tissue tube storage methods\')');
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare tissue tube storage methods');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('snap frozen', 'Snap Frozen', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('snap frozen', 'Snap Frozen', '', 1, @cont_id, @id, NOW());
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('ethanol', 'Ethanol', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('ethanol', 'Ethanol', '', 1, @cont_id, @id, NOW());
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('other', 'Other', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('other', 'Other', '', 1, @cont_id, @id, NOW());
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('none (fresh)', 'None (Fresh)', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('none (fresh)', 'None (Fresh)', '', 1, @cont_id, @id, NOW());
+
+INSERT INTO structures (alias) VALUES ('ovcare_tissue_tube_storage_method');
+INSERT INTO `structure_fields` (`plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `flag_confidential`) VALUES
+('Inventorymanagement', 'AliquotDetail', 'ad_tubes', 'ovcare_storage_method', 'storage method', '', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name = 'ovcare_tissue_tube_storage_methods'), '', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias = 'ovcare_tissue_tube_storage_method'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ovcare_storage_method'), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_tissue_tube_storage_method') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='ovcare_storage_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tissue_tube_storage_methods') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('storage method','storage method');
+
+
+-- **** PATH REVIEW ****
+
+UPDATE specimen_review_controls SET flag_active = 0;
+UPDATE aliquot_review_controls SET flag_active = 0;
+
+INSERT INTO `specimen_review_controls` (`sample_control_id`, `aliquot_review_control_id`, `review_type`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue'), NULL, 'gross image', 1, 'ovcare_spr_tissue_gross_images', 'ovcare_spr_tissue_gross_images', 'tissue|gross image');
+
+CREATE TABLE IF NOT EXISTS `ovcare_spr_tissue_gross_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_ovcare_spr_tissue_gross_images_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `ovcare_spr_tissue_gross_images_revs` (
+  `id` int(11) NOT NULL,
+  `specimen_review_master_id` int(11) DEFAULT NULL,
+  
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ovcare_spr_tissue_gross_images`
+  ADD CONSTRAINT `FK_ovcare_spr_tissue_gross_images_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('ovcare_spr_tissue_gross_images');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='review code' AND `language_tag`=''), '0', '1', '', '1', 'title', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewControl' AND `tablename`='specimen_review_controls' AND `field`='sample_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_type_for_review')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen review type' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewControl' AND `tablename`='specimen_review_controls' AND `field`='review_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='review date' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO i18n (id,en) VALUES ('gross image','Gross Image');
 
 
 -- -------------------------------------------------------------------------------- 
