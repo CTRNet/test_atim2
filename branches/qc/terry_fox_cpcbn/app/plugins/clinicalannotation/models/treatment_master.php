@@ -2,11 +2,10 @@
 
 class TreatmentMaster extends ClinicalannotationAppModel {
 	
-	var $useTable = 'tx_masters';
     var $belongsTo = array(        
 		'TreatmentControl' => array(            
 		'className'    => 'Clinicalannotation.TreatmentControl',            
-		'foreignKey'    => 'tx_control_id'     
+		'foreignKey'    => 'treatment_control_id'     
 		)    
 	); 
 	
