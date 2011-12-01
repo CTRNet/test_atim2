@@ -1,49 +1,23 @@
--- run after 2.4.0
+-- run after 2.4.1
+
+ALTER TABLE qc_hb_txd_surgery_livers
+ DROP FOREIGN KEY qc_hb_txd_surgery_livers_ibfk_1,
+ CHANGE tx_master_id treatment_master_id INT NOT NULL,
+ ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id);
+ALTER TABLE qc_hb_txd_surgery_livers_revs
+ CHANGE tx_master_id treatment_master_id INT NOT NULL;
+ 
+ALTER TABLE qc_hb_txd_surgery_pancreas
+ DROP FOREIGN KEY qc_hb_txd_surgery_pancreas_ibfk_1,
+ CHANGE tx_master_id treatment_master_id INT NOT NULL,
+ ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id);
+ALTER TABLE qc_hb_txd_surgery_pancreas_revs
+ CHANGE tx_master_id treatment_master_id INT NOT NULL; 
 
 ALTER TABLE users 
  ADD FOREIGN KEY (group_id) REFERENCES groups(id);
 
 DROP TABLE tmp_bogus_primary_dx;
-
-ALTER TABLE datamart_batch_sets
- DROP COLUMN form_alias_for_results,
- DROP COLUMN sql_query_for_results,
- DROP COLUMN form_links_for_results,
- DROP COLUMN flag_use_query_results,
- DROP COLUMN plugin,
- DROP COLUMN model;
-
-UPDATE lab_book_controls SET flag_active = 0;
-UPDATE realiquoting_controls SET lab_book_control_id = NULL;
-UPDATE parent_to_derivative_sample_controls SET lab_book_control_id = NULL; 
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='lab_book_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='lab_book_code_from_id') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='sync_with_lab_book' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE menus SET FLAG_ACTIVE = 0 WHERE use_link like '/labbook%';
-
-
-ALTER TABLE diagnosis_masters 
- DROP COLUMN dx_identifier,
- DROP COLUMN primary_number,
- DROP COLUMN dx_origin;
-ALTER TABLE diagnosis_masters_revs
- DROP COLUMN dx_identifier,
- DROP COLUMN primary_number,
- DROP COLUMN dx_origin; 
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('primary_number', 'dx_origin', 'dx_identifier'));
-DELETE FROM structure_fields WHERE field IN ('primary_number', 'dx_origin', 'dx_identifier');
-
-
-DELETE FROM diagnosis_controls WHERE form_alias LIKE 'dx_cap_%';
-
-UPDATE structure_formats SET flag_summary = 0 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters');
-UPDATE structure_formats sf_sm, structure_formats sf_old
-SET sf_sm.flag_summary = 1 
-WHERE sf_sm.structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters')
-AND sf_sm.structure_field_id = sf_old.structure_field_id 
-AND sf_old.structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result') 
-AND sf_old.flag_summary = '1';
-DELETE from structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters_for_search_result');
-DELETE from structures WHERE alias = 'sample_masters_for_search_result';
 
 UPDATE i18n SET en='ATiM - Advanced Tissue Management', fr='ATiM - Application de gestion avancée des tissus' WHERE id='core_appname';
 
@@ -233,19 +207,6 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_tissue_susp') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='initial_specimen_sample_type' AND `language_label`='initial specimen type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='specimen_sample_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_tissue_susp') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='DerivativeDetail' AND `tablename`='' AND `field`='creation_by' AND `language_label`='created by' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
-ALTER TABLE qc_hb_txd_surgery_livers
- DROP FOREIGN KEY qc_hb_txd_surgery_livers_ibfk_1,
- CHANGE tx_master_id treatment_master_id INT NOT NULL,
- ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id); 
-ALTER TABLE qc_hb_txd_surgery_livers_revs
- CHANGE tx_master_id treatment_master_id INT NOT NULL;
-ALTER TABLE qc_hb_txd_surgery_pancreas
- DROP FOREIGN KEY qc_hb_txd_surgery_pancreas_ibfk_1,
- CHANGE tx_master_id treatment_master_id INT NOT NULL,
- ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id); 
-ALTER TABLE qc_hb_txd_surgery_pancreas_revs
- CHANGE tx_master_id treatment_master_id INT NOT NULL;
-
 REPLACE INTO i18n (id, en, fr) VALUES
 ('recurrent', 'Recurrent', 'Récurrent'),
 ('add new diagnosis', "Add New Diagnosis", "Ajouter un nouveau diagnostic"),
@@ -285,6 +246,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('vascular occlusion', "Vascular occlusion", "Occlusion vasculaire");
 
 TRUNCATE missing_translations;
+
+SELECT 'TODO: Work on datamart adhoc running sql statements after line 257';
+
+exit
 
 UPDATE datamart_adhoc SET sql_query_for_results='
 SELECT 
