@@ -247,6 +247,74 @@ REPLACE INTO i18n (id, en, fr) VALUES
 
 TRUNCATE missing_translations;
 
+-- ---------------------------------------------------------------------
+-- NL revision
+-- ----------------------------------------------------------------------
+
+UPDATE groups SET flag_show_confidential = 1 WHERE name IN ('Administrators', 'Users');
+UPDATE groups SET name = CONCAT('to delete ',id) WHERE name IN ('Lapointe', 'Rousseau');
+
+-- ClinicalAnnotation.Participant
+
+UPDATE structure_formats SET `display_order`='100', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUEs ('the dates accuracy is not sufficient: the field [%%field%%] can not be generated','The dates accuracy is not sufficient: the field [%%field%%] can not be generated!');
+INSERT INTO i18n (id,en) VALUEs ('error in the dates definitions: the field [%%field%%] can not be generated','Error in the dates definitions: The field [%%field%%] can not be generated!');
+
+
+-- ClinicalAnnotation.Treatment
+
+UPDATE structure_formats SET display_order = (display_order + 10) WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_txd_surgery_pancreas');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 SELECT 'TODO: Work on datamart adhoc running sql statements after line 257';
 
 exit
