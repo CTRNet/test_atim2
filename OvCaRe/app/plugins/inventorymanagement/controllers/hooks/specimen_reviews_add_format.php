@@ -1,16 +1,8 @@
 <?php
-if(isset($this->data[0]['file_input']) && $this->data[0]['file_input']['tmp_name']){
-	$tmp = getimagesize($this->data[0]['file_input']['tmp_name']);
-	if($tmp === false){
-		//not an image
-		$submitted_data_validates = false;
-		unset($this->data[0]['file_input']);
-		$this->SpecimenReviewMaster->validationErrors['file_input'] = __('this is not a valid image file', true);
-	}else{
-		$image = array_merge($this->data[0]['file_input'], $tmp);
-		$this->data['SpecimenReviewDetail']['file_type'] = substr($image['mime'], 6);
-	}
-}else if($this->data){
-	$submitted_data_validates = false;
-	$this->SpecimenReviewMaster->validationErrors['file_input'] = __('this field is required', true).' ('.__('image', true).')';
+
+$ovcare_file_input_data = array();
+if(!empty($this->data) && array_key_exists('OvcareFunctionManagement', $this->data)) {
+	if(!array_key_exists('file_input', $this->data['OvcareFunctionManagement'])) $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+	$ovcare_file_input_data = $this->data['OvcareFunctionManagement'];
+	unset($this->data['OvcareFunctionManagement']);
 }

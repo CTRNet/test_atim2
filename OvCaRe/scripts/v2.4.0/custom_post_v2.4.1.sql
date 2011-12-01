@@ -1972,3 +1972,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO i18n (id, en, fr) VALUES
 ('image', 'Image', 'Image'),
 ("this is not a valid image file", "This is not a valid image file.", "Ce n'est pas un fichier d'image valide.");
+
+UPDATE structure_fields SET model = 'OvcareFunctionManagement' WHERE field IN ('file_input', 'file_link');
+
+UPDATE structure_formats SET display_column = 2 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('file_input', 'file_link'));
+
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
