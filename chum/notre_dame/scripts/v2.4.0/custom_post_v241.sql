@@ -84,7 +84,10 @@ INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('immunofluorescence', 'Immunofluorescence', 'Immunofluorescence'),
 ("an old bank number is matched to the one used as search parameter", 
  "An old bank number is matched to the one used as search parameter.",
- "Un ancien numéro de banque correspond à celui utilisé comme paramètre de recherche.");
+ "Un ancien numéro de banque correspond à celui utilisé comme paramètre de recherche."),
+("this hospital identifier must start with capital letter %s and be followed by numbers",
+ "This hospital identifier must start with capital letter %s and be followed by numbers.",
+ "Cet identifiant d'hôpital doit commencer avec la lettre majuscule %s et être suivi par des chiffres.");
 
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
 UPDATE structure_formats SET `display_order`='24' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
@@ -138,7 +141,9 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_se
 UPDATE structure_formats SET `flag_override_help`='0', `language_help`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
+UPDATE misc_identifiers SET identifier_value=CONCAT('H', identifier_value) WHERE misc_identifier_control_id=8 AND LEFT(identifier_value, 1)!='H';
+UPDATE misc_identifiers SET identifier_value=CONCAT('N', identifier_value) WHERE misc_identifier_control_id=9 AND LEFT(identifier_value, 1)!='N';
+UPDATE misc_identifiers SET identifier_value=CONCAT('S', identifier_value) WHERE misc_identifier_control_id=10 AND LEFT(identifier_value, 1)!='S';
 
 # TO CALCULATE AGE
 # SELECT name, birth, CURDATE(),
