@@ -1906,7 +1906,7 @@ INSERT INTO `specimen_review_controls` (`sample_control_id`, `aliquot_review_con
 CREATE TABLE IF NOT EXISTS `ovcare_spr_tissue_gross_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `specimen_review_master_id` int(11) DEFAULT NULL,
-
+  file_type VARCHAR(5) NOT NULL DEFAULT '',
   `created` datetime DEFAULT NULL,
   `created_by` int(10) unsigned NOT NULL,
   `modified` datetime DEFAULT NULL,
@@ -1919,7 +1919,7 @@ CREATE TABLE IF NOT EXISTS `ovcare_spr_tissue_gross_images` (
 CREATE TABLE IF NOT EXISTS `ovcare_spr_tissue_gross_images_revs` (
   `id` int(11) NOT NULL,
   `specimen_review_master_id` int(11) DEFAULT NULL,
-  
+  file_type VARCHAR(5) NOT NULL DEFAULT '',
   `modified_by` int(10) unsigned NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
@@ -1960,3 +1960,15 @@ SELECT '
 -- What about barcode and label' as msg
 UNION ALL
 SELECT '****************' as msg;
+
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', '0', '', 'file_input', 'file',  NULL , '0', '', '', '', 'image', ''), 
+('', '0', '', 'file_link', 'input',  NULL , '0', '', '', '', 'image', ''); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='file_input' AND `type`='file' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='image' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='file_link' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='image' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'); 
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('image', 'Image', 'Image'),
+("this is not a valid image file", "This is not a valid image file.", "Ce n'est pas un fichier d'image valide.");
