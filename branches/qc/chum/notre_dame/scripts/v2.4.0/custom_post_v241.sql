@@ -81,7 +81,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id, en, fr) VALUES
 ('is irrelevant', 'Is irrelevant', 'N''est pas pertinent'),
-('immunofluorescence', 'Immunofluorescence', 'Immunofluorescence');
+('immunofluorescence', 'Immunofluorescence', 'Immunofluorescence'),
+("an old bank number is matched to the one used as search parameter", 
+ "An old bank number is matched to the one used as search parameter.",
+ "Un ancien numéro de banque correspond à celui utilisé comme paramètre de recherche.");
 
 UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
 UPDATE structure_formats SET `display_order`='24' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone_secondary_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='phone_type') AND `flag_confidential`='1');
