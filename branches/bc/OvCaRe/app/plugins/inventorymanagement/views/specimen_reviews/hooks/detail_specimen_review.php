@@ -15,8 +15,8 @@ if(isset($specimen_review_data['SpecimenReviewDetail']['file_type']) && !empty($
 		}
 	}
 	
-	$specimen_review_data['0']['file_link'] = $this->Html->image($image, $image_settings);
+	$specimen_review_data['OvcareFunctionManagement']['file_link'] = $this->Html->image($image, $image_settings);
 }else{
-	$specimen_review_data['0']['file_link'] = '';
+	$specimen_review_data['OvcareFunctionManagement']['file_link'] = '';
 }
 $final_options['data'] = $specimen_review_data; 
