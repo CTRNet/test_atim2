@@ -852,7 +852,7 @@ class StructuresHelper extends Helper {
 		$tag = "";
 		if(strlen($table_row_part['tag']) > 0){
 			if($options['type'] == 'csv'){
-				$tag = $table_row_part['tag'].' ';
+				$tag = $table_row_part['tag'] == '-' ? '' : $table_row_part['tag'].' ';
 			}else{
 				$tag = '<span class="tag">'.$table_row_part['tag'].'</span> ';
 			}
