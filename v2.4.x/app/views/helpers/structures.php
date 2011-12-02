@@ -1565,7 +1565,7 @@ class StructuresHelper extends Helper {
 			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
 				$model_dot_field = $sfs['model'].'.'.$sfs['field'];
-				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
+				if($sfs['flag_'.$options['type']] || ($options['settings']['all_fields'] && ($sfs['flag_detail'] || $sfs['flag_index']))){
 					$current = array(
 						"name" 				=> "",
 						"model" 			=> $sfs['model'],
