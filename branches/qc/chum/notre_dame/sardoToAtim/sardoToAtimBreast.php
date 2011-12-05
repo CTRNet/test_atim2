@@ -79,11 +79,24 @@ SardoToAtim::$columns = array(
     "Cause de décès"					=> 76
 );
 
+SardoToAtim::$date_columns = array(
+	'Date de naissance',
+	'Date du diagnostic',
+	'BIOP+ 1 Tx00 - date',
+	'CHIR 1 Tx00 - date',
+	'Pr01 - date',
+	'Pr02 - date',
+	'Pr03 - date',
+	'Date dernier contact',
+	'Date du décès'
+);
+
+
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-//$xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-15 Export complet sein.XLS');
-$xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-18 export sein recherche.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-15 Export complet sein.XLS');
+$xls_reader->read('/Volumes/data/2011-11-18 export sein recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);

@@ -95,11 +95,27 @@ SardoToAtim::$columns = array(
 	"Survie (mois)"						=> 91,
 	"Fanions"							=> 92
 );
+
+SardoToAtim::$date_columns = array(
+	'Date de naissance',
+	'Date du diagnostic',
+	'BIOP+ 1 Tx00 - date',
+	'CHIR 1 Tx00 - date',
+	'APS préCHIR Tx00 - date',
+	'Dernier APS - date',
+	'Pr01 - date',
+	'Pr02 - date',
+	'Pr03 - date',
+	'Date dernier contact',
+	'Date du décès'
+);
+
+
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-$xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-15 Export complet prostate.XLS');
-// $xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-18 export prostate recherche.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-15 Export complet prostate.XLS');
+$xls_reader->read('/Volumes/data/2011-11-18 export prostate recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
