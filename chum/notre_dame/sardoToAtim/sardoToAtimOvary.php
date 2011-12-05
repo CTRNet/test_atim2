@@ -54,14 +54,106 @@ SardoToAtim::$columns = array(
 	'Survie (mois)' 					=> 50
 );
 
+SardoToAtim::$date_columns = array(
+	'Date de naissance',
+	'Date du diagnostic',
+	'BIOP+ 1 Tx00 - date',
+	'CYTO+ 1 Tx00 - date',
+	'CHIR 1 Tx00 - date',
+	'CHIMIO 1 Tx00 - début',
+	'CHIM préCHIR Tx00 - date',
+	'CA-125 péri-DX - date',
+	'CA-125 préCHIR Tx00 - dat',
+	'Dernier CA-125 - date',
+	'Pr01 - date',
+	'Date dernier contact',
+	'Date du décès'
+);
+
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-// $xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-15 Export ovaire complet.XLS');
-$xls_reader->read('/Users/francois-michellheureux/Documents/CTRNet/sardo/data/2011-11-15 Export ovaire complet sample.XLS');
+$xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet.XLS');
+// $xls_reader->read('/Volumes/data/2011-12-01 Export SARDO-recherche ovaire.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet sample.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 $stmt = SardoToAtim::$connection->prepare("SELECT * FROM participants WHERE id=?");
 SardoToAtim::basicChecks($cells);
+unset($cells[1]);
+foreach($cells as $line){
+	$dx_data = array(
+		'master' => array(
+			'participant_id'		=> $line['participant_id'],
+			'qc_nd_sardo_id'		=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'diagnosis_control_id'	=> 19,
+			'primary_id'			=> null,
+			'parent_id'				=> null,
+			'dx_date'				=> $line[SardoToAtim::$columns['Date du diagnostic']],
+			'dx_date_accuracy'		=> $line['Date du diagnostic_accuracy'],
+			'topography'			=> $line[SardoToAtim::$columns['Topographie']],
+			'morphology'			=> $line[SardoToAtim::$columns['Morphologie']],
+			'path_tstage'			=> $line[SardoToAtim::$columns['TNM pT']],
+			'path_nstage'			=> $line[SardoToAtim::$columns['TNM pN']],
+			'path_mstage'			=> $line[SardoToAtim::$columns['TNM pM']],
+			'path_stage_summary'	=> $line[SardoToAtim::$columns['TNM pathologique']]
+		), 'detail' => array(
+			'laterality'			=> $line[SardoToAtim::$columns['Latéralité']],
+			'tnm_g'					=> $line[SardoToAtim::$columns['TNM G']],
+			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
+		), 'dates'
+	);
+	SardoToAtim::update('diagnosis_masters', 'qc_nd_dxd_primary_sardo', 'qc_nd_sardo_id', $dx_data, 'participant_id');
+	
+// 	$reprod_hist = array('master' => array(
+// 		'participant_id' => $line['participant_id'],
+		
+// 	));
 
-// SardoToAtim::$connection->commit();
+	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
+		$biopsy = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 27,
+				'event_date'			=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]
+			), 'detail' => array(
+				
+				'precision'				=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
+			)
+		);
+		//TODO: how can we update? no pkey
+		//SardoToAtim::update('event_masters', 'qc_nd_ed_biopsy', null, $biopsy, 'participant_id');
+	}
+	
+	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
+		$surgery = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'treatment_control_id'	=> 1,
+				'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']]
+			), 'detail' => array(
+				'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']]
+			)
+		);
+		
+		//TODO: how can we update? no pkey
+		//SardoToAtim::update('treatment_masters', 'txd_surgeries', null, $surgery, 'participant_id');
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SardoToAtim::endChecks();
+

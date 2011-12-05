@@ -81,3 +81,37 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type_from_id')  WHERE model='ViewSample' AND tablename='' AND field='parent_sample_control_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type_from_id')  WHERE model='ViewAliquot' AND tablename='' AND field='parent_sample_control_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type_from_id');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='parent_sample_type')  WHERE model='ViewAliquot' AND tablename='' AND field='parent_sample_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sample_type');
+
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('all', 'clinical', 'biopsy', 1, 'eventmasters', 'qc_nd_ed_biopsy', 0, 'clinical|all|biopsy');
+
+CREATE TABLE qc_nd_ed_biopsy(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_masters INT NOT NULL,
+ precision VARCHAR(50) NOT NULL DEFAULT '',
+ deleted BOOLEAN NOT NULL DEFAULT 0
+)Engine=InnoDb;
+CREATE TABLE qc_nd_ed_biopsy_revs(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_masters INT NOT NULL,
+ precision VARCHAR(50) NOT NULL DEFAULT '',
+ deleted BOOLEAN NOT NULL DEFAULT 0
+)Engine=InnoDb;
+
+ALTER TABLE txd_surgeries
+ ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id;
+ALTER TABLE txd_surgeries_revs
+ ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id;
+
+DELETE FROM protocol_controls;
+INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`, `flag_active`) VALUES
+(1, 'all', 'chemotherapy', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL, 0, NULL, 0, 1),
+(2, 'all', 'surgery', 'pd_surgeries', 'pd_surgeries', NULL, NULL, NULL, 0, NULL, 0, 1);
+
+
+DELETE FROM treatment_controls;
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+(1, 'chemotherapy', 'all', 1, 'txd_chemos', 'treatmentmasters,txd_chemos', 'txe_chemos', 'txe_chemos', 0, 1, 'importDrugFromChemoProtocol', 'all|chemotherapy'),
+(2, 'radiation', 'all', 1, 'txd_radiations', 'treatmentmasters,txd_radiations', NULL, NULL, 0, NULL, NULL, 'all|radiation'),
+(3, 'surgery', 'all', 1, 'txd_surgeries', 'treatmentmasters,txd_surgeries', 'txe_surgeries', 'txe_surgeries', 0, 2, NULL, 'all|surgery'),
+(4, 'surgery without extension', 'all', 1, 'txd_surgeries', 'treatmentmasters,txd_surgeries', NULL, NULL, 0, 2, NULL, 'all|surgery without extension');
