@@ -24,6 +24,9 @@ class ViewAliquotUse extends InventorymanagementAppModel {
 	function __construct(){
 		parent::__construct();
 		if(self::$models_details == null){
+			if(!class_exists('AliquotMaster', false)){
+				AppModel::getInstance('Inventorymanagement', 'AliquotMaster', true);
+			}
 			self::$models_details = array(
 				"SourceAliquot" => array(
 					self::PLUGIN			=> "Inventorymanagement",
