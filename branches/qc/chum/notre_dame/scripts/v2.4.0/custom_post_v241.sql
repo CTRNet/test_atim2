@@ -173,7 +173,52 @@ ALTER TABLE study_summaries_revs
 INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_code' AND `type`='input' AND `structure_value_domain` IS NULL AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='code' AND `language_tag`=''), 'isUnique', '', ''),
 ((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='qc_nd_code' AND `type`='input' AND `structure_value_domain` IS NULL AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='code' AND `language_tag`=''), 'custom,/^[0-9]{4}-[0-9]{3}$/', '', 'the code format must be {year}-{###}');
-  
+
+
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('all', 'clinical', 'biopsy', 1, 'eventmasters', 'qc_nd_ed_biopsy', 0, 'clinical|all|biopsy');
+
+CREATE TABLE qc_nd_ed_biopsy(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_masters INT NOT NULL,
+ precision VARCHAR(50) NOT NULL DEFAULT '',
+ deleted BOOLEAN NOT NULL DEFAULT 0
+)Engine=InnoDb;
+CREATE TABLE qc_nd_ed_biopsy_revs(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_masters INT NOT NULL,
+ precision VARCHAR(50) NOT NULL DEFAULT '',
+ deleted BOOLEAN NOT NULL DEFAULT 0
+)Engine=InnoDb;
+
+ALTER TABLE txd_surgeries
+ ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id;
+ALTER TABLE txd_surgeries_revs
+ ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id;
+
+DELETE FROM protocol_controls;
+INSERT INTO `protocol_controls` (`id`, `tumour_group`, `type`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `created`, `created_by`, `modified`, `modified_by`, `flag_active`) VALUES
+(1, 'all', 'chemotherapy', 'pd_chemos', 'pd_chemos', 'pe_chemos', 'pe_chemos', NULL, 0, NULL, 0, 1),
+(2, 'all', 'surgery', 'pd_surgeries', 'pd_surgeries', NULL, NULL, NULL, 0, NULL, 0, 1);
+
+
+DELETE FROM treatment_controls;
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+(1, 'chemotherapy', 'all', 1, 'txd_chemos', 'treatmentmasters,txd_chemos', 'txe_chemos', 'txe_chemos', 0, 1, 'importDrugFromChemoProtocol', 'all|chemotherapy'),
+(2, 'radiation', 'all', 1, 'txd_radiations', 'treatmentmasters,txd_radiations', NULL, NULL, 0, NULL, NULL, 'all|radiation'),
+(3, 'surgery', 'all', 1, 'txd_surgeries', 'treatmentmasters,txd_surgeries', 'txe_surgeries', 'txe_surgeries', 0, 2, NULL, 'all|surgery'),
+(4, 'surgery without extension', 'all', 1, 'txd_surgeries', 'treatmentmasters,txd_surgeries', NULL, NULL, 0, 2, NULL, 'all|surgery without extension');
+
+ALTER TABLE shipments
+ MODIFY recipient VARCHAR(60) NOT NULL DEFAULT '';
+ALTER TABLE shipments_revs
+ MODIFY recipient VARCHAR(60) NOT NULL DEFAULT '';
+
+UPDATE ad_tubes SET tmp_storage_solution='DMSO + Serum' WHERE tmp_storage_solution='DMSO + FBS'; 
+UPDATE ad_tubes_revs SET tmp_storage_solution='DMSO + Serum' WHERE tmp_storage_solution='DMSO + FBS';
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_permissible_value_id=1050; 
+DELETE FROM structure_permissible_values WHERE id=1050;
 
 # TO CALCULATE AGE
 # SELECT name, birth, CURDATE(),
