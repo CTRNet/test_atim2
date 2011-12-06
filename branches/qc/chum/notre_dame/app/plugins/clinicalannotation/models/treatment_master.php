@@ -47,10 +47,12 @@ class TreatmentMaster extends ClinicalannotationAppModel {
 		}else{
 			$data = $this->data;
 		}
-		$treatment_extend_model = new TreatmentExtend( false, $data['TreatmentControl']['extend_tablename']);
-		$nbr_extends = $treatment_extend_model->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
-		if ($nbr_extends > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); 
+		if(!empty($data['TreatmentControl']['extend_tablename'])) {
+			$treatment_extend_model = new TreatmentExtend( false, $data['TreatmentControl']['extend_tablename']);
+			$nbr_extends = $treatment_extend_model->find('count', array('conditions'=>array('TreatmentExtend.treatment_master_id'=>$tx_master_id), 'recursive' => '-1'));
+			if ($nbr_extends > 0) { 
+				return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); 
+			}
 		}
 		
 		return array('allow_deletion' => true, 'msg' => '');
