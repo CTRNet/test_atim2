@@ -103,55 +103,175 @@ foreach($cells as $line){
 			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
 		), 'dates'
 	);
-	SardoToAtim::update('diagnosis_masters', 'qc_nd_dxd_primary_sardo', 'qc_nd_sardo_id', $dx_data, 'participant_id');
+	$dx_id = SardoToAtim::update('diagnosis_masters', 'qc_nd_dxd_primary_sardo', array('qc_nd_sardo_id'), $dx_data, 'participant_id');
 	
-// 	$reprod_hist = array('master' => array(
-// 		'participant_id' => $line['participant_id'],
-		
-// 	));
-
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
-				'event_control_id'		=> 27,
-				'event_date'			=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]
+				'event_control_id'		=> 28,
+				'event_date'			=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']],
+				'event_date_accuracy'	=> $line['BIOP+ 1 Tx00 - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
 			), 'detail' => array(
-				
-				'precision'				=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
+				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
 			)
 		);
-		//TODO: how can we update? no pkey
-		//SardoToAtim::update('event_masters', 'qc_nd_ed_biopsy', null, $biopsy, 'participant_id');
+		SardoToAtim::update('event_masters', 'qc_nd_ed_biopsy', array('diagnosis_master_id', 'event_control_id', 'event_date'), $biopsy, 'participant_id');
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
 		$surgery = array(
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
-				'treatment_control_id'	=> 1,
-				'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']]
+				'treatment_control_id'	=> 4,
+				'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']],
+				'start_date_accuracy'	=> $line['CHIR 1 Tx00 - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
 			), 'detail' => array(
-				'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']]
+				'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']],
+				'qc_nd_residual_disease'=> $line[SardoToAtim::$columns['Maladie résiduelle']],
 			)
 		);
 		
-		//TODO: how can we update? no pkey
-		//SardoToAtim::update('treatment_masters', 'txd_surgeries', null, $surgery, 'participant_id');
+		SardoToAtim::update('treatment_masters', 'txd_surgeries', array('diagnosis_master_id', 'treatment_control_id', 'start_date'), $surgery, 'participant_id');
+	}
+	
+	if($line[SardoToAtim::$columns['CHIMIO 1 Tx00']]){
+		$chemo = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'treatment_control_id'	=> 1,
+				'start_date'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00 - début']],
+				'start_date_accuracy'	=> $line['CHIMIO 1 Tx00 - début_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00']], 
+				'qc_nd_pre_chir'		=> 'n'
+			)
+		);
+		
+		SardoToAtim::update('treatment_masters', 'txd_chemos', array('diagnosis_master_id', 'treatment_control_id', 'start_date'), $chemo, 'participant_id');
+	}
+	
+	if($line[SardoToAtim::$columns['Pr01 - date']]){
+		$progression = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'diagnosis_control_id'	=> 17,
+				'parent_id'				=> $dx_id,
+				'dx_date'				=> $line[SardoToAtim::$columns['Pr01 - date']],
+				'dx_date_accuracy'		=> $line['Pr01 - date_accuracy']
+			), 'detail' => array(
+				'qc_nd_delay'			=> $line[SardoToAtim::$columns['Délai DX-Pr01 (J)']], 
+				'qc_nd_sites'			=> $line[SardoToAtim::$columns['Pr01 - sites']]
+			)
+		);
+		
+		SardoToAtim::update('diagnosis_masters', 'dxd_progressions', array('parent_id', 'diagnosis_control_id', 'dx_date'), $progression, 'participant_id');
+	}
+	
+	if($line[SardoToAtim::$columns['CYTO+ 1 Tx00']]){
+		$cytology = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 29,
+				'diagnosis_master_id'	=> $dx_id,
+				'event_date'			=> $line[SardoToAtim::$columns['CYTO+ 1 Tx00 - date']],
+				'event_date_accuracy'	=> $line['CYTO+ 1 Tx00 - date_accuracy']
+			), 'detail' => array(
+				'type'			=> $line[SardoToAtim::$columns['CYTO+ 1 Tx00']], 
+			)
+		);
+	
+		SardoToAtim::update('event_masters', 'qc_nd_ed_cytology', array('diagnosis_master_id', 'event_control_id', 'event_date'), $cytology, 'participant_id');
+	}
+	
+	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', '', 'non ménopausée'))){
+		$menopause = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'menopause_status'		=> $line[SardoToAtim::$columns['Ménopause']],
+				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']]
+			)
+		);
+		SardoToAtim::update('family_histories', null, array('participant_id'), $menopause, 'participant_id');
+	}
+	
+	if($line[SardoToATim::$columns['Toute HORM Tx00']]){
+		//contient le type, suivi de la date from - to entre parenthèses
+		$value = substr($line[SardoToATim::$columns['Toute HORM Tx00']], 0, -26);
+		$date_from = SardoToAtim::formatWithAccuracy(preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($line[SardoToATim::$columns['Toute HORM Tx00']], -24, 10)));
+		$date_to = preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($line[SardoToATim::$columns['Toute HORM Tx00']], -11, 10));
+		if($date_to == '0000-00-00'){
+			$date_to['val'] = null;
+			$date_to['accuracy'] = '';
+		}else{
+			$date_to = SardoToAtim::formatWithAccuracy($date_to);
+		}
+		
+		$hormono = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'treatment_control_id'	=> 5,
+				'start_date'			=> $date_from['val'],
+				'start_date_accuracy'	=> $date_from['accuracy'],
+				'finish_date'			=> $date_to['val'],
+				'finish_date_accuracy'	=> $date_to['accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'type'					=> $value
+			)
+		);
+		
+		SardoToAtim::update('treatment_masters', 'qc_nd_txd_hormonotherapies', array('treatment_control_id', 'diagnosis_master_id', 'start_date'), $hormono, 'participant_id');
+//TODO: continue with updates + check that last parameter		
+	}
+	
+	$ca125_peri_dx = null;
+	$ca125_pre_chir = null;
+	if($line[SardoToATim::$columns['CA-125 péri-DX - date']]){
+		$ca125_peri_dx = $line[SardoToATim::$columns['CA-125 péri-DX - date']];
+		$ca125 = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 30,
+				'diagnosis_master_id'	=> $dx_id,
+				'event_date'			=> $line[SardoToAtim::$columns['CA-125 péri-DX - date']],
+				'event_date_accuracy'	=> $line['CA-125 péri-DX - date_accuracy']
+			), 'detail' => array(
+				'type'					=> $line[SardoToAtim::$columns['CA-125 péri-DX']]
+			)
+		); 
+	}
+	if($line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] && $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] != $ca125_peri_dx){
+		$ca125_pre_chir = $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']];
+		$ca125 = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 30,
+				'diagnosis_master_id'	=> $dx_id,
+				'event_date'			=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00 - dat']],
+				'event_date_accuracy'	=> $line['CA-125 préCHIR Tx00 - dat_accuracy']
+		), 'detail' => array(
+				'type'					=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00']]
+			)
+		);
+	}
+	if($line[SardoToATim::$columns['Dernier CA-125 - date']] && in_array($line[SardoToATim::$columns['Dernier CA-125 - date']], array($ca125_peri_dx, $ca125_pre_chir))){
+		$ca125 = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 30,
+				'diagnosis_master_id'	=> $dx_id,
+				'event_date'			=> $line[SardoToAtim::$columns['Dernier CA-125 - date']],
+				'event_date_accuracy'	=> $line['Dernier CA-125 - date_accuracy']
+		), 'detail' => array(
+				'type'					=> $line[SardoToAtim::$columns['Dernier CA-125']]
+			)
+		);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

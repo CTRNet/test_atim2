@@ -462,9 +462,26 @@ class SardoToAtim{
 			$result->free();
 			self::$table_fields_revs_cache[$src_tablename] = array_intersect(array_keys(self::$table_fields_cache[$src_tablename]), $fields);
 		}
-		$imploded_str = implode(', ', self::$table_fields_revs_cache[$src_tablename]);
+		$imploded_str = '`'.implode('`, `', self::$table_fields_revs_cache[$src_tablename]).'`';
 		$query = "INSERT INTO ".$src_tablename."_revs (".$imploded_str.") (SELECT ".$imploded_str." FROM ".$src_tablename." WHERE ".$key."=".$id.")";
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+	}
+	
+	static function formatWithAccuracy($date_str){
+		$accuracy = null;
+		if($date_str == 'AAAA-MM-JJ' || empty($date_str)){
+			$date_str = null;
+			$accuracy = '';
+		}else if(strpos($date_str, '-MM-JJ') !== false){
+			$date_str = substr($date_str, 0, 5)."01-01";
+			$accuracy = 'm';
+		}else if(strpos($date_str, '-JJ') !== false){
+			$date_str = substr($date_str, 0, 8)."01";
+			$accuracy = 'd';
+		}else{
+			$accuracy = 'c';
+		}
+		return array('val' => $date_str, 'accuracy' => $accuracy);
 	}
 	
 	static function basicChecks(array &$cells){
@@ -489,19 +506,9 @@ class SardoToAtim{
 		while(next($cells)){
 			$row = &$cells[key($cells)];
 			foreach(self::$date_columns as $date_column){
-				$val = &$row[self::$columns[$date_column]];
-				if($val == 'AAAA-MM-JJ' || empty($val)){
-					$val = null;
-					$row[$date_column.'_accuracy'] = '';
-				}else if(strpos($val, '-MM-JJ') !== false){
-					$val = substr($val, 0, 5)."01-01";
-					$row[$date_column.'_accuracy'] = 'm';
-				}else if(strpos($val, '-JJ') !== false){
-					$val = substr($val, 0, 8)."01";
-					$row[$date_column.'_accuracy'] = 'd';
-				}else{
-					$row[$date_column.'_accuracy'] = 'c';
-				}
+				$accuracy_result = self::formatWithAccuracy($row[self::$columns[$date_column]]);
+				$row[self::$columns[$date_column]] = $accuracy_result['val'];
+				$row[$date_column.'_accuracy'] = $accuracy_result['accuracy'];
 			}
 		}
 		
@@ -535,9 +542,10 @@ class SardoToAtim{
 	 * @param array $data array('master' => array('field' => 'value'), 'detail' => array('field' => 'value'))
 	 * @param string $required A key that must be equal in the process and in the database. Acts as a security safeguard. Must be in master.
 	 */
-	static function update($table_name, $detail_table_name, $primary_key_name, array $data, $required){
+	static function update($table_name, $detail_table_name, array $primary_keys, array $data, $required = null){
 		$query = null;
 		$fields = array();
+		assert($primary_keys) or die("update primary_keys missing in ".__FUNCTION__." at line ".__LINE__."\n");
 		
 		self::updateValuesToMatchTableDesc($table_name, $data['master']);
 		if($detail_table_name){
@@ -551,20 +559,31 @@ class SardoToAtim{
 		}
 		
 		if($detail_table_name == null){
-			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s WHERE %s=?', $table_name, $table_name, $primary_key_name);
+			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s WHERE '.implode('=? AND ', $primary_keys).'=?', $table_name, $table_name);
 		}else{
-			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s INNER JOIN %s ON %s.id=%s.%s WHERE %s=?', $table_name, $table_name, $detail_table_name, $table_name, $detail_table_name, substr($table_name, 0, -1)."_id", $primary_key_name);
+			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s INNER JOIN %s ON %s.id=%s.%s WHERE '.implode('=? AND ', $primary_keys).'=?', $table_name, $table_name, $detail_table_name, $table_name, $detail_table_name, substr($table_name, 0, -1)."_id");
 		}
 		
 		$stmt = SardoToAtim::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		$stmt->bind_param('i', $data['master'][$primary_key_name]);
+		$bind_params = array();
+		$bind_params[] = str_repeat('s', count($primary_keys));
+		foreach($primary_keys as $primary_key){
+			$bind_params[] = &$data['master'][$primary_key];
+		}
+		call_user_func_array(array($stmt, 'bind_param'), $bind_params);
 		$row = bindRow($stmt);
 		$stmt->execute();
 		$stmt->store_result();
 		$last_id = null;
+		$keys_values = array();
+		foreach($primary_keys as $primary_key){
+			$keys_values[] = '['.$table_name.'.'.$primary_key.' = '.$data['master'][$primary_key].']';
+		}
 		if($stmt->num_rows > 1){
-			die('ERROR: There is more than one entry having primary key ['.$table_name.'.'.$field_name.'] = ['.$data['master'][$primary_key_name]."]\n");
+			
+			die('ERROR: There is more than one entry having primary key(s) '.explode(', ', $keys_values)."]\n");
 		}else if($stmt->fetch()){
+			die('update!');
 			//update where empty, warn where diff
 			$to_update = array();
 			if($data['master']['master'][$required] != $row[$required]){
@@ -626,20 +645,23 @@ class SardoToAtim{
 				call_user_func_array(array($stmt, 'bind_param'), $param);
 				$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
 			}
-			echo 'INSERT for pkey ['.$table_name.'.'.$primary_key_name."] value [".$data['master'][$primary_key_name]."]\n";
+			printf("INSERT made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));			
 		}
 		self::insertRev($table_name, $last_id);
 		if($detail_table_name != null){
 			self::insertRev($detail_table_name, $last_id, substr($table_name, 0, -1)."_id");
 		}
+		
+		return $last_id;
 	}
 	
 	
 	static function endChecks(){
 		//TODO: update value domains with missing values
 		if(self::$commit){
-			self::$connection->commit();
-			echo "\nProcess complete. Changes were COMMITED.\n";
+// 			self::$connection->commit();
+			self::$connection->rollback();
+			echo "\nProcess complete. Changes were COMMITED (but not for debug).\n";
 		}else{
 			self::$connection->rollback();
 			echo "\nProcess complete. Changes were NOT commited.\n";
