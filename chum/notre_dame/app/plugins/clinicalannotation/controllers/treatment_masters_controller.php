@@ -21,7 +21,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 			
 			$this->Structures->set('treatmentmasters');
 		} else {
-			$_SESSION['TrtMaster_filter']['TreatmentMaster.tx_control_id'] = $trt_control_id;
+			$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
 			
 			$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
 			if(empty($filter_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
@@ -175,7 +175,7 @@ class TreatmentMastersController extends ClinicalannotationAppController {
 		
 		if ( !empty($this->data) ) {
 			$this->data['TreatmentMaster']['participant_id'] = $participant_id;
-			$this->data['TreatmentMaster']['tx_control_id'] = $tx_control_id;
+			$this->data['TreatmentMaster']['treatment_control_id'] = $tx_control_id;
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;
