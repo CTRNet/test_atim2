@@ -73,9 +73,9 @@ SardoToAtim::$date_columns = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-$xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet.XLS');
 // $xls_reader->read('/Volumes/data/2011-12-01 Export SARDO-recherche ovaire.XLS');
-// $xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet sample.XLS');
+$xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet sample.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 $stmt = SardoToAtim::$connection->prepare("SELECT * FROM participants WHERE id=?");
@@ -101,9 +101,9 @@ foreach($cells as $line){
 			'laterality'			=> $line[SardoToAtim::$columns['Latéralité']],
 			'tnm_g'					=> $line[SardoToAtim::$columns['TNM G']],
 			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
-		), 'dates'
+		)
 	);
-	$dx_id = SardoToAtim::update('diagnosis_masters', 'qc_nd_dxd_primary_sardo', array('qc_nd_sardo_id'), $dx_data, 'participant_id');
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, 'participant_id', array('qc_nd_sardo_id'));
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
@@ -117,7 +117,7 @@ foreach($cells as $line){
 				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
 			)
 		);
-		SardoToAtim::update('event_masters', 'qc_nd_ed_biopsy', array('diagnosis_master_id', 'event_control_id', 'event_date'), $biopsy, 'participant_id');
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
@@ -134,7 +134,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update('treatment_masters', 'txd_surgeries', array('diagnosis_master_id', 'treatment_control_id', 'start_date'), $surgery, 'participant_id');
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO 1 Tx00']]){
@@ -151,7 +151,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update('treatment_masters', 'txd_chemos', array('diagnosis_master_id', 'treatment_control_id', 'start_date'), $chemo, 'participant_id');
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo);
 	}
 	
 	if($line[SardoToAtim::$columns['Pr01 - date']]){
@@ -168,7 +168,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update('diagnosis_masters', 'dxd_progressions', array('parent_id', 'diagnosis_control_id', 'dx_date'), $progression, 'participant_id');
+		SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'dxd_progressions', $progression);
 	}
 	
 	if($line[SardoToAtim::$columns['CYTO+ 1 Tx00']]){
@@ -184,7 +184,7 @@ foreach($cells as $line){
 			)
 		);
 	
-		SardoToAtim::update('event_masters', 'qc_nd_ed_cytology', array('diagnosis_master_id', 'event_control_id', 'event_date'), $cytology, 'participant_id');
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_cytology', $cytology);
 	}
 	
 	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', '', 'non ménopausée'))){
@@ -192,10 +192,10 @@ foreach($cells as $line){
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
 				'menopause_status'		=> $line[SardoToAtim::$columns['Ménopause']],
-				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']]
+				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']] == 9999 ? null : $line[SardoToAtim::$columns['Année ménopause']]
 			)
 		);
-		SardoToAtim::update('family_histories', null, array('participant_id'), $menopause, 'participant_id');
+		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause);
 	}
 	
 	if($line[SardoToATim::$columns['Toute HORM Tx00']]){
@@ -224,8 +224,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update('treatment_masters', 'qc_nd_txd_hormonotherapies', array('treatment_control_id', 'diagnosis_master_id', 'start_date'), $hormono, 'participant_id');
-//TODO: continue with updates + check that last parameter		
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono);
 	}
 	
 	$ca125_peri_dx = null;
@@ -242,7 +241,9 @@ foreach($cells as $line){
 			), 'detail' => array(
 				'type'					=> $line[SardoToAtim::$columns['CA-125 péri-DX']]
 			)
-		); 
+		);
+		
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
 	}
 	if($line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] && $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] != $ca125_peri_dx){
 		$ca125_pre_chir = $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']];
@@ -257,8 +258,10 @@ foreach($cells as $line){
 				'type'					=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00']]
 			)
 		);
+		
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
 	}
-	if($line[SardoToATim::$columns['Dernier CA-125 - date']] && in_array($line[SardoToATim::$columns['Dernier CA-125 - date']], array($ca125_peri_dx, $ca125_pre_chir))){
+	if($line[SardoToATim::$columns['Dernier CA-125 - date']] && !in_array($line[SardoToATim::$columns['Dernier CA-125 - date']], array($ca125_peri_dx, $ca125_pre_chir))){
 		$ca125 = array(
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
@@ -270,6 +273,8 @@ foreach($cells as $line){
 				'type'					=> $line[SardoToAtim::$columns['Dernier CA-125']]
 			)
 		);
+		
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
 	}
 }
 
