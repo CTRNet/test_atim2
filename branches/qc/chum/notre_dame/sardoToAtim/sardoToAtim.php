@@ -13,6 +13,22 @@ function bindRow($stmt){
 	return $row;
 }
 
+class Models{
+	const EVENT_MASTER = 0;
+	const TREATMENT_MASTER = 1;
+	const DIAGNOSIS_MASTER = 2;
+	const FAMILY_HISTORY = 3;
+	const REPRODUCTIVE_HISTORY = 4;
+	
+	static $default_checks = array(
+		Models::EVENT_MASTER			=> array('table_name' => 'event_masters', 'primary' => array('event_control_id', 'diagnosis_master_id', 'event_date')),
+		Models::TREATMENT_MASTER		=> array('table_name' => 'treatment_masters', 'primary' => array('treatment_control_id', 'diagnosis_master_id', 'start_date')),
+		Models::DIAGNOSIS_MASTER		=> array('table_name' => 'diagnosis_masters', 'primary' => array('diagnosis_control_id', 'parent_id', 'dx_date')),
+		Models::FAMILY_HISTORY			=> array('table_name' => 'family_histories', 'primary' => array('participant_id')),
+		Models::REPRODUCTIVE_HISTORY	=> array('table_name' => 'reproductive_histories', 'primary' => array('participant_id'))
+	);
+}
+
 class SardoToAtim{
 	static $columns = array();
 	static $date_columns = array();
@@ -279,24 +295,23 @@ class SardoToAtim{
 		//bank number
 		$query = "SELECT * FROM misc_identifiers AS mi 
 			INNER JOIN participants AS p ON mi.participant_id=p.id
-			WHERE mi.misc_identifier_control_id IN(".implode(', ', self::$bank_identifier_ctrl_ids).") AND mi.identifier_value=? 
+			WHERE mi.misc_identifier_control_id IN(".implode(', ', self::$bank_identifier_ctrl_ids).") AND mi.identifier_value=? AND mi.deleted=0 
 			GROUP BY participant_id";
 		$stmt1 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		
 		//hospital number
 		$query = "SELECT * FROM misc_identifiers AS mi
 			INNER JOIN participants AS p ON mi.participant_id=p.id
-			WHERE identifier_value=? AND misc_identifier_control_id=?
+			WHERE identifier_value=? AND misc_identifier_control_id=? AND mi.deleted=0
 			GROUP BY participant_id";		
 		$stmt2 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		
-		$query = "SELECT identifier_value FROM misc_identifiers WHERE participant_id=? AND misc_identifier_control_id=".self::$ramq_ctrl_id;
+		$query = "SELECT identifier_value FROM misc_identifiers WHERE participant_id=? AND misc_identifier_control_id=".self::$ramq_ctrl_id.' AND misc_identifiers.deleted=0';
 		$stmt4 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		
 		while($row = next($cells)){//the first call skips the first line
 			$error_here = false;
 			$valid_hospital = false;
-			$valid_dob = false;
 			$valid_bank = false;
 			$sql_row1 = null;
 			$sql_row2 = null;
@@ -463,7 +478,7 @@ class SardoToAtim{
 			self::$table_fields_revs_cache[$src_tablename] = array_intersect(array_keys(self::$table_fields_cache[$src_tablename]), $fields);
 		}
 		$imploded_str = '`'.implode('`, `', self::$table_fields_revs_cache[$src_tablename]).'`';
-		$query = "INSERT INTO ".$src_tablename."_revs (".$imploded_str.") (SELECT ".$imploded_str." FROM ".$src_tablename." WHERE ".$key."=".$id.")";
+		$query = "INSERT INTO ".$src_tablename."_revs (".$imploded_str.", version_created) (SELECT ".$imploded_str.", NOW() FROM ".$src_tablename." WHERE ".$key."=".$id.")";
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 	}
 	
@@ -538,14 +553,23 @@ class SardoToAtim{
 	 * Enter description here ...
 	 * @param string $table_name
 	 * @param string $detail_table_name
-	 * @param string $primary_key_name
 	 * @param array $data array('master' => array('field' => 'value'), 'detail' => array('field' => 'value'))
 	 * @param string $required A key that must be equal in the process and in the database. Acts as a security safeguard. Must be in master.
+	 * @param array $primary_keys Primary keys to determine wheter it will update or insert. If null, the default value is picked for the model.
 	 */
-	static function update($table_name, $detail_table_name, array $primary_keys, array $data, $required = null){
+	static function update($model_const, $detail_table_name, array $data, $required = 'participant_id', $primary_keys = null){
 		$query = null;
 		$fields = array();
+		$table_name = Models::$default_checks[$model_const]['table_name'];
+		if($primary_keys == null){
+			$primary_keys = Models::$default_checks[$model_const]['primary'];
+		}
 		assert($primary_keys) or die("update primary_keys missing in ".__FUNCTION__." at line ".__LINE__."\n");
+		
+		if(!isset($data['master']) || !is_array($data['master'])){
+			$data = array('master' => $data);
+		}
+		$data = array_merge(array('master' => array(), 'detail' => array()), $data);
 		
 		self::updateValuesToMatchTableDesc($table_name, $data['master']);
 		if($detail_table_name){
@@ -555,16 +579,15 @@ class SardoToAtim{
 			$fields[] = $table_name.".".$key." AS `".$table_name.".".$key."`"; 
 		}
 		foreach($data['detail'] as $key => $val){
-			$fields[] = $detail_table_name.".".$key." AS `".$table_name.".".$key."`";
+			$fields[] = $detail_table_name.".".$key." AS `".$detail_table_name.".".$key."`";
 		}
 		
-		if($detail_table_name == null){
-			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s WHERE '.implode('=? AND ', $primary_keys).'=?', $table_name, $table_name);
-		}else{
-			$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s INNER JOIN %s ON %s.id=%s.%s WHERE '.implode('=? AND ', $primary_keys).'=?', $table_name, $table_name, $detail_table_name, $table_name, $detail_table_name, substr($table_name, 0, -1)."_id");
+		$inner_join_part = "";
+		if($detail_table_name != null){
+			$inner_join_part = sprintf('INNER JOIN %s ON %s.id=%s.%s ', $detail_table_name, $table_name, $detail_table_name, substr($table_name, 0, -1)."_id");
 		}
-		
-		$stmt = SardoToAtim::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s %s WHERE '.implode('=? AND ', $primary_keys).'=? AND %s.deleted=0', $table_name, $table_name, $inner_join_part, $table_name);
+		$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$bind_params = array();
 		$bind_params[] = str_repeat('s', count($primary_keys));
 		foreach($primary_keys as $primary_key){
@@ -580,28 +603,57 @@ class SardoToAtim{
 			$keys_values[] = '['.$table_name.'.'.$primary_key.' = '.$data['master'][$primary_key].']';
 		}
 		if($stmt->num_rows > 1){
-			
 			die('ERROR: There is more than one entry having primary key(s) '.explode(', ', $keys_values)."]\n");
+			
 		}else if($stmt->fetch()){
-			die('update!');
-			//update where empty, warn where diff
+			//update where empty or where the last value comes from Sardo Merge, warn where diff and non sardo merge
+			$stmt->free_result();
+			$stmt->close();
 			$to_update = array();
-			if($data['master']['master'][$required] != $row[$required]){
+			if($data['master'][$required] != $row[$table_name.'.'.$required]){
 				die('ERROR: Required field ['.$table_name.'.'.$field_name."] doesn't match. Found [".$row[$required]."] Expected [".$data['master'][$required]."]\n");
 			}
-			
-			foreach($new_data as $field_name => $value){
-				if(!array_key_exists($field_name, $row)){
-					die("Field [".$field_name."] doesn't exists in table [".$table_name."]\n");
-				}
-				if(!empty($row[$field_name]) && $value != $row[$field_name]){
-					echo 'WARNING: Conflict on table [',$table_name,'] field [',$field_name,']. File [',$value,'] Db [',$row[$field_name],"\n";
-				}else if(!empty($value)){
-					$to_update[$field_name] = $value;
+
+			foreach($data as $level => $fields_values){
+				assert(in_array($level, array('master', 'detail'), true)) or die('Error on data handling in '.__FUNCTION__.' at line '.__LINE__."\n");
+				foreach($fields_values as $field_name => $value){
+					if(in_array($field_name, $primary_keys)){
+						continue;
+					}
+					$full_field_name = ($level == 'master' ? $table_name : $detail_table_name).'.'.$field_name;
+					assert(array_key_exists($full_field_name, $row)) or die("ERROR: Field [".$field_name."] doesn't exists in table [".$table_name."]\n");
+					if(empty($row[$full_field_name]) && !empty($value)){
+						$to_update[$full_field_name] = $value;
+					}else if($row[$full_field_name] != $value){
+						//see if the data was last mod by Sardo merge to decide wheter to warn or to update
+						if($level == 'master'){
+							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $table_name.'_revs', 'id=?', $field_name);
+						}else{
+							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $detail_table_name.'_revs',  substr($table_name, 0, -1)."_id", $field_name);
+						}
+						
+						echo $query,"\n";
+						$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+						$row2 = bindRow($stmt);
+						$stmt->bind_param('i', $row['id']);
+						$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
+						assert($stmt->fetch()) or die('Failed to fetch _revs for query '.$query."\n");
+						if($row2['modified_by'] == self::$db_user_id){
+							//modif
+							$to_update[$full_field_name] = $value;
+						}else{
+							//warn
+							//TODO: WE NEED THE LINE!!
+							printf("CONFLICT: Cannot update field [%s] from line [%d]. DB value [%s]. File value [%s].\n", $full_field_name, $line_numba, $row[$full_field_name], $value);
+						}
+						$stmt->free_result();
+						$stmt->close();
+					}
 				}
 			}
+			
+			
 			$last_id = $row['id'];
-			$stmt->close();
 			
 			if(!empty($to_update)){
 				$to_update[$table_name.".modified_by"] = self::$db_user_id;
@@ -610,13 +662,18 @@ class SardoToAtim{
 				}else{
 					$query = sprintf("UPDATE %s INNER JOIN %s ON %s.id=%s.%s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE id=?", $table_name, $detail_table_name, $table_name, $detail_tablename, substr($table_name, 0, -1)."_id");
 				}
-				$param = array_merge(array(str_repeat('s', count($to_update).'i')), array_merge($to_update, array($id)));
-				call_user_func_array(array($stmt, 'bind_param'), $param);
+				$param = array_merge(array(str_repeat('s', count($to_update)).'i'), array_merge($to_update, array($last_id)));
+				$param_ref = array();
+				foreach($param as &$param_unit){
+					$param_ref[] = &$param_unit;
+				}
+				$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+				call_user_func_array(array($stmt, 'bind_param'), $param_ref);
 				$stmt->execute();
 				$stmt->close();
-				echo 'UPDATED pkey base ['.$table_name.'.'.$field_name."]\n";
+				printf("UPDATE made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));
 			}else{
-				echo 'WARNING: Nothing to do for pkey base ['.$table_name.'.'.$field_name."]\n";
+				//TODO: Warning if no update for a row?
 			}
 			
 		}else{
@@ -645,7 +702,7 @@ class SardoToAtim{
 				call_user_func_array(array($stmt, 'bind_param'), $param);
 				$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
 			}
-			printf("INSERT made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));			
+			printf("INSERT made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));
 		}
 		self::insertRev($table_name, $last_id);
 		if($detail_table_name != null){
@@ -659,8 +716,8 @@ class SardoToAtim{
 	static function endChecks(){
 		//TODO: update value domains with missing values
 		if(self::$commit){
-// 			self::$connection->commit();
-			self::$connection->rollback();
+			self::$connection->commit();
+// 			self::$connection->rollback();
 			echo "\nProcess complete. Changes were COMMITED (but not for debug).\n";
 		}else{
 			self::$connection->rollback();
