@@ -258,66 +258,56 @@ UPDATE groups SET name = CONCAT('to delete ',id) WHERE name IN ('Lapointe', 'Rou
 
 UPDATE structure_formats SET `display_order`='100', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_type`='0', `type`='', `flag_override_setting`='0', `setting`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier');
+UPDATE structure_formats SET display_order = (display_order + 1) WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_ident_summary');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sex') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
 
 INSERT INTO i18n (id,en) VALUEs ('the dates accuracy is not sufficient: the field [%%field%%] can not be generated','The dates accuracy is not sufficient: the field [%%field%%] can not be generated!');
 INSERT INTO i18n (id,en) VALUEs ('error in the dates definitions: the field [%%field%%] can not be generated','Error in the dates definitions: The field [%%field%%] can not be generated!');
 
+-- ClinicalAnnotation.MiscIdentifier
+
+UPDATE misc_identifier_controls SET flag_once_per_participant = '1';
+SELECT 'Do we want replace participant_identifier by NoLabo' as msg_1;
+
+-- ClinicalAnnotation.Annotation
+
+SELECT 'TODO: ANNOTATION revision' as msg_1;
 
 -- ClinicalAnnotation.Treatment
 
+SELECT  'Données pre-opératoire a valider' as msg;
+
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field='start_date' AND model = 'TreatmentMaster');
+ 
+UPDATE structure_formats SET display_order = (display_order + 10) WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_txd_surgery_livers');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field` IN ('pathological_report','survival_time_in_months','type_of_vascular_occlusion'));
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='qc_hb_txe_surgery_complications' AND `field`='type');
+
 UPDATE structure_formats SET display_order = (display_order + 10) WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_txd_surgery_pancreas');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='' AND `field`='survival_time_in_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE treatment_controls SET tx_method = 'chemotherapy' WHERE detail_tablename = 'txd_chemos' AND tx_method = 'surgery without extension'; 
 
+UPDATE structure_formats SET display_order = (display_order + 10) WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_tx_chemos');
 
+UPDATE event_controls SET flag_active = 1;
+UPDATE event_controls SET flag_active = 0 WHERE event_type = 'comorbidity';
 
+UPDATE structure_fields SET type = 'float' WHERE type = 'number' AND tablename like 'qc_hb_%'
 
+-- -----------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT  'Demander a Franck d'ordonner ses custom drop down list' as msg;
 SELECT 'TODO: Work on datamart adhoc running sql statements after line 257';
-
 exit
+
+-- -----------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------
 
 UPDATE datamart_adhoc SET sql_query_for_results='
 SELECT 
