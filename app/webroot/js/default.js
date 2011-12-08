@@ -871,7 +871,7 @@ function initActions(){
 						handleSearchResultLinks();
 					}catch(exception){
 						//simply submit the form then
-						//$("form").submit();
+						$("form").submit();
 					}
 				});
 				return false;

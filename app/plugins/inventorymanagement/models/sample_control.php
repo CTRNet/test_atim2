@@ -12,6 +12,10 @@ class SampleControl extends InventorymanagementAppModel {
 	function getSampleTypePermissibleValuesFromId() {		
 		return $this->getSamplesPermissibleValues(true, false);
 	}
+
+	function getParentSampleTypePermissibleValuesFromId() {		
+		return $this->getSamplesPermissibleValues(true, false, false);
+	}
 	
  	/**
 	 * Get permissible values array gathering all existing sample types.
@@ -22,6 +26,10 @@ class SampleControl extends InventorymanagementAppModel {
 	 */  	
 	function getSampleTypePermissibleValues() {
 		return $this->getSamplesPermissibleValues(false, false);
+	}
+	
+	function getParentSampleTypePermissibleValues() {
+		return $this->getSamplesPermissibleValues(false, false, false);
 	}
 	
  	/**
@@ -46,7 +54,7 @@ class SampleControl extends InventorymanagementAppModel {
 		return $this->getSamplesPermissibleValues(true, true);
 	}
 	
-	function getSamplesPermissibleValues($by_id, $only_specimen){
+	function getSamplesPermissibleValues($by_id, $only_specimen, $all = true){
 		$result = array();
 		
 		// Build tmp array to sort according translation
@@ -55,14 +63,27 @@ class SampleControl extends InventorymanagementAppModel {
 		if($only_specimen){
 			$conditions['DerivativeControl.sample_category'] = 'specimen';
 		}
-		$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
+		$controls = null;
+		$model_name = null;
+		if($all){
+			$model_name = 'DerivativeControl';
+			$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
+		}else{
+			$model_name = 'ParentSampleControl';
+			$conditions['NOT'] = array('ParentToDerivativeSampleControl.parent_sample_control_id' => NULL);
+			$controls = $this->ParentToDerivativeSampleControl->find('all', array(
+				'conditions' => $conditions,
+				'fields' => array('ParentSampleControl.id', 'ParentSampleControl.sample_type'))
+			);
+		}
+		
 		if($by_id){
 			foreach($controls as $control){
-				$result[$control['DerivativeControl']['id']] = __($control['DerivativeControl']['sample_type'], true);
+				$result[$control[$model_name]['id']] = __($control[$model_name]['sample_type'], true);
 			}
 		}else{
 			foreach($controls as $control){
-				$result[$control['DerivativeControl']['sample_type']] = __($control['DerivativeControl']['sample_type'], true);
+				$result[$control[$model_name]['sample_type']] = __($control[$model_name]['sample_type'], true);
 			}
 		}
 		asort($result);
