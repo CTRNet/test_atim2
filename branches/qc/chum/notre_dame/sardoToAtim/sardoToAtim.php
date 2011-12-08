@@ -21,11 +21,22 @@ class Models{
 	const REPRODUCTIVE_HISTORY = 4;
 	
 	static $default_checks = array(
-		Models::EVENT_MASTER			=> array('table_name' => 'event_masters', 'primary' => array('event_control_id', 'diagnosis_master_id', 'event_date')),
-		Models::TREATMENT_MASTER		=> array('table_name' => 'treatment_masters', 'primary' => array('treatment_control_id', 'diagnosis_master_id', 'start_date')),
-		Models::DIAGNOSIS_MASTER		=> array('table_name' => 'diagnosis_masters', 'primary' => array('diagnosis_control_id', 'parent_id', 'dx_date')),
-		Models::FAMILY_HISTORY			=> array('table_name' => 'family_histories', 'primary' => array('participant_id')),
-		Models::REPRODUCTIVE_HISTORY	=> array('table_name' => 'reproductive_histories', 'primary' => array('participant_id'))
+		Models::EVENT_MASTER			=> array(
+			'table_name' => 'event_masters', 
+			'primary' => array('event_control_id', 'diagnosis_master_id', 'event_date')
+		), Models::TREATMENT_MASTER		=> array(
+			'table_name' => 'treatment_masters', 
+			'primary' => array('treatment_control_id', 'diagnosis_master_id', 'start_date') 
+		), Models::DIAGNOSIS_MASTER		=> array(
+			'table_name' => 'diagnosis_masters', 
+			'primary' => array('diagnosis_control_id', 'parent_id', 'dx_date') 
+		), Models::FAMILY_HISTORY		=> array(
+			'table_name' => 'family_histories', 
+			'primary' => array('participant_id') 
+		), Models::REPRODUCTIVE_HISTORY	=> array(
+			'table_name' => 'reproductive_histories', 
+			'primary' => array('participant_id') 
+		)
 	);
 }
 
@@ -500,6 +511,19 @@ class SardoToAtim{
 	}
 	
 	static function basicChecks(array &$cells){
+		//update default checks pkeys
+		foreach(Models::$default_checks as &$default_check){
+			$list = array();
+			foreach($default_check['primary'] as &$primary){
+				$list[] = $default_check['table_name'].'.'.$primary;
+			}
+			$default_check['primary'] = array(
+				'master'	=> $default_check['primary'],
+				'detail'	=> array(),
+				'list'		=> $list
+			);
+		}
+		
 		//put all indexes in all rows
 		//formats dates
 		//convert all entries to UTF-8
@@ -515,6 +539,7 @@ class SardoToAtim{
 			}
 			$row = array_replace($range_array, $row);
 		}
+		
 		self::validateColumns($cells[1]);
 		self::autoAssignColumns();
 		reset($cells);
@@ -526,7 +551,6 @@ class SardoToAtim{
 				$row[$date_column.'_accuracy'] = $accuracy_result['accuracy'];
 			}
 		}
-		
 		self::validateParticipantEntry($cells);
 	}
 	
@@ -554,44 +578,53 @@ class SardoToAtim{
 	 * @param string $table_name
 	 * @param string $detail_table_name
 	 * @param array $data array('master' => array('field' => 'value'), 'detail' => array('field' => 'value'))
+	 * @param int $line_number
 	 * @param string $required A key that must be equal in the process and in the database. Acts as a security safeguard. Must be in master.
 	 * @param array $primary_keys Primary keys to determine wheter it will update or insert. If null, the default value is picked for the model.
 	 */
-	static function update($model_const, $detail_table_name, array $data, $required = 'participant_id', $primary_keys = null){
+	static function update($model_const, $detail_table_name, array $data, $line_number, $required = 'participant_id', array $primary_keys = null){
 		$query = null;
 		$fields = array();
-		$table_name = Models::$default_checks[$model_const]['table_name'];
+		$levels = array('master' => Models::$default_checks[$model_const]['table_name']);
+		if($detail_table_name != null){
+			$levels['detail'] = $detail_table_name;
+		}
 		if($primary_keys == null){
 			$primary_keys = Models::$default_checks[$model_const]['primary'];
+		}else{
+			$primary_keys = array_merge(array('master' => array(), 'detail' => array()), $primary_keys);
+			$primary_keys['list'] = array();
+			
+			foreach($levels as $level => $table_name){
+				foreach($primary_keys[$level] as $tmp_pk){
+					$primary_keys['list'][] = $table_name.'.'.$tmp_pk;
+				}
+			}
 		}
 		assert($primary_keys) or die("update primary_keys missing in ".__FUNCTION__." at line ".__LINE__."\n");
-		
 		if(!isset($data['master']) || !is_array($data['master'])){
 			$data = array('master' => $data);
 		}
 		$data = array_merge(array('master' => array(), 'detail' => array()), $data);
-		
-		self::updateValuesToMatchTableDesc($table_name, $data['master']);
-		if($detail_table_name){
-			self::updateValuesToMatchTableDesc($detail_table_name, $data['detail']);
+		foreach($levels as $level => $table_name){
+			self::updateValuesToMatchTableDesc($table_name, $data[$level]);
+			foreach($data[$level] as $key => $val){
+				$fields[] = $table_name.".".$key." AS `".$table_name.".".$key."`";
+			} 
 		}
-		foreach($data['master'] as $key => $val){
-			$fields[] = $table_name.".".$key." AS `".$table_name.".".$key."`"; 
-		}
-		foreach($data['detail'] as $key => $val){
-			$fields[] = $detail_table_name.".".$key." AS `".$detail_table_name.".".$key."`";
-		}
-		
+				
 		$inner_join_part = "";
 		if($detail_table_name != null){
-			$inner_join_part = sprintf('INNER JOIN %s ON %s.id=%s.%s ', $detail_table_name, $table_name, $detail_table_name, substr($table_name, 0, -1)."_id");
+			$inner_join_part = sprintf('INNER JOIN %s ON %s.id=%s.%s ', $levels['detail'], $levels['master'], $levels['detail'], substr($levels['master'], 0, -1)."_id");
 		}
-		$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s %s WHERE '.implode('=? AND ', $primary_keys).'=? AND %s.deleted=0', $table_name, $table_name, $inner_join_part, $table_name);
+		$query = sprintf('SELECT %s.id, '.implode(', ', $fields).' FROM %s %s WHERE '.implode('=? AND ', $primary_keys['list']).'=? AND %s.deleted=0', $levels['master'], $levels['master'], $inner_join_part, $table_name);
 		$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$bind_params = array();
-		$bind_params[] = str_repeat('s', count($primary_keys));
-		foreach($primary_keys as $primary_key){
-			$bind_params[] = &$data['master'][$primary_key];
+		$bind_params[] = str_repeat('s', count($primary_keys['list']));
+		foreach($levels as $level => $table_name){
+			foreach($primary_keys[$level] as $primary_key){
+				$bind_params[] = &$data[$level][$primary_key];
+			}
 		}
 		call_user_func_array(array($stmt, 'bind_param'), $bind_params);
 		$row = bindRow($stmt);
@@ -599,40 +632,42 @@ class SardoToAtim{
 		$stmt->store_result();
 		$last_id = null;
 		$keys_values = array();
-		foreach($primary_keys as $primary_key){
-			$keys_values[] = '['.$table_name.'.'.$primary_key.' = '.$data['master'][$primary_key].']';
+		foreach($levels as $level => $table_name){
+			foreach($primary_keys[$level] as $primary_key){
+				$keys_values[] = '['.$table_name.'.'.$primary_key.' = '.$data[$level][$primary_key].']';
+			}
 		}
+		
 		if($stmt->num_rows > 1){
-			die('ERROR: There is more than one entry having primary key(s) '.explode(', ', $keys_values)."]\n");
+			die('ERROR: There is more than one entry having primary key(s) '.explode(', ', $keys_values)."]. (Related to line ".$line_number.".)\n");
 			
 		}else if($stmt->fetch()){
 			//update where empty or where the last value comes from Sardo Merge, warn where diff and non sardo merge
 			$stmt->free_result();
 			$stmt->close();
 			$to_update = array();
-			if($data['master'][$required] != $row[$table_name.'.'.$required]){
-				die('ERROR: Required field ['.$table_name.'.'.$field_name."] doesn't match. Found [".$row[$required]."] Expected [".$data['master'][$required]."]\n");
+			if($data['master'][$required] != $row[$levels['master'].'.'.$required]){
+				die('ERROR: Required field ['.$levels['master'].'.'.$field_name."] doesn't match. Found [".$row[$required]."] Expected [".$data['master'][$required]."]. Line [".$line_number."]\n");
 			}
 
 			foreach($data as $level => $fields_values){
 				assert(in_array($level, array('master', 'detail'), true)) or die('Error on data handling in '.__FUNCTION__.' at line '.__LINE__."\n");
 				foreach($fields_values as $field_name => $value){
-					if(in_array($field_name, $primary_keys)){
+					if(in_array($field_name, $primary_keys[$level])){
 						continue;
 					}
-					$full_field_name = ($level == 'master' ? $table_name : $detail_table_name).'.'.$field_name;
-					assert(array_key_exists($full_field_name, $row)) or die("ERROR: Field [".$field_name."] doesn't exists in table [".$table_name."]\n");
+					$full_field_name = $levels[$level].'.'.$field_name;
+					assert(array_key_exists($full_field_name, $row)) or die("ERROR: Field [".$field_name."] doesn't exists in table [".$levels[$level]."]\n");
 					if(empty($row[$full_field_name]) && !empty($value)){
 						$to_update[$full_field_name] = $value;
 					}else if($row[$full_field_name] != $value){
 						//see if the data was last mod by Sardo merge to decide wheter to warn or to update
 						if($level == 'master'){
-							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $table_name.'_revs', 'id=?', $field_name);
+							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs', 'id=?', $field_name);
 						}else{
-							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $detail_table_name.'_revs',  substr($table_name, 0, -1)."_id", $field_name);
+							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs',  substr($table_name, 0, -1)."_id", $field_name);
 						}
 						
-						echo $query,"\n";
 						$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 						$row2 = bindRow($stmt);
 						$stmt->bind_param('i', $row['id']);
@@ -643,8 +678,7 @@ class SardoToAtim{
 							$to_update[$full_field_name] = $value;
 						}else{
 							//warn
-							//TODO: WE NEED THE LINE!!
-							printf("CONFLICT: Cannot update field [%s] from line [%d]. DB value [%s]. File value [%s].\n", $full_field_name, $line_numba, $row[$full_field_name], $value);
+							printf("CONFLICT: Cannot update field [%s] from line [%d]. DB value [%s]. File value [%s].\n", $full_field_name, $line_number, $row[$full_field_name], $value);
 						}
 						$stmt->free_result();
 						$stmt->close();
@@ -656,12 +690,8 @@ class SardoToAtim{
 			$last_id = $row['id'];
 			
 			if(!empty($to_update)){
-				$to_update[$table_name.".modified_by"] = self::$db_user_id;
-				if($detail_table_name == null){
-					$query = sprintf("UPDATE %s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE id=?", $table_name);
-				}else{
-					$query = sprintf("UPDATE %s INNER JOIN %s ON %s.id=%s.%s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE id=?", $table_name, $detail_table_name, $table_name, $detail_tablename, substr($table_name, 0, -1)."_id");
-				}
+				$to_update[$levels['master'].".modified_by"] = self::$db_user_id;
+				$query = sprintf("UPDATE %s %s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE id=?", $levels['master'], $inner_join_part);
 				$param = array_merge(array(str_repeat('s', count($to_update)).'i'), array_merge($to_update, array($last_id)));
 				$param_ref = array();
 				foreach($param as &$param_unit){
@@ -671,7 +701,7 @@ class SardoToAtim{
 				call_user_func_array(array($stmt, 'bind_param'), $param_ref);
 				$stmt->execute();
 				$stmt->close();
-				printf("UPDATE made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));
+				printf("UPDATE made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 			}else{
 				//TODO: Warning if no update for a row?
 			}
@@ -681,7 +711,7 @@ class SardoToAtim{
 			$stmt->close();
 			$data['master']['created_by'] = self::$db_user_id;
 			$data['master']['modified_by'] = self::$db_user_id;
-			$query = sprintf('INSERT INTO %s ('.implode(', ', array_keys($data['master'])).', created, modified) VALUES('.str_repeat('?, ', count($data['master']) - 1).'?, NOW(), NOW())', $table_name);
+			$query = sprintf('INSERT INTO %s ('.implode(', ', array_keys($data['master'])).', created, modified) VALUES('.str_repeat('?, ', count($data['master']) - 1).'?, NOW(), NOW())', $levels['master']);
 			$param = array(str_repeat('s', count($data['master'])));
 			foreach($data['master'] as &$data_unit){
 				$param[] = &$data_unit;
@@ -692,7 +722,7 @@ class SardoToAtim{
 			$last_id = $stmt->insert_id;
 			$stmt->close();
 			if($detail_table_name != null){
-				$data['detail'][substr($table_name, 0, -1)."_id"] = $last_id;
+				$data['detail'][substr($levels['master'], 0, -1)."_id"] = $last_id;
 				$query = sprintf('INSERT INTO %s ('.implode(', ', array_keys($data['detail'])).') VALUES('.str_repeat('?, ', count($data['detail']) - 1).'?)', $detail_table_name);
 				$param = array(str_repeat('s', count($data['detail'])));
 				foreach($data['detail'] as &$data_unit){
@@ -702,11 +732,11 @@ class SardoToAtim{
 				call_user_func_array(array($stmt, 'bind_param'), $param);
 				$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
 			}
-			printf("INSERT made in table %s for keys %s\n", $table_name, implode(', ', $keys_values));
+			printf("INSERT made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 		}
-		self::insertRev($table_name, $last_id);
+		self::insertRev($levels['master'], $last_id);
 		if($detail_table_name != null){
-			self::insertRev($detail_table_name, $last_id, substr($table_name, 0, -1)."_id");
+			self::insertRev($detail_table_name, $last_id, substr($levels['master'], 0, -1)."_id");
 		}
 		
 		return $last_id;
@@ -715,9 +745,12 @@ class SardoToAtim{
 	
 	static function endChecks(){
 		//TODO: update value domains with missing values
+		//TODO: valider les icd10 topo
+		//TODO: valider que les code morpho <-> desc n'ont pas changées
+		
 		if(self::$commit){
-			self::$connection->commit();
-// 			self::$connection->rollback();
+// 			self::$connection->commit();
+			self::$connection->rollback();
 			echo "\nProcess complete. Changes were COMMITED (but not for debug).\n";
 		}else{
 			self::$connection->rollback();
