@@ -80,8 +80,9 @@ $cells = $xls_reader->sheets[0]['cells'];
 
 $stmt = SardoToAtim::$connection->prepare("SELECT * FROM participants WHERE id=?");
 SardoToAtim::basicChecks($cells);
-unset($cells[1]);
-foreach($cells as $line){
+reset($cells);
+while($line = next($cells)){
+	$line_number = key($cells);
 	$dx_data = array(
 		'master' => array(
 			'participant_id'		=> $line['participant_id'],
@@ -103,7 +104,7 @@ foreach($cells as $line){
 			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
 		)
 	);
-	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, 'participant_id', array('qc_nd_sardo_id'));
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
@@ -117,7 +118,7 @@ foreach($cells as $line){
 				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
 			)
 		);
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
@@ -134,7 +135,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery);
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO 1 Tx00']]){
@@ -151,7 +152,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo);
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['Pr01 - date']]){
@@ -163,12 +164,11 @@ foreach($cells as $line){
 				'dx_date'				=> $line[SardoToAtim::$columns['Pr01 - date']],
 				'dx_date_accuracy'		=> $line['Pr01 - date_accuracy']
 			), 'detail' => array(
-				'qc_nd_delay'			=> $line[SardoToAtim::$columns['Délai DX-Pr01 (J)']], 
 				'qc_nd_sites'			=> $line[SardoToAtim::$columns['Pr01 - sites']]
 			)
 		);
 		
-		SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'dxd_progressions', $progression);
+		SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'dxd_progressions', $progression, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CYTO+ 1 Tx00']]){
@@ -184,7 +184,7 @@ foreach($cells as $line){
 			)
 		);
 	
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_cytology', $cytology);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_cytology', $cytology, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', '', 'non ménopausée'))){
@@ -195,7 +195,7 @@ foreach($cells as $line){
 				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']] == 9999 ? null : $line[SardoToAtim::$columns['Année ménopause']]
 			)
 		);
-		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause);
+		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause, $line_number);
 	}
 	
 	if($line[SardoToATim::$columns['Toute HORM Tx00']]){
@@ -224,7 +224,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono);
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono, $line_number);
 	}
 	
 	$ca125_peri_dx = null;
@@ -243,7 +243,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
 	}
 	if($line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] && $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] != $ca125_peri_dx){
 		$ca125_pre_chir = $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']];
@@ -259,7 +259,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
 	}
 	if($line[SardoToATim::$columns['Dernier CA-125 - date']] && !in_array($line[SardoToATim::$columns['Dernier CA-125 - date']], array($ca125_peri_dx, $ca125_pre_chir))){
 		$ca125 = array(
@@ -274,7 +274,7 @@ foreach($cells as $line){
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
 	}
 }
 
