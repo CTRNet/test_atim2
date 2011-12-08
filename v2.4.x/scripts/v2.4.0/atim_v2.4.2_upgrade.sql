@@ -3,7 +3,7 @@
 
 -- Update version information
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.4.2 dev', NOW(), '3953 >');
+('2.4.2', NOW(), '3972');
 
 ALTER TABLE txe_chemos
  DROP FOREIGN KEY FK_txe_chemos_tx_masters,
