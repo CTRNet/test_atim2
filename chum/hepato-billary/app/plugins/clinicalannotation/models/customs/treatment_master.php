@@ -131,6 +131,45 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		
 		return $survival_time_months;	
 	}
+	
+	function allowDeletion($tx_master_id){
+
+		if($tx_master_id != $this->id){
+			//not the same, fetch
+			$data = $this->findById($tx_master_id);
+		}else{
+			$data = $this->data;
+		}
+		$treatment_extend_model = new TreatmentExtend( false, $data['TreatmentControl']['extend_tablename']);
+		$nbr_extends = $treatment_extend_model->find('count', array('conditions'=>array('TreatmentExtend.tx_master_id'=>$tx_master_id), 'recursive' => '-1'));
+		if ($nbr_extends > 0) { 
+			return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); 
+		}
+		
+		
+		
+		//TODO
+		
+pr('TODO  allowDeletion tx_master_id = '.$tx_master_id);
+exit;		
+		
+			if(!isset($this->EventDetail)) {
+			App::import("Model", "Clinicalannotation.EventDetail");
+			$this->EventDetail = new EventDetail(false, 'qc_hb_ed_hepatobilary_lab_report_biology');	
+		}
+		
+		$nbr = $this->EventDetail->find('count', array('conditions' => array('EventDetail.surgery_tx_master_id' => $tx_master_id)));
+		if ($nbr > 0) { 
+			$arr_allow_deletion = array('allow_deletion' => false, 'msg' => 'at least one biology lab report is linked to this treatment'); 
+		}
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	
+	
+	
+	
 
 }
 
