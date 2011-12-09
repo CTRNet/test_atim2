@@ -1,13 +1,16 @@
 <?php
+
+//NL Revised
+
 class TreatmentMastersControllerCustom extends TreatmentMastersController {
 	
 	function preOperativeDetail($participant_id, $tx_master_id){
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing', NULL, TRUE ); }
 		
 		// LOAD SURGERY DATA / FORM (including cirrhosis data)
 		
 		$surgery_data = $this->TreatmentMaster->find('first', array('conditions' => array('TreatmentMaster.id' => $tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($surgery_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($surgery_data)) { $this->redirect( '/pages/err_plugin_no_data', null, true ); }	
 		
 		switch($surgery_data['TreatmentControl']['detail_tablename']) {
 			case 'qc_hb_txd_surgery_livers':
@@ -42,7 +45,7 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		
 		// Load EventMaster
 		if(!App::import('Model', 'clinicalannotation.EventMaster')) {
-			$this->redirect( '/pages/err_clin_system_error', null, true );
+			$this->redirect( '/pages/err_plugin_system_error', null, true );
 		}		
 		$this->EventMaster = new EventMaster();	
 				
@@ -67,12 +70,12 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 	}
 	
 	function preOperativeEdit($participant_id, $tx_master_id){
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_clin_funct_param_missing', NULL, TRUE ); }
+		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/pages/err_plugin_funct_param_missing', NULL, TRUE ); }
 		
 		// SURGERY DATA & STRUCTURES
 		
 		$surgery_data = $this->TreatmentMaster->find('first', array('conditions' => array('TreatmentMaster.id' => $tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($surgery_data)) { $this->redirect( '/pages/err_clin_no_data', null, true ); }	
+		if(empty($surgery_data)) { $this->redirect( '/pages/err_plugin_no_data', null, true ); }	
 		
 		switch($surgery_data['TreatmentControl']['detail_tablename']) {
 			case 'qc_hb_txd_surgery_livers':

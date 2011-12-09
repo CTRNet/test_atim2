@@ -58,6 +58,7 @@ class EventMasterCustom extends EventMaster{
 		return $event_data;
 	}
 	
+//TODO	
 	function getDuration($start_date, $end_date) {
 		$result = '';
 	
@@ -95,6 +96,7 @@ class EventMasterCustom extends EventMaster{
 	 * @param $event_control Event control of the created/studied event.
 	 * @param $particpant_id
 	 */
+//TODO	
 	function setParticipantSurgeriesList( $event_control, $participant_id = null ) {
 		$event_type_title =
 		$event_control['EventControl']['disease_site'].'-'.
@@ -131,7 +133,7 @@ class EventMasterCustom extends EventMaster{
 	 *
 	 * @param $event_control_data Event control data of the created/studied event.
 	 **/
-		
+//TODO	
 	function setMedicalImaginStructures($event_control_data){
 		if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging') === 0){
 				
@@ -172,7 +174,7 @@ class EventMasterCustom extends EventMaster{
 	 *
 	 * @return Updated event data
 	 * */
-	
+//TODO	
 	function completeVolumetry( $event_data ) {
 		if(isset($event_data['EventDetail']['is_volumetry_post_pve'])) {
 	
@@ -209,7 +211,7 @@ class EventMasterCustom extends EventMaster{
 	
 		return $event_data;
 	}
-	
+//TODO	
 	function setScores($event_control_event_type){
 		if($event_control_event_type == "child pugh score (classic)" || $event_control_event_type == "child pugh score (mod)"){
 			$this->setChildPughScore();
@@ -227,6 +229,7 @@ class EventMasterCustom extends EventMaster{
 			$this->setMeldScore();
 		}
 	}
+//TODO	
 	
 	function setChildPughScore(){
 		$score = 0;
@@ -297,6 +300,7 @@ class EventMasterCustom extends EventMaster{
 		}
 	
 	}
+//TODO	
 	
 	function setOkudaScore(){
 		$score = 0;
@@ -338,6 +342,7 @@ class EventMasterCustom extends EventMaster{
 			$this->data['EventDetail']['result'] = '';
 		}
 	}
+//TODO	
 	
 	function setBarcelonaScore(){
 		if($this->data['EventDetail']['who'] == "3 - 4"
@@ -399,6 +404,7 @@ class EventMasterCustom extends EventMaster{
 	
 		$this->data['EventDetail']['result'] = "?";
 	}
+//TODO	
 	
 	function setClipScore(){
 		$set_score = true;
@@ -434,6 +440,7 @@ class EventMasterCustom extends EventMaster{
 			$this->data['EventDetail']['result'] = '';
 		}
 	}
+//TODO	
 	
 	function setFongScore(){
 		$this->data['EventDetail']['result'] = 0;
@@ -453,6 +460,7 @@ class EventMasterCustom extends EventMaster{
 			++ $this->data['EventDetail']['result'];
 		}
 	}
+//TODO	
 	
 	function setGretchScore(){
 		$score = 0;
@@ -494,6 +502,7 @@ class EventMasterCustom extends EventMaster{
 			}
 		}
 	}
+//TODO	
 	
 	function setMeldScore(){
 		$this->data['EventDetail']['result'] = null;

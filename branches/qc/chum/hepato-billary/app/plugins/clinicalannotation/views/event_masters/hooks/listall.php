@@ -1,4 +1,6 @@
 <?php
+	
+	unset($final_options['links']['bottom']['filter']);
 
 	// --------------------------------------------------------------------------------
 	// Duplicate Add Button for clinical annotation to split add options to:
@@ -6,33 +8,15 @@
 	//		- medical imaging
 	//		- other
 	// --------------------------------------------------------------------------------
-	
-	if($is_clinical_group) {
-		$medcial_past_history_add_links = array();
-		foreach ( $medical_past_history_event_controls as $event_control ) {
-			// Build Medical History Add Button
-			$medcial_past_history_add_links[ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'],true) ] = '/clinicalannotation/event_masters/add/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
-			// Buil Filter Button
-			$final_options['links']['bottom']['filter'][ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'],true) ] = '/clinicalannotation/event_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
-		}
-		ksort($medcial_past_history_add_links);		
-		
-		$medcial_imaging_add_links = array();
-		foreach ( $medical_imaging_event_controls as $event_control ) {
-			// imaging button
-			$medcial_imaging_add_links[ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'], true) ] = '/clinicalannotation/event_masters/add/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
-			// Add data to filter button
-			$final_options['links']['bottom']['filter'][ __($event_control['EventControl']['disease_site'],true).' - '.__($event_control['EventControl']['event_type'], true) ] = '/clinicalannotation/event_masters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$event_control['EventControl']['id'];
-		}
-		ksort($medcial_imaging_add_links);		
-		
-		// Rebuild links
-		$final_options['links']['bottom']['add medical history'] = $medcial_past_history_add_links;
-		$final_options['links']['bottom']['add medical imaging'] = $medcial_imaging_add_links;
+
+	if(isset($medical_past_history_add_links) && isset($medical_imaging_add_links)) {
+		$final_options['links']['bottom']['add medical history'] = $medical_past_history_add_links;
+		$final_options['links']['bottom']['add medical imaging'] = $medical_imaging_add_links;
 		$final_options['links']['bottom']['add other clinical event'] = $final_options['links']['bottom']['add'];
 		unset($final_options['links']['bottom']['add']);		
 	}
 
+//TODO keep?	
 	// --------------------------------------------------------------------------------
 	// clinical.hepatobiliary.*** medical past history: 
 	//   Build Medical Past History precisions list
@@ -41,6 +25,7 @@
 		$final_options['override' ]['EventDetail.disease_precision'] = $medical_past_history_precisions;
 	}
 	
+//TODO keep?	
 	// --------------------------------------------------------------------------------
 	// hepatobiliary-lab-biology : 
 	//   Set participant surgeries list for hepatobiliary-lab-biology.
@@ -48,7 +33,5 @@
 	if(isset($surgeries_for_lab_report)) {
 		$final_options['override' ]['EventDetail.surgery_tx_master_id'] = $surgeries_for_lab_report;
 	}
-	
-	unset($final_options['links']['bottom']['filter']);
 		
 ?>

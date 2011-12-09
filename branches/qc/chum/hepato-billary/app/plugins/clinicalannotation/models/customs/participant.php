@@ -1,5 +1,7 @@
 <?php
 
+//NL Revised
+
 class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
 	var $name = 'Participant';
@@ -21,18 +23,11 @@ class ParticipantCustom extends Participant {
 			
 		  	//Add No Labs to description
 			foreach($identifiers as $identifier){
-				switch($identifier['MiscIdentifier']['misc_identifier_control_id']){
-					case 1:
-						$result['FunctionManagement']['health_insurance_card'] = $identifier['MiscIdentifier']['identifier_value']; 
-					case 2:
-						$result['FunctionManagement']['saint_luc_hospital_nbr'] = $identifier['MiscIdentifier']['identifier_value'];
-					case 3:
-						$result['FunctionManagement']['hepato_bil_bank_participant_id'] = $identifier['MiscIdentifier']['identifier_value'];
-					default:
-						
-				}				
+				if(in_array($identifier['MiscIdentifierControl']['misc_identifier_name'], array_keys($result['FunctionManagement']))) {
+					$result['FunctionManagement'][$identifier['MiscIdentifierControl']['misc_identifier_name']] = $identifier['MiscIdentifier']['identifier_value']; 
+				}		
 			}
-			
+				
 			$return = array(
 				'menu'				=>	array( NULL, ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
 				'title'				=>	array( NULL, __('participant', TRUE) . ': ' . ($result['Participant']['first_name'].' - '.$result['Participant']['last_name']) ),
