@@ -76,7 +76,7 @@
 
 		// 5- Volumetry
 		if(isset($qc_hb_volumetry)){
-			if($last_imaging_structure !== 'qc_hb_volumetry') { $this->redirect( '/pages/err_clin_system_error', NULL, TRUE );}
+			if($last_imaging_structure !== 'qc_hb_volumetry') { $this->redirect( '/pages/err_plugin_system_error', NULL, TRUE );}
 			$imaging_structure_options['settings']['header'] = __('volumetry', true);
 			$final_options = $imaging_structure_options;
 			$final_atim_structure = $qc_hb_volumetry;

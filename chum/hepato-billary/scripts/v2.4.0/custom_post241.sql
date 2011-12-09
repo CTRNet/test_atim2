@@ -297,6 +297,15 @@ UPDATE event_controls SET flag_active = 0 WHERE event_type = 'comorbidity';
 
 UPDATE structure_fields SET type = 'float' WHERE type = 'number' AND tablename like 'qc_hb_%'
 
+INSERT INTO i18n (id,en) VALUES ('chemo-embolization', 'Chemo-Embolization');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('this type of event has already been created for your participant', 'This type of annotation has already been created for your participant!', 'Ce type d''annotation a déjà été créée pour votre participant!');
+
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE field = 'hospitalization_end_date';
+UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE field = 'hospitalization_duration_in_days';
+
+UPDATE structure_formats SET display_column = (display_column + 1) WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_ed_%');
+
 -- -----------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------
