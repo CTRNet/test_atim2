@@ -70,3 +70,6 @@ left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and 
 LEFT JOIN misc_identifiers AS mi ON part.id=mi.participant_id AND mi.misc_identifier_control_id=9 AND mi.deleted <> 1 
 left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) 
 where (`al`.`deleted` <> 1); 
+
+UPDATE storage_controls SET coord_x_size=100 WHERE id=21;
+UPDATE structure_fields SET  `setting`='' WHERE model='StorageMaster' AND tablename='storage_masters' AND field='short_label' AND `type`='input' AND structure_value_domain  IS NULL ;
