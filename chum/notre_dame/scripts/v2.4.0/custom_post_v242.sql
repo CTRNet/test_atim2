@@ -1,5 +1,6 @@
 -- NEVER RAN YET!!
-
+REPLACE INTO i18n(id, en, fr) VALUES
+('last contact date', 'Last contact date', 'Date du dernier contact');
 
 ALTER TABLE participants
  ADD COLUMN qc_nd_last_contact DATE DEFAULT NULL;
@@ -22,7 +23,7 @@ ALTER TABLE diagnosis_masters_revs
 UPDATE menus SET flag_active=1 WHERE id IN('clin_CAN_5', 'clin_CAN_5_1');
 
 INSERT INTO diagnosis_controls (category, controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label, flag_compare_with_cap) VALUES
-('primary', 'sardo', 1, 'diagnosismasters,dx_primary_sardo', 'qc_nd_dxd_primary_sardo', 0, 'primary|sardo', 0);
+('primary', 'sardo', 1, 'diagnosismasters,qc_nd_dx_primary_sardo', 'qc_nd_dxd_primary_sardo', 0, 'primary|sardo', 0);
 	
 CREATE TABLE qc_nd_dxd_primary_sardo(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -43,7 +44,7 @@ CREATE TABLE qc_nd_dxd_primary_sardo_revs(
 )Engine=InnoDb;
 
 INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
-('all', 'clinical', 'biopsy', 1, 'eventmasters', 'qc_nd_ed_biopsy', 0, 'clinical|all|biopsy'),
+('all', 'clinical', 'biopsy', 1, 'eventmasters,qc_nd_ed_biopsy', 'qc_nd_ed_biopsy', 0, 'clinical|all|biopsy'),
 ('all', 'clinical', 'cytology', 1, 'eventmasters', 'qc_nd_ed_cytology', 0, 'clinical|all|cytology'),
 ('all', 'lab', 'ca125', 1, 'eventmasters', 'qc_nd_ed_ca125', 0, 'lab|all|ca125'),
 ('all', 'lab', 'pathology', 1, 'eventmasters', 'qc_nd_ed_pathologies', 0, 'lab|all|pathology');
@@ -52,6 +53,8 @@ CREATE TABLE qc_nd_ed_biopsy(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  event_master_id INT NOT NULL,
  type VARCHAR(50) NOT NULL DEFAULT '',
+ no_patho VARCHAR(20) NOT NULL DEFAULT '',
+ location VARCHAR(50) NOT NULL DEFAULT '',
  deleted BOOLEAN NOT NULL DEFAULT 0,
  FOREIGN KEY (event_master_id) REFERENCES event_masters(id)
 )Engine=InnoDb;
@@ -59,6 +62,8 @@ CREATE TABLE qc_nd_ed_biopsy_revs(
  id INT UNSIGNED NOT NULL,
  event_master_id INT NOT NULL,
  type VARCHAR(50) NOT NULL DEFAULT '',
+ no_patho VARCHAR(20) NOT NULL DEFAULT '',
+ location VARCHAR(50) NOT NULL DEFAULT '',
  deleted BOOLEAN NOT NULL DEFAULT 0,
  `version_id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  `version_created` datetime NOT NULL
@@ -174,10 +179,14 @@ DELETE FROM structure_permissible_values WHERE id=1050;
 
 ALTER TABLE txd_surgeries
  ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id,
- ADD COLUMN qc_nd_residual_disease VARCHAR(200) NOT NULL DEFAULT '' AFTER qc_nd_precision; 
+ ADD COLUMN qc_nd_residual_disease VARCHAR(200) NOT NULL DEFAULT '' AFTER qc_nd_precision,
+ ADD COLUMN qc_nd_no_patho VARCHAR(20) NOT NULL DEFAULT '' AFTER qc_nd_residual_disease,
+ ADD COLUMN qc_nd_location VARCHAR(50) NOT NULL DEFAULT '' AFTER qc_nd_no_patho; 
 ALTER TABLE txd_surgeries_revs
  ADD COLUMN qc_nd_precision VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id,
- ADD COLUMN qc_nd_residual_disease VARCHAR(200) NOT NULL DEFAULT '' AFTER qc_nd_precision;
+ ADD COLUMN qc_nd_residual_disease VARCHAR(200) NOT NULL DEFAULT '' AFTER qc_nd_precision,
+ ADD COLUMN qc_nd_no_patho VARCHAR(20) NOT NULL DEFAULT '' AFTER qc_nd_residual_disease,
+ ADD COLUMN qc_nd_location VARCHAR(50) NOT NULL DEFAULT '' AFTER qc_nd_no_patho;
 
 ALTER TABLE txd_chemos
  ADD COLUMN qc_nd_type VARCHAR(200) NOT NULL DEFAULT '' AFTER treatment_master_id,
@@ -203,9 +212,11 @@ ALTER TABLE dxd_progressions_revs
  ADD COLUMN qc_nd_sites VARCHAR(200) NOT NULL DEFAULT '' AFTER diagnosis_master_id;
 
 ALTER TABLE reproductive_histories
- ADD COLUMN qc_nd_year_menopause SMALLINT UNSIGNED DEFAULT NULL AFTER participant_id;
+ ADD COLUMN qc_nd_year_menopause SMALLINT UNSIGNED DEFAULT NULL AFTER participant_id,
+ ADD COLUMN qc_nd_cause VARCHAR(50) NOT NULL DEFAULT '';
 ALTER TABLE reproductive_histories_revs
- ADD COLUMN qc_nd_year_menopause SMALLINT UNSIGNED DEFAULT NULL AFTER participant_id;
+ ADD COLUMN qc_nd_year_menopause SMALLINT UNSIGNED DEFAULT NULL AFTER participant_id,
+ ADD COLUMN qc_nd_cause VARCHAR(50) NOT NULL DEFAULT '';
  
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
 ('hormonotherapy', 'all', 1, 'qc_nd_txd_hormonotherapies', 'treatmentmasters,qc_nd_txd_hormonotherapies', NULL, NULL, 0, NULL, NULL, 'all|hormonotherapy');
@@ -228,9 +239,57 @@ CREATE TABLE qc_nd_txd_hormonotherapies_revs(
  `version_created` datetime NOT NULL
 )Engine=InnoDb;
 
-# TO CALCULATE AGE
-# SELECT name, birth, CURDATE(),
-#    -> (YEAR(CURDATE())-YEAR(birth))
-#    -> - (RIGHT(CURDATE(),5)<RIGHT(birth,5))
-#    -> AS age
-#    -> FROM pet;
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_menopause_cause', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("by medication", "by medication");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_menopause_cause"),  (SELECT id FROM structure_permissible_values WHERE value="by medication" AND language_alias="by medication"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("by surgery", "by surgery");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_menopause_cause"),  (SELECT id FROM structure_permissible_values WHERE value="by surgery" AND language_alias="by surgery"), "1", "1");
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_sardo_morpho_code', '', '', NULL);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_sardo_family_history', '', '', NULL);
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_dx_primary_sardo');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'qc_nd_sardo_family_history', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_family_history') , '0', '', '', '', 'family history', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'qc_nd_sardo_morpho_code', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_morpho_code') , '0', '', '', '', 'morpho code', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'qc_nd_sardo_id', 'integer',  NULL , '0', '', '', '', '#', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_family_history' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_family_history')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='family history' AND `language_tag`=''), '3', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_morpho_code' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_morpho_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='morpho code' AND `language_tag`=''), '3', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_id' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='#' AND `language_tag`=''), '3', '1', 'SARDO data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	815	, 2,	2	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	1122	, 2,	3	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	833	, 2,	4	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	834	, 2,	5	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	835	, 2,	6	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	836	, 2,	7	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	837	, 2,	8	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	829	, 2,	9	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	1129	, 2,	10	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo'), 	1140	, 2,	11	, '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_biopsy_type', '', '', NULL);
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_sardo_location', '', '', NULL);
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_biopsy');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_biopsy', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_biopsy_type') , '0', '', '', '', 'type', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_biopsy', 'no_patho', 'input',  NULL , '0', '', '', '', 'no patho', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_biopsy', 'location', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_location') , '0', '', '', '', 'location', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_biopsy'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_biopsy' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_biopsy_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_biopsy'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_biopsy' AND `field`='no_patho' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='no patho' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_biopsy'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_biopsy' AND `field`='location' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_location')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='location' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('qc_nd_surgery_precision', '', '', NULL);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisMaster', 'txd_surgeries', 'qc_nd_precision', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_surgery_precision') , '0', '', '', '', 'qc nd precision', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'txd_surgeries', 'qc_nd_residual_disease', 'input',  NULL , '0', '', '', '', 'qc nd residual disease', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'txd_surgeries', 'qc_nd_no_patho', 'input',  NULL , '0', '', '', '', 'qc nd no patho', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'txd_surgeries', 'qc_nd_location', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_location') , '0', '', '', '', 'qc nd location', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='txd_surgeries' AND `field`='qc_nd_precision' AND `type`='input' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_surgery_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc nd precision' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='txd_surgeries' AND `field`='qc_nd_residual_disease' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc nd residual disease' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='txd_surgeries' AND `field`='qc_nd_no_patho' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc nd no patho' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='txd_surgeries' AND `field`='qc_nd_location' AND `type`='input' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_location')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='qc nd location' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');

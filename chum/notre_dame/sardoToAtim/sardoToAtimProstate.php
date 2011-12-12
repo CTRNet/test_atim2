@@ -93,7 +93,8 @@ SardoToAtim::$columns = array(
 	"Date dernier contact"				=> 89,
 	"Date du décès"						=> 90,
 	"Survie (mois)"						=> 91,
-	"Fanions"							=> 92
+	"Fanions"							=> 92,
+	'Date de naissance'					=> 93,
 );
 
 SardoToAtim::$date_columns = array(
@@ -114,9 +115,90 @@ SardoToAtim::$date_columns = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
+$xls_reader->read('/Volumes/data/2011-11-15 Export complet prostate sample.XLS');
 // $xls_reader->read('/Volumes/data/2011-11-15 Export complet prostate.XLS');
-$xls_reader->read('/Volumes/data/2011-11-18 export prostate recherche.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-18 export prostate recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
 
+reset($cells);
+while($line = next($cells)){
+	$line_number = key($cells);
+	$dx_data = array(
+		'master' => array(
+			'participant_id'		=> $line['participant_id'],
+			'qc_nd_sardo_id'		=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'diagnosis_control_id'	=> 19,
+			'primary_id'			=> null,
+			'parent_id'				=> null,
+			'dx_date'				=> $line[SardoToAtim::$columns['Date du diagnostic']],
+			'dx_date_accuracy'		=> $line['Date du diagnostic_accuracy'],
+			'clinical_tstage'		=> $line[SardoToAtim::$columns['TNM T']],
+			'clinical_nstage'		=> $line[SardoToAtim::$columns['TNM N']],
+			'clinical_mstage'		=> $line[SardoToAtim::$columns['TNM M']],
+			'clinical_stage_summary'=> $line[SardoToAtim::$columns['TNM clinique']],
+			'path_tstage'			=> $line[SardoToAtim::$columns['TNM pT']],
+			'path_nstage'			=> $line[SardoToAtim::$columns['TNM pN']],
+			'path_mstage'			=> $line[SardoToAtim::$columns['TNM pM']],
+			'path_stage_summary'	=> $line[SardoToAtim::$columns['TNM pathologique']]
+		), 'detail' => array(
+		)
+	);
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	
+	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
+		$biopsy = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 28,
+				'event_date'			=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']],
+				'event_date_accuracy'	=> $line['BIOP+ 1 Tx00 - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']],
+				'no_patho'				=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - no patho']],
+				'location'				=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - lieu']],
+			)
+		);
+		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy, $line_number);
+	}
+	
+	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
+		$surgery = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'treatment_control_id'	=> 4,
+				'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']],
+				'start_date_accuracy'	=> $line['CHIR 1 Tx00 - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']],
+				'qc_nd_no_patho'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - no patho']],
+				'qc_nd_location'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - lieu']],
+			)
+		);
+	
+		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery, $line_number);
+	}
+	
+	for($i = 1; $i <= 6; ++ $i){
+		//TODO: Classer les traitements
+		$key_name = sprintf('TX %d Tx00', $i);
+		if($line[SardoToATim::$columns[$key_name]]){
+			$tx = array(
+				'master' => array(
+					'start_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
+					'start_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - début_accuracy']],
+					'finish_date'			=> $line[SardoToAtim::$columns[$key_name.' - fin']],
+					'finish_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - fin_accuracy']]
+				), 'detail' => array(
+				
+				)
+			);
+		}
+		
+	}
+}
+
+SardoToAtim::endChecks();
