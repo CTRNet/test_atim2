@@ -22,14 +22,17 @@ class UsersController extends AppController {
 		$this->Version->id = $version_data[0]['id'];
 		$this->Version->read();
 		if($this->Version->data['Version']['permissions_regenerated'] == 0){
-			$version_number = $this->Version->data['Version']['version_number'];
 			$this->PermissionManager->buildAcl();
 			AppController::addWarningMsg(__('permissions have been regenerated', true));
 			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 			$this->Version->save();
-
-			//also update the i18n string
+		}
+		if($this->Version->data['Version']['version_number'] != __('core_app_version', true)){
+			//update the i18n string
+			$version_number = $this->Version->data['Version']['version_number'];
 			$this->User->query("UPDATE i18n SET en='".$version_number."', fr ='".$version_number."' WHERE id='core_app_version'");
+			
+			AppController::addWarningMsg('The language files need to be regenerated. (Invalid translation for core_app_version.)');	
 		}
 		
 		if($this->Auth->user()){

@@ -1982,3 +1982,7 @@ div.accuracy_target_blue{
 	background: url(../img/icons/target_blue_20x20.gif) no-repeat;
 	cursor: pointer;
 }
+
+a.btn_add_or{
+	margin-right: 15px;
+}
