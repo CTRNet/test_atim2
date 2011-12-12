@@ -187,12 +187,39 @@ while($line = next($cells)){
 		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_cytology', $cytology, $line_number);
 	}
 	
-	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', '', 'non ménopausée'))){
+	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', ''))){
+		$cause = '';
+		$status = '';
+		switch($line[SardoToAtim::$columns['Ménopause']]){
+			case 'ménopausée par chirurgie':
+				$status = 'post';
+				$cause = 'by surgery';
+				break;
+			case 'ménopausée par médication':
+				$status = 'post';
+				$cause = 'by medication';
+				break;
+			case 'non ménopausée':
+				$status = 'pre';
+				break;
+			case 'post-ménopausée':
+				$status = 'post';
+				break;
+			case 'péri-ménopausée':
+				$status = 'peri';
+				break;
+			case 'pré-ménopausée':
+				$status = 'pre';
+				break;
+			default:
+				die("ERROR: Unknown menopause status [".$line[SardoToAtim::$columns['Ménopause']]."].\n");
+		}
 		$menopause = array(
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
-				'menopause_status'		=> $line[SardoToAtim::$columns['Ménopause']],
-				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']] == 9999 ? null : $line[SardoToAtim::$columns['Année ménopause']]
+				'menopause_status'		=> $status,
+				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']] == 9999 ? null : $line[SardoToAtim::$columns['Année ménopause']],
+				'qc_nd_cause'			=> $cause
 			)
 		);
 		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause, $line_number);

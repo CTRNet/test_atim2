@@ -38,6 +38,10 @@ class Models{
 			'primary' => array('participant_id') 
 		)
 	);
+	
+	static $value_domains = array(
+		
+	);
 }
 
 class SardoToAtim{
@@ -742,15 +746,27 @@ class SardoToAtim{
 		return $last_id;
 	}
 	
+	static function updateValueDomains(){
+		
+	}
+	
 	
 	static function endChecks(){
 		//TODO: update value domains with missing values
 		//TODO: valider les icd10 topo
 		//TODO: valider que les code morpho <-> desc n'ont pas changées
 		
+		//dx topo, dxd laterality, qc_nd_ed_biopsy.type, qc_nd_ed_cytology.type, txd_surgeries.qc_nd_precision, txd_chemos.qc_nd_type, 
+		//qc_nd_txd_hormonotherapies.type,
+
+		$query = 'UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL';
+		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		
+		self::updateValueDomains();
+		
 		if(self::$commit){
-// 			self::$connection->commit();
-			self::$connection->rollback();
+			self::$connection->commit();
+// 			self::$connection->rollback();
 			echo "\nProcess complete. Changes were COMMITED (but not for debug).\n";
 		}else{
 			self::$connection->rollback();
