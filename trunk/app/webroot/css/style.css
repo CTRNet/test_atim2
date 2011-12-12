@@ -1739,7 +1739,7 @@ div.wrapper table.structure td .databrowser td .info td{
 .databrowser td.specimen.review div.container, a.specimen.review,
 .databrowser td.shipments div.container, a.shipments,
 .databrowser td.order.items div.container, a.order.items{
-	background-position: left imporant!; 
+	background-position: left !imporant; 
 }
 
 .databrowser div.controls, .databrowser div.content{
