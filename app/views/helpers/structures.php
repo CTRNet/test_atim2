@@ -852,7 +852,7 @@ class StructuresHelper extends Helper {
 		$tag = "";
 		if(strlen($table_row_part['tag']) > 0){
 			if($options['type'] == 'csv'){
-				$tag = $table_row_part['tag'].' ';
+				$tag = $table_row_part['tag'] == '-' ? '' : $table_row_part['tag'].' ';
 			}else{
 				$tag = '<span class="tag">'.$table_row_part['tag'].'</span> ';
 			}
@@ -1565,7 +1565,7 @@ class StructuresHelper extends Helper {
 			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
 				$model_dot_field = $sfs['model'].'.'.$sfs['field'];
-				if($sfs['flag_'.$options['type']] || $options['settings']['all_fields']){
+				if($sfs['flag_'.$options['type']] || ($options['settings']['all_fields'] && ($sfs['flag_detail'] || $sfs['flag_index']))){
 					$current = array(
 						"name" 				=> "",
 						"model" 			=> $sfs['model'],
