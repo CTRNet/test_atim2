@@ -159,7 +159,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			// save detail DATA
 			if((isset($detail_model->id) && $detail_model->id && !$created) || $created){
-				$result = $detail_model->save($model->data);
+				$result = $detail_model->save($model->data, false);//validation should have already been done
 			}else{
 				$result = true;
 			}

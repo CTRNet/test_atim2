@@ -469,6 +469,7 @@ class AppModel extends Model {
 					}
 					$detail_class_instance->set($this->data);
 					$valid_detail_class = $detail_class_instance->validates();
+					$this->data = $detail_class_instance->data;
 					if(!$valid_detail_class){
 						//put details validation errors in the master model
 						$this->validationErrors = array_merge($this->validationErrors, $detail_class_instance->validationErrors);
