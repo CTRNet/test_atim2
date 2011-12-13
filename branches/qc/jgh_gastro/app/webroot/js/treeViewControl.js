@@ -2,15 +2,13 @@ function set_at_state_in_tree_root(new_at_li, json){
 	if(!window.loadingStr){
 		window.loadingStr = "js untranslated loading";	
 	}
-	var tree_root = document.getElementById("tree_root");
-	var tree_root_lis = tree_root.getElementsByTagName("li");
-	for (var i=0; i<tree_root_lis.length; i++) {
-		tree_root_lis[i].className = null;
-	}
+	$(".tree_root").find("div.treeArrow").hide();
+	$(".tree_root").find("div.rightPart").removeClass("at");
 	$li = getParentElement(new_at_li, "LI");
-	$($li).addClass("at");
+	$($li).find("div.rightPart:first").addClass("at");
+	$($li).find("div.treeArrow:first").show();
 	$("#frame").html("<div class='loading'>---" + loadingStr + "---</div>");
-	$.get($(this).attr("href") + "?t=" + new Date().getTime(), {}, function(data){
+	$.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function(data){
 		$("#frame").html(data);
 		initActions();
 	});
@@ -23,7 +21,7 @@ function set_at_state_in_tree_root(new_at_li, json){
 function initAjaxTreeView(scope){
 	$(scope).find(".reveal.notFetched").click(function(){
 		$(this).removeClass("notFetched").unbind('click');
-		var json = getJsonFromClass($(this).attr("class"));
+		var json = getJsonFromClass($(this).prop("class"));
 		var expandButton = $(this);
 		if(json.url != undefined && json.url.length > 0){
 			$(this).addClass("fetching");
@@ -42,6 +40,10 @@ function initAjaxTreeView(scope){
 					}
 					$(expandButton).removeClass("fetching");
 					$("#" + flat_url).remove();
+					
+					if(window.initTree){
+						initTree($(currentLi));
+					}
 				});
 			}
 		}
@@ -50,9 +52,17 @@ function initAjaxTreeView(scope){
 
 function initTreeView(scope){
 	$("a.reveal.activate").each(function(){
-		var matchingUl = $(this).parent().children().filter("ul").first();
+		var matchingUl = getParentElement($(this), "LI"); 
+		matchingUl	= $(matchingUl).children().filter("ul").first();
 		$(this).click(function(){
 			$(matchingUl).stop().toggle("blind");
 		});
 	});
+	
+	var element = $(scope).find(".tree_root input[type=radio]:checked");
+	if(element.length == 1){
+		var lis = $(element).parents("li");
+		lis[0] = null;
+		$(lis).find("a.reveal.activate:first").click();
+	}
 }
