@@ -3,8 +3,10 @@
 	// --------------------------------------------------------------------------------
 	// Save Participant Identifier
 	// -------------------------------------------------------------------------------- 
-	$this->Participant->data = array();
-	$participant_identifier = $this->data['Participant']['qc_ldov_initals'].' ('.$this->Participant->id.')';
-	if(!$this->Participant->save(array('Participant' => array('participant_identifier' => $participant_identifier)))) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	$query_to_update = "UPDATE participants SET participants.participant_identifier = CONCAT(participants.qc_ldov_initals,' (',participants.id,')') WHERE participants.id = ".$this->Participant->id.";";
+	if(!$this->Participant->query($query_to_update) 
+	|| !$this->Participant->query(str_replace("participants", "participants_revs", $query_to_update))) {
+		$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+	}
 	
 ?>
