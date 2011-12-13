@@ -1,13 +1,17 @@
 <?php 
-	
 	// display adhoc DETAIL
-	$structures->build( $atim_structure_for_detail, array('type'=>'detail', 'settings'=>array('actions'=>false), 'data'=>$data_for_detail) );
+	$structures->build( $atim_structure_for_detail, array(
+		'type'		=> 'detail', 
+		'settings'	=> array(
+			'actions'	=> false
+		), 'data'=> $data_for_detail
+	));
 
 	// display adhoc RESULTS form
 	$structure_links = array(
 		'top'=>'#',
 		'checklist'=>array(
-			$data_for_detail['BatchSet']['checklist_model'].'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
+			$lookup_model_name.'.'.$lookup_key_name.'][' => '%%'.$data_for_detail['BatchSet']['model'].'.'.$data_for_detail['BatchSet']['lookup_key_name'].'%%'
 		)
 	);
 	
@@ -16,7 +20,22 @@
 		$structure_links['index'] = $ctrapp_form_links;
 	}
 	
-	$structures->build( $atim_structure_for_results, array('type' => 'index', 'data'=>$results, 'settings'=>array('form_bottom'=>false, 'header' => __('elements', null), 'form_inputs'=>false, 'actions'=>false, 'pagination'=>false, 'sorting' => true), 'links'=>$structure_links) );
+	//$add_to_batchset_hidden_field = '<input type="hidden" name="data[BatchSet][id]" value="'.$data_for_detail['BatchSet']['id'].'"/>';
+	$add_to_batchset_hidden_field = $this->Form->input('BatchSet.id', array('type' => 'hidden', 'value' => $data_for_detail['BatchSet']['id']));
+	
+	$structures->build( $atim_structure_for_results, array(
+		'type' 		=> 'index', 
+		'data'		=> $results, 
+		'settings'	=>array(
+			'form_bottom'	=>false, 
+			'header' 		=> __('elements', null), 
+			'form_inputs'	=> false, 
+			'actions'		=> false, 
+			'pagination'	=> false, 
+			'sorting' => true
+		), 'links'	=> $structure_links,
+		'extras'	=> array('end' => $add_to_batchset_hidden_field)
+	));
 	
 	// display adhoc-to-batchset ADD form
 	$structure_links = array(
@@ -27,21 +46,22 @@
 			'list'		=> '/datamart/batch_sets/index/'
 		)
 	);
-	if($data_for_detail['BatchSet']['flag_use_query_results']){
+	if(isset($data_for_detail['Adhoc']) && $data_for_detail['Adhoc']['flag_use_control_for_results']){
 		$structure_links['bottom'] = array_merge(array('generic batch set' => array(
 				"cast to a new generic batch set" 	=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/1/','icon'=>'batch_set'),
 				"cast into a generic batch set"		=> array('link'=>'/datamart/batch_sets/generic/'.$atim_menu_variables['BatchSet.id'].'/0/','icon'=>'batch_set'),
 			)), $structure_links['bottom']);
 	}
 	
-	?>
-		<input type="hidden" name="data[BatchSet][id]" value="<?php echo($atim_menu_variables['BatchSet.id']) ?>"/>
-	<?php 
-	$extras = array();
-	if(isset($datamart_structure_id)){
-		$extras = "<input type='hidden' name='data[BatchSet][datamart_structure_id]' value='".$datamart_structure_id."'/>";
-	}
-	$structures->build( $atim_structure_for_process, array('type'=>'add', 'settings'=>array('form_top'=>false, 'header' => __('actions', null)), 'links'=>$structure_links, 'data'=>array(), 'extras' => $extras));
+	$structures->build($atim_structure_for_process, array(
+		'type' =>'add', 
+		'settings'=>array(
+			'form_top'=>false, 
+			'header' => __('actions', null)), 
+			'links'=>$structure_links, 
+			'data'=>array()
+		)
+	);
 		
 ?>
 <div id="popup" class="std_popup question">

@@ -8,39 +8,24 @@ class ShipmentsController extends OrderAppController {
 		'Order.Shipment', 
 		'Order.Order', 
 		'Order.OrderItem', 
-		'Order.OrderLine', 
+		'Order.OrderLine',
 		
 		'Inventorymanagement.AliquotMaster');
 		
 	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
-	function index() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-						
-		$_SESSION['ctrapp_core']['search'] = null; // clear SEARCH criteria
-		
+	function search($search_id = 0){
+		$this->set('atim_menu', $this->Menus->get('/order/orders/search'));
+		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/inventorymanagement/shipments/search');
+
 		$hook_link = $this->hook('format');
 		if($hook_link){
 			require($hook_link); 
 		}
-	}
-	
-	function search() {
-		$this->set('atim_menu', $this->Menus->get('/order/orders/index'));
-
-		$shipments_structure = $this->Structures->get('form', 'shipments');
-		$this->set('atim_structure', $shipments_structure);
-		if ($this->data) $_SESSION['ctrapp_core']['search']['criteria'] = $this->Structures->parseSearchConditions($shipments_structure);
 		
-		$this->data = $this->paginate($this->Shipment, $_SESSION['ctrapp_core']['search']['criteria']);
-		
-		// if SEARCH form data, save number of RESULTS and URL
-		$_SESSION['ctrapp_core']['search']['results'] = $this->params['paging']['Shipment']['count'];
-		$_SESSION['ctrapp_core']['search']['url'] = '/inventorymanagement/shipments/search';
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link); 
+		if(empty($search_id)){
+			//index
+			$this->render('index');
 		}
 	}	
 		
@@ -270,12 +255,12 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['in_stock'] = 'no';
 					$aliquot_master['AliquotMaster']['in_stock_detail'] = 'shipped';
 					$aliquot_master['AliquotMaster']['storage_master_id'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_x'] = null;
-					$aliquot_master['AliquotMaster']['storage_coord_y'] = null;	
+					$aliquot_master['AliquotMaster']['storage_coord_x'] = '';
+					$aliquot_master['AliquotMaster']['storage_coord_y'] = '';
 		
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
-					if(!$this->AliquotMaster->save($aliquot_master, false)) { 
+					if(!$this->AliquotMaster->save($aliquot_master, false)) {
 						$this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 					
@@ -396,6 +381,40 @@ class ShipmentsController extends OrderAppController {
 		} else {
 			$this->flash($arr_allow_deletion['msg'], $url);
 		}
+	}
+	
+	function manageContact(){
+		$this->Structures->set('shipment_recipients');
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+		$this->data = $contacts_model->find('all');
+	}
+	
+	function saveContact(){
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		
+		if(!empty($this->data) && isset($this->data['Shipment'])){
+			$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country"), null);
+			$shipment_data = array_intersect_key($this->data['Shipment'], $shipment_contact_keys);
+			
+			$contacts_model->save($shipment_data);
+			
+			__('your data has been saved');
+			exit;
+		} 
+	}
+	
+	function deleteContact($contact_id){
+		$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
+		$contacts_model->atim_delete($contact_id);
+		exit;
 	}
 }
 

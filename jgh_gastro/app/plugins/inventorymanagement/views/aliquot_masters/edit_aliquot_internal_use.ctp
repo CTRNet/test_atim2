@@ -1,8 +1,8 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/inventorymanagement/aliquot_masters/editAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/',
-		'bottom' => array('cancel' => '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/%%AliquotInternalUse.id%%/'
+		'top' => '/inventorymanagement/aliquot_masters/editAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/'.$aliquot_use_id.'/',
+		'bottom' => array('cancel' => '/inventorymanagement/aliquot_masters/detailAliquotInternalUse/' . $atim_menu_variables['AliquotMaster.id'] . '/'.$aliquot_use_id.'/'
 		)
 	);
 	

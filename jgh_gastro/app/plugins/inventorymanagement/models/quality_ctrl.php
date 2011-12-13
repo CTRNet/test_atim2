@@ -61,8 +61,10 @@ class QualityCtrl extends InventoryManagementAppModel {
 	 * 
 	 * @author N. Luc
 	 * @since 2008-01-31
+	 * @deprecated
 	 */
 	function createCode($qc_id, $storage_data, $qc_data = null, $sample_data = null) {
+		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		$qc_code = 'QC - ' . $qc_id;
 		
 		return $qc_code;

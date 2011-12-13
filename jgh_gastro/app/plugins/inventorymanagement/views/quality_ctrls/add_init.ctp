@@ -9,14 +9,13 @@
 		)
 	);
 
-	
 	$final_atim_structure = $empty_structure;
 	$final_options = array(
 		'type' 	=> 'detail',
 		'links'	=> $links,
 		'data'	=> array(),
 		'settings' => array(
-			'header' => __('used aliquot', true),
+			'header' => __('quality control creation process', true) . ' - ' . __('tested aliquot selection', true),
 			'pagination'	=> false,
 			'form_inputs'	=> false,
 			'actions'		=> false,
@@ -33,7 +32,7 @@
 	echo "<div style='padding: 10px;'>", 
 		$this->Form->radio(
 			'ViewAliquot.aliquot_master_id', 
-			array('' => __('no aliquot', true)),
+			array('' => __('unspecified', true)),
 			array('value' => '')
 	), "</div>";
 	

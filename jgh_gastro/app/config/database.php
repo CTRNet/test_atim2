@@ -84,7 +84,7 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => 'root',
-		'database' => 'atim_new',
+		'database' => 'atim_ld_gastro',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

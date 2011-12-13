@@ -119,12 +119,18 @@ class Structure extends AppModel {
 						);
 						
 						if($validation['on_action']){
-							$rule_array['on'] = $validation['on_action'];
+							if(in_array($validation['on_action'], array('create', 'update'))){
+								$rule_array['on'] = $validation['on_action'];
+							}else if(Configure::read('debug') > 0){
+								AppController::addWarningMsg('Invalid on_action for validation rule with id ['.$validation['id'].']. Current value: ['.$validation['on_action'].']. Expected: [create], [update] or empty.');
+							}
 						}
 						if($validation['language_message']){
 							$rule_array['message'] = __($validation['language_message'], true);
 						}else if($rule_array['rule'] == 'notEmpty'){
 							$rule_array['message'] = __("this field is required", true);
+						}else if($rule_array['rule'] == 'isUnique'){
+							$rule_array['message'] = __("this field must be unique", true);
 						}
 				
 						if(strlen($sf['language_label']) > 0 && isset($rule_array['message'])){
