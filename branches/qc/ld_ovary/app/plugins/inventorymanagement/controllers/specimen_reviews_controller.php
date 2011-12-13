@@ -122,7 +122,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		} else {	
 			// reset array
 			$specimen_review_data['SpecimenReviewMaster'] = $this->data['SpecimenReviewMaster'];
-			$specimen_review_data['SpecimenReviewDetail'] = $this->data['SpecimenReviewDetail'];
+			$specimen_review_data['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->data)? $this->data['SpecimenReviewDetail'] : array();
 			unset($this->data['SpecimenReviewMaster']);
 			unset($this->data['SpecimenReviewDetail']);
 			$aliquot_review_data = $this->data;
@@ -345,7 +345,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		} else {
 			// reset array
 			$specimen_review_data['SpecimenReviewMaster'] = $this->data['SpecimenReviewMaster'];
-			$specimen_review_data['SpecimenReviewDetail'] = $this->data['SpecimenReviewDetail'];
+			$specimen_review_data['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->data)? $this->data['SpecimenReviewDetail'] : array();
 			unset($this->data['SpecimenReviewMaster']);
 			unset($this->data['SpecimenReviewDetail']);
 			$aliquot_review_data = array_values($this->data);//compact the array as some key might be missing
