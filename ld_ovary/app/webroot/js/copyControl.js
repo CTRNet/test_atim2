@@ -72,7 +72,7 @@ function pasteLine(line){
 			var nameArray = $(this).prop("name").split("][");
 			var name = nameArray[nameArray.length - 2] + "][" + nameArray[nameArray.length - 1];
 			if($(this).prop("type") == "checkbox"){
-				name += $(this).val();
+				name += $(this).val(); 
 				if(copyBuffer[name] != undefined){
 					$(this).prop("checked", copyBuffer[name]);
 				}

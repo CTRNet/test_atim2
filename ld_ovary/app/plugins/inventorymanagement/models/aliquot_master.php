@@ -219,7 +219,6 @@ class AliquotMaster extends InventoryManagementAppModel {
 		if($save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
 			return false;
 		}
-		
 		return true;
 	}
 	
@@ -340,7 +339,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 				$aliquot_data['AliquotMaster']['storage_master_id'] = null;
 			}
 
-		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster'])) || (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']))) {
+		} else if ((array_key_exists('storage_coord_x', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_x'])) 
+			|| (array_key_exists('storage_coord_y', $aliquot_data['AliquotMaster']) && !empty($aliquot_data['AliquotMaster']['storage_coord_y'])) 
+		){
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
