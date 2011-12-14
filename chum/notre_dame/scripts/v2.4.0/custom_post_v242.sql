@@ -351,3 +351,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET display_order=28 WHERE id IN(4432, 2495);
 UPDATE structure_formats SET display_order=30 WHERE id IN(2993);
 UPDATE structure_formats SET display_order=27 WHERE id IN(4432);
+
+
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('researchers', 1, 50);
+INSERT INTO structure_value_domains(domain_name, override, category, source) VALUES
+('custom_researchers', 'open', '', "StructurePermissibleValuesCustom::getCustomDropdown('researchers')");
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='custom_researchers')  WHERE model='StudySummary' AND tablename='study_summaries' AND field='qc_nd_researcher' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff');
