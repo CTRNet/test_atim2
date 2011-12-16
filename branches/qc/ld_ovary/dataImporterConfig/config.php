@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/Documents and Settings/u703617/Desktop/ldovary/working_copy_GotliebBankData_revised_by_MarieClaude_20110916.xls";
+	static $xls_file_path	= "C:/Documents and Settings/u703617/Desktop/ldovary/GotliebBankData_submited_by_AmberYasmeen_20111216_and_revised.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -51,6 +51,10 @@ class Config{
 			
 	static $storages = array('next_left' => 1, 'current_id' => null);
 	static $current_participant = array("initial" => null, "collection_label" => null, "collection_date" => null, 'samples' => array());
+
+	static $migration_date	= null;
+	
+	static $end_of_file_detected =false;
 }
 
 //add you start queries here
@@ -70,11 +74,26 @@ Config::$parent_models[] = "Collection";
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/ld_ovary/dataImporterConfig/tablesMapping/collections.php'; 
 
 function addonFunctionStart(){
+	Config::$migration_date	= "'".Date("Y-m-d")."'";
+	
+	echo("<br>//=========== MIGRATION SUMMARY ====================================================<br>");
+	echo("<br>DATE : ".Config::$migration_date."<br>");
+	echo("<br>FILE : ".Config::$xls_file_path."<br>");
+	echo("<br>//==================================================================================<br><br>");
+	
+	echo("<br>//=========== setStaticDataForCollection ====================================================<br>");
 	setStaticDataForCollection();
+	echo("<br>//=========== Launch data import process ====================================================<br>");
 }
 
 function addonFunctionEnd(){
+	echo("<br>//=========== END OF FILE DETECTED ====================================================<br>");
+	if(!Config::$end_of_file_detected) die('END OF FILE NOT DETECTED');
+	echo("<br>//=========== cleanUpCollectionDate ====================================================<br>");
+	cleanUpCollectionDate();
+	echo("<br>//=========== Complete revs table ====================================================<br>");
 	completeInvetoryRevsTable();
+	echo("<br>//=========== End ====================================================<br>");
 }
 
 //=========================================================================================================
@@ -87,8 +106,9 @@ function pr($arr) {
 }
 
 function setStaticDataForCollection() {
-	global $connection;
 	
+	global $connection;
+
 	//-------------------------------------------------------------------
 	// Set sample aliquot controls
 	//-------------------------------------------------------------------
@@ -114,10 +134,10 @@ function setStaticDataForCollection() {
 		}
 	}
 	
-	$query = "select id,sample_type,detail_tablename,sample_type_code from sample_controls where id in ('".implode("','", $all_ids)."')";
+	$query = "select id,sample_type,detail_tablename from sample_controls where id in ('".implode("','", $all_ids)."')";
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'sample_type_code' => $row['sample_type_code'], 'aliquots' => array());
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}	
 	
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
@@ -166,15 +186,14 @@ function setStaticDataForCollection() {
 		$line_counter++;
 		
 		if($line_counter != 1) {	
-			$label = preg_replace(array('/\ $/', '/^\ /'), array('', ''), $new_line[$headers['file value']]);
+			$label = preg_replace(array('/\s\s+/', '/\ $/', '/^\ /'), array(' ', '', ''), $new_line[$headers['file value']]);
+			$label = utf8_encode($label);
 			$sample_type = array_key_exists($headers['sample type'], $new_line)? $new_line[$headers['sample type']] : '';
 			$tissue_source = array_key_exists($headers['Tissue Source Match'], $new_line)? $new_line[$headers['Tissue Source Match']] : '';
 			$tissue_type = array_key_exists($headers['Tissue Type Match'], $new_line)? $new_line[$headers['Tissue Type Match']] : '';
 			$tissue_laterality = array_key_exists($headers['Tissue Laterality Match'], $new_line)? $new_line[$headers['Tissue Laterality Match']] : '';
 			
-			if(!empty($label)) {
-				if(array_key_exists($label, Config::$label_2_sample_description)) echo "<br><FONT COLOR=\"green\" >SAMPLE LABEL MATCHES : Label '$label' is defined twice</FONT>";
-				
+			if(!empty($label)) {				
 				if(empty($sample_type)) {
 					echo "<br><FONT COLOR=\"red\" >SAMPLE LABEL MATCHES : Missing match for label [$label]</FONT>";
 					
@@ -187,6 +206,7 @@ function setStaticDataForCollection() {
 					
 					if(!array_key_exists($sample_type, Config::$sample_aliquot_controls)) die("ERROR: Sample Type $sample_type not supported!\n");
 					
+					$working_array = array();
 					switch($sample_type) {
 						case 'tissue':
 							
@@ -201,7 +221,7 @@ function setStaticDataForCollection() {
 							$lat_value = $lat_domain->isValidValue($tissue_laterality);
 							if($lat_value === null) die ("WARNING: Unmatched laterality value [$tissue_laterality] at line [$line_counter]\n");
 														
-							Config::$label_2_sample_description[$label] = array(
+							$working_array = array(
 								'sample_type' => $sample_type, 
 								'tissue_source' => $tissue_source, 
 								'tissue_type' => $tissue_type, 
@@ -209,27 +229,47 @@ function setStaticDataForCollection() {
 							break;
 							
 						case 'blood cell':
-							Config::$label_2_sample_description[$label] = array(
+							$working_array = array(
 								'sample_type' => $sample_type, 
 								'is_clot' => $is_clot);
 							break;
 							
 						default:
-							Config::$label_2_sample_description[$label] = array('sample_type' => $sample_type);
+							$working_array = array('sample_type' => $sample_type);
+					}
+					
+					
+				
+					if(array_key_exists($label, Config::$label_2_sample_description)) {
+						$dupliacted_array = Config::$label_2_sample_description[$label];
+						if($dupliacted_array !== $working_array) {
+							echo "<br><FONT COLOR=\"green\" >SAMPLE LABEL MATCHES : Label '$label' is defined twice with 2 differents data!</FONT>";
+							pr($dupliacted_array);pr($working_array);
+						}
+					} else {					
+						Config::$label_2_sample_description[$label] = $working_array;
 					}
 				}
 			}
 		}
 	}
+		
 	echo "<br>";
 }
 
+function cleanUpCollectionDate() {
+ 	global $connection;
+ 	$query = "UPDATE collections SET collection_datetime = null WHERE collection_datetime = '0000-00-00 00:00:00'";
+	mysqli_query($connection, $query) or die("collection_datetime clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+}
 function completeInvetoryRevsTable() {
 	global $connection;
-	
+
 	if(Config::$insert_revs){
 		$revs_tables = array(
 			'participants',
+			'misc_identifiers',		
+		
 			'clinical_collection_links',	
 			'collections',	
 
@@ -267,22 +307,27 @@ function completeInvetoryRevsTable() {
 				
 				case 'participants':
 					$query = "INSERT INTO ".$table_name."_revs (id, participant_identifier, qc_ldov_initals, version_created) "
-						."SELECT id, participant_identifier, qc_ldov_initals, NOW() FROM ".$table_name;
+						."SELECT id, participant_identifier, qc_ldov_initals, ".Config::$migration_date." FROM ".$table_name;
 					break;	
-									
+
+				case 'misc_identifiers':
+					$query = "INSERT INTO ".$table_name."_revs (id, identifier_value, participant_id, misc_identifier_control_id, version_created) "
+						."SELECT id, identifier_value, participant_id, misc_identifier_control_id, ".Config::$migration_date." FROM ".$table_name;
+					break;
+		
 				case 'clinical_collection_links':
 					$query = "INSERT INTO ".$table_name."_revs (id, collection_id, participant_id, version_created) "
-						."SELECT id, collection_id, participant_id, NOW() FROM ".$table_name;
+						."SELECT id, collection_id, participant_id, ".Config::$migration_date." FROM ".$table_name;
 					break;		
 					
 				case 'collections':	
-					$query = "INSERT INTO ".$table_name."_revs (id, acquisition_label, bank_id, collection_datetime, collection_property, version_created) "
-						."SELECT id, acquisition_label, bank_id, collection_datetime, collection_property, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, acquisition_label, bank_id, collection_datetime, collection_datetime_accuracy, collection_site, collection_property, collection_notes, version_created) "
+						."SELECT id, acquisition_label, bank_id, collection_datetime, collection_datetime_accuracy, collection_site, collection_property, collection_notes, ".Config::$migration_date." FROM ".$table_name;
 					break;
 		
 				case 'sample_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, version_created) "
-						."SELECT id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, version_created) "
+						."SELECT id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, ".Config::$migration_date." FROM ".$table_name;
 					break;
 				
 				case 'specimen_details':
@@ -307,33 +352,33 @@ function completeInvetoryRevsTable() {
 				case 'sd_der_plasmas':
 				
 					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, version_created) "
-						."SELECT id, sample_master_id, NOW() FROM ".$table_name;
+						."SELECT id, sample_master_id, ".Config::$migration_date." FROM ".$table_name;
 					break;	
 				
 					
 				case 'sd_spe_tissues':
 				
 					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, tissue_nature, tissue_source, tissue_laterality, version_created) "
-						."SELECT id, sample_master_id, tissue_nature, tissue_source, tissue_laterality, NOW() FROM ".$table_name;
+						."SELECT id, sample_master_id, tissue_nature, tissue_source, tissue_laterality, ".Config::$migration_date." FROM ".$table_name;
 					break;	
 
 				case 'aliquot_masters':		
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, aliquot_type, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, aliquot_volume_unit, version_created) "
-						."SELECT id, sample_master_id, aliquot_type, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, aliquot_volume_unit, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, version_created) "
+						."SELECT id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, ".Config::$migration_date." FROM ".$table_name;
 					break;	
 		
 				case 'ad_tubes':
-					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, version_created) "
-						."SELECT id, aliquot_master_id, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, hemolysis_signs, version_created) "
+						."SELECT id, aliquot_master_id, hemolysis_signs, ".Config::$migration_date." FROM ".$table_name;
 					break;	
 			
 				case 'storage_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, code, storage_type, storage_control_id, set_temperature, rght, lft, selection_label, short_label, version_created) "
-						."SELECT id, code, storage_type, storage_control_id, set_temperature, rght, lft, selection_label, short_label, NOW() FROM ".$table_name;
+					$query = "INSERT INTO ".$table_name."_revs (id, code, storage_control_id, rght, lft, selection_label, short_label, version_created) "
+						."SELECT id, code, storage_control_id, rght, lft, selection_label, short_label, ".Config::$migration_date." FROM ".$table_name;
 					break;					
 				case 'std_boxs':	
 					$query = "INSERT INTO ".$table_name."_revs (id, storage_master_id, version_created) "
-						."SELECT id, storage_master_id, NOW() FROM ".$table_name;
+						."SELECT id, storage_master_id, ".Config::$migration_date." FROM ".$table_name;
 					break;				
 				
 				default:

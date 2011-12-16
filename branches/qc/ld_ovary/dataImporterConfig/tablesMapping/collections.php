@@ -75,16 +75,21 @@ function postLineRead(Model $m){
 		
 		$new_collection_label = '';
 		if(!empty($new_patient)) {
-			$new_patient = str_replace(' ','', strtoupper($new_patient));			
-			preg_match('/^([A-Z\-]{1,6}[0-9]{2,6})$/', $new_patient, $matches);
-			if(isset($matches[1])) {
-				$new_collection_label = $matches[1];
+			if($new_patient == 'TJ0502030') {
+				//Specific case
+				$new_collection_label = 'TJ0502??';
 			} else {
-				preg_match('/^([A-Z\-]{1,6})$/', $new_patient, $matches);
+				$new_patient = str_replace(' ','', strtoupper($new_patient));			
+				preg_match('/^([A-Z\-]{1,6}[0-9]{2,6})$/', $new_patient, $matches);
 				if(isset($matches[1])) {
-				 $new_collection_label = $matches[1].'??????';	
+					$new_collection_label = $matches[1];
 				} else {
-					echo "<br>GET COLLECTION LABEL: The following patient id [$new_patient] has not been considered as a new patient  (Line ".__LINE__.")<br>";		
+					preg_match('/^([A-Z\-]{1,6})$/', $new_patient, $matches);
+					if(isset($matches[1])) {
+					 $new_collection_label = $matches[1].'??????';	
+					} else {
+						echo "<br>GET COLLECTION LABEL: The following patient id [$new_patient] has not been considered as a new patient  (Line ".__LINE__.")<br>";		
+					}
 				}
 			}
 		}
@@ -97,7 +102,7 @@ function postLineRead(Model $m){
 			
 			// Reset data
 			
-			preg_match('/^([A-Z\-]{1,6})([0-9]{2,6}|\?{6})$/', $new_collection_label, $matches);
+			preg_match('/^([A-Z\-]{1,6})([0-9]{2,6}|\?{6}|[0-9]{4}\?\?)$/', $new_collection_label, $matches);
 			if(!isset($matches[1]) || !isset($matches[2])) die("ERR 993773");
 						
 			Config::$current_participant['initial'] = $matches[1];
@@ -110,7 +115,7 @@ function postLineRead(Model $m){
 
 			//Validate date
 			$collection_date = '';
-			if($matches[2] != '??????') {
+			if(($matches[2] != '??????') && ($matches[2] != '0502??')) {
 				$collection_date = $matches[2];
 				if(strlen($collection_date) == 6) {
 					$fomatted_collection_date = substr($collection_date, 0, 2).'-'.substr($collection_date, 2, 2).'-'.substr($collection_date, 4, 2);
@@ -157,7 +162,8 @@ function postLineRead(Model $m){
 
 	} else if($new_patient == 'END OF FILE') {
 		// Record previous participant data
-		recordParticipantAndCollection($m);		
+		recordParticipantAndCollection($m);	
+		Config::$end_of_file_detected = true;	
 	} else {
 		die("<br><FONT COLOR=\"red\" >Sample Label Is Missing (Line ".$m->line.")!</FONT><br>");
 	}
@@ -167,13 +173,13 @@ function postLineRead(Model $m){
 
 function buildParticipantCollection(Model $m, $sample_label, $aliquot_notes){
 	$formatted_sample_label = '';
-	if($sample_label == 'cervical tu (-20c overnight in o.r)')  {
+	if($sample_label == 'cervical tu (-20C overnight in O.R)')  {	 
 		$formatted_sample_label = 'cervical tu';
-		$sample_label = 'cervical tu (-20˚c overnight in o.r)';
+		$sample_label = 'cervical tu (-20˚c overnight in O.R)';
 	} else {
 		$formatted_sample_label = strtolower(preg_replace(array('/\s\s+/','/\ $/', '/^\ /', '/\ [0-9A-Ea-e]$/', '/\ [12][0-9]$/', '/[0-9]$/'), array(' ', '', '', '', '', ''), $sample_label));
 	}
-			
+	
 	if(!array_key_exists($formatted_sample_label, Config::$label_2_sample_description)) {
 		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label]($formatted_sample_label) is not defined into the Match Table Worksheet (Line ".$m->line.")! Sample won't be created!</FONT><br>";
 	} else {
@@ -367,10 +373,17 @@ function recordParticipantAndCollection(Model $m) {
 		"collection_property" => "'participant collection'",
 		"collection_notes" => "'".Config::$current_participant['collection_notes']."'"
 	);
-if(empty($insert['collection_datetime'])) {
-	unset($insert['collection_datetime']);
-	unset($insert['collection_datetime_accuracy']);
-}	
+	
+	if(empty($insert['collection_datetime'])) {
+		unset($insert['collection_datetime']);
+		unset($insert['collection_datetime_accuracy']);
+	}	
+	
+	if("'TJ0502??'" == $insert['acquisition_label']) {
+		$insert['collection_datetime'] = "'2005-02-01 00:00:00'";
+		$insert['collection_datetime_accuracy'] = "'d'";
+	}
+	
 	$insert = array_merge($insert, $created);
 	$query = "INSERT INTO collections (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 	mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
