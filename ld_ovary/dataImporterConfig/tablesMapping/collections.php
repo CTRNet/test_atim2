@@ -19,17 +19,22 @@ function postLineRead(Model $m){
 	global $connection;
 	
 	$created = array(
-		"created"		=> "NOW()", 
+		"created"		=> Config::$migration_date, 
 		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
+		"modified"		=> Config::$migration_date,
 		"modified_by"	=> Config::$db_created_id
 		);
 	
 	$id = $m->values['id'];
 	$new_box = array_key_exists('location', $m->values)? $m->values['location'] : null;
 	$new_patient = array_key_exists('patient ID', $m->values)? $m->values['patient ID'] : null;
-	$sample_label = array_key_exists('samples', $m->values)? $m->values['samples'] : null;
+	$sample_label = array_key_exists('samples', $m->values)? utf8_encode($m->values['samples']) : null;
 	
+	$collection_notes = array_key_exists('collection notes', $m->values)? str_replace("'", "''", utf8_encode($m->values['collection notes'])) : null;	
+	$aliquot_notes = array_key_exists('aliquot notes', $m->values)? str_replace("'", "''", utf8_encode($m->values['aliquot notes'])) : null;	
+	$collection_site = array_key_exists('source', $m->values)? (($m->values['source'] == 'clinic')? 'clinic': 'surgery room') : null;	
+	$u_number = array_key_exists('U Number', $m->values)? strtoupper(str_replace('-', '', $m->values['U Number'])) : null;
+
 	if(!empty($sample_label)) {
 	
 		// ** 1 ** Manage Box
@@ -43,19 +48,17 @@ function postLineRead(Model $m){
 			
 			$insert = array(
 				"code" => "'-1'",
-				"storage_type"			=> "'box'",
 				"storage_control_id"	=> "8",
 				"short_label"			=> "'".$new_box_formated."'",
 				"selection_label"		=> "'".$new_box_formated."'",
 				"lft"		=> "'".(Config::$storages['next_left'])."'",
-				"rght"		=> "'".(Config::$storages['next_left'] + 1)."'",
-				"set_temperature"	=> "'FALSE'"
+				"rght"		=> "'".(Config::$storages['next_left'] + 1)."'"
 			);
 			$insert = array_merge($insert, $created);
 			$query = "INSERT INTO storage_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			mysqli_query($connection, $query) or die("STORAGE INSERT [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			$storage_master_id = mysqli_insert_id($connection);
-			$query = "UPDATE storage_masters SET code=CONCAT('B - ', id) WHERE id=".$storage_master_id;
+			$query = "UPDATE storage_masters SET code=id WHERE id=".$storage_master_id;
 			mysqli_query($connection, $query) or die("STORAGE INSERT [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			$insert = array(
@@ -73,14 +76,19 @@ function postLineRead(Model $m){
 		$new_collection_label = '';
 		if(!empty($new_patient)) {
 			$new_patient = str_replace(' ','', strtoupper($new_patient));			
-			preg_match('/^([A-Z\-]{2,6}[0-9]{2,6})/', $new_patient, $matches);
+			preg_match('/^([A-Z\-]{1,6}[0-9]{2,6})$/', $new_patient, $matches);
 			if(isset($matches[1])) {
 				$new_collection_label = $matches[1];
 			} else {
-				echo "<br>GET COLLECTION LABEL: The following patient id [$new_patient] has not been considered as a new patient  (Line ".__LINE__.")<br>";		
+				preg_match('/^([A-Z\-]{1,6})$/', $new_patient, $matches);
+				if(isset($matches[1])) {
+				 $new_collection_label = $matches[1].'??????';	
+				} else {
+					echo "<br>GET COLLECTION LABEL: The following patient id [$new_patient] has not been considered as a new patient  (Line ".__LINE__.")<br>";		
+				}
 			}
 		}
-
+		
 		if(!empty($new_collection_label)) {
 			if(!is_null(Config::$current_participant['collection_label'])) {
 				// Record previous participant data
@@ -89,86 +97,116 @@ function postLineRead(Model $m){
 			
 			// Reset data
 			
-			preg_match('/^([A-Z\-]{2,6})([0-9]{2,6})$/', $new_collection_label, $matches);
+			preg_match('/^([A-Z\-]{1,6})([0-9]{2,6}|\?{6})$/', $new_collection_label, $matches);
 			if(!isset($matches[1]) || !isset($matches[2])) die("ERR 993773");
-			
+						
 			Config::$current_participant['initial'] = $matches[1];
+			Config::$current_participant['u_number'] = $u_number;
 			Config::$current_participant['collection_label'] = $new_collection_label;
-			Config::$current_participant['collection_date'] = null;
+			Config::$current_participant['collection_date'] = '';
+			Config::$current_participant['collection_site'] = $collection_site;
+			Config::$current_participant['collection_notes'] = $collection_notes;
 			Config::$current_participant['samples'] = array();
 
 			//Validate date
-			$collection_date = $matches[2];
-			if(strlen($collection_date) == 6) {
-				$fomatted_collection_date = substr($collection_date, 0, 2).'-'.substr($collection_date, 2, 2).'-'.substr($collection_date, 4, 2);
-				if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
-					echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
+			$collection_date = '';
+			if($matches[2] != '??????') {
+				$collection_date = $matches[2];
+				if(strlen($collection_date) == 6) {
+					$fomatted_collection_date = substr($collection_date, 0, 2).'-'.substr($collection_date, 2, 2).'-'.substr($collection_date, 4, 2);
+					if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
+						echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
+					} else {
+						Config::$current_participant['collection_date'] = $fomatted_collection_date;
+					}
+				} else if(strlen($collection_date) == 5) {
+					$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-'.substr($collection_date, 1, 2).'-'.substr($collection_date, 3, 2);
+					if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
+						echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
+					} else {
+						Config::$current_participant['collection_date'] = $fomatted_collection_date;
+					}
+				} else if(strlen($collection_date) == 4) {
+					$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-0'.substr($collection_date, 1, 1).'-'.substr($collection_date, 2, 2);
+					if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
+						echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
+					} else {
+						Config::$current_participant['collection_date'] = $fomatted_collection_date;
+					}
+				} else if(strlen($collection_date) == 3) {
+					$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-0'.substr($collection_date, 1, 1).'-0'.substr($collection_date, 2, 1);
+					if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
+						echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
+					} else {
+						Config::$current_participant['collection_date'] = $fomatted_collection_date;
+					}
 				} else {
-					Config::$current_participant['collection_date'] = $fomatted_collection_date;
-				}
-			} else if(strlen($collection_date) == 5) {
-				$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-'.substr($collection_date, 1, 2).'-'.substr($collection_date, 3, 2);
-				if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
 					echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
-				} else {
-					Config::$current_participant['collection_date'] = $fomatted_collection_date;
 				}
-			} else if(strlen($collection_date) == 4) {
-				$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-0'.substr($collection_date, 1, 1).'-'.substr($collection_date, 2, 2);
-				if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
-					echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
-				} else {
-					Config::$current_participant['collection_date'] = $fomatted_collection_date;
+				if(!empty(Config::$current_participant['collection_date'])) {
+					Config::$current_participant['collection_date'] = (preg_match('/^([0-1][0-9]\-)/', Config::$current_participant['collection_date']))? ('20'. Config::$current_participant['collection_date']) : ('19'. Config::$current_participant['collection_date']);	
 				}
-			} else if(strlen($collection_date) == 3) {
-				$fomatted_collection_date = '0'.substr($collection_date, 0, 1).'-0'.substr($collection_date, 1, 1).'-0'.substr($collection_date, 2, 1);
-				if(DateTime::createFromFormat('y-m-d', $fomatted_collection_date) === FALSE) {
-					echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
-				} else {
-					Config::$current_participant['collection_date'] = $fomatted_collection_date;
-				}
-			} else {
-				echo "<br>GET COLLECTION DATE: Wrong collection date [$collection_date] (Line ".$m->line.")<br>";
 			}
+		} else if(!empty($u_number)) {
+			echo "<br><FONT COLOR=\"red\" >U Number alone!(Line ".$m->line.")!</FONT><br>";
 		}
 		
 		// ** 3 ** Manage samples
 		
-		buildParticipantCollection($m, $sample_label);
+		buildParticipantCollection($m, $sample_label, $aliquot_notes);
 
+	} else if($new_patient == 'END OF FILE') {
+		// Record previous participant data
+		recordParticipantAndCollection($m);		
+	} else {
+		die("<br><FONT COLOR=\"red\" >Sample Label Is Missing (Line ".$m->line.")!</FONT><br>");
 	}
 	
 	return false;
 }
 
-function buildParticipantCollection(Model $m, $sample_label){
+function buildParticipantCollection(Model $m, $sample_label, $aliquot_notes){
 	$formatted_sample_label = '';
-	if($sample_label == utf8_decode('cervical tu (-20˚c overnight in o.r)'))  {
-		exit;
+	if($sample_label == 'cervical tu (-20c overnight in o.r)')  {
 		$formatted_sample_label = 'cervical tu';
 		$sample_label = 'cervical tu (-20˚c overnight in o.r)';
 	} else {
-		$formatted_sample_label = strtolower(preg_replace(array('/\ $/', '/^\ /', '/\ [0-9A-Ea-e]$/', '/\ [12][0-9]$/', '/[0-9]$/'), array('', '', '', '', ''), $sample_label));
+		$formatted_sample_label = strtolower(preg_replace(array('/\s\s+/','/\ $/', '/^\ /', '/\ [0-9A-Ea-e]$/', '/\ [12][0-9]$/', '/[0-9]$/'), array(' ', '', '', '', '', ''), $sample_label));
 	}
 			
 	if(!array_key_exists($formatted_sample_label, Config::$label_2_sample_description)) {
-		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label]($formatted_sample_label) is not defined into the Match Table Worksheet (Line ".$m->line.")</FONT><br>";
+		echo "<br><FONT COLOR=\"red\" >FUNCTION buildParticipantCollection : The label [$sample_label]($formatted_sample_label) is not defined into the Match Table Worksheet (Line ".$m->line.")! Sample won't be created!</FONT><br>";
 	} else {
 		// Set sample and aliquot information
 		$sample_and_aliquot_data = Config::$label_2_sample_description[$formatted_sample_label];
+		$sample_type = $sample_and_aliquot_data['sample_type'];
+		
+		$hemolysis_signs = false;
+		if(preg_match('/hemolysis/', $aliquot_notes)) {
+			$aliquot_notes = '';
+			if($sample_type != 'plasma') {
+				echo "<br><FONT COLOR=\"red\" >hemolysis issue (Line ".$m->line.")!</FONT><br>";
+			} else {
+				$hemolysis_signs = true;
+			}
+		}
 		
 		$aliquot_data = array(
-			'type' => (array_key_exists('is_clot', $sample_and_aliquot_data) && $sample_and_aliquot_data['is_clot'])? 'clot tube' : 'tube', 
-			'aliquot_label' => Config::$current_participant['collection_label'].' '.$sample_label, 
-			'storage_master_id' => Config::$storages['current_id']);
-		
-		$sample_type = $sample_and_aliquot_data['sample_type'];
+			'Master' => array(
+				'type' => (array_key_exists('is_clot', $sample_and_aliquot_data) && $sample_and_aliquot_data['is_clot'])? 'clot tube' : 'tube', 
+				'aliquot_label' => Config::$current_participant['collection_label'].' '.$sample_label, 
+				'storage_master_id' => Config::$storages['current_id'],
+				'notes' => $aliquot_notes),
+			'Detail' => $hemolysis_signs? array('hemolysis_signs' => "'y'") : array());
+
 		switch($sample_type) {
 			
 			// TISSUE
 			
 			case 'tissue':
 				$tissue_key = 'tissue ['.$sample_and_aliquot_data['tissue_source'].'/'.$sample_and_aliquot_data['tissue_type'].'/'.$sample_and_aliquot_data['tissue_laterality'].']';
+				if($formatted_sample_label == '2nd ovary') $tissue_key .= ' 2nd';
+				
 				if(!isset(Config::$current_participant['samples'][$tissue_key])) {
 					Config::$current_participant['samples'][$tissue_key] = array(
 						'type' => 'tissue', 
@@ -287,14 +325,14 @@ function recordParticipantAndCollection(Model $m) {
 
 	global $connection;
 	$created = array(
-		"created"		=> "NOW()", 
+		"created"		=> Config::$migration_date, 
 		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
+		"modified"		=> Config::$migration_date,
 		"modified_by"	=> Config::$db_created_id
 		);
 
 	// Create participant
-	
+		
 	$insert = array(
 		"participant_identifier" => "'-1'",
 		"qc_ldov_initals"	=> "'".Config::$current_participant['initial']."'"
@@ -306,14 +344,33 @@ function recordParticipantAndCollection(Model $m) {
 	$query = "UPDATE participants SET participant_identifier=CONCAT(qc_ldov_initals, ' (', id, ')') WHERE id=".$participant_id;
 	mysqli_query($connection, $query) or die("participant insert [".$m->line."] qry failed [".$query."] ".mysqli_error($connection));
 	
+	// Create U Number
+	if(!empty(Config::$current_participant['u_number'])) {
+		$insert = array(
+			"identifier_value" => "'".Config::$current_participant['u_number']."'",
+			"participant_id" => $participant_id, 
+			"misc_identifier_control_id" => "2"
+		);
+		$insert = array_merge($insert, $created);
+		$query = "INSERT INTO misc_identifiers (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
+		mysqli_query($connection, $query) or die("misc identfier insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	}	
+	
 	// Create collection
-
+	
 	$insert = array(
 		"acquisition_label" => "'".Config::$current_participant['collection_label']."'",
 		"bank_id" => "1", 
-		"collection_datetime" => "'".Config::$current_participant['collection_date']."'",
-		"collection_property" => "'participant collection'"
+		"collection_datetime" => empty(Config::$current_participant['collection_date'])? "''" : "'".Config::$current_participant['collection_date']." 00:00:00'",
+		"collection_datetime_accuracy" => empty(Config::$current_participant['collection_date'])? "''" : "'h'",
+		"collection_site" => "'".Config::$current_participant['collection_site']."'",
+		"collection_property" => "'participant collection'",
+		"collection_notes" => "'".Config::$current_participant['collection_notes']."'"
 	);
+if(empty($insert['collection_datetime'])) {
+	unset($insert['collection_datetime']);
+	unset($insert['collection_datetime_accuracy']);
+}	
 	$insert = array_merge($insert, $created);
 	$query = "INSERT INTO collections (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 	mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
@@ -339,8 +396,8 @@ function recordParticipantAndCollection(Model $m) {
 		// Create Specimen
 		
 		$insert = array(
-			"sample_type"					=> "'".$sample_type."'",  
-			"sample_category"				=> "'specimen'", 
+//			"sample_type"					=> "'".$sample_type."'",  
+//			"sample_category"				=> "'specimen'", 
 			"collection_id"					=> "'".$collection_id."'", 
 			"sample_control_id"				=> $sample_control_data['sample_control_id'], 
 			"sample_code" 					=> "'tmp'", 
@@ -352,7 +409,7 @@ function recordParticipantAndCollection(Model $m) {
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$sample_master_id = mysqli_insert_id($connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('". $sample_control_data['sample_type_code']." - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		$insert = array(
@@ -394,9 +451,9 @@ function recordParticipantAndCollection(Model $m) {
 function createDerivative($participant_id, $collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id,  $parent_sample_type,  $derivative_data) {
 	global $connection;
 	$created = array(
-		"created"		=> "NOW()", 
+		"created"		=> Config::$migration_date, 
 		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
+		"modified"		=> Config::$migration_date,
 		"modified_by"	=> Config::$db_created_id
 		);
 	
@@ -412,8 +469,8 @@ function createDerivative($participant_id, $collection_id, $initial_specimen_sam
 		// Create Derivative
 		
 		$insert = array(
-			"sample_type"					=> "'".$sample_type."'",  
-			"sample_category"				=> "'derivative'", 
+//			"sample_type"					=> "'".$sample_type."'",  
+//			"sample_category"				=> "'derivative'", 
 			"collection_id"					=> "'".$collection_id."'", 
 			"sample_control_id"				=> $sample_control_data['sample_control_id'], 
 			"sample_code" 					=> "'tmp'", 
@@ -426,7 +483,7 @@ function createDerivative($participant_id, $collection_id, $initial_specimen_sam
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$sample_master_id = mysqli_insert_id($connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('". $sample_control_data['sample_type_code']." - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("collection insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
 		$insert = array(
@@ -453,28 +510,34 @@ function createDerivative($participant_id, $collection_id, $initial_specimen_sam
 function createAliquot($participant_id, $collection_id, $sample_master_id, $sample_type, $aliquot_data) {
 	global $connection;
 	$created = array(
-		"created"		=> "NOW()", 
+		"created"		=> Config::$migration_date, 
 		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
+		"modified"		=> Config::$migration_date,
 		"modified_by"	=> Config::$db_created_id
 		);
 	
 	if(empty($aliquot_data)) return;
 	
-	foreach($aliquot_data as $new_aliquot) {
-		$aliquot_type = $new_aliquot['type'];
+	foreach($aliquot_data as $new_aliquot_master_and_details) {
+		
+		// MASTER
+		
+		$new_aliquot_master = $new_aliquot_master_and_details['Master'];
+	
+		$aliquot_type = $new_aliquot_master['type'];
 		if(empty(Config::$sample_aliquot_controls[$sample_type]['aliquots']) || !array_key_exists($aliquot_type, Config::$sample_aliquot_controls[$sample_type]['aliquots'])) echo("ERR: 56784 - [".$sample_type.'-'.$aliquot_type.']');
 		$aliquot_control_data =  Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type];
-		
+				
 		$master_insert = array(
-			"aliquot_type" => "'".$aliquot_type."'",
+//			"aliquot_type" => "'".$aliquot_type."'",
 			"aliquot_control_id" => $aliquot_control_data['aliquot_control_id'],
 			"in_stock" => "'yes - available'",
 			"collection_id" => $collection_id,
 			"sample_master_id" => $sample_master_id,
-			"aliquot_label" => "'".$new_aliquot['aliquot_label']."'",
-			"aliquot_volume_unit" => "'".$aliquot_control_data['volume_unit']."'",
-			"storage_master_id" => $new_aliquot['storage_master_id']
+			"aliquot_label" => "'".$new_aliquot_master['aliquot_label']."'",
+//			"aliquot_volume_unit" => "'".$aliquot_control_data['volume_unit']."'",
+			"storage_master_id" => $new_aliquot_master['storage_master_id'],
+			"notes" => "'".$new_aliquot_master['notes']."'"
 		);
 		
 		$master_insert = array_merge($master_insert, $created);
@@ -484,9 +547,10 @@ function createAliquot($participant_id, $collection_id, $sample_master_id, $samp
 		$query = "UPDATE aliquot_masters SET barcode= '".$aliquot_master_id."' WHERE id=".$aliquot_master_id;
 		mysqli_query($connection, $query) or die("createAliquot [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		
-		$detail_insert = array(
-			'aliquot_master_id' => $aliquot_master_id
-		);
+		// DETAIL
+		
+		$detail_insert = $new_aliquot_master_and_details['Detail'];
+		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
 		
 		$query = "INSERT INTO ".$aliquot_control_data['detail_tablename']." (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
