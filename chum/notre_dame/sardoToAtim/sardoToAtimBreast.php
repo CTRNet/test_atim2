@@ -150,7 +150,15 @@ while($line = next($cells)){
 			'tnm_g'						=> $line[SardoToAtim::$columns['TNM G']]
 		)
 	);
-	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	if(array_key_exists($line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes)){
+		if(SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] != SardoToAtim::$columns['Morphologie']){
+			SardoToAtim::$commit = false;
+			printf("ERROR: Different definitions found for morpho code [%s] [%s] [%s]\n", $line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]], SardoToAtim::$columns['Morphologie']);
+		}
+	}else{
+		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = SardoToAtim::$columns['Morphologie']; 
+	}
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
@@ -164,7 +172,7 @@ while($line = next($cells)){
 				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
 			)
 		);
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $biopsy, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
@@ -180,7 +188,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery, $line_number);
+		SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number);
 	}
 	
 	$insert_patho = false;
@@ -219,7 +227,7 @@ while($line = next($cells)){
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_pathologies', $patho, $line_number, 'participant_id', array('master' => array('event_control_id', 'diagnosis_master_id')));
+		SardoToAtim::update(Models::EVENT_MASTER, $patho, $line_number, 'participant_id', array('master' => array('event_control_id', 'diagnosis_master_id')));
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO néo-adjuvante Tx00']]){
@@ -234,7 +242,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO adjuvante Tx00']]){
@@ -249,7 +257,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
 	}
 
 	if($line[SardoToAtim::$columns['HORM néo-adjuvante Tx00']]){
@@ -264,7 +272,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
 	}
 
 	if($line[SardoToAtim::$columns['HORM adjuvante Tx00']]){
@@ -279,7 +287,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
 	}
 
 	if($line[SardoToAtim::$columns['RADIO néo-adjuvante Tx00']]){
@@ -294,7 +302,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_radiations', $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
 	}
 	
 	if($line[SardoToAtim::$columns['RADIO adjuvante Tx00']]){
@@ -309,7 +317,7 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_radiations', $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
 	}
 	
 	foreach(range(1, 3) as $progression_count){
@@ -327,8 +335,21 @@ while($line = next($cells)){
 					'qc_nd_sites'			=> $line[SardoToAtim::$columns[$site_key]]
 				)
 			);
-			SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'dxd_progressions', $progression, $line_number);
+			SardoToAtim::update(Models::DIAGNOSIS_MASTER, $progression, $line_number);
 		}
+	}
+	
+	$converted_menopause = sardoToAtim::convertMenopause($line[SardoToAtim::$columns['Ménopause']]);
+	if($converted_menopause['status']){
+		$menopause = array(
+			'master' => array(
+				'participant_id'			=> $line['participant_id'],
+				'menopause_status'			=> $converted_menopause['status'],
+				'qc_nd_cause'				=> $converted_menopause['cause'],
+				'qc_nd_gravida_para_aborta' => $converted_menopause['Gravida Para Aborta']
+			)
+		);
+		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause, $line_number);
 	}
 }
 
