@@ -104,11 +104,11 @@ INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `f
 UPDATE structure_formats 
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_primary')
-AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('morphology', 'dx_method', 'information_source', 'topography'));
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('topography', 'dx_method', 'information_source', 'icd10_code'));
 
-UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'who code'
+UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'who code', `language_heading` = 'coding'
 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_primary')
-AND structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' AND field = 'icd10_code');
+AND structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' AND field = 'morphology');
 
 CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1940,6 +1940,17 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUES ('gross image','Gross Image');
 
+ALTER TABLE ovcare_spr_tissue_gross_images
+	ADD COLUMN file_name VARCHAR(250) DEFAULT '' AFTER specimen_review_master_id;
+ALTER TABLE ovcare_spr_tissue_gross_images_revs
+	ADD COLUMN file_name VARCHAR(250) DEFAULT '' AFTER specimen_review_master_id;
+	 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SpecimenReviewDetail', 'ovcare_spr_tissue_gross_images', 'file_name', 'input',  NULL , '0', '', '', '', 'file name', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_gross_images' AND `field`='file_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='file name' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO i18n (id,en) VALUES ('a file with the same file name [%%file_name%%] has already be downloaded','A file with the same file name [%%file_name%%] has already be downloaded!'),('file name','File Name');
 
 -- -------------------------------------------------------------------------------- 
 -- TOOLS
