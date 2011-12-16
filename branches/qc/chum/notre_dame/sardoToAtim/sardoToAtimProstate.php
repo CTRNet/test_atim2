@@ -111,6 +111,36 @@ SardoToAtim::$date_columns = array(
 	'Date du décès'
 );
 
+$tx_mapping = array(
+	"Biopsie excisionnelle d'un ganglion"	 		=> array('type' => Models::EVENT_MASTER, 'ctrl_id' => 28),
+	"Hémicolectomie droite"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Laparotomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Néphrectomie radicale"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Néphro-urétérectomie"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Pancréatectomie corporéo-caudale"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Polypectomie du rectum"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Prostatectomie radicale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Résection transurétrale de la prostate (TURP)"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Résection transurétrale de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
+	"Bicalutamide"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
+	"Hormonothérapie SAI"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
+	"Leuprolide"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
+	"Radiothérapie du cerveau"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 2),
+	"Radiothérapie du thorax/poumon"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 3),
+	"Implant d'iode 125"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 4),
+	"Radiothérapie pelvienne externe"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 5),
+	"Protocole 5-FU perfusion + RT pré-opératoire"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 6),
+	"Protocole R-CHOP"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 7),
+	"Protocole Taxol + Cisplatin + 5-FU"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 8),
+	"Observation"									=> array('type' => Models::EVENT_MASTER, 'ctrl_id' => 32),
+	"Etude PCS III BRAS 3" 							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 1)
+);
+
+$tx_detail_precision = array(
+	4	=> 'qc_nd_precision',
+	5	=> 'type'
+);
+
 
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
@@ -145,7 +175,7 @@ while($line = next($cells)){
 		), 'detail' => array(
 		)
 	);
-	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
@@ -161,7 +191,7 @@ while($line = next($cells)){
 				'location'				=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00 - lieu']],
 			)
 		);
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $biopsy, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
@@ -179,21 +209,149 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery, $line_number);
+		SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number);
 	}
 	
 	for($i = 1; $i <= 6; ++ $i){
-		//TODO: Classer les traitements
 		$key_name = sprintf('TX %d Tx00', $i);
 		if($line[SardoToATim::$columns[$key_name]]){
-			$tx = array(
-				'master' => array(
-					'start_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
-					'start_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - début_accuracy']],
-					'finish_date'			=> $line[SardoToAtim::$columns[$key_name.' - fin']],
-					'finish_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - fin_accuracy']]
-				), 'detail' => array(
+			if(!array_key_exists($line[SardoToATim::$columns[$key_name]], $tx_mapping)){
+				sardoToAtim::$commit = false;
+				printf("ERROR: Unknown treatment [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
+				continue;
+			}
+			$tx_map = $tx_mapping[$line[SardoToATim::$columns[$key_name]]];
+			if($tm_map['type'] == Models::EVENT_MASTER){
+				$event = array(
+					'master' => array(
+						'participant_id'		=> $line['participant_id'],
+						'event_control_id'		=> $tx_map['ctrl_id'],
+						'event_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
+						'event_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - début_accuracy']],
+						'diagnosis_master_id'	=> $dx_id
+					), 'detail' => array(
+						'type'					=> $line[SardoToATim::$columns[$key_name]]
+					)
+				);
+				if($line[SardoToAtim::$columns[$key_name.' - fin']]){
+					printf("WARNING: DB Event has no end date for event [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
+				}
+				SardoToAtim::update(Models::EVENT_MASTER, $surgery, $line_number);
 				
+			}else if($tm_map['type'] == Models::TREATMENT_MASTER){
+				$tx = array(
+					'master' => array(
+						'participant_id'		=> $line['participant_id'],
+						'treatment_control_id'	=> $tx_map['ctrl_id'],
+						'start_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
+						'start_date_accuracy'	=> $line[$key_name.' - début_accuracy'],
+						'finish_date'			=> $line[SardoToAtim::$columns[$key_name.' - fin']],
+						'finish_date_accuracy'	=> $line[$key_name.' - fin_accuracy'],
+						'diagnosis_master_id'	=> $dx_id
+					), 'detail' => array(
+						
+					)
+				);
+				if(array_key_exists($tx_map['ctrl_id'], $tx_detail_precision)){
+					$tx['detail'][$tx_detail_precision[$tx_map['ctrl_id']]] = $line[SardoToATim::$columns[$key_name]];
+				}else if(array_key_exists('protocol', $tx_map)){
+					$tx['master']['protocol_master_id'] = $tx_map['protocol'];
+				}else{
+					SardoToAtim::$commit = false;
+					printf('ERROR: Treatment [%s] without protocol or type at line [%d]', $line[SardoToATim::$columns[$key_name]], key($cells));
+				}
+				SardoToAtim::update(Models::TREATMENT_MASTER, $tx, $line_number);
+				
+			}else{
+				sardoToAtim::$commit = false;
+				printf("ERROR: Unhandled treatment [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
+				continue;
+			}
+		}
+	}
+	
+	if($line[SardoToATim::$columns['Toute CHIR Tx00 + patho']]){
+		$patho = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 33,
+				'event_summary'			=> $line[SardoToAtim::$columns['Toute CHIR Tx00 + patho']],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'atypie_cellulaire'				=> $line[SardoToAtim::$columns['Atypie cellulaire']],
+				'atypie_cellulaire_blocs'		=> $line[SardoToAtim::$columns['Atypie cellulaire - blocs']],
+				'cancer'						=> $line[SardoToAtim::$columns['Cancer']],
+				'cancer_prop'					=> $line[SardoToAtim::$columns['Cancer - prop']],
+				'cancer_blocs'					=> $line[SardoToAtim::$columns['Cancer - blocs']],
+				'ganglions_regionaux'			=> $line[SardoToAtim::$columns['Ganglions régionaux']],
+				'ganglions_regionaux_prop'		=> $line[SardoToAtim::$columns['Ganglions régionaux - prop']],
+				'gleason_num'					=> $line[SardoToAtim::$columns['Gleason - num']],
+				'gleason'						=> $line[SardoToAtim::$columns['Gleason']],
+				'grade_histologique_sur_3'		=> $line[SardoToAtim::$columns['Grade histologique sur 3']],
+				'hyperplasie_bph'				=> $line[SardoToAtim::$columns['Hyperplasie (BPH)']],
+				'hyperplasie_bph_blocs'			=> $line[SardoToAtim::$columns['Hyperplasie (BPH) - blocs']],
+				'infiltration_peineurale'		=> $line[SardoToAtim::$columns['Infiltration périneurale']],
+				'invasion_extra_capsulaire'		=> $line[SardoToAtim::$columns['Invasion extra-capsulaire']],
+				'invasion_lymph_vasc'			=> $line[SardoToAtim::$columns['Invasion lymph. vasc.']],
+				'marges_de_resection'			=> $line[SardoToAtim::$columns['Marges de résection']],
+				'marges_de_resection_blocs'		=> $line[SardoToAtim::$columns['Marges de résection - blocs']],
+				'marges_resection_uretre'		=> $line[SardoToAtim::$columns['Marges résection urètre']],
+				'marges_resection_uretre_blocs'	=> $line[SardoToAtim::$columns['Marges résection urètre - blocs']],
+				'pin_1'							=> $line[SardoToAtim::$columns['PIN 1']],
+				'pin_1_blocs'					=> $line[SardoToAtim::$columns['PIN 1 - blocs']],
+				'pin_2_3'						=> $line[SardoToAtim::$columns['PIN 2 3']],
+				'pin_2_3_blocs'					=> $line[SardoToAtim::$columns['PIN 2 3 - blocs']],
+				'poids_prostate_num'			=> $line[SardoToAtim::$columns['Poids prostate - num']],
+				'prostatite'					=> $line[SardoToAtim::$columns['Prostatite']],
+				'prostatite_blocs'				=> $line[SardoToAtim::$columns['Prostatite - blocs']],
+				'ves_seminales_atteintes'		=> $line[SardoToAtim::$columns['Vés. séminales atteintes']],
+			)
+		);
+		SardoToAtim::update(Models::EVENT_MASTER, $surgery, $line_number);
+	}
+	
+	if($line[SardoToATim::$columns['APS préCHIR Tx00 - date']]){
+		$event = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 34,
+				'event_date'			=> $line[SardoToATim::$columns['APS préCHIR Tx00 - date']],
+				'event_date_accuracy'	=> $line['APS préCHIR Tx00 - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'value'					=> $line[SardoToATim::$columns['APS préCHIR Tx00']]
+			)
+		);
+	}
+	if($line[SardoToATim::$columns['Dernier APS - date']]){
+		$event = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 34,
+				'event_date'			=> $line[SardoToATim::$columns['Dernier APS - date']],
+				'event_date_accuracy'	=> $line['Dernier APS - date'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'value'					=> $line[SardoToATim::$columns['Dernier APS']]
+			)
+		);
+	}
+	
+	for($i = 1; $i < 4; ++ $i){
+		//Pr 01, 02 & 03
+		$key = sprintf('Pr%02d', $i);
+		$date_key = $key.' - date';
+		if($line[SardoToATim::$columns[$date_key]]){
+			$dx = array(
+				'master' => array(
+					'participant_id'		=> $line['participant_id'],
+					'diagnosis_control_id'	=> 20,
+					'dx_date'				=> $line[SardoToATim::$columns[$date_key]],
+					'dx_date_accuracy'		=> $line[$date_key.'_accuracy'],
+					'primary_id'			=> $dx_id,
+					'parent_id'				=> $dx_id,
+				), 'detail' => array(
+					'value'					=> $line[SardoToATim::$columns[$key.' - sites']],
 				)
 			);
 		}

@@ -23,13 +23,16 @@ class Models{
 	static $default_checks = array(
 		Models::EVENT_MASTER			=> array(
 			'table_name' => 'event_masters', 
-			'primary' => array('event_control_id', 'diagnosis_master_id', 'event_date')
+			'primary' => array('event_control_id', 'diagnosis_master_id', 'event_date'),
+			'ctrl_key' => 'event_control_id'
 		), Models::TREATMENT_MASTER		=> array(
 			'table_name' => 'treatment_masters', 
-			'primary' => array('treatment_control_id', 'diagnosis_master_id', 'start_date') 
+			'primary' => array('treatment_control_id', 'diagnosis_master_id', 'start_date'),
+			'ctrl_key' => 'treatment_control_id'
 		), Models::DIAGNOSIS_MASTER		=> array(
 			'table_name' => 'diagnosis_masters', 
-			'primary' => array('diagnosis_control_id', 'parent_id', 'dx_date') 
+			'primary' => array('diagnosis_control_id', 'parent_id', 'dx_date'),
+			'ctrl_key' => 'diagnosis_control_id'
 		), Models::FAMILY_HISTORY		=> array(
 			'table_name' => 'family_histories', 
 			'primary' => array('participant_id') 
@@ -77,6 +80,8 @@ class SardoToAtim{
 		'ô' => 'o'
 	);
 	
+	static $morpho_codes = array();
+	
 	static private $table_fields_cache = array();//table fields cache
 	static private $table_fields_revs_cache = array();//the compatible fields between x and x_revs
 	static $commit = true;
@@ -96,6 +101,30 @@ class SardoToAtim{
 		}
 		
 		return $connection;
+	}
+	
+	static function printStmtWarnings($stmt){
+		if($warnings = $stmt->get_warnings()){
+			do{
+				printf("DB_WARNING: %s\n", $warnings->message);
+			}while($warnings->next());
+		}
+	}
+	
+	static function buildDetailModels(){
+		foreach(Models::$default_checks as &$default_check){
+			if(strpos($default_check['table_name'], '_masters') !== false){
+				$control_name = str_replace('_masters', '_controls', $default_check['table_name']);
+				$query = 'SELECT id, detail_tablename FROM '.$control_name;
+				$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+				$controls = array();
+				while($row = $result->fetch_assoc()){
+					$controls[$row['id']] = $row['detail_tablename'];
+				}
+				$default_check['controls'] = $controls;
+				$result->free();
+			}
+		}
 	}
 	
 	/**
@@ -580,16 +609,16 @@ class SardoToAtim{
 	/**
 	 * Enter description here ...
 	 * @param string $table_name
-	 * @param string $detail_table_name
 	 * @param array $data array('master' => array('field' => 'value'), 'detail' => array('field' => 'value'))
 	 * @param int $line_number
 	 * @param string $required A key that must be equal in the process and in the database. Acts as a security safeguard. Must be in master.
 	 * @param array $primary_keys Primary keys to determine wheter it will update or insert. If null, the default value is picked for the model.
 	 */
-	static function update($model_const, $detail_table_name, array $data, $line_number, $required = 'participant_id', array $primary_keys = null){
+	static function update($model_const, array $data, $line_number, $required = 'participant_id', array $primary_keys = null){
 		$query = null;
 		$fields = array();
 		$levels = array('master' => Models::$default_checks[$model_const]['table_name']);
+		$detail_table_name = array_key_exists('ctrl_key', Models::$default_checks[$model_const]) ? Models::$default_checks[$model_const]['controls'][$data['master'][Models::$default_checks[$model_const]['ctrl_key']]] : null;
 		if($detail_table_name != null){
 			$levels['detail'] = $detail_table_name;
 		}
@@ -665,7 +694,6 @@ class SardoToAtim{
 					if(empty($row[$full_field_name]) && !empty($value)){
 						$to_update[$full_field_name] = $value;
 					}else if($row[$full_field_name] != $value){
-						//see if the data was last mod by Sardo merge to decide wheter to warn or to update
 						if($level == 'master'){
 							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs', 'id=?', $field_name);
 						}else{
@@ -695,7 +723,7 @@ class SardoToAtim{
 			
 			if(!empty($to_update)){
 				$to_update[$levels['master'].".modified_by"] = self::$db_user_id;
-				$query = sprintf("UPDATE %s %s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE id=?", $levels['master'], $inner_join_part);
+				$query = sprintf("UPDATE %s %s SET ".implode('=?, ', array_keys($to_update))."=?, modified=NOW() WHERE %s.id=?", $levels['master'], $inner_join_part, $levels['master']);
 				$param = array_merge(array(str_repeat('s', count($to_update)).'i'), array_merge($to_update, array($last_id)));
 				$param_ref = array();
 				foreach($param as &$param_unit){
@@ -704,6 +732,7 @@ class SardoToAtim{
 				$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 				call_user_func_array(array($stmt, 'bind_param'), $param_ref);
 				$stmt->execute();
+				self::printStmtWarnings($stmt);
 				$stmt->close();
 				printf("UPDATE made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 			}else{
@@ -724,6 +753,7 @@ class SardoToAtim{
 			call_user_func_array(array($stmt, 'bind_param'), $param);
 			$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
 			$last_id = $stmt->insert_id;
+			self::printStmtWarnings($stmt);
 			$stmt->close();
 			if($detail_table_name != null){
 				$data['detail'][substr($levels['master'], 0, -1)."_id"] = $last_id;
@@ -735,6 +765,8 @@ class SardoToAtim{
 				$stmt = SardoToAtim::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 				call_user_func_array(array($stmt, 'bind_param'), $param);
 				$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
+				self::printStmtWarnings($stmt);
+				$stmt->close();
 			}
 			printf("INSERT made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 		}
@@ -746,18 +778,110 @@ class SardoToAtim{
 		return $last_id;
 	}
 	
-	static function updateValueDomains(){
+	static private function validateTopo(){
+		$query = 'SELECT icd10_code FROM diagnosis_masters WHERE icd10_code NOT IN (SELECT id FROM coding_icd10_who)';
+		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		$invalid_topo = array();
+		while($row = $result->fetch_assoc()){
+			$invalid_topo[] = $row['topography'];
+		}
+		if($invalid_topo){
+			printf('ERROR: The following topography codes (icd10_code) are invalid ['.implode(', ', $invalid_topo));
+		}
+		$result->free();
+	}
+	
+	static private function validateMorpho(){
+		$morpho_domain_id = 391;
+		$query = 'SELECT spv.value, spv.language_alias
+					FROM structure_value_domains_permissible_values AS svdpv
+					INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value=spv.id
+					WHERE svdpv.structure_value_domain.id='.$morpho_domain_id.' AND spv.value IN("'.implode('", "', array_keys(self::$morpho_codes)).'")';
+		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		while($row = $result->fetch_assoc()){
+			if($row['language_alias'] != self::$morpho_codes[$row['value']]){
+				self::$commit = false;
+				printf("ERROR: Different morpho definition for code [%s] in file [%s] and database [%s].\n", $row['value'], self::$morpho_codes[$row['value']], $row['language_alias']);
+			}
+			unset(self::$morpho_codes[$row['value']]);
+		}
+		$result->free();
 		
+		if(self::$morpho_codes){
+			$query = "INSERT INTO structure_permissible_values (value, language_alias) VALUES(?, ?)";
+			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			$ids = array();
+			foreach(self::$morpho_codes as $value => $language_alias){
+				$stmt->bind_param('ss', $value, $language_alias);
+				$stmt->execute();
+				$id = $stmt->insert_id;
+				self::printStmtWarnings($stmt);
+				printf('INSERT NEW MORPHO [%s]:[%s]', $value, $language_alias);
+			}
+			$stmt->close();
+				
+			$query = "INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES (?, ?)";
+			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			foreach($ids as $id){
+				$stmt->bind_param('ii', $morpho_domain_id, $id);
+				$stmt->execute();
+				self::printStmtWarnings($stmt);
+			}
+			$stmt->close();
+		}
+	}
+	
+	static private function checkValueDomain($table_name, $field, $domain_name){
+		$query = sprintf("SELECT %s FROM %s WHERE %s NOT IN(
+			SELECT value, svd.id
+			FROM structure_value_domains_permissible_values AS svdpv
+			INNER JOIN structure_value_domains AS svd ON svdpv.structure_value_domain_id=svd.id
+			INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value=spv.id
+			WHERE svd.domain_name='%s')", $field, $table_name, $field, $domain_name);
+		$result = self::$connection->query($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		$values = array();
+		$svd_id = null;
+		while($row = $result->fetch_assoc()){
+			$values[] = $row['value'];
+			$svd_id = $row['id'];
+		}
+		$results->free();
+		
+		$inserted_ids = array();
+		if($values){
+			$query = "INSERT INTO structure_permissible_values (value, language_alias) VALUES (?, ?)";
+			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			foreach($values as $value){
+				$stmt->bind_param('ss', $value, $value);
+				$stmt->execute();
+				self::printStmtWarnings($stmt);
+				$inserted_ids[] = $stmt->insert_id;
+				printf("INSERT new value [%s] for value domain [%s]\n", $value, $domain_name);
+			}
+			$stmt->close();
+			
+			$query = 'INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES(?, ?)';
+			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			foreach($inserted_ids as $inserted_id){
+				$stmt->bind_param('ii', $svd_id, $inserted_id);
+				$stmt->execute();
+				self::printStmtWarnings($stmt);
+			}
+			$stmt->close();
+		}
+	}
+	
+	static private function checkValueDomains(){
+		self::validateTopo();
+		self::validateMorpho();
+		self::checkValueDomain('diagnosis_masters', 'laterality', 'laterality');
+		self::checkValueDomain('qc_nd_ed_biopsy', 'type', 'qc_nd_biopsy_type');
+		//TODO: complete me
 	}
 	
 	
 	static function endChecks(){
-		//TODO: update value domains with missing values
-		//TODO: valider les icd10 topo
-		//TODO: valider que les code morpho <-> desc n'ont pas changées
-		
-		//dx topo, dxd laterality, qc_nd_ed_biopsy.type, qc_nd_ed_cytology.type, txd_surgeries.qc_nd_precision, txd_chemos.qc_nd_type, 
-		//qc_nd_txd_hormonotherapies.type,
+		self::checkValueDomains();
 
 		$query = 'UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL';
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
@@ -773,7 +897,41 @@ class SardoToAtim{
 			echo "\nProcess complete. Changes were NOT commited.\n";
 		}
 	}
+	
+	static function convertMenopause($input){
+		$cause = '';
+		$status = '';
+		if(!in_array($input, array('N/S', '', 'N/A: HOMME'))){
+			switch($input){
+				case 'ménopausée par chirurgie':
+					$status = 'post';
+					$cause = 'by surgery';
+					break;
+				case 'ménopausée par médication':
+					$status = 'post';
+					$cause = 'by medication';
+					break;
+				case 'non ménopausée':
+					$status = 'pre';
+					break;
+				case 'post-ménopausée':
+					$status = 'post';
+					break;
+				case 'péri-ménopausée':
+					$status = 'peri';
+					break;
+				case 'pré-ménopausée':
+					$status = 'pre';
+					break;
+				default:
+					die("ERROR: Unknown menopause status [".$input."].\n");
+			}
+		}
+		return array('cause' => $cause, 'status' => $status);
+	}
 }
 
 SardoToAtim::$connection = SardoToAtim::getNewConnection(); 
 mysqli_autocommit(SardoToAtim::$connection, false);
+SardoToAtim::buildDetailModels();
+

@@ -88,23 +88,23 @@ while($line = next($cells)){
 			'participant_id'		=> $line['participant_id'],
 			'qc_nd_sardo_id'		=> $line[SardoToAtim::$columns['No DX SARDO']],
 			'diagnosis_control_id'	=> 19,
-			'primary_id'			=> null,
 			'parent_id'				=> null,
 			'dx_date'				=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'		=> $line['Date du diagnostic_accuracy'],
-			'topography'			=> $line[SardoToAtim::$columns['Topographie']],
-			'morphology'			=> $line[SardoToAtim::$columns['Morphologie']],
+			'topography'			=> $line[SardoToAtim::$columns['Topographie']],//TODO, utiliser le code
+			'morphology'			=> $line[SardoToAtim::$columns['Morphologie']],//TODO, utiliser le code
 			'path_tstage'			=> $line[SardoToAtim::$columns['TNM pT']],
 			'path_nstage'			=> $line[SardoToAtim::$columns['TNM pN']],
 			'path_mstage'			=> $line[SardoToAtim::$columns['TNM pM']],
-			'path_stage_summary'	=> $line[SardoToAtim::$columns['TNM pathologique']]
+			'path_stage_summary'	=> $line[SardoToAtim::$columns['TNM pathologique']],
+			'survival_time_months'	=> $line[SardoToAtim::$columns['Survie (mois)']]
 		), 'detail' => array(
 			'laterality'			=> $line[SardoToAtim::$columns['Latéralité']],
 			'tnm_g'					=> $line[SardoToAtim::$columns['TNM G']],
 			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
 		)
 	);
-	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'qc_nd_dxd_primary_sardo', $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
 		$biopsy = array(
@@ -118,7 +118,7 @@ while($line = next($cells)){
 				'type'					=> $line[SardoToAtim::$columns['BIOP+ 1 Tx00']]
 			)
 		);
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_biopsy', $biopsy, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $biopsy, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
@@ -135,7 +135,7 @@ while($line = next($cells)){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_surgeries', $surgery, $line_number);
+		SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO 1 Tx00']]){
@@ -152,7 +152,7 @@ while($line = next($cells)){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'txd_chemos', $chemo, $line_number);
+		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['Pr01 - date']]){
@@ -168,7 +168,7 @@ while($line = next($cells)){
 			)
 		);
 		
-		SardoToAtim::update(Models::DIAGNOSIS_MASTER, 'dxd_progressions', $progression, $line_number);
+		SardoToAtim::update(Models::DIAGNOSIS_MASTER, $progression, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CYTO+ 1 Tx00']]){
@@ -184,45 +184,20 @@ while($line = next($cells)){
 			)
 		);
 	
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_cytology', $cytology, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $cytology, $line_number);
 	}
 	
-	if($line[SardoToAtim::$columns['Ménopause']] && !in_array($line[SardoToAtim::$columns['Ménopause']], array('N/S', ''))){
-		$cause = '';
-		$status = '';
-		switch($line[SardoToAtim::$columns['Ménopause']]){
-			case 'ménopausée par chirurgie':
-				$status = 'post';
-				$cause = 'by surgery';
-				break;
-			case 'ménopausée par médication':
-				$status = 'post';
-				$cause = 'by medication';
-				break;
-			case 'non ménopausée':
-				$status = 'pre';
-				break;
-			case 'post-ménopausée':
-				$status = 'post';
-				break;
-			case 'péri-ménopausée':
-				$status = 'peri';
-				break;
-			case 'pré-ménopausée':
-				$status = 'pre';
-				break;
-			default:
-				die("ERROR: Unknown menopause status [".$line[SardoToAtim::$columns['Ménopause']]."].\n");
-		}
+	$converted_menopause = sardoToAtim::convertMenopause($line[SardoToAtim::$columns['Ménopause']]);
+	if($converted_menopause['status']){
 		$menopause = array(
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
-				'menopause_status'		=> $status,
+				'menopause_status'		=> $converted_menopause['status'],
 				'qc_nd_year_menopause'	=> $line[SardoToAtim::$columns['Année ménopause']] == 9999 ? null : $line[SardoToAtim::$columns['Année ménopause']],
-				'qc_nd_cause'			=> $cause
+				'qc_nd_cause'			=> $converted_menopause['cause']
 			)
 		);
-		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause, $line_number);
+		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, $menopause, $line_number);
 	}
 	
 	if($line[SardoToATim::$columns['Toute HORM Tx00']]){
@@ -251,7 +226,7 @@ while($line = next($cells)){
 			)
 		);
 		
-		SardoToAtim::update(Models::TREATMENT_MASTER, 'qc_nd_txd_hormonotherapies', $hormono, $line_number);
+		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number);
 	}
 	
 	$ca125_peri_dx = null;
@@ -266,11 +241,11 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['CA-125 péri-DX - date']],
 				'event_date_accuracy'	=> $line['CA-125 péri-DX - date_accuracy']
 			), 'detail' => array(
-				'type'					=> $line[SardoToAtim::$columns['CA-125 péri-DX']]
+				'value'					=> $line[SardoToAtim::$columns['CA-125 péri-DX']]
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $ca125, $line_number);
 	}
 	if($line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] && $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']] != $ca125_peri_dx){
 		$ca125_pre_chir = $line[SardoToATim::$columns['CA-125 préCHIR Tx00 - dat']];
@@ -282,11 +257,11 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00 - dat']],
 				'event_date_accuracy'	=> $line['CA-125 préCHIR Tx00 - dat_accuracy']
 		), 'detail' => array(
-				'type'					=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00']]
+				'value'					=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00']]
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $ca125, $line_number);
 	}
 	if($line[SardoToATim::$columns['Dernier CA-125 - date']] && !in_array($line[SardoToATim::$columns['Dernier CA-125 - date']], array($ca125_peri_dx, $ca125_pre_chir))){
 		$ca125 = array(
@@ -297,11 +272,11 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['Dernier CA-125 - date']],
 				'event_date_accuracy'	=> $line['Dernier CA-125 - date_accuracy']
 		), 'detail' => array(
-				'type'					=> $line[SardoToAtim::$columns['Dernier CA-125']]
+				'value'					=> $line[SardoToAtim::$columns['Dernier CA-125']]
 			)
 		);
 		
-		SardoToAtim::update(Models::EVENT_MASTER, 'qc_nd_ed_ca125', $ca125, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $ca125, $line_number);
 	}
 }
 
