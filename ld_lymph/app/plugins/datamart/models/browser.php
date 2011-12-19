@@ -723,11 +723,15 @@ class Browser extends DatamartAppModel {
 			if(count($sm_data) == 1){
 				$ac = AppModel::getInstance("Inventorymanagement", "AliquotControl", true);
 				$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $sm_data[0]['SampleMaster']['sample_control_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
-				$ids = array();
-				foreach($data as $unit){
-					$ids[] = $unit['AliquotControl']['id'];
+				if(empty($data)){
+					$sub_models_id_filter['AliquotControl'][] = 0;
+				}else{
+					$ids = array();
+					foreach($data as $unit){
+						$ids[] = $unit['AliquotControl']['id'];
+					}
+					$sub_models_id_filter['AliquotControl'] = $ids;
 				}
-				$sub_models_id_filter['AliquotControl'] = $ids;
 			}else{
 				$sub_models_id_filter['AliquotControl'][] = 0;
 			}
