@@ -423,7 +423,7 @@ class SardoToAtim{
 			}else if($valid_bank){
 				//match the date of birth
 				if($sql_row1['date_of_birth'] && $sql_row1['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
+					printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
 					$errors = true;
 					continue;
 				}
@@ -438,7 +438,7 @@ class SardoToAtim{
 			}else if($valid_hospital){
 				//match the date of birth
 				if($sql_row2['date_of_birth'] && $sql_row2['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does no match participant with bank hospital [%s] at line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
+					printf("ERROR: The date of birth [%s] does no match participant with bank hospital [%s] at line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
 					$errors = true;
 					continue;
 				}
@@ -795,8 +795,8 @@ class SardoToAtim{
 		$morpho_domain_id = 391;
 		$query = 'SELECT spv.value, spv.language_alias
 					FROM structure_value_domains_permissible_values AS svdpv
-					INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value=spv.id
-					WHERE svdpv.structure_value_domain.id='.$morpho_domain_id.' AND spv.value IN("'.implode('", "', array_keys(self::$morpho_codes)).'")';
+					INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id
+					WHERE svdpv.structure_value_domain_id='.$morpho_domain_id.' AND spv.value IN("'.implode('", "', array_keys(self::$morpho_codes)).'")';
 		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		while($row = $result->fetch_assoc()){
 			if($row['language_alias'] != self::$morpho_codes[$row['value']]){
@@ -814,9 +814,9 @@ class SardoToAtim{
 			foreach(self::$morpho_codes as $value => $language_alias){
 				$stmt->bind_param('ss', $value, $language_alias);
 				$stmt->execute();
-				$id = $stmt->insert_id;
+				$ids[] = $stmt->insert_id;
 				self::printStmtWarnings($stmt);
-				printf('INSERT NEW MORPHO [%s]:[%s]', $value, $language_alias);
+				printf("INSERT NEW MORPHO [%s]:[%s]\n", $value, $language_alias);
 			}
 			$stmt->close();
 				
@@ -832,20 +832,19 @@ class SardoToAtim{
 	}
 	
 	static private function checkValueDomain($table_name, $field, $domain_name){
-		$query = sprintf("SELECT %s FROM %s WHERE %s NOT IN(
-			SELECT value, svd.id
+		$query = sprintf("SELECT DISTINCT %s AS value FROM %s WHERE %s NOT IN(
+			SELECT value
 			FROM structure_value_domains_permissible_values AS svdpv
 			INNER JOIN structure_value_domains AS svd ON svdpv.structure_value_domain_id=svd.id
-			INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value=spv.id
+			INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id
 			WHERE svd.domain_name='%s')", $field, $table_name, $field, $domain_name);
-		$result = self::$connection->query($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		$results = self::$connection->query($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$values = array();
-		$svd_id = null;
-		while($row = $result->fetch_assoc()){
+		while($row = $results->fetch_assoc()){
 			$values[] = $row['value'];
-			$svd_id = $row['id'];
 		}
 		$results->free();
+		$values = array_filter($values);
 		
 		$inserted_ids = array();
 		if($values){
@@ -860,10 +859,10 @@ class SardoToAtim{
 			}
 			$stmt->close();
 			
-			$query = 'INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES(?, ?)';
+			$query = 'INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES((SELECT id FROM structure_value_domains WHERE domain_name=?), ?)';
 			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 			foreach($inserted_ids as $inserted_id){
-				$stmt->bind_param('ii', $svd_id, $inserted_id);
+				$stmt->bind_param('si', $domain_name, $inserted_id);
 				$stmt->execute();
 				self::printStmtWarnings($stmt);
 			}
@@ -874,8 +873,13 @@ class SardoToAtim{
 	static private function checkValueDomains(){
 		self::validateTopo();
 		self::validateMorpho();
-		self::checkValueDomain('diagnosis_masters', 'laterality', 'laterality');
+		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'laterality', 'laterality');
 		self::checkValueDomain('qc_nd_ed_biopsy', 'type', 'qc_nd_biopsy_type');
+		self::checkValueDomain('diagnosis_masters', 'dx_nature', 'dx_nature');
+		self::checkValueDomain('diagnosis_masters', 'qc_nd_sardo_family_history', 'qc_nd_sardo_family_history');
+		self::checkValueDomain('reproductive_histories', 'qc_nd_cause', 'qc_nd_menopause_cause');
+		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'figo', 'qc_nd_figo');
+		
 		//TODO: complete me
 	}
 	
@@ -885,8 +889,6 @@ class SardoToAtim{
 
 		$query = 'UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL';
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		
-		self::updateValueDomains();
 		
 		if(self::$commit){
 			self::$connection->commit();
