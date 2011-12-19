@@ -118,8 +118,8 @@ SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
 // $xls_reader->read('/Volumes/data/2011-11-15 Export complet sein.XLS');
-$xls_reader->read('/Volumes/data/2011-11-15 Export complet sein sample.XLS');
-// $xls_reader->read('/Volumes/data/2011-11-18 export sein recherche.XLS');
+// $xls_reader->read('/Volumes/data/2011-11-15 Export complet sein sample.XLS');
+$xls_reader->read('/Volumes/data/2011-11-18 export sein recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
@@ -151,13 +151,14 @@ while($line = next($cells)){
 		)
 	);
 	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
+	$morpho_value = $line[SardoToAtim::$columns['Code morphologique']].' - '.$line[SardoToAtim::$columns['Morphologie']];
 	if(array_key_exists($line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes)){
-		if(SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] != SardoToAtim::$columns['Morphologie']){
+		if(SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] != $morpho_value){
 			SardoToAtim::$commit = false;
-			printf("ERROR: Different definitions found for morpho code [%s] [%s] [%s]\n", $line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]], SardoToAtim::$columns['Morphologie']);
+			printf("ERROR: Different definitions found for morpho code [%s] [%s] [%s]\n", $line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]], $morpho_value);
 		}
 	}else{
-		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = SardoToAtim::$columns['Morphologie']; 
+		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = $morpho_value; 
 	}
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){

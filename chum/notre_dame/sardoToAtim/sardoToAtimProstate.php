@@ -108,7 +108,19 @@ SardoToAtim::$date_columns = array(
 	'Pr02 - date',
 	'Pr03 - date',
 	'Date dernier contact',
-	'Date du décès'
+	'Date du décès',
+	'TX 1 Tx00 - début',
+	'TX 1 Tx00 - fin',
+	'TX 2 Tx00 - début',
+	'TX 2 Tx00 - fin',
+	'TX 3 Tx00 - début',
+	'TX 3 Tx00 - fin',
+	'TX 4 Tx00 - début',
+	'TX 4 Tx00 - fin',
+	'TX 5 Tx00 - début',
+	'TX 5 Tx00 - fin',
+	'TX 6 Tx00 - début',
+	'TX 6 Tx00 - fin'
 );
 
 $tx_mapping = array(
@@ -221,13 +233,13 @@ while($line = next($cells)){
 				continue;
 			}
 			$tx_map = $tx_mapping[$line[SardoToATim::$columns[$key_name]]];
-			if($tm_map['type'] == Models::EVENT_MASTER){
+			if($tx_map['type'] == Models::EVENT_MASTER){
 				$event = array(
 					'master' => array(
 						'participant_id'		=> $line['participant_id'],
 						'event_control_id'		=> $tx_map['ctrl_id'],
 						'event_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
-						'event_date_accuracy'	=> $line[SardoToAtim::$columns[$key_name.' - début_accuracy']],
+						'event_date_accuracy'	=> $line[$key_name.' - début_accuracy'],
 						'diagnosis_master_id'	=> $dx_id
 					), 'detail' => array(
 						'type'					=> $line[SardoToATim::$columns[$key_name]]
@@ -236,9 +248,9 @@ while($line = next($cells)){
 				if($line[SardoToAtim::$columns[$key_name.' - fin']]){
 					printf("WARNING: DB Event has no end date for event [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
 				}
-				SardoToAtim::update(Models::EVENT_MASTER, $surgery, $line_number);
+				SardoToAtim::update(Models::EVENT_MASTER, $event, $line_number);
 				
-			}else if($tm_map['type'] == Models::TREATMENT_MASTER){
+			}else if($tx_map['type'] == Models::TREATMENT_MASTER){
 				$tx = array(
 					'master' => array(
 						'participant_id'		=> $line['participant_id'],
@@ -307,7 +319,7 @@ while($line = next($cells)){
 				'ves_seminales_atteintes'		=> $line[SardoToAtim::$columns['Vés. séminales atteintes']],
 			)
 		);
-		SardoToAtim::update(Models::EVENT_MASTER, $surgery, $line_number);
+		SardoToAtim::update(Models::EVENT_MASTER, $patho, $line_number);
 	}
 	
 	if($line[SardoToATim::$columns['APS préCHIR Tx00 - date']]){
@@ -329,7 +341,7 @@ while($line = next($cells)){
 				'participant_id'		=> $line['participant_id'],
 				'event_control_id'		=> 34,
 				'event_date'			=> $line[SardoToATim::$columns['Dernier APS - date']],
-				'event_date_accuracy'	=> $line['Dernier APS - date'],
+				'event_date_accuracy'	=> $line['Dernier APS - date_accuracy'],
 				'diagnosis_master_id'	=> $dx_id
 			), 'detail' => array(
 				'value'					=> $line[SardoToATim::$columns['Dernier APS']]
