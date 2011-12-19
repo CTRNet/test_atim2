@@ -9,5 +9,12 @@
 			$new_data_set['children'][0]['AliquotDetail']['block_type'] = 'paraffin';			
 		}
 	}
+	
+	// --------------------------------------------------------------------------------
+	// Set default aliquot label
+	// -------------------------------------------------------------------------------- 	
+	foreach($this->data as &$new_data_set) {
+		$new_data_set['children'][0]['AliquotMaster']['aliquot_label'] = 'n/a';			
+	}	
 
 ?>
