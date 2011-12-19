@@ -31,7 +31,7 @@
 	$page = $structures->build( $final_atim_structure, $final_options );
 
 	if(isset($is_ajax)){
-		echo json_encode(array('page' => $page, 'new_search_id' => AppController::getNewSearchId()));
+		echo json_encode(array('page' => $shell->validationHtml().$page, 'new_search_id' => AppController::getNewSearchId()));
 	}else{
 		echo $page;
 	}
