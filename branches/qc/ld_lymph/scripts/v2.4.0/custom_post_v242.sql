@@ -197,6 +197,54 @@ UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id 
 INSERT INTO i18n (id,en) VALUEs ('lymph node other description','Precision');
 
  
+ 
+ 
+ 
+ ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_patho_summary', 'immuno_ki67_percent', 'float', NULL, '0', 'size=3', '', '', 'immuno ki67 percent', ''), 
+ 
+ 
+ 
+ALTER TABLE `ld_lymph_ed_biopsies`
+  MODIFY `cytomet_cd20` decimal(5,2) DEFAULT null,		
+  MODIFY `cytomet_cd19` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd10` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd5` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd23` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd2` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd3` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd4` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd8` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_lambda` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_kappa` decimal(5,2) DEFAULT null;
+ALTER TABLE `ld_lymph_ed_biopsies_revs`
+  MODIFY `cytomet_cd20` decimal(5,2) DEFAULT null,		
+  MODIFY `cytomet_cd19` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd10` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd5` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd23` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd2` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd3` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd4` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_cd8` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_lambda` decimal(5,2) DEFAULT null,	
+  MODIFY `cytomet_kappa` decimal(5,2) DEFAULT null;  
+  
+UPDATE structure_fields SET type = 'float', setting = 'size=3', structure_value_domain = null
+WHERE tablename = 'ld_lymph_ed_biopsies' AND field in ('cytomet_cd20', 'cytomet_cd19', 'cytomet_cd10', 'cytomet_cd5', 'cytomet_cd23', 'cytomet_cd2', 'cytomet_cd3', 'cytomet_cd4', 'cytomet_cd8', 'cytomet_lambda', 'cytomet_kappa');
+  
+ALTER TABLE `ld_lymph_ed_biopsies`  
+  CHANGE `cytomet_other_title` `cytomet_other` varchar(100) DEFAULT '';
+ALTER TABLE `ld_lymph_ed_biopsies_revs`  
+  CHANGE `cytomet_other_title` `cytomet_other` varchar(100) DEFAULT '';
+  
+ALTER TABLE `ld_lymph_ed_biopsies` DROP COLUMN cytomet_other_value;
+ALTER TABLE `ld_lymph_ed_biopsies_revs` DROP COLUMN cytomet_other_value;
+  
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'cytomet_other_value' AND tablename = 'ld_lymph_ed_biopsies');
+DELETE FROM structure_fields WHERE field = 'cytomet_other_value' AND tablename = 'ld_lymph_ed_biopsies';
+  	
+UPDATE structure_fields SET field = 'cytomet_other' WHERE field = 'cytomet_other_title' AND tablename = 'ld_lymph_ed_biopsies';  
+ 
 
 -- ---------------------------------------------------------
 -- DEMO
@@ -221,5 +269,20 @@ VALUES
 
 UPDATE users set flag_active=1;
 update groups set flag_show_confidential = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
