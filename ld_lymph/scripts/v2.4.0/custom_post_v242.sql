@@ -196,14 +196,6 @@ UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id 
  
 INSERT INTO i18n (id,en) VALUEs ('lymph node other description','Precision');
 
- 
- 
- 
- 
- ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_patho_summary', 'immuno_ki67_percent', 'float', NULL, '0', 'size=3', '', '', 'immuno ki67 percent', ''), 
- 
- 
- 
 ALTER TABLE `ld_lymph_ed_biopsies`
   MODIFY `cytomet_cd20` decimal(5,2) DEFAULT null,		
   MODIFY `cytomet_cd19` decimal(5,2) DEFAULT null,	
