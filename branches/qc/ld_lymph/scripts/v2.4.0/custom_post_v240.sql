@@ -830,8 +830,8 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_imagings` (
   `lymph_node_for_petsuv_mesenteric` char(1) DEFAULT '',        
   `lymph_node_for_petsuv_para_aortic_left` char(1) DEFAULT '',        
   `lymph_node_for_petsuv_para_aortic_right` char(1) DEFAULT '',    
-  `lymph_node_for_petsuv_linguinal_left` char(1) DEFAULT '',        
-  `lymph_node_for_petsuv_linguinal_right` char(1) DEFAULT '',    
+  `lymph_node_for_petsuv_inguinal_left` char(1) DEFAULT '',        
+  `lymph_node_for_petsuv_inguinal_right` char(1) DEFAULT '',    
   `lymph_node_for_petsuv_other` char(1) DEFAULT '',  
   `initial_pet_suv_max` int(4) DEFAULT null,    
 
@@ -864,8 +864,8 @@ CREATE TABLE IF NOT EXISTS `ld_lymph_ed_imagings_revs` (
   `lymph_node_for_petsuv_mesenteric` char(1) DEFAULT '',        
   `lymph_node_for_petsuv_para_aortic_left` char(1) DEFAULT '',        
   `lymph_node_for_petsuv_para_aortic_right` char(1) DEFAULT '',    
-  `lymph_node_for_petsuv_linguinal_left` char(1) DEFAULT '',        
-  `lymph_node_for_petsuv_linguinal_right` char(1) DEFAULT '',    
+  `lymph_node_for_petsuv_inguinal_left` char(1) DEFAULT '',        
+  `lymph_node_for_petsuv_inguinal_right` char(1) DEFAULT '',    
   `lymph_node_for_petsuv_other` char(1) DEFAULT '',  
   `initial_pet_suv_max` int(4) DEFAULT null,  
   
@@ -912,8 +912,8 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_mesenteric', 'yes_no',  NULL , '0', '', '', '', 'lymph node mesenteric', ''), 
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_para_aortic_left', 'yes_no',  NULL , '0', '', '', '', 'lymph node para aortic left', ''), 
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_para_aortic_right', 'yes_no',  NULL , '0', '', '', '', 'lymph node para aortic right', ''), 
-('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_linguinal_left', 'yes_no',  NULL , '0', '', '', '', 'lymph node linguinal left', ''), 
-('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_linguinal_right', 'yes_no',  NULL , '0', '', '', '', 'lymph node linguinal right', ''), 
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_inguinal_left', 'yes_no',  NULL , '0', '', '', '', 'lymph node inguinal left', ''), 
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_inguinal_right', 'yes_no',  NULL , '0', '', '', '', 'lymph node inguinal right', ''), 
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_other', 'yes_no',  NULL , '0', '', '', '', 'lymph node other', ''), 
 ('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'initial_pet_suv_max', 'integer',  NULL , '0', '', '', '', 'initial pet suv max', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
@@ -932,8 +932,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_mesenteric' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node mesenteric' AND `language_tag`=''), '2', '37', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_para_aortic_left' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node para aortic left' AND `language_tag`=''), '2', '38', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_para_aortic_right' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node para aortic right' AND `language_tag`=''), '2', '39', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_linguinal_left' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node linguinal left' AND `language_tag`=''), '2', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_linguinal_right' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node linguinal right' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_inguinal_left' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node inguinal left' AND `language_tag`=''), '2', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_inguinal_right' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node inguinal right' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_other' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node other' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='initial pet suv max' AND `language_tag`=''), '2', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -951,8 +951,8 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('lymph node axillary right' ,'Axillary - Right'),
 ('lymph node cervical left' ,'Cervical - Left'),
 ('lymph node cervical right' ,'Cervical - Right'),
-('lymph node linguinal left' ,'Linguinal - Left'),
-('lymph node linguinal right' ,'Linguinal - Right'),
+('lymph node inguinal left' ,'Inguinal - Left'),
+('lymph node inguinal right' ,'Inguinal - Right'),
 ('lymph node mediastinal' ,'Mediastinal'),
 ('lymph node mesenteric' ,'Mesenteric'),
 ('lymph node other' ,'Other'),
@@ -1880,24 +1880,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en) VALUES ('stem cell transplant', 'Stem Cell Transplant');
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='date' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_stem_cell_transplants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='tx_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
--- ---------------------------------------------------------
--- DEMO
--- -------------------------------------------------------
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('custom cst v1', 'custom cst v1', 'custom cst v1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'consent form versions'));
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('lymphoma custom 1', 'lymphoma custom 1', 'lymphoma custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma types'));
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('lymphoma prog custom 1', 'lymphoma prog custom 1', 'lymphoma prog custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma progression sites'));
-
-UPDATE users set flag_active=1;
-update groups set flag_show_confidential = 1;
-
 
