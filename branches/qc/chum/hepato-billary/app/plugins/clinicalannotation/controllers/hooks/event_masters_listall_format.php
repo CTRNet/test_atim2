@@ -1,7 +1,5 @@
 <?php
 
-//NL Revised
-
 	// --------------------------------------------------------------------------------
 	// Override Menu For 'clinical' event_group. Generate both list of :
 	//  - disease types for medical history to build 'add medical history' button	

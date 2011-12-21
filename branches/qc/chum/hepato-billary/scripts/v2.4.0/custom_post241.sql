@@ -271,10 +271,6 @@ INSERT INTO i18n (id,en) VALUEs ('error in the dates definitions: the field [%%f
 UPDATE misc_identifier_controls SET flag_once_per_participant = '1';
 SELECT 'Do we want replace participant_identifier by NoLabo' as msg_1;
 
--- ClinicalAnnotation.Annotation
-
-SELECT 'TODO: ANNOTATION revision' as msg_1;
-
 -- ClinicalAnnotation.Treatment
 
 SELECT  'Données pre-opératoire a valider' as msg;
@@ -295,9 +291,15 @@ UPDATE structure_formats SET display_order = (display_order + 10) WHERE structur
 UPDATE event_controls SET flag_active = 1;
 UPDATE event_controls SET flag_active = 0 WHERE event_type = 'comorbidity';
 
-UPDATE structure_fields SET type = 'float' WHERE type = 'number' AND tablename like 'qc_hb_%'
+UPDATE structure_fields SET type = 'float' WHERE type = 'number' AND tablename like 'qc_hb_%';
 
-INSERT INTO i18n (id,en) VALUES ('chemo-embolization', 'Chemo-Embolization');
+INSERT IGNORE INTO i18n (id,en) VALUES ('chemo-embolization', 'Chemo-Embolization');
+
+
+
+-- ClinicalAnnotation.Annotation
+
+SELECT 'TODO: ANNOTATION revision' as msg_1;
 
 REPLACE INTO i18n (id,en,fr) VALUES ('this type of event has already been created for your participant', 'This type of annotation has already been created for your participant!', 'Ce type d''annotation a déjà été créée pour votre participant!');
 
@@ -305,6 +307,114 @@ UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE field 
 UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE field = 'hospitalization_duration_in_days';
 
 UPDATE structure_formats SET display_column = (display_column + 1) WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_ed_%');
+
+UPDATE event_controls SET form_alias = '' WHERE form_alias = '';
+
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_segment,qc_hb_other_localisations' WHERE form_alias = 'eventmasters,qc_hb_imaging_segment_other';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_segment,qc_hb_other_localisations,qc_hb_pancreas,qc_hb_volumetry' WHERE form_alias = 'eventmasters,qc_hb_imaging_segment_other_pancreas_volumetry';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_other_localisations' WHERE form_alias = 'eventmasters,qc_hb_imaging_other';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_segment,qc_hb_other_localisations,qc_hb_pancreas' WHERE form_alias = 'eventmasters,qc_hb_imaging_segment_other_pancreas';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_segment' WHERE form_alias = 'eventmasters,qc_hb_imaging_segment';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary' WHERE form_alias = 'eventmasters,qc_hb_imaging';
+UPDATE event_controls SET form_alias = 'eventmasters,qc_hb_imaging_dateNSummary,qc_hb_other_localisations,qc_hb_pancreas' WHERE form_alias = 'eventmasters,qc_hb_imaging_other_pancreas';
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_imaging_dateNSummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_imaging_dateNSummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_type' AND `language_label`='' AND `language_tag`='-' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- qc_hb_imaging_dateNSummary
+UPDATE structure_formats SET `display_column`='1', `display_order`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_imaging_dateNSummary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- qc_hb_volumetry
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_volumetry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-17' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `language_label`='participant identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_participant identifier' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_volumetry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-119' AND `plugin`='Clinicalannotation' AND `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_volumetry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-9' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_first_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_volumetry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-11' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_last_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET display_column = 1,display_order = (display_order + 10)  WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_volumetry');
+UPDATE structure_formats SET `language_heading`='volumetry' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_volumetry') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='is_volumetry_post_pve');
+
+-- qc_hb_pancreas
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-17' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `language_label`='participant identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_participant identifier' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-119' AND `plugin`='Clinicalannotation' AND `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-9' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_first_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-11' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_last_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET display_column = 2,display_order = (display_order + 100)  WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_pancreas');
+UPDATE structure_formats SET `language_heading`='pancreas (tumoral invasion)' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_pancreas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='hepatic_artery');
+
+-- qc_hb_segment
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_segment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-17' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `language_label`='participant identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_participant identifier' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_segment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-119' AND `plugin`='Clinicalannotation' AND `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_segment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-9' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_first_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_segment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-11' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_last_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET display_column = 2,display_order = (display_order + 200)  WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_segment');
+
+UPDATE structure_fields SET language_tag = language_label WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND (field LIKE 'segment_%_number' OR field LIKE 'segment_%_size');
+UPDATE structure_fields SET language_label = '' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND (field LIKE 'segment_%_number' OR field LIKE 'segment_%_size');
+
+UPDATE structure_fields SET language_label = 'segment I' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_1_number';
+UPDATE structure_fields SET language_label = 'segment II' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_2_number';
+UPDATE structure_fields SET language_label = 'segment III' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_3_number';
+UPDATE structure_fields SET language_label = 'segment IVa' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_4a_number';
+UPDATE structure_fields SET language_label = 'segment IVb' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_4b_number';
+UPDATE structure_fields SET language_label = 'segment V' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_5_number';
+UPDATE structure_fields SET language_label = 'segment VI' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_6_number';
+UPDATE structure_fields SET language_label = 'segment VII' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_7_number';
+UPDATE structure_fields SET language_label = 'segment VIII' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field = 'segment_8_number';
+
+UPDATE structure_fields SET language_tag = language_label WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND (field LIKE 'density' OR field LIKE 'type');
+UPDATE structure_fields SET language_label = '' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND (field LIKE 'density' OR field LIKE 'type');
+UPDATE structure_fields SET language_label = 'other' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND (field LIKE 'density');
+
+UPDATE structure_formats SET language_heading = '' WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_segment');
+
+UPDATE structure_formats SET language_heading = 'segments' WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_segment') AND structure_field_id = (SELECT id FROM structure_fields WHERE field = 'segment_1_number' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings');
+
+-- qc_hb_other_localisations
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_other_localisations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-17' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `language_label`='participant identifier' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_participant identifier' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_other_localisations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-119' AND `plugin`='Clinicalannotation' AND `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `language_label`='value' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_other_localisations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-9' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_first_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_other_localisations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-11' AND `plugin`='Clinicalannotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `language_label`='' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_last_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE structure_formats SET display_column = 3,display_order = (display_order + 400)  WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_other_localisations');
+
+INSERT IGNORE into i18n (id,en) VALUES ('pancreas (tumoral invasion)', 'Pancreas (Tumoral Invasion)'),('segments','Segments');
+
+UPDATE structure_fields fi, structure_formats fo, structures st
+SET fi.language_tag = fi.language_label
+WHERE st.alias = 'qc_hb_other_localisations' AND st.id = fo.structure_id AND fo.structure_field_id = fi.id;
+
+UPDATE structure_fields fi, structure_formats fo, structures st
+SET fi.language_label = fo.language_heading
+WHERE st.alias = 'qc_hb_other_localisations' AND st.id = fo.structure_id AND fo.structure_field_id = fi.id;
+
+UPDATE structure_formats fo, structures st
+SET fo.language_heading = ''
+WHERE st.alias = 'qc_hb_other_localisations' AND st.id = fo.structure_id;
+
+UPDATE structure_fields fi, structure_formats fo, structures st
+SET fo.language_heading = 'other localisations'
+WHERE st.alias = 'qc_hb_other_localisations' AND st.id = fo.structure_id AND fo.structure_field_id = fi.id AND fi.field = 'lungs_number';
+
+UPDATE structure_formats SET display_column = 1,display_order = (display_order - 350)  WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_other_localisations');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_cirrhosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_medical_past_history_hepatitis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_ed_score%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats 
+SET `flag_search`='1', flag_index = '1' WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_hb_ed_score%') 
+AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
+
+
+
+
 
 -- -----------------------------------------------------------------------------------------------------
 -- -----------------------------------------------------------------------------------------------------

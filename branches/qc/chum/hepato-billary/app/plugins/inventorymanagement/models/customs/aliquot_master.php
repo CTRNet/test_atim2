@@ -128,8 +128,7 @@ class AliquotMasterCustom extends AliquotMaster{
 		}
 		$specimen_type_code =  (empty($specimen_data['SpecimenDetail']['qc_hb_sample_code']))? 'n/a' : $specimen_data['SpecimenDetail']['qc_hb_sample_code'];
 	
-		App::import('Model', 'Inventorymanagement.ViewCollection');
-		$ViewCollection = new ViewCollection();
+		$ViewCollection = AppModel::getInstance('Inventorymanagement', 'ViewCollection', true);
 		$view_collection = $ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
 		if(empty($view_collection)) {
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error', null, true);

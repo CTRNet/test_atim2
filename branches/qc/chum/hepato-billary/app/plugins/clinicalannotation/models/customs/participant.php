@@ -1,7 +1,5 @@
 <?php
 
-//NL Revised
-
 class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
 	var $name = 'Participant';

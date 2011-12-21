@@ -2,24 +2,38 @@
 class EventMasterCustom extends EventMaster{
 	var $useTable = 'event_masters';
 	var $name = 'EventMaster';
-
-	/**
-	 * Calculate BMI value for clinical.hepatobiliary.presentation data
-	 * and add it to submitted event data.
-	 *
-	 * @param $event_data Submitted event data
-	 * @param $event_group
-	 * @param $disease_site
-	 * @param $event_type
-	 *
-	 * @return Updated event data
-	 */
 	
-	function addBmiValue( $event_data, $event_group, $disease_site, $event_type ) {
-		if(($event_group === 'clinical')
-		&& ($disease_site === 'hepatobiliary')
-		&& ($event_type === 'presentation')
-		&& (isset($event_data['EventDetail']['weight']))
+	function summary( $variables=array() ) {
+		$return = false;
+	
+		if ( isset($variables['EventMaster.id'])) {
+				
+			$result = $this->find('first', array('conditions'=>array('EventMaster.id'=>$variables['EventMaster.id'])));
+				
+			$return = array(
+					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'title'			=>	array( NULL, __('annotation', TRUE) ),
+					'data'				=> $result,
+					'structure alias'	=> 'eventmasters'
+			);
+		} else if ( isset($variables['EventControl.id'])) {
+			
+			$event_control_model = AppModel::getInstance("Clinicalannotation", "EventControl", true);
+			$result = $event_control_model->find('first', array('conditions'=>array('EventControl.id'=>$variables['EventControl.id'])));
+				
+			$return = array(
+					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'title'			=>	null,
+					'data'				=> null,
+					'structure alias'	=> null
+			);
+		}
+
+		return $return;
+	}
+	
+	function addBmiValue( $event_data ) {
+		if((isset($event_data['EventDetail']['weight']))
 		&& (isset($event_data['EventDetail']['height']))) {
 			// Format 'numeric' value
 			$event_data['EventDetail']['weight'] = str_replace(',', '.', $event_data['EventDetail']['weight']);
@@ -58,7 +72,7 @@ class EventMasterCustom extends EventMaster{
 		return $event_data;
 	}
 	
-//TODO	
+	
 	function getDuration($start_date, $end_date) {
 		$result = '';
 	
@@ -96,8 +110,8 @@ class EventMasterCustom extends EventMaster{
 	 * @param $event_control Event control of the created/studied event.
 	 * @param $particpant_id
 	 */
-//TODO	
-	function setParticipantSurgeriesList( $event_control, $participant_id = null ) {
+	
+	function getParticipantSurgeriesList( $event_control, $participant_id = null ) {
 		$event_type_title =
 		$event_control['EventControl']['disease_site'].'-'.
 		$event_control['EventControl']['event_group'].'-'.
@@ -105,76 +119,20 @@ class EventMasterCustom extends EventMaster{
 	
 		$pattern = '/^hepatobiliary-lab-biology?/';
 		if(preg_match($pattern, $event_type_title)) {
-			if(!isset($this->TreatmentMaster)) {
-				App::import("Model", "Clinicalannotation.TreatmentMaster");
-				$this->TreatmentMaster = new TreatmentMaster();
-			}
-				
-			$result = array();
-				
+			$treatment_model = AppModel::getInstance('clinicalannotation', 'TreatmentMaster', true);
+			$result = array(''=>'');
 			$criteria = array();
 			if(!is_null($participant_id)) $criteria['TreatmentMaster.participant_id'] = $participant_id;
 			$criteria[] = "TreatmentControl.tx_method LIKE 'surgery'";
-			foreach($this->TreatmentMaster->find('all', array('conditions'=>$criteria, 'order' => 'TreatmentMaster.start_date DESC')) as $new_surgery) {
-				$result[$new_surgery['TreatmentMaster']['id']] = __($new_surgery['TreatmentMaster']['disease_site'], true) . ' - ' . __($new_surgery['TreatmentControl']['tx_method'], true) . ' ' . $new_surgery['TreatmentMaster']['start_date'];
-			}
-				
-			$this->set('surgeries_for_lab_report', $result);
+			foreach($treatment_model->find('all', array('conditions'=>$criteria, 'order' => 'TreatmentMaster.start_date DESC')) as $new_surgery) {
+				$result[$new_surgery['TreatmentMaster']['id']] = __($new_surgery['TreatmentControl']['disease_site'], true) . ' - ' . __($new_surgery['TreatmentControl']['tx_method'], true) . ' ' . $new_surgery['TreatmentMaster']['start_date'];
+			}			
+			return $result;
 		}
+		
+		return null;
 	}
 	
-	/**
-	 * Set all required structures according to the imaging report type:
-	 * 	- date & summary
-	 * 	- pancreas
-	 * 	- volumetry
-	 * 	- segment
-	 * 	- other.
-	 *
-	 * @param $event_control_data Event control data of the created/studied event.
-	 **/
-//TODO	
-	function setMedicalImaginStructures($event_control_data){
-		if(strpos($event_control_data['EventControl']['form_alias'], 'qc_hb_imaging') === 0){
-				
-			// Set date and summary structure for all
-			$this->Structures->set('qc_hb_imaging_dateNSummary', 'qc_hb_dateNSummary_for_imaging');
-			$last_imaging_structure = 'qc_hb_dateNSummary_for_imaging';
-				
-			// Segments
-			if(strpos($event_control_data['EventControl']['form_alias'], 'segment') > 0){
-				$this->Structures->set('qc_hb_segment', 'qc_hb_segment');
-				$last_imaging_structure = 'qc_hb_segment';
-			}
-			// Other
-			if(strpos($event_control_data['EventControl']['form_alias'], 'other') > 0){
-				$this->Structures->set('qc_hb_other_localisations', 'qc_hb_other_localisations');
-				$last_imaging_structure = 'qc_hb_other_localisations';
-			}
-			// Pancreas
-			if(strpos($event_control_data['EventControl']['form_alias'], 'pancreas') > 0){
-				$this->Structures->set('qc_hb_pancreas', 'qc_hb_pancreas');
-				$last_imaging_structure = 'qc_hb_pancreas';
-			}
-			// Volumetry
-			if(strpos($event_control_data['EventControl']['form_alias'], 'volumetry') > 0){
-				$this->Structures->set('qc_hb_volumetry', 'qc_hb_volumetry');
-				$last_imaging_structure = 'qc_hb_volumetry';
-			}
-				
-			$this->set('last_imaging_structure', $last_imaging_structure);
-		}
-	}
-	
-	/**
-	 * Complete volumetry data for clinical.hepatobiliary.medical imaging *** - volumetry
-	 * and add it to submitted event data.
-	 *
-	 * @param $event_data Submitted event data
-	 *
-	 * @return Updated event data
-	 * */
-//TODO	
 	function completeVolumetry( $event_data ) {
 		if(isset($event_data['EventDetail']['is_volumetry_post_pve'])) {
 	
@@ -211,7 +169,7 @@ class EventMasterCustom extends EventMaster{
 	
 		return $event_data;
 	}
-//TODO	
+	
 	function setScores($event_control_event_type){
 		if($event_control_event_type == "child pugh score (classic)" || $event_control_event_type == "child pugh score (mod)"){
 			$this->setChildPughScore();
@@ -229,7 +187,6 @@ class EventMasterCustom extends EventMaster{
 			$this->setMeldScore();
 		}
 	}
-//TODO	
 	
 	function setChildPughScore(){
 		$score = 0;
@@ -300,7 +257,6 @@ class EventMasterCustom extends EventMaster{
 		}
 	
 	}
-//TODO	
 	
 	function setOkudaScore(){
 		$score = 0;
@@ -342,7 +298,6 @@ class EventMasterCustom extends EventMaster{
 			$this->data['EventDetail']['result'] = '';
 		}
 	}
-//TODO	
 	
 	function setBarcelonaScore(){
 		if($this->data['EventDetail']['who'] == "3 - 4"
@@ -404,7 +359,6 @@ class EventMasterCustom extends EventMaster{
 	
 		$this->data['EventDetail']['result'] = "?";
 	}
-//TODO	
 	
 	function setClipScore(){
 		$set_score = true;
@@ -440,7 +394,6 @@ class EventMasterCustom extends EventMaster{
 			$this->data['EventDetail']['result'] = '';
 		}
 	}
-//TODO	
 	
 	function setFongScore(){
 		$this->data['EventDetail']['result'] = 0;
@@ -460,7 +413,6 @@ class EventMasterCustom extends EventMaster{
 			++ $this->data['EventDetail']['result'];
 		}
 	}
-//TODO	
 	
 	function setGretchScore(){
 		$score = 0;
@@ -501,8 +453,7 @@ class EventMasterCustom extends EventMaster{
 				$this->data['EventDetail']['result'] = "C (".$score.")";
 			}
 		}
-	}
-//TODO	
+	}	
 	
 	function setMeldScore(){
 		$this->data['EventDetail']['result'] = null;
