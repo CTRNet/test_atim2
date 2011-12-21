@@ -35,7 +35,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
 		
 		// List trt extends
-		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.tx_master_id'=>$tx_master_id));
+		$this->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.treatment_master_id'=>$tx_master_id));
 		
 		// Set forms and menu data
 		$this->Structures->set( $tx_master_data['TreatmentControl']['extend_form_alias'] );
@@ -66,7 +66,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
 		
 		// Get extend data
-		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.treatment_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->data = $tx_extend_data;
 		
@@ -104,7 +104,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		}
 		
 		if ( !empty($this->data) ) {
-			$this->data['TreatmentExtend']['tx_master_id'] = $tx_master_id;
+			$this->data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
 			
 			$submitted_data_validates = true;
 			
@@ -141,7 +141,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
 		
 		// Get extend data
-		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.treatment_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { 
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}			
@@ -189,7 +189,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
 		
 		// Get extend data
-		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.tx_master_id'=>$tx_master_id)));
+		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.treatment_master_id'=>$tx_master_id)));
 		if(empty($tx_extend_data)) { 
 			$this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}			
@@ -231,7 +231,7 @@ class TreatmentExtendsController extends ClinicalannotationAppController {
 			}else{
 				foreach($prot_extend_data as $prot_extend){
 					$data[]['TreatmentExtend'] = array(
-						'tx_master_id' => $tx_master_id,
+						'treatment_master_id' => $tx_master_id,
 						'drug_id' => $prot_extend['ProtocolExtend']['drug_id'],
 						'method' => $prot_extend['ProtocolExtend']['method'],
 						'dose' => $prot_extend['ProtocolExtend']['dose']);
