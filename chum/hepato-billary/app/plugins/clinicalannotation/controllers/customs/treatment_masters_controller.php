@@ -44,11 +44,8 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$this->set('surgeries_events_data', $surgeries_events_data);	
 		
 		// Load EventMaster
-		if(!App::import('Model', 'clinicalannotation.EventMaster')) {
-			$this->redirect( '/pages/err_plugin_system_error', null, true );
-		}		
-		$this->EventMaster = new EventMaster();	
-				
+		$this->EventMaster = AppModel::getInstance('clinicalannotation', 'EventMaster', true);
+		
 		// Load lab reports list, imagings and structure
 		$this->set('imagings_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgery_data['TreatmentDetail']['imagery_id']))));
 		$this->set('lab_reports_data', $this->EventMaster->find('all', array('conditions' => array('EventMaster.id' => $surgery_data['TreatmentDetail']['lab_report_id']))));
