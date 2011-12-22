@@ -237,6 +237,16 @@ DELETE FROM structure_fields WHERE field = 'cytomet_other_value' AND tablename =
   	
 UPDATE structure_fields SET field = 'cytomet_other' WHERE field = 'cytomet_other_title' AND tablename = 'ld_lymph_ed_biopsies';  
  
+UPDATE structure_fields SET type = 'integer_positive', setting = 'size=10' WHERE field = 'participant_identifier';
+
+ALTER TABLE participants MODIFY participant_identifier INT(7) NOT NULL;
+ALTER TABLE participants_revs MODIFY participant_identifier INt(7) NOT NULL;
+
+ 
+ 
+ 
+ 
+ 
 
 -- ---------------------------------------------------------
 -- DEMO
