@@ -1,3 +1,137 @@
+UPDATE structure_permissible_values_customs SET fr = 'Hôpital Saint-Luc' WHERE value = 'saint-luc hospital';
+UPDATE structure_permissible_values_customs_revs SET fr = 'Hôpital Saint-Luc' WHERE value = 'saint-luc hospital';
+
+ALTER TABLE qc_hb_txe_surgery_complications
+ DROP FOREIGN KEY FK_qc_hb_txe_surgery_complications_tx_masters,
+ CHANGE tx_master_id treatment_master_id INT NOT NULL,
+ ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id);
+ALTER TABLE qc_hb_txe_surgery_complications_revs
+ CHANGE tx_master_id treatment_master_id INT NOT NULL;
+
+-- participant contact
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='contact_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_participant_contact_types') AND `flag_confidential`='0');
+
+UPDATE participant_contacts SET relationship = 'common-law spouse', contact_type = '' WHERE contact_type = 'Conjointe';
+UPDATE participant_contacts SET relationship = 'common-law spouse', contact_type = '' WHERE contact_type = 'conjoint';
+UPDATE participant_contacts SET relationship = 'friend', contact_type = '' WHERE contact_type = 'compagnon';
+
+UPDATE participant_contacts SET relationship = 'daughter', contact_type = '' WHERE contact_type = 'Fille';
+UPDATE participant_contacts SET relationship = 'son', contact_type = '' WHERE contact_type = 'Fils';
+UPDATE participant_contacts SET relationship = 'cousin', contact_type = '' WHERE contact_type = 'Cousine';
+UPDATE participant_contacts SET relationship = 'father', contact_type = '' WHERE contact_type = 'père';
+UPDATE participant_contacts SET relationship = 'brother', contact_type = '' WHERE contact_type = 'frère';
+UPDATE participant_contacts SET relationship = 'sister', contact_type = '' WHERE contact_type = 'soeur';
+UPDATE participant_contacts SET relationship = '', contact_type = '' WHERE contact_type = 'Résidentiel';
+UPDATE participant_contacts SET relationship = 'wife', contact_type = '' WHERE contact_type = 'Épouse';
+UPDATE participant_contacts SET relationship = 'the participant', contact_type = '' WHERE contact_type = 'Participant';
+
+SELECT IF((SELECT COUNT(*) FROM participant_contacts WHERE contact_type IS NOT NULL AND contact_type NOT LIKE '') > 0, 'Not all contact types have been clean up', 'Contact ok') AS msg;
+
+UPDATE participant_contacts_revs SET relationship = 'common-law spouse', contact_type = '' WHERE contact_type = 'Conjointe';
+UPDATE participant_contacts_revs SET relationship = 'common-law spouse', contact_type = '' WHERE contact_type = 'conjoint';
+UPDATE participant_contacts_revs SET relationship = 'friend', contact_type = '' WHERE contact_type = 'compagnon';
+
+UPDATE participant_contacts_revs SET relationship = 'daughter', contact_type = '' WHERE contact_type = 'Fille';
+UPDATE participant_contacts_revs SET relationship = 'son', contact_type = '' WHERE contact_type = 'Fils';
+UPDATE participant_contacts_revs SET relationship = 'cousin', contact_type = '' WHERE contact_type = 'Cousine';
+UPDATE participant_contacts_revs SET relationship = 'father', contact_type = '' WHERE contact_type = 'père';
+UPDATE participant_contacts_revs SET relationship = 'brother', contact_type = '' WHERE contact_type = 'frère';
+UPDATE participant_contacts_revs SET relationship = 'sister', contact_type = '' WHERE contact_type = 'soeur';
+UPDATE participant_contacts_revs SET relationship = '', contact_type = '' WHERE contact_type = 'Résidentiel';
+UPDATE participant_contacts_revs SET relationship = 'wife', contact_type = '' WHERE contact_type = 'Épouse';
+UPDATE participant_contacts_revs SET relationship = 'the participant', contact_type = '' WHERE contact_type = 'Participant';
+
+-- Tissue suspension 
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'genhemacs_enzymatic_milieu', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''genHeMACS enzymatic milieu'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('genHeMACS enzymatic milieu', '1', '50');
+UPDATE structure_fields SET type = 'select', setting = '', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name="genhemacs_enzymatic_milieu") WHERE field = 'qc_hb_macs_enzymatic_milieu';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('collagenase + dornase', 'Collagenase + Dornase', 'Collagénase + Dornase', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'genHeMACS enzymatic milieu')),
+('collagenase + dnase', 'Collagenase + DNase', 'Collagénase + DNase', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'genHeMACS enzymatic milieu')),
+('rpmi + collagenase + dnase', 'rpmi + Collagenase + DNase', 'rpmi + Collagénase + DNase', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'genHeMACS enzymatic milieu'));
+
+UPDATE sd_der_tiss_susps SET qc_hb_macs_enzymatic_milieu = 'collagenase + dornase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase+dornase';
+UPDATE sd_der_tiss_susps SET qc_hb_macs_enzymatic_milieu = 'collagenase + dornase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase et dornase';
+UPDATE sd_der_tiss_susps SET qc_hb_macs_enzymatic_milieu = 'rpmi + collagenase + dnase' WHERE qc_hb_macs_enzymatic_milieu = 'rpmi+collagénase+DNase';
+UPDATE sd_der_tiss_susps SET qc_hb_macs_enzymatic_milieu = 'collagenase + dnase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase et DNase';
+
+SELECT IF((SELECT COUNT(*) FROM sd_der_tiss_susps WHERE qc_hb_macs_enzymatic_milieu NOT IN ('rpmi + collagenase + dnase', 'collagenase + dnase', 'collagenase + dornase') AND qc_hb_macs_enzymatic_milieu IS NOT NULL AND qc_hb_macs_enzymatic_milieu NOT LIKE '') > 0, 'Not all genHeMACS enzymatic milieus have been clean up', 'GenHeMACS enzymatic milieu ok') AS msg;
+
+UPDATE sd_der_tiss_susps_revs SET qc_hb_macs_enzymatic_milieu = 'collagenase + dornase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase+dornase';
+UPDATE sd_der_tiss_susps_revs SET qc_hb_macs_enzymatic_milieu = 'collagenase + dornase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase et dornase';
+UPDATE sd_der_tiss_susps_revs SET qc_hb_macs_enzymatic_milieu = 'rpmi + collagenase + dnase' WHERE qc_hb_macs_enzymatic_milieu = 'rpmi+collagénase+DNase';
+UPDATE sd_der_tiss_susps_revs SET qc_hb_macs_enzymatic_milieu = 'collagenase + dnase' WHERE qc_hb_macs_enzymatic_milieu = 'collagénase et DNase';
+
+-- No Labo
+
+DELETE FROM i18n WHERE id = 'participant identifier';
+INSERT INTO i18n (id,en,fr) VALUES ('participant identifier', 'Bank Nbr', 'No Banque');
+UPDATE structure_formats SET flag_override_label = '0', language_label = '' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'participant_identifier');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='0', `flag_add`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE participants SET participant_identifier = '-1';
+UPDATE participants part, misc_identifiers ident SET part.participant_identifier = ident.identifier_value WHERE part.id = ident.participant_id AND ident.misc_identifier_control_id = 3;
+
+SELECT IF((SELECT COUNT(*) FROM participants WHERE participant_identifier = '-1' OR participant_identifier IS NULL OR participant_identifier LIKE '') > 0, 'Not all No Labo have been clean up', 'No Labo  ok') AS msg;
+
+UPDATE participants_revs rev, participants main SET rev.participant_identifier = main.participant_identifier WHERE rev.id = main.id;
+
+DELETE FROM misc_identifiers WHERE misc_identifier_control_id = 3;
+DELETE FROM misc_identifiers_revs WHERE misc_identifier_control_id = 3;
+DELETE FROM misc_identifier_controls WHERE id = 3;
+
+UPDATE structure_fields SET type = 'integer_positive', setting = 'size=10' WHERE field = 'participant_identifier';
+
+ALTER TABLE participants MODIFY participant_identifier INT(7) NOT NULL;
+ALTER TABLE participants_revs MODIFY participant_identifier INt(7) NOT NULL;
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('error_participant identifier required', 'The participant Bank Nbr is required!', 'Erreur - No Banque du participant est requis!'),
+('error_participant identifier must be unique', 'Error - Participant Bank Nbr must be unique!', 'Erreur - No Banque du participant doit être unique!');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT 'TODO: revoir structure_formats flag' as msg_1;
+SELECT 'TODO: sd_der_tiss_susps_revs.qc_hb_macs_enzymatic_milieu par defaut = collagenase + dnase' as msg_1;
+SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
+ 
+ 
+
+            | fr                                       |
++---------------------------------------+---------+-----------------------------
+------------+------------------------------------------+
+| error_participant identifier required |         | The participant identifier i
+s required! | L'identifiant du participant est requis! |
++---------------------------------------+---------+-----------------------------
+------------+------------------------------------------+
+
+| error_participant identifier must be unique |         | Error - Participant Id
+entifier must be unique! | Erreur - L'identifiant du participant doit Ûtre uniqu
+e  |
++---------------------------------------------+---------+-----------------------
+-------------------------+------------------------------------------------------
+
+exit
 
 
 

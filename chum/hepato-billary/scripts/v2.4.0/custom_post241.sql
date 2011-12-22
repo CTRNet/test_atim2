@@ -294,8 +294,6 @@ INSERT IGNORE INTO i18n (id,en) VALUES ('chemo-embolization', 'Chemo-Embolizatio
 
 -- ClinicalAnnotation.Annotation
 
-SELECT 'TODO: ANNOTATION revision' as msg_1;
-
 REPLACE INTO i18n (id,en,fr) VALUES ('this type of event has already been created for your participant', 'This type of annotation has already been created for your participant!', 'Ce type d''annotation a déjà été créée pour votre participant!');
 
 UPDATE structure_fields SET tablename = 'qc_hb_ed_hospitalizations' WHERE field = 'hospitalization_end_date';
