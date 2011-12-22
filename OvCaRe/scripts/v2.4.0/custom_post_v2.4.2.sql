@@ -172,3 +172,8 @@ INNER JOIN aliquot_masters AS aliq ON aliq.id = aluse.aliquot_master_id AND aliq
 INNER JOIN aliquot_controls AS aliqc ON aliq.aliquot_control_id = aliqc.id
 INNER JOIN sample_masters AS samp ON samp.id = aliq.sample_master_id  AND samp.deleted != 1
 WHERE aluse.deleted != 1;
+
+UPDATE structure_fields SET type = 'integer_positive', setting = 'size=10' WHERE field = 'participant_identifier';
+
+ALTER TABLE participants MODIFY participant_identifier INT(7) NOT NULL;
+ALTER TABLE participants_revs MODIFY participant_identifier INt(7) NOT NULL;
