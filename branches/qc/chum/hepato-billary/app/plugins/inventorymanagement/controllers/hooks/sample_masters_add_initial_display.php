@@ -98,6 +98,7 @@ if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
 	
 	$this->data['DerivativeDetail']['creation_site'] = "ICM";
 	$this->data['DerivativeDetail']['creation_by'] = 'louise rousseau';
+	$this->data['SampleDetail']['qc_hb_macs_enzymatic_milieu'] = 'collagenase + dnase';
 	
 }
 
