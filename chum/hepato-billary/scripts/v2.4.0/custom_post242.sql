@@ -222,6 +222,11 @@ UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE struc
 UPDATE aliquot_masters SET barcode = id;
 UPDATE aliquot_masters_revs SET barcode = id;
 
+INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES ((SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'aliquot_label'), 'notEmpty', ''); 
+
+
+SELECT 'aliquot view avec label , todo' AS MSG;
+
 -- ------------------------------------------------------------------------------------------------------------
 -- DATAMART
 -- ------------------------------------------------------------------------------------------------------------
