@@ -94,63 +94,137 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('error_participant identifier required', 'The participant Bank Nbr is required!', 'Erreur - No Banque du participant est requis!'),
 ('error_participant identifier must be unique', 'Error - Participant Bank Nbr must be unique!', 'Erreur - No Banque du participant doit être unique!');
 
+DROP VIEW view_collections;
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+`col`.`acquisition_label` AS `acquisition_label`,
+`col`.`collection_site` AS `collection_site`,
+`col`.`collection_datetime` AS `collection_datetime`,
+`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
+`col`.`collection_property` AS `collection_property`,
+`col`.`collection_notes` AS `collection_notes`,
+`col`.`deleted` AS `deleted`,
+`banks`.`name` AS `bank_name`,
+`col`.`created` AS `created`
+from `collections` `col` 
+left join `clinical_collection_links` `link` on `col`.`id` = `link`.`collection_id` and `link`.`deleted` <> 1 
+left join `participants` `part` on `link`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1
+left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1
+where `col`.`deleted` <> 1;
 
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'hepato_bil_bank_participant_id' AND model = 'ViewCollection');
+DELETE FROM structure_fields WHERE field = 'hepato_bil_bank_participant_id' AND model = 'ViewCollection';
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- qc_hb_label
 
+UPDATE aliquot_masters SET aliquot_label = qc_hb_label;
+UPDATE aliquot_masters_revs SET aliquot_label = qc_hb_label;
 
+ALTER TABLE aliquot_masters DROP COLUMN qc_hb_label;
+ALTER TABLE aliquot_masters_revs DROP COLUMN qc_hb_label;
 
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_label');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_label');
+DELETE FROM structure_fields WHERE field = 'qc_hb_label';
 
+UPDATE structure_formats SET flag_override_label = '', language_label = '' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field  ='aliquot_label');
 
+-- bank_id
 
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
+-- View
 
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- sop
 
+UPDATE structure_formats SET flag_add='0',flag_add_readonly='0',flag_edit='0',flag_edit_readonly='0',flag_search='0',flag_search_readonly='0',flag_addgrid='0',flag_addgrid_readonly='0',flag_editgrid='0',flag_editgrid_readonly='0',flag_summary='0',flag_batchedit='0',flag_batchedit_readonly='0',flag_index='0',flag_detail='0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sop_master_id');
 
-SELECT 'TODO: revoir structure_formats flag' as msg_1;
-SELECT 'TODO: sd_der_tiss_susps_revs.qc_hb_macs_enzymatic_milieu par defaut = collagenase + dnase' as msg_1;
-SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
- 
- 
+-- aliquot masters
 
-            | fr                                       |
-+---------------------------------------+---------+-----------------------------
-------------+------------------------------------------+
-| error_participant identifier required |         | The participant identifier i
-s required! | L'identifiant du participant est requis! |
-+---------------------------------------+---------+-----------------------------
-------------+------------------------------------------+
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='' AND `field`='use_counter' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-| error_participant identifier must be unique |         | Error - Participant Id
-entifier must be unique! | Erreur - L'identifiant du participant doit Ûtre uniqu
-e  |
-+---------------------------------------------+---------+-----------------------
--------------------------+------------------------------------------------------
+UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`= '1202', `language_heading`='' WHERE structure_id = (SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `field`='barcode');
 
-exit
+-- plasma and tubes
 
+UPDATE structure_formats SET display_column = '1' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_der_tubes_incl_ml_vol');
+UPDATE structure_formats SET display_order = (display_order + 55) WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'ad_der_tubes_incl_ml_vol') AND display_order < 20;
 
+UPDATE structure_formats SET display_column = '0', display_order = '1001' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_der_tubes_incl_ml_vol') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_stored_by');
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 
+-- pbmc and tubes
 
+UPDATE structure_formats SET `display_order`='451', `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_hb_nb_cells' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='452', `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_sd_der_pbmc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_pbmcs' AND `field`='qc_hb_nb_cell_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_nb_cell_unit') AND `flag_confidential`='0');
 
+UPDATE structure_formats SET display_column = '1' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_der_cell_tubes_incl_ml_vol');
+UPDATE structure_formats SET display_order = (display_order + 55) WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'ad_der_cell_tubes_incl_ml_vol') AND display_order < 20;
+UPDATE structure_formats SET display_column = '0', display_order = '1001' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_der_cell_tubes_incl_ml_vol') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_stored_by');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_hb_milieu' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_milieu') AND `flag_confidential`='0');
 
+-- serum and tube
 
--- -----------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-SELECT  'Demander a Franck d'ordonner ses custom drop down list' as msg;
-SELECT 'TODO: Work on datamart adhoc running sql statements after line 257';
-exit
+-- TISSUE tube
 
--- -----------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------
--- -----------------------------------------------------------------------------------------------------
+UPDATE structure_formats SET display_column = '1' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_spec_tubes');
+UPDATE structure_formats SET display_order = (display_order + 55) WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'ad_spec_tubes') AND display_order < 20;
+UPDATE structure_formats SET display_column = '0', display_order = '1001' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_spec_tubes') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_stored_by');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+
+-- TISSUE block
+
+UPDATE structure_formats SET display_column = '1' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_spec_tiss_blocks');
+UPDATE structure_formats SET display_order = (display_order + 55) WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'ad_spec_tiss_blocks') AND display_order < 20;
+UPDATE structure_formats SET display_column = '0', display_order = '1001' WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ad_spec_tiss_blocks') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'qc_hb_stored_by');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qc_hb_stored_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+
+-- TISSUE suspensio
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_tissue_susp') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` IN ('DerivativeDetail','SampleMaster') AND field IN ('creation_site','creation_datetime','parent_sample_type'));
+UPDATE structure_formats SET display_order = (display_order + 400) WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'sd_tissue_susp');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_tissue_susp') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_tiss_susps' AND `field` IN ('qc_hb_overnight','qc_hb_nb_viable_cells','qc_hb_nb_viable_cells_unit'));
+
+UPDATE menus set flag_active = 0 WHERE use_link like '%inventorymanagement/specimen_reviews%';
+SET @str_id = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 = @str_id OR id2 = @str_id;
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE aliquot_masters SET barcode = id;
+UPDATE aliquot_masters_revs SET barcode = id;
+
+-- ------------------------------------------------------------------------------------------------------------
+-- DATAMART
+-- ------------------------------------------------------------------------------------------------------------
 
 UPDATE datamart_adhoc SET sql_query_for_results='
 SELECT 
