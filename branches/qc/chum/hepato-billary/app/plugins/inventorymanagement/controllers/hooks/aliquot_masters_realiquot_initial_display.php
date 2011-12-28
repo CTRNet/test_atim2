@@ -1,16 +1,22 @@
 <?php
 
-foreach($this->data as &$new_data_set) {
-	$new_data_set['children'][0]['AliquotMaster']['aliquot_label'] = $new_data_set['parent']['AliquotMaster']['aliquot_label'];
-	$new_data_set['children'][0]['AliquotMaster']['qc_hb_stored_by'] = 'louise rousseau';
-	$new_data_set['children'][0]['Realiquoting']['realiquoted_by'] = 'louise rousseau';
+	$custom_override_data = array();	
+	foreach($this->data as &$new_data_set) {
+		$tmp = array();
+		
+		$tmp['AliquotMaster.aliquot_label'] = $new_data_set['parent']['AliquotMaster']['aliquot_label'];
+		$tmp['AliquotMaster.qc_hb_stored_by'] = 'louise rousseau';
+		$tmp['Realiquoting.realiquoted_by'] = 'louise rousseau';
+		
+		if(($new_data_set['parent']['SampleControl']['sample_type'] == 'tissue') && ($child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'tube')) {
+			$tmp['AliquotDetail.qc_hb_storage_method'] = 'snap frozen';
+		}
+		if(($new_data_set['parent']['SampleControl']['sample_type'] == 'tissue') && ($child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block')) {
+			$tmp['AliquotDetail.block_type'] = 'OCT';
+		}
 	
-	if(($new_data_set['parent']['SampleControl']['sample_type'] == 'tissue') && ($child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'tube')) {
-		$new_data_set['children'][0]['AliquotDetail']['qc_hb_storage_method'] = 'snap frozen';
+		$custom_override_data[$new_data_set['parent']['AliquotMaster']['id']] = $tmp;
 	}
-	if(($new_data_set['parent']['SampleControl']['sample_type'] == 'tissue') && ($child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block')) {
-		$new_data_set['children'][0]['AliquotDetail']['block_type'] = 'OCT';
-	}	
-}
+	$this->set('custom_override_data', $custom_override_data);
 
 ?>

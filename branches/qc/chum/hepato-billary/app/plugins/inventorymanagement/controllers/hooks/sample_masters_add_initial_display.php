@@ -84,7 +84,7 @@ if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
 			'recursive' => '0'));	
 	}	
 		
-	$this->data['DerivativeDetail']['creation_site'] = "ICM";
+	$this->data['DerivativeDetail']['creation_site'] = "cr. st-luc";
 	$this->data['DerivativeDetail']['creation_by'] = 'louise rousseau';
 	if(!empty($data_to_duplicate)) {
 		$this->data['SampleMaster']['sop_master_id'] = $data_to_duplicate['SampleMaster']['sop_master_id'];
@@ -96,7 +96,7 @@ if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
 	
 } else {
 	
-	$this->data['DerivativeDetail']['creation_site'] = "ICM";
+	$this->data['DerivativeDetail']['creation_site'] = "cr. st-luc";
 	$this->data['DerivativeDetail']['creation_by'] = 'louise rousseau';
 	$this->data['SampleDetail']['qc_hb_macs_enzymatic_milieu'] = 'collagenase + dnase';
 	
