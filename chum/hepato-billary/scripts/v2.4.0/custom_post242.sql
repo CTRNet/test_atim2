@@ -25,6 +25,7 @@ UPDATE participant_contacts SET relationship = 'sister', contact_type = '' WHERE
 UPDATE participant_contacts SET relationship = '', contact_type = '' WHERE contact_type = 'Résidentiel';
 UPDATE participant_contacts SET relationship = 'wife', contact_type = '' WHERE contact_type = 'Épouse';
 UPDATE participant_contacts SET relationship = 'the participant', contact_type = '' WHERE contact_type = 'Participant';
+UPDATE participant_contacts SET relationship = 'the participant', contact_type = '' WHERE contact_type = 'The participant';
 
 SELECT IF((SELECT COUNT(*) FROM participant_contacts WHERE contact_type IS NOT NULL AND contact_type NOT LIKE '') > 0, 'Not all contact types have been clean up', 'Contact ok') AS msg;
 
@@ -545,6 +546,72 @@ WHERE revs.id = link.id;
 
 UPDATE structure_fields SET language_tag = 'size (cm)' WHERE field LIKE '%_size' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
 INSERT INTO i18n (id,en,fr) VALUES ('size (cm)', 'Size (cm)', 'Taille (cm)');
+
+SELECT IF((SELECT COUNT(*) FROM diagnosis_masters) > 1, 'Diagnosis Warning', 'Diagnosis ok') AS msg;
+UPDATE diagnosis_controls SET category = 'secondary', databrowser_label = 'secondary|liver metastasis' WHERE controls_type = 'liver metastasis';
+
+SELECT 'RUN FOLLOWING SQL STATEMENTS' as msg;
+SELECT CONCAT("UPDATE event_masters SET diagnosis_master_id = '2' WHERE id = ",id,";") as msg FROM event_masters WHERE diagnosis_master_id = 1;
+SELECT CONCAT("UPDATE event_masters_revs SET diagnosis_master_id = '2' WHERE id = ",id,";") as msg FROM event_masters WHERE diagnosis_master_id = 1;
+
+UPDATE event_masters SET diagnosis_master_id = null WHERE diagnosis_master_id = 1;
+UPDATE event_masters_revs SET diagnosis_master_id = null WHERE diagnosis_master_id = 1;
+
+TRUNCATE qc_hb_dxd_liver_metastases;
+TRUNCATE qc_hb_dxd_liver_metastases_revs;
+TRUNCATE diagnosis_masters_revs;
+TRUNCATE diagnosis_masters;
+
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
+('2.4.2', NOW(), '4017');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
