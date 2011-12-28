@@ -565,12 +565,8 @@ TRUNCATE diagnosis_masters;
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
 ('2.4.2', NOW(), '4017');
 
-
-
-
-
-
-
+ALTER TABLE qc_hb_dxd_liver_metastases MODIFY viable_cells_perc VARCHAR(50);
+ALTER TABLE qc_hb_dxd_liver_metastases_revs MODIFY viable_cells_perc VARCHAR(50);
 
 
 
