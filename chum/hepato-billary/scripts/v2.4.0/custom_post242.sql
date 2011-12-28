@@ -225,8 +225,6 @@ UPDATE aliquot_masters_revs SET barcode = id;
 INSERT INTO structure_validations (structure_field_id, rule, language_message) VALUES ((SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'aliquot_label'), 'notEmpty', ''); 
 
 
-SELECT 'aliquot view avec label , todo' AS MSG;
-
 -- ------------------------------------------------------------------------------------------------------------
 -- DATAMART
 -- ------------------------------------------------------------------------------------------------------------
@@ -522,3 +520,39 @@ AND EventDetail.density <= "@@EventDetail.density_end@@"
 
 AND EventDetail.type = "@@EventDetail.type@@"
 ' WHERE id=1;
+
+-- ------- AFTER LOUISE REVISION
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='contact_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='contact_type') AND `flag_confidential`='0');
+
+INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`) VALUES
+('notre_dame_hospital_nbr', 1, 1, '', '', 1, 1),('hotel_dieu_hospital_nbr', 1, 1, '', '', 1, 1);
+
+INSERT INTO i18n (id,en,fr) VALUES
+('notre_dame_hospital_nbr', 'Notre Dame Hospital Number', 'No Hôpital Notre Dame'), 
+('hotel_dieu_hospital_nbr', 'Hôtel Dieu Hospital Number', 'No Hôpital Hôtel Dieu');
+
+UPDATE clinical_collection_links link, consent_masters cst
+SET link.consent_master_id = cst.id
+WHERE link.collection_id IS NOT NULL
+AND link.deleted != 1
+AND link.participant_id = cst.participant_id
+AND cst.deleted != 1;
+
+UPDATE clinical_collection_links link, clinical_collection_links_revs revs
+SET revs.consent_master_id = link.consent_master_id
+WHERE revs.id = link.id;
+
+UPDATE structure_fields SET language_tag = 'size (cm)' WHERE field LIKE '%_size' AND tablename = 'qc_hb_ed_hepatobilary_medical_imagings';
+INSERT INTO i18n (id,en,fr) VALUES ('size (cm)', 'Size (cm)', 'Taille (cm)');
+
+
+
+
+
+
+
+
+
+
+
