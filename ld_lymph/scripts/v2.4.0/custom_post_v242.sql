@@ -183,14 +183,14 @@ DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structu
 DELETE FROM structure_fields WHERE field = 'scan_nbr' AND tablename = 'ld_lymph_ed_imagings';
 
 ALTER TABLE `ld_lymph_ed_imagings` 
- ADD COLUMN lymph_node_for_petsuv_other_desc VARCHAR (250) AFTER lymph_node_for_petsuv_other;
+ ADD COLUMN pe_imag_lymph_node_other_desc VARCHAR (250) AFTER pe_imag_lymph_node_other;
 ALTER TABLE `ld_lymph_ed_imagings_revs` 
- ADD COLUMN lymph_node_for_petsuv_other_desc VARCHAR (250) AFTER lymph_node_for_petsuv_other;
+ ADD COLUMN pe_imag_lymph_node_other_desc VARCHAR (250) AFTER pe_imag_lymph_node_other;
   
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'lymph_node_for_petsuv_other_desc', 'input',  NULL , '0', 'size=30', '', '', '', 'lymph node other description'); 
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'pe_imag_lymph_node_other_desc', 'input',  NULL , '0', 'size=30', '', '', '', 'lymph node other description'); 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='lymph_node_for_petsuv_other_desc'), '3', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_other_desc'), '3', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
  
@@ -242,39 +242,31 @@ UPDATE structure_fields SET type = 'integer_positive', setting = 'size=10' WHERE
 ALTER TABLE participants MODIFY participant_identifier INT(7) NOT NULL;
 ALTER TABLE participants_revs MODIFY participant_identifier INt(7) NOT NULL;
 
- 
- 
- 
- 
- 
-
--- ---------------------------------------------------------
--- DEMO
--- -------------------------------------------------------
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('custom cst v1', 'custom cst v1', 'custom cst v1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'consent form versions'));
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('lymphoma custom 1', 'lymphoma custom 1', 'lymphoma custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma types'));
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('lymphoma prog custom 1', 'lymphoma prog custom 1', 'lymphoma prog custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma progression sites'));
-
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('lymphoma B symptoms descriptions 1', 'lymphoma B symptoms descriptions 1', 'lymphoma prog custom 1', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions'));
-
-
-UPDATE users set flag_active=1;
+UPDATE users set flag_active=1 where id = 1;
 update groups set flag_show_confidential = 1;
 
 
+REPLACE INTO i18n (id,en) VALUES
+('cytomet cd20', 'CD20 (%)'),
+('cytomet cd5', 'CD5 (%)'),
+('cytomet cd23', 'CD23 (%)'),
+('cytomet cd2', 'CD2 (%)'),
+('cytomet cd3', 'CD3 (%)'),
+('cytomet cd4', 'CD4 (%)'),
+('cytomet cd8', 'CD8 (%)'),
+('cytomet lambda', '&#955; (%)'),
+('cytomet kappa', '&#954; (%)'),
+('cytomet cd10', 'CD10 (%)'),
+('cytomet cd19', 'CD19 (%)');
 
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
+('2.4.2', NOW(), '4022');
 
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_score' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE `ld_lymph_ed_imagings` MODIFY `initial_pet_suv_max` decimal(7,2) DEFAULT null;
+ALTER TABLE `ld_lymph_ed_imagings_revs` MODIFY `initial_pet_suv_max` decimal(7,2) DEFAULT null;
 
 
 
