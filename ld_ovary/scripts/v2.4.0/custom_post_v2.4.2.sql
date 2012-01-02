@@ -152,7 +152,8 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure
 
 UPDATE menus SET flag_active = 0 WHERE use_link Like '/inventorymanagement/specimen_reviews%';
 
-
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
+('2.4.2', NOW(), '4020');
 
 
 
