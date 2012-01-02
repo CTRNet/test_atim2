@@ -6,12 +6,13 @@ class EventMasterCustom extends EventMaster {
 	var $name = 'EventMaster';	
 	
 	function beforeSave($options) {
-		if(array_key_exists('lymph_node_for_petsuv_waldeyers_ring', $this->data['EventDetail'])) {
+		if(array_key_exists('pe_imag_lymph_node_waldeyers_ring', $this->data['EventDetail'])) {
 			$score = 0;
+			
 			foreach($this->data['EventDetail'] as $key => $value) { 
-				if((strpos($key, 'lymph_node_for_petsuv_') === 0) && ($value == 'y')) $score++; 
+				if((!in_array($key, array('pe_imag_lymph_node_other_desc','pe_imag_lymph_node_score'))) && (strpos($key, 'pe_imag_lymph_node_') === 0) && ($value == 'y')) $score++; 
 			}
-			$this->data['EventDetail']['initial_pet_suv_max'] = $score;
+			$this->data['EventDetail']['pe_imag_lymph_node_score'] = $score;
 		}
 		
 		return true;
