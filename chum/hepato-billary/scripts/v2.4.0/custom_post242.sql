@@ -568,43 +568,186 @@ INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
 ALTER TABLE qc_hb_dxd_liver_metastases MODIFY viable_cells_perc VARCHAR(50);
 ALTER TABLE qc_hb_dxd_liver_metastases_revs MODIFY viable_cells_perc VARCHAR(50);
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-01-03 after migration
+-- ------------------------------------------------------------------------
 
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biologies
+  MODIFY `wbc` decimal(6, 2) DEFAULT NULL,
+  MODIFY `rbc` decimal(6, 2) DEFAULT NULL,
+  MODIFY `hb` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ht` decimal(6, 2) DEFAULT NULL,
+  MODIFY `platelets` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ptt` decimal(6, 2) DEFAULT NULL,
+  MODIFY `inr` decimal(6, 2) DEFAULT NULL,
+  MODIFY `na` decimal(6, 2) DEFAULT NULL,
+  MODIFY `k` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cl` decimal(6, 2) DEFAULT NULL,
+  MODIFY `creatinine` decimal(6, 2) DEFAULT NULL,
+  MODIFY `urea` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca` decimal(6, 2) DEFAULT NULL,
+  MODIFY `p` decimal(6, 2) DEFAULT NULL,
+  MODIFY `mg` decimal(6, 2) DEFAULT NULL,
+  MODIFY `protein` decimal(6, 2) DEFAULT NULL,
+  MODIFY `uric_acid` decimal(6, 2) DEFAULT NULL,
+  MODIFY `glycemia` decimal(6, 2) DEFAULT NULL,
+  MODIFY `triglycerides` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cholesterol` decimal(6, 2) DEFAULT NULL,
+  MODIFY `albumin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `total_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `direct_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `indirect_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ast` decimal(6, 2) DEFAULT NULL,
+  MODIFY `alt` decimal(6, 2) DEFAULT NULL,
+  MODIFY `alkaline_phosphatase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `amylase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lipase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `a_fp` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cea` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_19_9` decimal(6, 2) DEFAULT NULL,
+  MODIFY `chromogranine` decimal(6, 2) DEFAULT NULL,
+  MODIFY `_5_HIAA` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_125` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_15_3` decimal(6, 2) DEFAULT NULL,
+  MODIFY `b_hcg` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_marker_1` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_marker_2` decimal(6, 2) DEFAULT NULL;
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biologies_revs
+  MODIFY `wbc` decimal(6, 2) DEFAULT NULL,
+  MODIFY `rbc` decimal(6, 2) DEFAULT NULL,
+  MODIFY `hb` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ht` decimal(6, 2) DEFAULT NULL,
+  MODIFY `platelets` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ptt` decimal(6, 2) DEFAULT NULL,
+  MODIFY `inr` decimal(6, 2) DEFAULT NULL,
+  MODIFY `na` decimal(6, 2) DEFAULT NULL,
+  MODIFY `k` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cl` decimal(6, 2) DEFAULT NULL,
+  MODIFY `creatinine` decimal(6, 2) DEFAULT NULL,
+  MODIFY `urea` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca` decimal(6, 2) DEFAULT NULL,
+  MODIFY `p` decimal(6, 2) DEFAULT NULL,
+  MODIFY `mg` decimal(6, 2) DEFAULT NULL,
+  MODIFY `protein` decimal(6, 2) DEFAULT NULL,
+  MODIFY `uric_acid` decimal(6, 2) DEFAULT NULL,
+  MODIFY `glycemia` decimal(6, 2) DEFAULT NULL,
+  MODIFY `triglycerides` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cholesterol` decimal(6, 2) DEFAULT NULL,
+  MODIFY `albumin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `total_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `direct_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `indirect_bilirubin` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ast` decimal(6, 2) DEFAULT NULL,
+  MODIFY `alt` decimal(6, 2) DEFAULT NULL,
+  MODIFY `alkaline_phosphatase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `amylase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lipase` decimal(6, 2) DEFAULT NULL,
+  MODIFY `a_fp` decimal(6, 2) DEFAULT NULL,
+  MODIFY `cea` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_19_9` decimal(6, 2) DEFAULT NULL,
+  MODIFY `chromogranine` decimal(6, 2) DEFAULT NULL,
+  MODIFY `_5_HIAA` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_125` decimal(6, 2) DEFAULT NULL,
+  MODIFY `ca_15_3` decimal(6, 2) DEFAULT NULL,
+  MODIFY `b_hcg` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_marker_1` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_marker_2` decimal(6, 2) DEFAULT NULL;
+UPDATE structure_fields SET type = 'float_positive' WHERE tablename = 'qc_hb_ed_hepatobilary_lab_report_biologies' AND field IN (
+'wbc',
+'rbc',
+'hb',
+'ht',
+'platelets',
+'ptt',
+'inr',
+'na',
+'k',
+'cl',
+'creatinine',
+'urea',
+'ca',
+'p',
+'mg',
+'protein',
+'uric_acid',
+'glycemia',
+'triglycerides',
+'cholesterol',
+'albumin',
+'total_bilirubin',
+'direct_bilirubin',
+'indirect_bilirubin',
+'ast',
+'alt',
+'alkaline_phosphatase',
+'amylase',
+'lipase',
+'a_fp',
+'cea',
+'ca_19_9',
+'chromogranine',
+'_5_HIAA',
+'ca_125',
+'ca_15_3',
+'b_hcg',
+'other_marker_1',
+'other_marker_2');
 
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biologies
+  ADD COLUMN `ca_total` decimal(6, 2) DEFAULT NULL AFTER ca;
+ALTER TABLE qc_hb_ed_hepatobilary_lab_report_biologies_revs
+  ADD COLUMN `ca_total` decimal(6, 2) DEFAULT NULL AFTER ca;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_lab_report_biologies', 'ca_total', 'float',  NULL , '0', 'size=5', '', '', 'ca total', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobilary_lab_report_biology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_lab_report_biologies' AND `field`='ca_total' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ca total' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE structure_fields SET language_label = 'ca2+' WHERE tablename = 'qc_hb_ed_hepatobilary_lab_report_biologies' AND field = 'ca';
+INSERT INTO i18n (id,en) VALUEs ('ca2+','Ca2+'),('ca total','Ca Total');
 
+UPDATE structure_formats SET flag_search = 1, flag_index = 1 WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobilary_lab_report_biology')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'qc_hb_ed_hepatobilary_lab_report_biologies' AND field IN (
+'wbc',
+'rbc',
+'hb',
+'ht',
+'platelets',
+'ptt',
+'inr',
+'na',
+'k',
+'cl',
+'creatinine',
+'urea',
+'ca',
+'p',
+'mg',
+'protein',
+'uric_acid',
+'glycemia',
+'triglycerides',
+'cholesterol',
+'albumin',
+'total_bilirubin',
+'direct_bilirubin',
+'indirect_bilirubin',
+'ast',
+'alt',
+'alkaline_phosphatase',
+'amylase',
+'lipase',
+'a_fp',
+'cea',
+'ca_19_9',
+'chromogranine',
+'_5_HIAA',
+'ca_125',
+'ca_15_3',
+'b_hcg',
+'other_marker_1',
+'other_marker_2',
+'other_marker_1_description','other_marker_2_description','post_surgery_report_type'));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- ------------------------------------------------------------------------
 
 
 
