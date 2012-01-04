@@ -748,15 +748,75 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'qc
 'other_marker_1_description','other_marker_2_description','post_surgery_report_type'));
 
 -- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-01-04 after migration
+-- ------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings
+  MODIFY `segment_1_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_2_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_3_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_4a_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_4b_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_5_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_6_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_7_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_8_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lungs_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lymph_node_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `colon_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `rectum_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `bones_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_1_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_2_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_3_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `total_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `resected_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `remnant_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `tumoral_volume` decimal(6, 2) DEFAULT NULL;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs
+  MODIFY `segment_1_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_2_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_3_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_4a_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_4b_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_5_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_6_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_7_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `segment_8_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lungs_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `lymph_node_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `colon_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `rectum_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `bones_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_1_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_2_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `other_localisation_3_size` decimal(6, 2) DEFAULT NULL,
+  MODIFY `total_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `resected_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `remnant_liver_volume` decimal(6, 2) DEFAULT NULL,
+  MODIFY `tumoral_volume` decimal(6, 2) DEFAULT NULL; 
+UPDATE structure_fields SET type = 'float_positive' WHERE tablename = 'qc_hb_ed_hepatobilary_medical_imagings' AND field IN (
+'segment_1_size',
+'segment_2_size',
+'segment_3_size',
+'segment_4a_size',
+'segment_4b_size',
+'segment_5_size',
+'segment_6_size',
+'segment_7_size',
+'segment_8_size',
+'lungs_size',
+'lymph_node_size',
+'colon_size',
+'rectum_size',
+'bones_size',
+'other_localisation_1_size',
+'other_localisation_2_size',
+'other_localisation_3_size',
+'total_liver_volume',
+'resected_liver_volume',
+'remnant_liver_volume',
+'tumoral_volume');
 
 
 
