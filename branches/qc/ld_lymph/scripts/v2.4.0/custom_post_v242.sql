@@ -182,16 +182,6 @@ ALTER TABLE ld_lymph_ed_imagings_revs DROP COLUMN scan_nbr;
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'scan_nbr' AND tablename = 'ld_lymph_ed_imagings');
 DELETE FROM structure_fields WHERE field = 'scan_nbr' AND tablename = 'ld_lymph_ed_imagings';
 
-ALTER TABLE `ld_lymph_ed_imagings` 
- ADD COLUMN pe_imag_lymph_node_other_desc VARCHAR (250) AFTER pe_imag_lymph_node_other;
-ALTER TABLE `ld_lymph_ed_imagings_revs` 
- ADD COLUMN pe_imag_lymph_node_other_desc VARCHAR (250) AFTER pe_imag_lymph_node_other;
-  
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'pe_imag_lymph_node_other_desc', 'input',  NULL , '0', 'size=30', '', '', '', 'lymph node other description'); 
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_other_desc'), '3', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
 UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
  
 INSERT INTO i18n (id,en) VALUEs ('lymph node other description','Precision');
@@ -263,20 +253,61 @@ INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
 ('2.4.2', NOW(), '4022');
 
 UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_score' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 ALTER TABLE `ld_lymph_ed_imagings` MODIFY `initial_pet_suv_max` decimal(7,2) DEFAULT null;
 ALTER TABLE `ld_lymph_ed_imagings_revs` MODIFY `initial_pet_suv_max` decimal(7,2) DEFAULT null;
 
+INSERT IGNORE INTO i18n (id,en) VALUES
+('axillary' , 'Axillary'),
+('cervical' , 'Cervical'),
+('inguinal' , 'Inguinal'),
+('mediastinal' , 'Mediastinal'),
+('mesenteric' , 'Mesenteric'),
+('other nodes' , 'Other Nodes'),
+('para aortic' , 'Para Aortic'),
+('spleen nodes' , 'Spleen'),
+('waldeyers ring' , 'Waldeyer''s Ring'),
 
+('pe imag lymph node axillary' , 'Axillary'),
+('pe imag lymph node ceuac' , 'Ceuac'),
+('pe imag lymph node common illiac' , 'Common Illiac'),
+('pe imag lymph node epitrochlear' , 'Epitrochlear'),
+('pe imag lymph node external illiac' , 'External Illiac'),
+('pe imag lymph node femoral' , 'Femoral'),
+('pe imag lymph node hilar' , 'Hilar'),
+('pe imag lymph node infraclavicular' , 'Infraclavicular'),
+('pe imag lymph node inguinal' , 'Inguinal'),
+('pe imag lymph node median lower cervical' , 'Median Lower Cervical'),
+('pe imag lymph node mediastinal' , 'Mediastinal'),
+('pe imag lymph node mesenteric' , 'Mesenteric'),
+('pe imag lymph node para aortic' , 'Para Aortic'),
+('pe imag lymph node paratracheal' , 'Paratracheal'),
+('pe imag lymph node popliteral' , 'Popliteral'),
+('pe imag lymph node portal' , 'Portal'),
+('pe imag lymph node posterior cervical' , 'Posterior Cervical'),
+('pe imag lymph node pre auricular' , 'Pre Auricular'),
+('pe imag lymph node retrocrural' , 'Retrocrural'),
+('pe imag lymph node spleen' , 'Spleen'),
+('pe imag lymph node splenic hepatic hilar' , 'Splenic Hepatic hilar'),
+('pe imag lymph node supraclavicular' , 'Supraclavicular'),
+('pe imag lymph node upper cervical' , 'Upper Cervical'),
+('pe imag lymph node waldeyers ring' , 'Waldeyer''s Ring');
 
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='imaging_type_other' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='initial_pet_suv_max' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET language_label='' WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_supraclavicular_right';
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_paratracheal_right' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='mediastinal' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_paratracheal_left' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+ALTER TABLE ld_lymph_ed_reasearch_studies
+  ADD COLUMN prinicpal_investigator VARCHAR (50) DEFAULT NULL AFTER name;
+ALTER TABLE ld_lymph_ed_reasearch_studies_revs
+  ADD COLUMN prinicpal_investigator VARCHAR (50) DEFAULT NULL AFTER name;  
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_reasearch_studies', 'prinicpal_investigator', 'input',  NULL , '0', 'size=30', '', '', 'prinicpal investigator', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_reasearch_studies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_reasearch_studies' AND `field`='prinicpal_investigator' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='prinicpal investigator' AND `language_tag`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
-
-
-
-
-
-
+INSERT INTO i18n (id,en) VALUEs ('prinicpal investigator','Prinicpal Investigator');
 
