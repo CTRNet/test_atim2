@@ -311,3 +311,26 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUEs ('prinicpal investigator','Prinicpal Investigator');
 
+-- -----------------------------------------------------------------------
+
+ALTER TABLE ld_lymph_ed_imagings
+  ADD COLUMN pe_imag_lymph_node_other char(1) DEFAULT '' AFTER pe_imag_lymph_node_popliteral,
+  ADD COLUMN pe_imag_lymph_node_other_precision VARCHAR (250) DEFAULT NULL AFTER pe_imag_lymph_node_other;
+ALTER TABLE ld_lymph_ed_imagings_revs
+  ADD COLUMN pe_imag_lymph_node_other char(1) DEFAULT '' AFTER pe_imag_lymph_node_popliteral,
+  ADD COLUMN pe_imag_lymph_node_other_precision VARCHAR (250) DEFAULT NULL AFTER pe_imag_lymph_node_other;  
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'pe_imag_lymph_node_other', 'yes_no',  NULL , '0', '', '', '', 'other', ''), 
+('Clinicalannotation', 'EventDetail', 'ld_lymph_ed_imagings', 'pe_imag_lymph_node_other_precision', 'input',  NULL , '0', 'size=30', '', '', '', 'other precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_other' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other' AND `language_tag`=''), '3', '88', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='pe_imag_lymph_node_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other precision'), '3', '89', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+ALTER TABLE `ld_lymph_ed_imagings`
+  CHANGE `nodules_nbr` `nodal_sites_nbr` int(4) DEFAULT null;
+ALTER TABLE `ld_lymph_ed_imagings_revs`
+  CHANGE `nodules_nbr` `nodal_sites_nbr` int(4) DEFAULT null;  
+UPDATE structure_fields SET field =  'nodal_sites_nbr', language_label = 'nodal sites nbr' WHERE field = 'nodules_nbr' AND tablename = 'ld_lymph_ed_imagings';
+INSERT INTO i18n (id,en) VALUEs ('nodal sites nbr','Nodal Sites Nbr');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='nodal_sites_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
