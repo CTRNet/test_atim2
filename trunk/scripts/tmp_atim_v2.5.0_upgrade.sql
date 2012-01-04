@@ -109,7 +109,7 @@ UPDATE menus SET use_link='/Sop/SopMasters/detail/%%SopMaster.id%%/' WHERE id='s
 UPDATE menus SET use_link='/Sop/SopExtends/listall/%%SopMaster.id%%/' WHERE id='sop_CAN_04';
 UPDATE menus SET use_link='/StorageLayout/StorageMasters/search/' WHERE id='sto_CAN_01';
 UPDATE menus SET use_link='/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%' WHERE id='sto_CAN_02';
-UPDATE menus SET use_link='/StorageLayout/StorageMasters/StorageLayout/%%StorageMaster.id%%' WHERE id='sto_CAN_05';
+UPDATE menus SET use_link='/StorageLayout/StorageMasters/storageLayout/%%StorageMaster.id%%' WHERE id='sto_CAN_05';
 UPDATE menus SET use_link='/StorageLayout/StorageCoordinates/listAll/%%StorageMaster.id%%' WHERE id='sto_CAN_06';
 UPDATE menus SET use_link='/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/0/TMA' WHERE id='sto_CAN_07';
 UPDATE menus SET use_link='/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%' WHERE id='sto_CAN_08';
@@ -201,3 +201,14 @@ UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::get
 UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventGroupPermissibleValues' WHERE id=354;
 UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValues' WHERE id=355;
 UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValuesFromId' WHERE id=356;
+
+UPDATE menus SET use_summary=REPLACE(use_summary, 'Inventorymanagement', 'InventoryManagement'); 
+UPDATE menus SET use_summary=REPLACE(use_summary, 'Storagelayout', 'StorageLayout'); 
+UPDATE menus SET use_summary=REPLACE(use_summary, 'Clinicalannotation', 'ClinicalAnnotation'); 
+
+UPDATE datamart_structures SET plugin='InventoryManagement' WHERE plugin='Inventorymanagement';
+UPDATE datamart_structures SET plugin='ClinicalAnnotation' WHERE plugin='ClinicalAnnotation';
+UPDATE datamart_structures SET plugin='StorageLayout' WHERE plugin='StorageLayout';
+UPDATE datamart_structures SET index_link=REPLACE(index_link, 'inventorymanagement', 'InventoryManagement'); 
+UPDATE datamart_structures SET index_link=REPLACE(index_link, 'storagelayout', 'StorageLayout'); 
+UPDATE datamart_structures SET index_link=REPLACE(index_link, 'clinicalannotation', 'ClinicalAnnotation'); 
