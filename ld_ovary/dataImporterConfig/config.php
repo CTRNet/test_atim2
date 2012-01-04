@@ -19,8 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/Documents and Settings/u703617/Desktop/ldovary/GotliebBankData_submited_by_AmberYasmeen_20111216_and_revised.xls";
-
+	static $xls_file_path	= "C:/NicolasLucDir/ATiM_BACKUP_AM3_TMP/ldovaire/data_migration/GotliebBankData_submited_by_MarieClaude_20120104_and_revised.xls";
+	
 	static $xls_header_rows = 1;
 	
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -78,7 +78,7 @@ function addonFunctionStart(){
 	
 	echo("<br>//=========== MIGRATION SUMMARY ====================================================<br>");
 	echo("<br>DATE : ".Config::$migration_date."<br>");
-	echo("<br>FILE : ".Config::$xls_file_path."<br>");
+	echo("<br>FILE : ".substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/') +1)) ."<br>");
 	echo("<br>//==================================================================================<br><br>");
 	
 	echo("<br>//=========== setStaticDataForCollection ====================================================<br>");
