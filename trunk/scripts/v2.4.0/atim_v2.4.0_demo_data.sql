@@ -3092,6 +3092,12 @@ INSERT INTO i18n (id, en, fr) VALUES
  
 DELETE FROM datamart_adhoc_permissions WHERE datamart_adhoc_id = (SELECT id FROM datamart_adhoc WHERE title = 'QR_PART_5_Demo');
 
+UPDATE sample_masters SET initial_specimen_sample_id=parent_id where id!=parent_id AND id=initial_specimen_sample_id;
 
-
-
+UPDATE sample_masters SET initial_specimen_sample_id=10 WHERE id=13;
+UPDATE sample_masters SET initial_specimen_sample_id=17 WHERE id=20;
+UPDATE sample_masters SET initial_specimen_sample_id=10 WHERE id=26;
+UPDATE sample_masters SET initial_specimen_sample_id=17 WHERE id=27;
+UPDATE sample_masters SET initial_specimen_sample_id=17 WHERE id=28;
+UPDATE sample_masters SET initial_specimen_sample_id=23 WHERE id=25;
+UPDATE sample_masters SET initial_specimen_sample_id=1 WHERE id=3;
