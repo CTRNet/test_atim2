@@ -3,6 +3,7 @@
 class ViewAliquotUseCustom extends ViewAliquotUse {
 	var $base_model = "AliquotUse";
 	var $useTable = 'view_aliquot_uses';
+	var $name = 'ViewAliquotUse'; 	
 	
 	function __construct(){
 		parent::__construct();
