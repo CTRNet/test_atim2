@@ -27,7 +27,10 @@ function initAjaxTreeView(scope){
 			$(this).addClass("fetching");
 			var flat_url = json.url.replace(/\//g, "_");
 			if(flat_url.length > 0){
-				$.get(root_url + json.url + "?t=" + new Date().getTime(), function(data){
+				if(url.indexOf("//") == 0){
+					url = url.substr(1);
+				}
+				$.get(url, function(data){
 					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
 					if($("#" + flat_url).find("ul").length == 1){
 						var currentLi = getParentElement(expandButton, "LI");
