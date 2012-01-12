@@ -1,0 +1,38 @@
+<?php 
+	
+	$add_links = array();
+	$filter_links = array();
+	foreach ( $treatment_controls as $treatment_control ) {
+		$trt_header = __($treatment_control['TreatmentControl']['disease_site']) . ' - ' . __($treatment_control['TreatmentControl']['tx_method']);
+		$add_links[$trt_header] = '/ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
+		$filter_links[$trt_header] = '/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
+	}
+	if(empty($add_links)){
+		$add_links = '/underdev/';
+	}else{
+		ksort($add_links);
+	}
+	ksort($filter_links);
+	$filter_links['no filter'] = '/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/';
+	
+	$structure_links = array(
+		'index'=>array(
+			'detail'=>'/ClinicalAnnotation/TreatmentMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%TreatmentMaster.id%%/'
+		),
+		'bottom'=>array(
+			//'filter' => $filter_links, //this can be added back into the hook if needed 
+			'add' => $add_links
+		)
+	);
+
+	$structure_override = array();
+	
+	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override);
+	$final_atim_structure = $atim_structure; 
+	$hook_link = $this->Structures->hook();
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
+	$this->Structures->build( $final_atim_structure, $final_options );
+	
+?>
