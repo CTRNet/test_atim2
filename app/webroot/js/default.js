@@ -383,7 +383,7 @@ function initActions(){
 //			var element = $(this);
 			$(this).autocomplete({
 				//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-				source: (root_url == "/" ? "" : root_url + "/") + $(this).attr("url")
+				source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
 				//alternate source for debugging
 //				source: function(request, response) {
 //					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
@@ -967,7 +967,7 @@ function initActions(){
 			return false;
 		});
 		
-		if(document.URL.match(/inventorymanagement\/aliquot_masters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
+		if(document.URL.match(/InventoryManagement\/AliquotMasters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
 			loadUsesAndStorageHistory(document.URL);
 		}
 	}
