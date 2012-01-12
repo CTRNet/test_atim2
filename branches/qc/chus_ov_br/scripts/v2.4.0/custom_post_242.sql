@@ -198,12 +198,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('abortus','Abortus','Abortus'),('evista use','EVISTA® use','EVISTA® use');
 
 -- --------------------------------------------------------------------------------------------------------
--- Diagnosis
--- --------------------------------------------------------------------------------------------------------
-
--- --------------------------------------------------------------------------------------------------------
 -- Event
 -- --------------------------------------------------------------------------------------------------------
+UPDATE event_controls SET flag_active = 0;
 
 -- life style smoking
 
@@ -312,13 +309,15 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 -- Treatment
 -- --------------------------------------------------------------------------------------------------------
 
+UPDATE treatment_controls SET flag_active = 0;
+
 -- OV - Surgery
 
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
-('surgery', 'ovary', 1, 'chus_txd_surgeries', 'treatmentmasters,chus_txd_surgeries', NULL, NULL, 0, NULL, NULL, 'ovary|surgery');
+('surgery', 'ovary', 1, 'chus_txd_ovary_surgeries', 'treatmentmasters,chus_txd_ovary_surgeries', NULL, NULL, 0, NULL, NULL, 'ovary|surgery');
 
-DROP TABLE IF EXISTS `chus_txd_surgeries`;
-CREATE TABLE IF NOT EXISTS `chus_txd_surgeries` (
+DROP TABLE IF EXISTS `chus_txd_ovary_surgeries`;
+CREATE TABLE IF NOT EXISTS `chus_txd_ovary_surgeries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
   patho_report_number varchar(50) DEFAULT NULL,
@@ -345,6 +344,7 @@ CREATE TABLE IF NOT EXISTS `chus_txd_surgeries` (
   primary_at_surgery_hodgkin_lymphoma char(1) DEFAULT '',
   primary_at_surgery_non_hodgkin_lymphoma char(1) DEFAULT '',
   primary_at_surgery_rectum char(1) DEFAULT '',
+  primary_at_surgery_appendix char(1) DEFAULT '',
   primary_at_surgery_pancreas char(1) DEFAULT '',
   primary_at_surgery_melanoma char(1) DEFAULT '',
   primary_at_surgery_kidney char(1) DEFAULT '',
@@ -358,8 +358,8 @@ CREATE TABLE IF NOT EXISTS `chus_txd_surgeries` (
   KEY `tx_master_id` (`treatment_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-DROP TABLE IF EXISTS `chus_txd_surgeries_revs`;
-CREATE TABLE IF NOT EXISTS `chus_txd_surgeries_revs` (
+DROP TABLE IF EXISTS `chus_txd_ovary_surgeries_revs`;
+CREATE TABLE IF NOT EXISTS `chus_txd_ovary_surgeries_revs` (
   `id` int(11) NOT NULL,
   
   patho_report_number varchar(50) DEFAULT NULL,
@@ -386,6 +386,7 @@ CREATE TABLE IF NOT EXISTS `chus_txd_surgeries_revs` (
   primary_at_surgery_hodgkin_lymphoma char(1) DEFAULT '',
   primary_at_surgery_non_hodgkin_lymphoma char(1) DEFAULT '',
   primary_at_surgery_rectum char(1) DEFAULT '',
+  primary_at_surgery_appendix char(1) DEFAULT '',
   primary_at_surgery_pancreas char(1) DEFAULT '',
   primary_at_surgery_melanoma char(1) DEFAULT '',
   primary_at_surgery_kidney char(1) DEFAULT '',
@@ -399,28 +400,28 @@ CREATE TABLE IF NOT EXISTS `chus_txd_surgeries_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `chus_txd_surgeries`
-  ADD CONSTRAINT `chus_txd_surgeries_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+ALTER TABLE `chus_txd_ovary_surgeries`
+  ADD CONSTRAINT `chus_txd_ovary_surgeries_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
 
-INSERT INTO structures(`alias`) VALUES ('chus_txd_surgeries');
+INSERT INTO structures(`alias`) VALUES ('chus_txd_ovary_surgeries');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'patho_report_number', 'input',  NULL , '0', '', '', '', 'patho report number', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_HAT_HVAL_HVT', 'yes_no',  NULL , '0', '', '', '', 'HAT/HVAL/HVT', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_SOG', 'yes_no',  NULL , '0', '', '', '', 'SOG', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_SOD', 'yes_no',  NULL , '0', '', '', '', 'SOD', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_SOB', 'yes_no',  NULL , '0', '', '', '', 'SOB', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_omentectomy', 'yes_no',  NULL , '0', '', '', '', 'omentectomy', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'type_ganglions', 'yes_no',  NULL , '0', '', '', '', 'ganglions', '');
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'patho_report_number', 'input',  NULL , '0', '', '', '', 'patho report number', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_HAT_HVAL_HVT', 'yes_no',  NULL , '0', '', '', '', 'HAT/HVAL/HVT', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_SOG', 'yes_no',  NULL , '0', '', '', '', 'SOG', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_SOD', 'yes_no',  NULL , '0', '', '', '', 'SOD', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_SOB', 'yes_no',  NULL , '0', '', '', '', 'SOB', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_omentectomy', 'yes_no',  NULL , '0', '', '', '', 'omentectomy', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'type_ganglions', 'yes_no',  NULL , '0', '', '', '', 'ganglions', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='patho_report_number' AND `type`='input'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_HAT_HVAL_HVT' AND `type`='yes_no'), '1', '20', 'surgery type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_SOG' AND `type`='yes_no'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_SOD' AND `type`='yes_no'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_SOB' AND `type`='yes_no'), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_omentectomy' AND `type`='yes_no'), '1', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='type_ganglions' AND `type`='yes_no'), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='patho_report_number' AND `type`='input'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_HAT_HVAL_HVT' AND `type`='yes_no'), '1', '20', 'surgery type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_SOG' AND `type`='yes_no'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_SOD' AND `type`='yes_no'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_SOB' AND `type`='yes_no'), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_omentectomy' AND `type`='yes_no'), '1', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='type_ganglions' AND `type`='yes_no'), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'custom_cytoreduction_values', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''cytoreductions values'')');
 INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
@@ -441,50 +442,52 @@ VALUES
 ('<1mm','','', 12, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values'), 1);
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_ovary', 'yes_no',  NULL , '0', '', '', '', 'ovary', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_fallopian_tube', 'yes_no',  NULL , '0', '', '', '', 'fallopian tube', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_omentum', 'yes_no',  NULL , '0', '', '', '', 'omentum', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_endometrial', 'yes_no',  NULL , '0', '', '', '', 'endometrial', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_uterus', 'yes_no',  NULL , '0', '', '', '', 'uterus', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_peritoneum', 'yes_no',  NULL , '0', '', '', '', 'peritoneum', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_colon', 'yes_no',  NULL , '0', '', '', '', 'colon', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_breast', 'yes_no',  NULL , '0', '', '', '', 'breast', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_stomach', 'yes_no',  NULL , '0', '', '', '', 'stomach', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_rectum', 'yes_no',  NULL , '0', '', '', '', 'rectum', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_pancreas', 'yes_no',  NULL , '0', '', '', '', 'pancreas', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_melanoma', 'yes_no',  NULL , '0', '', '', '', 'melanoma', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_kidney', 'yes_no',  NULL , '0', '', '', '', 'kidney', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_uncertain_at_surgery', 'yes_no',  NULL , '0', '', '', '', 'primary uncertain at surgery', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'cytoreduction', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values') , '0', '', '', '', 'cytoreduction', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'ovg_size_cm', 'float',  NULL , '0', 'size=5', '', '', 'ovary size (cm)', 'left'), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'ovd_size_cm', 'float',  NULL , '0', 'size=5', '', '', 'ovd size cm', 'right'), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_non_hodgkin_lymphoma', 'yes_no',  NULL , '0', '', '', '', 'non hodgkin lymphoma', ''), 
-('Clinicalannotation', 'TreatmentDetail', 'chus_txd_surgeries', 'primary_at_surgery_hodgkin_lymphoma', 'yes_no',  NULL , '0', '', '', '', 'hodgkin lymphoma', '');
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_ovary', 'yes_no',  NULL , '0', '', '', '', 'ovary', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_fallopian_tube', 'yes_no',  NULL , '0', '', '', '', 'fallopian tube', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_omentum', 'yes_no',  NULL , '0', '', '', '', 'omentum', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_endometrial', 'yes_no',  NULL , '0', '', '', '', 'endometrial', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_uterus', 'yes_no',  NULL , '0', '', '', '', 'uterus', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_peritoneum', 'yes_no',  NULL , '0', '', '', '', 'peritoneum', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_colon', 'yes_no',  NULL , '0', '', '', '', 'colon', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_breast', 'yes_no',  NULL , '0', '', '', '', 'breast', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_stomach', 'yes_no',  NULL , '0', '', '', '', 'stomach', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_rectum', 'yes_no',  NULL , '0', '', '', '', 'rectum', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_appendix', 'yes_no',  NULL , '0', '', '', '', 'appendix', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_pancreas', 'yes_no',  NULL , '0', '', '', '', 'pancreas', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_melanoma', 'yes_no',  NULL , '0', '', '', '', 'melanoma', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_kidney', 'yes_no',  NULL , '0', '', '', '', 'kidney', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_uncertain_at_surgery', 'yes_no',  NULL , '0', '', '', '', 'primary uncertain at surgery', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'cytoreduction', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values') , '0', '', '', '', 'cytoreduction', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'ovg_size_cm', 'float',  NULL , '0', 'size=5', '', '', 'ovary size (cm)', 'left'), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'ovd_size_cm', 'float',  NULL , '0', 'size=5', '', '', 'ovd size cm', 'right'), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_non_hodgkin_lymphoma', 'yes_no',  NULL , '0', '', '', '', 'non hodgkin lymphoma', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_ovary_surgeries', 'primary_at_surgery_hodgkin_lymphoma', 'yes_no',  NULL , '0', '', '', '', 'hodgkin lymphoma', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_ovary' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ovary' AND `language_tag`=''), '2', '40', 'primary at surgery', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_fallopian_tube' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fallopian tube' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_omentum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='omentum' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_endometrial' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='endometrial' AND `language_tag`=''), '2', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_uterus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='uterus' AND `language_tag`=''), '2', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_peritoneum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='peritoneum' AND `language_tag`=''), '2', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_colon' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='colon' AND `language_tag`=''), '2', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_breast' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='breast' AND `language_tag`=''), '2', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_stomach' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stomach' AND `language_tag`=''), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_rectum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='rectum' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_pancreas' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pancreas' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_melanoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='melanoma' AND `language_tag`=''), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_kidney' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='kidney' AND `language_tag`=''), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_uncertain_at_surgery' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary uncertain at surgery' AND `language_tag`=''), '2', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='cytoreduction' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cytoreduction' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='ovg_size_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ovary size (cm)' AND `language_tag`='left'), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='ovd_size_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ovd size cm' AND `language_tag`='right'), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_non_hodgkin_lymphoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='non hodgkin lymphoma' AND `language_tag`=''), '2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='chus_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='primary_at_surgery_hodgkin_lymphoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hodgkin lymphoma' AND `language_tag`=''), '2', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_ovary' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ovary' AND `language_tag`=''), '2', '40', 'primary at surgery', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_fallopian_tube' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fallopian tube' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_omentum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='omentum' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_endometrial' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='endometrial' AND `language_tag`=''), '2', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_uterus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='uterus' AND `language_tag`=''), '2', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_peritoneum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='peritoneum' AND `language_tag`=''), '2', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_colon' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='colon' AND `language_tag`=''), '2', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_breast' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='breast' AND `language_tag`=''), '2', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_stomach' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stomach' AND `language_tag`=''), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_rectum' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='rectum' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_appendix' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='appendix' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_pancreas' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pancreas' AND `language_tag`=''), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_melanoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='melanoma' AND `language_tag`=''), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_kidney' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='kidney' AND `language_tag`=''), '2', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_uncertain_at_surgery' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary uncertain at surgery' AND `language_tag`=''), '2', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='cytoreduction' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cytoreduction' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='ovg_size_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ovary size (cm)' AND `language_tag`='left'), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='ovd_size_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ovd size cm' AND `language_tag`='right'), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_non_hodgkin_lymphoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='non hodgkin lymphoma' AND `language_tag`=''), '2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='primary_at_surgery_hodgkin_lymphoma' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hodgkin lymphoma' AND `language_tag`=''), '2', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
-UPDATE structure_fields SET  `language_label`='' WHERE model='TreatmentDetail' AND tablename='chus_txd_surgeries' AND field='ovd_size_cm' AND `type`='float' AND structure_value_domain  IS NULL ;
-UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='ovg_size_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='ovd_size_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_surgeries' AND `field`='cytoreduction' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='' WHERE model='TreatmentDetail' AND tablename='chus_txd_ovary_surgeries' AND field='ovd_size_cm' AND `type`='float' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='ovg_size_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='ovd_size_cm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_ovary_surgeries' AND `field`='cytoreduction' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_cytoreduction_values') AND `flag_confidential`='0');
 
 INSERT INTO i18n (id,en,fr) VALUES
 ('ovary','Ovary','Ovaire'),
@@ -500,13 +503,31 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('ganglions','Ganglions','Ganglions'),
 ('primary at surgery','Primary at Surgery','Diag. primair à la chirurgie');
 
-UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_surgeries') AND `display_column`='2';
-UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_surgeries') AND `display_order` > 19 and  `display_order`  < 28;
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND `display_column`='2';
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND `display_order` > 19 and  `display_order`  < 28;
 
--- OV - Radiation
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('fallopian tube','Fallopian Tube','Trompe de Fallope'),
+('omentum','Omentum','Épiploon'),
+('endometrial','Endometrial','Endomètre'),
+('uterus','Uterus','Utérus'),
+('peritoneum','Peritoneum','Péritoine'),
+('hodgkin lymphoma',"Hodgkin's Lymphoma",'Lymphome Hodgkin'),
+('non hodgkin lymphoma',"Non-Hodgkin's Lymphoma",'Lymphome Non-Hodgkin'),
+('melanoma','Melanoma','Mélanome'),
+('kidney','Kidney','Rein'),
+('appendix','Appendix','Appendice'),
+('primary uncertain at surgery','Uncertain','Incertain');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND `display_column`='2';
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND `display_column`='3';
+UPDATE structure_formats SET `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- OV/Breast - Radiation
 
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
-('radiation', 'ovary', 1, 'chus_txd_radiations', 'treatmentmasters,chus_txd_radiations', NULL, NULL, 0, NULL, NULL, 'ovary|radiation');
+('radiation', 'ovary', 1, 'chus_txd_radiations', 'treatmentmasters,chus_txd_radiations', NULL, NULL, 0, NULL, NULL, 'ovary|radiation'),
+('radiation', 'breast', 1, 'chus_txd_radiations', 'treatmentmasters,chus_txd_radiations', NULL, NULL, 0, NULL, NULL, 'breast|radiation');
 
 DROP TABLE IF EXISTS `chus_txd_radiations`;
 CREATE TABLE IF NOT EXISTS `chus_txd_radiations` (
@@ -541,7 +562,7 @@ INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `sour
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("pre", "pre surgery");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="pre_post_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="pre" AND language_alias="pre surgery"), "1", "1");
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("post", "post surgery");
-INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="post_post_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="post" AND language_alias="post surgery"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="pre_post_surgery"),  (SELECT id FROM structure_permissible_values WHERE value="post" AND language_alias="post surgery"), "2", "1");
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'TreatmentDetail', 'chus_txd_radiations', 'pre_post_surgery', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='pre_post_surgery') , '0', '', '', '', 'pre post surgery', '');
@@ -552,10 +573,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en,fr) VALUES ('pre post surgery', 'Pre/Post surgery', 'Pré/Post Chirurgie'),('pre surgery', 'Pre', 'Pré'),('post surgery', 'Post', 'Post');
 
--- OV - Chemotherapy
+-- OV/Breast - Chemotherapy
 
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
-('chemotherapy', 'ovary', 1, 'chus_txd_chemos', 'treatmentmasters,chus_txd_chemos', NULL, NULL, 0, NULL, NULL, 'ovary|chemotherapy');
+('chemotherapy', 'ovary', 1, 'chus_txd_chemos', 'treatmentmasters,chus_txd_chemos', NULL, NULL, 0, NULL, NULL, 'ovary|chemotherapy'),
+('chemotherapy', 'breast', 1, 'chus_txd_chemos', 'treatmentmasters,chus_txd_chemos', NULL, NULL, 0, NULL, NULL, 'breast|chemotherapy');
 
 DROP TABLE IF EXISTS `chus_txd_chemos`;
 CREATE TABLE IF NOT EXISTS `chus_txd_chemos` (
@@ -592,3 +614,146 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date'), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes'), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_chemos' AND `field`='pre_post_surgery' AND `type`='select'), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+-- Breast - hormonotherapy
+
+INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+('hormonotherapy', 'breast', 1, 'chus_txd_hormonos', 'treatmentmasters,chus_txd_hormonos', NULL, NULL, 0, NULL, NULL, 'breast|hormonotherapy');
+
+DROP TABLE IF EXISTS `chus_txd_hormonos`;
+CREATE TABLE IF NOT EXISTS `chus_txd_hormonos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  pre_post_surgery varchar(50) DEFAULT NULL,
+  
+  `treatment_master_id` int(11) NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `chus_txd_hormonos_revs`;
+CREATE TABLE IF NOT EXISTS `chus_txd_hormonos_revs` (
+  `id` int(11) NOT NULL,
+  
+  pre_post_surgery varchar(50) DEFAULT NULL,
+  
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_txd_hormonos`
+  ADD CONSTRAINT `chus_txd_hormonos_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_txd_hormonos');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_hormonos', 'pre_post_surgery', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='pre_post_surgery') , '0', '', '', '', 'pre post surgery', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date'), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes'), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_hormonos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_chemos' AND `field`='pre_post_surgery' AND `type`='select'), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+-- --------------------------------------------------------------------------------------------------------
+-- Diagnosis
+-- --------------------------------------------------------------------------------------------------------
+
+UPDATE diagnosis_controls SET flag_active = 0 WHERE controls_type IN ('blood','tissue');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structures(`alias`) VALUES ('chus_dx_undetailed_primary');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_undetailed_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'undetailed', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'fallopian tube', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'omentum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'endometrial', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'uterus', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'peritoneum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'colon', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'breast', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'stomach', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'hodgkin lymphoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'non hodgkin lymphoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'rectum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'appendix', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'pancreas', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'melanoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'kidney', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1);
+
+UPDATE diagnosis_controls SET databrowser_label = CONCAT(category,'|',controls_type) WHERE databrowser_label = 'xxx';
+
+
+
+
+
+
+
+
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'undetailed', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'fallopian tube', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'omentum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'endometrial', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'uterus', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'peritoneum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'colon', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'breast', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'stomach', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'hodgkin lymphoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'non hodgkin lymphoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'rectum', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'appendix', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'pancreas', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'melanoma', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
+('primary', 'kidney', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1);
+
+UPDATE diagnosis_controls SET databrowser_label = CONCAT(category,'|',controls_type) WHERE databrowser_label = 'xxx';
+
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+
+INSERT INTO structures(`alias`) VALUES ('chus_dx_undetailed_secondary');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_undetailed_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('secondary', 'peritoneum', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'omentum', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'fornix', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'colon', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'small intestine', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'ganglion', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'stomach', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'brain', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),	
+('secondary', 'bone', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'rectum', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'lung', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
+('secondary', 'liver', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1);
+
+UPDATE diagnosis_controls SET databrowser_label = CONCAT(category,'|',controls_type) WHERE databrowser_label = 'xxx';
+	
+INSERT INTO i18n (id,en,fr) VALUES 
+('fornix', 'Fornix','Cul-de-sac'),
+('small intestine','Small Intestine','Grêle');
+
+TODO
+('primary', 'ovary', 1, 'diagnosismasters,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'primary|undetailed', 1),
+('secondary', 'ovary', 1, 'diagnosismasters,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'primary|undetailed', 1),
+
+
+
