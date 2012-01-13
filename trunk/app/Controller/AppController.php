@@ -16,8 +16,6 @@ class AppController extends Controller {
 	private static $cal_info_long_translated = false;
 	
 	function beforeFilter() {
-		App::uses('Model', 'Model');
-		App::uses('AppModel', 'Model');
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
 			Cache::clear(false, "structures");
@@ -47,18 +45,19 @@ class AppController extends Controller {
 		$log_activity_model->save($log_activity_data);
 		
 		// menu grabbed for HEADER
-		$atim_sub_menu_for_header = array();
-		$menu_model = AppModel::getInstance("", "Menu", true);
-		$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
-		$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
-	
-		$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
-		$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
-			
-		// menu, passed to Layout where it would be rendered through a Helper
-		$this->set( 'atim_menu_variables', array() );
-		$this->set( 'atim_menu', $this->Menus->get() );
-	
+		if(!$this->request->is('ajax')){
+			$atim_sub_menu_for_header = array();
+			$menu_model = AppModel::getInstance("", "Menu", true);
+			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
+			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
+		
+			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
+			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
+				
+			// menu, passed to Layout where it would be rendered through a Helper
+			$this->set( 'atim_menu_variables', array() );
+			$this->set( 'atim_menu', $this->Menus->get() );
+		}
 		// get default STRUCTRES, used for forms, views, and validation
 		$this->Structures->set();
 	}
