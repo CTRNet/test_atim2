@@ -1,5 +1,4 @@
 <?php
-die('st crème de Adhoc model');
 class Adhoc extends DatamartAppModel {
 	
 	var $useTable = 'datamart_adhoc';
