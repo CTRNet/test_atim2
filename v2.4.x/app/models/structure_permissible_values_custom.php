@@ -40,7 +40,11 @@ class StructurePermissibleValuesCustom extends AppModel {
 				$result['previously_defined'][$value] = $translated_value;
 			}
 		}
-		
+		if($data[0]['StructurePermissibleValuesCustom']['display_order'] == 0){
+			//sort alphabetically
+			sort($result['defined']);
+			sort($result['previously_defined']);
+		}
 		return $result;
 	}
 }
