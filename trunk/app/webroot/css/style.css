@@ -1179,6 +1179,7 @@ li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x3
 /* -=toolbox*/
 a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
 a.plugin.home {background: url("../img/icons/Home_32x32.png") no-repeat center center;}
+/* a.plugin.home {background: url("../img/icons/32x32.png") no-repeat 0 -160px;} */
 a.plugin.customize {background: url("../img/icons/Password_32x32.png") no-repeat center center;}
 a.plugin.logout {background: url("../img/icons/Sign_Out_32x32.png") no-repeat center center;}
 a.plugin.clinicalannotation {background: url("../img/icons/Contact_32x32.png") no-repeat center center;}
