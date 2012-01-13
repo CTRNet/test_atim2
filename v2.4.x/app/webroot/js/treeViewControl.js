@@ -27,6 +27,7 @@ function initAjaxTreeView(scope){
 			$(this).addClass("fetching");
 			var flat_url = json.url.replace(/\//g, "_");
 			if(flat_url.length > 0){
+				var url = root_url + json.url + "?t=" + new Date().getTime();
 				if(url.indexOf("//") == 0){
 					url = url.substr(1);
 				}
