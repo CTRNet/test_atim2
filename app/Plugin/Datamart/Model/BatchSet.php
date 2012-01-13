@@ -231,6 +231,7 @@ class BatchSet extends DatamartAppModel {
 	}
 	
 	function deleteCurrentUserTmp(){
+		AppModel::getInstance('Datamart', 'Adhoc', true);
 		$batch_id_model = AppModel::getInstance('Datamart', 'BatchId', true);
 		$set_ids = $this->find('list', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 'BatchSet.flag_tmp' => true)));
 		$set_ids = array_keys($set_ids);
