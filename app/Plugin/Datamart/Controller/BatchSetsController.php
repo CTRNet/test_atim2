@@ -4,7 +4,6 @@ class BatchSetsController extends DatamartAppController {
 	
 	var $uses = array(
 		'Datamart.Adhoc', 
-		
 		'Datamart.BatchSet', 
 		'Datamart.BatchId', 
 		'Datamart.BrowsingResult',
@@ -41,7 +40,7 @@ class BatchSetsController extends DatamartAppController {
 		}
 		
 		$this->Structures->set('querytool_batch_set');
-		
+		$this->Adhoc;//activate lazy loader
 		$this->request->data = $this->paginate($this->BatchSet, $batch_set_filter);
 		$datamart_structures = array();
 		$this->BatchSet->completeData($this->request->data);
