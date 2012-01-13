@@ -671,6 +671,8 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 INSERT INTO structures(`alias`) VALUES ('chus_dx_undetailed_primary');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='chus_dx_undetailed_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_undetailed_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
 ('primary', 'undetailed', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
@@ -691,13 +693,6 @@ INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `f
 ('primary', 'kidney', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1);
 
 UPDATE diagnosis_controls SET databrowser_label = CONCAT(category,'|',controls_type) WHERE databrowser_label = 'xxx';
-
-
-
-
-
-
-
 
 INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
 ('primary', 'undetailed', 1, 'diagnosismasters,dx_primary,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'xxx', 1),
@@ -730,6 +725,8 @@ INSERT INTO structures(`alias`) VALUES ('chus_dx_undetailed_secondary');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='chus_dx_undetailed_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_undetailed_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
 ('secondary', 'peritoneum', 1, 'diagnosismasters,dx_secondary,chus_dx_undetailed_secondary', 'dxd_primaries', 0, 'xxx', 1),
@@ -751,9 +748,167 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('fornix', 'Fornix','Cul-de-sac'),
 ('small intestine','Small Intestine','Grêle');
 
-TODO
-('primary', 'ovary', 1, 'diagnosismasters,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'primary|undetailed', 1),
-('secondary', 'ovary', 1, 'diagnosismasters,chus_dx_undetailed_primary', 'dxd_primaries', 0, 'primary|undetailed', 1),
+-- OVARY
 
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'ovary', 1, 'diagnosismasters,dx_primary,chus_dx_ovary', 'dxd_primaries', 0, 'primary|ovary', 1),
+('secondary', 'ovary', 1, 'diagnosismasters,dx_secondary,chus_dx_ovary', 'dxd_primaries', 0, 'secondary|ovary', 1);
 
+CREATE TABLE IF NOT EXISTS `chus_dxd_ovaries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  
+  `laterality` varchar(50) NOT NULL DEFAULT '',
+  `atcd` char(1) DEFAULT '',
+  `atcd_description` varchar(250) NOT NULL DEFAULT '',
+  `morphology` varchar(250) NOT NULL DEFAULT '',
+  `stage` varchar(50) NOT NULL DEFAULT '',
+    
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+CREATE TABLE IF NOT EXISTS `chus_dxd_ovaries_revs` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  
+  `laterality` varchar(50) NOT NULL DEFAULT '',
+  `atcd` char(1) DEFAULT '',
+  `atcd_description` varchar(250) NOT NULL DEFAULT '',
+  `morphology` varchar(250) NOT NULL DEFAULT '',
+  `stage` varchar(50) NOT NULL DEFAULT '',
+  
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_dxd_ovaries`
+  ADD CONSTRAINT `chus_dxd_ovaries_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_dx_ovary');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', 'dx_laterality', 'laterality', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx nature' AND `language_label`='dx nature' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tumour grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tumour grade' AND `language_label`='tumour grade' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='clinical stage' AND `language_tag`='t stage'), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_nstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='help_clinical_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='pathological stage' AND `language_tag`='t stage'), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1, maxlength=3' AND `default`='' AND `language_help`='help_path_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='dx_laterality' AND `language_label`='laterality' AND `language_tag`=''), '2', '99', 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_custom_tumour_grade', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''tumour grades'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('tumour grades', '1', '150');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('1','','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('2','','', 2, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('3','','', 4, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('1-2','','', 5, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('2-3','','', 6, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('1,3','','', 7, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('LMP','','', 11, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1),
+('ND','','', 12, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'tumour grades'), 1);
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_tumour_grade') WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tumour grade');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_dx_nature', 'open', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES ("benign", "benign"),('borderline','borderline'), ('cancer','cancer'),('metastatic','metastatic');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="benign" AND language_alias="benign"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="borderline" AND language_alias="borderline"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="cancer" AND language_alias="cancer"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="metastatic" AND language_alias="metastatic"), "4", "1");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('benign','Benign','Bénin'), ('borderline','Borderline','Borderline'),('cancer','Cancer','Cancer'),('metastatic','Metastatic','Métastatique');
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_nature') WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature') ;
+
+UPDATE structure_formats SET `language_heading`='staging' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_dx_stage', 'open', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('Ia', 'Ia'),
+('Ib', 'Ib'),
+('Ic', 'Ic'),
+('IIa', 'IIa'),
+('IIb', 'IIb'),
+('IIc', 'IIc'),
+('IIIa', 'IIIa'),
+('IIIb', 'IIIb'),
+('IIIc', 'IIIc'),
+('IV', 'IV'),
+('unknown', 'unknown');
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="Ia" AND language_alias="Ia"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="Ib" AND language_alias="Ib"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="Ic" AND language_alias="Ic"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIa" AND language_alias="IIa"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIb" AND language_alias="IIb"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIc" AND language_alias="IIc"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb"), "8", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IIIc" AND language_alias="IIIc"), "9", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV"), "10", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_stage"),(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "11", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'atcd', 'yes_no',  NULL , '0', '', '', '', 'atcd', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'atcd_description', 'input',  NULL , '0', 'size=30', '', '', '', 'description'), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'stage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_stage') , '0', '', '', '', 'stage', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='atcd' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='atcd' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='atcd_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='description'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='stage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUEs ('atcd','ATCD','ATCD'),('stage','Stage','Stade');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_custom_dx_morphology', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''diagnosis morphology'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('diagnosis morphology', '1', '250');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('serous','Serous','Séreux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('papillary','Papillary','Papillaire', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('mucinous','Mucinous','Mucineux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('endometrioid/endometriotic/endometriosis','Endometrioid/Endometriotic/Endometriosis','Endométrioide/endométriotique/endométriosique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('squamous','Squamous','Malpighien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('mrukenberg','Mrukenberg','Krukenberg', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('mullerian','Mullerian','Mullerien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('mranulosa','Mranulosa','Granulosa', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('squamous/dermoid','Squamous/Dermoid','Épidermoide/Dermoide', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('mature teratoma','Mature Teratoma','Tératome Mature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('immature teratoma','Immature Teratoma','Tératome Immature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('brenner','Brenner','Brenner', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('neuroendocrine','Neuroendocrine','Neuroendocrine', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('sarcoma','Sarcoma','Sarcome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('clear cell','Clear Cell','Clear Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('small cell','Small Cell','Small Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('sex cord','Sex Cord','Sex cord', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('cells in cat rings','Cells in Cat Rings','Cellules en bagues de chaton', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('struma ovarii','Struma Ovarii','Struma Ovarii', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('fibroma','Fibroma','Fibrome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('atrophic','Atrophic','Atrophique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('fibrothécale','Fibrothécale','Fibrothécale', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('polycystic','Polycystic','Polykystique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
+('inclusion cyst','Inclusion Cyst','Kyste d''inclusion', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'morphology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_dx_morphology') , '0', '', '', '', 'morphology', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='morphology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_dx_morphology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='morphology' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_nature') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='atcd_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE `diagnosis_controls` SET detail_tablename = 'chus_dxd_ovaries' WHERE form_alias LIKE 'diagnosismasters,%,chus_dx_ovary';
