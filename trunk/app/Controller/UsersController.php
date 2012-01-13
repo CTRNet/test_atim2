@@ -7,9 +7,10 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter();
-		$this->Auth->autoRedirect = false;//because we need to save the login attempt (TODO: Useless in cake2?)
 		$this->Auth->allow('login', 'logout');
 		$this->Auth->loginRedirect = '/Menus';
+		$this->Auth->authenticate = array('Form' => array('userModel' => 'User', 'scope' => array('User.flag_active')));
+		
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
 	}
 	
@@ -60,7 +61,7 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['search'] = array();
 			}
 			$this->redirect($this->Auth->redirect());
-		}else if(!empty($this->request->data)){
+		}else if(isset($this->request->data['User'])){
 			//failed login
 			$login_data = array(
 						"username" => $this->request->data['User']['username'],
@@ -70,7 +71,9 @@ class UsersController extends AppController {
 			$this->UserLoginAttempt->save($login_data);
 			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
 			if(!$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
-				$this->User->validationErrors[] = __("that username is disabled");
+				$this->Auth->flash("that username is disabled");
+			}else{
+				$this->Auth->flash('Login failed. Invalid username or password.');
 			}
 		}
 		

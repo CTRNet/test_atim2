@@ -28,21 +28,10 @@ class AppController extends Controller {
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language'));
 		}
-			
-		// Configure AuthComponent
-		$this->Auth->authenticate = array('Form' => array('userModel' => 'User'));
-		$this->Auth->authorize = 'Actions';
-		$this->Auth->loginAction = array('controller' => 'Users', 'action' => 'Login', 'plugin' => '');
-		$this->Auth->loginRedirect = array('controller' => 'Menus', 'action' => 'Index', 'plugin' => '');
-		$this->Auth->logoutRedirect = array('controller' => 'Users', 'action' => 'Login', 'plugin' => '');
-		$this->Auth->userScope = array('User.flag_active' => true);
-// 		$this->Auth->actionPath = 'controllers/App/';
-		$this->Auth->allowedActions = array();
-			
-		//homemade hack because the core seems bugged, see layouts/default.ctp
-		$this->set("msg_auth", $this->Session->read("Message.auth"));
-		// record URL in logs
 		
+		$this->Auth->authorize = 'Actions';
+			
+		// record URL in logs
 		$log_activity_data['UserLog']['user_id']  = $this->Session->read('Auth.User.id');
 		$log_activity_data['UserLog']['url']  = $this->request->here;
 		$log_activity_data['UserLog']['visited'] = now();
