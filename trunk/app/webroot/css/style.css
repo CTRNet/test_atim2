@@ -651,13 +651,9 @@ div.menu.level_1 li a {
 
 	font-size: 11px;
 	line-height: 1.1em;
-	padding: 7px 10px 7px 30px;
+	padding: 7px 10px;
 	display: inline-block;
 	min-width: 200px;
-	background: url("../img/icons/Folder Open_16x16.png") no-repeat 10px center;
-}
-div.menu.level_1 li.not_allowed a.plugin.not_allowed{
-	background: url("../img/icons/Warning_16x16.png") no-repeat 10px center;
 }
 
 div.menu.level_1 li:hover { 
@@ -965,7 +961,6 @@ span.help {
 				text-indent: -9999px;
 				cursor: help;
 				line-height: 20px;
-				background: url("../img/icons/fam_fam_silk_help.png") no-repeat center center;
 				margin-left: 0.5em;
 				padding: 2px 7px;
 			}
@@ -1108,7 +1103,7 @@ span.help {
 				}
 				ul.tree_root li a.reveal {
 					display: inline-block;
-					width: 20px;
+					margin: 0 2px;
 					text-indent: -9999px;
 					vertical-align: top;
 				}
@@ -1164,7 +1159,7 @@ span.help {
 .icon16.popup { background-position: -80px 0; }
 .icon16.quality.controls { background-position: -48px -48px; }
 .icon16.reveal { background-position: 0 -48px; }
-.icon16.reveal.fetching { background: url("../img/wait20.gif") no-repeat left center; }
+.icon16.reveal.fetching { background: url("../img/wait20.gif"); width: 20px; height: 20px; margin: 0px;  }
 .icon16.redo { background-position: -16px -112px; }
 .icon16.sample, .icon16.samples{ background-position: -96px 0; }
 .icon16.specimen.review { background-position: -64px -64px; }
@@ -1188,33 +1183,33 @@ li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x3
 
 
 /* -=toolbox*/
-.icon32.plugin.login {background-position: -32px 0;}
-.icon32.plugin.home {background-position: 0 -160px;}
-.icon32.plugin.customize {background-position: -32px -128px;}
-.icon32.plugin.logout {background-position: -32px -224px;}
-.icon32.plugin.clinicalannotation {background-position: -32px -64px;}
-.icon32.plugin.inventorymanagement {background-position: -64px -256px;}
-.icon32.plugin.datamart {background-position: 0px -192px;}
-.icon32.plugin.tools {background-position: -32px -256px;}
-.icon32.plugin.administrate {background-position: -64px -64px;}
-.icon32.plugin.drug {background-position: -64px -192px;}
-.icon32.plugin.rtbform {background-position: -32px -96px;}
-.icon32.plugin.order {background-position: 0 -64px;}
-.icon32.plugin.protocol {background-position: 0 -96px;}
-.icon32.plugin.material {background-position: -64px -224px;}
-.icon32.plugin.sop {background-position: -64px -128px;}
-.icon32.plugin.storagelayout {background-position: -32px -192px;}
-.icon32.plugin.study {background-position: 0 -224px;}
-.icon32.plugin.pricing {background-position: 0 -128px;}
-.icon32.plugin.provider {background-position: -96px 0}
-.icon32.plugin.menu.not_allowed {background-position: 0 -256px}
-.icon32.plugin.labbook {background-position: -64px -32px}
-.icon32.plugin.default {background-position: 0 0}
-.icon32.plugin.datamart.browser{background-position: -32px -32px}
-.icon32.plugin.datamart.reports{background-position: -32px -160px}
-.icon32.plugin.datamart.batchsets{background-position: 	-64px 0}
-.icon32.plugin.datamart.adhocs{background-position: -64px -160px}
-.icon32.tools.template {background-position: 0 -32px}
+.icon32.login {background-position: -32px 0;}
+.icon32.home {background-position: 0 -160px;}
+.icon32.customize {background-position: -32px -128px;}
+.icon32.logout {background-position: -32px -224px;}
+.icon32.clinicalannotation {background-position: -32px -64px;}
+.icon32.inventorymanagement {background-position: -64px -256px;}
+.icon32.datamart {background-position: 0px -192px;}
+.icon32.tools {background-position: -32px -256px;}
+.icon32.administrate {background-position: -64px -64px;}
+.icon32.drug {background-position: -64px -192px;}
+.icon32.rtbform {background-position: -32px -96px;}
+.icon32.order {background-position: 0 -64px;}
+.icon32.protocol {background-position: 0 -96px;}
+.icon32.material {background-position: -64px -224px;}
+.icon32.sop {background-position: -64px -128px;}
+.icon32.storagelayout {background-position: -32px -192px;}
+.icon32.study {background-position: 0 -224px;}
+.icon32.pricing {background-position: 0 -128px;}
+.icon32.provider {background-position: -96px 0}
+.icon32.not_allowed {background-position: 0 -256px}
+.icon32.labbook {background-position: -64px -32px}
+.icon32.default {background-position: 0 0}
+.icon32.browser{background-position: -32px -32px}
+.icon32.reports{background-position: -32px -160px}
+.icon32.batchsets{background-position: 	-64px 0}
+.icon32.adhocs{background-position: -64px -160px}
+.icon32.template {background-position: 0 -32px}
 .icon32.help{background-position: -64px -96px}
 td.id a,
 td.id a:hover,
@@ -1231,8 +1226,6 @@ td.id a.default {
 }
 td.id a.not_allowed {
 	display: inline-table;
-	width: 20px;
-	height: 20px;
 	text-indent: -1000px;
 	color: red;
 }
@@ -1940,7 +1933,7 @@ a.btn_add_or{
 	margin-right: 5px;
 }
 
-.bigMenuLabel{
+.menuLabel{
 	display: inline-block;
 	padding-left: 5px;
 	vertical-align: middle;
