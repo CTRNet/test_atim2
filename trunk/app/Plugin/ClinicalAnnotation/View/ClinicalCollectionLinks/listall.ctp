@@ -1,14 +1,14 @@
 <?php
 	$structure_links = array(
 		'index'=>array(
-			'detail'=>'/ClinicalAnnotation/clinical_collection_links/detail/'.$atim_menu_variables['Participant.id'].'/%%ClinicalCollectionLink.id%%/',
+			'detail'=>'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$atim_menu_variables['Participant.id'].'/%%ClinicalCollectionLink.id%%/',
 			'collection' => array(
 				'link' => '/InventoryManagement/collections/detail/%%Collection.id%%/',
 				'icon' => 'collection'
 			)
 		),
 		'bottom'=>array(
-			'add'=>'/ClinicalAnnotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/'
+			'add'=>'/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
 	

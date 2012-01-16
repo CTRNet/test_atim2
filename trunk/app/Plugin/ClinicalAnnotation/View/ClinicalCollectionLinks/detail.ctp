@@ -58,9 +58,9 @@
 	
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/ClinicalAnnotation/clinical_collection_links/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLink.id'], 
-			'delete'=>'/ClinicalAnnotation/clinical_collection_links/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLink.id'],
-			'list'=>'/ClinicalAnnotation/clinical_collection_links/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'edit'=>'/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLink.id'], 
+			'delete'=>'/ClinicalAnnotation/ClinicalCollectionLinks/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['ClinicalCollectionLink.id'],
+			'list'=>'/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
 		

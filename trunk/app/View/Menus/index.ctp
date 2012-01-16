@@ -20,7 +20,7 @@
 			}
 					
 			if(!$menu['Menu']['allowed']){
-				$class = 'plugin not_allowed';
+				$class = 'icon32 not_allowed';
 			}else{
 				$class = 'icon32 '.$this->Structures->generateLinkClass( 'plugin '.$menu['Menu']['use_link'] );
 			}
@@ -28,7 +28,7 @@
 			$atim_content['menu'] .= '
 				<!-- '.$menu['Menu']['id'].' -->
 				<li class="'.( $menu['Menu']['at'] ? 'at ' : '' ).'count_'.$count.'">'
-					.$this->Html->link('<span class="'.$class.'"></span><span class="bigMenuLabel">'. __($menu['Menu']['language_title']).'<span class="menuDesc">'.__($menu['Menu']['language_description']).'</span></span>', $menu['Menu']['use_link'], array('title' => $title, 'escape' => false)).'
+					.$this->Html->link('<span class="'.$class.'"></span><span class="menuLabel">'. __($menu['Menu']['language_title']).'<span class="menuDesc">'.__($menu['Menu']['language_description']).'</span></span>', $menu['Menu']['use_link'], array('title' => $title, 'escape' => false)).'
 				</li>
 			';
 			

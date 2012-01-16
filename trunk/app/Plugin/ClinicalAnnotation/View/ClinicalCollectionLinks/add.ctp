@@ -1,7 +1,7 @@
 <?php
 	//Collection-------------
 	$structure_links = array(
-		'top'=> '/ClinicalAnnotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/',
+		'top'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
 				'ClinicalCollectionLink.collection_id'=>'%%Collection.id%%'
 			),
@@ -67,11 +67,11 @@
 	
 	//Dx---------------------
 	$structure_links = array(
-		'top'=> '/ClinicalAnnotation/clinical_collection_links/add/'.$atim_menu_variables['Participant.id'].'/',
+		'top'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
 				'ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%'
 		),'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/clinical_collection_links/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'cancel'=>'/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/'
 		),'tree' => array(
 			'DiagnosisMaster' => array(
 					'radiolist' => array('ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%')
