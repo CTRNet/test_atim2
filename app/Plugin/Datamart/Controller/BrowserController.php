@@ -4,12 +4,13 @@ class BrowserController extends DatamartAppController {
 	static protected $tmp_browsing_limit = 5;
 	
 	var $uses = array(
+		'Datamart.Adhoc',
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
 		'Datamart.BrowsingResult',
 		'Datamart.BrowsingControl',
 		'Datamart.BrowsingIndex',
-		'Datamart.BatchSet',
+		'Datamart.BatchSet'
 		);
 		
 	function index(){
