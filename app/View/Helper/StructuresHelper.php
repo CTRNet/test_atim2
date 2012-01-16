@@ -427,9 +427,9 @@ class StructuresHelper extends Helper {
 					<div class="flyOverSubmit">
 						'.$exact_search.'
 						<div class="bottom_button">
-							<input class="submit" type="submit" value="Submit" style="display: none;"/>
-							<a href="" onclick="$($(this).parent().children()[0]).click(); return false;" class="form '.$link_class.'" tabindex="'.(StructuresHelper::$last_tabindex + 1).'">'.$link_label.'</a>
-						</div>
+							<input class="submit" type="submit" value="Submit" style="display: none;"/>'
+							.$this->Html->link('<span class="icon16 '.$link_class.'"></span>'.$link_label, "", array('onclick' => '$($(this).parent().children()[0]).click(); return false;', 'tabindex' => StructuresHelper::$last_tabindex + 1, 'escape' => false))
+						.'</div>
 					</div>
 				</div>
 			');
@@ -1555,8 +1555,8 @@ class StructuresHelper extends Helper {
 	private function buildStack(array $atim_structure, array $options){
 		//TODO: WARNING ON paste_disabled if field mentioned in the view is not found here
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
-		$empty_help_bullet = '<span class="help error">&nbsp;</span>';
-		$help_bullet = '<span class="help">&nbsp;<div>%s</div></span> ';
+		$empty_help_bullet = '<span class="icon16 help error">&nbsp;</span>';
+		$help_bullet = '<span class="icon16 help">&nbsp;<div>%s</div></span> ';
 		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null, "y_n_u" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
@@ -1933,12 +1933,7 @@ class StructuresHelper extends Helper {
 					
 					$display_class_name = $this->generateLinkClass($link_name, $link_location);
 					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
-					
-					if(strlen($icon) > 0){
-						$htmlAttributes['class'] = 'form '.$icon;
-					}else{
-						$htmlAttributes['class'] = 'form '.$display_class_name;
-					}
+					$class = strlen($icon) > 0 ? $icon : $display_class_name;
 					
 					// set Javascript confirmation msg...
 					$confirmation_msg = NULL;
@@ -1971,9 +1966,8 @@ class StructuresHelper extends Helper {
 					}
 						
 					$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
-			
 					$link_results[$link_label]	= $this->Html->link( 
-						($state=='index' ? '&nbsp;' : __($link_label, true)), // title
+						'<span class="icon16 '.$class.'"></span>'. ($state=='index' ? '&nbsp;' : __($link_label, true)), // title
 						$link_location, // url
 						$htmlAttributes, // options
 						$confirmation_msg // confirmation message
@@ -1991,11 +1985,11 @@ class StructuresHelper extends Helper {
 				
 			}
 			
-			if ( count($link_results)==1 && isset($link_results[$link_name]) ) {
+			if (count($link_results) == 1 && isset($link_results[$link_name])) {
 				$return_links[$link_name] = $link_results[$link_name];
 			}else{
 				$links_append = '
-							<a class="form popup" href="javascript:return false;">'.__($link_name, TRUE).'</a>
+							<a href="javascript:return false;"><span class="icon16 popup"></span>'.__($link_name, TRUE).'</a>
 							<!-- container DIV for JS functionality -->
 							<div class="filter_menu'.( count($link_results)>7 ? ' scroll' : '' ).'">
 								
@@ -2089,7 +2083,7 @@ class StructuresHelper extends Helper {
 				$return_string = implode(' ',$return_links);
 			}
 		}
-		
+
 		return $return_string;
 	}
 

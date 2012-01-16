@@ -51,10 +51,6 @@ class MenusController extends AppController {
 		}
 		
 		$this->set( 'menu_data', $menu_data );
-		
-		if ($set_of_menus ){
-			$this->render($set_of_menus);
-		}
 	}
 	
 	function update() {

@@ -536,7 +536,7 @@ class Browser extends DatamartAppModel {
 						//left
 						$box = sprintf($box, "left", $content, $controls);
 					}
-					$result .= "<td class='node ".$class."'><div class='container'><a class='box20x20' href='".$link.$cell['BrowsingResult']['id']."/'></a>".$box."</div></td>";
+					$result .= "<td class='node'><div class='container'><a class='box20x20' href='".$link.$cell['BrowsingResult']['id']."/'><span class='icon16 ".$class."'></span></a>".$box."</div></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}

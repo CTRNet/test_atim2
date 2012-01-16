@@ -208,7 +208,7 @@ div.actions {
 		font-size: 12px;
 		text-decoration: none;
 		background-position: 8px center;
-		padding: 5px 10px 4px 27px;
+		padding: 5px 10px 4px 10px;
 		color: #000;
 		line-height: 15px;
 		border-radius: 3px; 
@@ -427,8 +427,8 @@ div.actions {
 /*===========================================================*
 	-=header menu/user 
 *===========================================================*/
-ul#root_menu_for_header,
-ul#main_menu_for_header {
+ul.root_menu_for_header,
+ul.main_menu_for_header {
 	position: absolute;
 	right: 15px;
 	padding: 0; 
@@ -440,19 +440,26 @@ ul#main_menu_for_header {
 /*===========================================================*
 	-=position for toolbox rows 
 *===========================================================*/
-ul#root_menu_for_header { top: 0; }
-ul#main_menu_for_header { top: 45px; }
+ul.root_menu_for_header { top: 0; }
+ul.main_menu_for_header { top: 45px; }
 
 /*===========================================================*
 	-=paired / shared selectors for toolbox 
 *===========================================================*/
-ul#root_menu_for_header li,
-ul#root_menu_for_header li a,
-ul#main_menu_for_header li,
-ul#main_menu_for_header li a {
+ul.root_menu_for_header li,
+ul.main_menu_for_header li{
 	display: inline-block; 
 	width: 40px;
 	height: 40px;
+	text-decoration: none;
+}
+
+ul.root_menu_for_header li a,
+ul.main_menu_for_header li a {
+	margin: 4px;
+	display: inline-block; 
+	width: 32px;
+	height: 32px;
 	text-decoration: none;
 }
 .sub_menu_for_header li{
@@ -467,9 +474,9 @@ ul#main_menu_for_header li a {
 	z-index: 1;
 	display: none;
 	background-color: #628cae;
-	width: 190px;
+	width: 203px;
 	top: 40px;
-	right: 0px;
+	right: -15px;
 	padding-top: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, from(#628cae), color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
 	background: -moz-linear-gradient(top,  #628cae,  #7aaed8, #628cae); /* for firefox 3.6+ */
@@ -480,16 +487,16 @@ li.core_CAN_33:hover .sub_menu_for_header.core_CAN_33{
 }
 
 
-#root_menu_for_header li:hover{
+.root_menu_for_header li:hover{
 	background-image: url("../img/icons/toolbox_top_bk01.png");
 } 
 
-#main_menu_for_header li:hover{
+.main_menu_for_header li:hover{
 	background-image: url("../img/icons/toolbox_bot_bk01.png");
 } 
 
-ul#root_menu_for_header li.not_allowed,
-ul#main_menu_for_header li.not_allowed {
+ul.root_menu_for_header li.not_allowed,
+ul.main_menu_for_header li.not_allowed {
 	color: #aaa;
 }
 
@@ -595,8 +602,7 @@ div.menu ul li.root a {
 	color: #fff;
 	font-size: 14px;
 	text-decoration: none;
-	padding: 10px 0 10px 35px;
-	padding-left: 35px;
+	padding: 5px 0 5px 0px;
 	background-position: left center;
 }	
 div.menu.level_1 {
@@ -789,7 +795,6 @@ span.help {
 	cursor: help;
 	width: 20px;
 	line-height: 20px;
-	background: url("../img/icons/fam_fam_silk_help.png") no-repeat center center;
 }
 	span.help.error,
 	span.help.error:hover {
@@ -1013,14 +1018,15 @@ span.help {
 				}
 			ul.big_menu li a {
 				display: block;
-				padding: 7px 5px 8px 40px;
+				padding: 7px 5px 8px 7px;
 				text-decoration: none;
 				
 				font-size: 1.3em;
 				font-weight: bold;
 				line-height: 1.1em;
+				height: 32px;
 			}
-			ul.big_menu li a span {
+			ul.big_menu li a span.menuDesc {
 				display: block;
 				font-weight: normal;
 				font-size: 11px;
@@ -1121,92 +1127,95 @@ span.help {
 	-= ICONS
 *===========================================================*/
 /* -=site wide*/
-a.access_to_data { background: url("../img/icons/AccessToData_16x16.png") no-repeat left center; }
-a.add { background: url("../img/icons/Add_16x16.png") no-repeat left center; }
-a.add_to_order { background: url("../img/icons/into_cart_16x16.png") no-repeat left center; }
-a.add_to_shipment { background: url("../img/icons/truck_add_into_16x16.png") no-repeat left center; }
-a.aliquot { background: url("../img/icons/aliquot_16x16.png") no-repeat left center; }
-a.annotation { background: url(../img/icons/annotation_16x16.png) center no-repeat; }
-a.batch_set { background: url("../img/icons/batch_set_16x16.png") no-repeat left center; }
-a.cancel { background: url("../img/icons/Control Rewind_16x16.png") no-repeat left center; }
-a.collection { background: url("../img/icons/collection_16x16.png") no-repeat left center; }
-a.copy  { background: url("../img/icons/copy-icon16x16.png") no-repeat left center; }
-a.create_shipment  { background: url("../img/icons/truck_add_16x16.png") no-repeat left center; }
-a.diagnosis { background: url(../img/icons/dx_16x16.png) no-repeat left center; }
-a.default { background: url("../img/icons/Document Blank_16x16.png") no-repeat left center; }
-a.delete { background: url("../img/icons/Close_16x16.png") no-repeat left center; }
-a.detail { background: url("../img/icons/Control Play_16x16.png") no-repeat left center; }
-a.disabled { background: url("../img/icons/light_off_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
-a.disk{ background: url("../img/icons/Save_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
-a.drug { background: url("../img/icons/Security_16x16.png") no-repeat center center; }
-a.duplicate { background: url("../img/icons/Documents x3_16x16.png") no-repeat center center; }
-a.edit { background: url("../img/icons/Edit_16x16.png") no-repeat left center; }
-a.enabled { background: url("../img/icons/light_on_16x16.png") no-repeat left center; text-decoration: none; color: #000;}
-a.filter { background: url("../img/icons/Tag_16x16.png") no-repeat left center; }
-a.flask { background: url("../img/icons/flask_16x16.png") no-repeat left center; }
-a.grid { background: url("../img/icons/Table_16x16.png") no-repeat left center; }
-a.lab_book { background: url("../img/icons/book_opened_16x16.png") no-repeat left center; }
-a.list { background: url("../img/icons/Folder Open_16x16.png") no-repeat left center; }
-a.lungs { background: url("../img/icons/lungs_16x16.png") no-repeat left center; }
-a.news { background: url("../img/icons/News_16x16.png") no-repeat left center; }
-a.not_allowed { background: url("../img/icons/Warning_16x16.png") no-repeat left center; }
-a.order { background: url("../img/icons/Shopping Cart_16x16.png") no-repeat left center; }
-a.participant { background: url("../img/icons/Contact_16x16.png") no-repeat left center; }
-a.paste { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-a.popup { background: url("../img/icons/Trackback_16x16.png") no-repeat left center; }
-a.reveal { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
-a.reveal.not_allowed { background: url("../img/icons/Relationship Data_16x16.png") no-repeat left center; }
-a.reveal.fetching { background: url("../img/wait20.gif") no-repeat left center; }
-a.redo { background: url("../img/icons/Refresh_16x16.png") no-repeat left center; }
-a.sample{ background: url("../img/icons/flask_16x16.png") no-repeat left center; }
-a.summary { background: url("../img/icons/Paste_16x16.png") no-repeat left center; }
-a.search { background: url("../img/icons/Preview_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
-a.search_results { background: url("../img/icons/Preview_16x16.png") no-repeat left center; }
-a.slide { background: url("../img/icons/slide_16x16.png") no-repeat left center; }
-a.storage, a.form.plugin.storagelayout {	background: url("../img/icons/storage_16x16.png") no-repeat left center; }
-a.shipping { background: url("../img/icons/truck_16x16.png") no-repeat left center; }
-a.submit{ background: url("../img/icons/Save_16x16.png") no-repeat 10px center; text-decoration: none; color: #000;}
-a.template { background: url("../img/icons/blueprint_16x16.png") no-repeat left center; }
-a.thumbsdown { background: url("../img/icons/Flag Black_16x16.png") no-repeat left center; }
-a.thumbsup { background: url("../img/icons/Flag Green_16x16.png") no-repeat left center; }
-a.treatments { background: url(../img/icons/seringue_16x16.png) no-repeat left center; }
-a.use { background: url("../img/icons/aliquotUse_16x16.png") no-repeat left center; }
-a.users { background: url("../img/icons/Group_16x16.png") no-repeat left center; }
+.icon16.access_to_data { background-position: 0 -112px; }
+.icon16.add { background-position: -64px -112px; }
+.icon16.add_to_order { background-position: -64px -80px; }
+.icon16.add_to_shipment { background-position: -32px -16px; }
+.icon16.aliquot, .icon16.aliquots { background-position: -80px -96px; }
+.icon16.annotation { background-position: -48px -96px; }
+.icon16.cancel { background-position: -32px -112px; }
+.icon16.collection, .icon16.collections { background-position: -80px -112px; }
+.icon16.consents  { background-position: -96px -80px; }
+.icon16.copy  { background-position: 0 -64px; }
+.icon16.create_shipment  { background-position: 0 -16px; }
+.icon16.diagnosis { background-position: -80px -80px; }
+.icon16.default { background-position: 0 0; }
+.icon16.delete { background-position: -48px 0; }
+.icon16.detail { background-position: -48px -112px; }
+.icon16.disabled { background-position: -48px -80px; }
+.icon16.disk{ background-position: -64px -16px; }
+.icon16.drug { background-position: -48px -16px; }
+.icon16.duplicate { background-position: -48px -64px; }
+.icon16.edit { background-position: -16px -96px; }
+.icon16.enabled { background-position: -32px -80px; }
+.icon16.family 	{ background-position: -112px 0; }
+.icon16.filter 	{ background-position: -32px -48px; }
+.icon16.flask { background-position: -96px 0; }
+.icon16.grid { background-position: 0 -32px; }
+.icon16.help { background-position: -96px -112px; }
+.icon16.identification { background-position: -80px -16px; }
+.icon16.lab_book { background-position: -96px -64px; }
+.icon16.list { background-position: -80px -48px; }
+.icon16.news { background-position: 0 -80px; }
+.icon16.not_allowed { background-position: -16px 0; }
+.icon16.order { background-position: -48px -32px; }
+.icon16.participant,.icon16.participants { background-position: -64px -96px; }
+.icon16.paste { background-position: -32px -64px; }
+.icon16.popup { background-position: -80px 0; }
+.icon16.quality.controls { background-position: -48px -48px; }
+.icon16.reveal { background-position: 0 -48px; }
+.icon16.reveal.fetching { background: url("../img/wait20.gif") no-repeat left center; }
+.icon16.redo { background-position: -16px -112px; }
+.icon16.sample, .icon16.samples{ background-position: -96px 0; }
+.icon16.specimen.review { background-position: -64px -64px; }
+.icon16.summary { background-position: -32px -64px; }
+.icon16.search { background-position: -64px -48px; }
+.icon16.search_results { background-position: -64px -48px; }
+.icon16.slide { background-position: -32px -32px; }
+.icon16.storage, .icon16.storages, .icon16.form.plugin.storagelayout { background-position: -16px -32px; }
+.icon16.shipping { background-position: -16px -16px; }
+.icon16.submit{ background-position: -64px -16px; }
+.icon16.template { background-position: -32px -96px; }
+.icon16.thumbsdown { background-position: -96px -32px; }
+.icon16.thumbsup { background-position: -96px -16px; }
+.icon16.treatments { background-position: -64px -32px; }
+.icon16.use { background-position: -96px -96px; }
+.icon16.users { background-position: -80px -32px; }
+
+a.icon16.search { text-decoration: none; color: #000; }
 
 li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x32.png") no-repeat 4px center; }
 
 
 /* -=toolbox*/
-a.plugin.login {background: url("../img/icons/Authenticate_32x32.png") no-repeat center center;}
-a.plugin.home {background: url("../img/icons/Home_32x32.png") no-repeat center center;}
-/* a.plugin.home {background: url("../img/icons/32x32.png") no-repeat 0 -160px;} */
-a.plugin.customize {background: url("../img/icons/Password_32x32.png") no-repeat center center;}
-a.plugin.logout {background: url("../img/icons/Sign_Out_32x32.png") no-repeat center center;}
-a.plugin.clinicalannotation {background: url("../img/icons/Contact_32x32.png") no-repeat center center;}
-a.plugin.inventorymanagement {background: url("../img/icons/UPC_32x32.png") no-repeat center center;}
-a.plugin.datamart {background: url("../img/icons/Preview_32x32.png") no-repeat center center;}
-a.plugin.tools {background: url("../img/icons/Tools_32x32.png") no-repeat center center;}
-a.plugin.administrate {background: url("../img/icons/Control Panel_32x32.png") no-repeat center center;}
-a.plugin.drug {background: url("../img/icons/Security_32x32.png") no-repeat center center;}
-a.plugin.rtbform {background: url("../img/icons/Form Input Textarea_32x32.png") no-repeat center center;}
-a.plugin.order {background: url("../img/icons/Cart_32x32.png") no-repeat center center;}
-a.plugin.protocol {background: url("../img/icons/Address Book_32x32.png") no-repeat center center;}
-a.plugin.material {background: url("../img/icons/Shipping Weight_32x32.png") no-repeat center center;}
-a.plugin.sop {background: url("../img/icons/List_32x32.png") no-repeat center center;}
-a.menu.plugin.storagelayout {background: url("../img/icons/Safe_32x32.png") no-repeat 3px center; }
-a.plugin.study {background: url("../img/icons/Statistics_32x32.png") no-repeat center center;}
-a.plugin.pricing {background: url("../img/icons/For Sale Dollars_32x32.png.png") no-repeat center center;}
-a.plugin.provider {background: url("../img/icons/provider.png") no-repeat center center;}
-a.plugin.menu.not_allowed {background: url("../img/icons/Warning_32x32.png") no-repeat center center;}
-a.plugin.labbook {background: url("../img/icons/book_opened_32x32.png") no-repeat center center;}
-a.plugin.default {background: url("../img/icons/Document Blank_32x32.png") no-repeat center center;}
-a.plugin.underdev {background: url("../img/icons/under_dev_32x32.png") no-repeat center center;}
-a.plugin.datamart.browser{background: url("../img/icons/boat_wheel_32x32.png") no-repeat center center;}
-a.plugin.datamart.reports{background: url("../img/icons/report_32x32.png") no-repeat center center;}
-a.plugin.datamart.batch{background: url("../img/icons/batch_set_32x32.png") no-repeat center center;}
-a.plugin.datamart.adhocs{background: url("../img/icons/query_32x32.png") no-repeat center center;}
-a.tools.template {background: url("../img/icons/blueprint_32x32.png") no-repeat center center;}
-a.menu.help{background: url("../img/icons/help_32x32.png") no-repeat center center;}
+.icon32.plugin.login {background-position: -32px 0;}
+.icon32.plugin.home {background-position: 0 -160px;}
+.icon32.plugin.customize {background-position: -32px -128px;}
+.icon32.plugin.logout {background-position: -32px -224px;}
+.icon32.plugin.clinicalannotation {background-position: -32px -64px;}
+.icon32.plugin.inventorymanagement {background-position: -64px -256px;}
+.icon32.plugin.datamart {background-position: 0px -192px;}
+.icon32.plugin.tools {background-position: -32px -256px;}
+.icon32.plugin.administrate {background-position: -64px -64px;}
+.icon32.plugin.drug {background-position: -64px -192px;}
+.icon32.plugin.rtbform {background-position: -32px -96px;}
+.icon32.plugin.order {background-position: 0 -64px;}
+.icon32.plugin.protocol {background-position: 0 -96px;}
+.icon32.plugin.material {background-position: -64px -224px;}
+.icon32.plugin.sop {background-position: -64px -128px;}
+.icon32.plugin.storagelayout {background-position: -32px -192px;}
+.icon32.plugin.study {background-position: 0 -224px;}
+.icon32.plugin.pricing {background-position: 0 -128px;}
+.icon32.plugin.provider {background-position: -96px 0}
+.icon32.plugin.menu.not_allowed {background-position: 0 -256px}
+.icon32.plugin.labbook {background-position: -64px -32px}
+.icon32.plugin.default {background-position: 0 0}
+.icon32.plugin.datamart.browser{background-position: -32px -32px}
+.icon32.plugin.datamart.reports{background-position: -32px -160px}
+.icon32.plugin.datamart.batchsets{background-position: 	-64px 0}
+.icon32.plugin.datamart.adhocs{background-position: -64px -160px}
+.icon32.tools.template {background-position: 0 -32px}
+.icon32.help{background-position: -64px -96px}
 td.id a,
 td.id a:hover,
 table.tree ul a,
@@ -1663,84 +1672,9 @@ div.wrapper table.structure td .databrowser td .info td{
 }
 
 .databrowser td div.container{
-	/* default icon */
-	background: url(../img/icons/fam_fam_silk_help.png) center no-repeat;
 	position: relative;
 	width: 26px;
 	height: 20px;
-}
-
-/* databrowser search table icons */
-.databrowser td.aliquots div.container, a.aliquots{
-	background-image: url(../img/icons/aliquot_16x16.png) !important;
-}
-.databrowser td.collections div.container, a.collections{
-	background-image: url(../img/icons/collection_16x16.png) !important;
-}
-.databrowser td.samples div.container, a.samples{
-	background-image: url(../img/icons/flask_16x16.png) !important;
-}
-.databrowser td.participants div.container, a.participants{
-	background-image: url(../img/icons/Contact_16x16.png) !important;
-}
-.databrowser td.storages div.container, a.storages{
-	background-image: url(../img/icons/storage_16x16.png) !important;
-}
-.databrowser td.identification div.container, a.identification{
-	background-image: url(../img/icons/identifiers_16x16.png) !important;
-}
-.databrowser td.aliquot.uses div.container, a.aliquot.uses{
-	background-image: url(../img/icons/aliquotUse_16x16.png) !important;
-}
-.databrowser td.consents div.container, a.consents{
-	background-image: url(../img/icons/consent_16x16.png) !important;
-}
-.databrowser td.diagnosis div.container, a.diagnosis{
-	background-image: url(../img/icons/dx_16x16.png) !important;
-}
-.databrowser td.treatments div.container, a.treatments{
-	background-image: url(../img/icons/seringue_16x16.png)  !important;
-}
-.databrowser td.family.histories div.container, a.family.histories{
-	background-image: url(../img/icons/family_16x16.png)  !important;
-}
-.databrowser td.quality.controls div.container, a.quality.controls{
-	background-image: url(../img/icons/qualityControl_16x16.png)  !important;
-}
-.databrowser td.participant.messages div.container, a.participant.messages{
-	background-image: url(../img/icons/post_it_16x16.png)  !important;
-}
-.databrowser td.annotation div.container, a.annotation{
-	background-image: url(../img/icons/annotation_16x16.png)  !important;
-}
-.databrowser td.specimen.review div.container, a.specimen.review{
-	background-image: url(../img/icons/path_review_16x16.png)  !important;
-}
-.databrowser td.shipments div.container, a.shipments{
-	background-image: url(../img/icons/truck_16x16.png)  !important;
-}
-.databrowser td.order.items div.container, a.order.items{
-	background-image: url("../img/icons/Shopping Cart_16x16.png")  !important;
-}
-
-.databrowser td.aliquots div.container, a.aliquots, 
-.databrowser td.collections div.container, a.collections,
-.databrowser td.samples div.container, a.samples,
-.databrowser td.participants div.container, a.participants,
-.databrowser td.storages div.container, a.storages,
-.databrowser td.identification div.container, a.identifications,
-.databrowser td.aliquot.uses div.container, a.aliquot.uses,
-.databrowser td.consents div.container, a.consents,
-.databrowser td.diagnosis div.container, a.diagnosis,
-.databrowser td.treatments div.container, a.treatments,
-.databrowser td.family.histories div.container, a.family.histories,
-.databrowser td.quality.controls div.container, a.quality.controls,
-.databrowser td.participant.messages div.container, a.participant.messages,
-.databrowser td.annotation div.container, a.annotation,
-.databrowser td.specimen.review div.container, a.specimen.review,
-.databrowser td.shipments div.container, a.shipments,
-.databrowser td.order.items div.container, a.order.items{
-	background-position: left !imporant; 
 }
 
 .databrowser div.controls, .databrowser div.content{
@@ -1986,4 +1920,32 @@ div.accuracy_target_blue{
 
 a.btn_add_or{
 	margin-right: 15px;
+}
+
+.icon32{
+	display: inline-block;
+	height: 32px;
+	width: 32px;
+	vertical-align: middle;
+	background: url("../img/icons/32x32.png") no-repeat;
+}
+.icon16{
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	vertical-align: middle;
+	background: url("../img/icons/16x16.png") no-repeat;
+}
+.bottom_button span.icon16{
+	margin-right: 5px;
+}
+
+.bigMenuLabel{
+	display: inline-block;
+	padding-left: 5px;
+	vertical-align: middle;
+}
+
+li.sub_menu{
+	margin: 0 4px;
 }
