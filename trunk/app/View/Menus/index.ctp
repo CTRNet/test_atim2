@@ -10,36 +10,28 @@
 		';
 		
 		$count = 0;
+		$class = null;
 		foreach ( $menu_data as $menu ) {
-			$html_attributes = array();
-			$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu['Menu']['use_link'] );
-			$html_attributes['title'] = __($menu['Menu']['language_title']);
+			
+			$title = __($menu['Menu']['language_title']);
 					
 			if(!$menu['Menu']['language_description']){
 				$menu['Menu']['language_description'] = $menu['Menu']['language_title'];
 			}
 					
 			if(!$menu['Menu']['allowed']){
-				$atim_content['menu'] .= '
-						<!-- '.$menu['Menu']['id'].' -->
-						<li class="not_allowed count_'.$count.'">
-							<a class="menu plugin not_allowed" title="'.__($menu['Menu']['language_title']).'">
-								'.__($menu['Menu']['language_title']).'
-								<span>'.__($menu['Menu']['language_description']).'</span>
-							</a>
-						</li>
-				';
+				$class = 'plugin not_allowed';
 			}else{
-				$atim_content['menu'] .= '
-						<!-- '.$menu['Menu']['id'].' -->
-						<li class="'.( $menu['Menu']['at'] ? 'at ' : '' ).'count_'.$count.'">
-							<a class="'.$html_attributes['class'].'" href="'.$this->Html->url( $menu['Menu']['use_link'] ).'" title="'.$html_attributes['title'].'">
-								'.__($menu['Menu']['language_title']).'
-								<span>'.__($menu['Menu']['language_description']).'</span>
-							</a>
-						</li>
-				';
+				$class = 'icon32 '.$this->Structures->generateLinkClass( 'plugin '.$menu['Menu']['use_link'] );
 			}
+			
+			$atim_content['menu'] .= '
+				<!-- '.$menu['Menu']['id'].' -->
+				<li class="'.( $menu['Menu']['at'] ? 'at ' : '' ).'count_'.$count.'">'
+					.$this->Html->link('<span class="'.$class.'"></span><span class="bigMenuLabel">'. __($menu['Menu']['language_title']).'<span class="menuDesc">'.__($menu['Menu']['language_description']).'</span></span>', $menu['Menu']['use_link'], array('title' => $title, 'escape' => false)).'
+				</li>
+			';
+			
 			$count++;
 		}
 			
@@ -49,7 +41,7 @@
 		
 	}
 	
-	if($due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/')){
+	if(isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/')){
 		$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
 		Click <a href="javascript:goToNotDoneDueMessages()">here</a> to see them.
 		</li></ul>

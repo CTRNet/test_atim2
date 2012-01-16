@@ -19,16 +19,16 @@ class ShellHelper extends Helper {
 			$logged_in = true;
 			// set HEADER root menu links
 				
-			$root_menu_for_header .= '<ul id="root_menu_for_header" class="header_menu">';
+			$root_menu_for_header .= '<ul class="root_menu_for_header">';
 			$online_wiki_str = __('online wiki', true);
 			$root_menu_for_header .= '
 				<li>
-					'.$this->Html->link( "", "http://ctrnet.ca/mediawiki/index.php/", array("target" => "blank", "class" => "menu help", "title" => $online_wiki_str) ).'
+					'.$this->Html->link( "", "http://ctrnet.ca/mediawiki/index.php/", array("target" => "blank", "class" => "menu help icon32", "title" => $online_wiki_str) ).'
 				</li>';
 			
 			foreach( $menu_array[1] as $key => $menu_item){
 				$html_attributes = array();
-				$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+				$html_attributes['class'] = 'menu icon32 '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 				$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 						
 				if($menu_item['Menu']['allowed']){
@@ -51,11 +51,11 @@ class ShellHelper extends Helper {
 			$root_menu_for_header .= '</ul>';
 				
 			// set HEADER main menu links
-			$root_menu_for_header .= '<ul id="main_menu_for_header" class="header_menu">';
+			$root_menu_for_header .= '<ul class="main_menu_for_header">';
 			
 			foreach($menu_array[2] as $key => $menu_item){
 				$html_attributes = array();
-				$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+				$html_attributes['class'] = 'menu icon32 '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
 				$html_attributes['title'] = __($menu_item['Menu']['language_title'], true);
 				
 				if($menu_item['Menu']['allowed']){
@@ -69,7 +69,7 @@ class ShellHelper extends Helper {
 						foreach($options['atim_sub_menu_for_header'][$menu_item['Menu']['id']] as $sub_menu_item){
 							if($sub_menu_item['Menu']['flag_active']){
 								$html_attributes = array();
-								$html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
+								$html_attributes['class'] = 'icon32 '.$this->Structures->generateLinkClass( 'plugin '.$sub_menu_item['Menu']['use_link'] );
 								$html_attributes['title'] = __($sub_menu_item['Menu']['language_title'], true);
 								if(AppController::checkLinkPermission($sub_menu_item['Menu']['use_link'])){
 									$sub_menu .= '<li class="sub_menu">'.$this->Html->link( "", $sub_menu_item['Menu']['use_link'], $html_attributes )."</li>";
@@ -126,9 +126,9 @@ class ShellHelper extends Helper {
 						
 					<div class="menu level_0">
 						<ul class="total_count_1">
-							<li class="at count_0 root">
-								<a href="'.$this->Html->url('/').'" class="without_summary menu plugin login" title="'. __('Login', true).'">'. __('Login', true).'</a>
-							</li>
+							<li class="at count_0 root">'
+								.$this->Html->link( '<span class="icon32 plugin login"></span>'.__('Login', true), '/', array('title' => __('Login', true), 'escape' => false, 'class' => 'MainTitle')).
+							'</li>
 						</ul>
 					</div>
 					
@@ -317,21 +317,20 @@ class ShellHelper extends Helper {
 									$page_title[] = $menu_item['Menu']['use_summary'];
 								}else{
 									
-									$html_attributes = array('class'=>'mainTitle');
-									
 									if($is_root){
-										$html_attributes['class'] .= ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-										$html_attributes['title'] = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
+										$title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 										
 										// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 										
 										if(!$menu_item['Menu']['allowed']){
 											$active_item = '<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
 										}else {
-											$active_item = $this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes );
+											//$html_attributes
+											$class = ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+											$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 '.$class.'"></span>'.__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));
 										}
 									}else{
-										$active_item = '<span class="'.implode( ' ', $html_attributes ).'">'.__($menu_item['Menu']['language_title'], true).'</span>';
+										$active_item = '<span class="mainTitle">'.__($menu_item['Menu']['language_title'], true).'</span>';
 									}
 									
 									$page_title[] = __($menu_item['Menu']['language_title'], true);
