@@ -200,12 +200,14 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('abortus','Abortus','Abortus'),('evis
 -- --------------------------------------------------------------------------------------------------------
 -- Event
 -- --------------------------------------------------------------------------------------------------------
-UPDATE event_controls SET flag_active = 0;
 
--- life style smoking
+UPDATE event_controls SET flag_active = 0;
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '%/event_masters/listall/screening%' OR use_link LIKE '%/event_masters/listall/study%';
+
+-- all : life style smoking
 
 INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-('chus', 'lifestyle', 'smoking history questionnaire', 1, 'eventmasters,chus_ed_lifestyle_smoking', 'ed_all_lifestyle_smokings', 0, 'lifestyle|chus|smoking history questionnaire');
+('all', 'lifestyle', 'smoking history questionnaire', 1, 'eventmasters,chus_ed_lifestyle_smoking', 'ed_all_lifestyle_smokings', 0, 'lifestyle|all|smoking history questionnaire');
 
 INSERT INTO structures(`alias`) VALUES ('chus_ed_lifestyle_smoking');
 
@@ -238,10 +240,10 @@ INSERT INTO i18n (id,en,fr) VALUEs
 ('smoking history questionnaire', 'Smoking History Questionnaire', 'Quesationnaire sur le tabagisme'),
 ('duration in years', 'Duration (years)', 'Durée (annnées)');
 
--- event followup
+-- all : event followup
 
 INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-('chus', 'clinical', 'followup', 1, 'eventmasters,chus_ed_clinical_followups', 'chus_ed_clinical_followups', 0, 'clinical|chus|followup');
+('all', 'clinical', 'followup', 1, 'eventmasters,chus_ed_clinical_followups', 'chus_ed_clinical_followups', 0, 'clinical|all|followup');
 
 CREATE TABLE IF NOT EXISTS `chus_ed_clinical_followups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -304,6 +306,249 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('kg','Kg','Kg'),('lbs','Lbs','Lbs'),(
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('weight or height can not be equal to 0','The weight or the height can not be equal to 0!','La taille ou le poids ne peut pas être égal à 0!'),
 ('weights or heights are not consistent','Weights or heights are not consistent!','Les poids et les tailles ne sont pas cohérent(e)s!');
+
+-- all : CT Scan
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('all', 'clinical', 'ctscan', 1, 'eventmasters,chus_ed_clinical_ctscans', 'chus_ed_clinical_ctscans', 0, 'clinical|all|ctscan');
+
+CREATE TABLE IF NOT EXISTS `chus_ed_clinical_ctscans` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_clinical_ctscans_revs` (
+  `id` int(11) NOT NULL,
+  
+  `result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_clinical_ctscans`
+  ADD CONSTRAINT `chus_ed_clinical_ctscans_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chus_scan_score', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_scan_score"),  (SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_scan_score"),  (SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_clinical_ctscans');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_clinical_ctscans', 'result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_scan_score') , '0', '', '', '', 'result', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_clinical_ctscans'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_clinical_ctscans'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_clinical_ctscans' AND `field`='result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_scan_score')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='result' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('ctscan', 'CTScan','CTScan');
+
+-- Ovary : Immuno
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('ovary', 'lab', 'immunohistochemistry', 1, 'eventmasters,chus_ed_lab_ovary_immunos', 'chus_ed_lab_ovary_immunos', 0, 'lab|ovary|immunohistochemistry');
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_immunos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `ER_result` varchar(50) DEFAULT NULL, 
+  `PR_result` varchar(50) DEFAULT NULL, 
+  `P53_result` varchar(50) DEFAULT NULL, 
+  `CA125_result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_immunos_revs` (
+  `id` int(11) NOT NULL,
+  
+  `ER_result` varchar(50) DEFAULT NULL, 
+  `PR_result` varchar(50) DEFAULT NULL, 
+  `P53_result` varchar(50) DEFAULT NULL, 
+  `CA125_result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_lab_ovary_immunos`
+  ADD CONSTRAINT `chus_ed_lab_ovary_immunos_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chus_immuno_score', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_immuno_score"),  (SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_immuno_score"),  (SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_lab_ovary_immunos');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_immunos', 'ER_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'ER', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_immunos', 'PR_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'PR', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_immunos', 'P53_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'P53', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_immunos', 'CA125_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'CA125', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_immunos' AND `field`='ER_result'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_immunos' AND `field`='PR_result'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_immunos' AND `field`='P53_result'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_immunos' AND `field`='CA125_result'), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('immunohistochemistry', 'Immunohistochemistry','Immunohistochimie');
+
+-- breast : Immuno
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('breast', 'lab', 'immunohistochemistry', 1, 'eventmasters,chus_ed_lab_breast_immunos', 'chus_ed_lab_breast_immunos', 0, 'lab|breast|immunohistochemistry');
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_immunos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `ER_result` varchar(50) DEFAULT NULL, 
+  `PR_result` varchar(50) DEFAULT NULL, 
+  `Her2_Neu_result` varchar(50) DEFAULT NULL, 
+  `EGFR_result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_immunos_revs` (
+  `id` int(11) NOT NULL,
+  
+  `ER_result` varchar(50) DEFAULT NULL, 
+  `PR_result` varchar(50) DEFAULT NULL, 
+  `Her2_Neu_result` varchar(50) DEFAULT NULL, 
+  `EGFR_result` varchar(50) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_lab_breast_immunos`
+  ADD CONSTRAINT `chus_ed_lab_breast_immunos_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_lab_breast_immunos');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_immunos', 'ER_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'ER', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_immunos', 'PR_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'PR', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_immunos', 'Her2_Neu_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'Her2/Neu', ''),
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_immunos', 'EGFR_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_immuno_score') , '0', '', '', '', 'EGFR', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_immunos' AND `field`='ER_result'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_immunos' AND `field`='PR_result'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_immunos' AND `field`='Her2_Neu_result'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_immunos'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_immunos' AND `field`='EGFR_result'), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+-- Ovary : CA125
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('ovary', 'lab', 'CA125', 1, 'eventmasters,chus_ed_lab_ovary_ca125_tests', 'chus_ed_lab_ovary_ca125_tests', 0, 'lab|ovary|CA125');
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_ca125_tests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `value` decimal(5,2) DEFAULT NULL, 
+  `at_diagnostic` char(1) DEFAULT '', 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_ca125_tests_revs` (
+  `id` int(11) NOT NULL,
+  
+  `value` decimal(5,2) DEFAULT NULL, 
+  `at_diagnostic` char(1) DEFAULT '', 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_lab_ovary_ca125_tests`
+  ADD CONSTRAINT `chus_ed_lab_ovary_ca125_tests_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_lab_ovary_ca125_tests');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_ca125_tests', 'value', 'float_positive',  NULL , '0', 'size=5', '', '', 'value (u/ml)', ''), 
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_ovary_ca125_tests', 'at_diagnostic', 'yes_no',  NULL , '0', '', '', '', 'at diagnostic', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_ca125_tests'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_ca125_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_ca125_tests' AND `field`='value'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_ovary_ca125_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_ovary_ca125_tests' AND `field`='at_diagnostic'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('CA125', 'CA125','CA125'),('value (u/ml)','Value (U/mL)','Valeur (U/mL)'),('at diagnostic','At Diagnostic','Au diagnostic');
+
+-- breast : CA153
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('breast', 'lab', 'CA15.3', 1, 'eventmasters,chus_ed_lab_breast_ca153_tests', 'chus_ed_lab_breast_ca153_tests', 0, 'lab|breast|CA15.3');
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_ca153_tests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `value` decimal(5,2) DEFAULT NULL, 
+  `at_diagnostic` char(1) DEFAULT '', 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_ca153_tests_revs` (
+  `id` int(11) NOT NULL,
+  
+  `value` decimal(5,2) DEFAULT NULL, 
+  `at_diagnostic` char(1) DEFAULT '', 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_lab_breast_ca153_tests`
+  ADD CONSTRAINT `chus_ed_lab_breast_ca153_tests_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_lab_breast_ca153_tests');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_ca153_tests', 'value', 'float_positive',  NULL , '0', 'size=5', '', '', 'value (u/ml)', ''), 
+('Clinicalannotation', 'EventDetail', 'chus_ed_lab_breast_ca153_tests', 'at_diagnostic', 'yes_no',  NULL , '0', '', '', '', 'at diagnostic', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_ca153_tests'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_ca153_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_ca153_tests' AND `field`='value'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_ed_lab_breast_ca153_tests'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_lab_breast_ca153_tests' AND `field`='at_diagnostic'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('CA15.3', 'CA15.3','CA15.3');
 
 -- --------------------------------------------------------------------------------------------------------
 -- Treatment
@@ -582,8 +827,13 @@ INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `d
 DROP TABLE IF EXISTS `chus_txd_chemos`;
 CREATE TABLE IF NOT EXISTS `chus_txd_chemos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  
-  pre_post_surgery varchar(50) DEFAULT NULL,
+
+  `chemo_completed` varchar(50) DEFAULT NULL,
+  `response` varchar(50) DEFAULT NULL,
+  `num_cycles` int(11) DEFAULT NULL,
+  `length_cycles` int(11) DEFAULT NULL,
+  `completed_cycles` int(11) DEFAULT NULL,  
+  `pre_post_surgery` varchar(50) DEFAULT NULL,
   
   `treatment_master_id` int(11) NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -595,7 +845,12 @@ DROP TABLE IF EXISTS `chus_txd_chemos_revs`;
 CREATE TABLE IF NOT EXISTS `chus_txd_chemos_revs` (
   `id` int(11) NOT NULL,
   
-  pre_post_surgery varchar(50) DEFAULT NULL,
+  `chemo_completed` varchar(50) DEFAULT NULL,
+  `response` varchar(50) DEFAULT NULL,
+  `num_cycles` int(11) DEFAULT NULL,
+  `length_cycles` int(11) DEFAULT NULL,
+  `completed_cycles` int(11) DEFAULT NULL,  
+  `pre_post_surgery` varchar(50) DEFAULT NULL,
   
   `treatment_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -614,6 +869,18 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date'), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes'), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_chemos' AND `field`='pre_post_surgery' AND `type`='select'), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+UPDATE treatment_controls SET extend_tablename = 'txe_chemos', extend_form_alias ='txe_chemos', applied_protocol_control_id = '1', extended_data_import_process = 'importDrugFromChemoProtocol' WHERE tx_method = 'chemotherapy' AND disease_site IN ('ovary','breast');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='chemo_completed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_chemo_completed' AND `language_label`='completed' AND `language_tag`=''), '1', '11', 'chemotherapy specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='response' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='response')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_response' AND `language_label`='response' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='num_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_num_cycles' AND `language_label`='number cycles' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='length_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_length_cycles' AND `language_label`='length cycles' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='completed_cycles' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='help_completed_cycles' AND `language_label`='completed cycles' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_chemos' AND `field`='pre_post_surgery' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='pre_post_surgery') AND `flag_confidential`='0');
 
 -- Breast - hormonotherapy
 
@@ -874,41 +1141,52 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUEs ('atcd','ATCD','ATCD'),('stage','Stage','Stade');
 
-INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_custom_dx_morphology', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''diagnosis morphology'')');
-INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('diagnosis morphology', '1', '250');
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_custom_ovary_dx_morphology', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''ovary diagnosis morphology'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('ovary diagnosis morphology', '1', '250');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
 VALUES 
-('serous','Serous','Séreux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('papillary','Papillary','Papillaire', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('mucinous','Mucinous','Mucineux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('endometrioid/endometriotic/endometriosis','Endometrioid/Endometriotic/Endometriosis','Endométrioide/endométriotique/endométriosique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('squamous','Squamous','Malpighien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('mrukenberg','Mrukenberg','Krukenberg', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('mullerian','Mullerian','Mullerien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('mranulosa','Mranulosa','Granulosa', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('squamous/dermoid','Squamous/Dermoid','Épidermoide/Dermoide', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('mature teratoma','Mature Teratoma','Tératome Mature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('immature teratoma','Immature Teratoma','Tératome Immature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('brenner','Brenner','Brenner', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('neuroendocrine','Neuroendocrine','Neuroendocrine', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('sarcoma','Sarcoma','Sarcome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('clear cell','Clear Cell','Clear Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('small cell','Small Cell','Small Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('sex cord','Sex Cord','Sex cord', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('cells in cat rings','Cells in Cat Rings','Cellules en bagues de chaton', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('struma ovarii','Struma Ovarii','Struma Ovarii', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('fibroma','Fibroma','Fibrome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('atrophic','Atrophic','Atrophique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('fibrothécale','Fibrothécale','Fibrothécale', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('polycystic','Polycystic','Polykystique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1),
-('inclusion cyst','Inclusion Cyst','Kyste d''inclusion', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'diagnosis morphology'), 1);
+('serous','Serous','Séreux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('papillary','Papillary','Papillaire', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('mucinous','Mucinous','Mucineux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('endometrioid/endometriotic/endometriosis','Endometrioid/Endometriotic/Endometriosis','Endométrioide/endométriotique/endométriosique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('squamous','Squamous','Malpighien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('mrukenberg','Mrukenberg','Krukenberg', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('mullerian','Mullerian','Mullerien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('mranulosa','Mranulosa','Granulosa', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('squamous/dermoid','Squamous/Dermoid','Épidermoide/Dermoide', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('mature teratoma','Mature Teratoma','Tératome Mature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('immature teratoma','Immature Teratoma','Tératome Immature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('brenner','Brenner','Brenner', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('neuroendocrine','Neuroendocrine','Neuroendocrine', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('sarcoma','Sarcoma','Sarcome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('clear cell','Clear Cell','Clear Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('small cell','Small Cell','Small Cell', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('sex cord','Sex Cord','Sex cord', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('cells in cat rings','Cells in Cat Rings','Cellules en bagues de chaton', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('struma ovarii','Struma Ovarii','Struma Ovarii', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('fibroma','Fibroma','Fibrome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('atrophic','Atrophic','Atrophique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('fibrothécale','Fibrothécale','Fibrothécale', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('polycystic','Polycystic','Polykystique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('inclusion cyst','Inclusion Cyst','Kyste d''inclusion', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1);
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'morphology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_dx_morphology') , '0', '', '', '', 'morphology', '');
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'morphology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_ovary_dx_morphology') , '0', '', '', '', 'morphology', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='morphology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_dx_morphology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='morphology' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='morphology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_ovary_dx_morphology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='morphology' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_nature') AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='atcd_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE `diagnosis_controls` SET detail_tablename = 'chus_dxd_ovaries' WHERE form_alias LIKE 'diagnosismasters,%,chus_dx_ovary';
+
+-- ========================================================================================================
+-- TOOLS
+-- ========================================================================================================
+
+UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/sop/sop_masters/%';
+
+-- Protocol
+
+UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
+
