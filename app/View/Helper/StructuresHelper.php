@@ -1282,14 +1282,14 @@ class StructuresHelper extends Helper {
 			}
 			if(is_array($children)){
 				if(empty($children)){
-					echo '<a class="reveal not_allowed href="#" onclick="return false;">+</a> | ';
+					echo '<a class="icon16 reveal not_allowed href="#" onclick="return false;">+</a> | ';
 				}else{
-					echo '<a class="reveal activate" href="#" onclick="return false;">+</a> | ';
+					echo '<a class="icon16 reveal activate" href="#" onclick="return false;">+</a> | ';
 				}
 			}else if($children){
-				echo '<a class="reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> | ';
+				echo '<a class="icon16 reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> | ';
 			}else{
-				echo '<a class="reveal not_allowed" href="#" onclick="return false;">+</a> | ';
+				echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';
 			}
 			
 			$data_val['css'][] = 'rightPart';
@@ -1977,7 +1977,7 @@ class StructuresHelper extends Helper {
 					// if ACO/ARO permission check fails, display NOt ALLOWED type link
 					$return_urls[]		= $this->Html->url( '/menus' );
 					if($state == 'index'){
-						$link_results[$link_label]	= '<a class="not_allowed treeButton"></a>';
+						$link_results[$link_label]	= '<a class="icon16 not_allowed"></a>';
 					}else{
 						$link_results[$link_label]	= '<a class="not_allowed">'.__($link_label, true).'</a>';
 					}

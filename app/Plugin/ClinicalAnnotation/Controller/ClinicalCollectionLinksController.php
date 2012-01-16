@@ -99,7 +99,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/clinical_collection_links/listall/') );
+		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/listall/') );
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
@@ -137,7 +137,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				if(isset($this->request->data['ClinicalCollectionLink']['deleted'])){
 					$this->redirect('/InventoryManagement/collections/add/'.$this->ClinicalCollectionLink->getLastInsertId());
 				}else{
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/clinical_collection_links/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
+					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$this->ClinicalCollectionLink->id );
 				}
 				return;
 			}
@@ -187,7 +187,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$this->set('found_dx', $found_dx);
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/clinical_collection_links/listall/') );
+		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/listall/') );
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ClinicalCollectionLink.id'=>$clinical_collection_link_id) );
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
@@ -216,7 +216,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 					require($hook_link); 
 				}
 				
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id );
+				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$clinical_collection_link_id );
 				return;
 			}
 		} else {
@@ -254,12 +254,12 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 					require($hook_link); 
 				}
 				
-				$this->atimFlash( 'your data has been deleted' , '/ClinicalAnnotation/clinical_collection_links/listall/'.$participant_id.'/');
+				$this->atimFlash( 'your data has been deleted' , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
 			}else{
-				$this->flash( 'error deleting data - contact administrator','/ClinicalAnnotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
+				$this->flash( 'error deleting data - contact administrator','/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$clinical_collection_link_id.'/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/clinical_collection_links/detail/'.$participant_id.'/'.$clinical_collection_link_id);
+			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$clinical_collection_link_id);
 		}
 	}
 }

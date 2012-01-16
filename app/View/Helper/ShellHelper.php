@@ -88,8 +88,8 @@ class ShellHelper extends Helper {
 				}else{
 					$root_menu_for_header .= '
 							<!-- '.$menu_item['Menu']['id'].' -->
-							<li class="not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
+							<li>
+								<a class="icon32 not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
 							</li>
 					';
 				}
@@ -338,21 +338,19 @@ class ShellHelper extends Helper {
 								
 							}
 							
-							$html_attributes = array();
-							$html_attributes['class'] = 'menu list'; // $html_attributes['class'] = 'menu '.$this->Structures->generateLinkClass( $menu_item['Menu']['language_title'], $menu_item['Menu']['use_link'] );
-							
+							$title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
 							if($menu_item['Menu']['allowed']){
 								$append_menu .= '
 										<!-- '.$menu_item['Menu']['id'].' -->
 										<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-											'.$this->Html->link( html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'], $html_attributes ).'
+											'.$this->Html->link( '<span class="icon16 list"></span><span class="menuLabel">'.$title.'</span>', $menu_item['Menu']['use_link'], array('escape' => false, 'title' => $title) ).'
 										</li>
 								';
 							}else{
 								$append_menu .= '
 										<!-- '.$menu_item['Menu']['id'].' -->
 										<li class="not_allowed count_'.$sub_count.'">
-											<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>
+											<a title="'.$title.'"><span class="icon16 not_allowed"></span><span class="menuLabel">'.$title.'</span></a>
 										</li>
 														';
 							}

@@ -119,6 +119,9 @@ class BatchSet extends DatamartAppModel {
 		if($ignore_id != null){
 			$available_batchsets_conditions["BatchSet.id Not"] = $ignore_id;
 		}
+		
+		AppModel::getInstance('Datamart', 'Adhoc', true);//force lazy load of Adhoc model
+		
 		return $this->find('all', array('conditions' => $available_batchsets_conditions));
 	}
 	
