@@ -4,7 +4,7 @@ if(empty($this->request->data)){
 	$final_options = array(
 		'type' => 'search',
 		'links' => array(
-			'top' => '/Administrate/users/search/'.AppController::getNewSearchId()
+			'top' => '/Administrate/AdminUsers/search/'.AppController::getNewSearchId()
 		), 'settings' => array(
 			'header' => __('search type').": ".__('users'),
 			'actions' => false,
@@ -14,7 +14,7 @@ if(empty($this->request->data)){
 	
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
-			'links'		=> array('bottom' => array('new search' => '/Administrate/users/search/')),
+			'links'		=> array('bottom' => array('new search' => '/Administrate/AdminUsers/search/')),
 			'extras'	=> '<div class="ajax_search_results"></div>'
 	);
 	
@@ -27,8 +27,8 @@ if(empty($this->request->data)){
 	$final_options = array(
 		'type' => 'index',
 		'links' => array(
-			'bottom' => array('new search' => '/Administrate/users/search/'),
-			'index' => array('detail' => '/Administrate/users/detail/%%User.group_id%%/%%User.id%%/')
+			'bottom' => array('new search' => '/Administrate/AdminUsers/search/'),
+			'index' => array('detail' => '/Administrate/AdminUsers/detail/%%User.group_id%%/%%User.id%%/')
 		), 'settings' => array(
 			'header' => __('search type').": ".__('users'),
 			'return' => true

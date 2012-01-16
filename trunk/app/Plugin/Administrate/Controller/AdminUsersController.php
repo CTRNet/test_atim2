@@ -1,8 +1,13 @@
 <?php
 
-class UsersController extends AdministrateAppController {
+class AdminUsersController extends AdministrateAppController {
 	var $uses = array('User', 'Group');
-	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC')); 
+	var $paginate = array('User'=>array('limit' => pagination_amount,'order'=>'User.username ASC'));
+
+	function beforeFilter(){
+		parent::beforeFilter();
+		$this->Structures->set('users');
+	}
 	
 	function listall($group_id ) {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
@@ -41,14 +46,10 @@ class UsersController extends AdministrateAppController {
 				}
 				
 				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
-				$password_data = array('User' => array('new_password' => $this->request->data['Generated']['field1'], 'confirm_password' => $this->request->data['Generated']['field1']));
-				if($this->request->data['User']['password'] != $hashed_pwd){
-					$password_data['User']['new_password'] = '';
-				}
-				
+				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
 				$this->User->validatePassword($password_data);
 				
-				$this->request->data['Generated']['field1'] = Security::hash($this->request->data['Generated']['field1'], null, true);
+				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
 				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
