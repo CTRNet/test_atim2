@@ -479,7 +479,7 @@ class Browser extends DatamartAppModel {
 					$pad --;
 				}
 				if(is_array($cell)){
-					$class = $cell['DatamartStructure']['display_name'];
+					$class = '';
 					if($cell['active']){
 						$class .= " active ";
 					}
@@ -524,7 +524,7 @@ class Browser extends DatamartAppModel {
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."Datamart/Browser/browse/";
 					if(isset($cell['merge']) && $cell['merge'] && !isset($cell['hide_merge_icon'])){
-						$controls = sprintf($controls, "<a class='link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view")."'/>&nbsp;</a>");
+						$controls = sprintf($controls, "<a class='icon16 link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view")."'/>&nbsp;</a>");
 					}else{
 						$controls = sprintf($controls, "");
 					}
@@ -536,7 +536,7 @@ class Browser extends DatamartAppModel {
 						//left
 						$box = sprintf($box, "left", $content, $controls);
 					}
-					$result .= "<td class='node'><div class='container'><a class='box20x20' href='".$link.$cell['BrowsingResult']['id']."/'><span class='icon16 ".$class."'></span></a>".$box."</div></td>";
+					$result .= "<td class='node ".$class."'><div class='container'><a class='box20x20' href='".$link.$cell['BrowsingResult']['id']."/'><span class='icon16 ".$cell['DatamartStructure']['display_name']."'></span></a>".$box."</div></td>";
 				}else{
 					$result .= "<td class='".$cell."'></td>";
 				}
