@@ -127,7 +127,7 @@ class ShellHelper extends Helper {
 					<div class="menu level_0">
 						<ul class="total_count_1">
 							<li class="at count_0 root">'
-								.$this->Html->link( '<span class="icon32 plugin login"></span>'.__('Login', true), '/', array('title' => __('Login', true), 'escape' => false, 'class' => 'MainTitle')).
+								.$this->Html->link( '<span class="icon32 rm5px login"></span>'.__('Login', true), '/', array('title' => __('Login', true), 'escape' => false, 'class' => 'MainTitle')).
 							'</li>
 						</ul>
 					</div>
@@ -154,18 +154,18 @@ class ShellHelper extends Helper {
 		
 		$confirm_msg_html = "";
 		if(isset($_SESSION['ctrapp_core']['confirm_msg'])){
-			$confirm_msg_html = '<ul class="confirm"><li>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
+			$confirm_msg_html = '<ul class="confirm"><li><span class="icon16 confirm mr5px"></span>'.$_SESSION['ctrapp_core']['confirm_msg'].'</li></ul>';
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
 		
-		foreach(array('warning', 'info') as $type){
+		foreach(array('confirm', 'warning', 'info') as $type){
 			if(isset($_SESSION['ctrapp_core'][$type.'_msg']) && count($_SESSION['ctrapp_core'][$type.'_msg']) > 0){
 				$confirm_msg_html .= '<ul class="'.$type.'">';
 				foreach($_SESSION['ctrapp_core'][$type.'_msg'] as $msg => $count){
 					if($count > 1){
 						$msg .= " (".$count.")";
 					}
-					$confirm_msg_html .= "<li>".$msg."</li>";
+					$confirm_msg_html .= "<li><span class='icon16 ".$type." mr5px'></span>".$msg."</li>";
 				}
 				$confirm_msg_html .= '</ul>';
 				$_SESSION['ctrapp_core'][$type.'_msg'] = array();
@@ -195,7 +195,7 @@ class ShellHelper extends Helper {
 				if(is_array($field)){
 					foreach($field as $field_unit){
 						$display_errors[] = '
-							<li>'.__($field_unit, true).'</li>
+							<li><span class="icon16 delete mr5px"></span>'.__($field_unit, true).'</li>
 						';
 					}
 				}else{
@@ -323,11 +323,11 @@ class ShellHelper extends Helper {
 										// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 										
 										if(!$menu_item['Menu']['allowed']){
-											$active_item = '<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
+											$active_item = '<a class="icon32 mr5px not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
 										}else {
 											//$html_attributes
 											$class = ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-											$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 '.$class.'"></span>'.__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));
+											$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'"></span>'.__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));
 										}
 									}else{
 										$active_item = '<span class="mainTitle">'.__($menu_item['Menu']['language_title'], true).'</span>';
