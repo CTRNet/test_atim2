@@ -768,6 +768,106 @@ UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND `display_column`='3';
 UPDATE structure_formats SET `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_ovary_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- OV - Surgery
+
+INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+('surgery', 'breast', 1, 'chus_txd_breast_surgeries', 'treatmentmasters,chus_txd_breast_surgeries', NULL, NULL, 0, NULL, NULL, 'breast|surgery');
+
+DROP TABLE IF EXISTS `chus_txd_breast_surgeries`;
+CREATE TABLE IF NOT EXISTS `chus_txd_breast_surgeries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  patho_report_number varchar(50) DEFAULT NULL,
+  
+  laterality varchar(50) DEFAULT NULL,
+  
+  breast_reduction char(1) DEFAULT '',
+  prophylaxis char(1) DEFAULT '',
+  partial_mastectomy char(1) DEFAULT '',
+  total_mastectomy char(1) DEFAULT '',
+  partial_mastectomy_revision char(1) DEFAULT '',  
+  axillary_dissection char(1) DEFAULT '',
+  biopsy char(1) DEFAULT '',
+  
+  size_mm decimal(5,2) DEFAULT NULL,
+  
+  `treatment_master_id` int(11) NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `chus_txd_breast_surgeries_revs`;
+CREATE TABLE IF NOT EXISTS `chus_txd_breast_surgeries_revs` (
+  `id` int(11) NOT NULL,
+  
+  patho_report_number varchar(50) DEFAULT NULL,
+  
+  laterality varchar(50) DEFAULT NULL,
+  
+  breast_reduction char(1) DEFAULT '',
+  prophylaxis char(1) DEFAULT '',
+  partial_mastectomy char(1) DEFAULT '',
+  total_mastectomy char(1) DEFAULT '',
+  partial_mastectomy_revision char(1) DEFAULT '',  
+  axillary_dissection char(1) DEFAULT '',
+  biopsy char(1) DEFAULT '',
+  
+  size_mm decimal(5,2) DEFAULT NULL,
+    
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_txd_breast_surgeries`
+  ADD CONSTRAINT `chus_txd_breast_surgeries_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('chus_laterality', '', '', NULL);
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("bilateral", "bilateral");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="chus_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "4", "1");
+
+INSERT INTO structures(`alias`) VALUES ('chus_txd_breast_surgeries');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'patho_report_number', 'input',  NULL , '0', '', '', '', 'patho report number', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_laterality') , '0', '', '', '', 'laterality', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'breast_reduction', 'yes_no',  NULL , '0', '', '', '', 'breast reduction', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'prophylaxis', 'yes_no',  NULL , '0', '', '', '', 'prophylaxis', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'partial_mastectomy', 'yes_no',  NULL , '0', '', '', '', 'partial mastectomy', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'total_mastectomy', 'yes_no',  NULL , '0', '', '', '', 'total mastectomy', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'partial_mastectomy_revision', 'yes_no',  NULL , '0', '', '', '', 'partial mastectomy revision', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'axillary_dissection', 'yes_no',  NULL , '0', '', '', '', 'axillary dissection', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'biopsy', 'yes_no',  NULL , '0', '', '', '', 'biopsy', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'chus_txd_breast_surgeries', 'size_mm', 'float_positive',  NULL , '0', 'size=5', '', '', 'size mm', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='patho_report_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patho report number' AND `language_tag`=''), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='breast_reduction' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='breast reduction' AND `language_tag`=''), '2', '50', 'surgery type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='prophylaxis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prophylaxis' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='partial_mastectomy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='partial mastectomy' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='total_mastectomy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total mastectomy' AND `language_tag`=''), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='partial_mastectomy_revision' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='partial mastectomy revision' AND `language_tag`=''), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='axillary_dissection' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='axillary dissection' AND `language_tag`=''), '2', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='biopsy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy' AND `language_tag`=''), '2', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chus_txd_breast_surgeries' AND `field`='size_mm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='size mm' AND `language_tag`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('bilateral','Bilateral','Bilatérale'),
+('size mm','Size (mm)','Taille (mm)'),
+('breast reduction','Breast Reduction','Réduction mammaire'),
+('prophylaxis','Prophylaxis','Prophylaxie'),
+('partial mastectomy','Partial Mastectomy','Mastectomie partielle'),
+('total mastectomy','Total Mastectomy','Mastectomie Totale'),
+('partial mastectomy revision','Partial Mastectomy - Revision','Mastectomie partielle - Révision'),
+('axillary dissection','Axillary Dissection','Évidement axillaire');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('bilateral','Bilateral','Bilatérale'),('biopsy','Biopsy','Biopsie');
+
 -- OV/Breast - Radiation
 
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
@@ -1105,12 +1205,15 @@ UPDATE structure_formats SET `language_heading`='staging' WHERE structure_id=(SE
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_dx_stage', 'open', '', NULL);
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('I','I'),
 ('Ia', 'Ia'),
 ('Ib', 'Ib'),
 ('Ic', 'Ic'),
+('II','II'),
 ('IIa', 'IIa'),
 ('IIb', 'IIb'),
 ('IIc', 'IIc'),
+('III','III'),
 ('IIIa', 'IIIa'),
 ('IIIb', 'IIIb'),
 ('IIIc', 'IIIc'),
@@ -1148,11 +1251,11 @@ VALUES
 ('serous','Serous','Séreux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('papillary','Papillary','Papillaire', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('mucinous','Mucinous','Mucineux', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
-('endometrioid/endometriotic/endometriosis','Endometrioid/Endometriotic/Endometriosis','Endométrioide/endométriotique/endométriosique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('endometrioid/endometriotic/endometriosis','Endometrioid/Endometriotic/Endometriosis','Endométrioide/Endométriotique/Endométriosique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('squamous','Squamous','Malpighien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
-('mrukenberg','Mrukenberg','Krukenberg', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('Krukenberg','Krukenberg','Krukenberg', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('mullerian','Mullerian','Mullerien', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
-('mranulosa','Mranulosa','Granulosa', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('granulosa','Granulosa','Granulosa', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('squamous/dermoid','Squamous/Dermoid','Épidermoide/Dermoide', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('mature teratoma','Mature Teratoma','Tératome Mature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('immature teratoma','Immature Teratoma','Tératome Immature', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
@@ -1166,7 +1269,7 @@ VALUES
 ('struma ovarii','Struma Ovarii','Struma Ovarii', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('fibroma','Fibroma','Fibrome', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('atrophic','Atrophic','Atrophique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
-('fibrothécale','Fibrothécale','Fibrothécale', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
+('fibrothecoma','Fibrothecoma','Fibrothécale', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('polycystic','Polycystic','Polykystique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1),
 ('inclusion cyst','Inclusion Cyst','Kyste d''inclusion', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'ovary diagnosis morphology'), 1);
 
@@ -1180,6 +1283,375 @@ UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id F
 
 UPDATE `diagnosis_controls` SET detail_tablename = 'chus_dxd_ovaries' WHERE form_alias LIKE 'diagnosismasters,%,chus_dx_ovary';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- OVARY
+
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'breast', 1, 'diagnosismasters,dx_primary,chus_dx_breast', 'chus_dxd_breasts', 0, 'primary|breast', 1),
+('secondary', 'breast', 1, 'diagnosismasters,dx_secondary,chus_dx_breast', 'chus_dxd_breasts', 0, 'secondary|breast', 1);
+
+CREATE TABLE IF NOT EXISTS `chus_dxd_breasts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  
+  `laterality` varchar(50) NOT NULL DEFAULT '',
+  `atcd` char(1) DEFAULT '',
+  `atcd_description` varchar(250) NOT NULL DEFAULT '',
+  `stage` varchar(50) NOT NULL DEFAULT '',
+
+  `infiltrative_ductal` char(1) DEFAULT '',
+  `infiltrative_mucinous` char(1) DEFAULT '',
+  `infiltrative_apocrine` char(1) DEFAULT '',
+  `infiltrative_tubular` char(1) DEFAULT '',
+  `infiltrative_trabecular` char(1) DEFAULT '',
+  `infiltrative_alveolar` char(1) DEFAULT '',
+  `infiltrative_papillary` char(1) DEFAULT '',
+  `infiltrative_micropapillary` char(1) DEFAULT '',
+  `infiltrative_cribriform` char(1) DEFAULT '',
+  `infiltrative_lobular` char(1) DEFAULT '',
+  `infiltrative_solid` char(1) DEFAULT '',
+  `infiltrative_medullary` char(1) DEFAULT '',
+  `infiltrative_polyadenoid` char(1) DEFAULT '',
+  `infiltrative_neuroendocrine` char(1) DEFAULT '',
+  `infiltrative_sarcomatoid` char(1) DEFAULT '',
+  `infiltrative_ring_cell` char(1) DEFAULT '',
+  `infiltrative_clear_cell` char(1) DEFAULT '',
+  `infiltrative_giant_cells` char(1) DEFAULT '',
+  `infiltrative_malpighian` char(1) DEFAULT '',
+  `infiltrative_epidermoid` char(1) DEFAULT '',
+  `infiltrative_pleomorphic` char(1) DEFAULT '',
+  `infiltrative_basal_like` char(1) DEFAULT '',
+  `infiltrative_sbr_grade` varchar(150) DEFAULT NULL,
+
+  `intraductal_papillary` char(1) DEFAULT '',
+  `intraductal_ductal` char(1) DEFAULT '',
+  `intraductal_lobular` char(1) DEFAULT '',
+  `intraductal_micropapillary` char(1) DEFAULT '',
+  `intraductal_cribriform` char(1) DEFAULT '',
+  `intraductal_apocrine` char(1) DEFAULT '',
+  `intraductal_comedocarcinoma` char(1) DEFAULT '',
+  `intraductal_solid` char(1) DEFAULT '',
+  `intraductal_intraductal_not_specified` char(1) DEFAULT '',
+  `intraductal_perc_of_infiltrating` decimal(5,2) DEFAULT NULL,
+  `intraductal_ng_grade_holland` varchar(150) DEFAULT NULL,
+
+  `ganglion_axillary_surgery` char(1) DEFAULT '',
+  `ganglion_sentinel_node` char(1) DEFAULT '',
+  `ganglion_total` int(6) DEFAULT NULL,
+  `ganglion_invaded` int(6) DEFAULT NULL,
+    
+  `observation_necrosis` char(1) DEFAULT '',
+  `observation_microcalcifications` char(1) DEFAULT '',
+  `observation_angiolymphatic_invasion` char(1) DEFAULT '',
+  `observation_multiple_foci_tumor` char(1) DEFAULT '',
+  `observation_microinvasion` char(1) DEFAULT '',
+  `observation_distant_metastasis` char(1) DEFAULT '',
+  `observation_atypical_fibrocystic_changes` char(1) DEFAULT '',
+  `observation_nipple_affected` char(1) DEFAULT '',
+  `observation_epidermis_affected` char(1) DEFAULT '',
+        
+  `deleted` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_dxd_breasts_revs` (
+  `id` int(11) NOT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  
+  `laterality` varchar(50) NOT NULL DEFAULT '',
+  `atcd` char(1) DEFAULT '',
+  `atcd_description` varchar(250) NOT NULL DEFAULT '',
+  `stage` varchar(50) NOT NULL DEFAULT '',
+
+  `infiltrative_ductal` char(1) DEFAULT '',
+  `infiltrative_mucinous` char(1) DEFAULT '',
+  `infiltrative_apocrine` char(1) DEFAULT '',
+  `infiltrative_tubular` char(1) DEFAULT '',
+  `infiltrative_trabecular` char(1) DEFAULT '',
+  `infiltrative_alveolar` char(1) DEFAULT '',
+  `infiltrative_papillary` char(1) DEFAULT '',
+  `infiltrative_micropapillary` char(1) DEFAULT '',
+  `infiltrative_cribriform` char(1) DEFAULT '',
+  `infiltrative_lobular` char(1) DEFAULT '',
+  `infiltrative_solid` char(1) DEFAULT '',
+  `infiltrative_medullary` char(1) DEFAULT '',
+  `infiltrative_polyadenoid` char(1) DEFAULT '',
+  `infiltrative_neuroendocrine` char(1) DEFAULT '',
+  `infiltrative_sarcomatoid` char(1) DEFAULT '',
+  `infiltrative_ring_cell` char(1) DEFAULT '',
+  `infiltrative_clear_cell` char(1) DEFAULT '',
+  `infiltrative_giant_cells` char(1) DEFAULT '',
+  `infiltrative_malpighian` char(1) DEFAULT '',
+  `infiltrative_epidermoid` char(1) DEFAULT '',
+  `infiltrative_pleomorphic` char(1) DEFAULT '',
+  `infiltrative_basal_like` char(1) DEFAULT '',
+  `infiltrative_sbr_grade` varchar(150) DEFAULT NULL,
+
+  `intraductal_papillary` char(1) DEFAULT '',
+  `intraductal_ductal` char(1) DEFAULT '',
+  `intraductal_lobular` char(1) DEFAULT '',
+  `intraductal_micropapillary` char(1) DEFAULT '',
+  `intraductal_cribriform` char(1) DEFAULT '',
+  `intraductal_apocrine` char(1) DEFAULT '',
+  `intraductal_comedocarcinoma` char(1) DEFAULT '',
+  `intraductal_solid` char(1) DEFAULT '',
+  `intraductal_intraductal_not_specified` char(1) DEFAULT '',
+  `intraductal_perc_of_infiltrating` decimal(5,2) DEFAULT NULL,
+  `intraductal_ng_grade_holland` varchar(150) DEFAULT NULL,
+
+  `ganglion_axillary_surgery` char(1) DEFAULT '',
+  `ganglion_sentinel_node` char(1) DEFAULT '',
+  `ganglion_total` int(6) DEFAULT NULL,
+  `ganglion_invaded` int(6) DEFAULT NULL,
+    
+  `observation_necrosis` char(1) DEFAULT '',
+  `observation_microcalcifications` char(1) DEFAULT '',
+  `observation_angiolymphatic_invasion` char(1) DEFAULT '',
+  `observation_multiple_foci_tumor` char(1) DEFAULT '',
+  `observation_microinvasion` char(1) DEFAULT '',
+  `observation_distant_metastasis` char(1) DEFAULT '',
+  `observation_atypical_fibrocystic_changes` char(1) DEFAULT '',
+  `observation_nipple_affected` char(1) DEFAULT '',
+  `observation_epidermis_affected` char(1) DEFAULT '',
+        
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_dxd_breasts`
+  ADD CONSTRAINT `chus_dxd_breasts_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_dx_breast');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', 'dx_laterality', 'laterality', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx nature' AND `language_label`='dx nature' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '6', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='clinical stage' AND `language_tag`='t stage'), '2', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_nstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '2', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='help_clinical_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_tstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='pathological stage' AND `language_tag`='t stage'), '2', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='n stage'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1,maxlength=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='m stage'), '2', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_stage_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=1, maxlength=3' AND `default`='' AND `language_help`='help_path_stage_summary' AND `language_label`='' AND `language_tag`='summary'), '2', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='dx_laterality' AND `language_label`='laterality' AND `language_tag`=''), '2', '99', 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'atcd', 'yes_no',  NULL , '0', '', '', '', 'atcd', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'atcd_description', 'input',  NULL , '0', 'size=30', '', '', '', 'description'), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'stage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_stage') , '0', '', '', '', 'stage', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='atcd' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='atcd' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='atcd_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='description'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='stage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+UPDATE structure_formats SET `language_heading`='staging' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_breast') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='clinical_tstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_breast') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_nature') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_breast') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='atcd_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_ductal', 'yes_no',  NULL , '0', '', '', '', 'ductal', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_mucinous', 'yes_no',  NULL , '0', '', '', '', 'mucinous', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_apocrine', 'yes_no',  NULL , '0', '', '', '', 'apocrine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_tubular', 'yes_no',  NULL , '0', '', '', '', 'tubular', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_trabecular', 'yes_no',  NULL , '0', '', '', '', 'trabecular', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_alveolar', 'yes_no',  NULL , '0', '', '', '', 'alveolar', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_papillary', 'yes_no',  NULL , '0', '', '', '', 'papillary', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_micropapillary', 'yes_no',  NULL , '0', '', '', '', 'micropapillary', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_cribriform', 'yes_no',  NULL , '0', '', '', '', 'cribriform', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_lobular', 'yes_no',  NULL , '0', '', '', '', 'lobular', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_solid', 'yes_no',  NULL , '0', '', '', '', 'solid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_medullary', 'yes_no',  NULL , '0', '', '', '', 'medullary', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_polyadenoid', 'yes_no',  NULL , '0', '', '', '', 'polyadenoid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_neuroendocrine', 'yes_no',  NULL , '0', '', '', '', 'neuroendocrine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_sarcomatoid', 'yes_no',  NULL , '0', '', '', '', 'sarcomatoid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_ring_cell', 'yes_no',  NULL , '0', '', '', '', 'ring cell', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_clear_cell', 'yes_no',  NULL , '0', '', '', '', 'clear cell', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_giant_cells', 'yes_no',  NULL , '0', '', '', '', 'giant cells', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_malpighian', 'yes_no',  NULL , '0', '', '', '', 'malpighian', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_epidermoid', 'yes_no',  NULL , '0', '', '', '', 'epidermoid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_pleomorphic', 'yes_no',  NULL , '0', '', '', '', 'pleomorphic', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_basal_like', 'yes_no',  NULL , '0', '', '', '', 'basal like', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'infiltrative_sbr_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_tumour_grade'), '0', '', '', '', 'sbr grade', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_ductal'), '2', '200', 'infiltrative', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_mucinous'), '2', '201', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_apocrine'), '2', '202', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_tubular'), '2', '203', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_trabecular'), '2', '204', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_alveolar'), '2', '205', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_papillary'), '2', '206', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_micropapillary'), '2', '207', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_cribriform'), '2', '208', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_lobular'), '2', '209', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_solid'), '2', '210', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_medullary'), '2', '211', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_polyadenoid'), '2', '212', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_neuroendocrine'), '2', '213', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_sarcomatoid'), '2', '214', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_ring_cell'), '2', '215', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_clear_cell'), '2', '216', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_giant_cells'), '2', '217', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_malpighian'), '2', '218', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_epidermoid'), '2', '219', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_pleomorphic'), '2', '221', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_basal_like'), '2', '222', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='infiltrative_sbr_grade'), '2', '223', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('ductal','Ductal','Canalaire'),
+('mucinous','Mucinous','Mucineux'),
+('apocrine','Apocrine','Apocrine'),
+('tubular','Tubular','Tubulaire'),
+('trabecular','Trabecular','Trabéculaire'),
+('alveolar','Alveolar','Alvéolaire'),
+('papillary','Papillary','Papillaire'),
+('micropapillary','Micropapillary','Micropapillaire'),
+('cribriform','Cribriform','Cribriforme'),
+('lobular','Lobular','Lobulaire'),
+('solid','Solid','Solide'),
+('medullary','Medullary','Médullaire'),
+('polyadenoid','Polyadenoid','Polyadénoïde'),
+('neuroendocrine','Neuroendocrine','Neuroendocrinienne'),
+('sarcomatoid','Sarcomatoid','Sarcomatoide'),
+('ring cell','Ring cell','Cellules en bague'),
+('clear cell','Clear cell','Cellules Claires'),
+('giant cells','Giant cells','Cellules géantes'),
+('malpighian','Malpighian','Malpighienne'),
+('epidermoid','Epidermoid','Épidermoide'),
+('medullary','Medullary','Médullaire'),
+('pleomorphic','Pleomorphic','Pléomorphe'),
+('basal like','Basal-Like','Basal-Like'),
+('sbr grade','SBR Grade','Grade SBR'),
+('infiltrative','Infiltrative','Infiltrant');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_papillary', 'yes_no',  NULL , '0', '', '', '', 'papillary', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_ductal', 'yes_no',  NULL , '0', '', '', '', 'ductal', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_lobular', 'yes_no',  NULL , '0', '', '', '', 'lobular', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_micropapillary', 'yes_no',  NULL , '0', '', '', '', 'micropapillary', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_cribriform', 'yes_no',  NULL , '0', '', '', '', 'cribriform', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_apocrine', 'yes_no',  NULL , '0', '', '', '', 'apocrine', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_comedocarcinoma', 'yes_no',  NULL , '0', '', '', '', 'comedocarcinoma', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_solid', 'yes_no',  NULL , '0', '', '', '', 'solid', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_intraductal_not_specified', 'yes_no',  NULL , '0', '', '', '', 'intraductal not specified', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_perc_of_infiltrating', 'float_positive',  NULL , '0', 'size=5', '', '', 'perc of infiltrating', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'intraductal_ng_grade_holland', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_tumour_grade') , '0', '', '', '', 'ng grade (holland)', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_papillary'), '3', '300', 'intraductal (in situ)', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_ductal'), '3', '301', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_lobular'), '3', '302', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_micropapillary'), '3', '303', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_cribriform'), '3', '304', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_apocrine'), '3', '305', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_comedocarcinoma'), '3', '306', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_solid'), '3', '307', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_intraductal_not_specified'), '3', '308', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_perc_of_infiltrating'), '3', '309', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='intraductal_ng_grade_holland'), '3', '310', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('papillary','Papillary','Papillaire'),
+('ductal','Ductal','Ductal'),
+('lobular','Lobular','Lobulaire'),
+('micropapillary','Micropapillary','Micropapillaire'),
+('cribriform','Cribriform','Cribriforme'),
+('apocrine','Apocrine','Apocrine'),
+('comedocarcinoma','Comedocarcinoma','Comédocarcinome'),
+('solid','Solid','Solide'),
+('intraductal not specified','Intraductal Not Specified','Intracanalaire (Pas spécification)'),
+('perc of infiltrating','% Of Infiltrating','% de l''infiltrant'),
+('ng grade (holland)','NG Grade (Holland)','Grade NG (Holland)'),
+('intraductal (in situ)','Intraductal (In Situ)','Intracanalaire (In situ)');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'ganglion_axillary_surgery', 'yes_no',  NULL , '0', '', '', '', 'axillary surgery', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'ganglion_sentinel_node', 'yes_no',  NULL , '0', '', '', '', 'sentinel node', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'ganglion_total', 'integer_positive',  NULL , '0', 'size=5', '', '', 'total', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'ganglion_invaded', 'integer_positive',  NULL , '0', 'size=5', '', '', 'invaded', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='ganglion_axillary_surgery'), '3', '350', 'ganglions', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='ganglion_sentinel_node'), '3', '351', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='ganglion_total'), '3', '352', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='ganglion_invaded'), '3', '353', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('axillary surgery','Axillary Surgery','Chirurgie aisselle'),
+('sentinel node','Sentinel Node','Ganglion sentinelle'),
+('ganglions','Ganglions','Ganglions'),
+('total','Total','Total'),
+('invaded','Invaded','Envahis');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_necrosis', 'yes_no',  NULL , '0', '', '', '', 'necrosis', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_microcalcifications', 'yes_no',  NULL , '0', '', '', '', 'microcalcifications', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_angiolymphatic_invasion', 'yes_no',  NULL , '0', '', '', '', 'angiolymphatic invasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_multiple_foci_tumor', 'yes_no',  NULL , '0', '', '', '', 'multiple foci tumor', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_microinvasion', 'yes_no',  NULL , '0', '', '', '', 'microinvasion', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_distant_metastasis', 'yes_no',  NULL , '0', '', '', '', 'distant metastasis', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_atypical_fibrocystic_changes', 'yes_no',  NULL , '0', '', '', '', 'atypical fibrocystic changes', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_nipple_affected', 'yes_no',  NULL , '0', '', '', '', 'nipple affected (paget)', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'observation_epidermis_affected', 'yes_no',  NULL , '0', '', '', '', 'epidermis affected', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_necrosis'), '3', '400', 'observations', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_microcalcifications'), '3', '401', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_angiolymphatic_invasion'), '3', '402', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_multiple_foci_tumor'), '3', '403', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_microinvasion'), '3', '404', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_distant_metastasis'), '3', '405', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_atypical_fibrocystic_changes'), '3', '406', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_nipple_affected'), '3', '407', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='observation_epidermis_affected'), '3', '408', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('necrosis','Necrosis','Nécrose'),
+('microcalcifications','Microcalcifications','Microcalcifications'),
+('angiolymphatic invasion','Angiolymphatic Invasion','Perméations angiolymphatiques'),
+('multiple foci tumor','Multiple Foci tumor','Tumeur à multiples foyers'),
+('microinvasion','Microinvasion','Microinvasion'),
+('distant metastasis','Distant Metastasis','Métastases à distance'),
+('atypical fibrocystic changes','Atypical Fibrocystic Changes','Modifications fibrokystiques atypiques'),
+('nipple affected (paget)','Nipple Affected (Paget)','Atteinte du mamelon (Paget)'),
+('epidermis affected','Epidermis Affected','Atteinte de l''épiderme'),
+('case report','Observations','Observations');
+
 -- ========================================================================================================
 -- TOOLS
 -- ========================================================================================================
@@ -1190,3 +1662,18 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/sop/sop_masters/%';
 
 UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
 
+
+-- ========================================================================================================
+-- Other
+-- ========================================================================================================
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('appendix','Appendix','Appendice'),
+('colon','Colon','Colon'),
+('ganglion','Ganglion','Ganglion'),
+('hormonotherapy','Hormonotherapy','Hormonothérapie'),
+('hospital number','Hospital Number','Numéro Hôpital'),
+('liver','Liver','Foie'),
+('pancreas','Pancreas','Pancréas'),
+('rectum','Rectum','Rectum'),
+('stomach','Stomach','Estomac');
