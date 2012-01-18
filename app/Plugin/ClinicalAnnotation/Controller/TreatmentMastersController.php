@@ -134,9 +134,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	
 	function add($participant_id, $tx_control_id) {
 		// MANAGE DATA
-		$participant_data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
-		$tx_control_data = $this->TreatmentControl->redirectIfNonExistent($tx_control_id, __METHOD__, __LINE__, true);
+		$tx_control_data = $this->TreatmentControl->getOrRedirect($tx_control_id);
 
 		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();

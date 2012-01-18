@@ -30,7 +30,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 	
 	function listall( $participant_id ) {
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
 
 		// MANAGE DATA
 		$this->request->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
@@ -67,8 +67,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 	
 	function detail( $participant_id, $misc_identifier_id ) {
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
-		$this->MiscIdentifier->redirectIfNonExistent($misc_identifier_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
+		$this->MiscIdentifier->getOrRedirect($misc_identifier_id);
 
 		// MANAGE DATA
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id)));		
@@ -84,8 +84,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 	
 	function add( $participant_id, $misc_identifier_control_id) {
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
-		$this->MiscIdentifierControl->redirectIfNonExistent($misc_identifier_control_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
+		$this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
 
 		// MANAGE DATA
 		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
@@ -167,8 +167,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id, $misc_identifier_id) {
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
-		$this->MiscIdentifier->redirectIfNonExistent($misc_identifier_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
+		$this->MiscIdentifier->getOrRedirect($misc_identifier_id);
 		
 		// MANAGE DATA
 		
@@ -225,8 +225,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 
 	function delete( $participant_id, $misc_identifier_id ) {
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
-		$this->MiscIdentifier->redirectIfNonExistent($misc_identifier_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
+		$this->MiscIdentifier->getOrRedirect($misc_identifier_id);
 		
 		// MANAGE DATA
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array(
@@ -273,8 +273,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 	
 	function reuse($participant_id, $misc_identifier_ctrl_id, $submited = false){
-		$this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__);
-		$this->MiscIdentifierControl->redirectIfNonExistent($misc_identifier_ctrl_id, __METHOD__, __LINE__);
+		$this->Participant->getOrRedirect($participant_id);
+		$this->MiscIdentifierControl->getOrRedirect($misc_identifier_ctrl_id);
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifierControl.id'=>$misc_identifier_ctrl_id) );
 		$this->Structures->set('misc_identifier_value');
 		

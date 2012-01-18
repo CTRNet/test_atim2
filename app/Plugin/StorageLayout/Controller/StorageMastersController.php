@@ -73,7 +73,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		// MANAGE DATA
 		
 		// Get the storage data
-		$data = $this->StorageMaster->redirectIfNonExistent($storage_master_id, __METHOD__, __LINE__, true);
+		$data = $this->StorageMaster->getOrRedirect($storage_master_id);
 		
 		$data['StorageMaster']['layout_description'] = $this->StorageControl->getStorageLayoutDescription(array('StorageControl' => $data['StorageControl']));
 		
@@ -137,7 +137,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	
 	function add($storage_control_id, $predefined_parent_storage_id = null) {
 		// MANAGE DATA
-		$storage_control_data = $this->StorageControl->redirectIfNonExistent($storage_control_id, __METHOD__, __LINE__, true);
+		$storage_control_data = $this->StorageControl->getOrRedirect($storage_control_id);
 		$this->set('storage_control_id', $storage_control_data['StorageControl']['id']);
 		$this->set('layout_description', $this->StorageControl->getStorageLayoutDescription($storage_control_data));
 		
@@ -235,7 +235,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	function edit($storage_master_id) {
 		// MANAGE DATA
 		// Get the storage data
-		$storage_data = $this->StorageMaster->redirectIfNonExistent($storage_master_id, __METHOD__, __LINE__, true);
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 		$storage_data['StorageMaster']['layout_description'] = $this->StorageControl->getStorageLayoutDescription(array('StorageControl' => $storage_data['StorageControl']));
 
 		// Set predefined parent storage
@@ -337,7 +337,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	
 	function delete($storage_master_id) {
 		// Get the storage data
-		$storage_data = $this->StorageMaster->redirectIfNonExistent($storage_master_id, __METHOD__, __LINE__, true);
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->StorageMaster->allowDeletion($storage_master_id);
@@ -480,7 +480,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		// MANAGE STORAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->redirectIfNonExistent($storage_master_id, __METHOD__, __LINE__, true); 
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id); 
 
 		$coordinate_list = array();
 		if($storage_data['StorageControl']['coord_x_type'] == "list"){

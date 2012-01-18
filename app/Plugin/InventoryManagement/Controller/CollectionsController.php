@@ -65,7 +65,7 @@ class CollectionsController extends InventoryManagementAppController {
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
-		$this->request->data = $this->ViewCollection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, true);
+		$this->request->data = $this->ViewCollection->getOrRedirect($collection_id);
 		
 		// Set participant id
 		$this->set('participant_id', $this->request->data['ViewCollection']['participant_id']);
@@ -114,7 +114,7 @@ class CollectionsController extends InventoryManagementAppController {
 		if(empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(!empty($copy_source)){
 				if(empty($this->request->data)){
-					$this->request->data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
+					$this->request->data = $this->Collection->getOrRedirect($copy_source);
 				}
 				if($this->request->data['Collection']['collection_property'] == 'participant collection'){
 					$this->Structures->set('collections,col_copy_binding_opt');
@@ -133,7 +133,7 @@ class CollectionsController extends InventoryManagementAppController {
 			
 			$copy_src_data = null;
 			if($copy_source){
-				$copy_src_data = $this->Collection->redirectIfNonExistent($copy_source, __METHOD__, __LINE__, true);
+				$copy_src_data = $this->Collection->getOrRedirect($copy_source);
 			}
 			
 			// LAUNCH SAVE PROCESS
@@ -207,7 +207,7 @@ class CollectionsController extends InventoryManagementAppController {
 	
 	function edit($collection_id) {
 		$this->Collection->unbindModel(array('hasMany' => array('SampleMaster')));		
-		$collection_data = $this->Collection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, true);
+		$collection_data = $this->Collection->getOrRedirect($collection_id);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		

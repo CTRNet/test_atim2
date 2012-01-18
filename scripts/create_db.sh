@@ -22,7 +22,7 @@ mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.4.0/atim_v2.4.2_upgrade.sq
 echo running tmp_atim_v2.5.0_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.5.0_upgrade.sql
 
-#echo running fmlh.sql
-#mysql -u $2 -p$3 $1 --default-character-set=utf8 < fmlh.sql
+echo running fmlh.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < fmlh.sql
 
 echo done

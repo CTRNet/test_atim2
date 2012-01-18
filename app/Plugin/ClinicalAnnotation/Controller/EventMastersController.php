@@ -38,7 +38,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		}
 			
 		// MANAGE DATA
-		$participant_data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 
 		$this->request->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
 		

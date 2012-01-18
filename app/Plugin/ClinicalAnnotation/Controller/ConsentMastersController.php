@@ -13,7 +13,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 	var $paginate = array('ConsentMaster'=>array('limit' => pagination_amount,'order'=>'ConsentMaster.date_first_contact ASC')); 
 
 	function listall( $participant_id ) {
-		$participant_data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$this->request->data = $this->paginate($this->ConsentMaster, array('ConsentMaster.participant_id'=>$participant_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
