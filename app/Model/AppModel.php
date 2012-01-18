@@ -21,7 +21,23 @@ class AppModel extends Model {
 	 * @var SampleMaster
 	 */
 	var $previous_model = null;
-
+	
+	/**
+	 * Override to prevent saving id directly with the array to avoid hacks
+	 * @see Model::save()
+	 */
+	function save($data = null, $validate = true, $fieldList = array()){
+		if((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
+			|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey])
+		){
+			AppController::addWarningMsg('Pkey safegard');
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			return false;
+		}
+		
+		return parent::save($data, $validate, $fieldList);
+	}
+	
 	/**
 	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
 	 * This is convenient for search based on master/detail detail table.
@@ -74,6 +90,7 @@ class AppModel extends Model {
 			$this->data[$this->name]['created_by'] = 0;
 			$this->data[$this->name]['modified_by'] = 0;
 		}
+		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
 		
 		
 		foreach($this->_schema as $field_name => $field_properties) {
