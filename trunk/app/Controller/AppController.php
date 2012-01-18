@@ -16,6 +16,7 @@ class AppController extends Controller {
 	private static $cal_info_long_translated = false;
 	
 	function beforeFilter() {
+		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
 			Cache::clear(false, "structures");
