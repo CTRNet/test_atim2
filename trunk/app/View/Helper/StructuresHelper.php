@@ -2342,6 +2342,8 @@ class StructuresHelper extends Helper {
 						AppController::addWarningMsg(__("invalid override for model.field [%s.%s]", $table_row_part['model'], $table_row_part['field'].$suffix));
 					}
 					$current_value = "";
+				}else if(Configure::read('debug') > 0 && $table_row_part['type'] == 'select' && !array_key_exists($current_value, $table_row_part['settings']['options']['defined'])){
+					AppController::addWarningMsg(__('unsupported override value for model.field [%s.%s]', $table_row_part['model'], $table_row_part['field'].$suffix));
 				}
 			}else if(!empty($table_row_part['default'])){
 				//priority 3, default
