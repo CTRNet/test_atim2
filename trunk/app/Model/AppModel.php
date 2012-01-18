@@ -534,7 +534,7 @@ class AppModel extends Model {
 		}
 		if($instance === false && $error_view_on_null){
 			pr(AppController::getStackTrace());
-			die('died in AppModel::getInstance ['.$plugin_name.$class_name.']');
+			die('died in AppModel::getInstance ['.$plugin_name.$class_name.']');//TODO: remove me!
 			AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
 		}
 		
@@ -771,9 +771,9 @@ class AppModel extends Model {
 	 * @param string $line The line number to display in the error message
 	 * @param bool $return Returns the data line if it exists
 	 * @return null if $return is true and the data exists, the data, null otherwise
+	 * @deprecated Use getOrRedirect instead. TODO: Remove in ATiM 2.6
 	 */
 	function redirectIfNonExistent($id, $method, $line, $return = false){
-		//TODO: Refactor: getOrRedirect, no more metho/line required, do it automagically
 		$this->id = $id;
 		if($result = $this->read()){
 			if($return){
@@ -782,6 +782,21 @@ class AppModel extends Model {
 		}else{
 			AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.$method.',line='.$line, null, true );
 		}
+		return null;
+	}
+	
+	/**
+	 * Tries to fetch model data. If it doesn't exists, redirects to an error page.
+	 * @param string $id The model primary key to fetch
+	 * @return The model data if it succeeds
+	 */
+	function getOrRedirect($id){
+		$this->id = $id;
+		if($result = $this->read()){
+			return $result;
+		}
+		$bt = debug_backtrace();
+		AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
 		return null;
 	}
 }

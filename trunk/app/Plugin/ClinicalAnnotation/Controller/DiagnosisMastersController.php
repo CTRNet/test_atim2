@@ -169,7 +169,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 	function add( $participant_id, $parent_id, $dx_control_id){
 		// MANAGE DATA
 		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		$dx_ctrl = $this->DiagnosisControl->redirectIfNonExistent($dx_control_id, __METHOD__, __LINE__, true);
+		$dx_ctrl = $this->DiagnosisControl->getOrRedirect($dx_control_id);
 		if(empty($participant_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}

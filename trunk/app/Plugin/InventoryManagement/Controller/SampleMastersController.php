@@ -54,7 +54,7 @@ class SampleMastersController extends InventoryManagementAppController {
 	
 	function contentTreeView($collection_id, $sample_master_id = 0, $is_ajax = false){
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
-		$this->Collection->redirectIfNonExistent($collection_id, __METHOD__, __LINE__, false);
+		$this->Collection->getOrRedirect($collection_id);
 		
 		if($is_ajax){
 			$this->layout = 'ajax';

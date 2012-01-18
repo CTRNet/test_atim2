@@ -26,7 +26,7 @@ class StudySummariesController extends StudyAppController {
 
 	function detail( $study_summary_id ) {
 		// MANAGE DATA
-		$this->request->data = $this->StudySummary->redirectIfNonExistent($study_summary_id, __METHOD__, __LINE__, true);
+		$this->request->data = $this->StudySummary->getOrRedirect($study_summary_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
@@ -73,7 +73,7 @@ class StudySummariesController extends StudyAppController {
   
 	function edit( $study_summary_id ) {
 		// MANAGE DATA
-		$study_summary_data = $this->StudySummary->redirectIfNonExistent($study_summary_id, __METHOD__, __LINE__, true);
+		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
@@ -112,7 +112,7 @@ class StudySummariesController extends StudyAppController {
 	
 	function delete( $study_summary_id ){
 		// MANAGE DATA
-		$study_summary_data = $this->StudySummary->redirectIfNonExistent($study_summary_id, __METHOD__, __LINE__, true);
+		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
 		
 		$arr_allow_deletion = $this->StudySummary->allowDeletion($study_summary_id);
 		

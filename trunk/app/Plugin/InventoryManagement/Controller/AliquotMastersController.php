@@ -1309,7 +1309,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// Get ids of the studied aliquots
 		$ids = array();
 		if(!empty($aliquot_id)){
-			$aliquot = $this->AliquotMaster->redirectIfNonExistent($aliquot_id, __METHOD__, __LINE__, true);
+			$aliquot = $this->AliquotMaster->getOrRedirect($aliquot_id);
 			$aliquot = $aliquot['AliquotMaster'];
 			$this->request->data['url_to_cancel'] = sprintf('/InventoryManagement/AliquotMasters/detail/%d/%d/%d', $aliquot['collection_id'], $aliquot['sample_master_id'], $aliquot['id']);
 			$ids = array($aliquot_id);

@@ -41,7 +41,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 
 	function profile($participant_id){
 		// MANAGE DATA
-		$this->request->data = $this->Participant->redirectIfNonExistent($participant_id, __METHOD__, __LINE__, true);
+		$this->request->data = $this->Participant->getOrRedirect($participant_id);
 		
 		// Set data for identifier list
 		$participant_identifiers_data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
@@ -94,18 +94,17 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id ) {
-		if (!$participant_id) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		if(empty($this->request->data)) {
 			$this->request->data = $participant_data;
 		} else {

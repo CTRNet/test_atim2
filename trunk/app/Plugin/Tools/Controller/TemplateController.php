@@ -30,7 +30,7 @@ class TemplateController extends AppController {
 			if($this->Template->find('first', array('conditions' => array('Template.id' => $template_id, 'Template.flag_system' => 1)))){
 				$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
-			$this->Template->redirectIfNonExistent($template_id, __METHOD__, __LINE__);
+			$this->Template->getOrRedirect($template_id);
 		}
 		
 		//js menus required data-------
