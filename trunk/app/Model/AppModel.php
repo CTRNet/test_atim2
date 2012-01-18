@@ -16,6 +16,8 @@ class AppModel extends Model {
 			"CodingIcdo3Morpho" => "/CodingIcd/CodingIcdo3s/tool/morpho", 
 			"CodingIcdo3Topo" => "/CodingIcd/CodingIcdo3s/tool/topo");
 	
+	public $pkey_safegard = true;//whether to prevent data to be saved if the data array contains a pkey different than model->id
+	
 	/**
 	 * @desc Used to store the previous model when a model is recreated for detail search
 	 * @var SampleMaster
@@ -27,8 +29,8 @@ class AppModel extends Model {
 	 * @see Model::save()
 	 */
 	function save($data = null, $validate = true, $fieldList = array()){
-		if((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
-			|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey])
+		if($this->pkey_safegard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
+			|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
 		){
 			AppController::addWarningMsg('Pkey safegard');
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);

@@ -98,8 +98,10 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('aro', $aro );
 		$this->set('known_acos',$known_acos);
 		if($this->request->data){
-			$this->request->data['Group']['id'] = $group_id;
-			$this->Group->save($this->request->data);
+			$this->Group->id = $group_id;
+			$aro_model = AppModel::getInstance('', 'Aro', true);
+			$aro_model->pkey_safegard = false;
+			$this->Group->save($this->request->data['Group']);
 			unset($this->request->data['Group']);
 			foreach($this->request->data as $i => $aco){
 				$this->updatePermission( 
@@ -108,7 +110,6 @@ class PermissionsController extends AdministrateAppController {
 				intval($aco['Aco']['state']) );
 			}
 			
-			Cache::clear(false, "menus");
 			$this->redirect('/Administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
