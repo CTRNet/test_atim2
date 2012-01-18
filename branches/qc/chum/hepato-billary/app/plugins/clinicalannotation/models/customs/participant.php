@@ -12,7 +12,6 @@ class ParticipantCustom extends Participant {
 			$result = $this->find('first', array('conditions' => array('Participant.id' => $variables['Participant.id'])));
 			$result['FunctionManagement'] = array(
 				'health_insurance_card'				=> null,
-				'hepato_bil_bank_participant_id'	=> null,
 				'saint_luc_hospital_nbr'			=> null
 			);
 			
