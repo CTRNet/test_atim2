@@ -365,6 +365,8 @@ class StructuresHelper extends Helper {
 			$data = array();
 		}
 		
+		$data = Sanitize::clean($data);
+		
 		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
