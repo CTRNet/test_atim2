@@ -84,7 +84,10 @@ class BrowserController extends DatamartAppController {
 			}else{
 				//direct node access
 				$this->set('node_id', $node_id);
-				$browsing = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
+				$browsing = $this->BrowsingResult->getOrRedirect($node_id);
+				if($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')){
+					$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+				}
 				$check_list = true;
 			}
 		}else{
