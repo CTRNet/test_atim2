@@ -52,8 +52,11 @@
 		';
 	}
 	
-
-	echo $this->Structures->generateContentWrapper($atim_content);
+	if(isset($set_of_menus)){
+		echo $this->Structures->generateContentWrapper($atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/Menus'))));
+	}else{
+		echo $this->Structures->generateContentWrapper($atim_content);
+	}
 ?>
 <script>
 function goToNotDoneDueMessages(){
