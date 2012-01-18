@@ -190,18 +190,15 @@ class ShellHelper extends Helper {
 		$result = "";
 
 		$display_errors = array();
+		$format_str = '<li><span class="icon16 delete mr5px"></span>%s</li>';
 		foreach ($this->_View->validationErrors as $model ) {
 			foreach ( $model as $field ) {
 				if(is_array($field)){
 					foreach($field as $field_unit){
-						$display_errors[] = '
-							<li><span class="icon16 delete mr5px"></span>'.__($field_unit, true).'</li>
-						';
+						$display_errors[] = sprintf($format_str, __($field_unit));
 					}
 				}else{
-					$display_errors[] = '
-						<li>'.__($field, true).'</li>
-					';
+					$display_errors[] = sprintf($format_str, __($field));
 				}
 			}
 		}
