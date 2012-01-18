@@ -501,8 +501,7 @@ class BrowserController extends DatamartAppController {
 			$node_id = $tmp['BrowsingResult']['id'];
 		}
 		
-		$this->request->data = array();
-		$this->browse($node_id);
+		$this->redirect('/Datamart/Browser/browse/'.$node_id);
 	}
 	
 	function save($index_id){
