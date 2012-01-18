@@ -96,8 +96,8 @@ class AliquotMasterCustom extends AliquotMaster{
 		if(empty($view_collection)) {
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		$bank_participant_identifier = empty($view_collection['ViewCollection']['hepato_bil_bank_participant_id'])? 'n/a' : $view_collection['ViewCollection']['hepato_bil_bank_participant_id'];
-	
+		$bank_participant_identifier = empty($view_collection['ViewCollection']['participant_identifier'])? 'n/a' : $view_collection['ViewCollection']['participant_identifier'];
+			
 		$new_sample_label = $specimen_type_code . ' - ' . $bank_participant_identifier;
 		switch ($specimen_data['SampleControl']['sample_type']) {
 			// Specimen

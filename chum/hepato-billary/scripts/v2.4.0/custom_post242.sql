@@ -818,7 +818,19 @@ UPDATE structure_fields SET type = 'float_positive' WHERE tablename = 'qc_hb_ed_
 'remnant_liver_volume',
 'tumoral_volume');
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-01-18 after migration
+-- ------------------------------------------------------------------------
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ident_summary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='hepato_bil_bank_participant_id' AND `language_label`='hepato_bil_bank_participant_id' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+UPDATE aliquot_masters am, clinical_collection_links lk, participants par
+SET am.aliquot_label = replace(am.aliquot_label, ' - n/a ', CONCAT(' - ',par.participant_identifier,' '))
+WHERE lk.collection_id = am.collection_id AND par.id = lk.participant_id
+AND am.aliquot_label LIKE '% - n/a%';
 
+UPDATE aliquot_masters_revs rev, aliquot_masters src
+SET rev.aliquot_label = src.aliquot_label
+WHERE rev.id = src.id
+AND rev.aliquot_label != src.aliquot_label
 
