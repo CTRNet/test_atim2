@@ -21,7 +21,7 @@ if(!$headers_were_sent){
 		$title = $this->Shell->pageTitle;
 	?>
 	
-	<title><?php echo $title.' &laquo; '.__('core_appname', true); ?></title>
+	<title><?php echo $title ? $title.' &laquo ATiM' : __('core_appname', true); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="shortcut icon" href="<?php echo($this->request->webroot); ?>img/favicon.ico"/>
 	<?php 
