@@ -558,7 +558,7 @@ class Browser extends DatamartAppModel {
 	static function formatSearchToPrint(array $search_params, array $structure){
 		$params = $search_params['search_conditions'];
 		
-		//preprocess to clena datetime accuracy
+		//preprocess to clean datetime accuracy
 		foreach($params as $key => $value){
 			if(is_array($value) && isset($value['OR'][0])){
 				$tmp = current($value['OR'][0]);
@@ -621,10 +621,13 @@ class Browser extends DatamartAppModel {
 				list($model, $field) = explode(".", $key);
 			}
 			$structure_value_domain_model = null;
+			$last_label = '';
 			foreach($structure['Sfs'] as &$sf_unit){
+				if($sf_unit['language_label']){
+					$last_label = $sf_unit['language_label'];
+				}
 				if($sf_unit['model'] == $model && $sf_unit['field'] == $field){
-					$name = __($sf_unit['language_label']);
-					
+					$name = __($sf_unit['language_label']) ?: __($last_label).' '.__($sf_unit['language_tag']); 
 					if(!empty($sf_unit['StructureValueDomain'])){
 						if(!isset($sf_unit['StructureValueDomain']['StructurePermissibleValue'])){
 							if(isset($sf_unit['StructureValueDomain']['source']) && strlen($sf_unit['StructureValueDomain']['source']) > 0){
