@@ -862,7 +862,8 @@ function initActions(){
 		}
 		if($(".ajax_search_results").length == 1){
 			$(".ajax_search_results").parent().hide();
-			$("input.submit").prop("onclick", "").unbind('unclick').click(function(){
+			$("input.submit").click(function(){
+				var submit_button = $(this);
 				$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 				$(".ajax_search_results").parent().show();
@@ -874,6 +875,8 @@ function initActions(){
 						//update the form action
 						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
 						handleSearchResultLinks();
+						//stop submit button animation
+						$(submit_button).siblings("a").find("span").removeClass('fetching');
 					}catch(exception){
 						//simply submit the form then
 						$("form").submit();
@@ -975,6 +978,20 @@ function initActions(){
 		if(document.URL.match(/InventoryManagement\/AliquotMasters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
 			loadUsesAndStorageHistory(document.URL);
 		}
+		
+		//Search button loading animation
+		$(document).delegate("a.submit", 'click', function(){
+			if(!$(this).find('span').hasClass('fetching')){
+				$(this).siblings("input.submit").click();
+				$(this).find('span').addClass('fetching');
+			}
+			return false;
+		});
+		
+		$(window).bind("unload", function(){
+			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
+			$(this).find('a.submit span.fetching').removeClass('fetching');
+		});
 	}
 
 	function globalInit(scope){

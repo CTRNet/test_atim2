@@ -190,7 +190,7 @@ if(isset($is_ajax)){
 	}
 	
 	function addNode(treeData, node){
-		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flag_system) && $flag_system ? 'false' : 'true' ?> ? '<a href="#" class="form add">&nbsp;</a>' : '';
+		addButton = treeData.datamart_structure_id != 1 && <?php echo isset($flag_system) && $flag_system ? 'false' : 'true' ?> ? '<a href="#" class="icon16 add">&nbsp;</a>' : '';
 		type = null;
 		label = null;
 		if(treeData.datamart_structure_id == 2){
@@ -213,9 +213,9 @@ if(isset($is_ajax)){
 		$(node).append(
 			'<li>' +
 				'<div class="nodeBlock">' +
-					'<div class="leftPart">- <a href="#" class="form ' + type + '">&nbsp;</a></div>' +
+					'<div class="leftPart">- <a href="#" class="icon16 ' + type + '">&nbsp;</a></div>' +
 					'<div class="rightPart">' + 
-					addButton + '<a href="#" class="form delete noPrompt">&nbsp;</a>' + 
+					addButton + '<a href="#" class="icon16 delete noPrompt">&nbsp;</a>' + 
 					'<span class="nowrap">' + label + '</span></div>' +
 				'</div>' +
 			'</li>'

@@ -105,6 +105,9 @@ if(!$headers_were_sent){
 		});
 	</script>
 	<div id="default_popup" class='hidden std_popup'></div>
+	<div id="hiddenImages">
+		<span class="icon16 fetching"></span>
+	</div>
 </body>
 </html>
 <?php
