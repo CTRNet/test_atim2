@@ -430,7 +430,7 @@ class StructuresHelper extends Helper {
 						'.$exact_search.'
 						<div class="bottom_button">
 							<input class="submit" type="submit" value="Submit" style="display: none;"/>'
-							.$this->Html->link('<span class="icon16 '.$link_class.'"></span>'.$link_label, "", array('onclick' => '$($(this).parent().children()[0]).click(); return false;', 'tabindex' => StructuresHelper::$last_tabindex + 1, 'escape' => false))
+							.$this->Html->link('<span class="icon16 '.$link_class.'"></span>'.$link_label, "", array('tabindex' => StructuresHelper::$last_tabindex + 1, 'escape' => false, 'class' => 'submit'))
 						.'</div>
 					</div>
 				</div>

@@ -1,8 +1,7 @@
 /**
  * This script is used by the storage_layout page for drag and drop
  */
-var submitted = false; //avoids internal double posts
-var dragging = false;//counter Chrome 15 text selection issue
+var dragging = false;//counter Chrome text selection issue
 var modified = false;//if true, save warning
 
 function initStorageLayout(){
@@ -12,9 +11,12 @@ function initStorageLayout(){
 	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
 	
 	//bind preparePost to the submit button
-	$("input.submit").first().siblings("a").attr("onclick", null).click(function(){
-		window.onbeforeunload = null;
-		preparePost();
+	$("input.submit").first().siblings("a").click(function(){
+		if(!$(this).find('span').hasClass('fetching')){
+			$(this).find('span').addClass('fetching');
+			window.onbeforeunload = null;
+			preparePost();
+		}
 		return false;
 	});
 	
@@ -249,48 +251,44 @@ function recycleItem(scope, item) {
  * @return true on first attemp, false otherwise
  */
 function preparePost(){
-	if(!submitted){
-		//check conflicts
-		var idStr = '';
-		if($('#firstStorageRow').data('checkConflicts') == 2){
-			idStr = '#firstStorageRow';
-		}
-		if($('#secondStorageRow').data('checkConflicts') == 2){
-			idStr += ',#secondStorageRow';
-		}
-		var gotConflicts = false;
-		$(idStr).find("table ul").each(function(){
-			if($(this).find('li').length > 1){
-				$(this).parent().css('background-color', 'lightCoral');
-				gotConflicts = true;
-			}else{
-				$(this).parent().css('background-color', 'transparent');
-			}
-		});
-		
-		submitted = true;
-		if(gotConflicts){
-			if($('#conflictPopup').length == 0){
-				buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
-			}
-			$('#conflictPopup').popup();
-		}else{
-			var cells = '';
-			var elements = $(".dragme");
-			for(var i = elements.length - 1; i >= 0; --i){
-				itemData = $(elements[i]).data("json");
-				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
-				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
-			}
-			if(cells.length > 0){
-				cells = cells.substr(0, cells.length - 1);
-			}
-			var form = getParentElement($("#firstStorageRow"), "FORM");
-			$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
-			
-		}
+	//check conflicts
+	var idStr = '';
+	if($('#firstStorageRow').data('checkConflicts') == 2){
+		idStr = '#firstStorageRow';
 	}
+	if($('#secondStorageRow').data('checkConflicts') == 2){
+		idStr += ',#secondStorageRow';
+	}
+	var gotConflicts = false;
+	$(idStr).find("table ul").each(function(){
+		if($(this).find('li').length > 1){
+			$(this).parent().css('background-color', 'lightCoral');
+			gotConflicts = true;
+		}else{
+			$(this).parent().css('background-color', 'transparent');
+		}
+	});
 	
+	if(gotConflicts){
+		if($('#conflictPopup').length == 0){
+			buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
+		}
+		$('#conflictPopup').popup();
+	}else{
+		var cells = '';
+		var elements = $(".dragme");
+		for(var i = elements.length - 1; i >= 0; --i){
+			itemData = $(elements[i]).data("json");
+			var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
+			cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
+		}
+		if(cells.length > 0){
+			cells = cells.substr(0, cells.length - 1);
+		}
+		var form = getParentElement($("#firstStorageRow"), "FORM");
+		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
+		
+	}
 }
 
 /**
