@@ -21,7 +21,7 @@ function set_at_state_in_tree_root(new_at_li, json){
 function initAjaxTreeView(scope){
 	$(scope).find(".reveal.notFetched").click(function(){
 		$(this).removeClass("notFetched").unbind('click');
-		var json = getJsonFromClass($(this).prop("class"));
+		var json = $(this).data("json");
 		var expandButton = $(this);
 		if(json.url != undefined && json.url.length > 0){
 			$(this).addClass("fetching");

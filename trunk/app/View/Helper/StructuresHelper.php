@@ -1289,7 +1289,8 @@ class StructuresHelper extends Helper {
 					echo '<a class="icon16 reveal activate" href="#" onclick="return false;">+</a> | ';
 				}
 			}else if($children){
-				echo '<a class="icon16 reveal notFetched {\'url\' : \'', (isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : ""), '\'}" href="#" onclick="return false;">+</a> | ';
+				$data_json = htmlentities(json_encode(array('url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : "")));
+				echo '<a class="icon16 reveal notFetched" data-json="'.$data_json.'" href="#" onclick="return false;">+</a> | ';
 			}else{
 				echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';
 			}
@@ -1931,10 +1932,12 @@ class StructuresHelper extends Helper {
 				
 				// if ACO/ARO permissions check succeeds or if it's a js command, create link
 				if (AppController::checkLinkPermission($link_location)
-				|| strpos($link_location, "javascript:") === 0){
+					|| strpos($link_location, "javascript:") === 0
+				){
 					
 					$display_class_name = $this->generateLinkClass($link_name, $link_location);
-					$htmlAttributes['title'] = strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8") ); 
+					$html_attributes = array('title' => strip_tags( html_entity_decode(__($link_name, true), ENT_QUOTES, "UTF-8")) );
+					 
 					$class = strlen($icon) > 0 ? $icon : $display_class_name;
 					
 					// set Javascript confirmation msg...
@@ -1948,30 +1951,27 @@ class StructuresHelper extends Helper {
 					
 					// check AJAX variable, and set link to be AJAX link if exists
 					if(isset($option_links['ajax'][$state][$link_name])){
-						
+						$html_attributes['class'] = 'ajax';
 						// if ajax SETTING is an ARRAY, set helper's OPTIONS based on keys=>values
 						if(is_array($option_links['ajax'][$state][$link_name])){
 							foreach ($option_links['ajax'][$state][$link_name] as $html_attribute_key => $html_attribute_value){
-								$htmlAttributes[$html_attribute_key] = $html_attribute_value;
+								$html_attributes[$html_attribute_key] = $html_attribute_value;
+							}
+							if(isset($html_attributes['json'])){
+								$html_attributes['data-json'] = htmlentities((json_encode($html_attributes['json'])));
+								unset($html_attributes['json']);
 							}
 						}else{
-						// otherwise if STRING set UPDATE option only
-							$htmlAttributes['json']['update'] = $option_links['ajax'][$state][$link_name];
+							// otherwise if STRING set UPDATE option only
+							$html_attributes['data-json'] = htmlentities(json_encode(array('update' => $option_links['ajax'][$state][$link_name])));
 						}
-						//stuff the ajax information in json format within the class attribute
-						$htmlAttributes['class'] .= " ajax {";
-						foreach($htmlAttributes['json'] as $key => $val){
-							$htmlAttributes['class'] .= "'".$key."' : '".$val."', ";
-						}
-						$htmlAttributes['class'] = substr($htmlAttributes['class'], 0, strlen($htmlAttributes['class']) - 2)."}";
-						unset($htmlAttributes['json']);
 					}
 						
-					$htmlAttributes['escape'] = false; // inline option removed from LINK function and moved to Options array
+					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
 					$link_results[$link_label]	= $this->Html->link( 
 						'<span class="icon16 '.$class.'"></span>'. ($state=='index' ? '&nbsp;' : __($link_label, true)), // title
 						$link_location, // url
-						$htmlAttributes, // options
+						$html_attributes, // options
 						$confirmation_msg // confirmation message
 					);
 					

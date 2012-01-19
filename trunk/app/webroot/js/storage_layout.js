@@ -12,7 +12,7 @@ function initStorageLayout(){
 	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
 	
 	//bind preparePost to the submit button
-	$("a.form.submit").attr("onclick", null).click(function(){
+	$("input.submit").first().siblings("a").attr("onclick", null).click(function(){
 		window.onbeforeunload = null;
 		preparePost();
 		return false;
@@ -38,7 +38,7 @@ function initStorageLayout(){
 	};
 	
 	//handle the "pick a storage to drag and drop to" button and popup
-	$.get(root_url + 'storagelayout/StorageMasters/search/', function(data){
+	$.get(root_url + 'StorageLayout/StorageMasters/search/', function(data){
 		var isVisible = $("#default_popup:visible").length;
 		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
 		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
@@ -101,9 +101,9 @@ function initRow(row, data){
 	id = row.data('storageId');
 	//display items in the proper cells
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
-		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
+		var appendString = "<li class='dragme " + jsonOrgItems[i].type + "' data-json='{ \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
-			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
@@ -278,7 +278,7 @@ function preparePost(){
 			var cells = '';
 			var elements = $(".dragme");
 			for(var i = elements.length - 1; i >= 0; --i){
-				itemData = getJsonFromClass($(elements[i]).prop("class"));
+				itemData = $(elements[i]).data("json");
 				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
 				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
 			}
@@ -287,6 +287,7 @@ function preparePost(){
 			}
 			var form = getParentElement($("#firstStorageRow"), "FORM");
 			$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
+			
 		}
 	}
 	
