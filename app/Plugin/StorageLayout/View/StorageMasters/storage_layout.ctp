@@ -28,46 +28,6 @@ $this->Structures->build($empty_structure, array(
 ));
 ?>
 
-<style type="text/css">
-.dragme{
-	list-style-type:none;
-	clear: both;
-}
-.handle{
-	/*vertical-align: top;*/
-}
-.mycell{
-	padding: 5px;
-}
-.dragme{
-	margin: 1px;
-	padding: 2px;
-	border-radius: 3px;
-	cursor: move;
-	backgroun-color: #ddd;
-	background: -webkit-gradient(linear, left top, left bottom, from(#ddd), color-stop(50%, #eee), to(#bbb)); /* for webkit browsers */
-	background: -moz-linear-gradient(top,  #ddd,  #eee, #bbb); /* for firefox 3.6+ */
-}
-ul.trash_n_unclass{
-	margin-left: 10px;
-}
-li.trash_n_unclass{
-	margin: 0 5px 5px 5px;
-}
-h4.ui-widget-header{
-	height: 20px; 
-	line-height: 20px; 
-	font-size: 130%;"
-}
-span.help.storage{
-	display: inline-block;
-	height: 16px;
-	width: 16px;
-	float: right;
-	margin: 2px;
-}
-</style>
-
 <script>
 var removeString = "<?php echo(__("remove")); ?>";
 var unclassifyString = "<?php echo(__("unclassify")); ?>";

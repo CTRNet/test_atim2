@@ -785,6 +785,7 @@ class StorageMaster extends StorageLayoutAppModel {
 					$init_data_unit['StorageMaster']['selection_label'] = $this->getSelectionLabel($init_data_unit);
 				}
 				
+				$updater_model->pkey_safegard = false;
 				$updater_model->save($init_data_unit[$type], false);
 				
 				if($update_temp_and_label){

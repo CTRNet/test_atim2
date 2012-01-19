@@ -82,7 +82,7 @@ if(!$headers_were_sent){
 	
 	// JS added to end of DOM tree...
 	
-	echo $this->Html->script('jquery-1.6.2.min')."\n";
+	echo $this->Html->script('jquery-1.7.1.min')."\n";
 	echo $this->Html->script('jquery-ui-1.8.2.custom.min')."\n";
 	echo $this->Html->script('jquery.ui-datepicker-fr.js')."\n";
 	echo $this->Html->script('jquery.highlight.js')."\n";

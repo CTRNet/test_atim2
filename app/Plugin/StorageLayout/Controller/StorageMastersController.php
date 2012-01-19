@@ -403,8 +403,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$storage_data = null;
 		$atim_menu = array();
 		if($storage_master_id){
-			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-			if(empty($storage_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+			$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
 			$tree_data = array_merge($tree_data, $aliquots);

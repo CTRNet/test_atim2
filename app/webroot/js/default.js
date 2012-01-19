@@ -145,6 +145,7 @@ function initActions(){
 		
 	}
 	
+	//TODO: REMOVE
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
 		if(startIndex > -1){
@@ -597,9 +598,13 @@ function initActions(){
 		//evals the json within the class of the element and calls the method defined in callback
 		//the callback method needs to take this and json as parameters
 		$(scope).find(".ajax").click(function(){
-			var json = getJsonFromClass($(this).prop("class"));
-			var fct = eval("(" + json.callback + ")");
-			fct.apply(this, [this, json]);
+			try{
+				json = $(this).data('json');
+				var fct = eval("(" + json.callback + ")");
+				fct.apply(this, [this, json]);
+			}catch(e){
+				console.log(e);
+			}
 			return false;
 		});
 	}
