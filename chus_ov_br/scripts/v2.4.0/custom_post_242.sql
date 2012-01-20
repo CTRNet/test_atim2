@@ -1679,6 +1679,163 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(14
 UPDATE aliquot_controls SET flag_active=false WHERE id IN(11, 33, 10);
 UPDATE realiquoting_controls SET flag_active=false WHERE id IN(12, 11, 34, 10);
 
+UPDATE structure_formats 
+SET flag_add = '0',flag_add_readonly = '0',flag_edit = '0',flag_edit_readonly = '0',flag_search = '0',flag_search_readonly = '0',flag_addgrid = '0',flag_addgrid_readonly = '0',flag_editgrid = '0',flag_editgrid_readonly = '0',flag_summary = '0',flag_batchedit = '0',flag_batchedit_readonly = '0',flag_index = '0',flag_detail = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sop_master_id');
+
+UPDATE banks SET name = 'Sein/Breast', description = '' WHERE banks.id = 1;
+UPDATE banks_revs SET name = 'Sein/Breast', description = '' WHERE id = 1;
+
+INSERT INTO `banks` (`name`, `description`, `modified`, `created`, `created_by`, `modified_by`) VALUES ('Ovaire/Ovary', '', NOW(), NOW(), 1, 1);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `banks_revs` (`name`, `description`, `modified_by`, `id`, `version_created`) VALUES ('Ovaire/Ovary', '', 1, @id, NOW());
+
+-- --------------------------------------------------------------------------------------------------------------------------------
+-- Collection
+-- --------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+((SELECT id FROM structure_fields WHERE model = 'Collection' AND field = 'bank_id'), 'notEmpty', '', '');
+
+UPDATE structure_formats 
+SET flag_add = '0',flag_add_readonly = '0',flag_edit = '0',flag_edit_readonly = '0',flag_search = '0',flag_search_readonly = '0',flag_addgrid = '0',flag_addgrid_readonly = '0',flag_editgrid = '0',flag_editgrid_readonly = '0',flag_summary = '0',flag_batchedit = '0',flag_batchedit_readonly = '0',flag_index = '0',flag_detail = '0'
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'acquisition_label');
+
+ALTER TABLE clinical_collection_links
+	ADD `misc_identifier_id` int(11) DEFAULT NULL AFTER consent_master_id;
+ALTER TABLE clinical_collection_links_revs
+	ADD `misc_identifier_id` int(11) DEFAULT NULL AFTER consent_master_id;
+
+ALTER TABLE `clinical_collection_links`
+  ADD CONSTRAINT `FK_clinical_collection_links_misc_identifiers` FOREIGN KEY (`misc_identifier_id`) REFERENCES `misc_identifiers` (`id`);
+
+DROP VIEW IF EXISTS view_collections;
+DROP TABLE IF EXISTS view_collections;
+CREATE VIEW `view_collections` AS 
+select `col`.`id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,
+`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+	ident.identifier_value AS frsq_number,
+`col`.`acquisition_label` AS `acquisition_label`,
+`col`.`collection_site` AS `collection_site`,
+`col`.`collection_datetime` AS `collection_datetime`,
+`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,
+`col`.`collection_property` AS `collection_property`,
+`col`.`collection_notes` AS `collection_notes`,
+`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,
+`col`.`created` AS `created` 
+from `collections` `col` 
+left join `clinical_collection_links` `link` on `col`.`id` = `link`.`collection_id` and `link`.`deleted` <> 1 
+left join `participants` `part` on `link`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1
+	left join `misc_identifiers` `ident` on`link`.`misc_identifier_id` = `ident`.`id` and `ident`.`deleted` <> 1
+left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 
+where `col`.`deleted` <> 1 ;
+
+DROP VIEW IF EXISTS view_samples;
+DROP TABLE IF EXISTS view_samples;
+CREATE VIEW `view_samples` AS 
+select `samp`.`id` AS `sample_master_id`,
+`samp`.`parent_id` AS `parent_sample_id`,
+`samp`.`initial_specimen_sample_id` AS `initial_specimen_sample_id`,
+`samp`.`collection_id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,
+`col`.`sop_master_id` AS `sop_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+	ident.identifier_value AS frsq_number,
+`col`.`acquisition_label` AS `acquisition_label`,
+`specimenc`.`sample_type` AS `initial_specimen_sample_type`,
+`specimen`.`sample_control_id` AS `initial_specimen_sample_control_id`,
+`parent_sampc`.`sample_type` AS `parent_sample_type`,`parent_samp`.
+`sample_control_id` AS `parent_sample_control_id`,
+`sampc`.`sample_type` AS `sample_type`,
+`samp`.`sample_control_id` AS `sample_control_id`,
+`samp`.`sample_code` AS `sample_code`,
+`sampc`.`sample_category` AS `sample_category` from `sample_masters` `samp` 
+join `sample_controls` `sampc` on `samp`.`sample_control_id` = `sampc`.`id` 
+join `collections` `col` on `col`.`id` = `samp`.`collection_id` and `col`.`deleted` <> 1 
+left join `sample_masters` `specimen` on `samp`.`initial_specimen_sample_id` = `specimen`.`id` and `specimen`.`deleted` <> 1
+left join `sample_controls` `specimenc` on `specimen`.`sample_control_id` = `specimenc`.`id` 
+left join `sample_masters` `parent_samp` on `samp`.`parent_id` = `parent_samp`.`id` and `parent_samp`.`deleted` <> 1 
+left join `sample_controls` `parent_sampc` on `parent_samp`.`sample_control_id` = `parent_sampc`.`id` 
+left join `clinical_collection_links` `link` on `col`.`id` = `link`.`collection_id` and `link`.`deleted` <> 1 
+	left join `misc_identifiers` `ident` on`link`.`misc_identifier_id` = `ident`.`id` and `ident`.`deleted` <> 1
+left join `participants` `part` on `link`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
+where `samp`.`deleted` <> 1 ;
+
+DROP VIEW IF EXISTS view_aliquots;
+DROP TABLE IF EXISTS view_aliquots;
+CREATE VIEW `view_aliquots` AS 
+select `al`.`id` AS `aliquot_master_id`,
+`al`.`sample_master_id` AS `sample_master_id`,
+`al`.`collection_id` AS `collection_id`,
+`col`.`bank_id` AS `bank_id`,
+`al`.`storage_master_id` AS `storage_master_id`,
+`link`.`participant_id` AS `participant_id`,
+`link`.`diagnosis_master_id` AS `diagnosis_master_id`,
+`link`.`consent_master_id` AS `consent_master_id`,
+`part`.`participant_identifier` AS `participant_identifier`,
+	ident.identifier_value AS frsq_number,
+`col`.`acquisition_label` AS `acquisition_label`,
+`specimenc`.`sample_type` AS `initial_specimen_sample_type`,
+`specimen`.`sample_control_id` AS `initial_specimen_sample_control_id`,
+`parent_sampc`.`sample_type` AS `parent_sample_type`,
+`parent_samp`.`sample_control_id` AS `parent_sample_control_id`,
+`sampc`.`sample_type` AS `sample_type`,
+`samp`.`sample_control_id` AS `sample_control_id`,
+`al`.`barcode` AS `barcode`,`al`.`aliquot_label` AS `aliquot_label`,
+`alc`.`aliquot_type` AS `aliquot_type`,
+`al`.`aliquot_control_id` AS `aliquot_control_id`,
+`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,
+`stor`.`selection_label` AS `selection_label`,
+`al`.`storage_coord_x` AS `storage_coord_x`,
+`al`.`storage_coord_y` AS `storage_coord_y`,
+`stor`.`temperature` AS `temperature`,
+`stor`.`temp_unit` AS `temp_unit`,
+`al`.`created` AS `created` 
+from `aliquot_masters` `al` 
+join `aliquot_controls` `alc` on `al`.`aliquot_control_id` = `alc`.`id` 
+join `sample_masters` `samp` on `samp`.`id` = `al`.`sample_master_id` and `samp`.`deleted` <> 1 
+join `sample_controls` `sampc` on `samp`.`sample_control_id` = `sampc`.`id` 
+join `collections` `col` on `col`.`id` = `samp`.`collection_id` and `col`.`deleted` <> 1 
+left join `sample_masters` `specimen` on `samp`.`initial_specimen_sample_id` = `specimen`.`id` and `specimen`.`deleted` <> 1 
+left join `sample_controls` `specimenc` on `specimen`.`sample_control_id` = `specimenc`.`id` 
+left join `sample_masters` `parent_samp` on `samp`.`parent_id` = `parent_samp`.`id` and `parent_samp`.`deleted` <> 1 
+left join `sample_controls` `parent_sampc` on `parent_samp`.`sample_control_id` = `parent_sampc`.`id` 
+left join `clinical_collection_links` `link` on `col`.`id` = `link`.`collection_id` and `link`.`deleted` <> 1 
+left join `participants` `part` on `link`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
+left join `storage_masters` `stor` on `stor`.`id` = `al`.`storage_master_id` and `stor`.`deleted` <> 1 
+	left join `misc_identifiers` `ident` on`link`.`misc_identifier_id` = `ident`.`id` and `ident`.`deleted` <> 1
+where `al`.`deleted` <> 1 ;
+
+INSERT INTO `structure_fields` (`public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `flag_confidential`) VALUES
+('', 'Inventorymanagement', 'ViewCollection', '', 'frsq_number', '#FRSQ', '', 'input', 'size=30', '', NULL, '', 0),
+('', 'Inventorymanagement', 'ViewSample', '', 'frsq_number', '#FRSQ', '', 'input', 'size=30', '', NULL, '', 0),
+('', 'Inventorymanagement', 'ViewAliquot', '', 'frsq_number', '#FRSQ', '', 'input', 'size=30', '', NULL, '', 0);
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='frsq_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='#FRSQ' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='frsq_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='#FRSQ' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_sample_joined_to_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='frsq_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='#FRSQ' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO i18n (id,en,fr) VALUES ('error_fk_frsq_number_linked_collection','Your data cannot be deleted! This #FRSQ is linked to a collection.','Vos données ne peuvent être supprimées! Ce FRSQ# est attaché à une collection.');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `field`='identifier_value' AND `setting`='size=30'), '0', '10', '', '1', '#FRSQ', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+-- la duplication
+-- link index
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 
 
 
@@ -1699,3 +1856,5 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/sop/sop_masters/%';
 -- Protocol
 
 UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
+
+SELECT 'Multi Creation Of #FRSQ to resolve' AS TODO;
