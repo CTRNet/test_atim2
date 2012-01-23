@@ -1968,8 +1968,9 @@ class StructuresHelper extends Helper {
 					}
 						
 					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
+					$html_attributes['class'] = $class;
 					if($state =='index'){
-						$html_attributes['class'] = "icon16 ".$class;
+						$html_attributes['class'] .= ' icon16';
 						$link_results[$link_label]	= $this->Html->link(
 								'&nbsp;',
 								$link_location, // url
