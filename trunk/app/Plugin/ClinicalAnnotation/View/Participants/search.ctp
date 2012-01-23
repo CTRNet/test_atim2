@@ -3,7 +3,7 @@
 		'index'=>array('detail' => '/ClinicalAnnotation/Participants/profile/%%Participant.id%%'),
 		'bottom' => array(
 			'new search' => ClinicalAnnotationAppController::$search_links,
-			'add participant'=>'/ClinicalAnnotation/Participants/Add/'
+			'add participant' => '/ClinicalAnnotation/Participants/add/'
 		)
 	);
 	
