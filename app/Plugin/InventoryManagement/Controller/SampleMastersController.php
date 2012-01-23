@@ -380,7 +380,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
 					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order by' => array('SpecimenDetail.reception_datetime')));
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => array('SpecimenDetail.reception_datetime')));
 					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
 					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
