@@ -1968,13 +1968,22 @@ class StructuresHelper extends Helper {
 					}
 						
 					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
-					$link_results[$link_label]	= $this->Html->link( 
-						'<span class="icon16 '.$class.'"></span>'. ($state=='index' ? '&nbsp;' : __($link_label, true)), // title
-						$link_location, // url
-						$html_attributes, // options
-						$confirmation_msg // confirmation message
-					);
-					
+					if($state =='index'){
+						$html_attributes['class'] = "icon16 ".$class;
+						$link_results[$link_label]	= $this->Html->link(
+								'&nbsp;',
+								$link_location, // url
+								$html_attributes, // options
+								$confirmation_msg // confirmation message
+						);
+					}else{
+						$link_results[$link_label]	= $this->Html->link( 
+							'<span class="icon16 '.$class.'"></span>'. __($link_label, true), // title
+							$link_location, // url
+							$html_attributes, // options
+							$confirmation_msg // confirmation message
+						);
+					}
 				}else{
 					// if ACO/ARO permission check fails, display NOt ALLOWED type link
 					$return_urls[]		= $this->Html->url( '/menus' );
