@@ -16,7 +16,7 @@ $this->Structures->build($atim_structure, array('type' => 'index', 'settings' =>
 ?>
 <script type="text/javascript">
 $(function(){
-	$("#default_popup a.form.detail").click(function(){
+	$("#default_popup a.detail").click(function(){
 		val = $(this).attr("href");
 		indexLinkPrefix = "<?php echo($index_link_prefix); ?>";
 		val = val.substr(val.indexOf(indexLinkPrefix) + indexLinkPrefix.length);
@@ -24,7 +24,7 @@ $(function(){
 		$("#default_popup").popup('close');
 		return false;
 	});
-	$("#default_popup a.form.cancel").click(function(){
+	$("#default_popup a.cancel").click(function(){
 		$.get($(this).attr("href"), null, function(data){
 			$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 			$("#default_popup input[type=text]").first().focus();
