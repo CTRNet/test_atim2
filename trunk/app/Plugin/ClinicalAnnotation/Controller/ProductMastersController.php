@@ -1,35 +1,16 @@
 <?php
 class ProductMastersController extends ClinicalAnnotationAppController {
 
-	var $components = array();
-	
 	var $uses = array(
 		'ClinicalAnnotation.Participant',
-		'ClinicalAnnotation.ClinicalCollectionLink',
-		
 		'InventoryManagement.Collection',
-		'InventoryManagement.SampleMaster',
-		'InventoryManagement.AliquotMaster',
-		'InventoryManagement.SampleControl'
 	);
 	
-	function productsTreeView($participant_id, $filter_option = null) {
-		if(!$participant_id){
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-
-		$display_aliquots = true;
-		$studied_specimen_sample_control_id = null;
-		
-		// MANAGE DATA
-				
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) {
-			 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
+	function productsTreeView($participant_id) {
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
 		// Get participant collection ids
-		$this->request->data =  $this->Collection->find('all', array('conditions' => 'ClinicalCollectionLink.participant_id='.$participant_id, 'order' => 'Collection.collection_datetime ASC', 'recursive' => 0));
+		$this->request->data =  $this->Collection->find('all', array('conditions' => 'Collection.participant_id='.$participant_id, 'order' => 'Collection.collection_datetime ASC', 'recursive' => 0));
 		$ids = array();
 		foreach($this->request->data as $unit){
 			$ids[] = $unit['Collection']['id'];

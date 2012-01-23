@@ -3,7 +3,7 @@
 	$structure_links = array(
 		'top'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
-				'ClinicalCollectionLink.collection_id'=>'%%Collection.id%%'
+				'Collection.id'=>'%%Collection.id%%'
 			),
 	);
 	$structure_settings = array(
@@ -20,7 +20,7 @@
 		'links' => $structure_links, 
 		'override' => $structure_override, 
 		'extras' => array(
-			'start' => '<input type="radio" id="collection_new" name="data[ClinicalCollectionLink][collection_id]" checked="checked" value=""/>'.__('new collection').'<div id="collection_frame"></div>
+			'start' => '<input type="radio" id="collection_new" name="data[Collection][id]" checked="checked" value=""/>'.__('new collection').'<div id="collection_frame"></div>
 			<div class="loading">'.__('loading').'</div>',
 			'end'	=> '<span class="button"><a id="collection_search" href="#">'.__('search').'</a></span>'
 		)
@@ -39,7 +39,7 @@
 	//Consent----------------
 	$structure_links = array(
 		'radiolist' => array(
-				'ClinicalCollectionLink.consent_master_id'=>'%%ConsentMaster.id%%'
+				'Collection.consent_master_id'=>'%%ConsentMaster.id%%'
 			),
 	);
 	$structure_settings['header'] = __('consent');
@@ -50,7 +50,7 @@
 		'data'		=> $consent_data, 
 		'settings'	=> $structure_settings, 
 		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[ClinicalCollectionLink][consent_master_id]" checked="checked" value=""/>'.__('n/a'))
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" checked="checked" value=""/>'.__('n/a'))
 	);
 
 	// CUSTOM CODE
@@ -69,12 +69,12 @@
 	$structure_links = array(
 		'top'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$atim_menu_variables['Participant.id'].'/',
 		'radiolist' => array(
-				'ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%'
+				'Collection.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%'
 		),'bottom'=>array(
 			'cancel'=>'/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/'
 		),'tree' => array(
 			'DiagnosisMaster' => array(
-					'radiolist' => array('ClinicalCollectionLink.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%')
+					'radiolist' => array('Collection.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%')
 			)
 		) 
 	);
@@ -93,7 +93,7 @@
 				'DiagnosisMaster' => 'DiagnosisMaster'
 			)
 		), 'links'	=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[ClinicalCollectionLink][diagnosis_master_id]"  checked="checked" value=""/>'.__('n/a'))
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  checked="checked" value=""/>'.__('n/a'))
 	);
 
 	// CUSTOM CODE

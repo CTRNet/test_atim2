@@ -231,3 +231,26 @@ UPDATE datamart_adhoc SET form_links_for_results=REPLACE(form_links_for_results,
 UPDATE datamart_adhoc SET form_links_for_results=REPLACE(form_links_for_results, '/aliquot_masters/', '/AliquotMasters/');
 
 UPDATE menus SET use_link='/Drug/Drugs/detail/%%Drug.id%%' WHERE id='drug_CAN_97';
+
+ALTER TABLE collections
+ ADD COLUMN participant_id INT DEFAULT NULL AFTER collection_notes,
+ ADD COLUMN diagnosis_master_id INT DEFAULT NULL AFTER participant_id,
+ ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id,
+ ADD FOREIGN KEY (participant_id) REFERENCES participants(id),
+ ADD FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id),
+ ADD FOREIGN KEY (consent_master_id) REFERENCES consent_masters(id);
+ALTER TABLE collections_revs
+ ADD COLUMN participant_id INT DEFAULT NULL AFTER collection_notes,
+ ADD COLUMN diagnosis_master_id INT DEFAULT NULL AFTER participant_id,
+ ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id;
+ 
+UPDATE collections AS c
+INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
+SET c.participant_id=ccl.participant_id, c.diagnosis_master_id=ccl.diagnosis_master_id, c.consent_master_id=ccl.consent_master_id;
+INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, version_created)
+(SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, NOW() FROM collections);
+
+
+CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
+left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
+left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;

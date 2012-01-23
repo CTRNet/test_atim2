@@ -9,8 +9,8 @@ class ConsentMaster extends ClinicalAnnotationAppModel {
 	);
 	
 	var $hasMany = array(
-		'ClinicalCollectionLink' => array(
-			'className' => 'ClinicalAnnotation.ClinicalCollectionLink',
+		'Collection' => array(
+			'className' => 'InventoryManagement.Collection',
 			'foreignKey' => 'consent_master_id'));
 	
 	static public $join_consent_control_on_dup = array('table' => 'consent_controls', 'alias' => 'ConsentControl', 'type' => 'LEFT', 'conditions' => array('consent_masters_dup.consent_control_id = ConsentControl.id'));

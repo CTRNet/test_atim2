@@ -1,7 +1,7 @@
 <?php
 	$structure_links = array(
 		'index'=>array(
-			'detail'=>'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$atim_menu_variables['Participant.id'].'/%%ClinicalCollectionLink.id%%/',
+			'detail'=>'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$atim_menu_variables['Participant.id'].'/%%Collection.id%%/',
 			'collection' => array(
 				'link' => '/InventoryManagement/collections/detail/%%Collection.id%%/',
 				'icon' => 'collection'
@@ -19,7 +19,9 @@
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
