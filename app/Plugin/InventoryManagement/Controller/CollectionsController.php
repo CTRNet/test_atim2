@@ -94,17 +94,18 @@ class CollectionsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function add($clinical_collection_link_id = 0, $copy_source = 0) {
-		if($clinical_collection_link_id > 0){
-			$ccl_data = $this->ClinicalCollectionLink->find('first', array('conditions' => array('ClinicalCollectionLink.id' => $clinical_collection_link_id, 'ClinicalCollectionLink.collection_id' => NULL, 'ClinicalCollectionLink.deleted' => 1), 'recursive' => '1'));
+	function add($collection_id = 0, $copy_source = 0) {
+		$collection_data = null;
+		if($collection_id > 0){
+			$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id, 'Collection.deleted' => 1), 'recursive' => '1'));
 		}
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		if(!empty($ccl_data)){
+		if(!empty($collection_data)){
 			$this->Structures->set('linked_collections');
 		}
 		
-		$this->set('atim_variables', array('ClinicalCollectionLink.id' => $clinical_collection_link_id));
+		$this->set('atim_variables', array('Collection.id' => $collection_id));
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		$this->set('copy_source', $copy_source);
 		
@@ -120,8 +121,7 @@ class CollectionsController extends InventoryManagementAppController {
 					$this->Structures->set('collections,col_copy_binding_opt');
 				}
 			}
-			$this->request->data['Generated']['field1'] = (!empty($ccl_data))? $ccl_data['Participant']['participant_identifier'] : __('n/a');
-				
+			$this->request->data['Generated']['field1'] = (!empty($collection_data)) ? $collection_data['Participant']['participant_identifier'] : __('n/a');
 		}
 		
 		$hook_link = $this->hook('format');
@@ -136,6 +136,30 @@ class CollectionsController extends InventoryManagementAppController {
 				$copy_src_data = $this->Collection->getOrRedirect($copy_source);
 			}
 			
+			$copy_links_option = isset($this->request->data['FunctionManagement']['col_copy_binding_opt']) ? (int)$this->request->data['FunctionManagement']['col_copy_binding_opt'] : 0;
+			if($copy_source){
+				if($copy_links_option > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection'){
+					AppController::addWarningMsg(__('links were not copied since the destination is an independant collection'));
+				}else if($copy_links_option > 1 && $copy_links_option < 6){
+					$classic_ccl_insert = false;
+					$this->request->data['Collection'] = array_merge(
+						$this->request->data['Collection'],
+						array(
+							'participant_id' 		=> $copy_src_data['Collection']['participant_id'],
+							'consent_master_id' 	=> $copy_src_data['Collection']['consent_master_id'],
+							'diagnosis_master_id'	=> $copy_src_data['Collection']['diagnosis_master_id']
+						)
+					);
+					if($copy_links_option == 3 || $copy_links_option == 2){
+						unset($this->request->data['Collection']['consent_master_id']);
+					}
+					if($copy_links_option == 4 || $copy_links_option == 2){
+						unset($this->request->data['Collection']['diagnosis_master_id']);
+					}
+				}
+			}
+			$this->request->data['Collection']['deleted'] = 0;
+			
 			// LAUNCH SAVE PROCESS
 			$submitted_data_validates = true;
 			
@@ -148,59 +172,20 @@ class CollectionsController extends InventoryManagementAppController {
 			if($submitted_data_validates) {
 
 				//SAVE
-				$collection_id = null;
-				$this->Collection->id = null; 
+				if($collection_data){
+					$this->Collection->id = $collection_id;
+				}else{
+					$this->Collection->id = 0;
+					$this->Collection->data = null;
+				}
 				if($this->Collection->save($this->request->data)){
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					
-					$collection_id = $this->Collection->getLastInsertId();
-					
-					// Create clinical collection link
-					if(isset($ccl_data) && !empty($ccl_data)){
-						$ccl_data['ClinicalCollectionLink']['deleted'] = 0;
-						$ccl_data['ClinicalCollectionLink']['collection_id'] = $collection_id;
-						if(!$this->ClinicalCollectionLink->save($ccl_data)) {
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-					}else{
-						$classic_ccl_insert = true;
-						$copy_links_option = isset($this->request->data['FunctionManagement']['col_copy_binding_opt']) ? (int)$this->request->data['FunctionManagement']['col_copy_binding_opt'] : 0;
-						if($copy_source){
-							if($copy_links_option > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection'){
-								AppController::addWarningMsg(__('links were not copied since the destination is an independant collection'));
-							}else{
-								if($copy_links_option > 1 && $copy_links_option < 6){
-									$classic_ccl_insert = false;
-									$ccl_array = array(
-										'collection_id' 		=> $collection_id, 
-										'participant_id' 		=> $copy_src_data['ClinicalCollectionLink']['participant_id'],
-										'consent_master_id' 	=> $copy_src_data['ClinicalCollectionLink']['consent_master_id'],
-										'diagnosis_master_id'	=> $copy_src_data['ClinicalCollectionLink']['diagnosis_master_id']
-									);
-									if($copy_links_option == 3 || $copy_links_option == 2){
-										unset($ccl_array['consent_master_id']);
-									}
-									if($copy_links_option == 4 || $copy_links_option == 2){
-										unset($ccl_array['diagnosis_master_id']);
-									}
-	
-									if(!$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => $ccl_array))){
-										//copying links
-										$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
-									}
-								}
-							}
-						}
-						
-						if($classic_ccl_insert && !$this->ClinicalCollectionLink->save(array('ClinicalCollectionLink' => array('collection_id' => $collection_id)))){
-							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
-					}
+					$collection_id = $collection_id ?: $this->Collection->getLastInsertId();
 					$this->atimFlash('your data has been saved', '/InventoryManagement/Collections/detail/' . $collection_id);
-				}	
+				}
 			}
 		}
 	}

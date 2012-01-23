@@ -1,7 +1,7 @@
 <?php
  	$settings = array('return' => true);
 	if(isset($is_ccl_ajax)){
-		$structure_links = array('radiolist' => array("ClinicalCollectionLink.collection_id" => "%%ViewCollection.collection_id%%"));
+		$structure_links = array('radiolist' => array("Collection.id" => "%%ViewCollection.collection_id%%"));
 		$final_options = array(
 			'type' => 'index', 
 			'data' => $this->request->data, 

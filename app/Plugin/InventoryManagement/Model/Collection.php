@@ -7,11 +7,18 @@ class Collection extends InventoryManagementAppModel {
 			'className'   => 'InventoryManagement.SampleMaster',
 			 'foreignKey'  => 'collection_id')); 
 			 
-	var $hasOne = array(
-		'ClinicalCollectionLink' => array(
-			'className' => 'ClinicalAnnotation.ClinicalCollectionLink',
-			'foreignKey' => 'collection_id',
-			'dependent' => true));
+	var $belongsTo = array(
+		'Participant' => array(
+			'className' => 'ClinicalAnnotation.Participant',
+			'foreignKey' => 'participant_id'
+		), 'DiagnosisMaster' => array(
+			'className' => 'ClinicalAnnotation.DiagnosisMaster',
+			'foreignKey' => 'diagnosis_master_id'
+		), 'ConsentMaster' => array(
+			'className' => 'ClinicalAnnotation.ConsentMaster',
+			'foreignKey' => 'consent_master_id'
+		)
+	);
 	
 	function summary($variables=array()) {
 		$return = false;
@@ -57,6 +64,17 @@ class Collection extends InventoryManagementAppModel {
 			return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); 
 		}
 
+		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	/**
+	 * Checks if a collection link (to a participant) can be deleted.
+	 * @param int $collection_id
+	 * @return Return results as array:
+	 * 	['allow_deletion'] = true/false
+	 * 	['msg'] = message to display when previous field equals false
+	 */
+	function allowLinkDeletion($collection_id) {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	

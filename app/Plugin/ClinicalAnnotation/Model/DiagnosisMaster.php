@@ -9,8 +9,8 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 	);
 	
 	var $hasMany = array(
-		'ClinicalCollectionLink' => array(
-			'className' => 'ClinicalAnnotation.ClinicalCollectionLink',
+		'Collection' => array(
+			'className' => 'InventoryManagement.Collection',
 			'foreignKey' => 'diagnosis_master_id'));
 	
 	static public $join_diagnosis_control_on_dup = array('table' => 'diagnosis_controls', 'alias' => 'DiagnosisControl', 'type' => 'LEFT', 'conditions' => array('diagnosis_masters_dup.diagnosis_control_id = DiagnosisControl.id'));
