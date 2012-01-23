@@ -11,7 +11,7 @@ class ViewCollectionCustom extends ViewCollection {
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
 
-			$participant_identifier = empty($result['ViewCollection']['participant_identifier'])? 'n/a' : $result['ViewCollection']['participant_identifier'];
+			$participant_identifier = empty($collection_data['ViewCollection']['participant_identifier'])? 'n/a' : $collection_data['ViewCollection']['participant_identifier'];
 			$return = array(
 				'menu' => array(null, __('participant identifier',true).' '. $participant_identifier),
 				'title' => array(null, __('participant identifier', true) . '  '. $participant_identifier),
