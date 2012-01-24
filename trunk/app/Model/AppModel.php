@@ -7,8 +7,9 @@ class AppModel extends Model {
 	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
 	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
 	static public $accuracy_config = array();//tablename -> accuracy fields
+	
 	static public $writable_fields = array();//tablename -> flag suffix -> fields
-	public $check_writtable_fields = true;
+	public $check_writable_fields = true;//whether to check writable fields or not (security check)
 	public $writable_fields_mode = null;//add, edit, addgrid, editgrid, batchedit
 
 	//The values in this array can trigger magic actions when applied to a field settings
@@ -67,11 +68,11 @@ class AppModel extends Model {
 	}
 	
 	/**
-	 * Checks writtable fields, sets trackability, manages floats ("," and ".") 
+	 * Checks Writable fields, sets trackability, manages floats ("," and ".") 
 	 * and date strings.
 	**/
 	function beforeSave(){
-		if($this->check_writtable_fields){
+		if($this->check_writable_fields){
 			$this->checkWritableFields();
 		}
 		
@@ -109,20 +110,25 @@ class AppModel extends Model {
 	 */
 	private function checkWritableFields(){
 		if(isset(AppModel::$writable_fields[$this->table])){
-			pr(AppModel::$writable_fields[$this->table]);
 			$writable_fields = null;
 			if($this->writable_fields_mode){
 				$writable_fields = AppModel::$writable_fields[$this->table][$this->writable_fields_mode];
 			}else if($this->id){
-				$writable_fields = AppModel::$writable_fields[$this->table]['edit'] ?: array();
+				$writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
 			}else{
-				$writable_fields = AppModel::$writable_fields[$this->table]['add'] ?: array();
+				$writable_fields = isset(AppModel::$writable_fields[$this->table]['add']) ? AppModel::$writable_fields[$this->table]['add'] : array();
 			}
 			$writable_fields[] = 'modified';
 			if($this->id){
 				$writable_fields[] = $this->primaryKey;
 			}else{
 				$writable_fields[] = 'created';
+			}
+			if(isset(AppModel::$writable_fields[$this->table]['all'])){
+				$writable_fields = array_merge(AppModel::$writable_fields[$this->table]['all'], $writable_fields);
+			}
+			if(isset(AppModel::$writable_fields[$this->table]['none'])){
+				$writable_fields = array_diff($writable_fields, AppModel::$writable_fields[$this->table]['none']);
 			}
 			$schema_keys = array_keys($this->schema());
 			$writable_fields = array_intersect($writable_fields, $schema_keys);
@@ -133,11 +139,11 @@ class AppModel extends Model {
 					unset($this->data[$this->name][$invalid_field]);
 				}
 				if(Configure::read('debug') > 0){
-					AppController::addWarningMsg('Invalid fields have been removed from the data set prior to saving.');
+					AppController::addWarningMsg('invalid fields have been removed from the data set prior to saving.');
 				}
 			}
 		}else{
-			AppController::addWarningMsg('No writtable fields for model '.$this->name);
+			AppController::addWarningMsg('No Writable fields for model '.$this->name);
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
@@ -857,19 +863,41 @@ class AppModel extends Model {
 		return null;
 	}
 	
-	/**
-	 * Add fields to the current model table writtable fields array.
-	 * @param mixed A single field or an array of fields.
-	 */
-	public function addWrittableField($field){
-		if(!isset(AppModel::$writable_fields[$this->table])){
-			AppModel::$writable_fields[$this->table] = array();
-		}
-		if(is_array($field)){
-			AppModel::$writable_fields[$this->table] = array_merge(AppModel::$writable_fields[$this->table], $field);
+	private function updateWritableField($field, $tablename = null, $add){
+		$add_into = null;
+		$remove_from = null;
+		if($add){
+			$add_into = 'add';
+			$remove_from = 'none';
 		}else{
-			AppModel::$writable_fields[$this->table][] = $field;
+			$add_into = 'none';
+			$remove_from = 'add';
 		}
+		$tablename = $tablename ?: $this->table;
+		if(!isset(AppModel::$writable_fields[$tablename][$add_into])){
+			AppModel::$writable_fields[$tablename][$add_into] = array();
+		}
+		if(!is_array($field)){
+			$field = array($field);
+		}
+		AppModel::$writable_fields[$tablename][$add_into] = array_merge(AppModel::$writable_fields[$tablename][$add_into], $field);
+		
+		if(isset(AppModel::$writable_fields[$this->table][$remove_from])){
+			AppModel::$writable_fields[$this->table][$remove_from] = array_diff(AppModel::$writable_fields[$this->table][$remove_from], $field);
+		}
+	}
+	
+	/**
+	 * Add fields to the current model table Writable fields array.
+	 * @param mixed $field A single field or an array of fields.
+	 * @param string $tablename The tablename to allow the fields to be written to.
+	 */
+	public function addWritableField($field, $tablename = null){
+		$this->updateWritableField($field, $tablename, true);
+	}
+	
+	public function removeWritableField($field, $tablename = null){
+		$this->updateWritableField($field, $tablename, false);
 	}
 }
 

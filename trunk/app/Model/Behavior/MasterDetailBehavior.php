@@ -66,7 +66,7 @@ class MasterDetailBehavior extends ModelBehavior {
 						$detail_model_cache_key = $detail_class.".".$result[$control_class][$detail_field];
 						if(!isset($grouping[$detail_model_cache_key])){
 							//caching model (its rougly as fast as grouping queries by detail, see eventum 1120)
-							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class));
+							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class, 'alias' => $detail_class.'_'.$result[$control_class][$detail_field]));
 							$grouping[$detail_model_cache_key]['id_to_index'] = array();
 						}
 						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias]['id']] = $key;
@@ -77,17 +77,16 @@ class MasterDetailBehavior extends ModelBehavior {
 				foreach($grouping as $group){
 					$id_to_index = $group['id_to_index'];
 					$detail_data = $group['model']->find('all', array('conditions' => array($master_foreign => array_keys($id_to_index)), 'recursive' => -1));
+					$detail_data_alias = $group['model']->name.'_'.$group['model']->table;
 					foreach($detail_data as $detail_unit){
-						$results[$id_to_index[$detail_unit[$detail_class][$master_foreign]]][$detail_class] = $detail_unit[$detail_class];
+						$results[$id_to_index[$detail_unit[$detail_data_alias][$master_foreign]]][$detail_class] = $detail_unit[$detail_data_alias];
 					}
 				}
-				ClassRegistry::removeObject($detail_class);
-				
 			}else if(isset($results[$control_class][$detail_field]) && !isset($results[$detail_class])){
 				// set DETAIL if ONLY one result
 				$associated = array();
 				
-				$detail_model = new AppModel( array('table'=>$results[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+				$detail_model = new AppModel( array('table'=>$results[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class, 'alias' => $detail_class) );
 				
 				$associated = $detail_model->find(array($master_foreign => $results[0][$model->alias]['id']), null, null, -1);
 				$results[$detail_class] = $associated[$detail_class];
@@ -131,8 +130,10 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 		if ( $is_master_model || $is_control_model ) {
 			// get DETAIL table name and create DETAIL model object
-			$associated = $model->find('first', array($master_class.'.id' => $model->id), null, null, 1);
-			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id), 'recursive' => 0));
+			$detail_model = new AppModel( array('table' => $associated[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class) );
+			$detail_model->writable_fields_mode = $model->writable_fields_mode;
+			$detail_model->check_writable_fields = $model->check_writable_fields;
 			foreach($detail_model->actsAs as $key => $data){
 				if ( is_array($data) ) {
 					$behavior = $key;
@@ -184,7 +185,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
-			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=>$detail_class) );
+			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=> $detail_class) );
 			$detail_model->Behaviors->Revision->setup($detail_model);
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
 			if ( isset($associated[$detail_class]) && count($associated[$detail_class]) ) {

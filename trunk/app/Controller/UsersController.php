@@ -27,6 +27,7 @@ class UsersController extends AppController {
 			$this->PermissionManager->buildAcl();
 			AppController::addWarningMsg(__('permissions have been regenerated'));
 			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
+			$this->Version->check_writable_fields = false;
 			$this->Version->save();
 		}
 		if($this->Version->data['Version']['version_number'] != __('core_app_version')){

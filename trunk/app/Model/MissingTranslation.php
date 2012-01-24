@@ -9,6 +9,6 @@ class MissingTranslation extends AppModel {
 		)
 	);
 	
-	public $check_writtable_fields = false;
+	public $check_writable_fields = false;
 }
 ?>
