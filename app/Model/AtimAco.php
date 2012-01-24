@@ -1,5 +1,7 @@
 <?php
 class AtimAco extends Aco {
+	
+	public $check_writable_fields = false;
 
 	/**
 	 * Retrieves the Aro/Aco node for this model

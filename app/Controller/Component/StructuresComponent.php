@@ -16,18 +16,26 @@ class StructuresComponent extends Component {
 	 * 
 	 * @param $alias Form alias of the new structure
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
+	 * @param array $parameters
 	 */
-	function set($alias = NULL, $structure_name = 'atim_structure', $set_validation = true){
+	function set($alias = NULL, $structure_name = 'atim_structure', array $parameters = array()){
 		if(!is_array($alias)){
 			$alias = explode(",", $alias);			
 		}
+		$parameters = array_merge(
+			array(
+				'set_validation'	=> true, //wheter to set model validations or not 
+				'model_table_assoc'	=> array()//bind a tablename to a model for writable fields 
+			), $parameters
+		);
+		
 		$structure = array('Structure' => array(), 'Sfs' => array(), 'Accuracy' => array());
 		$all_structures = array();
 		foreach($alias as $alias_unit){
 			$struct_unit = $this->getSingleStructure($alias_unit);
 			$all_structures[] = $struct_unit;
 			
-			if($set_validation){
+			if($parameters['set_validation']){
 				foreach ($struct_unit['rules'] as $model => $rules){
 					//reset validate for newly loaded structure models
 					if(!$this->controller->{ $model }){
@@ -38,7 +46,11 @@ class StructuresComponent extends Component {
 				
 				if(isset($struct_unit['structure']['Sfs'])){
 					foreach($struct_unit['structure']['Sfs'] as $sfs){
-						if($tablename = $sfs['tablename']){
+						$tablename = $sfs['tablename'];
+						if(empty($tablename) && isset($parameters['model_table_assoc'][$sfs['model']])){
+							$tablename = $parameters['model_table_assoc'][$sfs['model']];
+						}
+						if($tablename){
 							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
 								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly']){
 									AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'];
