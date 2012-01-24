@@ -17,7 +17,7 @@ class StructuresComponent extends Component {
 	 * @param $alias Form alias of the new structure
 	 * @param $structure_name Structure name (by default name will be 'atim_structure')
 	 */
-	function set($alias = NULL, $structure_name = 'atim_structure'){
+	function set($alias = NULL, $structure_name = 'atim_structure', $set_validation = true){
 		if(!is_array($alias)){
 			$alias = explode(",", $alias);			
 		}
@@ -25,14 +25,28 @@ class StructuresComponent extends Component {
 		$all_structures = array();
 		foreach($alias as $alias_unit){
 			$struct_unit = $this->getSingleStructure($alias_unit);
-			
 			$all_structures[] = $struct_unit;
-			foreach ($struct_unit['rules'] as $model => $rules){
-				//reset validate for newly loaded structure models
-				if(!$this->controller->{ $model }){
-					$this->controller->{ $model } = new AppModel();
+			
+			if($set_validation){
+				foreach ($struct_unit['rules'] as $model => $rules){
+					//reset validate for newly loaded structure models
+					if(!$this->controller->{ $model }){
+						$this->controller->{ $model } = new AppModel();
+					}
+					$this->controller->{ $model }->validate = array();
 				}
-				$this->controller->{ $model }->validate = array();
+				
+				if(isset($struct_unit['structure']['Sfs'])){
+					foreach($struct_unit['structure']['Sfs'] as $sfs){
+						if($tablename = $sfs['tablename']){
+							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
+								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly']){
+									AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'];
+								}
+							}
+						}
+					}
+				}
 			}
 
 			if(isset($struct_unit['structure']['Sfs'])){

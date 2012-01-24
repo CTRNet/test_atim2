@@ -5,9 +5,11 @@ App::uses('Model', 'Model');
 class AppModel extends Model {
 	
 	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
-	private $validation_in_progress = false;
 	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
 	static public $accuracy_config = array();//tablename -> accuracy fields
+	static public $writable_fields = array();//tablename -> flag suffix -> fields
+	public $check_writtable_fields = true;
+	public $writable_fields_mode = null;//add, edit, addgrid, editgrid, batchedit
 
 	//The values in this array can trigger magic actions when applied to a field settings
 	private static $magic_coding_icd_trigger_array = array(
@@ -23,22 +25,6 @@ class AppModel extends Model {
 	 * @var SampleMaster
 	 */
 	var $previous_model = null;
-	
-	/**
-	 * Override to prevent saving id directly with the array to avoid hacks
-	 * @see Model::save()
-	 */
-	function save($data = null, $validate = true, $fieldList = array()){
-		if($this->pkey_safegard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
-			|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
-		){
-			AppController::addWarningMsg('Pkey safegard');
-			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			return false;
-		}
-		
-		return parent::save($data, $validate, $fieldList);
-	}
 	
 	/**
 	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
@@ -65,35 +51,31 @@ class AppModel extends Model {
 	}
 	
 	/**
-	 * Ensures that the "created_by" and "modified_by" user id columns are set automatically for all models. This requires
-	 * adding in access to the session to the model.
-	 * 
-	 * Replace float decimal separator ',' by '.'.
+	 * Override to prevent saving id directly with the array to avoid hacks
+	 * @see Model::save()
+	 */
+	function save($data = null, $validate = true, $fieldList = array()){
+		if($this->pkey_safegard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
+				|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
+		){
+			AppController::addWarningMsg('Pkey safegard');
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			return false;
+		}
+	
+		return parent::save($data, $validate, $fieldList);
+	}
+	
+	/**
+	 * Checks writtable fields, sets trackability, manages floats ("," and ".") 
+	 * and date strings.
 	**/
 	function beforeSave(){
-		if ( !isset($this->Session) || !$this->Session ){
-			if( App::import('Model', 'CakeSession')) $this->Session = new CakeSession(); 
+		if($this->check_writtable_fields){
+			$this->checkWritableFields();
 		}
 		
-		if ( $this->id && $this->Session ) {
-			// editing an existing entry with an existing session
-			unset($this->data[$this->name]['created_by']);
-			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-		} else if ($this->Session ) {
-			// creating a new entry with an existing session
-			$this->data[$this->name]['created_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
-		} else if ( $this->id ) {
-			// editing an existing entry with no session
-			unset($this->data[$this->name]['created_by']);
-			$this->data[$this->name]['modified_by'] = 0;
-		} else {
-			// creating a new entry with no session
-			$this->data[$this->name]['created_by'] = 0;
-			$this->data[$this->name]['modified_by'] = 0;
-		}
-		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
-		
+		$this->setTrackability();
 		
 		foreach($this->_schema as $field_name => $field_properties) {
 			$tmp_type = $field_properties['type'];
@@ -118,6 +100,78 @@ class AppModel extends Model {
 
 		return true;
 	}
+	
+	/**
+	 * Removes values not found into AppModel::$writable_fields[$this->table] 
+	 * from the saved data set to prevent form hacking. Will use "add" or
+	 * "edit" filter based on the presence (edit) or absence (add) of 
+	 * $this->id. Use $this->writable_fields_mode to specify other modes.
+	 */
+	private function checkWritableFields(){
+		if(isset(AppModel::$writable_fields[$this->table])){
+			pr(AppModel::$writable_fields[$this->table]);
+			$writable_fields = null;
+			if($this->writable_fields_mode){
+				$writable_fields = AppModel::$writable_fields[$this->table][$this->writable_fields_mode];
+			}else if($this->id){
+				$writable_fields = AppModel::$writable_fields[$this->table]['edit'] ?: array();
+			}else{
+				$writable_fields = AppModel::$writable_fields[$this->table]['add'] ?: array();
+			}
+			$writable_fields[] = 'modified';
+			if($this->id){
+				$writable_fields[] = $this->primaryKey;
+			}else{
+				$writable_fields[] = 'created';
+			}
+			$schema_keys = array_keys($this->schema());
+			$writable_fields = array_intersect($writable_fields, $schema_keys);
+			$real_fields = array_intersect(array_keys($this->data[$this->name]), $schema_keys);
+			$invalid_fields = array_diff($real_fields, $writable_fields);
+			if(!empty($invalid_fields)){
+				foreach($invalid_fields as $invalid_field){
+					unset($this->data[$this->name][$invalid_field]);
+				}
+				if(Configure::read('debug') > 0){
+					AppController::addWarningMsg('Invalid fields have been removed from the data set prior to saving.');
+				}
+			}
+		}else{
+			AppController::addWarningMsg('No writtable fields for model '.$this->name);
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	}
+	
+	/**
+	 * Sets created_by, modified_by, created and deleted fields.
+	 */
+	private function setTrackability(){
+		if ( !isset($this->Session) || !$this->Session ){
+			if( App::import('Model', 'CakeSession')){
+				$this->Session = new CakeSession();
+			}
+		}
+		
+		if ( $this->id && $this->Session ) {
+			// editing an existing entry with an existing session
+			unset($this->data[$this->name]['created_by']);
+			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
+		} else if ($this->Session ) {
+			// creating a new entry with an existing session
+			$this->data[$this->name]['created_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
+			$this->data[$this->name]['modified_by'] = $this->Session->check('Auth.User.id') ? $this->Session->read('Auth.User.id') : 0;
+		} else if ( $this->id ) {
+			// editing an existing entry with no session
+			unset($this->data[$this->name]['created_by']);
+			$this->data[$this->name]['modified_by'] = 0;
+		} else {
+			// creating a new entry with no session
+			$this->data[$this->name]['created_by'] = 0;
+			$this->data[$this->name]['modified_by'] = 0;
+		}
+		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
+	}
+	
 	
 	/*
 		ATiM 2.0 function
@@ -451,7 +505,7 @@ class AppModel extends Model {
 			}
 		}
 		$this->setDataAccuracy();
-
+		
 		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
 			$master_class		= $settings['master_class'];
@@ -643,8 +697,9 @@ class AppModel extends Model {
 		
 		// Verfiy date is not empty
 		if(empty($start_date)||empty($end_date)
-		|| (strcmp($start_date, $empty_date) == 0)
-		|| (strcmp($end_date, $empty_date) == 0)){
+			|| (strcmp($start_date, $empty_date) == 0)
+			|| (strcmp($end_date, $empty_date) == 0)
+		){
 			// At least one date is missing to continue
 			$arr_spent_time['message'] = 'missing date';	
 		} else {
@@ -800,6 +855,21 @@ class AppModel extends Model {
 		$bt = debug_backtrace();
 		AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
 		return null;
+	}
+	
+	/**
+	 * Add fields to the current model table writtable fields array.
+	 * @param mixed A single field or an array of fields.
+	 */
+	public function addWrittableField($field){
+		if(!isset(AppModel::$writable_fields[$this->table])){
+			AppModel::$writable_fields[$this->table] = array();
+		}
+		if(is_array($field)){
+			AppModel::$writable_fields[$this->table] = array_merge(AppModel::$writable_fields[$this->table], $field);
+		}else{
+			AppModel::$writable_fields[$this->table][] = $field;
+		}
 	}
 }
 
