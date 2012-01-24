@@ -8,7 +8,7 @@ function initCopyControl(){
 	//create buttons and bind onclick command
 	enableCopyCtrl();
 	
-	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES + '</a></span>';
+	var pasteAllButton = '<span class="button paste pasteAll"><a class="paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES + '</a></span>';
 	if($(".copy").length > 0){
 		//add copy all button into a new tfoot
 		$(".copy").each(function(){
@@ -29,7 +29,7 @@ function initCopyControl(){
 	});
 	
 	if($(".pasteAll").length > 1){
-		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
+		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
 		$("#pasteAllOfAll").click(function(){
 			$("table.structure tbody tr").each(function(){
 				if($(this).find("input.addLineCount").length == 0){
@@ -100,7 +100,7 @@ function pasteLine(line){
 function enableCopyCtrl(){
 	$(":hidden").each(function(){
 		if($(this).prop("name") != undefined && $(this).prop("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
-			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='form paste' title='" + STR_PASTE + "'></a></span>");
+			$(this).parent().append("<span class='button copy'><a class='icon16 copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='icon16 paste' title='" + STR_PASTE + "'></a></span>");
 			bindCopyCtrl($(this).parent());
 			$(this).remove();
 		}
