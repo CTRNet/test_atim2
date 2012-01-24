@@ -8,5 +8,7 @@ class MissingTranslation extends AppModel {
 			'message' => ''
 		)
 	);
+	
+	public $check_writtable_fields = false;
 }
 ?>
