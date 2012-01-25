@@ -50,10 +50,14 @@ class StructuresComponent extends Component {
 						if(empty($tablename) && isset($parameters['model_table_assoc'][$sfs['model']])){
 							$tablename = $parameters['model_table_assoc'][$sfs['model']];
 						}
+						
 						if($tablename){
 							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
 								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly']){
 									AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'];
+									if($sfs['type'] == 'date' || $sfs['type'] == 'datetime'){
+										AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'].'_accuracy';
+									}
 								}
 							}
 						}

@@ -142,9 +142,8 @@ class AppModel extends Model {
 					AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. ('.implode(',', $invalid_fields).')');
 				}
 			}
-		}else{
+		}else if(Configure::read('debug') > 0){
 			AppController::addWarningMsg('No Writable fields for model '.$this->name);
-			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 	}
 	
@@ -868,11 +867,11 @@ class AppModel extends Model {
 		$add_into = null;
 		$remove_from = null;
 		if($add){
-			$add_into = 'add';
+			$add_into = 'all';
 			$remove_from = 'none';
 		}else{
 			$add_into = 'none';
-			$remove_from = 'add';
+			$remove_from = 'all';
 		}
 		$tablename = $tablename ?: $this->table;
 		if(!isset(AppModel::$writable_fields[$tablename][$add_into])){
@@ -881,7 +880,7 @@ class AppModel extends Model {
 		if(!is_array($field)){
 			$field = array($field);
 		}
-		AppModel::$writable_fields[$tablename][$add_into] = array_merge(AppModel::$writable_fields[$tablename][$add_into], $field);
+		AppModel::$writable_fields[$tablename][$add_into] = array_unique(array_merge(AppModel::$writable_fields[$tablename][$add_into], $field));
 		
 		if(isset(AppModel::$writable_fields[$this->table][$remove_from])){
 			AppModel::$writable_fields[$this->table][$remove_from] = array_diff(AppModel::$writable_fields[$this->table][$remove_from], $field);
