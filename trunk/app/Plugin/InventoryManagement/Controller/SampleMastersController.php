@@ -1,5 +1,4 @@
 <?php
-
 class SampleMastersController extends InventoryManagementAppController {
 
 	var $components = array();
@@ -357,7 +356,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if($lab_book_ctrl_id != 0){
 			$structure_name .= ",derivative_lab_book";
 		}
-		$this->Structures->set($structure_name);
+		$this->Structures->set($structure_name, 'atim_structure', array('model_table_assoc' => array('SampleDetail' => $sample_control_data['SampleControl']['detail_tablename'])));
 				
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -420,18 +419,18 @@ class SampleMastersController extends InventoryManagementAppController {
 			$submitted_data_validates = true;
 			
 			$this->SampleMaster->set($this->request->data);
-			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
+			$submitted_data_validates = ($this->SampleMaster->validates()) ? $submitted_data_validates: false;
 			
 			//for error field highlight in detail
 			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
 			
 			if($is_specimen) { 
 				$this->SpecimenDetail->set($this->request->data);
-				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates: false;
+				$submitted_data_validates = ($this->SpecimenDetail->validates())? $submitted_data_validates : false;
 				$this->request->data['SpecimenDetail'] = $this->SpecimenDetail->data['SpecimenDetail'];
 			} else { 
 				$this->DerivativeDetail->set($this->request->data);
-				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates: false;
+				$submitted_data_validates = ($this->DerivativeDetail->validates())? $submitted_data_validates : false;
 				$this->request->data['DerivativeDetail'] = $this->DerivativeDetail->data['DerivativeDetail'];
 
 				//validate and sync lab book
@@ -441,6 +440,10 @@ class SampleMastersController extends InventoryManagementAppController {
 					$submitted_data_validates = false;
 				}
 			}
+			
+			$this->SampleMaster->addWritableField(array('collection_id', 'sample_control_id', 'initial_specimen_sample_type', 'initial_specimen_sample_id'));
+			$this->SampleMaster->addWritableField(array('sample_master_id'), $sample_control_data['SampleControl']['detail_tablename']);
+			$this->SampleMaster->addWritableField(array('sample_master_id'), $is_specimen ? 'specimen_details' : 'derivative_details');
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -687,13 +690,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			$deletion_done = true;
 			
-			if(!$this->SampleMaster->atim_delete($sample_master_id)) { $deletion_done = false; }
+			if(!$this->SampleMaster->atimDelete($sample_master_id)) { $deletion_done = false; }
 			
 			if($deletion_done) {
 				if($is_specimen) {
-					if(!$this->SpecimenDetail->atim_delete($sample_data['SpecimenDetail']['id'])) { $deletion_done = false; }
+					if(!$this->SpecimenDetail->atimDelete($sample_data['SpecimenDetail']['id'])) { $deletion_done = false; }
 				} else {
-					if(!$this->DerivativeDetail->atim_delete($sample_data['DerivativeDetail']['id'])) { $deletion_done = false; }
+					if(!$this->DerivativeDetail->atimDelete($sample_data['DerivativeDetail']['id'])) { $deletion_done = false; }
 				}	
 			}
 			

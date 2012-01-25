@@ -44,6 +44,7 @@ class DropdownsController extends AdministrateAppController {
 			$current_values = array();
 			$current_en = array();
 			$current_fr = array();
+			$this->StructurePermissibleValuesCustom->schema();
 			$max_length = min($this->StructurePermissibleValuesCustom->_schema['value']['length'], $control_data["StructurePermissibleValuesCustomControl"]["values_max_length"]);
 			$break = false;
 			$tmp = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('control_id' => $control_id), 'recursive' => -1));
@@ -123,10 +124,11 @@ class DropdownsController extends AdministrateAppController {
 			}
 
 			// Launch Save Process
-			
 			if(empty($errors_tracking)){
 				//save all
 				$tmp_data = AppController::cloneArray($this->request->data);
+				$this->StructurePermissibleValuesCustom->addWritableField('control_id');
+				$this->StructurePermissibleValuesCustom->writable_fields_mode = 'addgrid';
 				while($data_unit = array_pop($tmp_data)){
 					$this->StructurePermissibleValuesCustom->id = null;
 					$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
@@ -138,10 +140,10 @@ class DropdownsController extends AdministrateAppController {
 				$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
 			
 			} else {
-				$this->StructurePermissibleValuesCustom->validationErrors = array();
+				$this->StructurePermissibleValuesCustomControl->validationErrors = array();
 				foreach($errors_tracking as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
-						 $this->StructurePermissibleValuesCustom->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
+						 $this->StructurePermissibleValuesCustomControl->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
 					}
 				}
 			}
@@ -212,6 +214,7 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function configure($control_id){
+		$this->Structures->set('administrate_dropdown_values');
 		if(empty($this->request->data)){
 			$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
 			if(empty($control_data)){ 
@@ -225,7 +228,6 @@ class DropdownsController extends AdministrateAppController {
 				$this->flash(__("you cannot configure an empty list"), "javascript:history.back();", 5);
 			}
 			$this->set('alpha_order', $this->request->data[0]['StructurePermissibleValuesCustom']['display_order'] == 0);
-			$this->Structures->set('administrate_dropdown_values');
 		}else{
 			$data = array();
 			if(isset($this->request->data[0]['default_order'])){
@@ -238,9 +240,30 @@ class DropdownsController extends AdministrateAppController {
 					$data[] = array("id" => $unit['StructurePermissibleValuesCustom']['id'], "display_order" => $order ++, "use_as_input" => $unit['StructurePermissibleValuesCustom']['use_as_input']);
 				}
 			}
-			if($this->StructurePermissibleValuesCustom->saveAll($data)){
-				$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
+			
+			$ids = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id), 'recursive' => -1, 'fields' => 'id'));
+			$ids = AppController::defineArrayKey($ids, 'StructurePermissibleValuesCustom', 'id', true);
+			if(count($ids) != count($data)){
+				//hack detected
+				$this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
 			}
+			foreach($data as &$data_unit){
+				if(!isset($ids[$data_unit['id']])){
+					//hack detected
+					$this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
+				}
+			}
+			
+			$this->StructurePermissibleValuesCustom->addWritableField('display_order');
+			$this->StructurePermissibleValuesCustom->writable_fields_mode = 'editgrid';
+			$this->StructurePermissibleValuesCustom->getDataSource()->begin();
+			foreach($data as &$data_unit){
+				$this->StructurePermissibleValuesCustom->data = null;
+				$this->StructurePermissibleValuesCustom->id = $data_unit['id'];
+				$this->StructurePermissibleValuesCustom->save($data_unit);
+			}
+			$this->StructurePermissibleValuesCustom->getDataSource()->commit();
+			$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
 		}
 	}
 }
