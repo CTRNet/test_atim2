@@ -19,16 +19,29 @@ class AliquotMasterCustom extends AliquotMaster {
 			case 'tissue':
 				$SampleMasterModel = AppModel::getInstance("Clinicalannotation", "SampleMaster", true);
 				$tmp_sample_data = $SampleMasterModel->find('first',array('condtions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
-				$type_character = '';
-				if(in_array($tmp_sample_data['SampleDetail']['tissue_nature'], array('borderline','tumoral','metastatic'))) {
-					$type_letter = 'C';
-				} else if($tmp_sample_data['SampleDetail']['tissue_nature'] == 'benign') {
-					$type_letter = 'B';
-				} else if($tmp_sample_data['SampleDetail']['tissue_nature'] == 'normal') {
-					$type_letter = 'N';
+				$type_char = '';
+				$suffix = '';
+				if($tmp_sample_data['SampleDetail']['tissue_source'] == 'breast') {
+					if(in_array($tmp_sample_data['SampleDetail']['tissue_nature'], array('borderline','tumoral','metastatic'))) {
+						$type_char = 'C';
+					} else if($tmp_sample_data['SampleDetail']['tissue_nature'] == 'benign') {
+						$type_char = 'B';
+					} else if($tmp_sample_data['SampleDetail']['tissue_nature'] == 'normal') {
+						$type_char = 'N';
+					}
+				} else if($tmp_sample_data['SampleDetail']['tissue_source'] == 'ovary') {
+					$suffix = 'O';
+					switch($tmp_sample_data['SampleDetail']['tissue_laterality']) {
+						case 'right':
+							$suffix .= 'D';
+							break;
+						case 'left':
+							$suffix .= 'G';
+							break;
+						default:	
+					}
 				}
-				$tmp_sample_data['SampleDetail']['tissue_nature'] = '';
-				$default_sample_label = $bank_initials.$type_letter.$bank_number.' FT';
+				$default_sample_label = $bank_initials.$type_char.$bank_number.' FT'.$suffix;
 				break;
 
 			case 'ascite':

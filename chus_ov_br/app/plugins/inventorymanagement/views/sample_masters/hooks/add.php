@@ -6,5 +6,9 @@
 	}
 	if(isset($default_creation_by)) {
 		$final_options['override']['DerivativeDetail.creation_by'] = $default_creation_by;		
-	}	
+	}
+	if(isset($default_tissue)) {
+		$final_options['override']['SampleDetail.tissue_source'] = $default_tissue;
+	}
+		
 ?>
