@@ -986,7 +986,7 @@ function initActions(){
 			}
 			return false;
 		}).delegate("form", "submit", function(){
-			$(this).find('a.submit').addClass('fetching');
+			$(this).find('a.submit span').addClass('fetching');
 			return true;
 		});
 		
