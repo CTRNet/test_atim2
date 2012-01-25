@@ -139,7 +139,7 @@ class AppModel extends Model {
 					unset($this->data[$this->name][$invalid_field]);
 				}
 				if(Configure::read('debug') > 0){
-					AppController::addWarningMsg('invalid fields have been removed from the data set prior to saving.');
+					AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. ('.implode(',', $invalid_fields).')');
 				}
 			}
 		}else{
@@ -184,16 +184,17 @@ class AppModel extends Model {
 		used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
 	*/
 	
-	function atim_delete($model_id, $cascade = true){
+	function atimDelete($model_id, $cascade = true){
 		$this->id = $model_id;
 		
 		// delete DATA as normal
+		$this->addWritableField('deleted');
 		$this->delete($model_id, $cascade);
 		
 		// do a FIND of the same DATA, return FALSE if found or TRUE if not found
 		if($this->read()){
 			return false; 
-		}else{ 
+		}else{
 			return true; 
 		}
 		

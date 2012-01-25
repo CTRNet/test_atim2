@@ -464,7 +464,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}		
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->QualityCtrl->atim_delete($quality_ctrl_id)) {
+			if($this->QualityCtrl->atimDelete($quality_ctrl_id)) {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
 				}

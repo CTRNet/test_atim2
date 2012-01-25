@@ -178,7 +178,7 @@ exit;
 
 				// DELETE DATA
 
-				if( $this->StudyContact->atim_delete( $study_contact_id ) ) {
+				if( $this->StudyContact->atimDelete( $study_contact_id ) ) {
 					$this->atimFlash( 'your data has been deleted', '/Study/StudyContacts/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/Study/StudyContacts/listall/'.$study_summary_id );

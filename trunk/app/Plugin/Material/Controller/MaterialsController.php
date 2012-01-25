@@ -100,7 +100,7 @@ class MaterialsController extends MaterialAppController {
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
-		if( $this->Material->atim_delete( $material_id ) ) {
+		if( $this->Material->atimDelete( $material_id ) ) {
 			$this->atimFlash( 'your data has been deleted', '/material/materials/index/');
 		} else {
 			$this->flash( 'error deleting data - contact administrator', '/material/materials/listall/');

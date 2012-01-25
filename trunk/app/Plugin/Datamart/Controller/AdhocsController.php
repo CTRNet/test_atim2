@@ -61,7 +61,7 @@ class AdhocsController extends DatamartAppController {
 		if(empty($adhoc_favourite_data)) {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}			
-		if(!$this->AdhocFavourite->atim_delete( $adhoc_favourite_data['AdhocFavourite']['id'] )) {
+		if(!$this->AdhocFavourite->atimDelete( $adhoc_favourite_data['AdhocFavourite']['id'] )) {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->atimFlash( 'Query is no longer one of your favourites.', '/Datamart/adhocs/search/all/'.$adhoc_id );

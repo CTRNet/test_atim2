@@ -249,7 +249,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			$deletion_worked = false;
 			if(empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])){
 				//real delete
-				$deletion_worked = $this->MiscIdentifier->atim_delete( $misc_identifier_id );
+				$deletion_worked = $this->MiscIdentifier->atimDelete( $misc_identifier_id );
 
 			}else{
 				//tmp delete to be able to reuse it

@@ -204,7 +204,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		}		
 		
 		if($arr_allow_deletion['allow_deletion']) {		
-			if( $this->TreatmentExtend->atim_delete( $tx_extend_id ) ) {
+			if( $this->TreatmentExtend->atimDelete( $tx_extend_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);

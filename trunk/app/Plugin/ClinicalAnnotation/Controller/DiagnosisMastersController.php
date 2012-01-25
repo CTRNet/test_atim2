@@ -277,7 +277,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			|| ($new_primary_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			
 			if($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
-				if(!$this->DiagnosisMaster->atim_delete($diagnosis_master_id)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				if(!$this->DiagnosisMaster->atimDelete($diagnosis_master_id)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				$this->DiagnosisMaster->query("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']." (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
 			}
 			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
@@ -343,7 +343,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if ($arr_allow_deletion['allow_deletion']) {
-			if( $this->DiagnosisMaster->atim_delete( $diagnosis_master_id ) ) {
+			if( $this->DiagnosisMaster->atimDelete( $diagnosis_master_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );

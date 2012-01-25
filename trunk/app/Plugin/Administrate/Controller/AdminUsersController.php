@@ -137,7 +137,7 @@ class AdminUsersController extends AdministrateAppController {
 		}
 
 		if ($arr_allow_deletion['allow_deletion']) {
-			$this->User->atim_delete($user_id);
+			$this->User->atimDelete($user_id);
 			$this->atimFlash(__('your data has been deleted'), "/Administrate/users/listall/".$group_id);
 		} else {
 			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');

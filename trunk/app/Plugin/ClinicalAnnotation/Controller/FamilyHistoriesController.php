@@ -209,7 +209,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			// DELETE DATA
 			
 			$flash_link = '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id;
-			if ($this->FamilyHistory->atim_delete($family_history_id)) {
+			if ($this->FamilyHistory->atimDelete($family_history_id)) {
 				$this->atimFlash( 'your data has been deleted', $flash_link );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', $flash_link );

@@ -189,7 +189,7 @@ exit;
 
 			// DELETE DATA
 
-			if( $this->StudyEthicsBoard->atim_delete( $study_ethics_board_id ) ) {
+			if( $this->StudyEthicsBoard->atimDelete( $study_ethics_board_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator.', '/Study/StudyEthicsBoards/listall/'.$study_summary_id );

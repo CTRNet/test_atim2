@@ -500,7 +500,7 @@ class OrderItemsController extends OrderAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Launch deletion
 			
-			if($this->OrderItem->atim_delete($order_item_id)) {
+			if($this->OrderItem->atimDelete($order_item_id)) {
 				
 				// Update AliquotMaster data
 				$new_aliquot_master_data = array();

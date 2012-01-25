@@ -193,7 +193,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 			
 			// delete detail DATA
-			$result = $detail_model->atim_delete($detail_model->id);
+			$result = $detail_model->atimDelete($detail_model->id);
 			
 			return $result;
 			

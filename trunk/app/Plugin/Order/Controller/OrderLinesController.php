@@ -192,7 +192,7 @@ class OrderLinesController extends OrderAppController {
 		}
 			
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->OrderLine->atim_delete($order_line_id)) {
+			if($this->OrderLine->atimDelete($order_line_id)) {
 				$this->atimFlash('your data has been deleted', '/Order/OrderLines/listall/'.$order_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/Order/OrderLines/listall/'.$order_id);

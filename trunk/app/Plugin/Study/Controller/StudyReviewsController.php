@@ -187,7 +187,7 @@ exit;
 
 				// DELETE DATA
 
-				if( $this->StudyReview->atim_delete( $study_reviews_id ) ) {
+				if( $this->StudyReview->atimDelete( $study_reviews_id ) ) {
 					$this->atimFlash( 'your data has been deleted', '/Study/StudyReviews/listall/'.$study_summary_id );
 				} else {
 					$this->flash( 'error deleting data - contact administrator.', '/Study/StudyReviews/listall/'.$study_summary_id );
