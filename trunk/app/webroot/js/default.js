@@ -983,9 +983,11 @@ function initActions(){
 		$(document).delegate("a.submit", 'click', function(){
 			if(!$(this).find('span').hasClass('fetching')){
 				$(this).siblings("input.submit").click();
-				$(this).find('span').addClass('fetching');
 			}
 			return false;
+		}).delegate("form", "submit", function(){
+			$(this).find('a.submit').addClass('fetching');
+			return true;
 		});
 		
 		$(window).bind("unload", function(){
