@@ -800,13 +800,13 @@ function initActions(){
 	}
 	
 	function loadUsesAndStorageHistory(url){
-		$.post(document.URL, {data : "uses"}, function(data){
+		$.post(document.URL, {data : ["uses"]}, function(data){
 			var origHeight = $("div.uses").height();
 			$("div.uses").html(data);
 			var newHeight = $("div.uses").height();
 			$("div.uses").css('height', origHeight).animate({height: newHeight}, 500);
 		});
-		$.post(url, {data : "storage_history"}, function(data){
+		$.post(url, {data : ["storage_history"]}, function(data){
 			var origHeight = $("div.storage_history").height();
 			$("div.storage_history").html(data);
 			var newHeight = $("div.storage_history").height();
