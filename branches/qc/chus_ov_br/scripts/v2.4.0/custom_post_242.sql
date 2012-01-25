@@ -1874,7 +1874,32 @@ UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`) 
 VALUES ((SELECT id FROM structure_fields WHERE field = 'aliquot_label' AND model = 'AliquotMaster'), 'notEmpty');
 
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode');
+
+ALTER TABLE aliquot_masters
+	ADD chus_time_limit_of_storage VARCHAR(20) DEFAULT NULL AFTER storage_datetime;
+ALTER TABLE aliquot_masters_revs
+	ADD chus_time_limit_of_storage VARCHAR(20) DEFAULT NULL AFTER storage_datetime;
+	
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_time_limits_of_storage', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''time limits of storage'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('time limits of storage', '1', '20');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`, `display_order`) 
+VALUES 
+('<1h','','', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'time limits of storage'), 1,1),
+('1h<<4h','','', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'time limits of storage'), 1,2),
+('4h<','','', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'time limits of storage'), 1,3),
+('<8h','','', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'time limits of storage'), 1,4);
+
+INSERT INTO structures(`alias`) VALUES ('ad_chus_time_limits');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'AliquotMaster', '', 'chus_time_limit_of_storage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_time_limits_of_storage') , '0', '', '', '', 'time limit of storage', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_chus_time_limits'), (SELECT id FROM structure_fields WHERE `field`='chus_time_limit_of_storage'), '1', '62', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+
+UPDATE aliquot_controls SET form_alias = CONCAT(form_alias, ',ad_chus_time_limits') WHERE sample_control_id IN (SELECT id from sample_controls WHERE sample_type IN ('ascite supernatant','tissue','dna')) AND aliquot_type = 'tube';
+
+INSERT INTO i18n (id,en,fr) VALUES ('time limit of storage', 'Time Limit of Storage', 'Délais de remisage');
 
 -- TISSUE
 
@@ -1993,7 +2018,6 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/sop/sop_masters/%';
 -- Protocol
 
 UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
-SELECT 'Multi Creation Of #FRSQ to resolve' AS TODO;
 
 -- ========================================================================================================
 -- QUERY
