@@ -41,8 +41,7 @@ class StorageControl extends StorageLayoutAppModel {
 	function allowCustomCoordinates($storage_control_id, $storage_control_data = null) {	
 		// Check for storage control data, if none get the control data
 		if(empty($storage_control_data)) {
-			$storage_control_data = $this->find('first', array('conditions' => array('StorageControl.id' => $storage_control_id)));
-			if(empty($storage_control_data)) { $this->controller->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+			$storage_control_data = $this->getOrRedirect($storage_control_id);
 		}
 					
 		if($storage_control_data['StorageControl']['id'] !== $storage_control_id) { $this->controller->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }

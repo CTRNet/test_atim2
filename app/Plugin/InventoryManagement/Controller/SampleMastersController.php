@@ -295,16 +295,10 @@ class SampleMastersController extends InventoryManagementAppController {
 			$is_specimen = true;
 			
 			// Get Control Data
-			$sample_control_data = $this->SampleControl->find('first', array('conditions' => array('SampleControl.id' => $sample_control_id)));
-			if(empty($sample_control_data)) { 
-				$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}	
+			$sample_control_data = $this->SampleControl->getOrRedirect($sample_control_id);
 			
 			// Check collection id
-			$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id), 'recursive' => '-1'));
-			if(empty($collection_data)) { 
-				$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-			}			
+			$collection_data = $this->Collection->getOrRedirect($collection_id);
 			
 		} else {
 			// Created sample is a derivative: Get parent sample information
@@ -561,7 +555,9 @@ class SampleMastersController extends InventoryManagementAppController {
 			// Set lab book code for initial display
 			if(empty($this->request->data) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) {
 				$previous_labook = $lab_book->find('first', array('conditions' => array('id'=>$sample_data['DerivativeDetail']['lab_book_master_id']), 'recursive'=>'-1'));
-				if(empty($previous_labook)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+				if(empty($previous_labook)) {
+					$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}	
 				$sample_data['DerivativeDetail']['lab_book_master_code'] = $previous_labook['LabBookMaster']['code'];
 			}	
 		}

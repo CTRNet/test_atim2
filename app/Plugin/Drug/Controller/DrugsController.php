@@ -51,10 +51,7 @@ class DrugsController extends DrugAppController {
   	}
   
 	function edit( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
-		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		$drug_data = $this->Drug->getOrRedirect($drug_id);
 		
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
@@ -85,30 +82,26 @@ class DrugsController extends DrugAppController {
   	}
 	
 	function detail( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
-		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		$this->request->data = $drug_data;
+		$this->request->data = $this->Drug->getOrRedirect($drug_id);
 			
 		$this->set( 'atim_menu_variables', array('Drug.id'=>$drug_id) );
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
   
 	function delete( $drug_id ) {
-		if ( !$drug_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
-		$drug_data = $this->Drug->find('first',array('conditions'=>array('Drug.id'=>$drug_id)));
-		if(empty($drug_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-				
+		$drug_data = $this->Drug->getOrRedirect($drug_id);
 		$arr_allow_deletion = $this->Drug->allowDeletion($drug_id);
 			
 		// CUSTOM CODE
 		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }		
+		if( $hook_link ) { 
+			require($hook_link); 
+		}		
 				
 		if($arr_allow_deletion['allow_deletion']) {	
 			if( $this->Drug->atimDelete( $drug_id ) ) {

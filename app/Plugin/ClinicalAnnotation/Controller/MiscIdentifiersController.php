@@ -72,7 +72,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 		// MANAGE DATA
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id)));		
-		if(empty($misc_identifier_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($misc_identifier_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		$this->request->data = $misc_identifier_data;
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS

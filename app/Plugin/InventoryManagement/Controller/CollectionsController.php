@@ -159,6 +159,7 @@ class CollectionsController extends InventoryManagementAppController {
 				}
 			}
 			$this->request->data['Collection']['deleted'] = 0;
+			$this->Collection->addWritableField('deleted');
 			
 			// LAUNCH SAVE PROCESS
 			$submitted_data_validates = true;
@@ -240,10 +241,7 @@ class CollectionsController extends InventoryManagementAppController {
 	
 	function delete($collection_id) {
 		// Get collection data
-		$collection_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $collection_id)));
-		if(empty($collection_data)) { 
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}	
+		$collection_data = $this->Collection->getOrRedirect($collection_id);
 		
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->Collection->allowDeletion($collection_id);

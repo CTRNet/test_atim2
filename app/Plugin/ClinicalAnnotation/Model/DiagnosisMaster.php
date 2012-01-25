@@ -184,10 +184,7 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 		$related_diagnosis_data = array();
 		
 		if(!empty($diagnosis_master_id)) {
-			$event_diagnosis_data = $this->find('first', array('conditions'=>array('DiagnosisMaster.id' => $diagnosis_master_id)));
-			if(empty($event_diagnosis_data)){
-				AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-			}
+			$event_diagnosis_data = $this->getOrRedirect($diagnosis_master_id);
 			$related_diagnosis_data[] = array_merge(array('Generated' => array('diagnosis_event_relation_type' => 'diagnosis event')), $event_diagnosis_data);
 			
 			$history_diagnosis_data = array();

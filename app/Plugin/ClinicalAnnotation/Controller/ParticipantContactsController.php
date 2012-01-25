@@ -10,8 +10,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 	
 	function listall( $participant_id ) {
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		$participant_data = $this->Participant->getOrRedirect($participant_id);		
 
 		$this->request->data = $this->paginate($this->ParticipantContact, array('ParticipantContact.participant_id'=>$participant_id));
 		
@@ -28,7 +27,9 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 
 		// MANAGE DATA
 		$participant_contact_data = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id, 'ParticipantContact.participant_id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($participant_contact_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($participant_contact_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		$this->request->data = $participant_contact_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -43,8 +44,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 	
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -121,7 +121,9 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		
 		// MANAGE DATA
 		$participant_contact_data = $this->ParticipantContact->find('first', array('conditions'=>array('ParticipantContact.id'=>$participant_contact_id, 'ParticipantContact.participant_id'=>$participant_id), 'recursive' => '-1'));		
-		if(empty($participant_contact_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($participant_contact_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		$arr_allow_deletion = $this->ParticipantContact->allowDeletion($participant_contact_id);
 		

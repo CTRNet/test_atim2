@@ -66,10 +66,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function detail($protocol_master_id) {
-		if ( !$protocol_master_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
-		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		$this->request->data = $protocol_data;
 			
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
@@ -80,10 +77,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 
 	function edit( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
-		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }			
+		$protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id) );
 		$this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
@@ -118,10 +112,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	}
 	
 	function delete( $protocol_master_id ) {
-		if ( !$protocol_master_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
-		$protocol_data = $this->ProtocolMaster->find('first',array('conditions'=>array('ProtocolMaster.id'=>$protocol_master_id)));
-		if(empty($protocol_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		$protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 			
 		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
 				

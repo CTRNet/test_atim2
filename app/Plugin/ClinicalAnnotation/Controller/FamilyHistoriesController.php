@@ -30,14 +30,11 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 /* ==> Note: Reuse flash() messages as they are into this controller! */ 
 		 
 	function listall( $participant_id ) {
-/* ==> Note: Always validate all required values are set */
-		if ( !$participant_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }			
 
 		// MANAGE DATA
 
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
 /* ==> Note: Always validate data linked to the created record exists */
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 				
 		$this->request->data = $this->paginate($this->FamilyHistory, array('FamilyHistory.participant_id'=>$participant_id));
 		
@@ -54,13 +51,13 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function detail( $participant_id, $family_history_id ) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
-		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
 /* ==> Note: Always validate data exists */
-		if(empty($family_history_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($family_history_data)) { 
+			
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
 		$this->request->data = $family_history_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -71,16 +68,15 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 	}
 	
 	function add( $participant_id=null ) {
-		if ( !$participant_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
 		// MANAGE DATA
 		
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -91,7 +87,9 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 				
 		if ( !empty($this->request->data) ) {
 			$this->FamilyHistory->patchIcd10NullValues($this->request->data);
@@ -134,12 +132,13 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id, $family_history_id) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
-		if(empty($family_history_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($family_history_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -190,12 +189,13 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 	}
 	
 	function delete( $participant_id, $family_history_id ) {
-		if (( !$participant_id ) && ( !$family_history_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }	
 		
 		// MANAGE DATA
 		
 		$family_history_data = $this->FamilyHistory->find('first',array('conditions'=>array('FamilyHistory.id'=>$family_history_id, 'FamilyHistory.participant_id'=>$participant_id)));
-		if(empty($family_history_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($family_history_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 
 		$arr_allow_deletion = $this->FamilyHistory->allowDeletion($family_history_id);
 		

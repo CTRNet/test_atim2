@@ -54,10 +54,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 	function add( $participant_id, $consent_control_id) {
 
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'ConsentControl.id' => $consent_control_id) );

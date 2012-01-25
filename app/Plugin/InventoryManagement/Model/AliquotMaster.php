@@ -125,10 +125,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 
 		// Get aliquot data
-		$aliquot_data = $this->find('first', array('conditions' => array('AliquotMaster.id' => $aliquot_master_id)));
-		if(empty($aliquot_data)){
-			AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
+		$aliquot_data = $this->getOrRedirect($aliquot_master_id);
 
 		// Set variables
 		$aliquot_data_to_save = array();
@@ -423,11 +420,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 		switch($sample_master_data['SampleControl']['sample_category']) {
 			case 'specimen':
 				// Default creation date will be the specimen reception date
-				$collection_data = $collection_model->find('first', array('conditions' => array('Collection.id' => $sample_master_data['SampleMaster']['collection_id']), 'recursive' => '-1'));
-				if(empty($collection_data)) { 
-					$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-				$sample_master = $sample_master_model->find('first', array('conditions' => array('SampleMaster.id' => $sample_master_data['SampleMaster']['id'])));
+				$collection_data = $collection_model->getOrRedirect($sample_master_data['SampleMaster']['collection_id']);
+				$sample_master = $sample_master_model->getOrRedirect($sample_master_data['SampleMaster']['id']);
 				return $sample_master['SpecimenDetail']['reception_datetime'];
 				
 			case 'derivative':

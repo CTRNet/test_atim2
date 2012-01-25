@@ -11,12 +11,8 @@ class OrderLinesController extends OrderAppController {
 	var $paginate = array('OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 
 	function listall( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
 		// MANAGE DATA
-	
-		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		$order_data = $this->Order->getOrRedirect($order_id);
 
 		// Set data
 		$this->request->data = $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0));
@@ -41,10 +37,7 @@ class OrderLinesController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Check order
-		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
+		$order_data = $this->Order->getOrRedirect($order_id);
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -108,7 +101,9 @@ class OrderLinesController extends OrderAppController {
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($order_line_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 
 		// Set value for 'FunctionManagement.sample_aliquot_control_id' field
 		$order_line_data['FunctionManagement']['sample_aliquot_control_id'] = $order_line_data['OrderLine']['sample_control_id'] . '|' . (empty($order_line_data['OrderLine']['aliquot_control_id'])? '': $order_line_data['OrderLine']['aliquot_control_id']);
@@ -160,7 +155,9 @@ class OrderLinesController extends OrderAppController {
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if(empty($order_line_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		$this->request->data = $order_line_data;
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS

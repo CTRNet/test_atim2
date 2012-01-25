@@ -14,8 +14,6 @@ class QualityCtrlsController extends InventoryManagementAppController {
 	var $paginate = array('QualityCtrl' => array('limit' => pagination_amount, 'order' => 'QualityCtrl.date ASC'));
 	
 	function listAll($collection_id, $sample_master_id) {
-		if((!$collection_id) || (!$sample_master_id)) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }		
-		
 		// MANAGE DATA
 		
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => 0));
@@ -317,7 +315,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				SampleMaster::joinOnSampleDup('QualityCtrl.sample_master_id'), 
 				SampleMaster::$join_sample_control_on_dup)
 		));
-		if(empty($quality_ctrl_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
+		if(empty($quality_ctrl_data)) { 
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}
 		
 		$structure_to_load = 'qualityctrls';
 		if(!empty($quality_ctrl_data['AliquotControl']['volume_unit'])){

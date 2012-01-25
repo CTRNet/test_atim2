@@ -13,10 +13,7 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function view($control_id){
-		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id), 'recursive' => 0));
-		if(empty($control_data)){ 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		} 
+		$control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
 		$this->set("control_data", $control_data);
 		
 		$this->request->data = $this->StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_id), 'order' => array('display_order', 'value')));
@@ -24,10 +21,7 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function add($control_id){
-		$control_data = $this->StructurePermissibleValuesCustomControl->findById($control_id);
-		if(empty($control_data)){
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		} 
+		$control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
 		$this->set("control_data", $control_data);
 		
 		$this->Structures->set("administrate_dropdown_values", 'administrate_dropdown_values');
@@ -151,10 +145,7 @@ class DropdownsController extends AdministrateAppController {
 	}
 	
 	function edit($control_id, $value_id){
-		$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
-		if(empty($control_data)){
-			 $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		} 
+		$control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
 		$this->set("control_data", $control_data);
 		
 		$this->set( 'atim_menu_variables', array('StructurePermissibleValuesCustom.id'=>$value_id, 'StructurePermissibleValuesCustom.control_id'=>$control_id));
@@ -216,10 +207,7 @@ class DropdownsController extends AdministrateAppController {
 	function configure($control_id){
 		$this->Structures->set('administrate_dropdown_values');
 		if(empty($this->request->data)){
-			$control_data = $this->StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.id' => $control_id)));
-			if(empty($control_data)){ 
-				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-			} 
+			$control_data = $this->StructurePermissibleValuesCustomControl->getOrRedirect($control_id);
 			$this->set("control_data", $control_data);
 			$this->set( 'atim_menu_variables', array('StructurePermissibleValuesCustom.control_id'=>$control_id));
 			

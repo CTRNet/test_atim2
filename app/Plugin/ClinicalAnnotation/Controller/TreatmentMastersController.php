@@ -23,14 +23,12 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		} else {
 			$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
 			
-			$filter_data = $this->TreatmentControl->find('first',array('conditions'=>array('TreatmentControl.id'=>$trt_control_id)));
-			if(empty($filter_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+			$filter_data = $this->TreatmentControl->getOrRedirect($trt_control_id);
 			$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
 		}
 				
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
 		$this->request->data = $this->paginate($this->TreatmentMaster, $_SESSION['TrtMaster_filter']);
 		
@@ -46,10 +44,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	}
 	
 	function detail($participant_id, $tx_master_id, $is_ajax = 0){
-		if (( !$participant_id ) && ( !$tx_master_id )) { 
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($treatment_master_data)) { 

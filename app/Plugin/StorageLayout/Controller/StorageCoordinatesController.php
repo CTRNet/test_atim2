@@ -18,13 +18,11 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 	 * -------------------------------------------------------------------------- */	
 	
 	 function listAll($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 		
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
@@ -46,13 +44,10 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 	}
 	
 	function add($storage_master_id) {
-		if (!$storage_master_id) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
-				
 		// MANAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
@@ -108,13 +103,11 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 	}
 	 
 	function delete($storage_master_id, $storage_coordinate_id) {
-		if((!$storage_master_id) || (!$storage_coordinate_id)) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }
 
 		// MANAGE DATA
 		
 		// Get the storage data
-		$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
-		if(empty($storage_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates
@@ -123,7 +116,9 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		
 		// Get the coordinate data
 		$storage_coordinate_data = $this->StorageCoordinate->find('first', array('conditions' => array('StorageCoordinate.id' => $storage_coordinate_id, 'StorageCoordinate.storage_master_id' => $storage_master_id)));
-		if(empty($storage_coordinate_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
+		if(empty($storage_coordinate_data)) { 
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}		
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->StorageCoordinate->allowDeletion($storage_master_id, $storage_coordinate_data);

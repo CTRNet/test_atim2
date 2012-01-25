@@ -19,10 +19,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 
 	function listall( $participant_id, $parent_dx_id = null, $is_ajax = 0 ) {
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
 		if($is_ajax){
 			$this->layout = 'ajax';
@@ -168,11 +165,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 
 	function add( $participant_id, $parent_id, $dx_control_id){
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$dx_ctrl = $this->DiagnosisControl->getOrRedirect($dx_control_id);
-		if(empty($participant_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
 						
 		$parent_dx = null;
 		if($parent_id == 0){
@@ -283,7 +277,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
 			
 			$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
-			if(empty($dx_master_data)) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+			if(empty($dx_master_data)){
+				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
 		
 			$this->addWarningMsg(__('unknown primary has been redefined. complete primary data.'));
 		}
@@ -354,7 +350,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 	}
 	
 	function setDiagnosisMenu($dx_master_data, $additional_menu_variables = array()) {
-		if(!isset($dx_master_data['DiagnosisMaster']['id'])) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		if(!isset($dx_master_data['DiagnosisMaster']['id'])){
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		$primary_id = null;
 		$progression_1_id = null;

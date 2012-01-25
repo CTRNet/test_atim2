@@ -13,10 +13,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
 	
 	function listall($participant_id, $tx_master_id) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { 
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-				
 		// Get treatment Master data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		
@@ -49,10 +45,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 	}
 
 	function detail($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { 
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
@@ -67,7 +59,9 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		
 		// Get extend data
 		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.treatment_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($tx_extend_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		$this->request->data = $tx_extend_data;
 		
 		// Set form alias and alias
@@ -80,8 +74,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 	}
 
 	function add($participant_id, $tx_master_id) {
-		if (( !$participant_id ) && ( !$tx_master_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($tx_master_data)) {
@@ -124,9 +116,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 	}
 
 	function edit($participant_id, $tx_master_id, $tx_extend_id) {
-		if (( !$participant_id ) && ( !$tx_master_id ) && ( !$tx_extend_id )) { 
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
 				
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
