@@ -1950,8 +1950,9 @@ class StructuresHelper extends Helper {
 					$return_urls[]		= $this->Html->url( $link_location );
 					
 					// check AJAX variable, and set link to be AJAX link if exists
+					$html_attributes['class'] = '';
 					if(isset($option_links['ajax'][$state][$link_name])){
-						$html_attributes['class'] = 'ajax';
+						$html_attributes['class'] = 'ajax ';
 						// if ajax SETTING is an ARRAY, set helper's OPTIONS based on keys=>values
 						if(is_array($option_links['ajax'][$state][$link_name])){
 							foreach ($option_links['ajax'][$state][$link_name] as $html_attribute_key => $html_attribute_value){
@@ -1968,7 +1969,7 @@ class StructuresHelper extends Helper {
 					}
 						
 					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
-					$html_attributes['class'] = $class;
+					$html_attributes['class'] .= $class;
 					if($state =='index'){
 						$html_attributes['class'] .= ' icon16';
 						$link_results[$link_label]	= $this->Html->link(
