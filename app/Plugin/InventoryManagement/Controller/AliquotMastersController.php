@@ -224,7 +224,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// set structure
-		$this->Structures->set($aliquot_control['AliquotControl']['form_alias']);
+		$this->Structures->set($aliquot_control['AliquotControl']['form_alias'], 'atim_structure', array('model_table_assoc' => array('AliquotDetail' => $aliquot_control['AliquotControl']['detail_tablename'])));
 		if($is_batch_process) {
 			$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
 		}
@@ -322,6 +322,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->request->data[] = array('parent' => $samples[0], 'children' => array());
 			}
 			
+			$this->AliquotMaster->addWritableField(array('collection_id', 'sample_control_id', 'sample_master_id', 'aliquot_control_id', 'storage_master_id', 'current_volume'));
+			$this->AliquotMaster->addWritableField(array('aliquot_master_id'), $aliquot_control['AliquotControl']['detail_tablename']);
+			$this->AliquotMaster->writable_fields_mode = 'addgrid';
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -402,7 +406,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 */
 	function detail($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view_or_layout = 0) {
 		$command = empty($this->request->data) || !in_array($this->request->data[0], array('uses', 'storage_history')) ? null : $this->request->data[0];   
-		
+
 		if($command == 'uses'){
 			//should be in it's own function, but here because of permissions...
 			$this->request->data = $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id);
@@ -629,7 +633,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->AliquotMaster->atim_delete($aliquot_master_id)) {
+			if($this->AliquotMaster->atimDelete($aliquot_master_id)) {
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
@@ -952,6 +956,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->request->data['AliquotInternalUse']['used_volume'] = null;
 			}
 			
+			$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link); 
@@ -993,7 +999,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// -> Delete use
 		if($deletion_done) {
-			if(!$this->AliquotInternalUse->atim_delete($aliquot_use_id)) { $deletion_done = false; }	
+			if(!$this->AliquotInternalUse->atimDelete($aliquot_use_id)) { $deletion_done = false; }	
 		}
 		
 		// -> Delete use
@@ -1288,7 +1294,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		// LAUNCH DELETION
 		// -> Delete Realiquoting
-		$deletion_done = $this->SourceAliquot->atim_delete($source_data['SourceAliquot']['id']);	
+		$deletion_done = $this->SourceAliquot->atimDelete($source_data['SourceAliquot']['id']);	
 		
 		// -> Update volume
 		if($deletion_done) {
@@ -1534,9 +1540,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('sample_ctrl_id', $this->request->data['sample_ctrl_id']);
 		
 		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail');
+		$aliquot_master_edit_writable = AppModel::$writable_fields['aliquot_masters']['edit'];
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume');
-		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'));
-		
+		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'), 'atim_structure', array('model_table_assoc' => array('AliquotDetail' => $child_aliquot_ctrl['AliquotControl']['detail_tablename'])));
+		AppModel::$writable_fields['aliquot_masters']['edit'] = $aliquot_master_edit_writable;
 		$this->setUrlToCancel();
 		
 		// set data for initial data to allow bank to override data
@@ -1704,6 +1711,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$lab_book->syncData($new_data_set['children'], array('Realiquoting'), $lab_book_code);
 				}	
 			}
+
+			//because we use the same table for 2 saves (addgrid and edit), we cannot use $this->AliquotMaster->removeWritableField
+			AppModel::$writable_fields['aliquot_masters']['edit'] = array_diff(AppModel::$writable_fields['aliquot_masters']['edit'], array('collection_id', 'sample_master_id'));
+			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'collection_id';
+			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'sample_master_id';
+			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'aliquot_control_id';
+			$this->AliquotMaster->addWritableField(array('storage_coord_x', 'storage_coord_y', 'storage_master_id'));
+			$this->Realiquoting->writable_fields_mode = 'addgrid';
+			$this->Realiquoting->addWritableField(array('parent_aliquot_master_id', 'child_aliquot_master_id', 'lab_book_master_id', 'sync_with_lab_book'));
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1730,6 +1746,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					
+					$this->AliquotMaster->writable_fields_mode = 'edit';
 					if(!$this->AliquotMaster->save(array('AliquotMaster' => $parent_data['AliquotMaster']), false)){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
@@ -1745,9 +1762,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+						$this->AliquotMaster->writable_fields_mode = 'addgrid';
 						if(!$this->AliquotMaster->save($children, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						} 
+						}
 
 						$child_id = $this->AliquotMaster->getLastInsertId();
 						if(empty($aliquot_id)){
@@ -2070,6 +2088,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}	
 			}
 			
+			$this->AliquotMaster->addWritableField('current_volume');
+			$this->Realiquoting->addWritableField(array('parent_aliquot_master_id', 'child_aliquot_master_id', 'lab_book_master_id', 'sync_with_lab_book'));
+			$this->Realiquoting->writable_fields_mode = 'addgrid';
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -2093,6 +2115,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$parent_data['AliquotMaster']['storage_master_id'] = null;
 						$parent_data['AliquotMaster']['storage_coord_x'] = '';
 						$parent_data['AliquotMaster']['storage_coord_y'] = '';
+						$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					}else{
+						$this->AliquotMaster->removeWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
 					}
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					
@@ -2130,7 +2155,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				//redirect
-				
 				if($aliquot_master_id == null){
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
@@ -2228,7 +2252,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$deletion_done = true;
 		
 		// -> Delete Realiquoting
-		if(!$this->Realiquoting->atim_delete($realiquoting_data['Realiquoting']['id'])) { $deletion_done = false; }	
+		if(!$this->Realiquoting->atimDelete($realiquoting_data['Realiquoting']['id'])) { $deletion_done = false; }	
 		
 		// -> Update volume
 		if($deletion_done) {
