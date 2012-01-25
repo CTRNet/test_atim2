@@ -22,7 +22,7 @@ class BrowserController extends DatamartAppController {
 		
 		while(count($tmp_browsing) > self::$tmp_browsing_limit){
 			$unit = array_pop($tmp_browsing);
-			$this->BrowsingIndex->atim_delete($unit['BrowsingIndex']['id']);
+			$this->BrowsingIndex->atimDelete($unit['BrowsingIndex']['id']);
 		}
 		
 		$this->set('tmp_browsing', $tmp_browsing);
@@ -51,8 +51,8 @@ class BrowserController extends DatamartAppController {
 	function delete($index_id){
 		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
 		if(!empty($this->request->data)){
-			$this->BrowsingIndex->atim_delete($index_id);
-			$this->BrowsingResult->atim_delete($this->request->data['BrowsingIndex']['root_node_id']);
+			$this->BrowsingIndex->atimDelete($index_id);
+			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
 			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
 		} else {
 			$this->flash( 'error deleting data - contact administrator', '/Datamart/Browser/index/');

@@ -332,7 +332,7 @@ class LabBookMastersController extends LabBookAppController {
 		}		
 				
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->LabBookMaster->atim_delete($lab_book_master_id, true)){
+			if($this->LabBookMaster->atimDelete($lab_book_master_id, true)){
 				$this->atimFlash('your data has been deleted', '/labbook/LabBookMasters/index/');
 			}else{
 				$this->flash('error deleting data - contact administrator', '/labbook/LabBookMasters/index/');

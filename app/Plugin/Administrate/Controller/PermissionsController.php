@@ -232,7 +232,7 @@ class PermissionsController extends AdministrateAppController {
 	}
 	
 	function deletePreset($preset_id){
-		$this->PermissionsPreset->atim_delete($preset_id);
+		$this->PermissionsPreset->atimDelete($preset_id);
 	}
 }
 

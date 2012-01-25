@@ -362,7 +362,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			// Delete storage
 			$message = '';
 			$atim_flash = null;
-			if($this->StorageMaster->atim_delete($storage_master_id, true)) {
+			if($this->StorageMaster->atimDelete($storage_master_id, true)) {
 				$atim_flash = true;
 			} else {
 				$atim_flash = false;

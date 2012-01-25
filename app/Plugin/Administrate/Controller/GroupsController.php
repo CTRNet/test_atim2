@@ -107,7 +107,7 @@ class GroupsController extends AdministrateAppController {
 		$this->hook();
 
 		if(empty($this->request->data)){
-			if ($this->Group->atim_delete($group_id)) {
+			if ($this->Group->atimDelete($group_id)) {
 				$this->atimFlash('Group deleted', '/Administrate/Groups/index/');
 			}
 		}else{

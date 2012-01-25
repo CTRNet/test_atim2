@@ -137,7 +137,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete coordinate
-			if($this->StorageCoordinate->atim_delete($storage_coordinate_id)) {
+			if($this->StorageCoordinate->atimDelete($storage_coordinate_id)) {
 				$this->atimFlash('your data has been deleted', $flash_url);
 			} else {
 				$this->flash('error deleting data - contact administrator', $flash_url);

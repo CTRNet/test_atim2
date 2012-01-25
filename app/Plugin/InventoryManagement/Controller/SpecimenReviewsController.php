@@ -456,7 +456,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					
 					foreach($initial_aliquot_review_data_from_id as $initial_aliquot_review_to_delete) {				
 						$aliquot_review_id_to_delete = $initial_aliquot_review_to_delete['AliquotReviewMaster']['id'];
-						if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { 
+						if(!$this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					}
@@ -517,7 +517,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if(!empty($studied_aliquot_master_id)) $aliquot_ids_to_update[$studied_aliquot_master_id] = $studied_aliquot_master_id;
 						
 				$aliquot_review_id_to_delete = $new_linked_review['AliquotReviewMaster']['id'];
-				if(!$this->AliquotReviewMaster->atim_delete($aliquot_review_id_to_delete)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }	
+				if(!$this->AliquotReviewMaster->atimDelete($aliquot_review_id_to_delete)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }	
 			}
 			
 			// 2- Update aliquot master
@@ -526,7 +526,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			}
 					
 			// 3- Delete sample review
-			if(!$this->SpecimenReviewMaster->atim_delete($specimen_review_id)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+			if(!$this->SpecimenReviewMaster->atimDelete($specimen_review_id)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				
 			$this->atimFlash('your data has been deleted', '/InventoryManagement/SpecimenReviews/listAll/' . $collection_id . '/' . $sample_master_id);
 		} else {

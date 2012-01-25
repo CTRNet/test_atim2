@@ -134,7 +134,7 @@ class ProtocolMastersController extends ProtocolAppController {
 		if ($is_used['is_used']) {
 			$this->flash($is_used['msg'], '/Protocol/ProtocolMasters/detail/'.$protocol_master_id.'/');
 		} else {
-			if( $this->ProtocolMaster->atim_delete( $protocol_master_id ) ) {
+			if( $this->ProtocolMaster->atimDelete( $protocol_master_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolMasters/index/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolMasters/index/');

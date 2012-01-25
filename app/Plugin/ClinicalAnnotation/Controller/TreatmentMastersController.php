@@ -217,7 +217,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		}
 		
 		if ($arr_allow_deletion['allow_deletion']) {
-			if( $this->TreatmentMaster->atim_delete( $tx_master_id ) ) {
+			if( $this->TreatmentMaster->atimDelete( $tx_master_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );

@@ -130,7 +130,7 @@ class SopMastersController extends SopAppController {
 		if( $hook_link ) { require($hook_link); }		
 				
 		if($arr_allow_deletion['allow_deletion']) {
-			if( $this->SopMaster->atim_delete( $sop_master_id ) ) {
+			if( $this->SopMaster->atimDelete( $sop_master_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/Sop/SopMasters/listall/');
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/Sop/SopMasters/listall/');

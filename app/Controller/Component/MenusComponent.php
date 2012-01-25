@@ -47,9 +47,9 @@ class MenusComponent extends Component {
 		}
 		if(!$return){
 			if ( $alias ) {
-				$this->Component_Menu = new Menu;
+				$this->menu_model = AppModel::getInstance('', 'Menu', true);
 				
-				$result = $this->Component_Menu->find(
+				$result = $this->menu_model->find(
 								'all', 
 								array(
 									'conditions'	=>	array(
@@ -64,7 +64,7 @@ class MenusComponent extends Component {
 				
 				if (!$result) {
 					
-					$result = $this->Component_Menu->find(
+					$result = $this->menu_model->find(
 									'all', 
 									array(
 										'conditions'	=>	array(
@@ -82,7 +82,7 @@ class MenusComponent extends Component {
 					
 					$alias_count = 0;
 					while ( !$result && $alias_count<count($alias_calculated) ) {
-						$result = $this->Component_Menu->find(
+						$result = $this->menu_model->find(
 									'all', 
 									array(
 										'conditions'	=>	array(
@@ -107,7 +107,7 @@ class MenusComponent extends Component {
 				
 				while ( $parent_id!==false ) {
 					
-					$current_level = $this->Component_Menu->find('all', array('conditions' => array(
+					$current_level = $this->menu_model->find('all', array('conditions' => array(
 							"Menu.parent_id" => $parent_id,
 							"Menu.flag_active" => 1
 						),
@@ -122,7 +122,7 @@ class MenusComponent extends Component {
 						
 						$menu[] = $current_level;
 						
-						$source_result = $this->Component_Menu->find('first', array('conditions' => array('Menu.id' => $parent_id)));
+						$source_result = $this->menu_model->find('first', array('conditions' => array('Menu.id' => $parent_id)));
 						
 						$source_id = $source_result['Menu']['id'];
 						$parent_id = $source_result['Menu']['parent_id'];

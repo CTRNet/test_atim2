@@ -178,7 +178,7 @@ class ShipmentsController extends OrderAppController {
 		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			if($this->Shipment->atim_delete( $shipment_id )) {
+			if($this->Shipment->atimDelete( $shipment_id )) {
 				$this->atimFlash('your data has been deleted', '/Order/shipments/listall/'.$order_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/Order/shipments/listall/'.$order_id);
@@ -413,7 +413,7 @@ class ShipmentsController extends OrderAppController {
 	
 	function deleteContact($contact_id){
 		$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-		$contacts_model->atim_delete($contact_id);
+		$contacts_model->atimDelete($contact_id);
 		exit;
 	}
 }

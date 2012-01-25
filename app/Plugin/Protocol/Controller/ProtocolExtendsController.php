@@ -174,7 +174,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		if ($hook_link) { require($hook_link); }
 		
 		if ($arr_allow_deletion['allow_deletion']) {
-			if( $this->ProtocolExtend->atim_delete( $protocol_extend_id ) ) {
+			if( $this->ProtocolExtend->atimDelete( $protocol_extend_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolExtends/listall/'.$protocol_master_id);
 			} else {
 				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolExtends/listall/'.$protocol_master_id);

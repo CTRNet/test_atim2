@@ -268,7 +268,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete tma slide
-			if($this->TmaSlide->atim_delete($tma_slide_id)) {
+			if($this->TmaSlide->atimDelete($tma_slide_id)) {
 				$this->atimFlash('your data has been deleted', '/StorageLayout/TmaSlides/listAll/' . $tma_block_storage_master_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
