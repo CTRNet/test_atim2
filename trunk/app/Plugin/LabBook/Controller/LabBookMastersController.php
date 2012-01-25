@@ -48,10 +48,7 @@ class LabBookMastersController extends LabBookAppController {
 		
 		// MAIN FORM
 			
-		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) { 
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
+		$lab_book = $this->LabBookMaster->getOrRedirect($lab_book_master_id);
 		$this->request->data = $lab_book;
 		
 		$this->set('atim_menu', $this->Menus->get('/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'));
@@ -92,10 +89,7 @@ class LabBookMastersController extends LabBookAppController {
 				
 		// MANAGE DATA
 		
-		$control_data = $this->LabBookControl->find('first', array('conditions' => array('LabBookControl.id' => $control_id)));
-		if(empty($control_data)) { 
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
+		$control_data = $this->LabBookControl->getOrRedirect($control_id);
 		$this->set('book_type', __($control_data['LabBookControl']['book_type']));
 		$initial_data = array();
 		$initial_data['LabBookMaster']['lab_book_control_id'] = $control_id;
@@ -170,10 +164,7 @@ class LabBookMastersController extends LabBookAppController {
 		// MANAGE DATA
 
 		// Get the lab_book data data
-		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) { 
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
+		$lab_book = $this->LabBookMaster->getOrRedirect($lab_book_master_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -227,10 +218,7 @@ class LabBookMastersController extends LabBookAppController {
 		// MANAGE DATA
 
 		// Get the lab_book data data
-		$lab_book = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-		if(empty($lab_book)) {
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
+		$lab_book = $this->LabBookMaster->getOrRedirect($lab_book_master_id);
 		
 		$this->Structures->set('lab_book_derivatives_summary', 'lab_book_derivatives_summary');
 		$this->Structures->set('lab_book_realiquotings_summary', 'lab_book_realiquotings_summary');
@@ -316,10 +304,7 @@ class LabBookMastersController extends LabBookAppController {
 			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
 		
-		$lab_book_data = $this->LabBookMaster->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id), 'recursive' => '-1'));
-		if(empty($lab_book_data)) { 
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
+		$lab_book_data = $this->LabBookMaster->getOrRedirect($lab_book_master_id);
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->LabBookMaster->allowLabBookDeletion($lab_book_master_id);

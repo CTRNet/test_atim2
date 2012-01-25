@@ -47,10 +47,8 @@ class MaterialsController extends MaterialAppController {
   	}
   
 	function edit( $material_id=null ) {
-		if ( !$material_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
-		$material_data = $this->Material->find('first',array('conditions'=>array('Material.id'=>$material_id)));
-		if(empty($material_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
+		$material_data = $this->Material->getOrRedirect($material_id);
 		
 		$this->set( 'atim_menu_variables', array('Material.id'=>$material_id) );
 		

@@ -281,7 +281,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		
 		// Get sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { 
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
 		// Get specimen review data
 		$criteria = array(
@@ -289,7 +291,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewMaster.collection_id' => $collection_id, 
 			'SpecimenReviewMaster.sample_master_id' => $sample_master_id);
 		$initial_specimen_review_data = $this->SpecimenReviewMaster->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
-		if(empty($initial_specimen_review_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($initial_specimen_review_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 		
 		$is_aliquot_review_defined = false;
 		if(array_key_exists('flag_active', $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']) && $initial_specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['flag_active']) { $is_aliquot_review_defined = true; }
@@ -485,7 +489,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		
 		// Get sample data
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id), 'recursive' => '-1'));
-		if(empty($sample_data)) { $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }	
+		if(empty($sample_data)) { 
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
+		}	
 		
 		// Get specimen review data
 		$criteria = array(
@@ -493,7 +499,9 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			'SpecimenReviewMaster.collection_id' => $collection_id, 
 			'SpecimenReviewMaster.sample_master_id' => $sample_master_id);
 		$specimen_review_data = $this->SpecimenReviewMaster->find('first', array('conditions' => $criteria, 'recursive' => '2'));	
-		if(empty($specimen_review_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($specimen_review_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 		
 		// Get Aliquot Review Data
 		$criteria = array('AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id);

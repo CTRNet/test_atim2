@@ -22,10 +22,7 @@ class AdminUsersController extends AdministrateAppController {
 		
 		$this->hook();
 		
-		$this->request->data = $this->User->find('first',array('conditions'=>array('User.id'=>$user_id)));
-		if(empty($this->request->data)){
-			$this->redirect( '/Pages/err_no_data', null, true );
-		}
+		$this->request->data = $this->User->getOrRedirect($user_id);
 	}
 
 	function add($group_id){
@@ -114,10 +111,7 @@ class AdminUsersController extends AdministrateAppController {
 			}
 		}
 		
-		$this->request->data = $this->User->find('first',array('conditions'=>array('User.id'=>$user_id)));
-		if(empty($this->request->data)){
-			$this->redirect( '/Pages/err_no_data', null, true );
-		}
+		$this->request->data = $this->User->getOrRedirect($user_id);
 	}
 	
 	function delete($group_id, $user_id){

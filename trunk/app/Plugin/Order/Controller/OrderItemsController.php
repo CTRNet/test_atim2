@@ -38,7 +38,9 @@ class OrderItemsController extends OrderAppController {
 		// MANAGE DATA
 	
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_line_data)) {
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 
 		// Set data
 		$this->request->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
@@ -179,10 +181,7 @@ class OrderItemsController extends OrderAppController {
 				$studied_aliquot_master_ids[] = $aliquot_master_id;
 				
 				// Get aliquot data
-				$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
-				if(empty($aliquot_data)) { 
-					$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-				}
+				$aliquot_data = $this->AliquotMaster->getOrRedirect($studied_aliquot_master_ids);
 				
 				// Build redirect url
 				$url_to_redirect = '/InventoryManagement/AliquotMasters/detail/' . $aliquot_data['AliquotMaster']['collection_id'] . '/' . $aliquot_data['AliquotMaster']['sample_master_id'] . '/' . $aliquot_data['AliquotMaster']['id'] . '/';				
@@ -387,7 +386,9 @@ class OrderItemsController extends OrderAppController {
 	
 		// Check order line
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id), 'recursive' => '-1'));
-		if(empty($order_line_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($order_line_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		
 		// Set data
 		$criteria = array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending');

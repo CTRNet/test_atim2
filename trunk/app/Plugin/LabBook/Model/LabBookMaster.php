@@ -167,8 +167,7 @@ class LabBookMaster extends LabBookAppModel {
 		$derivative_detail_model = AppModel::getInstance("InventoryManagement", "DerivativeDetail", true);
 		
 		if(empty($lab_book_detail)) {
-			$lab_book = $this->find('first', array('conditions' => array('LabBookMaster.id' => $lab_book_master_id)));
-			if(empty($lab_book)) { AppController::getInstance()->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }		
+			$lab_book = $this->getOrRedirect($lab_book_master_id);
 			$lab_book_detail = $lab_book['LabBookDetail'];
 		}
 		

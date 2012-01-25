@@ -131,12 +131,9 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 	}
 
 	function delete( $participant_id ) {
-		if ( !$participant_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
-		$participant_data = $this->Participant->find('first',array('conditions'=>array('Participant.id'=>$participant_id)));
-		if(empty($participant_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
-		$this->request->data = $participant_data;
+		$this->request->data = $this->Participant->getOrRedirect($participant_id);
 
 		$arr_allow_deletion = $this->Participant->allowDeletion($participant_id);
 		

@@ -35,8 +35,7 @@ class ShipmentsController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Check order
-		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$order_data = $this->Order->getOrRedirect($order_id);
 		
 		// Get shipments
 		$shipments_data = $this->paginate($this->Shipment, array('Shipment.order_id'=>$order_id));
@@ -59,8 +58,7 @@ class ShipmentsController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Check order
-		$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id)));
-		if(empty($order_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$order_data = $this->Order->getOrRedirect($order_id);
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -103,7 +101,9 @@ class ShipmentsController extends OrderAppController {
 		
 		// Get shipment data
 		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id, 'Shipment.order_id'=>$order_id)));
-		if(empty($shipment_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
+		if(empty($shipment_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}				
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -142,8 +142,7 @@ class ShipmentsController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Shipment data
-		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
+		$shipment_data = $this->Shipment->getOrRedirect($shipment_id);
 		$this->request->data = $shipment_data;
 		
 		// Shipped items
@@ -166,8 +165,7 @@ class ShipmentsController extends OrderAppController {
 		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
-		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }				
+		$shipment_data = $this->Shipment->getOrRedirect($shipment_id);
 
 		// Check deletion is allowed
 		$arr_allow_deletion = $this->Shipment->allowDeletion($shipment_id);
@@ -196,8 +194,7 @@ class ShipmentsController extends OrderAppController {
 		// MANAGE DATA
 		
 		// Check shipment
-		$shipment_data = $this->Shipment->find('first',array('conditions'=>array('Shipment.id'=>$shipment_id)));
-		if(empty($shipment_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		$shipment_data = $this->Shipment->getOrRedirect($shipment_id);
 		
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
@@ -314,7 +311,9 @@ class ShipmentsController extends OrderAppController {
 		
 		// Check item
 		$order_item_data = $this->OrderItem->find('first',array('conditions'=>array('OrderItem.id'=>$order_item_id, 'OrderItem.shipment_id'=>$shipment_id), 'recursive' => '-1'));
-		if(empty($order_item_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }	
+		if(empty($order_item_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}	
 
 		// Set ids
 		$order_line_id = $order_item_data['OrderItem']['order_line_id'];

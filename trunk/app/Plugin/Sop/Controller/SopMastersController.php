@@ -16,11 +16,11 @@ class SopMastersController extends SopAppController {
 	}
 
 	function add($sop_control_id) {
-		if (!$sop_control_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
 		$this->set( 'atim_menu_variables', array('SopControl.id'=>$sop_control_id)); 
 		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id, 'SopControl.flag_active' => '1')));
-		if(empty($this_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		if(empty($this_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}		
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set($this_data['SopControl']['form_alias']);
@@ -63,8 +63,7 @@ class SopMastersController extends SopAppController {
 	
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id));
 		
-		$this->request->data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
-		if(empty($this->request->data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$this->request->data = $this->SopMaster->getOrRedirect($sop_master_id);
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this->request->data['SopControl']['form_alias']);
@@ -76,11 +75,8 @@ class SopMastersController extends SopAppController {
 	}
 
 	function edit( $sop_master_id  ) {
-		if ( !$sop_master_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-		
 		$this->set( 'atim_menu_variables', array('SopMaster.id'=>$sop_master_id) );
-		$this_data = $this->SopMaster->find('first',array('conditions'=>array('SopMaster.id'=>$sop_master_id)));
-		if(empty($this_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }		
+		$this_data = $this->SopMaster->getOrRedirect($sop_master_id);
 		
 		// set FORM ALIAS based off VALUE from MASTER table
 		$this->Structures->set($this_data['SopControl']['form_alias']);

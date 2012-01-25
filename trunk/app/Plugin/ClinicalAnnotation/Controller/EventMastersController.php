@@ -30,10 +30,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		} else {
 			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
 			
-			$filter_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-			if(empty($filter_data)) { 
-				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-			}
+			$filter_data = $this->EventControl->getOrRedirect($event_control_id);
 			$this->Structures->set($filter_data['EventControl']['form_alias']);
 		}
 			
@@ -91,15 +88,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	function add( $event_group, $participant_id, $event_control_id) {
 		// MANAGE DATA
 
-		$participant_data = $this->Participant->find('first', array('conditions'=>array('Participant.id'=>$participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}	
-
-		$event_control_data = $this->EventControl->find('first',array('conditions'=>array('EventControl.id'=>$event_control_id)));
-		if(empty($event_control_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}	
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		$event_control_data = $this->EventControl->getOrRedirect($event_control_id);
 		
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
@@ -208,7 +198,9 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
-		if (empty($event_master_data)) { $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); }
+		if (empty($event_master_data)) { 
+			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+		}
 		
 		$arr_allow_deletion = $this->EventMaster->allowDeletion($event_master_id);
 		
