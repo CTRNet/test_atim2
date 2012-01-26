@@ -43,8 +43,8 @@ class AliquotMasterCustom extends AliquotMaster {
 				}
 				$default_sample_label = $bank_initials.$type_char.$bank_number.' FT'.$suffix;
 				break;
-
-			case 'ascite':
+	              
+			case 'ascite supernatant':
 				$default_sample_label = $bank_initials.$bank_number.' FA';
 				break;
 

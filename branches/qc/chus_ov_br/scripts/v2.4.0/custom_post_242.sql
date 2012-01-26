@@ -468,7 +468,7 @@ INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag
 CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_ca125_tests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
-  `value` decimal(5,2) DEFAULT NULL, 
+  `value` decimal(8,2) DEFAULT NULL, 
   `at_diagnostic` char(1) DEFAULT '', 
   
   `event_master_id` int(11) DEFAULT NULL,
@@ -480,7 +480,7 @@ CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_ca125_tests` (
 CREATE TABLE IF NOT EXISTS `chus_ed_lab_ovary_ca125_tests_revs` (
   `id` int(11) NOT NULL,
   
-  `value` decimal(5,2) DEFAULT NULL, 
+  `value` decimal(8,2) DEFAULT NULL, 
   `at_diagnostic` char(1) DEFAULT '', 
   
   `event_master_id` int(11) DEFAULT NULL,
@@ -505,6 +505,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('CA125', 'CA125','CA125'),('value (u/ml)','Value (U/mL)','Valeur (U/mL)'),('at diagnostic','At Diagnostic','Au diagnostic');
 
+ALTER TABLE `chus_ed_lab_ovary_ca125_tests` 
+  MODIFY `value` decimal(10,2) DEFAULT NULL; 
+ALTER TABLE `chus_ed_lab_ovary_ca125_tests_revs` 
+  MODIFY `value` decimal(10,2) DEFAULT NULL; 
+    
 -- breast : CA153
 
 INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
@@ -513,7 +518,7 @@ INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag
 CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_ca153_tests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
-  `value` decimal(5,2) DEFAULT NULL, 
+  `value` decimal(8,2) DEFAULT NULL, 
   `at_diagnostic` char(1) DEFAULT '', 
   
   `event_master_id` int(11) DEFAULT NULL,
@@ -525,7 +530,7 @@ CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_ca153_tests` (
 CREATE TABLE IF NOT EXISTS `chus_ed_lab_breast_ca153_tests_revs` (
   `id` int(11) NOT NULL,
   
-  `value` decimal(5,2) DEFAULT NULL, 
+  `value` decimal(8,2) DEFAULT NULL, 
   `at_diagnostic` char(1) DEFAULT '', 
   
   `event_master_id` int(11) DEFAULT NULL,
@@ -550,6 +555,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('CA15.3', 'CA15.3','CA15.3');
 
+ALTER TABLE `chus_ed_lab_breast_ca153_tests` 
+  MODIFY `value` decimal(10,2) DEFAULT NULL; 
+ALTER TABLE `chus_ed_lab_breast_ca153_tests_revs` 
+  MODIFY `value` decimal(10,2) DEFAULT NULL; 
+  
 -- --------------------------------------------------------------------------------------------------------
 -- Treatment
 -- --------------------------------------------------------------------------------------------------------
@@ -574,8 +584,8 @@ CREATE TABLE IF NOT EXISTS `chus_txd_ovary_surgeries` (
   type_omentectomy char(1) DEFAULT '',
   type_ganglions char(1) DEFAULT '',
   
-  ovg_size_cm decimal(5,2) DEFAULT NULL,
-  ovd_size_cm decimal(5,2) DEFAULT NULL,
+  ovg_size_cm decimal(8,2) DEFAULT NULL,
+  ovd_size_cm decimal(8,2) DEFAULT NULL,
   
   primary_at_surgery_ovary char(1) DEFAULT '',
   primary_at_surgery_fallopian_tube char(1) DEFAULT '',
@@ -616,8 +626,8 @@ CREATE TABLE IF NOT EXISTS `chus_txd_ovary_surgeries_revs` (
   type_omentectomy char(1) DEFAULT '',
   type_ganglions char(1) DEFAULT '',
   
-  ovg_size_cm decimal(5,2) DEFAULT NULL,
-  ovd_size_cm decimal(5,2) DEFAULT NULL,
+  ovg_size_cm decimal(8,2) DEFAULT NULL,
+  ovd_size_cm decimal(8,2) DEFAULT NULL,
   
   primary_at_surgery_ovary char(1) DEFAULT '',
   primary_at_surgery_fallopian_tube char(1) DEFAULT '',
@@ -789,7 +799,7 @@ CREATE TABLE IF NOT EXISTS `chus_txd_breast_surgeries` (
   axillary_dissection char(1) DEFAULT '',
   biopsy char(1) DEFAULT '',
   
-  size_mm decimal(5,2) DEFAULT NULL,
+  size_mm decimal(8,2) DEFAULT NULL,
   
   `treatment_master_id` int(11) NOT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -813,7 +823,7 @@ CREATE TABLE IF NOT EXISTS `chus_txd_breast_surgeries_revs` (
   axillary_dissection char(1) DEFAULT '',
   biopsy char(1) DEFAULT '',
   
-  size_mm decimal(5,2) DEFAULT NULL,
+  size_mm decimal(8,2) DEFAULT NULL,
     
   `treatment_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -868,6 +878,11 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 
 REPLACE INTO i18n (id,en,fr) VALUES ('bilateral','Bilateral','Bilatérale'),('biopsy','Biopsy','Biopsie');
 
+ALTER TABLE `chus_txd_breast_surgeries`
+  MODIFY size_mm decimal(8,2) DEFAULT NULL;
+ALTER TABLE `chus_txd_breast_surgeries_revs`
+  MODIFY size_mm decimal(8,2) DEFAULT NULL;
+   
 -- OV/Breast - Radiation
 
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
@@ -1104,6 +1119,10 @@ INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `f
 ('secondary', 'lung', 1, 'diagnosismasters,dx_secondary', 'dxd_secondaries', 0, 'xxx', 1),
 ('secondary', 'liver', 1, 'diagnosismasters,dx_secondary', 'dxd_secondaries', 0, 'xxx', 1);
 
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('secondary', 'fallopian tube', 1, 'diagnosismasters,dx_secondary', 'dxd_secondaries', 0, 'xxx', 1),
+('secondary', 'uterus', 1, 'diagnosismasters,dx_secondary', 'dxd_secondaries', 0, 'xxx', 1);
+
 UPDATE diagnosis_controls SET databrowser_label = CONCAT(category,'|',controls_type) WHERE databrowser_label = 'xxx';
 	
 INSERT INTO i18n (id,en,fr) VALUES 
@@ -1314,7 +1333,7 @@ CREATE TABLE IF NOT EXISTS `chus_dxd_breasts` (
   `intraductal_comedocarcinoma` char(1) DEFAULT '',
   `intraductal_solid` char(1) DEFAULT '',
   `intraductal_intraductal_not_specified` char(1) DEFAULT '',
-  `intraductal_perc_of_infiltrating` decimal(5,2) DEFAULT NULL,
+  `intraductal_perc_of_infiltrating` decimal(8,2) DEFAULT NULL,
   `intraductal_ng_grade_holland` varchar(150) DEFAULT NULL,
 
   `ganglion_axillary_surgery` char(1) DEFAULT '',
@@ -1379,7 +1398,7 @@ CREATE TABLE IF NOT EXISTS `chus_dxd_breasts_revs` (
   `intraductal_comedocarcinoma` char(1) DEFAULT '',
   `intraductal_solid` char(1) DEFAULT '',
   `intraductal_intraductal_not_specified` char(1) DEFAULT '',
-  `intraductal_perc_of_infiltrating` decimal(5,2) DEFAULT NULL,
+  `intraductal_perc_of_infiltrating` decimal(8,2) DEFAULT NULL,
   `intraductal_ng_grade_holland` varchar(150) DEFAULT NULL,
 
   `ganglion_axillary_surgery` char(1) DEFAULT '',
@@ -1986,14 +2005,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en,fr) VALUES ('weight (mg)', 'Weight (Mg)', 'Poids (Mg)'),('storage solution','Storage Solution','Solution d''entreposage'),('storage method','Storage Method','Méthode d''entreposage');
 
+ALTER TABLE ad_tubes
+  MODIFY `chus_tissue_weight_mgr` decimal(9,2) DEFAULT NULL AFTER chus_storage_method;
+ALTER TABLE ad_tubes_revs
+  MODIFY `chus_tissue_weight_mgr` decimal(9,2) DEFAULT NULL AFTER chus_storage_method;
+    
 -- DNA
 
 UPDATE aliquot_controls SET form_alias = CONCAT(form_alias, ',ad_chus_qc_ratio') WHERE sample_control_id IN (SELECT id from sample_controls WHERE sample_type IN ('RNA','DNA') AND aliquot_type = 'tube');
 
 ALTER TABLE ad_tubes
-  ADD COLUMN `chus_qc_ratio_260_280` decimal(6,2) DEFAULT NULL AFTER chus_tissue_weight_mgr;
+  ADD COLUMN `chus_qc_ratio_260_280` decimal(8,2) DEFAULT NULL AFTER chus_tissue_weight_mgr;
 ALTER TABLE ad_tubes_revs
-  ADD COLUMN `chus_qc_ratio_260_280` decimal(6,2) DEFAULT NULL AFTER chus_tissue_weight_mgr;
+  ADD COLUMN `chus_qc_ratio_260_280` decimal(8,2) DEFAULT NULL AFTER chus_tissue_weight_mgr;
 
 INSERT INTO structures(`alias`) VALUES ('ad_chus_qc_ratio');
 
@@ -2018,6 +2042,18 @@ UPDATE menus SET flag_active = '0' WHERE use_link LIKE '/sop/sop_masters/%';
 -- Protocol
 
 UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
+
+--
+
+INSERT INTO `storage_controls` (`storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+('box100', 'position', 'integer', 100, NULL, NULL, NULL, 10, 10, 0, 0, 1, 0, 0, 1, 'storagemasters', 'std_boxs', 'box100', 1);
+
+INSERT INTO i18n (id,en,fr) VALUES ('box100','Box100 1-100','Boîte100 1-100');
+
+INSERT INTO `storage_controls` (`storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+('box49', 'position', 'integer', 49, NULL, NULL, NULL, 7, 7, 0, 0, 1, 0, 0, 1, 'storagemasters', 'std_boxs', 'box49', 1);
+
+INSERT INTO i18n (id,en,fr) VALUES ('box49','Box49 1-49','Boîte49 1-49');
 
 -- ========================================================================================================
 -- QUERY
