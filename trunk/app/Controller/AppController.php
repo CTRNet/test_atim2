@@ -5,7 +5,7 @@ class AppController extends Controller {
 	private static $me = NULL;
 	private static $acl = null;
 	public static $beignFlash = false;
-	var $uses = array('Config');
+	var $uses = array('Config', 'SystemVar');
 	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager', 'Paginator', /*'DebugKit.Toolbar'*/ );
 	var $helpers	= array('Session', 'Csv', 'Html', 'Js', 'Shell', 'Structures', 'Time', 'Form');
 	
@@ -22,7 +22,11 @@ class AppController extends Controller {
 			Cache::clear(false, "structures");
 			Cache::clear(false, "menus");
 		}
-	
+		
+		if($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')){
+			$this->resetPermissions();
+		}
+		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
 			$this->Session->write('Config.language', Configure::read('Config.language'));
@@ -837,7 +841,15 @@ class AppController extends Controller {
 	
 		$this->set('url_to_cancel', $this->request->data['url_to_cancel']);
 	}
+	
+	function resetPermissions(){
+		$group_model = AppModel::getInstance('', 'Group', true);
+		$group = $group_model->findById($this->Session->read('Auth.User.group_id'));
+		$this->Session->write('Auth.User.flag_show_confidential', $group['Group']['flag_show_confidential']);
+		$this->Session->write('permission_timestamp', time());
+		$this->SessionAcl->flushCache();
 	}
+}
 	
 	AppController::init();
 	

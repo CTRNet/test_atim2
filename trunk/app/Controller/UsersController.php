@@ -3,7 +3,7 @@
 class UsersController extends AppController {
 
 	var $helpers = array('Html', 'Form');
-	var $uses = array('User', 'UserLoginAttempt', 'Group', 'Version');
+	var $uses = array('User', 'UserLoginAttempt', 'Version');
 	
 	function beforeFilter() {
 		parent::beforeFilter();
@@ -55,12 +55,11 @@ class UsersController extends AppController {
 				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 				$batch_set_model->deleteCurrentUserTmp();
 			}
-			$group = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
-			$_SESSION['Auth']['User']['flag_show_confidential'] = $group['Group']['flag_show_confidential'];
 			if(!isset($_SESSION['Auth']['User']['search_id'])){
-				$_SESSION['Auth']['User']['search_id'] = 1;
+				$this->Session->write('Auth.User.search_id', 1);
 				$_SESSION['ctrapp_core']['search'] = array();
 			}
+			$this->resetPermissions();
 			$this->redirect($this->Auth->redirect());
 		}else if(isset($this->request->data['User'])){
 			//failed login

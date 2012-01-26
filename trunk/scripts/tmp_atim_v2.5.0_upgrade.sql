@@ -439,3 +439,9 @@ ALTER TABLE storage_coordinates_revs MODIFY storage_master_id INT NOT NULL;
 ALTER TABLE txe_radiations MODIFY tx_master_id INT NOT NULL;
 ALTER TABLE txe_radiations_revs MODIFY tx_master_id INT NOT NULL;
  
+CREATE TABLE system_vars(
+ k VARCHAR(50) NOT NULL PRIMARY KEY,
+ v VARCHAR(50) NOT NULL
+)Engine=InnoDb;
+INSERT INTO system_vars (k, v) VALUES
+('permission_timestamp', 0);

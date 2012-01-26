@@ -1,6 +1,6 @@
 <?php
 class AtimAro extends Aro {
-
+	
 	/**
 	 * Retrieves the Aro/Aco node for this model
 	 *

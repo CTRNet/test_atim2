@@ -3,7 +3,7 @@
 <head>
 	
 	<title><?php echo $page_title.' &laquo; '.__('core_appname', true); ?></title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/ico" />
+	<link rel="shortcut icon" href="<?php echo($this->webroot); ?>img/favicon.ico"/>
 
 	<?php 
 		echo $this->Html->css('style');
