@@ -13,7 +13,6 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.DiagnosisMaster',
 		'ClinicalAnnotation.FamilyHistory',
 		'ClinicalAnnotation.MiscIdentifier',
-		'ClinicalAnnotation.ClinicalCollectionLink',
 		'ClinicalAnnotation.ReproductiveHistory',
 		'ClinicalAnnotation.TreatmentMaster',
 		'ClinicalAnnotation.MiscIdentifierControl',
@@ -215,12 +214,13 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			}
 		}
 		
-		$ccls = $this->ClinicalCollectionLink->find('all', array('conditions' => array('ClinicalCollectionLink.participant_id' => $participant_id)));
-		foreach($ccls as $ccl){
-			$tmp_array[$ccl['Collection']['collection_datetime']][] = array(
-				'event' => __('collection')." (".$ccl['Collection']['acquisition_label'].")", 
-				'link' => '/InventoryManagement/collections/detail/'.$ccl['Collection']['id'],
-				'date_accuracy' => $ccl['Collection']['collection_datetime_accuracy']	
+		$collection_model = AppModel::getInstance('InventoryManagement', 'Collection', true);
+		$collections = $collection_model->find('all', array('conditions' => array('Collection.participant_id' => $participant_id), 'recursive' => -1));
+		foreach($collections as $collection){
+			$tmp_array[$collection['Collection']['collection_datetime']][] = array(
+				'event' => __('collection')." (".$collection['Collection']['acquisition_label'].")", 
+				'link' => '/InventoryManagement/collections/detail/'.$collection['Collection']['id'],
+				'date_accuracy' => $collection['Collection']['collection_datetime_accuracy']	
 			);
 		}
 

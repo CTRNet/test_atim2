@@ -9,7 +9,6 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster',
 		'ClinicalAnnotation.EventMaster',
-		'ClinicalAnnotation.ClinicalCollectionLink',
 		'CodingIcd.CodingIcd10Who',
 		'CodingIcd.CodingIcd10Ca',
 		'CodingIcd.CodingIcdo3Topo',//required by model

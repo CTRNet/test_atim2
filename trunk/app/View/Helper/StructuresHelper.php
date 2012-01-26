@@ -1484,7 +1484,7 @@ class StructuresHelper extends Helper {
 							}
 							
 							if(show_help){
-								$return_string .= $current_col_number < $content_columns_count ? str_replace('<span class="help">', '<span class="help right">', $table_row_part['help']) : $table_row_part['help'];
+								$return_string .= $current_col_number < $content_columns_count ? str_replace('<span class="icon16 help">', '<span class="icon16 help right">', $table_row_part['help']) : $table_row_part['help'];
 							}
 							
 							++ $current_col_number;

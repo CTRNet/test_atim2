@@ -30,8 +30,8 @@ class ConsentMaster extends ClinicalAnnotationAppModel {
 	function allowDeletion($consent_master_id){
 		$arr_allow_deletion = array('allow_deletion' => true, 'msg' => '');
 
-		$ccl_model = AppModel::getInstance("ClinicalAnnotation", "ClinicalCollectionLink", true);
-		$returned_nbr = $ccl_model->find('count', array('conditions' => array('ClinicalCollectionLink.consent_master_id' => $consent_master_id)));
+		$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		$returned_nbr = $collection_model->find('count', array('conditions' => array('Collection.consent_master_id' => $consent_master_id)));
 		if($returned_nbr > 0){
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_consent_linked_collection';

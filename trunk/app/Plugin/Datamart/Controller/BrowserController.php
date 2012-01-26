@@ -68,6 +68,8 @@ class BrowserController extends DatamartAppController {
 	 * @param int $merge_to If a merged display is required, the node id to merge to. The merge direction is always from node_id to merge_to
 	 */
 	function browse($node_id = 0, $control_id = 0, $merge_to = 0){
+		$this->BrowsingResult->check_writable_fields = false;
+		$this->BrowsingIndex->check_writable_fields = false;
 		$this->Structures->set("empty", "empty");
 		$browsing = null;
 		$check_list = false;

@@ -13,8 +13,6 @@ class CollectionsController extends InventoryManagementAppController {
 		'InventoryManagement.SpecimenReviewMaster',
 		'InventoryManagement.ParentToDerivativeSampleControl',
 		
-		'ClinicalAnnotation.ClinicalCollectionLink',
-	
 		'ExternalLink'
 	);
 	
@@ -61,7 +59,6 @@ class CollectionsController extends InventoryManagementAppController {
 	
 	function detail($collection_id, $is_from_tree_view = 0) {
 		// $is_from_tree_view : 0-Normal, 1-Tree view
-		
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
@@ -198,7 +195,7 @@ class CollectionsController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));		
 		
-		if(!empty($collection_data['ClinicalCollectionLink']['participant_id'])) {
+		if($collection_data['Collection']['participant_id']){
 			// Linked collection: Set specific structure
 			$this->Structures->set('linked_collections');	
 		}

@@ -1912,7 +1912,7 @@ a.btn_add_or{
 	display: inline-block;
 	height: 16px;
 	width: 16px;
-	vertical-align: sub;
+	vertical-align: text-bottom;
 	background: url("../img/icons/16x16.png") no-repeat;
 }
 .bottom_button span.icon16{
