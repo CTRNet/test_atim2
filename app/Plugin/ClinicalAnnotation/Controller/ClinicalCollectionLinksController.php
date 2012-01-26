@@ -117,6 +117,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				$fields[] = 'deleted';
 			}
 			$this->request->data['Collection']['participant_id'] = $participant_id;
+			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;
+			unset($this->request->data['Collection']['id']); 
+			$this->Collection->addWritableField(array('participant_id', 'consent_master_id', 'diagnosis_master_id', 'deleted'));
 			
 			$submitted_data_validates = true;
 			

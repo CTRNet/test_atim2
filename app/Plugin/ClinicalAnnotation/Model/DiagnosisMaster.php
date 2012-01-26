@@ -90,22 +90,22 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 		}
 		
 		// Check for existing records linked to the participant. If found, set error message and deny delete
-		$ccl_model = AppModel::getInstance("ClinicalAnnotation", "ClinicalCollectionLink", true);
-		$nbr_linked_collection = $ccl_model->find('count', array('conditions' => array('ClinicalCollectionLink.diagnosis_master_id' => $diagnosis_master_id, 'ClinicalCollectionLink.deleted'=>0), 'recursive' => '-1'));
+		$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+		$nbr_linked_collection = $collection_model->find('count', array('conditions' => array('Collection.diagnosis_master_id' => $diagnosis_master_id)));
 		if ($nbr_linked_collection > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_collection';
 		}
 		
 		$event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		$nbr_events = $event_master_model->find('count', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id, 'EventMaster.deleted'=>0), 'recursive' => '-1'));
+		$nbr_events = $event_master_model->find('count', array('conditions'=>array('EventMaster.diagnosis_master_id'=>$diagnosis_master_id)));
 		if ($nbr_events > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_events';
 		}
 
 		$treatment_master_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-		$nbr_treatment = $treatment_master_model->find('count', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id, 'TreatmentMaster.deleted'=>0), 'recursive' => '-1'));
+		$nbr_treatment = $treatment_master_model->find('count', array('conditions'=>array('TreatmentMaster.diagnosis_master_id'=>$diagnosis_master_id)));
 		if ($nbr_treatment > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_diagnosis_linked_treatment';

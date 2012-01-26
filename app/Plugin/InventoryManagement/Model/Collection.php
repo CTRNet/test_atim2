@@ -56,11 +56,8 @@ class Collection extends InventoryManagementAppModel {
 		}
 		
 		// Check Collection has not been linked to a participant, consent or diagnosis
-		$criteria = 'ClinicalCollectionLink.collection_id = "' . $collection_id . '" ';
-		$criteria .= 'AND ClinicalCollectionLink.participant_id IS NOT NULL';
-		$ccl_model = AppModel::getInstance("Clinicalcollection", "ClinicalCollectionLink", true);		
-		$returned_nbr = $ccl_model->find('count', array('conditions' => array($criteria), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
+		$coll_data = $this->getOrRedirect($collection_id);
+		if($coll_data['Collection']['participant_id']){ 
 			return array('allow_deletion' => false, 'msg' => 'the deleted collection is linked to participant'); 
 		}
 
