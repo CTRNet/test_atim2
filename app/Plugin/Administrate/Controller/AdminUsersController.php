@@ -28,7 +28,7 @@ class AdminUsersController extends AdministrateAppController {
 	function add($group_id){
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->Structures->set('users');
-		$this->set("atim_menu", $this->Menus->get('/Administrate/users/listall/%%Group.id%%/'));
+		$this->set("atim_menu", $this->Menus->get('/Administrate/AdminUsers/listall/%%Group.id%%/'));
 			
 		if($this->Group->hasPermissions($group_id)){
 			$hook_link = $this->hook('format');
@@ -50,6 +50,9 @@ class AdminUsersController extends AdministrateAppController {
 				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
+				$this->User->addWritableField(array('group_id', 'flag_active'));
+				$aro_m = AppModel::getInstance('', 'Aro', true);
+				$aro_m->check_writable_fields = false;
 				
 				$hook_link = $this->hook('presave_process');
 				if( $hook_link ) { 
@@ -62,7 +65,7 @@ class AdminUsersController extends AdministrateAppController {
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been saved', '/Administrate/users/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
+						$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
 				//reset password display
@@ -70,7 +73,7 @@ class AdminUsersController extends AdministrateAppController {
 				$this->request->data['Generated']['field1'] = "";
 			}
 		}else{
-			$this->flash(__('you cannot create a user for that group because it has no permission'), "/Administrate/users/listall/".$group_id."/");
+			$this->flash(__('you cannot create a user for that group because it has no permission'), "/Administrate/AdminUsers/listall/".$group_id."/");
 		}
 	}
 	
@@ -106,7 +109,7 @@ class AdminUsersController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved', '/Administrate/users/detail/'.$group_id.'/'.$user_id.'/' );
+					$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
 				}
 			}
 		}
@@ -124,7 +127,11 @@ class AdminUsersController extends AdministrateAppController {
 		if(!$arr_allow_deletion['allow_deletion']){
 			$arr_allow_deletion['msg'] = 'you cannot delete yourself';
 		}
-
+		
+		$aro_m = AppModel::getInstance('', 'Aro', true);
+		$aro_m->check_writable_fields = false;
+		$aro_m->pkey_safeguard = false;
+		
 		$hook_link = $this->hook('delete');
 		if($hook_link){
 			require($hook_link);
@@ -132,7 +139,7 @@ class AdminUsersController extends AdministrateAppController {
 
 		if ($arr_allow_deletion['allow_deletion']) {
 			$this->User->atimDelete($user_id);
-			$this->atimFlash(__('your data has been deleted'), "/Administrate/users/listall/".$group_id);
+			$this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/".$group_id);
 		} else {
 			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
 		}
@@ -140,7 +147,7 @@ class AdminUsersController extends AdministrateAppController {
 	
 	function search($search_id = 0){
 		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Groups') );
-		$this->searchHandler($search_id, $this->User, 'users', '/Administrate/users/search');
+		$this->searchHandler($search_id, $this->User, 'users', '/Administrate/AdminUsers/search');
 		$this->Structures->set('empty', 'empty_structure');
 		
 		$hook_link = $this->hook('format');

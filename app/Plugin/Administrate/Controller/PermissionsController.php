@@ -79,6 +79,7 @@ class PermissionsController extends AdministrateAppController {
 					_delete="'.$state.'"
 			';
 		}
+		
 		$this->Aro->query($sql);
 		
 	}
@@ -99,8 +100,9 @@ class PermissionsController extends AdministrateAppController {
 		$this->set('known_acos',$known_acos);
 		if($this->request->data){
 			$this->Group->id = $group_id;
-			$aro_model = AppModel::getInstance('', 'Aro', true);
-			$aro_model->pkey_safegard = false;
+			$this->Aro->pkey_safeguard = false;
+			$this->Aro->check_writable_fields = false;
+			$this->Group->addWritableField('flag_show_confidential');
 			$this->Group->save($this->request->data['Group']);
 			unset($this->request->data['Group']);
 			foreach($this->request->data as $i => $aco){
@@ -109,7 +111,7 @@ class PermissionsController extends AdministrateAppController {
 				$aco['Aco']['id'], 
 				intval($aco['Aco']['state']) );
 			}
-			
+			$this->SystemVar->setVar('permission_timestamp', time());
 			$this->redirect('/Administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
@@ -153,7 +155,6 @@ class PermissionsController extends AdministrateAppController {
 		$threaded_data = $this->addPermissionStateToThreadedData($threaded_data);
 		
 		$this->request->data = $threaded_data;
-		AppController::addWarningMsg(__("note: permission changes will not take effect until the user logs out of the system."));
 		if(!isset($this->request->data[0]['Aco']['state'])){
 			//the root not is blank, display "denied" to make it easier to understand
 			$this->request->data[0]['Aco']['state'] = -1;
