@@ -142,8 +142,6 @@ class AppModel extends Model {
 				}
 			}
 		}else if(Configure::read('debug') > 0){
-			pr(AppController::getStackTrace());
-			die($this->name);
 			AppController::addWarningMsg('No Writable fields for model '.$this->name);
 		}
 	}

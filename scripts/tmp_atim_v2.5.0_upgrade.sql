@@ -445,3 +445,6 @@ CREATE TABLE system_vars(
 )Engine=InnoDb;
 INSERT INTO system_vars (k, v) VALUES
 ('permission_timestamp', 0);
+
+ALTER TABLE permissions_presets_revs
+ DROP KEY name;

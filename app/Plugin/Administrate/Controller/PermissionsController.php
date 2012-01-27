@@ -226,9 +226,7 @@ class PermissionsController extends AdministrateAppController {
 		Configure::write('debug', 0);
 		$this->request->data = $this->PermissionsPreset->find('all', array('order' => array('PermissionsPreset.name')));
 		foreach($this->request->data as &$unit){
-			$preset = unserialize($unit['PermissionsPreset']['serialized_data']);
-			$unit['PermissionsPreset']['link'] = 'javascript:applyPreset("'.addslashes(json_encode($preset)).'");';
-			$unit['PermissionsPreset']['delete'] = 'javascript:deletePreset('.$unit['PermissionsPreset']['id'].');';
+			$unit['PermissionsPreset']['json'] = json_encode(unserialize($unit['PermissionsPreset']['serialized_data']));
 		}
 	}
 	

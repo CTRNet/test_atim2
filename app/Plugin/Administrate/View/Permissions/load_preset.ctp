@@ -2,52 +2,51 @@
 $this->Structures->build($atim_structure, array(
 	'type' => 'index', 
 	'data' => array(
-		array('PermissionsPreset' => array('name' => __('readonly'), 'description' => __('atim_preset_readonly'), 'link' => 'javascript:applyPreset("readonly");')),
-		array('PermissionsPreset' => array('name' => __('reset'), 'description' => __('atim_preset_reset'), 'link' => 'javascript:applyPreset("reset");'))),
-	'links' => array('index' => array('detail' => '%%PermissionsPreset.link%%')), 
+		array('PermissionsPreset' => array('name' => __('readonly'), 'description' => __('atim_preset_readonly'), 'id' => '-1')),
+		array('PermissionsPreset' => array('name' => __('reset'), 'description' => __('atim_preset_reset'), 'id' => '-2'))),
+	'links' => array('index' => array('detail' => array('link' => 'javascript:applyPreset(%%PermissionsPreset.id%%);', 'icon' => 'detail'))), 
 	'settings' => array(
 		'header' => __('atim presets'), 
 		'pagination' => false,
 		'actions' => false,
-		'form_bottom' => false)
+		'form_bottom' => false
 	)
-);
+));
 
 $can_delete = !empty($this->request->data) && AppController::checkLinkPermission($this->request->data[0]['PermissionPreset']['delete']);
 $this->Structures->build($atim_structure, array(
 	'type' => 'index', 
 	'data' => $this->request->data, 
 	'links' => array(
-		'index' => array('detail' => '%%PermissionsPreset.link%%', 'delete' => $can_delete ? '%%PermissionsPreset.delete%%' : '/underdev/'),
+		'index' => array('detail' => array('link' => '#', 'icon' => 'detail jsApplyPreset', 'json' => '%%PermissionsPreset.json%%'), 'delete' => $can_delete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'),
 		'bottom' => array(
 			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
 		)
 	), 
 	'settings' => array(
 		'header' => __('saved presets'), 
-		'pagination' => false)
+		'pagination' => false),
 	)
 );
 
 ?>
 <script>
-initDeleteConfirm();
 function deletePreset(id){
 	$("#deleteConfirmPopup").popup('close');
 	$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
-	$.post(root_url + "administrate/permissions/deletePreset/" + id, "", function(data){
-		$.get(root_url + "administrate/permissions/loadPreset/", null, function(data){
+	$.post(root_url + "Administrate/Permissions/deletePreset/" + id, "", function(data){
+		$.get(root_url + "Administrate/Permissions/loadPreset/", null, function(data){
 			$("#frame").html(data);
 		});
 	});
 }
 
 function applyPreset(data){
-	if(data == "reset"){
+	if(data == -2){
 		//built-in reset
 		$(".tree_root").find("select").val("");
 		$(".tree_root").find("select").first().val(1);
-	}else if(data == "readonly"){
+	}else if(data == -1){
 		//built-in readonly
 		$(".tree_root").find("select").each(function(){
 			var selectElement = this;
@@ -71,7 +70,6 @@ function applyPreset(data){
 		$(".tree_root").find("select").first().val(1);
 	}else{
 		//acos ids operations
-		data = $.parseJSON(data);
 		data.allow = data.allow.split(",");
 		data.deny = data.deny.split(",");
 
@@ -90,7 +88,7 @@ function savePresetPopup(){
 	if($("#savePresetPopup").length == 0){
 		buildDialog("savePresetPopup", null, null, null);
 		$("#savePresetPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
-		$.get(root_url + "administrate/permissions/savePreset/", null, function(data){
+		$.get(root_url + "/Administrate/Permissions/savePreset/", null, function(data){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
 			$("#savePresetPopup").find("div").first().html(data);
@@ -118,7 +116,7 @@ function savePreset(){
 		"<input name='data[0][allow]' type='hidden' value='" + allow.join(",") + "'/>" +
 		"<input name='data[0][deny]' type='hidden' value='" + deny.join(",") + "'/>"
 	);
-	$.post(root_url + "administrate/permissions/savePreset/", $("#savePresetPopup").find("form").serialize(), function(data){
+	$.post(root_url + "Administrate/Permissions/savePreset/", $("#savePresetPopup").find("form").serialize(), function(data){
 		if(data == 200){
 			$("#savePresetPopup").popup('close');
 			$("#savePresetPopup").remove();

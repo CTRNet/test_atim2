@@ -1912,9 +1912,13 @@ class StructuresHelper extends Helper {
 			$link_results = array();
 
 			$icon = "";
+			$json = "";
 			if(isset($link_array['link'])){
 				if(isset($link_array['icon'])){
 					$icon = $link_array['icon'];
+				}
+				if(isset($link_array['json'])){
+					$json = $link_array['json'];
 				}
 				$link_array = array($link_name => $link_array['link']);
 			}
@@ -1966,6 +1970,8 @@ class StructuresHelper extends Helper {
 							// otherwise if STRING set UPDATE option only
 							$html_attributes['data-json'] = htmlentities(json_encode(array('update' => $option_links['ajax'][$state][$link_name])));
 						}
+					}else if($json){
+						$html_attributes['data-json'] = $json;
 					}
 						
 					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
