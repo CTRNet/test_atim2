@@ -448,3 +448,7 @@ INSERT INTO system_vars (k, v) VALUES
 
 ALTER TABLE permissions_presets_revs
  DROP KEY name;
+ 
+UPDATE structure_fields SET  `setting`='noCtrl=' WHERE model='0' AND tablename='' AND field='report_date_range_period' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='date_range_period');
+UPDATE structure_fields SET  `setting`='noCtrl=' WHERE model='0' AND tablename='' AND field='report_spent_time_display_mode' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='spent_time_display_mode');
+UPDATE structure_fields SET setting='' WHERE setting='accuracy';
