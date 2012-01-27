@@ -849,6 +849,17 @@ class AppController extends Controller {
 		$this->Session->write('permission_timestamp', time());
 		$this->SessionAcl->flushCache();
 	}
+	
+	function setForRadiolist(array &$list, $l_model, $l_key, array $data, $d_model, $d_key){
+		foreach($list as &$unit){
+			if($data[$d_model][$d_key] == $unit[$l_model][$l_key]){
+				//we found the one that interests us
+				$unit[$d_model] = $data[$d_model];
+				return true;
+			}
+		}
+		return false;
+	}
 }
 	
 	AppController::init();

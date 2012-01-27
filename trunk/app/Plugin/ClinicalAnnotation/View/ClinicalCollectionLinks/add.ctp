@@ -20,7 +20,7 @@
 		'links' => $structure_links, 
 		'override' => $structure_override, 
 		'extras' => array(
-			'start' => '<input type="radio" id="collection_new" name="data[Collection][id]" checked="checked" value=""/>'.__('new collection').'<div id="collection_frame"></div>
+			'start' => '<input type="radio" id="collection_new" name="data[Collection][id]" value="" data-json="'.htmlentities('{"id" : "'.$collection_id.'"}').'"/>'.__('new collection').'<div id="collection_frame"></div>
 			<div class="loading">'.__('loading').'</div>',
 			'end'	=> '<span class="button"><a id="collection_search" href="#">'.__('search').'</a></span>'
 		)
@@ -50,7 +50,7 @@
 		'data'		=> $consent_data, 
 		'settings'	=> $structure_settings, 
 		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" checked="checked" value=""/>'.__('n/a'))
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" '.($consent_found ? '' : 'checked="checked"').'" value=""/>'.__('n/a'))
 	);
 
 	// CUSTOM CODE
@@ -93,7 +93,7 @@
 				'DiagnosisMaster' => 'DiagnosisMaster'
 			)
 		), 'links'	=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  checked="checked" value=""/>'.__('n/a'))
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  '.($found_dx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 	);
 
 	// CUSTOM CODE
