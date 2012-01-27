@@ -472,7 +472,7 @@ function initActions(){
 		if(buttons != null && buttons.length > 0){
 			for(i in buttons){
 				buttonsHtml += 
-					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></div>';
+					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
 			}
 			buttonsHtml = '<div class="actions">' + buttonsHtml + '</div>';
 		}
@@ -492,26 +492,6 @@ function initActions(){
 	
 	function buildConfirmDialog(id, question, buttons){
 		buildDialog(id, question, null, buttons);
-	}
-	
-	//Delete confirmation dialog
-	function initDeleteConfirm(){
-		if($(".form.delete:not(.noPrompt)").length > 0){
-			var yes_action = function(){
-				document.location = $("#deleteConfirmPopup").data('link'); 
-			};
-			var no_action = function(){
-				$("#deleteConfirmPopup").popup('close');
-			}; 
-			
-			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete ignore"}));
-			
-			$(".form.delete:not(.ignore)").click(function(){
-				$("#deleteConfirmPopup").popup();
-				$("#deleteConfirmPopup").data('link', $(this).prop("href"));
-				return false;
-			});
-		}
 	}
 	
 	//tool_popup
@@ -905,8 +885,6 @@ function initActions(){
 			});
 		}
 		
-		initDeleteConfirm();
-		
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
@@ -984,11 +962,32 @@ function initActions(){
 			if(!$(this).find('span').hasClass('fetching')){
 				$(this).siblings("input.submit").click();
 			}
-			return false;
+			return $(this).attr("href").indexOf("javascript:") == 0;
 		}).delegate("form", "submit", function(){
-			$(this).find('a.submit span').addClass('fetching');
+			$(this).find('a.submit span').last().addClass('fetching');
 			return true;
+		}).delegate(".jsApplyPreset", "click", function(){
+			applyPreset($(this).data("json"));
+			return false;
+		}).delegate("a.delete:not(.noPrompt)", "click", function(){
+			if($("#deleteConfirmPopup").length == 0){
+				var yes_action = function(){
+					document.location = $("#deleteConfirmPopup").data('link');
+					return false;
+				};
+				var no_action = function(){
+					$("#deleteConfirmPopup").popup('close');
+					return false;
+				}; 
+				
+				buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}));
+			}
+			
+			$("#deleteConfirmPopup").popup();
+			$("#deleteConfirmPopup").data('link', $(this).prop("href"));
+			return false;
 		});
+		
 		
 		$(window).bind("unload", function(){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation

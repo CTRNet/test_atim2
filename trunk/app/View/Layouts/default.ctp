@@ -107,7 +107,7 @@ if(!$headers_were_sent){
 	<div id="default_popup" class='hidden std_popup'></div>
 	<div id="hiddenImages">
 		<span class="icon16 fetching"></span>
-		<img src='../img/btnBackSel.png'/>
+		<img src='<?php echo $this->request->webroot; ?>img/btnBackSel.png'/>
 	</div>
 </body>
 </html>

@@ -595,7 +595,7 @@ class AppController extends Controller {
 	 * @return True if the user can access that page, false otherwise
 	 */
 	static function checkLinkPermission($link){
-		if(strpos($link, 'javascript:') === 0){
+		if(strpos($link, 'javascript:') === 0 || strpos($link, '#') === 0){
 			return true;
 		}
 
