@@ -76,17 +76,26 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 
 		// Set collections list
-		$collection_data = $this->Collection->find('all', array('conditions' => array('Collection.participant_id IS NULL', 'collection_property' => 'participant collection')));
-		$this->set( 'collection_data', $collection_data );
+		$this->set( 'collection_id', isset($this->request->data['Collection']['id']) ? $this->request->data['Collection']['id'] : null );
 		
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id)));
-		$this->set( 'consent_data', $consent_data );
+		$consent_found = false;
+		if(isset($this->request->data['Collection']['consent_master_id'])){
+			$consent_found = $this->setForRadiolist($consent_data, 'ConsentMaster', 'id', $this->request->data, 'Collection', 'consent_master_id');
+		}
+		$this->set( 'consent_found', $consent_found);
+		$this->set( 'consent_data', $consent_data);
 	
 		// Set diagnoses list
 		$diagnosis_data = $this->DiagnosisMaster->find('threaded', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
+		$found_dx = false;
+		if(isset($this->request->data['Collection']['diagnosis_master_id'])){
+			$found_dx = $this->DiagnosisMaster->arrangeThreadedDataForView($diagnosis_data, $this->request->data['Collection']['diagnosis_master_id'], 'Collection');
+		}
 		$this->set( 'diagnosis_data', $diagnosis_data );
-				
+		$this->set( 'found_dx', $found_dx );
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/listall/') );
@@ -155,16 +164,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		// Set consents list
 		$consent_data = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.deleted' => '0', 'ConsentMaster.participant_id' => $participant_id)));
 		//because consent has a one to many relation with participant, we need to format it
-		$consent_found = false;
-		foreach($consent_data as &$consent){
-			if($collection_data['Collection']['consent_master_id'] == $consent['ConsentMaster']['id']){
-				//we found the one that interests us
-				$consent['Collection'] = $collection_data['Collection'];
-				$consent_found = true;
-				break;
-			}
-		}
-		
+		$consent_found = $this->setForRadiolist($consent_data, 'ConsentMaster', 'id', $collection_data, 'Collection', 'consent_master_id');
 		$this->set('consent_data', $consent_data );
 		$this->set('found_consent', $consent_found);
 		
@@ -203,6 +203,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}
 			
 			$this->Collection->id = $collection_id;
+			$this->Collection->check_writable_fields = false;//checked with the filter array in the save command
 			if ($submitted_data_validates && $this->Collection->save($this->request->data, true, array('consent_master_id', 'diagnosis_master_id'))) {
 				
 				$hook_link = $this->hook('postsave_process');

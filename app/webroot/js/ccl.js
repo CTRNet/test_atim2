@@ -5,9 +5,13 @@ function initCcl(){
 	var popupLoaded = false;
 	var popupSearch = function(){
 		//postData = participant collection + serialized form
-		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection"; 
+		var postData = $("#popup form").serialize() + "&data%5BViewCollection%5D%5Bcollection_property%5D=participant+collection";
 		$.post(root_url + "InventoryManagement/collections/search/-1/true", postData, function(data){
+			var json = $("#collection_new").data("json");
 			$("#collection_frame").html(data);
+			if(json.id){
+				$("input[type=radio][name=data\\\[Collection\\\]\\[id\\\]][value=" + json.id +"]").attr("checked", "checked");
+			}
 			$(".loading").hide();
 		});
 		if(popupLoaded){
