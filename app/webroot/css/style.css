@@ -1125,6 +1125,7 @@ span.help {
 
 .icon16.access_to_data { background-position: 0 -112px; }
 .icon16.add { background-position: -64px -112px; }
+.icon16.add_mini { background-position: -112px -32px; }
 .icon16.add_to_order { background-position: -64px -80px; }
 .icon16.add_to_shipment { background-position: -32px -16px; }
 .icon16.aliquot, .icon16.aliquots { background-position: -80px -96px; }
@@ -1134,10 +1135,12 @@ span.help {
 .icon16.confirm  { background-position: -32px 0; }
 .icon16.consents  { background-position: -96px -80px; }
 .icon16.copy  { background-position: 0 -64px; }
+.icon16.csv_upload  { background-position: -80px -64px; }
 .icon16.create_shipment  { background-position: 0 -16px; }
 .icon16.diagnosis { background-position: -80px -80px; }
 .icon16.default { background-position: 0 0; }
 .icon16.delete { background-position: -48px 0; }
+.icon16.delete_mini { background-position: -112px -16px; }
 .icon16.detail { background-position: -48px -112px; }
 .icon16.disabled { background-position: -48px -80px; }
 .icon16.disk{ background-position: -64px -16px; }
@@ -1162,6 +1165,7 @@ span.help {
 .icon16.paste { background-position: -32px -64px; }
 .icon16.popup { background-position: -80px 0; }
 .icon16.quality.controls { background-position: -48px -48px; }
+.icon16.range { background-position: -16px -48px; }
 .icon16.reveal { background-position: 0 -48px; }
 .icon16.redo { background-position: -16px -112px; }
 .icon16.sample, .icon16.samples{ background-position: -96px 0; }
@@ -1172,6 +1176,7 @@ span.help {
 .icon16.slide { background-position: -32px -32px; }
 .icon16.storage, .icon16.storages, .icon16.form.plugin.storagelayout { background-position: -16px -32px; }
 .icon16.shipping { background-position: -16px -16px; }
+.icon16.specific{ background-position: -96px -48px; }
 .icon16.submit{ background-position: -64px -16px; }
 .icon16.template { background-position: -32px -96px; }
 .icon16.thumbsdown { background-position: -96px -32px; }
@@ -1857,35 +1862,6 @@ tr.draggedRow{
 	background-color: #ff0;
 }
 
-a.add_10x10, a.delete_10x10{
-	display: inline-block;
-	height: 10px;
-	width: 10px;
-}
-
-a.add_10x10{
-	background: url(../img/icons/add_10x10.png) no-repeat;	
-}
-a.delete_10x10{
-	background: url(../img/icons/delete_10x10.png) no-repeat;
-}
-
-a.range_btn, a.specific_btn, a.file_btn{
-	display: inline-block;
-	height: 16px;
-	width: 16px;
-}
-a.range_btn{
-	background: url(../img/icons/range_16x16.png) no-repeat 0px 3px;
-}
-
-a.specific_btn{
-	background: url(../img/icons/field_16x16.png) no-repeat 0px 2px;
-}
-
-a.file_btn{
-	background: url(../img/icons/upload_16x16.png) no-repeat;
-}
 div.accuracy_target_blue{
 	position: relative;
 	top: 4px;
