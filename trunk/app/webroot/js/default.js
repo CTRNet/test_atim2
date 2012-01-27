@@ -268,7 +268,7 @@ function initActions(){
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or icon16 delete_mini' style='margin-right: -5px'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
@@ -300,8 +300,8 @@ function initActions(){
 			$(scope).find(".range").each(function(){
 				//uses .btn_add_or to know if this is a search form and if advanced controls are on
 				var cell = $(this).parent().parent().parent(); 
-				$(cell).append(" <a href='#' class='range_btn' title='" + STR_RANGE + "'></a> " +
-						"<a href='#' class='specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
+				$(cell).append(" <a href='#' class='icon16 range range_btn' title='" + STR_RANGE + "'></a> " +
+						"<a href='#' class='icon16 specific specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
 				$(cell).find("span:first").addClass("specific_span");
 				
 				var baseName = $(cell).find("input").prop("name");
@@ -314,7 +314,7 @@ function initActions(){
 			
 			$(scope).find(".file").each(function(){
 				var cell = $(this).parent().parent().parent();
-				$(cell).append(" <a href='#' class='file_btn'></a>").data('mode', 'specific');
+				$(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
 				
 				if($(cell).find(".specific_btn").length == 0){
 					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();

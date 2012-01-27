@@ -600,7 +600,7 @@ class StructuresHelper extends Helper {
 									$table_row_part['format'] = $table_row_part['format_back'];
 								}
 								if($options['type'] == "search" && !in_array($table_row_part['type'], StructuresComponent::$range_types) && !isset($table_row_part['settings']['noCtrl'])){
-									$display[0] .= '<a class="adv_ctrl btn_add_or add_10x10" href="#" onclick="return false;"></a>';
+									$display[0] .= '<a class="adv_ctrl btn_add_or icon16 add_mini" href="#" onclick="return false;"></a>';
 								}
 								$display[0] .= '</span>';
 							}
