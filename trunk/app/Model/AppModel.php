@@ -59,6 +59,7 @@ class AppModel extends Model {
 		if($this->pkey_safeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
 				|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
 		){
+			AppController::addWarningMsg('Pkey safeguard');
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			return false;
 		}
