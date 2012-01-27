@@ -37,7 +37,7 @@ class MenusComponent extends Component {
 			$alias_calculated[]	= $prefix.'%';
 		}
 		
-		$cache_name = str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias);
+		$cache_name = AppController::getInstance()->SystemVar->getVar('permission_timestamp').str_replace("/", "_", $alias)."_".str_replace(":", "", $aro_alias);
 		$return = Cache::read($cache_name, "menus");
 		if($return === null){
 			$return = false;
