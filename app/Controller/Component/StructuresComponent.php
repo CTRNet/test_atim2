@@ -158,7 +158,7 @@ class StructuresComponent extends Component {
 	function getSingleStructure($alias = NULL){
 		$return = array();
 		$alias	= $alias ? trim(strtolower($alias)) : str_replace('_','',$this->controller->params['controller']);
-		$cache_alias = $alias.md5($alias);
+		$cache_alias = $alias.md5($alias);//cake alters the alias so we need to still make it unique
 		
 		$return = Cache::read($cache_alias, "structures");
 		if($return === null){

@@ -112,6 +112,7 @@ class PermissionsController extends AdministrateAppController {
 				intval($aco['Aco']['state']) );
 			}
 			$this->SystemVar->setVar('permission_timestamp', time());
+			Cache::clear(false, "menus");
 			$this->redirect('/Administrate/permissions/tree/'.$group_id.'/'.$user_id);
 			break;
 		}
