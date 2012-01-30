@@ -268,7 +268,7 @@ function initActions(){
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or icon16 delete_mini' style='margin-right: -5px'></a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or icon16 delete_mini'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
@@ -988,10 +988,10 @@ function initActions(){
 			return false;
 		});
 		
-		
-		$(window).bind("unload", function(){
+		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
-			$(this).find('a.submit span.fetching').removeClass('fetching');
+			//don't bother using console.log, console is not ready yet
+			$(document).find('a.submit span.fetching').removeClass('fetching');
 		});
 	}
 
