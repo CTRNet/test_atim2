@@ -29,7 +29,7 @@ function initCopyControl(){
 	});
 	
 	if($(".pasteAll").length > 1){
-		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
+		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
 		$("#pasteAllOfAll").click(function(){
 			$("table.structure tbody tr").each(function(){
 				if($(this).find("input.addLineCount").length == 0){
