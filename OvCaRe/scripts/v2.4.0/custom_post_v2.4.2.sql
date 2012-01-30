@@ -177,3 +177,21 @@ UPDATE structure_fields SET type = 'integer_positive', setting = 'size=10' WHERE
 
 ALTER TABLE participants MODIFY participant_identifier INT(7) NOT NULL;
 ALTER TABLE participants_revs MODIFY participant_identifier INt(7) NOT NULL;
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("alive/intercurrent disease", "alive/intercurrent disease"), 
+("alive/unknown", "alive/unknown");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_vital_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="alive/intercurrent disease" AND language_alias="alive/intercurrent disease"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_vital_status"),  
+(SELECT id FROM structure_permissible_values WHERE value="alive/unknown" AND language_alias="alive/unknown"), "0", "1");
+INSERT INTO i18n (id,en) VALUES
+("alive/intercurrent disease", "Alive/Intercurrent Disease"), 
+("alive/unknown", "Alive/Unknown");
+
+
+SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
+ 
+ 
