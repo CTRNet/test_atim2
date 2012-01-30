@@ -3,7 +3,8 @@ VALUES('2.5.0', NOW(),'> 4043');
 
 REPLACE INTO i18n (id, en, fr) VALUES
 ('reserved for study','Reserved For Study/Project','Réservé pour une Étude/Projet'),
-('identifier name','Identifier Name', "Nom d'identifiant");
+('identifier name','Identifier Name', "Nom d'identifiant"),
+('click here to access it', "Click here to access it.", "Cliquez ici pour y accéder.");
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -452,3 +453,14 @@ ALTER TABLE permissions_presets_revs
 UPDATE structure_fields SET  `setting`='noCtrl=' WHERE model='0' AND tablename='' AND field='report_date_range_period' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='date_range_period');
 UPDATE structure_fields SET  `setting`='noCtrl=' WHERE model='0' AND tablename='' AND field='report_spent_time_display_mode' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='spent_time_display_mode');
 UPDATE structure_fields SET setting='' WHERE setting='accuracy';
+
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/clinicalannotation/', '/ClinicalAnnotation/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/inventorymanagement/', '/InventoryManagement/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/aliquot_masters/', '/AliquotMasters/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/sample_masters/', '/SampleMasters/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/order/', '/Order/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/order_items/', '/OrderItems/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, 'datamart/reports/', '/Datamart/Reports/');
+UPDATE datamart_structure_functions SET link=REPLACE(link, '/quality_ctrls/', '/QualityCtrls/');
+
+
