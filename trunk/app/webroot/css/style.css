@@ -1187,9 +1187,6 @@ span.help {
 
 a.icon16.search { text-decoration: none; color: #000; }
 
-li.not_allowed a.plugin.not_allowed { background: url("../img/icons/Warning_32x32.png") no-repeat 4px center; }
-
-
 /* -=toolbox*/
 .icon32.login {background-position: -32px 0;}
 .icon32.home {background-position: 0 -160px;}
@@ -1875,6 +1872,7 @@ div.accuracy_target_blue{
 
 a.btn_add_or{
 	margin-right: 15px;
+	margin-left: -5px;
 }
 
 .icon32{
@@ -1883,6 +1881,7 @@ a.btn_add_or{
 	width: 32px;
 	vertical-align: middle;
 	background: url("../img/icons/32x32.png") no-repeat;
+	vertical-align: middle;
 }
 .icon16{
 	display: inline-block;
