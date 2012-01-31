@@ -134,6 +134,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 
 		if(!empty($tx_control_data['TreatmentControl']['applied_protocol_control_id'])) {
 			$available_protocols = array();
+			$this->ProtocolMaster;//lazy load
 			ProtocolMaster::$protocol_dropdown = $this->ProtocolMaster->getProtocolPermissibleValuesFromId($tx_control_data['TreatmentControl']['applied_protocol_control_id']);
 		}
 
