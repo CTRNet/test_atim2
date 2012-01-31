@@ -191,7 +191,7 @@ INSERT INTO i18n (id,en) VALUES
 ("alive/intercurrent disease", "Alive/Intercurrent Disease"), 
 ("alive/unknown", "Alive/Unknown");
 
-
+INSERT INTO i18n (id,en) VALUES ("A","A"),("B","B"),("C","C");
 SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
  
  

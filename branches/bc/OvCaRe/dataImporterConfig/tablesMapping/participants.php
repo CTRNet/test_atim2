@@ -5,7 +5,8 @@ $child = array(
 	'PersonalHealthMiscIdentfier',
 	'MedicalRecordMiscIdentfier',
 	'ConsentMaster',
-	'DiagnosisMaster');
+	'DiagnosisMaster',
+	'Recurrence');
 $fields = array(
 	"participant_identifier" => $pkey, 
 	"first_name" => "First Name",

@@ -182,14 +182,15 @@ VALUES
 (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_review_grade"),  
 (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1");
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES ("A", "A"),("B", "B"),("C", "C");
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
 VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_substage"),  
-(SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="A" AND language_alias="A"), "1", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_substage"),  
-(SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+(SELECT id FROM structure_permissible_values WHERE value="B" AND language_alias="B"), "2", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_substage"),  
-(SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1");
+(SELECT id FROM structure_permissible_values WHERE value="C" AND language_alias="C"), "3", "1");
 
 INSERT INTO structures(`alias`) VALUES ('ovcare_dx_primaries');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
