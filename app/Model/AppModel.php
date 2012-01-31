@@ -617,7 +617,7 @@ class AppModel extends Model {
 	}
 	
 	/**
-	 * @desc Builds automatic string length validations based on the field type 
+	 * @desc Builds automatic string length and float validations based on the field type 
 	 * @param string $use_name The name under which to record the validations
 	 * @param Model $model The model to base the validations on
 	 */
@@ -628,13 +628,72 @@ class AppModel extends Model {
 		if(is_array($model->_schema)){
 			$auto_validation = array();
 			foreach($model->_schema as $field_name => $field_data){
-				if($field_data['type'] == "string"){
-					$auto_validation[$field_name][] = array(
-								'rule' => array("maxLength", $field_data['length']), 
-								'allowEmpty' => true, 
+				switch($field_data['type']){
+					case 'string':
+						$auto_validation[$field_name][] = array(
+							'rule' => array("maxLength", $field_data['length']),
+							'allowEmpty' => true,
+							'required' => null,
+							'message' => __("the string length must not exceed %d characters", $field_data['length'])
+						);
+						break;
+					case 'float':
+						list($m, $d) = explode(',', $field_data['length']);
+						$max = str_repeat('9', $m - $d).".".str_repeat('9', $d);
+						$min = -1 * $max;
+						$auto_validation[$field_name][] = array(
+							'rule' => array('range', (int)$min - 1, (int)$max + 1),
+							'allowEmpty' => true,
+							'required' => null,
+							'message' => __("the value must be between %g and %g", $min, $max)
+						);
+						break;
+					case 'integer':
+						$rule = null;
+						if(strpos($field_data['atim_type'], 'int') === 0){
+							if(strpos($field_data['atim_type'], 'unsigned') === false){
+								$rule = array('range', -2147483649, 2147483648);
+							}else{
+								$rule = array('range', -1, 4294967295);
+							}
+						}else if(strpos($field_data['atim_type'], 'tinyint') === 0){
+							if(strpos($field_data['atim_type'], 'unsigned') === false){
+								$rule = array('range', -129, 128);
+							}else{
+								$rule = array('range', -1, 256);
+							}
+						}else if(strpos($field_data['atim_type'], 'smallint') === 0){
+							if(strpos($field_data['atim_type'], 'unsigned') === false){
+								$rule = array('range', -32769, 32768);
+							}else{
+								$rule = array('range', -1, 65536);
+							}
+						}else if(strpos($field_data['atim_type'], 'mediumint') === 0){
+							if(strpos($field_data['atim_type'], 'unsigned') === false){
+								$rule = array('range', -8388609, 8388608);
+							}else{
+								$rule = array('range', -1, 16777216);
+							}
+						}else if(strpos($field_data['atim_type'], 'bigint') === 0){
+							if(strpos($field_data['atim_type'], 'unsigned') === false){
+								$rule = array('range', -9223372036854775809, 9223372036854775808);
+							}else{
+								$rule = array('range', -1, 18446744073709551615);
+							}
+						}else{
+							AppController::addWarningMsg('Unknown integer type in'.__FILE__.' at line '.__LINE__.' for field ['.$model->name.'.'.$field_name);
+						}
+						if($rule){
+							$auto_validation[$field_name][] = array(
+								'rule' => $rule,
+								'allowEmpty' => true,
 								'required' => null,
-								'message' => __("the string length must not exceed %d characters", $field_data['length'])
-					);
+								'message' => __("the value must be between %g and %g", $rule[1] + 1, $rule[2] - 1)
+							);
+						}
+						break;
+					default:
+						break;
 				}
 			}
 			self::$auto_validation[$use_name] = $auto_validation;
