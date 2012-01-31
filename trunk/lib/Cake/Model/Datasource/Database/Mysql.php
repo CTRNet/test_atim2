@@ -315,6 +315,7 @@ class Mysql extends DboSource {
 				'null' => ($column->Null === 'YES' ? true : false),
 				'default' => $column->Default,
 				'length' => $this->length($column->Type),
+				'atim_type' => $column->Type //ATiM------------
 			);
 			if (!empty($column->Key) && isset($this->index[$column->Key])) {
 				$fields[$column->Field]['key'] = $this->index[$column->Key];

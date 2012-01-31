@@ -42,7 +42,7 @@ class ShellHelper extends Helper {
 					$root_menu_for_header .= '
 							<!-- '.$menu_item['Menu']['id'].' -->
 							<li class="not_allowed">
-								<a class="menu plugin not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
+								<a class="icon32 not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'"></a>
 							</li>
 					';
 					

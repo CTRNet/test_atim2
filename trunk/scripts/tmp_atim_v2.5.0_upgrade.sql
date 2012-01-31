@@ -284,8 +284,8 @@ ALTER TABLE aliquot_internal_uses MODIFY aliquot_master_id INT NOT NULL;
 ALTER TABLE aliquot_internal_uses_revs MODIFY aliquot_master_id INT NOT NULL;
 ALTER TABLE ar_breast_tissue_slides MODIFY aliquot_review_master_id INT NOT NULL;
 ALTER TABLE ar_breast_tissue_slides_revs MODIFY aliquot_review_master_id INT NOT NULL;
-ALTER TABLE derivative_details_revs MODIFY sample_master_id INT NOT NULL;
-ALTER TABLE derivative_details_revs MODIFY lab_book_master_id INT NOT NULL;
+ALTER TABLE derivative_details_revs MODIFY sample_master_id INT NOT NULL,
+ MODIFY lab_book_master_id INT NOT NULL;
 ALTER TABLE ed_all_adverse_events_adverse_events MODIFY event_master_id INT NOT NULL;
 ALTER TABLE ed_all_adverse_events_adverse_events_revs MODIFY event_master_id INT NOT NULL;
 ALTER TABLE ed_all_clinical_followups MODIFY event_master_id INT NOT NULL;
