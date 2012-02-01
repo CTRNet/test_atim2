@@ -23,19 +23,67 @@ class UsersController extends AppController {
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
 		$this->Version->id = $version_data[0]['id'];
 		$this->Version->read();
+		
 		if($this->Version->data['Version']['permissions_regenerated'] == 0){
+			//new version installed!
+			//regen permissions
 			$this->PermissionManager->buildAcl();
 			AppController::addWarningMsg(__('permissions have been regenerated'));
+			
+			//update the i18n string for version
+			$i18n_model = new Model(array('table' => 'i18n', 'name' => 0));
+			$version_number = $this->Version->data['Version']['version_number'];
+			$i18n_model->save(array('id' => 'core_app_version', 'en' => $version_number, 'fr' => $version_number));
+				
+			//rebuild language files
+			$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
+			$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+			$i18n = $i18n_model->find('all');
+			foreach ( $i18n as &$i18n_line){
+				//Takes information returned by query and creates variable for each field
+				$id = $i18n_line[0]['id'];
+				$en = $i18n_line[0]['en'];
+				$fr = $i18n_line[0]['fr'];
+				if(strlen($en) > 1014){
+					$error = "msgid\t\"$id\"\nen\t\"$en\"\n";
+					$en = substr($en, 0, 1014);
+				}
+					
+				if(strlen($fr) > 1014){
+					if(strlen($error) > 2 ){
+						$error = "$error\\nmsgstr\t\"$fr\"\n";
+					}else{
+						$error = "msgid\t\"$id\"\nmsgstr=\"$fr\"\n";
+					}
+					$fr = substr($fr, 0, 1014);
+				}
+				$english = "msgid\t\"$id\"\nmsgstr\t\"$en\"\n";
+				$french = "msgid\t\"$id\"\nmsgstr\t\"$fr\"\n";
+			
+				//Writes output to file
+				fwrite($filee, utf8_encode($english));
+				fwrite($filef, utf8_encode($french));
+			}
+			
+			///Close file
+			fclose($filee);
+			fclose($filef);
+			
+			AppController::addWarningMsg(__('language files have been rebuilt'));
+			
+			//clear cache
+			Cache::clear(false, 'structures');
+			Cache::clear(false, 'menus');
+			Cache::clear(false, '_cake_core_');
+			Cache::clear(false, '_cake_model_');
+			AppController::addWarningMsg(__('cache has been cleared'));
+			
+			//update the permissions_regenerated flag and redirect
 			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 			$this->Version->check_writable_fields = false;
-			$this->Version->save();
-		}
-		if($this->Version->data['Version']['version_number'] != __('core_app_version')){
-			//update the i18n string
-			$version_number = $this->Version->data['Version']['version_number'];
-			$this->User->query("UPDATE i18n SET en='".$version_number."', fr ='".$version_number."' WHERE id='core_app_version'");
-			
-			AppController::addWarningMsg('The language files need to be regenerated. (Invalid translation for core_app_version.)');	
+			if($this->Version->save()){
+				$this->redirect('/Users/login');
+			}
 		}
 
 		if($this->Auth->login()){
