@@ -87,14 +87,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	
 	function add( $participant_id, $misc_identifier_control_id) {
 		$this->Participant->getOrRedirect($participant_id);
-		$this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
+		$controls = $this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
 
-		// MANAGE DATA
-		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
-		if($controls['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
-			AppController::getInstance()->redirect("/Pages/err_confidential");
-		}
-		
 		if($controls['MiscIdentifierControl']['flag_once_per_participant']) {
 			// Check identifier has not already been created
 			$already_exist = $this->MiscIdentifier->find('count', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
@@ -132,13 +126,23 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			// Set additional data
 			$this->request->data['MiscIdentifier']['participant_id'] = $participant_id;
 			$this->request->data['MiscIdentifier']['misc_identifier_control_id'] = $misc_identifier_control_id;
+			if($controls['MiscIdentifierControl']['flag_unique']){
+				$this->request->data['MiscIdentifier']['flag_unique'] = 1;
+			}
+			$this->MiscIdentifier->addWritableField(array('participant_id', 'misc_identifier_control_id', 'flag_unique'));
 			
 			// Launch validation
 			$submitted_data_validates = true;
+			
 			// ... special validations
-				
 			$this->MiscIdentifier->set($this->request->data);
-			$submitted_data_validates = ($this->MiscIdentifier->validates())? $submitted_data_validates: false; 
+			$submitted_data_validates = ($this->MiscIdentifier->validates())? $submitted_data_validates: false;
+			if($controls['MiscIdentifierControl']['flag_unique']){
+				if($this->MiscIdentifier->find('first', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value'])))){
+					$submitted_data_validates = false;
+					$this->MiscIdentifier->validationErrors['identifier_value'] = __('this field must be unique').' ('.__('value').')';
+				}
+			}
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
@@ -227,15 +231,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	}
 
 	function delete( $participant_id, $misc_identifier_id ) {
-		$this->Participant->getOrRedirect($participant_id);
-		$this->MiscIdentifier->getOrRedirect($misc_identifier_id);
+		$misc_identifier_data = $this->MiscIdentifier->getOrRedirect($misc_identifier_id);
 		
 		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array(
-			'MiscIdentifier.id' => $misc_identifier_id, 
-			'MiscIdentifier.participant_id' => $participant_id))
-		);		
-		if(empty($misc_identifier_data)) { 
+		if($misc_identifier_data['MiscIdentifier']['participant_id'] != $participant_id){ 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
 
@@ -251,7 +250,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			$deletion_worked = false;
 			if(empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])){
 				//real delete
-				$deletion_worked = $this->MiscIdentifier->atimDelete( $misc_identifier_id );
+				$this->MiscIdentifier->addWritableField(array('deleted', 'flag_unique'));
+				$deletion_worked = $this->MiscIdentifier->save(array('MiscIdentifier' => array('deleted' => 1, 'flag_unique' => null)));
 
 			}else{
 				//tmp delete to be able to reuse it
