@@ -120,6 +120,13 @@ class Participant extends ClinicalAnnotationAppModel {
 		
 		return $arr_allow_deletion;
 	}
+	
+	function beforeSave(){
+		$ret_val = parent::beforeSave();
+		$this->data['Participant']['last_modification'] = $this->data['Participant']['modified']; 
+		$this->data['Participant']['last_modification_ds_id'] = 4;//participant
+		return $ret_val; 
+	}
 }
 
 ?>

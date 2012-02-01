@@ -1,9 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/ClinicalAnnotation/reproductive_histories/listall/'.$atim_menu_variables['Participant.id'].'/',
-			'edit'=>'/ClinicalAnnotation/reproductive_histories/edit/'.$atim_menu_variables['Participant.id'].'/%%ReproductiveHistory.id%%/',
-			'delete'=>'/ClinicalAnnotation/reproductive_histories/delete/'.$atim_menu_variables['Participant.id'].'/%%ReproductiveHistory.id%%/'
+			'list'=>'/ClinicalAnnotation/ReproductiveHistories/listall/'.$atim_menu_variables['Participant.id'].'/',
+			'edit'=>'/ClinicalAnnotation/ReproductiveHistories/edit/'.$atim_menu_variables['Participant.id'].'/%%ReproductiveHistory.id%%/',
+			'delete'=>'/ClinicalAnnotation/ReproductiveHistories/delete/'.$atim_menu_variables['Participant.id'].'/%%ReproductiveHistory.id%%/'
 		)
 	);
 	
