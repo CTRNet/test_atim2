@@ -2064,22 +2064,6 @@ class StructuresHelper extends Helper {
 				<div class="actions">
 			';
 			
-			if(isset($_SESSION) && isset($_SESSION['Auth']) && isset($_SESSION['Auth']['User']) && count($_SESSION['Auth']['User'])){
-				//$last_search = end($_SESSION['ctrapp_core']['search']); TODO: Repair for cake2
-// 				if (is_array($last_search) 
-// 					&& !empty($last_search['results'])
-// 					&& AppController::getInstance()->layout != 'ajax'
-// 				){
-// 					$return_string .= '
-// 						<div class="bottom_button"><a class="search_results" href="'.$this->Html->url($last_search['url'].'/'.key($_SESSION['ctrapp_core']['search'])).'">
-// 							'.$last_search['results'].'
-// 						</a></div>
-// 					';
-// 				}
-			}else{
-				unset($_SESSION['ctrapp_core']['search']);
-			}
-
 			if(count($return_links)){
 				$return_string .= '
 						<div class="bottom_button">'.implode('</div><div class="bottom_button">',$return_links).'</div>
