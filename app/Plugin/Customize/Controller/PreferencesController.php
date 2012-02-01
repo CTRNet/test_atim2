@@ -61,21 +61,18 @@ class PreferencesController extends CustomizeAppController {
 		
 		if(!empty($this->request->data)){
 			
-			$this->User->id = $_SESSION['Auth']['User']['id'];
-			$this->request->data['User']['id'] = $_SESSION['Auth']['User']['id'];
-			$this->request->data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
-			$this->request->data['Group']['id'] = $_SESSION['Auth']['User']['group_id'];
-			
 			$this->Config->id = $config_id;
+			$this->Config->addWritableField(array('bank_id', 'group_id', 'user_id'));
 			$this->request->data['Config']['bank_id'] = 0;
 			$this->request->data['Config']['group_id'] = 0;
 			$this->request->data['Config']['user_id'] = $_SESSION['Auth']['User']['id'];
+			$this->request->data['Config']['define_time_format'] = $this->request->data['Config']['define_time_format'] == 24 ? 2 : 1;//fixes a cakePHP 2.0 issue with integer enums
 			
 			$this->User->set($this->request->data);
 			$this->Config->set($this->request->data);
 			
-			if($this->User->validates() && $this->Config->validates()) {
-				if($this->User->save($this->request->data, false) && $this->Config->save($this->request->data, false)){
+			if($this->Config->validates()) {
+				if($this->Config->save($this->request->data, false)){
 					$this->atimFlash('your data has been updated','/Customize/preferences/index');
 				} else {
 					$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
