@@ -192,6 +192,32 @@ INSERT INTO i18n (id,en) VALUES
 ("alive/unknown", "Alive/Unknown");
 
 INSERT INTO i18n (id,en) VALUES ("A","A"),("B","B"),("C","C");
+
+-- TODO
+
 SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
  
- 
+SELECT 'All clinical fields Diagnosis, histo, WHO Code, etc will be recorded into Ovcare Primary: Please confirm!' as Questions_For_OvCaRe
+UNION 
+SELECT 'What about Ovcare Primary having diagnosis review = metastasis. Should we change diag to scondary. See VOA#442' as Questions_For_OvCaRe
+UNION 
+SELECT 'All patient will have a Ovcare Primary: Please confirm';
+UNION 
+SELECT 'If date of recurrence is not empty or recurent disease = yes then create recurrence linked to primary: Please confirm' as Questions_For_OvCaRe;
+UNION 
+SELECT 'If metastatsis is not empty and metastatsis != {no,unable to determine,unknown} then create secondary linked to primary: Please confirm' as Questions_For_OvCaRe;
+UNION 
+SELECT 'VOA#757: date of recurrence = 1900-01-05. Please confirm.' as Questions_For_OvCaRe;
+UNION 
+SELECT 'If chemotherapy is not empty and chemotherapy != {no,nBo,radiotherapy,unknown} then create chemo linked to primary: Please confirm' as Questions_For_OvCaRe;
+UNION 
+SELECT 'What should be done with chemotherapy = radiotherapy' as Questions_For_OvCaRe;
+UNION 
+SELECT '' as Questions_For_OvCaRe;
+
+UNION ALL
+SELECT 'ALL3!' as Questions_For_OvCaRe;
+
+
+
+

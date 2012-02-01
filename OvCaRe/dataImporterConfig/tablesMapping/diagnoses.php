@@ -38,6 +38,7 @@ $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey,
 //we can then attach post read/write functions
 $model->custom_data = array();
 $model->post_read_function = 'postDiagnosisRead';
+$model->post_write_function = 'postDiagnosisWrite';
 
 //adding this model to the config
 Config::$models['DiagnosisMaster'] = $model;
@@ -84,9 +85,33 @@ function postDiagnosisRead(Model $m){
 		}
 	}
 	
+	// Check data are recorded
+	
+	if(empty($m->values['morphology']) &&
+	empty($m->values['notes']) &&
+	empty($m->values['stage']) &&
+	empty($m->values['substage']) &&
+	empty($m->values['Clinical Diagnosis']) &&
+	empty($m->values['Clinical History']) &&
+	empty($m->values['Review Diagnosis']) &&
+	empty($m->values['Review Comment']) &&
+	empty($m->values['Review Grade'])) {
+		Config::$summary_msg['@@WARNING@@'][] = 'OVCARE Primary Diagnosis Warn#1:  Created an empty Primanry Diagnosis. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+	}
+	
 	return true;
 }
 
+function postDiagnosisWrite(Model $m){
+	global $connection;
 
-
-
+	$voa_nbr = Config::$participant_master_ids_from_voa['current_voa_nbr'];
+	$primary_diagnosis_master_id = $m->last_id;
+	
+	$query = "UPDATE diagnosis_masters SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters_revs SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	Config::$participant_master_ids_from_voa['data'][$voa_nbr]['primary_diagnosis_master_id'] = $primary_diagnosis_master_id;
+}
