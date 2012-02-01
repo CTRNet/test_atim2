@@ -48,12 +48,12 @@ class Config{
 
 	static $sample_aliquot_controls = array();
 	static $dx_who_codes = array();
-	
+	static $participant_master_ids_from_voa = array('current_voa_nbr' => null, 'data' => array());
+		
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
 		'@@WARNING@@' => array(),  
-		'@@MESSAGE@@' => array());	
-	
+		'@@MESSAGE@@' => array());
 }
 
 //add you start queries here
@@ -76,6 +76,9 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/consents.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/diagnoses.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/recurrences.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
 //Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgical_pathology_identifiers.php';
 
 function addonFunctionStart(){
@@ -119,6 +122,24 @@ function addonFunctionEnd(){
 	$query = "UPDATE consent_masters_revs SET consent_signed_date = null WHERE consent_signed_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
+	$query = "UPDATE diagnosis_masters SET dx_date = null WHERE dx_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters_revs SET dx_date = null WHERE dx_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+
+	$query = "UPDATE treatment_masters SET start_date = null WHERE start_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE treatment_masters_revs SET start_date = null WHERE start_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE treatment_masters SET finish_date = null WHERE finish_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date LIKE '%0000%';";
+	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
+	
+	
 //	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
 //	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
 //	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
@@ -148,8 +169,15 @@ function addonFunctionEnd(){
 	}	
 	
 	if(!empty(Config::$summary_msg['@@WARNING@@'])) {
-		echo "<br><FONT COLOR=\"red\" >Warnings summary (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
+		echo "<br><FONT COLOR=\"green\" >Warnings summary (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
 		foreach(Config::$summary_msg['@@WARNING@@'] as $msg) {
+			echo "$msg<br>";
+		}
+	}	
+	
+	if(!empty(Config::$summary_msg['@@MESSAGE@@'])) {
+		echo "<br><FONT COLOR=\"black\" >Message (".sizeof(Config::$summary_msg['@@MESSAGE@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@MESSAGE@@'] as $msg) {
 			echo "$msg<br>";
 		}
 	}

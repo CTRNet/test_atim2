@@ -6,7 +6,9 @@ $child = array(
 	'MedicalRecordMiscIdentfier',
 	'ConsentMaster',
 	'DiagnosisMaster',
-	'Recurrence');
+	'Recurrence',
+	'Metastasis',
+	'Chemotherapy');
 $fields = array(
 	"participant_identifier" => $pkey, 
 	"first_name" => "First Name",
@@ -30,7 +32,7 @@ $model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields)
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postParticipantRead';
-$model->post_write_function = 'createParticipantCollections';
+$model->post_write_function = 'postParticipantWrite';
 
 $model->custom_data = array(
 	"date_fields" => array(
@@ -43,12 +45,15 @@ $model->custom_data = array(
 Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
+	Config::$participant_master_ids_from_voa['current_voa_nbr'] = $m->values['VOA Number'];
+	Config::$participant_master_ids_from_voa['data'][$m->values['VOA Number']] = array();
+	
 	excelDateFix($m);
 	
 	return true;
 }
 
-function createParticipantCollections(Model $m){
+function postParticipantWrite(Model $m){
 //	$participant_id = $m->last_id;
 //	$line =  $m->line;
 //	$inventory_data_from_file =  $m->values;
