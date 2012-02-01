@@ -55,8 +55,8 @@ class UsersController extends AppController {
 				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 				$batch_set_model->deleteCurrentUserTmp();
 			}
-			if(!isset($_SESSION['Auth']['User']['search_id'])){
-				$this->Session->write('Auth.User.search_id', 1);
+			if(!$this->Session->read('search_id')){
+				$this->Session->write('search_id', 1);
 				$_SESSION['ctrapp_core']['search'] = array();
 			}
 			$this->resetPermissions();

@@ -35,7 +35,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		// MANAGE DATA
 		$this->request->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
 		$conditions = array('flag_active' => '1');
-		if(!$_SESSION['Auth']['User']['flag_show_confidential']){
+		if(!$this->Session->read('flag_show_confidential')){
 			$conditions["flag_confidential"] = 0;
 		}
 		
@@ -91,7 +91,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 		// MANAGE DATA
 		$controls = $this->MiscIdentifierControl->find('first', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_id)));
-		if($controls['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+		if($controls['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
 			AppController::getInstance()->redirect("/Pages/err_confidential");
 		}
 		
@@ -175,7 +175,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		// MANAGE DATA
 		
 		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id), 'recursive' => '0'));
-		if($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+		if($misc_identifier_data['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
 			AppController::getInstance()->redirect("/Pages/err_confidential");
 		}		
 		
@@ -281,7 +281,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->Structures->set('misc_identifier_value');
 		
 		$mi_control = $this->MiscIdentifierControl->findById($misc_identifier_ctrl_id);
-		if($mi_control['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+		if($mi_control['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
 			AppController::getInstance()->redirect("/Pages/err_confidential");
 		}
 		

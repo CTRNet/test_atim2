@@ -691,7 +691,7 @@ class StructuresHelper extends Helper {
 	private function getPrintableField(array $table_row_part, array $options, $current_value, $key, $field_name_suffix){
 		$display = null;
 		$field_name = $table_row_part['name'].$field_name_suffix;
-		if($table_row_part['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+		if($table_row_part['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
 				$display = CONFIDENTIAL_MARKER;
 				if($options['links']['top'] && $options['settings']['form_inputs'] && $options['type'] != "search"){
 					AppController::getInstance()->redirect("/Pages/err_confidential");
@@ -2331,10 +2331,10 @@ class StructuresHelper extends Helper {
 			$result .= $this->Form->minute($name, array_merge($attributes, array('value' => $minutes)));
 		}else{
 			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('type' => 'number', 'value' => $hour, 'size' => 3, 'min' => time_format == 12 ? 1 : 0, 'max' => time_format == 12 ? 12 : 23)))."<div>".__('hour', true)."</div></span>";
-			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('type' => 'number', 'value' => $minutes, 'size' => 3, 'min' => 0, 'max' => 60)))."<div>".__('minutes', true)."</div></span>";
+			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('type' => 'number', 'value' => $minutes, 'size' => 3, 'min' => 0, 'max' => 59)))."<div>".__('minutes', true)."</div></span>";
 		}
 		if(time_format == 12){
-			$result .= $this->Form->meridian($name, $meridian, $attributes, array('value' => $meridian));
+			$result .= $this->Form->meridian($name, array_merge($attributes, array('value' => $meridian)));
 		}
 		return $result;
 	}
