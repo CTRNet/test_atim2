@@ -913,22 +913,6 @@ function initActions(){
 		//focus on first field
 		$("input:visible, select:visible, textarea:visible").first().focus();
 		
-		//on login page, displays a warning if the server is more than ~2 min late compared to the client
-		if(window.loginPage != undefined){
-			//adding date to the request URL to fool IE caching
-			$.get(root_url + 'users/login/1?t=' + (new Date().getTime()), function(data){
-				data = $.parseJSON(data);
-				if(data.logged_in == 1){
-					document.location = ".";
-				}else{ 
-					var foo = new Date;
-					if(data.server_time - parseInt(foo.getTime() / 1000) < -120){
-						$("#timeErr").show();
-					}
-				}
-			});
-		}
-		
 		if(useHighlighting){
 			//field highlighting
 			if($("#table1row0").length == 1){
@@ -992,6 +976,22 @@ function initActions(){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
 			//don't bother using console.log, console is not ready yet
 			$(document).find('a.submit span.fetching').removeClass('fetching');
+			
+			//on login page, displays a warning if the server is more than ~2 min late compared to the client
+			if(window.loginPage != undefined){
+				//adding date to the request URL to fool IE caching
+				$.get(root_url + 'Users/login/1?t=' + (new Date().getTime()), function(data){
+					data = $.parseJSON(data);
+					if(data.logged_in == 1){
+						document.location = root_url;
+					}else{ 
+						var foo = new Date;
+						if(data.server_time - parseInt(foo.getTime() / 1000) < -120){
+							$("#timeErr").show();
+						}
+					}
+				});
+			}
 		});
 	}
 
