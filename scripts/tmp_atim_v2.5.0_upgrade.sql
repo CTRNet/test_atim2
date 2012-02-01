@@ -463,4 +463,16 @@ UPDATE datamart_structure_functions SET link=REPLACE(link, '/order_items/', '/Or
 UPDATE datamart_structure_functions SET link=REPLACE(link, 'datamart/reports/', '/Datamart/Reports/');
 UPDATE datamart_structure_functions SET link=REPLACE(link, '/quality_ctrls/', '/QualityCtrls/');
 
-
+ALTER TABLE misc_identifiers
+ ADD COLUMN flag_unique TINYINT DEFAULT NULL,
+ ADD UNIQUE KEY(misc_identifier_control_id, identifier_value, flag_unique);
+ALTER TABLE misc_identifiers_revs
+ ADD COLUMN flag_unique TINYINT DEFAULT NULL;
+ALTER TABLE misc_identifier_controls
+ ADD COLUMN flag_unique BOOLEAN NOT NULL DEFAULT true;
+UPDATE misc_identifiers mi
+INNER JOIN misc_identifier_controls mic ON mi.misc_identifier_control_id=mic.id
+SET mi.flag_unique=1 WHERE mic.flag_unique=true AND mi.deleted=0;
+ 
+ 
+ 
