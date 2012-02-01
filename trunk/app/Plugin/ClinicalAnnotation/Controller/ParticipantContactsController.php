@@ -54,6 +54,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if ( !empty($this->request->data) ) {
+			$this->ParticipantContact->addWritableField('participant_id');
 			$this->request->data['ParticipantContact']['participant_id'] = $participant_id;
 			
 			$submitted_data_validates = true;

@@ -4,7 +4,9 @@ VALUES('2.5.0', NOW(),'> 4043');
 REPLACE INTO i18n (id, en, fr) VALUES
 ('reserved for study','Reserved For Study/Project','Réservé pour une Étude/Projet'),
 ('identifier name','Identifier Name', "Nom d'identifiant"),
-('click here to access it', "Click here to access it.", "Cliquez ici pour y accéder.");
+('click here to access it', "Click here to access it.", "Cliquez ici pour y accéder."),
+("last modification", "Last Modification", "Dernière Modification"),
+("help_part_last_mod", "The date at which the last participant clinical related data was created or modified, excluding .", "Date de la plus récente création ou modification de données cliniques liées au participant."); 
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -285,7 +287,7 @@ ALTER TABLE aliquot_internal_uses_revs MODIFY aliquot_master_id INT NOT NULL;
 ALTER TABLE ar_breast_tissue_slides MODIFY aliquot_review_master_id INT NOT NULL;
 ALTER TABLE ar_breast_tissue_slides_revs MODIFY aliquot_review_master_id INT NOT NULL;
 ALTER TABLE derivative_details_revs MODIFY sample_master_id INT NOT NULL,
- MODIFY lab_book_master_id INT NOT NULL;
+ MODIFY lab_book_master_id INT NULL;
 ALTER TABLE ed_all_adverse_events_adverse_events MODIFY event_master_id INT NOT NULL;
 ALTER TABLE ed_all_adverse_events_adverse_events_revs MODIFY event_master_id INT NOT NULL;
 ALTER TABLE ed_all_clinical_followups MODIFY event_master_id INT NOT NULL;
@@ -474,5 +476,41 @@ UPDATE misc_identifiers mi
 INNER JOIN misc_identifier_controls mic ON mi.misc_identifier_control_id=mic.id
 SET mi.flag_unique=1 WHERE mic.flag_unique=true AND mi.deleted=0;
  
+ALTER TABLE participants 
+ ADD COLUMN last_modification DATETIME NOT NULL DEFAULT '2001-01-01 00:00:00' AFTER last_chart_checked_date_accuracy,
+ ADD COLUMN last_modification_ds_id INT UNSIGNED NOT NULL DEFAULT 1 AFTER last_modification,
+ ADD FOREIGN KEY (last_modification_ds_id) REFERENCES datamart_structures(id);
+ALTER TABLE participants_revs 
+ ADD COLUMN last_modification DATETIME NOT NULL DEFAULT '2001-01-01 00:00:00' AFTER last_chart_checked_date_accuracy,
+ ADD COLUMN last_modification_ds_is INT UNSIGNED NOT NULL DEFAULT 1 AFTER last_modification;
  
- 
+INSERT INTO datamart_structures(plugin, model, structure_id, display_name, use_key, control_model, control_master_model, control_field, index_link, batch_edit_link) VALUES
+('ClinicalAnnotation', 'ParticipantContact', 30, 'participant contacts', 'id', '', '', '', '/ClinicalAnnotation/ParticipantContacts/detail/%%ParticipantContact.participant_id%%/%%ParticipantContact.id%%', ''), 
+('ClinicalAnnotation', 'ReproductiveHistory', 110, 'reproductive histories', 'id', '', '', '', '/ClinicalAnnotation/ReproductiveHistories/detail/%%ReproductiveHistory.participant_id%%/%%ReproductiveHistory.id%%', '');
+
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
+(18, 4, 1, 1, 'ParticipantContact.participant_id'), 
+(19, 4, 1, 1, 'ReproductiveHistory.participant_id');
+
+UPDATE participants SET last_modification=modified, last_modification_ds_id=4; 
+UPDATE participants AS t1 INNER JOIN misc_identifiers AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 6); 
+UPDATE participants AS t1 INNER JOIN consent_masters AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 8); 
+UPDATE participants AS t1 INNER JOIN diagnosis_masters AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 9); 
+UPDATE participants AS t1 INNER JOIN treatment_masters AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 10); 
+UPDATE participants AS t1 INNER JOIN family_histories AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 11); 
+UPDATE participants AS t1 INNER JOIN participant_messages AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 12); 
+UPDATE participants AS t1 INNER JOIN event_masters AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 14); 
+UPDATE participants AS t1 INNER JOIN participant_contacts AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 18); 
+UPDATE participants AS t1 INNER JOIN reproductive_histories AS t2 ON t1.id=t2.participant_id SET last_modification=IF(t1.last_modification > t2.modified, t1.last_modification, t2.modified), last_modification_ds_id=IF(t1.last_modification > t2.modified, t1.last_modification_ds_id, 19); 
+
+ALTER TABLE participants 
+ MODIFY last_modification DATETIME NOT NULL;
+ALTER TABLE participants_revs 
+ MODIFY last_modification DATETIME NOT NULL;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'last_modification', 'datetime',  NULL , '0', '', '', 'help_part_last_mod', 'last modification', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_modification' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_part_last_mod' AND `language_label`='last modification' AND `language_tag`=''), '3', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+

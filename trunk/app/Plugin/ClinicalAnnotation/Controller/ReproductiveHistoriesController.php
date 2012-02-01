@@ -10,7 +10,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	
 	function listall( $participant_id ) {
 		// MANAGE DATA
-		$participant_data = $this->Participant->$this->request->data($participant_id);		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);		
 	
 		$this->request->data = $this->paginate($this->ReproductiveHistory, array('ReproductiveHistory.participant_id'=>$participant_id));
 		
@@ -45,7 +45,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		if ( !$participant_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
 
 		// MANAGE DATA
-		$participant_data = $this->Participant->$this->request->data($participant_id);
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
@@ -56,6 +56,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 	
 		if ( !empty($this->request->data) ) {
 			$this->request->data['ReproductiveHistory']['participant_id'] = $participant_id;
+			$this->ReproductiveHistory->addWritableField('participant_id');
 			
 			$submitted_data_validates = true;
 			// ... special validations
@@ -72,7 +73,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/reproductive_histories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
+					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$this->ReproductiveHistory->id );
 				}			
 			}
 		}
@@ -111,7 +112,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id );
+					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$reproductive_history_id );
 				}
 			}
 		}
@@ -134,14 +135,14 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// DELETE DATA
-			$flash_link = '/ClinicalAnnotation/reproductive_histories/listall/'.$participant_id;
+			$flash_link = '/ClinicalAnnotation/ReproductiveHistories/listall/'.$participant_id;
 			if ($this->ReproductiveHistory->atimDelete($reproductive_history_id)) {
 				$this->atimFlash( 'your data has been deleted', $flash_link );
 			} else {
 				$this->flash( 'error deleting data - contact administrator', $flash_link );
 			}	
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/reproductive_histories/detail/'.$participant_id.'/'.$reproductive_history_id);	
+			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/ReproductiveHistories/detail/'.$participant_id.'/'.$reproductive_history_id);	
 		}
 	}
 }

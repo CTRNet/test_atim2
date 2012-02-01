@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/reproductive_histories/add/'.$atim_menu_variables['Participant.id'].'/',
+		'top'=>'/ClinicalAnnotation/ReproductiveHistories/add/'.$atim_menu_variables['Participant.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/reproductive_histories/listall/'.$atim_menu_variables['Participant.id'].'/'
+			'cancel'=>'/ClinicalAnnotation/ReproductiveHistories/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)
 	);
 	
