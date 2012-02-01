@@ -242,7 +242,7 @@ class StructuresComponent extends Component {
 		
 		// format structure data into SEARCH CONDITONS format
 		if (isset($atim_structure['Sfs'])){
-			$cant_read_confidential = !$_SESSION['Auth']['User']['flag_show_confidential']; 
+			$cant_read_confidential = !$this->Session->read('flag_show_confidential'); 
 			foreach ($atim_structure['Sfs'] as $value) {
 				if(!$value['flag_search'] || ($value['flag_confidential'] && $cant_read_confidential)){
 					//don't waste cpu cycles on non search parameters

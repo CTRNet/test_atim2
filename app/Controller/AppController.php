@@ -587,7 +587,7 @@ class AppController extends Controller {
 	}
 	
 	static function getNewSearchId(){
-		return $_SESSION['Auth']['User']['search_id'] ++;
+		return AppController::getInstance()->Session->write('search_id', AppController::getInstance()->Session->read('search_id') + 1);
 	}
 	
 	/**
@@ -845,7 +845,7 @@ class AppController extends Controller {
 	function resetPermissions(){
 		$group_model = AppModel::getInstance('', 'Group', true);
 		$group = $group_model->findById($this->Session->read('Auth.User.group_id'));
-		$this->Session->write('Auth.User.flag_show_confidential', $group['Group']['flag_show_confidential']);
+		$this->Session->write('flag_show_confidential', $group['Group']['flag_show_confidential']);
 		$this->Session->write('permission_timestamp', time());
 		$this->SessionAcl->flushCache();
 	}

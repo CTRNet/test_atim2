@@ -34,7 +34,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function beforeFind($queryData){
 		if(
-			!$_SESSION['Auth']['User']['flag_show_confidential'] 
+			!$this->Session->read('flag_show_confidential') 
 			&& is_array($queryData['conditions']) 
 			&& AppModel::isFieldUsedAsCondition("MiscIdentifier.identifier_value", $queryData['conditions'])
 		){
@@ -51,7 +51,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function afterFind($results){
 		$results = parent::afterFind($results);
-		if(!$_SESSION['Auth']['User']['flag_show_confidential'] && isset($results[0]) && isset($results[0]['MiscIdentifier'])){
+		if(!$this->Session->read('flag_show_confidential') && isset($results[0]) && isset($results[0]['MiscIdentifier'])){
 			$misc_control_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
 			$confidential_control_ids = $misc_control_model->getConfidentialIds();
 			if(!empty($confidential_control_ids)){

@@ -40,7 +40,7 @@ class MiscIdentifiersController extends AdministrateAppController {
 	function manage($mi_ctrl_id){
 		$this->MiscIdentifierControl->getOrRedirect($mi_ctrl_id);
 		$mi_control = $this->MiscIdentifierControl->findById($mi_ctrl_id);
-		if($mi_control['MiscIdentifierControl']['flag_confidential'] && !$_SESSION['Auth']['User']['flag_show_confidential']){
+		if($mi_control['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
 			AppController::getInstance()->redirect("/Pages/err_confidential");
 		}
 		
