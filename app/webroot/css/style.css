@@ -1086,9 +1086,8 @@ span.help {
 				div.nodeBlock .rightPart.disabled{
 					color: grey;
 				}
-				div.at { 
+				div.at, tr.at{ 
 					background-color: #ffc; 
-				
 				}
 				
 				div.treeArrow{
@@ -1509,6 +1508,7 @@ div.loading{
 	background: #FFF url("../img/wait30.gif") no-repeat center;
 	border-width: 1px;
 	min-width: 300px;
+	min-height: 40px;
 }
 
 table.columns.index tbody tr td{

@@ -564,6 +564,50 @@ function initActions(){
 				return false;
 			}
 		});
+		
+		if($(".jsChronology").length > 0){
+			$(".jsChronology").each(function(){
+				var href = $(this).attr("href");
+				if(href.indexOf('/Participants/') != -1){
+					$(this).addClass('participant');
+				}else if(href.indexOf('/DiagnosisMasters/') != -1){
+					$(this).addClass('diagnosis');
+				}else if(href.indexOf('/TreatmentMasters/') != -1){
+					$(this).addClass('treatments');
+				}else if(href.indexOf('/Collections/') != -1){
+					$(this).addClass('collection');
+				}else if(href.indexOf('/EventMasters/') != -1){
+					$(this).addClass('annotation');
+				}else if(href.indexOf('/ConsentMasters/') != -1){
+					$(this).addClass('consents');
+				}
+			}).click(function(){
+				var link = this;
+				//remove highlighted stuff
+				var td = $(".at").removeClass("at").find("td:last-child");
+				$(td).html($(td).data('content'));
+				var tr = $(link).parents("tr").first().addClass("at");
+				td = $(tr).find("td").last();
+				console.log(td);
+				$(td).data('content', $(td).html());
+				$(td).html('<div style="position: relative;">' + $(td).html() + '<div class="treeArrow" style="display: block"></div></div>');
+				
+				if($(link).data('cached_result')){
+					$("#frame").html($(link).data('cached_result'));
+				}else{
+					$("#frame").html("<div class='loading'></div>");
+					$.get($(this).attr("href") + "?t=" + new Date().getTime(), function(data){
+						$("#frame").html(data);
+						$(link).data('cached_result', data);
+					});
+				}
+				return false;
+			});
+			$(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
+					'<td class="this_column_2 total_columns2"><div id="frame"></td>'
+			);
+			
+		}
 	}
 	
 	function initRemoveLine(scope){
@@ -931,7 +975,6 @@ function initActions(){
 		if(window.initPage){
 			initPage();
 		}
-		
 		$("a.databrowserMore").click(function(){
 			$(this).parent().find("span, a").toggle();
 			return false;

@@ -966,8 +966,12 @@ class StructuresHelper extends Helper {
 							}else{
 								$current_links[] = $this->strReplaceLink($options['links']['index'], $data_unit);
 							}
+							$current_links = array('index' => $current_links);
+							if(isset($options['links']['ajax']['index'])){
+								$current_links['ajax']['index'] = $options['links']['ajax']['index'];
+							}
 							echo '
-								<td class="id">',$this->generateLinksList(null, array('index' => $current_links), 'index'),'</td>
+								<td class="id">',$this->generateLinksList(null, $current_links, 'index'),'</td>
 							';
 						}
 						
@@ -1895,7 +1899,7 @@ class StructuresHelper extends Helper {
 		
 		$return_urls = array();
 		$return_links = array();
-		
+
 		$links = isset($option_links[$state]) ? $option_links[$state] : array();
 		$links = is_array($links) ? $links : array('detail' => $links);
 		// parse through $LINKS array passed to function, make link for each
