@@ -25,7 +25,6 @@ class GroupsController extends AdministrateAppController {
 		if (!empty($this->request->data)) {
 			$group_data = $this->Group->find('first', array('conditions' => array('Group.name' => $this->request->data['Group']['name'])));
 			if(empty($group_data)){
-				$this->Group->create();
 				if ($this->Group->save($this->request->data)) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
