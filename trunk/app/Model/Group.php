@@ -54,13 +54,20 @@ class Group extends AppModel {
 	 * @param $group_id
 	 */
 	function hasPermissions($group_id){
-		//TODO: rewrite this to use models, not hardcoded queries
-		$query = "SELECT count(*) AS c FROM groups "
-			."INNER JOIN aros ON groups.id=aros.foreign_key AND model='Group' "
-			."INNER JOIN aros_acos ON aros.id=aros_acos.aro_id "
-			."WHERE groups.id=".$group_id." AND (aros_acos._create != -1 OR aros_acos._read != -1 OR aros_acos._update != -1 OR aros_acos._delete != -1)";
-		$data = $this->query($query);
-		return $data[0][0]['c'] > 0;
+		$data = $this->find('first', array('joins' => array(
+			array(
+				'table' => 'aros',
+				'alias' => 'aros',
+				'type' => 'inner',
+				'conditions' => array('Group.id = aros.foreign_key', 'aros.model="Group"')
+			),array(
+				'table' => 'aros_acos',
+					'alias' => 'aros_acos',
+					'type' => 'inner',
+					'conditions' => array('aros.id = aros_acos.aro_id', 'OR' => array('aros_acos._create' => 1, 'aros_acos._read' => 1, 'aros_acos._update' => 1, 'aros_acos._delete' => 1))		
+			)), 'conditions' => array('Group.id' => $group_id)
+		));
+		return !empty($data);
 	}
 }
 ?>
