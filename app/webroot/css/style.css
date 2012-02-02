@@ -1943,3 +1943,10 @@ span.help.storage{
 	position: absolute;
 	top: -100px;
 }
+
+table.columns.index tbody tr:nth-child(even){
+	background-color: #e8edf2;
+}
+table.columns.index tbody tr:hover{
+	background-color: #ffc;
+}
