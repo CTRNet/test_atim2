@@ -1003,7 +1003,7 @@ class StructuresHelper extends Helper {
 						if($remove_line_ctrl){
 							echo '
 									<td class="right">
-										<a href="#" class="removeLineLink delete_10x10" title="',__( 'click to remove these elements', true ),'"></a>
+										<a href="#" class="removeLineLink icon16 delete_mini" title="',__( 'click to remove these elements', true ),'"></a>
 									</td>
 							';
 						}
@@ -1045,7 +1045,7 @@ class StructuresHelper extends Helper {
 					if($add_line_ctrl){
 						echo '<tr>
 								<td class="right" colspan="',$header_data['count'],'">
-									<a class="addLineLink add_10x10" href="#" title="',__( 'click to add a line', true ),'"></a>
+									<a class="addLineLink icon16 add_mini" href="#" title="',__( 'click to add a line', true ),'"></a>
 									<input class="addLineCount" type="text" size="1" value="1" maxlength="2"/> line(s)
 								</td>
 							</tr>
