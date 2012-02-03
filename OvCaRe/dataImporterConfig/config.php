@@ -81,6 +81,7 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/recurrences.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
 
 function addonFunctionStart(){
 	
@@ -138,13 +139,115 @@ function addonFunctionEnd(){
 	$query = "UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
-	// Additional participant comment.
+	// ADD ADDITIONAL PARTICIPANT COMMENTS
 	
 	foreach(Config::$participant_additional_comments_from_voa as $voa => $msg) {
 		$query = "UPDATE participants SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
 		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$query = "UPDATE participants_revs SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
 		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	}
+	
+	// POPULATE CALCULATED FIELDS
+
+	$query = "	SELECT 
+		part.participant_identifier AS voa_nbr,
+		
+		part.id AS participant_id,
+		diag.id AS diag_id, 
+		surg.id AS surgery_id,
+		
+		part.date_of_birth,
+		part.ovcare_last_followup_date,
+		
+		surg.start_date AS surgery_date,
+		rec.dx_date AS recurence_date
+		
+		FROM participants AS part 
+		LEFT JOIN diagnosis_masters AS diag ON part.id = diag.participant_id AND diag.diagnosis_control_id = '20'
+		LEFT JOIN diagnosis_masters AS rec ON diag.id = rec.parent_id AND rec.diagnosis_control_id= '19'
+		LEFT JOIN treatment_masters AS surg ON diag.id = surg.diagnosis_master_id AND surg.treatment_control_id = '7';";
+	
+	$results = mysqli_query($connection, $query) or die("calculate fields [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$participant_id = null;
+	while($row = $results->fetch_assoc()){
+		if($participant_id == $row['participant_id']) die('ERR 998763.1');
+		if(empty($row['diag_id'])) die('ERR 998763.2');
+		
+		$voa_nbr = $row['voa_nbr'];
+		
+		$participant_id = $row['participant_id'];
+		$diag_id = $row['diag_id'];
+		$surgery_id = $row['surgery_id'];
+		
+		$date_of_birth = $row['date_of_birth'];
+		$ovcare_last_followup_date = $row['ovcare_last_followup_date'];
+		$surgery_date = $row['surgery_date'];
+		$recurence_date = $row['recurence_date'];
+		
+		// 1- Age at surgery
+		
+		$age_in_years = null;		
+		if(!empty($surgery_date) && !empty($date_of_birth)) {
+			$birthDateObj = new DateTime($date_of_birth);
+			$surgDateObj = new DateTime($surgery_date);
+			$interval = $birthDateObj->diff($surgDateObj);
+			$age_in_years = $interval->format('%r%y');
+			if($age_in_years < 0) {
+				$age_in_years = null;
+				Config::$summary_msg['@@WARNING@@']['Age at surgery'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
+			}
+		}
+		
+		if(!is_null($age_in_years)) {
+			$query = "UPDATE txd_surgeries SET ovcare_age_at_surgery = '$age_in_years' WHERE treatment_master_id = '$surgery_id';";
+			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "UPDATE txd_surgeries_revs SET ovcare_age_at_surgery = '$age_in_years' WHERE treatment_master_id = '$surgery_id';";
+			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		}
+		
+		// 2- Survival Time		
+		
+		$survival_time_months = null;
+		if(!empty($ovcare_last_followup_date) && !empty($surgery_date)) {
+			$initialSurgeryDateObj = new DateTime($surgery_date);
+			$lastFollDateObj = new DateTime($ovcare_last_followup_date);
+			$interval = $initialSurgeryDateObj->diff($lastFollDateObj);
+			$survival_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
+			if($survival_time_months < 0) {
+				$survival_time_months = null;
+				Config::$summary_msg['@@WARNING@@']['Survival Time'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
+			}
+		}
+
+		if(!is_null($survival_time_months)) {
+			$query = "UPDATE diagnosis_masters SET survival_time_months = '$survival_time_months' WHERE id = '$diag_id';";
+			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "UPDATE diagnosis_masters_revs SET survival_time_months = '$survival_time_months' WHERE id = '$diag_id';";
+			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		}		
+		
+		// 3- Progression Free Time
+		
+		$new_progression_free_time_months = null;
+		if(!empty($surgery_date) && !empty($recurence_date)) {
+			$initialSurgeryDateObj = new DateTime($surgery_date);
+			$initialRecurrenceDateObj = new DateTime($recurence_date);
+			$interval = $initialSurgeryDateObj->diff($initialRecurrenceDateObj);
+			$new_progression_free_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
+			if($new_progression_free_time_months < 0) {
+				$new_progression_free_time_months = '';
+				Config::$summary_msg['@@WARNING@@']['Progression Free Time'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
+			}
+		} else {
+			$new_progression_free_time_months = $survival_time_months;
+		}	
+		
+		$query = "UPDATE ovcare_dxd_primaries SET progression_free_time_months = '$new_progression_free_time_months', initial_surgery_date_accuracy = '$surgery_date', initial_recurrence_date_accuracy = '$recurence_date' WHERE diagnosis_master_id = '$diag_id';";
+pr($query);
+		mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$query = "UPDATE ovcare_dxd_primaries_revs SET progression_free_time_months = '$new_progression_free_time_months', initial_surgery_date_accuracy = '$surgery_date', initial_recurrence_date_accuracy = '$recurence_date' WHERE diagnosis_master_id = '$diag_id';";
+		mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	}
 
 //	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 

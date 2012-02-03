@@ -8,7 +8,8 @@ $child = array(
 	'DiagnosisMaster',
 	'Recurrence',
 	'Metastasis',
-	'Chemotherapy'
+	'Chemotherapy',
+	'Surgery'
 );
 $fields = array(
 	"participant_identifier" => $pkey, 
@@ -57,6 +58,11 @@ function postParticipantRead(Model $m){
 
 function postParticipantWrite(Model $m){	
 	Config::$participant_ids_from_voa[Config::$current_voa_nbr]['participant_id'] = $m->last_id;	
+	
+	
+	
+	
+	
 	
 //	$participant_id = $m->last_id;
 //	$line =  $m->line;

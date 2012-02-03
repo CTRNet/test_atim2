@@ -37,6 +37,3 @@ function preMetastasisWrite(Model $m){
 	
 	return true;
 }
-
-
-
