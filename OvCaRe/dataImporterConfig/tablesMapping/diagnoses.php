@@ -38,12 +38,17 @@ $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey,
 //we can then attach post read/write functions
 $model->custom_data = array();
 $model->post_read_function = 'postDiagnosisRead';
+$model->insert_condition_function = 'preDiagnosisWrite';
 $model->post_write_function = 'postDiagnosisWrite';
 
 //adding this model to the config
 Config::$models['DiagnosisMaster'] = $model;
 	
 function postDiagnosisRead(Model $m){
+	return true;
+}
+
+function preDiagnosisWrite(Model $m){
 	$m->values['notes'] = '';
 	
 	// Substage
@@ -60,26 +65,26 @@ function postDiagnosisRead(Model $m){
 			$m->values['Clinical WHO Code'] = str_replace('/','',$matches[0][0]);
 			unset($matches[0][0]);
 			if(!empty($matches[0])) {
-				Config::$summary_msg['@@MESSAGE@@'][] = 'WHO code Msg#1: Many values are defined into cell ['.$tmp_who_code.']. Only first one will be recorded into WHO field, the other one will be added to notes. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+				Config::$summary_msg['@@MESSAGE@@']['WHO code #1'][] = 'Many values are defined into cell ['.$tmp_who_code.']. Only first one will be recorded into WHO field, the other one will be added to notes. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 				$m->values['notes'] = 'Additional WHO codes : '.implode(", ", $matches[0]);	
 			}
 			$tmp_who_code = str_replace(array(' ',',',CHR(10),CHR(13)), array('','','',''), preg_replace('/([0-9]{4}\/[0-9])/', '', $tmp_who_code));
 			if(!empty($tmp_who_code)) {
-				Config::$summary_msg['@@WARNING@@'][] = 'WHO code Warn#1:  Both WHO code and text were defined into the source file. Add value ['.$tmp_who_code.'] as WHO comment. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+				Config::$summary_msg['@@WARNING@@']['WHO code #1'][] = 'Both WHO code and text were defined into the source file. Add value ['.$tmp_who_code.'] as WHO comment. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 				$m->values['notes'] .= ' Additional WHO code comments : '.$tmp_who_code;	
 			}
 			if(!array_key_exists($m->values['Clinical WHO Code'], Config::$dx_who_codes)) {
-				Config::$summary_msg['@@ERROR@@'][] = 'WHO code Err#1:  WHO code value ['.$m->values['Clinical WHO Code'].'] not supported into ATiM. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+				Config::$summary_msg['@@ERROR@@']['WHO code #1'][] = 'WHO code value ['.$m->values['Clinical WHO Code'].'] not supported into ATiM. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 				$m->values['notes'] .= ' WHO code not supported : '.$m->values['Clinical WHO Code'];					
 				$m->values['Clinical WHO Code'] = '';
 			}			
 			
 		} else {
 			if(in_array($tmp_who_code, array('NA','Normal','N/A'))) {
-				Config::$summary_msg['@@MESSAGE@@'][] = 'WHO code Msg#2: NA or Normal are not migrated. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+				Config::$summary_msg['@@MESSAGE@@']['WHO code #2'][] = 'NA or Normal are not migrated. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 			
 			} else {
-				Config::$summary_msg['@@WARNING@@'][] = 'WHO code Warn#2: File values does not match the expected format ['.$tmp_who_code.']. Value will be added to the notes. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+				Config::$summary_msg['@@WARNING@@']['WHO code #2'][] = 'File values does not match the expected format ['.$tmp_who_code.']. Value will be added to the notes. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 				$m->values['notes'] = 'Wrong WHO codes migrated from source file: '.$tmp_who_code;
 			}
 		}
@@ -96,7 +101,7 @@ function postDiagnosisRead(Model $m){
 	empty($m->values['Review Diagnosis']) &&
 	empty($m->values['Review Comment']) &&
 	empty($m->values['Review Grade'])) {
-		Config::$summary_msg['@@WARNING@@'][] = 'OVCARE Primary Diagnosis Warn#1:  Created an empty Primanry Diagnosis. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
+		Config::$summary_msg['@@WARNING@@']['OVCARE Primary Diagnosis #1'][] = 'Created an empty Primanry Diagnosis. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 	}
 	
 	return true;
@@ -105,7 +110,6 @@ function postDiagnosisRead(Model $m){
 function postDiagnosisWrite(Model $m){
 	global $connection;
 
-	$voa_nbr = Config::$participant_master_ids_from_voa['current_voa_nbr'];
 	$primary_diagnosis_master_id = $m->last_id;
 	
 	$query = "UPDATE diagnosis_masters SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
@@ -113,5 +117,5 @@ function postDiagnosisWrite(Model $m){
 	$query = "UPDATE diagnosis_masters_revs SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
 	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
-	Config::$participant_master_ids_from_voa['data'][$voa_nbr]['primary_diagnosis_master_id'] = $primary_diagnosis_master_id;
+	Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'] = $primary_diagnosis_master_id;
 }

@@ -197,23 +197,40 @@ INSERT INTO i18n (id,en) VALUES ("A","A"),("B","B"),("C","C");
 
 SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
  
+ 
+ 
+ 
+ 
+ 
+SELECT 'Notes on Outcome will be recorded into Participant note. Please confirm!' as Questions_For_OvCaRe
+UNION
+SELECT 'All participant will have an obtained consent. Please confirm!' as Questions_For_OvCaRe
+UNION
 SELECT 'All clinical fields Diagnosis, histo, WHO Code, etc will be recorded into Ovcare Primary: Please confirm!' as Questions_For_OvCaRe
 UNION 
-SELECT 'What about Ovcare Primary having diagnosis review = metastasis. Should we change diag to scondary. See VOA#442' as Questions_For_OvCaRe
+SELECT 'What about Ovcare Primary having diagnosis review = metastasis. Should we change primary to scondary. See VOA#442' as Questions_For_OvCaRe
 UNION 
-SELECT 'All patient will have a Ovcare Primary: Please confirm';
+SELECT 'All patient will have an Ovcare Primary: Please confirm!'
 UNION 
-SELECT 'If date of recurrence is not empty or recurent disease = yes then create recurrence linked to primary: Please confirm' as Questions_For_OvCaRe;
+SELECT 'If date of recurrence is not empty or recurent disease = yes then create recurrence linked to primary. Please confirm!' as Questions_For_OvCaRe
 UNION 
-SELECT 'If metastatsis is not empty and metastatsis != {no,unable to determine,unknown} then create secondary linked to primary: Please confirm' as Questions_For_OvCaRe;
+SELECT 'If metastatsis is not empty and metastatsis != {no, unable to determine, unknown} then create secondary linked to primary. Please confirm!' as Questions_For_OvCaRe
 UNION 
-SELECT 'VOA#757: date of recurrence = 1900-01-05. Please confirm.' as Questions_For_OvCaRe;
+SELECT 'VOA#757: The date of recurrence = 1900-01-05. Please confirm!' as Questions_For_OvCaRe
 UNION 
-SELECT 'If chemotherapy is not empty and chemotherapy != {no,nBo,radiotherapy,unknown} then create chemo linked to primary: Please confirm' as Questions_For_OvCaRe;
+SELECT 'If chemotherapy is not empty and chemotherapy not in {no,nBo,radiotherapy,unknown} then create chemo linked to primary: Please confirm' as Questions_For_OvCaRe
 UNION 
-SELECT 'What should be done with chemotherapy = radiotherapy' as Questions_For_OvCaRe;
+SELECT 'What should be done with chemotherapy value in {unable to determine, radiotherapy}?' as Questions_For_OvCaRe
 UNION 
-SELECT '' as Questions_For_OvCaRe;
+SELECT 'Start date accuracy to set for chemo of voa 1082' as Questions_For_OvCaRe
+UNION 
+SELECT 'Please confrim chemo reponse match: ["Yes" => "complete", "Yes (see note)" => "complete", "Partial" => "partial", "Unknown" => "unknown", "No" => "progressive disease"]' as Questions_For_OvCaRe
+
+
+
+
+
+
 
 UNION ALL
 SELECT 'ALL3!' as Questions_For_OvCaRe;

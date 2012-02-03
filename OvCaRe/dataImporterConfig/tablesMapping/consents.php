@@ -4,6 +4,7 @@ $child = array();
 $master_fields = array(
 	"consent_control_id" => "@2",
 	"participant_id" => $pkey,
+	"consent_status" => "#status",
 	"status_date" => "Date Consent Received",
 	"consent_signed_date" => "Date Consent Received");
 $detail_fields = array();
@@ -13,6 +14,7 @@ $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey,
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postConsentRead';
+$model->insert_condition_function = 'preConsentWrite';
 $model->custom_data = array(
 	"date_fields" => array(
 		$master_fields["status_date"] => null,
@@ -25,7 +27,10 @@ Config::$models['ConsentMaster'] = $model;
 
 function postConsentRead(Model $m){
 	excelDateFix($m);
-	$m->values['consent_status'] = "obtained";
-	
+	return true;
+}
+
+function preConsentWrite(Model $m){
+	$m->values['status'] = "obtained";
 	return true;
 }
