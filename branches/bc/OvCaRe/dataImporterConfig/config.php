@@ -48,7 +48,9 @@ class Config{
 
 	static $sample_aliquot_controls = array();
 	static $dx_who_codes = array();
-	static $participant_master_ids_from_voa = array('current_voa_nbr' => null, 'data' => array());
+	static $current_voa_nbr = null;	
+	static $participant_ids_from_voa = array();
+	static $participant_additional_comments_from_voa = array();
 		
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
@@ -79,7 +81,6 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/recurrences.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgical_pathology_identifiers.php';
 
 function addonFunctionStart(){
 	
@@ -127,7 +128,6 @@ function addonFunctionEnd(){
 	$query = "UPDATE diagnosis_masters_revs SET dx_date = null WHERE dx_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
-
 	$query = "UPDATE treatment_masters SET start_date = null WHERE start_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$query = "UPDATE treatment_masters_revs SET start_date = null WHERE start_date LIKE '%0000%';";
@@ -138,8 +138,15 @@ function addonFunctionEnd(){
 	$query = "UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
+	// Additional participant comment.
 	
-	
+	foreach(Config::$participant_additional_comments_from_voa as $voa => $msg) {
+		$query = "UPDATE participants SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
+		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$query = "UPDATE participants_revs SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
+		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	}
+
 //	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
 //	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
 //	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
@@ -162,23 +169,26 @@ function addonFunctionEnd(){
 	</FONT><br>";
 	
 	if(!empty(Config::$summary_msg['@@ERROR@@'])) {
-		echo "<br><FONT COLOR=\"red\" >Errors summary (".sizeof(Config::$summary_msg['@@ERROR@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@ERROR@@'] as $msg) {
-			echo "$msg<br>";
+		echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> (".sizeof(Config::$summary_msg['@@ERROR@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@ERROR@@'] as $type => $msgs) {
+			echo "<br> --> <FONT COLOR=\"red\" >". $type . "</FONT><br>";
+			foreach($msgs as $msg) echo "$msg<br>";
 		}
 	}	
 	
 	if(!empty(Config::$summary_msg['@@WARNING@@'])) {
-		echo "<br><FONT COLOR=\"green\" >Warnings summary (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@WARNING@@'] as $msg) {
-			echo "$msg<br>";
+		echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@WARNING@@'] as $type => $msgs) {
+			echo "<br> --> <FONT COLOR=\"orange\" >". $type . "</FONT><br>";
+			foreach($msgs as $msg) echo "$msg<br>";
 		}
 	}	
 	
 	if(!empty(Config::$summary_msg['@@MESSAGE@@'])) {
-		echo "<br><FONT COLOR=\"black\" >Message (".sizeof(Config::$summary_msg['@@MESSAGE@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@MESSAGE@@'] as $msg) {
-			echo "$msg<br>";
+		echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> (".sizeof(Config::$summary_msg['@@MESSAGE@@'])."):</FONT><br>";
+		foreach(Config::$summary_msg['@@MESSAGE@@'] as $type => $msgs) {
+			echo "<br> --> <FONT COLOR=\"green\" >". $type . "</FONT><br>";
+			foreach($msgs as $msg) echo "$msg<br>";
 		}
 	}
 	

@@ -4,6 +4,8 @@ $child = array();
 $master_fields = array(
 	"diagnosis_control_id" => "@16",
 	"participant_id" => $pkey,
+	"primary_id" => "#primary_id",
+	"parent_id" => "#parent_id",
 	"notes" => "Metastisis");
 
 $detail_fields = array();
@@ -14,29 +16,27 @@ $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey,
 //we can then attach post read/write functions
 $model->custom_data = array();
 $model->post_read_function = 'postMetastasisRead';
-$model->post_write_function = 'postMetastasisWrite';
+$model->insert_condition_function = 'preMetastasisWrite';
 
 //adding this model to the config
 Config::$models['Metastasis'] = $model;
 	
 function postMetastasisRead(Model $m){	
 	
-	$m->values['Metastisis'] = str_replace(array('no','no ','unable to determine','unknown'), array('','','',''), strtolower($m->values['Metastisis']));
+	if(in_array(strtolower($m->values['Metastisis']), array('no','no ','unable to determine','unknown'))) $m->values['Metastisis'] = '';
 	if(empty($m->values['Metastisis'])) return false;
 	
 	return true;
 }
-function postMetastasisWrite(Model $m){
-	global $connection;
+
+function preMetastasisWrite(Model $m){
+	$m->values['Metastisis'] = (strtolower($m->values['Metastisis']) == 'yes')? '': 'Metastisis : '.$m->values['Metastisis'].'.';
 	
-	$voa_nbr = Config::$participant_master_ids_from_voa['current_voa_nbr'];
-	$primary_diagnosis_master_id = Config::$participant_master_ids_from_voa['data'][$voa_nbr]['primary_diagnosis_master_id'];
-	$metastasis_diagnosis_master_id = $m->last_id;
+	$m->values['primary_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
+	$m->values['parent_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
 	
-	$query = "UPDATE diagnosis_masters SET primary_id = $primary_diagnosis_master_id, parent_id = $primary_diagnosis_master_id WHERE id = $metastasis_diagnosis_master_id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE diagnosis_masters_revs SET primary_id = $primary_diagnosis_master_id, parent_id = $primary_diagnosis_master_id WHERE id = $metastasis_diagnosis_master_id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	return true;
 }
+
 
 

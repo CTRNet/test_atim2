@@ -8,7 +8,8 @@ $child = array(
 	'DiagnosisMaster',
 	'Recurrence',
 	'Metastasis',
-	'Chemotherapy');
+	'Chemotherapy'
+);
 $fields = array(
 	"participant_identifier" => $pkey, 
 	"first_name" => "First Name",
@@ -18,14 +19,15 @@ $fields = array(
 	"vital_status" => array("Status At Last Follow Up" => 
 		array(
 			"" => "",
-			"Dead/Disease" => "alive/disease",
+			"Dead/Disease" => "dead/disease",
 			"Alive/Well" => "alive/well",
 			"Dead/Other" => "dead/other",
 			"Unknown" => "unknown",
-			"Alive/Disease" => "dead/disease",
+			"Alive/Disease" => "alive/disease",
 			"Alive/Intercurrent Disease" => "alive/intercurrent disease",
 			"Alive/Intercurrent Disease " => "alive/intercurrent disease",
-			"Alive/Unknown" => "alive/unknown")));
+			"Alive/Unknown" => "alive/unknown")),
+	"notes" => "Notes on Outcome");
 
 //see the Model class definition for more info
 $model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields);
@@ -45,15 +47,17 @@ $model->custom_data = array(
 Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
-	Config::$participant_master_ids_from_voa['current_voa_nbr'] = $m->values['VOA Number'];
-	Config::$participant_master_ids_from_voa['data'][$m->values['VOA Number']] = array();
+	Config::$current_voa_nbr = $m->values['VOA Number'];
+	Config::$participant_ids_from_voa[Config::$current_voa_nbr] = array();
 	
 	excelDateFix($m);
 	
 	return true;
 }
 
-function postParticipantWrite(Model $m){
+function postParticipantWrite(Model $m){	
+	Config::$participant_ids_from_voa[Config::$current_voa_nbr]['participant_id'] = $m->last_id;	
+	
 //	$participant_id = $m->last_id;
 //	$line =  $m->line;
 //	$inventory_data_from_file =  $m->values;
