@@ -16,7 +16,10 @@ $detail_fields = array(
 		"Partial" => "partial",
 		"Unknown" => "unknown",
 		"No" => "progressive disease")),
-	"ovcare_neoadjuvant" => "Neoadjuvant Chemotherapy");
+	"ovcare_neoadjuvant" => array("Neoadjuvant Chemotherapy" => array(
+		"" => "",
+		"y" => "y",
+		"n" => "n")));
 	
 //see the Model class definition for more info
 $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'treatment_masters', $master_fields, 'txd_chemos', 'treatment_master_id', $detail_fields);
