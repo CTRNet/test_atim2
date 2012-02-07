@@ -9,7 +9,8 @@ $child = array(
 	'Recurrence',
 	'Metastasis',
 	'Chemotherapy',
-	'Surgery'
+	'Surgery',
+	'ExperimentalResuls'
 );
 $fields = array(
 	"participant_identifier" => $pkey, 
