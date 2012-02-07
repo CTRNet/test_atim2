@@ -82,6 +82,9 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
+
+
 
 function addonFunctionStart(){
 	
@@ -241,29 +244,26 @@ function addonFunctionEnd(){
 			}
 		} else {
 			$new_progression_free_time_months = $survival_time_months;
-		}	
-		
-		$query = "UPDATE ovcare_dxd_primaries SET progression_free_time_months = '$new_progression_free_time_months', initial_surgery_date_accuracy = '$surgery_date', initial_recurrence_date_accuracy = '$recurence_date' WHERE diagnosis_master_id = '$diag_id';";
-pr($query);
-		mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$query = "UPDATE ovcare_dxd_primaries_revs SET progression_free_time_months = '$new_progression_free_time_months', initial_surgery_date_accuracy = '$surgery_date', initial_recurrence_date_accuracy = '$recurence_date' WHERE diagnosis_master_id = '$diag_id';";
-		mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	}
+		}
 
-//	$query = "DELETE FROM misc_identifiers WHERE identifier_value LIKE ''"; 
-//	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
-//	$query = "DELETE FROM misc_identifiers_revs WHERE identifier_value LIKE ''"; 
-//	mysqli_query($connection, $query) or die("misc_identifiers clean up failed [".$query."] ".mysqli_error($connection));
-//	
-//	$query = "UPDATE aliquot_masters SET barcode= id";
-//	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	$query = "UPDATE aliquot_masters_revs SET barcode= id";
-//	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	
-//	$query = "UPDATE diagnosis_masters SET primary_id = id";
-//	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	$query = "UPDATE diagnosis_masters_revs SET primary_id = id";
-//	mysqli_query($connection, $query) or die("aliquot barcode record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$data_to_insert = array();
+		if(!is_null($new_progression_free_time_months))$data_to_insert['progression_free_time_months'] = $new_progression_free_time_months;
+		if(!is_null($surgery_date))$data_to_insert['initial_surgery_date'] = $surgery_date;
+		if(!is_null($recurence_date))$data_to_insert['initial_recurrence_date'] = $recurence_date;
+		
+		if(!empty($data_to_insert)) {
+			$set_string = '';
+			$separator = '';
+			foreach($data_to_insert as $field => $field_value) {
+				$set_string .= $separator.$field." = '".$field_value."'";
+				$separator = ', ';
+			}
+			$query = "UPDATE ovcare_dxd_primaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
+			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			$query = "UPDATE ovcare_dxd_primaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
+			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+		}
+	}
 	
 	echo "<br><FONT COLOR=\"red\" >
 	=====================================================================<br>
