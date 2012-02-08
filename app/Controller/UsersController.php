@@ -61,8 +61,8 @@ class UsersController extends AppController {
 				$french = "msgid\t\"$id\"\nmsgstr\t\"$fr\"\n";
 			
 				//Writes output to file
-				fwrite($filee, utf8_encode($english));
-				fwrite($filef, utf8_encode($french));
+				fwrite($filee, utf8_decode($english));
+				fwrite($filef, utf8_decode($french));
 			}
 			
 			///Close file
