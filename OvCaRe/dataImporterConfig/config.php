@@ -49,6 +49,7 @@ class Config{
 	static $sample_aliquot_controls = array();
 	static $dx_who_codes = array();
 	static $current_voa_nbr = null;	
+	static $current_voa_comments_for_collection = null;	
 	static $participant_ids_from_voa = array();
 	static $participant_additional_comments_from_voa = array();
 		
@@ -84,7 +85,7 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
 
-
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/collections.php'; 
 
 function addonFunctionStart(){
 	
@@ -151,7 +152,7 @@ function addonFunctionEnd(){
 		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	}
 	
-	// POPULATE CALCULATED FIELDS
+	// POPULATE PARTICIPANT CALCULATED FIELDS
 
 	$query = "	SELECT 
 		part.participant_identifier AS voa_nbr,
@@ -264,6 +265,12 @@ function addonFunctionEnd(){
 			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 		}
 	}
+	
+	// INVENTORY COMPLETION
+		
+//TODO revs table	
+	
+	// WARNING DISPLAY
 	
 	echo "<br><FONT COLOR=\"red\" >
 	=====================================================================<br>

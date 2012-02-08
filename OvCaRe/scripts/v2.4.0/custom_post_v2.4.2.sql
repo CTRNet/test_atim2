@@ -707,6 +707,14 @@ ALTER TABLE `ovcare_ed_lab_experimental_results_revs`
   MODIFY `tma_folr1` varchar(250) DEFAULT NULL,
   MODIFY `tma_cxcr4` varchar(250) DEFAULT NULL;
 
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare tissue sources');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('other', 'Other', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('other', 'Other', '', 1, @cont_id, @id, NOW());
+
 -- TODO
 
 SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
@@ -736,9 +744,20 @@ UNION
 SELECT 'Please confrim chemo reponse match: ["Yes" => "complete", "Yes (see note)" => "complete", "Partial" => "partial", "Unknown" => "unknown", "No" => "progressive disease"]' as Questions_For_OvCaRe
 UNION 
 SELECT 'Should we delete these fields from experimental results form: tro_clid_hsq004393, tro_clid_hsq006530, wdr72_clid_hsq009730, tma_blocks?' as Questions_For_OvCaRe
-UNION ALL
-SELECT 'What about Gross Image: Weight, etc!' as Questions_For_OvCaRe;
-
+UNION
+SELECT 'What about Gross Image? Are we gonna get Weight, height into excel?' as Questions_For_OvCaRe
+UNION 
+SELECT 'Pre Post surgical Issues: Should specimen include into pre or post surgery collection? Same question for buffy coat?' as Questions_For_OvCaRe
+UNION 
+SELECT 'Parafin blocks are linked to specimen 1 or 2? same question for vial frozen' as Questions_For_OvCaRe 
+UNION 
+SELECT 'Specimen type list: What about tissue source values coming from specimen type' as Questions_For_OvCaRe
+UNION 
+SELECT 'Clean up should be done on specimen type because endometrium is written in many ways...' as Questions_For_OvCaRe
+UNION 
+SELECT 'Do we want tissue nature field: tumoral, etc' as Questions_For_OvCaRe
+UNION 
+SELECT 'Validate unexported fields of Excel' as Questions_For_OvCaRe;
 
 
 
