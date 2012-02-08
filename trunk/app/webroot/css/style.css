@@ -1019,7 +1019,6 @@ span.help {
 				font-size: 1.3em;
 				font-weight: bold;
 				line-height: 1.1em;
-				height: 25px;
 			}
 			ul.big_menu li a span.menuDesc {
 				display: block;
@@ -1181,7 +1180,7 @@ span.help {
 .icon16.thumbsdown { background-position: -96px -32px; }
 .icon16.thumbsup { background-position: -96px -16px; }
 .icon16.treatments { background-position: -64px -32px; }
-.icon16.use { background-position: -96px -96px; }
+.icon16.aliquot.uses { background-position: -96px -96px; }
 .icon16.users { background-position: -80px -32px; }
 
 a.icon16.search { text-decoration: none; color: #000; }
@@ -1949,4 +1948,10 @@ table.columns.index tbody tr:nth-child(even){
 }
 table.columns.index tbody tr:hover{
 	background-color: #ffc;
+}
+.row{
+	display: table-row;
+}
+.cell{
+	display: table-cell;
 }

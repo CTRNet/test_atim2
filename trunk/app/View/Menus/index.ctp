@@ -28,7 +28,7 @@
 			$atim_content['menu'] .= '
 				<!-- '.$menu['Menu']['id'].' -->
 				<li class="'.( $menu['Menu']['at'] ? 'at ' : '' ).'count_'.$count.'">'
-					.$this->Html->link('<span class="'.$class.'"></span><span class="menuLabel">'. __($menu['Menu']['language_title']).'<span class="menuDesc">'.__($menu['Menu']['language_description']).'</span></span>', $menu['Menu']['use_link'], array('title' => $title, 'escape' => false)).'
+					.$this->Html->link('<div class="row"><span class="cell"><span class="'.$class.'"></span></span><span class="menuLabel cell">'. __($menu['Menu']['language_title']).'<span class="menuDesc">'.__($menu['Menu']['language_description']).'</span></span></div>', $menu['Menu']['use_link'], array('title' => $title, 'escape' => false)).'
 				</li>
 			';
 			
