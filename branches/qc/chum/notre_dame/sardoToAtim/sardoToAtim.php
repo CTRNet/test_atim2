@@ -103,10 +103,10 @@ class SardoToAtim{
 		return $connection;
 	}
 	
-	static function printStmtWarnings($stmt){
+	static function printStmtWarnings($stmt, $line_number, $query){
 		if($warnings = $stmt->get_warnings()){
 			do{
-				printf("DB_WARNING: %s\n", $warnings->message);
+				printf("DB_WARNING: %s -- At line [%d] on query: [%s]\n", $warnings->message, $line_number, $query);
 			}while($warnings->next());
 		}
 	}
@@ -138,7 +138,6 @@ class SardoToAtim{
 			if(!array_key_exists($column_name, self::$columns)){
 				$errors = true;
 				echo 'ERROR: Missing column ['.$column_name."]\n";
-				print_r($header_cells);
 				die('d');
 				continue;
 			}
@@ -423,7 +422,7 @@ class SardoToAtim{
 			}else if($valid_bank){
 				//match the date of birth
 				if($sql_row1['date_of_birth'] && $sql_row1['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
+					printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
 					$errors = true;
 					continue;
 				}
@@ -438,7 +437,7 @@ class SardoToAtim{
 			}else if($valid_hospital){
 				//match the date of birth
 				if($sql_row2['date_of_birth'] && $sql_row2['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does no match participant with bank hospital [%s] at line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
+					printf("ERROR: The date of birth [%s] does no match participant with bank hospital [%s] at line [%d].\n", $sql_row2['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
 					$errors = true;
 					continue;
 				}
@@ -447,7 +446,7 @@ class SardoToAtim{
 				$cells[key($cells)]['date_of_birth'] = $sql_row2['date_of_birth'];
 				
 			}else{
-				printf("ERROR: Neither the hospital number nor the bank number can be found for participant at line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
+				printf("ERROR: Neither the hospital number nor the bank number can be found for participant at line [%d].\n", key($cells));
 				$errors = true;
 				continue;
 			}
@@ -537,6 +536,10 @@ class SardoToAtim{
 		}else if(strpos($date_str, '-JJ') !== false){
 			$date_str = substr($date_str, 0, 8)."01";
 			$accuracy = 'd';
+		}else if(strpos($date_str, 'AAAA-') === 0){
+			printf("WARNING: Bogus date [%s] deleted.\n", $date_str);
+			$date_str = '';
+			$accuracy = '';
 		}else{
 			$accuracy = 'c';
 		}
@@ -680,7 +683,8 @@ class SardoToAtim{
 			$stmt->close();
 			$to_update = array();
 			if($data['master'][$required] != $row[$levels['master'].'.'.$required]){
-				die('ERROR: Required field ['.$levels['master'].'.'.$field_name."] doesn't match. Found [".$row[$required]."] Expected [".$data['master'][$required]."]. Line [".$line_number."]\n");
+				print_r($row);
+				die('ERROR: Required field ['.$levels['master'].'.'.$required."] doesn't match. Found [".$row[$levels['master'].'.'.$required]."] Expected [".$data['master'][$required]."]. Line [".$line_number."]\n");
 			}
 
 			foreach($data as $level => $fields_values){
@@ -697,9 +701,8 @@ class SardoToAtim{
 						if($level == 'master'){
 							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs', 'id=?', $field_name);
 						}else{
-							$query = sprintf("SELECT %s, modified_by FROM %s WHERE %s GROUP BY %s ORDER BY version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs',  substr($table_name, 0, -1)."_id", $field_name);
+							$query = sprintf("SELECT %s, modified_by FROM %s INNER JOIN %s ON %s WHERE %s GROUP BY %s ORDER BY %s.version_created DESC LIMIT 1", $field_name, $levels[$level].'_revs', $levels['master'].'_revs', $levels['master'].'_revs.id='.$levels[$level].'_revs.'.substr($levels['master'], 0, -1).'_id AND '.$levels[$level].'_revs.version_created='.$levels['master'].'_revs.version_created', $levels['master'].'_revs.id=?', $field_name, $levels['master'].'_revs');
 						}
-						
 						$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 						$row2 = bindRow($stmt);
 						$stmt->bind_param('i', $row['id']);
@@ -732,7 +735,7 @@ class SardoToAtim{
 				$stmt = self::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 				call_user_func_array(array($stmt, 'bind_param'), $param_ref);
 				$stmt->execute();
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, $line_number, $query);
 				$stmt->close();
 				printf("UPDATE made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 			}else{
@@ -744,6 +747,7 @@ class SardoToAtim{
 			$stmt->close();
 			$data['master']['created_by'] = self::$db_user_id;
 			$data['master']['modified_by'] = self::$db_user_id;
+			$data['master'] = array_filter($data['master']);
 			$query = sprintf('INSERT INTO %s ('.implode(', ', array_keys($data['master'])).', created, modified) VALUES('.str_repeat('?, ', count($data['master']) - 1).'?, NOW(), NOW())', $levels['master']);
 			$param = array(str_repeat('s', count($data['master'])));
 			foreach($data['master'] as &$data_unit){
@@ -753,9 +757,10 @@ class SardoToAtim{
 			call_user_func_array(array($stmt, 'bind_param'), $param);
 			$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
 			$last_id = $stmt->insert_id;
-			self::printStmtWarnings($stmt);
+			self::printStmtWarnings($stmt, $line_number, $query);
 			$stmt->close();
 			if($detail_table_name != null){
+				$data['detail'] = array_filter($data['detail']);
 				$data['detail'][substr($levels['master'], 0, -1)."_id"] = $last_id;
 				$query = sprintf('INSERT INTO %s ('.implode(', ', array_keys($data['detail'])).') VALUES('.str_repeat('?, ', count($data['detail']) - 1).'?)', $detail_table_name);
 				$param = array(str_repeat('s', count($data['detail'])));
@@ -765,7 +770,7 @@ class SardoToAtim{
 				$stmt = SardoToAtim::$connection->prepare($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 				call_user_func_array(array($stmt, 'bind_param'), $param);
 				$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, $line_number, $query);
 				$stmt->close();
 			}
 			printf("INSERT made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
@@ -783,10 +788,11 @@ class SardoToAtim{
 		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$invalid_topo = array();
 		while($row = $result->fetch_assoc()){
-			$invalid_topo[] = $row['topography'];
+			$invalid_topo[] = $row['icd10_code'];
 		}
 		if($invalid_topo){
-			printf('ERROR: The following topography codes (icd10_code) are invalid ['.implode(', ', $invalid_topo));
+			$invalid_topo = array_unique(array_filter($invalid_topo));
+			printf("ERROR: The following topography codes (icd10_code) are invalid [".implode(', ', $invalid_topo)."].\n");
 		}
 		$result->free();
 	}
@@ -800,8 +806,7 @@ class SardoToAtim{
 		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		while($row = $result->fetch_assoc()){
 			if($row['language_alias'] != self::$morpho_codes[$row['value']]){
-				self::$commit = false;
-				printf("ERROR: Different morpho definition for code [%s] in file [%s] and database [%s].\n", $row['value'], self::$morpho_codes[$row['value']], $row['language_alias']);
+				printf("WARNING: Different morpho definition for code [%s] in file [%s] and database [%s].\n", $row['value'], self::$morpho_codes[$row['value']], $row['language_alias']);
 			}
 			unset(self::$morpho_codes[$row['value']]);
 		}
@@ -815,7 +820,7 @@ class SardoToAtim{
 				$stmt->bind_param('ss', $value, $language_alias);
 				$stmt->execute();
 				$ids[] = $stmt->insert_id;
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, -1, $query);
 				printf("INSERT NEW MORPHO [%s]:[%s]\n", $value, $language_alias);
 			}
 			$stmt->close();
@@ -825,7 +830,7 @@ class SardoToAtim{
 			foreach($ids as $id){
 				$stmt->bind_param('ii', $morpho_domain_id, $id);
 				$stmt->execute();
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, -1, $query);
 			}
 			$stmt->close();
 		}
@@ -853,7 +858,7 @@ class SardoToAtim{
 			foreach($values as $value){
 				$stmt->bind_param('ss', $value, $value);
 				$stmt->execute();
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, -1, $query);
 				$inserted_ids[] = $stmt->insert_id;
 				printf("INSERT new value [%s] for value domain [%s]\n", $value, $domain_name);
 			}
@@ -864,7 +869,7 @@ class SardoToAtim{
 			foreach($inserted_ids as $inserted_id){
 				$stmt->bind_param('si', $domain_name, $inserted_id);
 				$stmt->execute();
-				self::printStmtWarnings($stmt);
+				self::printStmtWarnings($stmt, -1, $query);
 			}
 			$stmt->close();
 		}
@@ -892,8 +897,7 @@ class SardoToAtim{
 		
 		if(self::$commit){
 			self::$connection->commit();
-// 			self::$connection->rollback();
-			echo "\nProcess complete. Changes were COMMITED (but not for debug).\n";
+			echo "\nProcess complete. Changes were COMMITED.\n";
 		}else{
 			self::$connection->rollback();
 			echo "\nProcess complete. Changes were NOT commited.\n";
@@ -930,6 +934,10 @@ class SardoToAtim{
 			}
 		}
 		return array('cause' => $cause, 'status' => $status);
+	}
+	
+	static function toNumber($in){
+		return (float)str_replace(',', ".", $in);
 	}
 }
 

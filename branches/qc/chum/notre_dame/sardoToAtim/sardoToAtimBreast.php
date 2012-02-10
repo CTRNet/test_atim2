@@ -1,83 +1,84 @@
 <?php
 require_once 'sardoToAtim.php';
 SardoToAtim::$columns = array(
-	"No de dossier"						=> 1,
-    "Nom"								=> 2,
-    "Prénom"							=> 3,
-    "No banque de tissus"				=> 4,
-    "No patient SARDO"					=> 5,
-    "RAMQ"								=> 6,
-    "Sexe"								=> 7,
-    "Race"								=> 8,
-    "Date de naissance"					=> 9,
-    "Age actuel"						=> 10,
-    "Date du diagnostic"				=> 11,
-    "Age au diagnostic"					=> 12,
-    "Antécédents familiaux ce cancer"	=> 13,
-    "Ménopause"							=> 14,
-    "Gravida Para Aborta"				=> 15,
-    "No DX SARDO"						=> 16,
-    "Diagnostic"						=> 17,
-    "Latéralité"						=> 18,
-    "Code topographique"				=> 19,
-    "Topographie"						=> 20,
-    "Code morphologique"				=> 21,
-    "Morphologie"						=> 22,
-    "TNM clinique"						=> 23,
-    "TNM pT"							=> 24,
-    "TNM pN"							=> 25,
-    "TNM pM"							=> 26,
-    "TNM pathologique"					=> 27,
-    "TNM G"								=> 28,
-    "BIOP+ 1 Tx00 - date"				=> 29,
-    "BIOP+ 1 Tx00"						=> 30,
-    "CHIR 1 Tx00 - date"				=> 31,
-    "CHIR 1 Tx00"						=> 32,
-    "CHIR 1 Tx00 - no patho"			=> 33,
-    "Atteinte multicentrique"			=> 34,
-    "Atteinte multifocale"				=> 35,
-    "Ganglions régionaux"				=> 36,
-    "Ganglions régionaux - prop"		=> 37,
-    "Ganglions régionaux - sent"		=> 38,
-    "Grade de Nottingham"				=> 39,
-    "Grade histologique sur 3"			=> 40,
-    "Grade nucléaire"					=> 41,
-    "HER2NEU"							=> 42,
-    "HER2NEU FISH"						=> 43,
-    "HER2NEU Herceptest"				=> 44,
-    "HER2NEU TAB 250"					=> 45,
-    "Index mitotique"					=> 46,
-    "Marges de résection"				=> 47,
-    "Récepteurs oestrogènes"			=> 48,
-    "Récepteurs progestatifs"			=> 49,
-    "Récepteurs hormonaux"				=> 50,
-    "Taille tumeur (mm)"				=> 51,
-    "Taille tumeur (mm) - num"			=> 52,
-    "CHIMIO néo-adjuvante Tx00"			=> 53,
-    "CHIMIO adjuvante Tx00"				=> 54,
-    "HORM néo-adjuvante Tx00"			=> 55,
-    "HORM adjuvante Tx00"				=> 56,
-    "RADIO néo-adjuvante Tx00"			=> 57,
-    "RADIO adjuvante Tx00"				=> 58,
-    "Pr00 - sites d'atteinte"			=> 59,
-    "Pr01 - date"						=> 60,
-    "Pr01 - sites"						=> 61,
-    "Délai DX-Pr01 (M)"					=> 62,
-    "Délai DX-Pr01 (J)"					=> 63,
-    "Pr02 - date"						=> 64,
-    "Pr02 - sites"						=> 65,
-    "Délai Pr01-Pr02 (M)"				=> 66,
-    "Délai Pr01-Pr02 (J)"				=> 67,
-    "Pr03 - date"						=> 68,
-    "Pr03 - sites"						=> 69,
-    "Délai Pr02-Pr03 (M)"				=> 70,
-    "Délai Pr02-Pr03 (J)"				=> 71,
-    "Date dernier contact"				=> 72,
-    "Censure (0 = vivant, 1 = mort)"	=> 73,
-    "Survie (mois)"						=> 74,
-    "Date du décès"						=> 75,
-    "Cause de décès"					=> 76
+	1 => "No de dossier",
+    "Nom",
+    "Prénom",
+    "No banque de tissus",
+    "No patient SARDO",
+    "RAMQ",
+    "Sexe",
+    "Race",
+    "Date de naissance",
+    "Age actuel",
+    "Date du diagnostic",
+    "Age au diagnostic",
+    "Antécédents familiaux ce cancer",
+    "Ménopause",
+    "Gravida Para Aborta",
+    "No DX SARDO",
+    "Diagnostic",
+    "Latéralité",
+    "Code topographique",
+    "Topographie",
+    "Code morphologique",
+    "Morphologie",
+    "TNM clinique",
+    "TNM pT",
+    "TNM pN",
+    "TNM pM",
+    "TNM pathologique",
+    "TNM G",
+    "BIOP+ 1 Tx00 - date",
+    "BIOP+ 1 Tx00",
+    "CHIR 1 Tx00 - date",
+    "CHIR 1 Tx00",
+    "CHIR 1 Tx00 - no patho",
+    "Atteinte multicentrique",
+    "Atteinte multifocale",
+    "Ganglions régionaux",
+    "Ganglions régionaux - prop",
+    "Ganglions régionaux - sent",
+    "Grade de Nottingham",
+    "Grade histologique sur 3",
+    "Grade nucléaire",
+    "HER2NEU",
+    "HER2NEU FISH",
+    "HER2NEU Herceptest",
+    "HER2NEU TAB 250",
+    "Index mitotique",
+    "Marges de résection",
+    "Récepteurs oestrogènes",
+    "Récepteurs progestatifs",
+    "Récepteurs hormonaux",
+    "Taille tumeur (mm)",
+    "Taille tumeur (mm) - num",
+    "CHIMIO néo-adjuvante Tx00",
+    "CHIMIO adjuvante Tx00",
+    "HORM néo-adjuvante Tx00",
+    "HORM adjuvante Tx00",
+    "RADIO néo-adjuvante Tx00",
+    "RADIO adjuvante Tx00",
+    "Pr00 - sites d'atteinte",
+    "Pr01 - date",
+    "Pr01 - sites",
+    "Délai DX-Pr01 (M)",
+    "Délai DX-Pr01 (J)",
+    "Pr02 - date",
+    "Pr02 - sites",
+    "Délai Pr01-Pr02 (M)",
+    "Délai Pr01-Pr02 (J)",
+    "Pr03 - date",
+    "Pr03 - sites",
+    "Délai Pr02-Pr03 (M)",
+    "Délai Pr02-Pr03 (J)",
+    "Date dernier contact",
+    "Censure (0 = vivant, 1 = mort)",
+    "Survie (mois)",
+    "Date du décès",
+    "Cause de décès"
 );
+SardoToAtim::$columns = array_flip(SardoToAtim::$columns);
 
 SardoToAtim::$date_columns = array(
 	'Date de naissance',
@@ -117,9 +118,8 @@ $patho_fields = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-// $xls_reader->read('/Volumes/data/2011-11-15 Export complet sein.XLS');
-// $xls_reader->read('/Volumes/data/2011-11-15 Export complet sein sample.XLS');
-$xls_reader->read('/Volumes/data/2011-11-18 export sein recherche.XLS');
+$xls_reader->read('/Volumes/data/new/2012-01-12 Sein CHUM.XLS');
+// $xls_reader->read('/Volumes/data/new/2012-01-17 Sein SARDO recherche.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
@@ -157,7 +157,7 @@ while($line = next($cells)){
 			SardoToAtim::$commit = false;
 			printf("ERROR: Different definitions found for morpho code [%s] [%s] [%s]\n", $line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]], $morpho_value);
 		}
-	}else{
+	}else if($line[SardoToAtim::$columns['Code morphologique']]){
 		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = $morpho_value; 
 	}
 	
@@ -331,7 +331,7 @@ while($line = next($cells)){
 					'diagnosis_control_id'	=> 17,
 					'parent_id'				=> $dx_id,
 					'dx_date'				=> $line[SardoToAtim::$columns[$date_key]],
-					'dx_date_accuracy'		=> $line[$date_ket.'_accuracy']
+					'dx_date_accuracy'		=> $line[$date_key.'_accuracy']
 				), 'detail' => array(
 					'qc_nd_sites'			=> $line[SardoToAtim::$columns[$site_key]]
 				)
@@ -347,10 +347,10 @@ while($line = next($cells)){
 				'participant_id'			=> $line['participant_id'],
 				'menopause_status'			=> $converted_menopause['status'],
 				'qc_nd_cause'				=> $converted_menopause['cause'],
-				'qc_nd_gravida_para_aborta' => $converted_menopause['Gravida Para Aborta']
+				'qc_nd_gravida_para_aborta' => $line[SardoToAtim::$columns['Gravida Para Aborta']]
 			)
 		);
-		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, null, $menopause, $line_number);
+		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, $menopause, $line_number);
 	}
 }
 
