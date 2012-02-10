@@ -11,8 +11,8 @@
 	$unique_event_type_list = array(
 		'hepatobiliary-clinical-presentation',
 		'hepatobiliary-lifestyle-summary',
-		'hepatobiliary-clinical-medical past history record summary',
-		'hepatobiliary-clinical-medical imaging record summary',
+		'hepatobiliary-medical_history-medical past history record summary',
+		'hepatobiliary-imagery-medical imaging record summary',
 		'hepatobiliary-clinical-cirrhosis medical past history');
 	
 	if(in_array($created_event_type_title, $unique_event_type_list)) {
