@@ -2,57 +2,62 @@
 require_once 'sardoToAtim.php';
 
 SardoToAtim::$columns = array(
-	'Nom'								=> 1,
-	'Prénom'							=> 2,
-	'No de dossier'						=> 3,
-	'No banque de tissus'				=> 4,
-	'No patient SARDO'					=> 5,
-	'Date de naissance'					=> 6,
-	'Age actuel'						=> 7,
-	'Date du diagnostic'				=> 8,
-	'Age au diagnostic'					=> 9,
-	'No DX SARDO'						=> 10,
-	'Topographie'						=> 11,
-	'Latéralité'						=> 12,
-	'Morphologie'						=> 13,
-	'Ménopause'							=> 14,
-	'Année ménopause'					=> 15,
-	'TNM G'								=> 16,
-	'TNM pT'							=> 17,
-	'TNM pN'							=> 18,
-	'TNM pM'							=> 19,
-	'TNM pathologique'					=> 20,
-	'FIGO'								=> 21,
-	'BIOP+ 1 Tx00'						=> 22,
-	'BIOP+ 1 Tx00 - date'				=> 23,
-	'CYTO+ 1 Tx00'						=> 24,
-	'CYTO+ 1 Tx00 - date'				=> 25,
-	'CHIR 1 Tx00'						=> 26,
-	'CHIR 1 Tx00 - date'				=> 27,
-	'CHIMIO 1 Tx00'						=> 28,
-	'CHIMIO 1 Tx00 - début'				=> 29,
-	'CHIMIO préCHIR Tx00'				=> 30,
-	'CHIM préCHIR Tx00 - date'			=> 31,
-	'Toute HORM Tx00'					=> 32,
-	'CA-125 péri-DX - date'				=> 33,
-	'CA-125 péri-DX'					=> 34,
-	'CA-125 préCHIR Tx00 - dat'			=> 35,
-	'CA-125 préCHIR Tx00'				=> 36,
-	'Dernier CA-125 - date'				=> 37,
-	'Dernier CA-125'					=> 38,
-	'Ovaire droit - blocs'				=> 39,
-	'Ovaire gauche - blocs'				=> 40,
-	'Maladie résiduelle'				=> 41,
-	'Pr01 - date'						=> 42,
-	'Délai DX-Pr01 (M)'					=> 43,
-	'Délai DX-Pr01 (J)'					=> 44,
-	'Pr01 - sites'						=> 45,
-	'Date dernier contact'				=> 46,
-	'Date du décès'						=> 47,
-	'Cause de décès'					=> 48,
-	'Censure (0 = vivant, 1 = mort)'	=> 49,
-	'Survie (mois)' 					=> 50
+	1 => 'Nom',
+	'Prénom',
+	'No de dossier',
+	'No banque de tissus',
+	'No patient SARDO',
+	'Date de naissance',
+	'Age actuel',
+	'Date du diagnostic',
+	'Age au diagnostic',
+	'No DX SARDO',
+	'Code topographique',
+	'Topographie',
+	'Latéralité',
+	'Code morphologique',
+	'Morphologie',
+	'Ménopause',
+	'Année ménopause',
+	'TNM G',
+	'TNM pT',
+	'TNM pN',
+	'TNM pM',
+	'TNM pathologique',
+	'FIGO',
+	'BIOP+ 1 Tx00',
+	'BIOP+ 1 Tx00 - date',
+	'CYTO+ 1 Tx00',
+	'CYTO+ 1 Tx00 - date',
+	'CHIR 1 Tx00',
+	'CHIR 1 Tx00 - date',
+	'CHIR 1 Tx00 - no patho',
+	'CHIMIO 1 Tx00',
+	'CHIMIO 1 Tx00 - début',
+	'CHIMIO préCHIR Tx00',
+	'CHIM préCHIR Tx00 - date',
+	'Toute HORM Tx00',
+	'CA-125 péri-DX - date',
+	'CA-125 péri-DX',
+	'CA-125 préCHIR Tx00 - dat',
+	'CA-125 préCHIR Tx00',
+	'Dernier CA-125 - date',
+	'Dernier CA-125',
+	'Ovaire droit - blocs',
+	'Ovaire gauche - blocs',
+	'Maladie résiduelle',
+	'Pr01 - date',
+	'Délai DX-Pr01 (M)',
+	'Délai DX-Pr01 (J)',
+	'Pr01 - sites',
+	'Date dernier contact',
+	'Date du décès',
+	'Cause de décès',
+	'Censure (0 = vivant, 1 = mort)',
+	'Survie (mois)'
 );
+
+SardoToAtim::$columns = array_flip(SardoToAtim::$columns);
 
 SardoToAtim::$date_columns = array(
 	'Date de naissance',
@@ -73,9 +78,8 @@ SardoToAtim::$date_columns = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-// $xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet.XLS');
-// $xls_reader->read('/Volumes/data/2011-12-01 Export SARDO-recherche ovaire.XLS');
-$xls_reader->read('/Volumes/data/2011-11-15 Export ovaire complet sample.XLS');
+// $xls_reader->read('/Volumes/data/new/2012-01-17 Ovaire SARDO recherche.XLS');
+$xls_reader->read('/Volumes/data/new/2012-01-12 Ovaire CHUM.XLS');
 $cells = $xls_reader->sheets[0]['cells'];
 
 $stmt = SardoToAtim::$connection->prepare("SELECT * FROM participants WHERE id=?");
@@ -85,23 +89,23 @@ while($line = next($cells)){
 	$line_number = key($cells);
 	$dx_data = array(
 		'master' => array(
-			'participant_id'		=> $line['participant_id'],
-			'qc_nd_sardo_id'		=> $line[SardoToAtim::$columns['No DX SARDO']],
-			'diagnosis_control_id'	=> 19,
-			'parent_id'				=> null,
-			'dx_date'				=> $line[SardoToAtim::$columns['Date du diagnostic']],
-			'dx_date_accuracy'		=> $line['Date du diagnostic_accuracy'],
-			'topography'			=> $line[SardoToAtim::$columns['Topographie']],//TODO, utiliser le code
-			'morphology'			=> $line[SardoToAtim::$columns['Morphologie']],//TODO, utiliser le code
-			'path_tstage'			=> $line[SardoToAtim::$columns['TNM pT']],
-			'path_nstage'			=> $line[SardoToAtim::$columns['TNM pN']],
-			'path_mstage'			=> $line[SardoToAtim::$columns['TNM pM']],
-			'path_stage_summary'	=> $line[SardoToAtim::$columns['TNM pathologique']],
-			'survival_time_months'	=> $line[SardoToAtim::$columns['Survie (mois)']]
+			'participant_id'			=> $line['participant_id'],
+			'qc_nd_sardo_id'			=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'diagnosis_control_id'		=> 19,
+			'parent_id'					=> null,
+			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
+			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
+			'icd10_code'				=> str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]),
+			'qc_nd_sardo_morpho_code'	=> $line[SardoToAtim::$columns['Code morphologique']],
+			'path_tstage'				=> $line[SardoToAtim::$columns['TNM pT']],
+			'path_nstage'				=> $line[SardoToAtim::$columns['TNM pN']],
+			'path_mstage'				=> $line[SardoToAtim::$columns['TNM pM']],
+			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']],
+			'survival_time_months'		=> $line[SardoToAtim::$columns['Survie (mois)']]
 		), 'detail' => array(
-			'laterality'			=> $line[SardoToAtim::$columns['Latéralité']],
-			'tnm_g'					=> $line[SardoToAtim::$columns['TNM G']],
-			'figo'					=> $line[SardoToAtim::$columns['FIGO']]
+			'laterality'				=> $line[SardoToAtim::$columns['Latéralité']],
+			'tnm_g'						=> $line[SardoToAtim::$columns['TNM G']],
+			'figo'						=> $line[SardoToAtim::$columns['FIGO']]
 		)
 	);
 	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
@@ -201,32 +205,35 @@ while($line = next($cells)){
 	}
 	
 	if($line[SardoToATim::$columns['Toute HORM Tx00']]){
-		//contient le type, suivi de la date from - to entre parenthèses
-		$value = substr($line[SardoToATim::$columns['Toute HORM Tx00']], 0, -26);
-		$date_from = SardoToAtim::formatWithAccuracy(preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($line[SardoToATim::$columns['Toute HORM Tx00']], -24, 10)));
-		$date_to = preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($line[SardoToATim::$columns['Toute HORM Tx00']], -11, 10));
-		if($date_to == '0000-00-00'){
-			$date_to['val'] = null;
-			$date_to['accuracy'] = '';
-		}else{
-			$date_to = SardoToAtim::formatWithAccuracy($date_to);
+		$pattern = "/[\w]+ \([\d]{2}\/[\d]{2}\/[\d]{4} - [\d]{2}\/[\d]{2}\/[\d]{4}\)/";
+		$matches = array();
+		preg_match_all($pattern, $line[SardoToATim::$columns['Toute HORM Tx00']], $matches);
+		foreach($matches[0] as $match){
+			//contient le type, suivi de la date from - to entre parenthèses
+			$value = substr($match, 0, -26);
+			$date_from = SardoToAtim::formatWithAccuracy(preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($match, -24, 10)));
+			$date_to = preg_replace('/([\w]{2})\/([\w]{2})\/([\w]{4})/', '$3-$2-$1', substr($match, -11, 10));
+			if($date_to == '0000-00-00'){
+				$date_to = array('val' => null, 'accuracy' => '');
+			}else{
+				$date_to = SardoToAtim::formatWithAccuracy($date_to);
+			}
+			
+			$hormono = array(
+				'master' => array(
+					'participant_id'		=> $line['participant_id'],
+					'treatment_control_id'	=> 5,
+					'start_date'			=> $date_from['val'],
+					'start_date_accuracy'	=> $date_from['accuracy'],
+					'finish_date'			=> $date_to['val'],
+					'finish_date_accuracy'	=> $date_to['accuracy'],
+					'diagnosis_master_id'	=> $dx_id
+				), 'detail' => array(
+					'type'					=> $value
+				)
+			);
+			SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number);
 		}
-		
-		$hormono = array(
-			'master' => array(
-				'participant_id'		=> $line['participant_id'],
-				'treatment_control_id'	=> 5,
-				'start_date'			=> $date_from['val'],
-				'start_date_accuracy'	=> $date_from['accuracy'],
-				'finish_date'			=> $date_to['val'],
-				'finish_date_accuracy'	=> $date_to['accuracy'],
-				'diagnosis_master_id'	=> $dx_id
-			), 'detail' => array(
-				'type'					=> $value
-			)
-		);
-		
-		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number);
 	}
 	
 	$ca125_peri_dx = null;
@@ -241,7 +248,7 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['CA-125 péri-DX - date']],
 				'event_date_accuracy'	=> $line['CA-125 péri-DX - date_accuracy']
 			), 'detail' => array(
-				'value'					=> $line[SardoToAtim::$columns['CA-125 péri-DX']]
+				'value'					=> SardoToAtim::toNumber($line[SardoToAtim::$columns['CA-125 péri-DX']])
 			)
 		);
 		
@@ -257,7 +264,7 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00 - dat']],
 				'event_date_accuracy'	=> $line['CA-125 préCHIR Tx00 - dat_accuracy']
 		), 'detail' => array(
-				'value'					=> $line[SardoToAtim::$columns['CA-125 préCHIR Tx00']]
+				'value'					=> SardoToAtim::toNumber($line[SardoToAtim::$columns['CA-125 préCHIR Tx00']])
 			)
 		);
 		
@@ -272,7 +279,7 @@ while($line = next($cells)){
 				'event_date'			=> $line[SardoToAtim::$columns['Dernier CA-125 - date']],
 				'event_date_accuracy'	=> $line['Dernier CA-125 - date_accuracy']
 		), 'detail' => array(
-				'value'					=> $line[SardoToAtim::$columns['Dernier CA-125']]
+				'value'					=> SardoToAtim::toNumber($line[SardoToAtim::$columns['Dernier CA-125']])
 			)
 		);
 		
