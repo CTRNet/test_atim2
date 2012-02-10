@@ -834,3 +834,229 @@ SET rev.aliquot_label = src.aliquot_label
 WHERE rev.id = src.id
 AND rev.aliquot_label != src.aliquot_label
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-02-10 after migration
+-- ------------------------------------------------------------------------
+
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings
+ ADD COLUMN `pancreas_number` smallint(5) unsigned DEFAULT NULL AFTER metastatic_lymph_nodes,
+ ADD COLUMN `pancreas_size` decimal(6,2) DEFAULT NULL AFTER pancreas_number;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs
+ ADD COLUMN `pancreas_number` smallint(5) unsigned DEFAULT NULL AFTER metastatic_lymph_nodes,
+ ADD COLUMN `pancreas_size` decimal(6,2) DEFAULT NULL AFTER pancreas_number;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'pancreas_size', 'float_positive',  NULL , '0', 'size=5', '', '', 'size (cm)', ''),
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'pancreas_number', 'integer_positive',  NULL , '0', 'size=5', '', '', 'number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='pancreas_number' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5'), '2', '108', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='pancreas_size' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5'), '2', '109', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('type of drain 1','Type of drain 1','Type de drain 1');
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`) VALUES
+('clin_CAN_1_qc_hb_15', 'clin_CAN_4', 0, 2, 'medical imagery', NULL, '/clinicalannotation/event_masters/listall/imagery/%%Participant.id%%', 'Clinicalannotation.EventMaster::summary', 1),
+('clin_CAN_1_qc_hb_16', 'clin_CAN_4', 0, 2, 'medical history', NULL, '/clinicalannotation/event_masters/listall/medical_history/%%Participant.id%%', 'Clinicalannotation.EventMaster::summary', 1);
+
+UPDATE `event_controls` SET event_group = 'medical_history' WHERE `detail_tablename` LIKE 'qc_hb_ed_hepatobiliary_medical_past_histor%';
+UPDATE `event_controls` SET event_group = 'imagery' WHERE `detail_tablename` LIKE 'qc_hb_ed_hepatobilary_medical_imagings';
+UPDATE `event_controls` SET event_group = 'medical_history' WHERE `detail_tablename` LIKE 'qc_hb_ed_hepatobiliary_med_hist_record_summaries';
+UPDATE `event_controls` SET event_group = 'imagery' WHERE `detail_tablename` LIKE 'qc_hb_ed_medical_imaging_record_summaries';
+UPDATE event_controls SET databrowser_label = CONCAT(event_group ,'|',event_type);
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('hospitalization','Hospitalization','Hospitalisation'),
+('medical_history','Medical History','Histoire Médicale'),
+('medical history','Medical History','Histoire Médicale'),
+('medical imagery','Imagery','Imagerie'),
+('imagery','Imagery','Imagerie');
+
+-- Diag & Metastase rebuild
+
+UPDATE diagnosis_controls SET controls_type = 'other' WHERE category = 'secondary' AND controls_type = 'undetailed';
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'primary', 'tissue', 1, 'diagnosismasters,dx_primary,qc_hb_dx_tissues', 'dxd_tissues', 0, '', 1),
+(null, 'primary', 'other', 1, 'diagnosismasters,dx_primary', 'dxd_primaries', 0, '', 1);
+UPDATE diagnosis_controls SET databrowser_label = CONCAT(category ,'|',controls_type);
+
+INSERT INTO structures(`alias`) VALUES ('qc_hb_dx_tissues');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_dx_tissues'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='dx_laterality' AND `language_label`='laterality' AND `language_tag`=''), '2', '99', 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_dx_tissues'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_nature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_nature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx nature' AND `language_label`='dx nature' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field` IN ('topography', 'morphology', 'survival_time_months', 'information_source', 'dx_method'));
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field` IN ('topography', 'morphology', 'information_source', 'dx_method'));
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'hepatobiliary', 'lab', 'lab report - liver metastases', 1, 'eventmasters,qc_hb_ed_lab_report_liver_metastases', 'qc_hb_ed_lab_report_liver_metastases', 0, 'lab|lab report - liver metastases');
+
+DROP TABLE IF EXISTS `qc_hb_ed_lab_report_liver_metastases`;
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_lab_report_liver_metastases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_master_id` int(11) NOT NULL,
+  
+  `histologic_type` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,  
+  	`necrosis_perc` decimal(3,1) DEFAULT NULL,
+  	`viable_cells_perc` varchar(50) DEFAULT NULL,  
+  	`lesions_nbr` int(6) DEFAULT NULL,
+  `additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  `additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  `tumor_size_cannot_be_determined` tinyint(1) DEFAULT '0',
+  `tumor_size_greatest_dimension` decimal(3,1) DEFAULT NULL,  	
+  	`other_lesion_size_greatest_dimension` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_cannot_be_determined` tinyint(1) DEFAULT '0', 
+  `tumor_site` varchar(50) DEFAULT NULL,
+  `tumor_site_specify` varchar(250) DEFAULT NULL,  
+	  `surgical_resection_margin` varchar(10) DEFAULT NULL,
+	  `distance_of_tumor_from_closest_surgical_resection_margin` decimal(3,1) DEFAULT NULL,
+	  `distance_unit` char(2) DEFAULT NULL,
+	  `specify_margin` varchar(250) DEFAULT NULL,
+	  `adjacent_liver_parenchyma` varchar(100) DEFAULT NULL,
+	  `adjacent_liver_parenchyma_specify` varchar(250) DEFAULT NULL, 
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `diagnosis_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `qc_hb_ed_lab_report_liver_metastases_revs`;
+CREATE TABLE IF NOT EXISTS `qc_hb_ed_lab_report_liver_metastases_revs` (
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `id` int(11) NOT NULL,
+  `event_master_id` int(11) NOT NULL,
+  
+  `histologic_type` varchar(100) DEFAULT NULL,
+  `histologic_type_specify` varchar(250) DEFAULT NULL,  
+  	`necrosis_perc` decimal(3,1) DEFAULT NULL,
+  	`viable_cells_perc` varchar(50) DEFAULT NULL,  
+  	`lesions_nbr` int(6) DEFAULT NULL,
+  `additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  `additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  `tumor_size_cannot_be_determined` tinyint(1) DEFAULT '0',
+  `tumor_size_greatest_dimension` decimal(3,1) DEFAULT NULL,  	
+  	`other_lesion_size_greatest_dimension` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_additional_dimension_a` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_additional_dimension_b` decimal(3,1) DEFAULT NULL,
+  	`other_lesion_size_cannot_be_determined` tinyint(1) DEFAULT '0', 
+  `tumor_site` varchar(50) DEFAULT NULL,
+  `tumor_site_specify` varchar(250) DEFAULT NULL,  
+	  `surgical_resection_margin` varchar(10) DEFAULT NULL,
+	  `distance_of_tumor_from_closest_surgical_resection_margin` decimal(3,1) DEFAULT NULL,
+	  `distance_unit` char(2) DEFAULT NULL,
+	  `specify_margin` varchar(250) DEFAULT NULL,
+	  `adjacent_liver_parenchyma` varchar(100) DEFAULT NULL,
+	  `adjacent_liver_parenchyma_specify` varchar(250) DEFAULT NULL, 
+  `notes` text,
+  PRIMARY KEY (`version_id`),
+  KEY `diagnosis_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `qc_hb_ed_lab_report_liver_metastases`
+  ADD CONSTRAINT `qc_hb_ed_lab_report_liver_metastases_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('qc_hb_ed_lab_report_liver_metastases');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'histologic_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_metastasis_hitologic_type') , '0', '', '', '', 'histologic type', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'histologic_type_specify', 'input',  NULL , '0', '', '', '', 'histologic type specify', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'necrosis_perc', 'float',  NULL , '0', '', '', '', 'necrosis percentage', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'viable_cells_perc', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_viable_cells_perc') , '0', '', '', '', 'viable cells percentage', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'lesions_nbr', 'integer',  NULL , '0', '', '', '', 'lesions nbr', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'other_lesion_size_greatest_dimension', 'float',  NULL , '0', '', '', '', 'other lesion greatest dimension', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'other_lesion_size_additional_dimension_a', 'float',  NULL , '0', '', '', '', 'other lesion additional dimension a', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'other_lesion_size_additional_dimension_b', 'float',  NULL , '0', '', '', '', '', 'additional dimension b'), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'other_lesion_size_cannot_be_determined', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'other lesion cannot be determined', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_metastasis_tumor_site') , '0', '', '', '', 'tumor site', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'tumor_site_specify', 'input',  NULL , '0', '', '', '', 'tumor site specify', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'surgical_resection_margin', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_positive_negative') , '0', '', '', '', 'surgical resection margin', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'distance_of_tumor_from_closest_surgical_resection_margin', 'float',  NULL , '0', '', '', '', 'distance of tumor from closest surgical resection margin', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'distance_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='distance_unit') , '0', '', '', '', '', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'specify_margin', 'input',  NULL , '0', '', '', '', '', 'specify margin'), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'adjacent_liver_parenchyma', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_adjacent_liver_parenchyma') , '0', '', '', '', 'adjacent liver parenchyma', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_lab_report_liver_metastases', 'adjacent_liver_parenchyma_specify', 'input',  NULL , '0', '', '', '', 'adjacent liver parenchyma specify', ''); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='histologic_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_metastasis_hitologic_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type' AND `language_tag`=''), '1', '1', 'histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='histologic_type_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histologic type specify' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='necrosis_perc' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='necrosis percentage' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='viable_cells_perc' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_viable_cells_perc')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='viable cells percentage' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='lesions_nbr' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lesions nbr' AND `language_tag`=''), '1', '5', 'lesions', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='tumor_size_greatest_dimension'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='additional_dimension_a'), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='additional_dimension_b'), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='tumor_size_cannot_be_determined'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='other_lesion_size_greatest_dimension' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other lesion greatest dimension' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='other_lesion_size_additional_dimension_a' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other lesion additional dimension a' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='other_lesion_size_additional_dimension_b' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='additional dimension b'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='other_lesion_size_cannot_be_determined' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other lesion cannot be determined' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_liver_metastasis_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '15', 'tumor site', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='tumor_site_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site specify' AND `language_tag`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='surgical_resection_margin' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_positive_negative')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgical resection margin' AND `language_tag`=''), '1', '25', 'margins', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='distance_of_tumor_from_closest_surgical_resection_margin' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='distance of tumor from closest surgical resection margin' AND `language_tag`=''), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='distance_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='distance_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='specify_margin' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify margin'), '1', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='adjacent_liver_parenchyma' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_adjacent_liver_parenchyma')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='adjacent liver parenchyma' AND `language_tag`=''), '1', '40', 'parenchyma', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_lab_report_liver_metastases' AND `field`='adjacent_liver_parenchyma_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='adjacent liver parenchyma specify' AND `language_tag`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_lab_report_liver_metastases'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='notes'), '1', '44', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('other lesion additional dimension a', 'Other Lesion - Additional Dimension', 'Dimension supplémentaire - Autre lésion');
+REPLACE INTO i18n (id,en,fr) VALUES ('additional dimension b', 'x', 'x');
+
+ALTER TABLE qc_hb_dxd_liver_metastases
+	DROP COLUMN histologic_type,
+	DROP COLUMN histologic_type_specify,
+	DROP COLUMN lesions_nbr,
+	DROP COLUMN other_lesion_size_greatest_dimension,
+	DROP COLUMN other_lesion_size_additional_dimension_a,
+	DROP COLUMN other_lesion_size_additional_dimension_b,
+	DROP COLUMN other_lesion_size_cannot_be_determined,
+	DROP COLUMN tumor_site,
+	DROP COLUMN tumor_site_specify,
+	DROP COLUMN necrosis_perc,
+	DROP COLUMN viable_cells_perc,
+	DROP COLUMN surgical_resection_margin,
+	DROP COLUMN distance_of_tumor_from_closest_surgical_resection_margin,
+	DROP COLUMN distance_unit,
+	DROP COLUMN specify_margin,
+	DROP COLUMN adjacent_liver_parenchyma,
+	DROP COLUMN adjacent_liver_parenchyma_specify;
+ALTER TABLE qc_hb_dxd_liver_metastases_revs
+	DROP COLUMN histologic_type,
+	DROP COLUMN histologic_type_specify,
+	DROP COLUMN lesions_nbr,
+	DROP COLUMN other_lesion_size_greatest_dimension,
+	DROP COLUMN other_lesion_size_additional_dimension_a,
+	DROP COLUMN other_lesion_size_additional_dimension_b,
+	DROP COLUMN other_lesion_size_cannot_be_determined,
+	DROP COLUMN tumor_site,
+	DROP COLUMN tumor_site_specify,
+	DROP COLUMN necrosis_perc,
+	DROP COLUMN viable_cells_perc,
+	DROP COLUMN surgical_resection_margin,
+	DROP COLUMN distance_of_tumor_from_closest_surgical_resection_margin,
+	DROP COLUMN distance_unit,
+	DROP COLUMN specify_margin,
+	DROP COLUMN adjacent_liver_parenchyma,
+	DROP COLUMN adjacent_liver_parenchyma_specify;
+
+UPDATE diagnosis_controls SET form_alias = 'diagnosismasters,dx_secondary' WHERE detail_tablename = 'qc_hb_dxd_liver_metastases'; 
+
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases
+  ADD COLUMN `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0' AFTER notes;
+
+INSERT INTO i18n (id,en,fr) VALUES ('lab report - liver metastases','Lab Report - Liver Metastases','Rapport Lab - Métastases hépatiques');
+  
+REPLACE INTO i18n (id,en,fr) VALUES 
+('other lesion additional dimension a', 'Other Lesion - Additional Dimension (cm)', 'Autre lésion - Dimension supplémentaire (cm)');
+('other lesion cannot be determined', 'Other Lesion - Cannot Be Determined', 'Autre lésion - Ne peut être déterminée');
+('other lesion greatest dimension', 'Other Lesion - Tumor Size Greatest Dimension (cm)', 'Autre lésion - Plus grande dimension de la tumeur (cm)');
+
+  
