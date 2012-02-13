@@ -1,5 +1,4 @@
 <?php
-
 class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 	var $components = array(); 
@@ -29,62 +28,6 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		
 	}
 	
-	function listall( $participant_id ) {
-		$this->Participant->getOrRedirect($participant_id);
-
-		// MANAGE DATA
-		$this->request->data = $this->paginate($this->MiscIdentifier, array('MiscIdentifier.participant_id'=>$participant_id));
-		$conditions = array('flag_active' => '1');
-		if(!$this->Session->read('flag_show_confidential')){
-			$conditions["flag_confidential"] = 0;
-		}
-		
-		$mi = $this->MiscIdentifier->find('all', array(
-			'fields' => array('MiscIdentifierControl.id'), 
-			'conditions' => array('MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1),
-			'group' => array('MiscIdentifierControl.id')
-		));
-		$reusable = array();
-		foreach($mi as $mi_unit){
-			$reusable[$mi_unit['MiscIdentifierControl']['id']] = null;
-		}
-		$identifier_controls_list = $this->MiscIdentifierControl->find('all', array('conditions' => $conditions));
-		foreach($identifier_controls_list as &$unit){
-			if(!empty($unit['MiscIdentifierControl']['autoincrement_name']) && array_key_exists($unit['MiscIdentifierControl']['id'], $reusable)){
-				$unit['reusable'] = true;
-			}
-		} 
-		$this->set('identifier_controls_list', $identifier_controls_list);
-
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
-				
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}
-	}
-	
-	function detail( $participant_id, $misc_identifier_id ) {
-		$this->Participant->getOrRedirect($participant_id);
-		$this->MiscIdentifier->getOrRedirect($misc_identifier_id);
-
-		// MANAGE DATA
-		$misc_identifier_data = $this->MiscIdentifier->find('first', array('conditions'=>array('MiscIdentifier.id'=>$misc_identifier_id, 'MiscIdentifier.participant_id'=>$participant_id)));		
-		if(empty($misc_identifier_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}
-		$this->request->data = $misc_identifier_data;
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }		
-	}
-	
 	function add( $participant_id, $misc_identifier_control_id) {
 		$this->Participant->getOrRedirect($participant_id);
 		$controls = $this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
@@ -93,7 +36,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			// Check identifier has not already been created
 			$already_exist = $this->MiscIdentifier->find('count', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
 			if($already_exist) {
-				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id.'/' );
+				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
 				return;
 			}
 		}
@@ -101,7 +44,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$is_incremented_identifier = !empty($controls['MiscIdentifierControl']['autoincrement_name']);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifierControl.id' => $misc_identifier_control_id));
 		
 		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
@@ -166,7 +109,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id.'/'.$this->MiscIdentifier->id );
+					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				}
 			}
 		}
@@ -190,7 +133,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$is_incremented_identifier = !empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name']);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 
 		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
@@ -224,7 +167,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/MiscIdentifiers/detail/'.$participant_id.'/'.$misc_identifier_id );
+					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				}
 			}
 		}
@@ -264,13 +207,13 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id );
+				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				
 			}else{
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id );
+				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/MiscIdentifiers/detail/'.$participant_id.'/'.$misc_identifier_id);
+			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}	
 	}
 	
@@ -294,7 +237,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			$count = $this->MiscIdentifier->find('count', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id), 'recursive' => -1));
 			if($count > 0){
 				$this->MiscIdentifier->query('UNLOCK TABLES');
-				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id.'/' );
+				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				return;
 			}
 		}
@@ -332,7 +275,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/MiscIdentifiers/listall/'.$participant_id );
+						$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 					}
 				}
 			}else{

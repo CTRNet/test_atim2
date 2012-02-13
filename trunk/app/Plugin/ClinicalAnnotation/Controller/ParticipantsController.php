@@ -50,7 +50,29 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id) );
 		
 		// Set form for identifier list
-		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');		
+		$this->Structures->set('miscidentifiers', 'atim_structure_for_misc_identifiers');
+
+		
+		$mi = $this->MiscIdentifier->find('all', array(
+				'fields' => array('MiscIdentifierControl.id'),
+				'conditions' => array('MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1),
+				'group' => array('MiscIdentifierControl.id')
+		));
+		$reusable = array();
+		foreach($mi as $mi_unit){
+			$reusable[$mi_unit['MiscIdentifierControl']['id']] = null;
+		}
+		$conditions = array('flag_active' => '1');
+		if(!$this->Session->read('flag_show_confidential')){
+			$conditions["flag_confidential"] = 0;
+		}
+		$identifier_controls_list = $this->MiscIdentifierControl->find('all', array('conditions' => $conditions));
+		foreach($identifier_controls_list as &$unit){
+			if(!empty($unit['MiscIdentifierControl']['autoincrement_name']) && array_key_exists($unit['MiscIdentifierControl']['id'], $reusable)){
+				$unit['reusable'] = true;
+			}
+		}
+		$this->set('identifier_controls_list', $identifier_controls_list);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

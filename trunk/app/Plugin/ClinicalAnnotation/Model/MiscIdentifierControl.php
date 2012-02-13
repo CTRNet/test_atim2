@@ -40,25 +40,6 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel {
 		return $result;
 	}
 	
- 	/**
-	 * Get permissible values array gathering all existing misc identifier abreviation.
-	 *
-	 * @author N. Luc
-	 * @since 2010-05-26
-	 * @updated N. Luc
-	 */  	
-	function getMiscIdentifierNameAbrevPermissibleValues() {
-		$result = array();
-		
-		// Build tmp array to sort according translation
-		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
-			$result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name_abbrev']);
-		}
-		asort($result);
-
-		return $result;
-	}
-
 	function getConfidentialIds(){
 		if($this->confidential_ids == null){
 			$misc_controls = $this->find('all', array('fields' => array('MiscIdentifierControl.id'), 'conditions' => array('flag_confidential' => 1)));
