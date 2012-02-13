@@ -19,12 +19,14 @@
 		}
 		ksort($add_links);
 	
-		$bottom = array();
-		$bottom['add specimen'] = $add_links;		
+		$bottom = array(
+			'new search'	=> InventoryManagementAppController::$search_links,
+			'add specimen'	=> $add_links
+		);		
 		if(!empty($templates)){
 			$bottom['add from template'] = $templates;
 		}
-		$bottom['new search'] = InventoryManagementAppController::$search_links;
+		
 	}
 
 	$structure_links = array(
