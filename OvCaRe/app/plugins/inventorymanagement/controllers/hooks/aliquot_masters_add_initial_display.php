@@ -1,20 +1,14 @@
 <?php
-	
-	// --------------------------------------------------------------------------------
-	// Set default tissue block type
-	// -------------------------------------------------------------------------------- 	
-	if($aliquot_control['AliquotControl']['aliquot_type'] == 'block') {
-		foreach($this->data as &$new_data_set) {
-			if($new_data_set['parent']['ViewSample']['sample_type'] != 'tissue') $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			$new_data_set['children'][0]['AliquotDetail']['block_type'] = 'paraffin';			
+		
+	$default_aliquot_data = array();
+	foreach($samples as $view_sample){
+		$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']] = array('aliquot_label' => 'n/a');
+		
+		if($aliquot_control['AliquotControl']['aliquot_type'] == 'block') {
+			if($view_sample['ViewSample']['sample_type'] != 'tissue') $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']]['block_type'] = 'paraffin';
 		}
 	}
-	
-	// --------------------------------------------------------------------------------
-	// Set default aliquot label
-	// -------------------------------------------------------------------------------- 	
-	foreach($this->data as &$new_data_set) {
-		$new_data_set['children'][0]['AliquotMaster']['aliquot_label'] = 'n/a';			
-	}	
+	$this->set('default_aliquot_data', $default_aliquot_data);
 
 ?>
