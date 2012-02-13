@@ -549,4 +549,108 @@ class ReportsControllerCustom extends ReportsController {
 			'error_msg' => null);
 	}
 	
+	function participantIdentificationsList(array $parameters){
+
+		// Check parameters
+		
+		$no_labo_min = (!empty($parameters['0']['no_labo_value_start']))? $parameters['0']['no_labo_value_start']: null;
+		$no_labo_max = (!empty($parameters['0']['no_labo_value_end']))? $parameters['0']['no_labo_value_end']: null;
+		
+		if((!empty($no_labo_min) && !is_numeric($no_labo_min))|| (!empty($no_labo_max) && !is_numeric($no_labo_max))) {
+			return array(
+				'header' => null, 
+				'data' => null, 
+				'columns_names' => null,
+				'error_msg' => 'no labo should be a numeric value');
+		}
+		
+		$misc_identifier_control_ids = array();
+		foreach($parameters['0']['no_labo_misc_identifier_control_id'] as $new_id) {
+			if(!empty($new_id)) $misc_identifier_control_ids[] = $new_id;
+		}
+
+		if(empty($misc_identifier_control_ids)) {
+			return array(
+				'header' => null, 
+				'data' => null, 
+				'columns_names' => null,
+				'error_msg' => 'a no labo type should be selected');
+		}
+
+		// Build titles
+		
+		$title = '';
+		$separator = '';
+		$control_model = AppModel::getInstance("Clinicalannotation", "MiscIdentifierControl", true);
+		$misc_identifier_control_data = $control_model->find('all', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_ids)));
+		foreach($misc_identifier_control_data as $new_data) {
+			$title .= $separator.__($new_data['MiscIdentifierControl']['misc_identifier_name'], true);	
+			$separator = ' & ';	
+		}
+				
+		$description = __('no labo', true).' : ';
+		if($no_labo_min|| $no_labo_max) {
+			if($no_labo_min) $description .= $no_labo_min.' < ';
+			if($no_labo_max) $description .= ' < '.$no_labo_max;
+		} else {
+			$description .= __('all',true);
+		}
+		
+		$header = array(
+			'title' => $title,
+			'description' => $description);
+		
+		// Build data
+		
+		$misc_identifier_model = AppModel::getInstance("Clinicalannotation", "MiscIdentifier", true);
+		
+		$conditions = array('MiscIdentifier.misc_identifier_control_id' => $misc_identifier_control_ids);
+		if($no_labo_min) $conditions[] = 'MiscIdentifier.identifier_value >='. $no_labo_min;
+		if($no_labo_max) $conditions[] = 'MiscIdentifier.identifier_value <='. $no_labo_max;
+		$misc_identifier_participant_ids = $misc_identifier_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT MiscIdentifier.participant_id'), 'recursive' => '-1'));
+		
+		$participant_ids = array();
+		foreach($misc_identifier_participant_ids as $new_id) $participant_ids[] = $new_id['MiscIdentifier']['participant_id'];
+		
+		if(sizeof($misc_identifier_participant_ids) > 3000) {
+			return array(
+				'header' => null, 
+				'data' => null, 
+				'columns_names' => null,
+				'error_msg' => 'more than 3000 records are returned by the query - please redefine search criteria');
+		}
+		
+		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $participant_ids), 'order' => array('MiscIdentifier.participant_id ASC')));
+		$data = array();
+		foreach($misc_identifiers as $new_ident){
+			$participant_id = $new_ident['Participant']['id'];
+			if(!isset($data[$participant_id])) {
+				$data[$participant_id][0] = array( 
+					'first_name' => $new_ident['Participant']['first_name'],
+					'last_name' => $new_ident['Participant']['last_name'],
+					'breast_bank_no_lab' => null,
+					'prostate_bank_no_lab' => null,
+					'head_and_neck_bank_no_lab' => null,
+					'kidney_bank_no_lab' => null,
+					'ovary_bank_no_lab' => null,
+					'hotel_dieu_id_nbr' => null,
+					'notre_dame_id_nbr' => null,
+					'other_center_id_nbr' => null,
+					'saint_luc_id_nbr' => null,
+					'ramq_nbr' => null,
+					'code_barre' => null,
+					'old_bank_no_lab' => null,
+					'participant_patho_identifier' => null);
+			}
+			
+			$data[$participant_id][0][str_replace(array(' ', '-'), array('_','_'),$new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
+		}		
+		
+		return array(
+			'header' => $header, 
+			'data' => $data, 
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
 }
