@@ -84,13 +84,3 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
-	if(!$is_ajax){
-?>
-										
-		<script>
-		var loadingStr = "<?php echo(__("loading", null)); ?>";
-		var ajaxTreeView = true;
-		</script>
-<?php 
-	}
-?>

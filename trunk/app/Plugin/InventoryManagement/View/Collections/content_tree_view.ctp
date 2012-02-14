@@ -34,6 +34,8 @@
 					)
 				)
 			)
+		), 'bottom' => array(
+			'new search' => InventoryManagementAppController::$search_links		
 		)
 	);
 	// EXTRAS
@@ -46,12 +48,19 @@
 	// BUILD
 	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type' => 'tree', 'settings'=>$structure_settings, 'links'=>$structure_links, 'extras'=>$structure_extras, 'override' => $structure_override);
+	$final_options = array(
+		'type'		=> 'tree', 
+		'settings'	=> $structure_settings, 
+		'links'		=> $structure_links, 
+		'extras'	=> $structure_extras, 
+		'override'	=> $structure_override
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
-	

@@ -363,6 +363,27 @@ class CollectionsController extends InventoryManagementAppController {
 			AppController::addInfoMsg(__('to begin, click submit'));
 		}
 	}
+	
+	function contentTreeView($collection_id){
+		$this->request->data[] = $this->Collection->getOrRedirect($collection_id);
+		if($this->Collection->hasChild(array($collection_id))){
+			$this->request->data[0]['children'] = true;
+		}
+		
+		$atim_structure = array();
+		$atim_structure['Collection']	= $this->Structures->get('form','collections_for_collection_tree_view');
+		$this->set('atim_structure', $atim_structure);
+		
+		// Set menu variables
+		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
+		
+		// CUSTOM CODE: FORMAT DISPLAY DATA
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
+	}
 }
 
 ?>
