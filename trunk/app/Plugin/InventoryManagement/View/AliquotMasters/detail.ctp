@@ -5,7 +5,7 @@
 	$structure_links = array('index' => array(), 'bottom' => array());
 		
 	$structure_links['bottom']['edit'] = '/InventoryManagement/AliquotMasters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-	
+	$structure_links['bottom']['delete'] = '/InventoryManagement/AliquotMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	$structure_links['bottom']['storage'] = '/underdevelopment/';
 	if(!empty($aliquot_storage_data)) {
 		$structure_links['bottom']['storage'] = array(
@@ -26,7 +26,7 @@
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
-	$structure_links['bottom']['delete'] = '/InventoryManagement/AliquotMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+	
 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view

@@ -523,6 +523,6 @@ DELETE FROM structure_fields WHERE (`public_identifier`='DE-118' AND `plugin`='C
 UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE field='misc_identifier_name' AND structure_value_domain IS NOT NULL) WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='identifier_name' AND model='MiscIdentifier');
 DELETE FROM structure_fields WHERE field='identifier_name' AND model='MiscIdentifier';
 
-
+UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2222');
 
 

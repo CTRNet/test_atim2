@@ -28,11 +28,11 @@
 	
 	$structure_links['bottom'] = array(
 		'edit' => '/InventoryManagement/SampleMasters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
+		'delete' => '/InventoryManagement/SampleMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
 		'add derivative' => $add_derivatives,
 		'add aliquot' => $add_aliquots,
 		'see parent sample' => ($is_from_tree_view? null : $show_parent_link),
-		'see lab book' => null,
-		'delete' => '/InventoryManagement/SampleMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id']
+		'see lab book' => null
 	);
 	if(isset($lab_book_master_id)) {
 		$structure_links['bottom']['see lab book'] = array(
@@ -43,9 +43,11 @@
 	}
 	
 	// Clean up structure link
-	if(empty($structure_links['bottom']['add derivative'])) unset($structure_links['bottom']['add derivative']);
-	if(empty($structure_links['bottom']['add aliquot'])) unset($structure_links['bottom']['add aliquot']);
-	if(empty($structure_links['bottom']['see parent sample'])) unset($structure_links['bottom']['see parent sample']);
+	foreach(array('add derivative', 'add aliquot', 'see parent sample') as $field){
+		if(empty($structure_links['bottom'][$field])){
+			unset($structure_links['bottom'][$field]);
+		}
+	}
 			
 	if($is_from_tree_view) {
 		// Detail form displayed in tree view
@@ -58,51 +60,57 @@
 	// Set override
 	$dropdown_options = array('SampleMaster.parent_id' => (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => ''));
 	
-	// BUILD FORM
-
-	if(!isset($aliquots_data)){
-		// DISPLAY ONLY SAMPLE DETAIL FORM
-		// 1- SAMPLE DETAIL	
-		$final_atim_structure = $atim_structure; 
-		$final_options = array(
-			'dropdown_options' => $dropdown_options, 
-			'links' => $structure_links, 
-			'settings' => $sample_settings, 
-			'data' => $sample_master_data
-		);
-		// CUSTOM CODE
-		$hook_link = $this->Structures->hook();
-		if($hook_link){
-			require($hook_link); 
-		}
-			
-		// BUILD FORM
-		$this->Structures->build( $final_atim_structure, $final_options );
-		
-	}else{ 
-		// DISPLAY BOTH SAMPLE DETAIL FORM AND SAMPLE ALIQUOTS LIST
-		// 1- SAMPLE DETAIL	
-		$sample_settings['actions'] = empty($aliquots_data);
-		
-		$final_atim_structure = $atim_structure; 
-		$final_options = array(
+	// 1 - SAMPLE DETAIL
+	$sample_settings['actions'] = (!isset($aliquots_data) || empty($aliquots_data)) && !isset($aliquot_source);
+	
+	$final_atim_structure = $atim_structure;
+	$final_options = array(
 			'dropdown_options' => $dropdown_options,
-			'links' => $structure_links, 
-			'settings' => $sample_settings, 
+			'links' => $structure_links,
+			'settings' => $sample_settings,
 			'data' => $sample_master_data
+	);
+	
+	// CUSTOM CODE
+	$hook_link = $this->Structures->hook();
+	if( $hook_link ) {
+		require($hook_link);
+	}
+		
+	// BUILD FORM
+	$this->Structures->build( $final_atim_structure, $final_options );
+
+
+	// 2 - SOURCE ALIQUOTS
+	if(isset($aliquot_source)){
+		$final_atim_structure = $aliquot_source_struct;
+		$structure_links['index'] = array(
+			'detail' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+			'delete' => '/InventoryManagement/AliquotMasters/deleteSourceAliquot/%%SourceAliquot.sample_master_id%%/%%SourceAliquot.aliquot_master_id%%/sample_derivative/'
+		);
+		$structure_links['bottom']['add source aliquots'] = '/InventoryManagement/AliquotMasters/addSourceAliquots/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/';
+		$final_options = array(
+			'type'		=> 'index',
+			'links'		=> $structure_links, 
+			'settings'	=> array(
+				'header'		=> __('listall source aliquots'),
+				'pagination'	=> false,
+				'actions'		=> !isset($aliquots_data) || empty($aliquots_data)
+			), 'data'		=> $aliquot_source
 		);
 		
 		// CUSTOM CODE
-		$hook_link = $this->Structures->hook();
-		if( $hook_link ) { 
-			require($hook_link); 
+		$hook_link = $this->Structures->hook('aliquot_source');
+		if( $hook_link ) {
+			require($hook_link);
 		}
-			
+		
 		// BUILD FORM
 		$this->Structures->build( $final_atim_structure, $final_options );
-
-		// 2- ALIQUOTS LISTS
-		
+	}
+	
+	// 3 - ALIQUOTS LISTS
+	if(isset($aliquots_data)){
 		$structure_links['index']['detail'] = '/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		$hook_link = $this->Structures->hook('aliquots');
 		
