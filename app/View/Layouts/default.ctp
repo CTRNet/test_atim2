@@ -57,6 +57,7 @@ if(!$headers_were_sent){
 			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_OK = "<?php echo __('ok'); ?>";
 			var STR_CANCEL = "<?php echo __('cancel'); ?>";
+			var STR_LOADING = "<?php echo __('loading'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
@@ -95,7 +96,6 @@ if(!$headers_were_sent){
 	echo $this->Html->script('datamart')."\n";
 	echo $this->Html->script('copyControl')."\n";
 	echo $this->Html->script('ccl')."\n";
-	echo $this->Html->script('treeViewControl')."\n";
 	echo $this->Html->script('dropdownConfig')."\n";
 	?>
 	

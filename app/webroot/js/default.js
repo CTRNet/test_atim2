@@ -860,9 +860,6 @@ function initActions(){
 		if(window.batchSetControls){
 			initBatchSetControls();
 		}
-		if(window.ajaxTreeView){
-			initAjaxTreeView(document);
-		}
 		if(window.treeView){
 			initTreeView(document);
 		}
@@ -984,8 +981,8 @@ function initActions(){
 			loadUsesAndStorageHistory(document.URL);
 		}
 		
-		//Search button loading animation
 		$(document).delegate("a.submit", 'click', function(){
+			//Search button loading animation
 			if(!$(this).find('span').hasClass('fetching')){
 				$(this).siblings("input.submit").click();
 			}
@@ -996,24 +993,8 @@ function initActions(){
 		}).delegate(".jsApplyPreset", "click", function(){
 			applyPreset($(this).data("json"));
 			return false;
-		}).delegate("a.delete:not(.noPrompt)", "click", function(){
-			if($("#deleteConfirmPopup").length == 0){
-				var yes_action = function(){
-					document.location = $("#deleteConfirmPopup").data('link');
-					return false;
-				};
-				var no_action = function(){
-					$("#deleteConfirmPopup").popup('close');
-					return false;
-				}; 
-				
-				buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}));
-			}
-			
-			$("#deleteConfirmPopup").popup();
-			$("#deleteConfirmPopup").data('link', $(this).prop("href"));
-			return false;
-		});
+		}).delegate("a.delete:not(.noPrompt)", "click", openDeleteConfirmPopup
+		).delegate(".reveal.notFetched", "click", treeViewNodeClick);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1036,6 +1017,12 @@ function initActions(){
 				});
 			}
 		});
+		
+		if(document.URL.match(/InventoryManagement\/Collections\/contentTreeView\/([0-9]+)/)){
+			//when in collection tree view, show collection details and open the first node right away
+			$("a.ajax.collection.icon16").click();
+			$(".icon16.reveal:first").click();
+		}
 	}
 
 	function globalInit(scope){
@@ -1061,3 +1048,92 @@ function initActions(){
 	function debug(str){
 //		$("#debug").append(str + "<br/>");
 	}
+	
+	function treeViewNodeClick(event){
+		var element = event.currentTarget;
+		$(element).removeClass("notFetched").unbind('click');
+		var json = $(element).data("json");
+		var expandButton = $(element);
+		if(json.url != undefined && json.url.length > 0){
+			$(element).addClass("fetching");
+			var flat_url = json.url.replace(/\//g, "_");
+			if(flat_url.length > 0){
+				$.get(root_url + json.url + "?t=" + new Date().getTime(), function(data){
+					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
+					if($("#" + flat_url).find("ul").length == 1){
+						var currentLi = getParentElement(expandButton, "LI");
+						$(currentLi).append("<ul>" + $("#" + flat_url).find("ul").html() + "</ul>");
+						initAjaxClass($(currentLi).find("ul"));
+						$(expandButton).click(function(){
+							$(currentLi).find("ul").first().stop().toggle("blind");
+						});
+					}
+					$(expandButton).removeClass("fetching");
+					$("#" + flat_url).remove();
+					
+					if(window.initTree){
+						initTree($(currentLi));
+					}
+				});
+			}
+		}
+	}
+	
+	/**
+	 * Called when a detail view is displayed in within the same page as the tree view
+	 * @param new_at_li
+	 * @param json
+	 */
+	function set_at_state_in_tree_root(new_at_li, json){
+		$(".tree_root").find("div.treeArrow").hide();
+		$(".tree_root").find("div.rightPart").removeClass("at");
+		$li = getParentElement(new_at_li, "LI");
+		$($li).find("div.rightPart:first").addClass("at");
+		$($li).find("div.treeArrow:first").show();
+		$("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
+		$.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function(data){
+			$("#frame").html(data);
+			initActions();
+		});
+	}
+	
+	/**
+	 * Called for tree views listing radio buttons (such as treatments, to select a dx)
+	 * @param scope
+	 */
+	function initTreeView(scope){
+		$("a.reveal.activate").each(function(){
+			var matchingUl = getParentElement($(this), "LI"); 
+			matchingUl	= $(matchingUl).children().filter("ul").first();
+			$(this).click(function(){
+				$(matchingUl).stop().toggle("blind");
+			});
+		});
+		
+		var element = $(scope).find(".tree_root input[type=radio]:checked");
+		if(element.length == 1){
+			var lis = $(element).parents("li");
+			lis[0] = null;
+			$(lis).find("a.reveal.activate:first").click();
+		}
+	}
+	
+	function openDeleteConfirmPopup(event){
+		if($("#deleteConfirmPopup").length == 0){
+			var yes_action = function(){
+				document.location = $("#deleteConfirmPopup").data('link');
+				return false;
+			};
+			var no_action = function(){
+				$("#deleteConfirmPopup").popup('close');
+				return false;
+			}; 
+			
+			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}));
+		}
+		
+		$("#deleteConfirmPopup").popup();
+		$("#deleteConfirmPopup").data('link', $(event.currentTarget).prop("href"));
+		return false;
+	}
+

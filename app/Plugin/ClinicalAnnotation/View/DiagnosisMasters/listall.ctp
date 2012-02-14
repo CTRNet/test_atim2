@@ -125,8 +125,6 @@
 		
 		
 		<script>
-		var loadingStr = "<?php echo(__("loading", null)); ?>";
-		var ajaxTreeView = true;
 		var canHaveChild = [<?php echo implode(", ", $can_have_child); ?>];
 		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
 		var secondaryCtrlId = <?php echo $secondary_ctrl_id; ?>;

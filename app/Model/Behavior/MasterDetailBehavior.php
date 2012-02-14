@@ -184,7 +184,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		if ( $is_master_model ) {
 			
 			// get DETAIL table name and create DETAIL model object
-			$associated = $model->find(array($master_class.'.id' => $model->id), null, null, 1);
+			$associated = $model->read();
 			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=> $detail_class) );
 			$detail_model->Behaviors->Revision->setup($detail_model);
 			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
