@@ -823,18 +823,28 @@ function initActions(){
 		return false;
 	}
 	
-	function loadUsesAndStorageHistory(url){
+	function loadUses(url){
 		$.post(document.URL, {data : ["uses"]}, function(data){
 			var origHeight = $("div.uses").height();
 			$("div.uses").html(data);
 			var newHeight = $("div.uses").height();
 			$("div.uses").css('height', origHeight).animate({height: newHeight}, 500);
 		});
+	}
+	
+	function loadStorageHistory(url){
 		$.post(url, {data : ["storage_history"]}, function(data){
 			var origHeight = $("div.storage_history").height();
 			$("div.storage_history").html(data);
 			var newHeight = $("div.storage_history").height();
 			$("div.storage_history").css('height', origHeight).animate({height: newHeight}, 500);
+		});
+	}
+	
+	function loadRealiquotedParent(url){
+		matches = url.match(/(\/[\d]+)(\/[\d]+)(\/[\d]+)/);
+		$.get(root_url + "InventoryManagement/AliquotMasters/listAllRealiquotedParents/" + matches[1] + "/" + matches[2] + "/" + matches[3] + "?t=" + new Date().getTime(), function(data){
+			$(".realiquoted_parents").html(data);
 		});
 	}
 	
@@ -977,10 +987,6 @@ function initActions(){
 			return false;
 		});
 		
-		if(document.URL.match(/InventoryManagement\/AliquotMasters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
-			loadUsesAndStorageHistory(document.URL);
-		}
-		
 		$(document).delegate("a.submit", 'click', function(){
 			//Search button loading animation
 			if(!$(this).find('span').hasClass('fetching')){
@@ -1018,6 +1024,12 @@ function initActions(){
 			}
 		});
 		
+		//URL based events
+		if(document.URL.match(/InventoryManagement\/AliquotMasters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
+			loadUses(document.URL);
+			loadStorageHistory(document.URL);
+			loadRealiquotedParent(document.URL);
+		}
 		if(document.URL.match(/InventoryManagement\/Collections\/contentTreeView\/([0-9]+)/)){
 			//when in collection tree view, show collection details and open the first node right away
 			$("a.ajax.collection.icon16").click();

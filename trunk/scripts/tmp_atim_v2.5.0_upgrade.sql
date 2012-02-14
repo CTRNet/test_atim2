@@ -524,5 +524,5 @@ UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields
 DELETE FROM structure_fields WHERE field='identifier_name' AND model='MiscIdentifier';
 
 UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2222');
-
+UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2233');
 
