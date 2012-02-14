@@ -83,7 +83,7 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'data' => array(), 
-			'settings' => array('header' => __('uses', null), 'actions' => false),
+			'settings' => array('header' => __('uses'), 'actions' => false),
 			'extras'	=> '<div class="uses"><div class="loading">---'.__('loading').'---</div></div>'
 		);
 
@@ -101,11 +101,29 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
-			'settings'	=> array('header' => __('storage history', null)),
+			'settings'	=> array('header' => __('storage history'), 'actions' => false),
 			'extras'	=> '<div class="storage_history"><div class="loading">---'.__('loading').'---</div></div>'
 		);
 		
 		$hook_link = $this->Structures->hook('storage_history');
+		if($hook_link){
+			require($hook_link);
+		}
+		
+		$this->Structures->build($final_atim_structure, $final_options);
+
+		
+		
+		// 4 - REALIQUOTED PARENTS	
+		unset($structure_links['index']);
+		$final_atim_structure = $empty_structure;
+		$final_options = array(
+			'links'		=> $structure_links,
+			'settings'	=> array('header' => __('realiquoted parent')),
+			'extras'	=> '<div class="realiquoted_parents"><div class="loading">---'.__('loading').'---</div></div>'
+		);
+		
+		$hook_link = $this->Structures->hook('realiquoted_parent');
 		if($hook_link){
 			require($hook_link);
 		}

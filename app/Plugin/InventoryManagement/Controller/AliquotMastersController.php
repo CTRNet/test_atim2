@@ -2166,12 +2166,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Get/Manage Parent Aliquots
-		$this->paginate['Realiquoting'] = array(
+		$this->request->data = $this->Realiquoting->find('all', array(
 			'limit' => pagination_amount , 
 			'order' => 'Realiquoting.realiquoting_datetime DESC',
 			'fields' => array('*'),
-			'joins' => array(AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'), AliquotMaster::$join_aliquot_control_on_dup));	
-		$this->request->data = $this->paginate('Realiquoting', array('Realiquoting.child_aliquot_master_id'=> $aliquot_master_id)); 
+			'joins' => array(AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'), AliquotMaster::$join_aliquot_control_on_dup),
+			'conditions' => array('Realiquoting.child_aliquot_master_id'=> $aliquot_master_id)
+		));
 		
 		// Manage data to build URL to access la book
 		$this->set('display_lab_book_url', false);

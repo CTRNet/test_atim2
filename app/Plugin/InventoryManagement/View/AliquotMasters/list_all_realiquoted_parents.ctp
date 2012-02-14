@@ -11,13 +11,17 @@
 	}
 
 	$final_atim_structure = $atim_structure; 
-	$final_options =  array('type'=>'index', 'links'=>$structure_links);
+	$final_options =  array(
+		'type'		=> 'index', 
+		'links'		=> $structure_links,
+		'settings'	=> array('actions' => false, 'pagination' => false)
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
-	
-?>
