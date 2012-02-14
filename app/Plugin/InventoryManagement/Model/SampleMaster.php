@@ -167,7 +167,7 @@ class SampleMaster extends InventoryManagementAppModel {
 		}
 	
 		// Check sample is not linked to aliquot
-		$aliquot_master_model = AppModel::getInstance("Iventorymanagement", "AliquotMaster", true);	
+		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);	
 		$returned_nbr = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot exists for the deleted sample'); 

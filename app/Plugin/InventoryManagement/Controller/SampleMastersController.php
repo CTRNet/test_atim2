@@ -164,9 +164,6 @@ class SampleMastersController extends InventoryManagementAppController {
 	function detail($collection_id, $sample_master_id, $is_from_tree_view = 0) {
 		// $is_from_tree_view : 0-Normal, 1-Tree view
 		
-		if((!$collection_id) || (!$sample_master_id)) { 
-			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
 		// MANAGE DATA
 
 		// Get the sample data
@@ -225,7 +222,9 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		
 		// Set Lab Book Id
-		if(isset($sample_data['DerivativeDetail']['lab_book_master_id']) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])) $this->set('lab_book_master_id', $sample_data['DerivativeDetail']['lab_book_master_id']);
+		if(isset($sample_data['DerivativeDetail']['lab_book_master_id']) && !empty($sample_data['DerivativeDetail']['lab_book_master_id'])){
+			$this->set('lab_book_master_id', $sample_data['DerivativeDetail']['lab_book_master_id']);
+		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
@@ -266,6 +265,29 @@ class SampleMastersController extends InventoryManagementAppController {
 
 		// Get all aliquot control types to build the add to selected button
 		$this->set('allowed_aliquot_type', $this->AliquotControl->getPermissibleAliquotsArray($sample_data['SampleControl']['id']));
+		
+		if(!$is_specimen){
+			//derivative aliquot source
+			
+			$joins = array(array(
+				'table' => 'source_aliquots',
+				'alias' => 'SourceAliquot',
+				'type' => 'INNER',
+				'conditions' => array('AliquotMaster.id = SourceAliquot.aliquot_master_id', 'SourceAliquot.deleted != 1', 'SourceAliquot.sample_master_id' => $sample_master_id)
+			));
+			
+			$aliquot_source = $this->AliquotMaster->find('all', array(
+				'fields' => '*',
+				'conditions' => array('AliquotMaster.collection_id'=>$collection_id),
+				'joins'	=> $joins)
+			);
+			
+			$this->set('aliquot_source', $aliquot_source);
+			
+			
+			// Set structure
+			$this->Structures->set('sourcealiquots,sourcealiquots_volume', 'aliquot_source_struct');
+		}
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
@@ -274,9 +296,6 @@ class SampleMastersController extends InventoryManagementAppController {
 	}
 	
 	function add($collection_id, $sample_control_id, $parent_sample_master_id = 0) {
-		if((!$collection_id) || (!$sample_control_id)){
-			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}
 		if($this->request->is('ajax')){
 			$this->layout = 'ajax';
 		}
@@ -403,6 +422,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				// The created sample is a derivative
 				$this->request->data['SampleMaster']['parent_sample_type'] = $parent_sample_data['SampleControl']['sample_type'];
 				$this->request->data['SampleMaster']['parent_id'] = $parent_sample_data['SampleMaster']['id'];
+				$this->SampleMaster->addWritableField(array('parent_id', 'parent_sample_type'));
 				
 				$this->request->data['SampleMaster']['initial_specimen_sample_type'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_type'];
 				$this->request->data['SampleMaster']['initial_specimen_sample_id'] = $parent_sample_data['SampleMaster']['initial_specimen_sample_id'];
@@ -429,6 +449,8 @@ class SampleMastersController extends InventoryManagementAppController {
 
 				//validate and sync lab book
 				$msg = $this->SampleMaster->validateLabBook($this->request->data, $lab_book, $lab_book_ctrl_id, true);
+				$this->DerivativeDetail->addWritableField('lab_book_master_id');
+				
 				if(strlen($msg) > 0){
 					$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $msg;
 					$submitted_data_validates = false;
@@ -447,6 +469,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if($submitted_data_validates) {
 				// Save sample data
 				$sample_master_id = null;
+				
 				if($this->SampleMaster->save($this->request->data, false)) {
 					
 					$sample_master_id = $this->SampleMaster->getLastInsertId();
