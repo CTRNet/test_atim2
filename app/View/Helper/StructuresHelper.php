@@ -2071,9 +2071,17 @@ class StructuresHelper extends Helper {
 			';
 			
 			if(count($return_links)){
-				$return_string .= '
-						<div class="bottom_button">'.implode('</div><div class="bottom_button">',$return_links).'</div>
-					';
+				$links_array = array();
+				foreach($return_links as $return_link){
+					if(strpos($return_link, ' class="not_allowed"')){
+						$links_array[] = '<div class="bottom_button not_allowed">'.$return_link.'</div>';
+					}else{
+						$links_array[] = '<div class="bottom_button">'.$return_link.'</div>'; 
+					}
+				}
+					
+				$return_string .= implode("", $links_array);
+				
 			}
 			
 			
