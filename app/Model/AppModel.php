@@ -142,8 +142,9 @@ class AppModel extends Model {
 					AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. ('.implode(',', $invalid_fields).')');
 				}
 			}
-		}else if(Configure::read('debug') > 0){
-			AppController::addWarningMsg('No Writable fields for model '.$this->name);
+		}else if(Configure::read('debug') > 0 && isset($this->data[$this->name]) && !empty($this->data[$this->name])){
+			AppController::addWarningMsg('No Writable fields defined for model '.$this->name.'.');
+			$this->data[$this->name] = array();
 		}
 	}
 	

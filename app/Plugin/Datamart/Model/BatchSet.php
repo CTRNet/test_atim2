@@ -209,6 +209,8 @@ class BatchSet extends DatamartAppModel {
 	
 	function saveWithIds(array $batch_set_data, array $ids){
 		$batch_id_model = AppModel::getInstance('Datamart', 'BatchId', true);
+		$prev_check_mode = $batch_id_model->check_writable_fields;
+		$batch_id_model->check_writable_fields = false;
 		$bt = debug_backtrace();
 		
 		$batch_set_data['BatchSet']['user_id'] 			= $_SESSION['Auth']['User']['id'];
@@ -231,6 +233,7 @@ class BatchSet extends DatamartAppModel {
 		if(!$batch_id_model->saveAll($batch_ids)){
 			$this->redirect('/Pages/err_plugin_system_error?Bmethod='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
 		}
+		$batch_id_model->check_writable_fields = $prev_check_mode;
 	}
 	
 	function deleteCurrentUserTmp(){

@@ -674,7 +674,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 		}
 		
-		$aliquot_data = $this->AliquotMaster->getOrRedirect($aliquot_ids);		
+		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $aliquot_ids)));		
 		if(empty($aliquot_data)){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
@@ -2293,6 +2293,52 @@ class AliquotMastersController extends InventoryManagementAppController {
 		foreach($this->request->data as &$aliquot){
 			$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 			$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
+		}
+	}
+	
+	function editInBatch(){
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
+		$this->Structures->set('aliquot_masters,used_aliq_in_stock_details');
+		
+		if(isset($this->request->data['aliquot_ids'])){
+			//batch edit
+			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
+			if($this->request->data['FunctionManagement']['remove_from_storage'] == 1){
+				$to_update['AliquotMaster']['storage_master_id'] = null;
+				$to_update['AliquotMaster']['storage_coord_x'] = null;
+				$to_update['AliquotMaster']['storage_coord_y'] = null;
+				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+			}
+
+			$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
+			
+			if($to_update['AliquotMaster']){
+				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+				
+				foreach($aliquot_ids as $aliquot_id){
+					$this->AliquotMaster->id = $aliquot_id;
+					$this->AliquotMaster->data = null;
+					$this->AliquotMaster->save($to_update);
+				}
+				
+				
+				$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquot'),
+						'flag_tmp'				=> true
+				));		
+				
+				$batch_set_model->check_writable_fields = false;
+				$batch_set_model->saveWithIds($batch_set_data, $aliquot_ids);
+				$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+			}else{
+				$this->AliquotMaster->validationErrors[] = 'you need to at least update a value';
+				$this->request->data['ViewAliquot']['aliquot_master_id'] = $aliquot_ids;
+				$this->set('cancel_link', $this->request->data['cancel_link']);
+			}
+		}else{
+			//first access
+			$this->set('cancel_link', AppController::getCancelLink($this->request->data));
 		}
 	}
 }

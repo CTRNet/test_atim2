@@ -1633,8 +1633,10 @@ class StructuresHelper extends Helper {
 							
 							foreach($sfs['StructureValidation'] as $validation){
 								if($validation['rule'] == 'notEmpty'){
-									$settings["class"] .= " required";
-									$settings["required"] = "required";
+									if($options['type'] != 'batchedit'){
+										$settings["class"] .= " required";
+										$settings["required"] = "required";
+									}
 									break;
 								}
 							}

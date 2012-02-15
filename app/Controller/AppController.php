@@ -860,6 +860,21 @@ class AppController extends Controller {
 		}
 		return false;
 	}
+	
+	/**
+	 * Builds a cancel link based on the passed data. Works for data send by batch sets and browsing.
+	 * @param strint or null $data
+	 */
+	static function getCancelLink($data){
+		$result = null;
+		if(isset($data['node']['id'])){
+			$result = '/Datamart/Browser/browse/'.$data['node']['id'];
+		}else if(isset($data['BatchSet']['id'])){
+			$result = '/Datamart/BatchSets/listall/'.$data['BatchSet']['id'];
+		}
+		
+		return $result;
+	}
 }
 	
 	AppController::init();
