@@ -43,7 +43,9 @@ class StructuresHelper extends Helper {
 				
 				'paste_disabled_fields' => array(),//pasting on those fields will be disabled
 				
-				'csv_header' => true //in a csv file, if true, will print the header line
+				'csv_header' => true, //in a csv file, if true, will print the header line
+				
+				'no_sanitization'	=> array()//model => fields to avoid sanitizing
 			),
 			
 			'links'		=> array(
@@ -365,7 +367,13 @@ class StructuresHelper extends Helper {
 			$data = array();
 		}
 		
-		$data = Sanitize::clean($data);
+		
+		$sanitized_data = Sanitize::clean($data);
+		if($options['settings']['no_sanitization']){
+			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+		}
+		$data = $sanitized_data;
+		unset($sanitized_data);
 		
 		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
@@ -2414,6 +2422,29 @@ class StructuresHelper extends Helper {
 		}
 		
 		return $result;
+	}
+	
+	private function unsanitize(array &$sanitized_data, array $org_data, array $unsanitize){
+		foreach($org_data as $index => $row){
+			foreach($unsanitize as $model => $fields){
+				if($index == $model){
+					//flat
+					foreach($fields as $field){
+						if(isset($row[$field])){
+							$sanitized_data[$model][$field] = $row[$field];
+						}
+					}
+				}
+				if(isset($row[$model])){
+					//row
+					foreach($fields as $field){
+						if(isset($row[$model][$field])){
+							$sanitized_data[$index][$model][$field] = $row[$model][$field];
+						}
+					}
+				}
+			}
+		}
 	}
 }
 	
