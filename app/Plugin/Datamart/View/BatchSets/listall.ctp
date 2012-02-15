@@ -3,7 +3,8 @@
 	$this->Structures->build( $atim_structure_for_detail, array(
 		'type'		=> 'detail', 
 		'settings'	=> array(
-			'actions'	=> false
+			'actions'	=> false,
+			'no_sanitization'=> array('BatchSet' => array('title'))
 		), 'data'=> $data_for_detail
 	));
 
