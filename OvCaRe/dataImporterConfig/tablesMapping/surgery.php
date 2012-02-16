@@ -52,7 +52,7 @@ function preSurgeryWrite(Model $m){
 			$m->values['Macroscopic Residual'] = '';
 	}
 
-	$m->values['diagnosis_master_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
+	$m->values['diagnosis_master_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'];
 	
 	return true;	
 }

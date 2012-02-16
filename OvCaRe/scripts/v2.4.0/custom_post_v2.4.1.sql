@@ -99,7 +99,7 @@ UPDATE diagnosis_controls SET flag_active = 0 WHERE category = 'primary' and con
 UPDATE diagnosis_controls SET flag_compare_with_cap = 0;
 
 INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
-('primary', 'ovcare', 1, 'diagnosismasters,dx_primary,ovcare_dx_primaries', 'ovcare_dxd_primaries', 0, 'primary|ovcare', 0);
+('primary', 'ovcare', 1, 'diagnosismasters,dx_primary,ovcare_dx_ovaries', 'ovcare_dxd_ovaries', 0, 'primary|ovcare', 0);
 
 UPDATE structure_formats 
 SET `flag_add`='0',`flag_add_readonly`='0',`flag_edit`='0',`flag_edit_readonly`='0',`flag_search`='0',`flag_search_readonly`='0',`flag_addgrid`='0',`flag_addgrid_readonly`='0',`flag_editgrid`='0',`flag_editgrid_readonly`='0',`flag_summary`='0',`flag_batchedit`='0',`flag_batchedit_readonly`='0',`flag_index`='0',`flag_detail` = '0'
@@ -110,7 +110,7 @@ UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'who 
 WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_primary')
 AND structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' AND field = 'morphology');
 
-CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries` (
+CREATE TABLE IF NOT EXISTS `ovcare_dxd_ovaries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
 
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries` (
   KEY `diagnosis_master_id` (`diagnosis_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries_revs` (
+CREATE TABLE IF NOT EXISTS `ovcare_dxd_ovaries_revs` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
 
@@ -160,8 +160,8 @@ CREATE TABLE IF NOT EXISTS `ovcare_dxd_primaries_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `ovcare_dxd_primaries`
-  ADD CONSTRAINT `ovcare_dxd_primaries_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+ALTER TABLE `ovcare_dxd_ovaries`
+  ADD CONSTRAINT `ovcare_dxd_ovaries_ibfk_1` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
 
 INSERT INTO `structure_value_domains` (`domain_name`) VALUES ('ovcare_stage'), ('ovcare_review_grade'),('ovcare_substage');
 INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
@@ -192,36 +192,36 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_substage"),  
 (SELECT id FROM structure_permissible_values WHERE value="C" AND language_alias="C"), "3", "1");
 
-INSERT INTO structures(`alias`) VALUES ('ovcare_dx_primaries');
+INSERT INTO structures(`alias`) VALUES ('ovcare_dx_ovaries');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'clinical_history', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', 'clinical history', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'clinical_diagnosis', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'clinical diagnosis', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'clinical_history', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', 'clinical history', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'clinical_diagnosis', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'clinical diagnosis', ''), 
 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_surgery_date', 'date',  NULL , '0', '', '', '', 'initial surgery date', ''),
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'initial_recurrence_date', 'date',  NULL , '0', '', '', '', 'initial recurrence date', ''),
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'progression_free_time_months', 'integer_positive',  NULL , '0', 'size=6', '', '', 'progression free time months', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'initial_surgery_date', 'date',  NULL , '0', '', '', '', 'initial surgery date', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'initial_recurrence_date', 'date',  NULL , '0', '', '', '', 'initial recurrence date', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'progression_free_time_months', 'integer_positive',  NULL , '0', 'size=6', '', '', 'progression free time months', ''),
 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'stage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage') , '0', '', '', '', 'stage', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'substage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage') , '0', '', '', '', 'substage', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'stage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage') , '0', '', '', '', 'stage', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'substage', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage') , '0', '', '', '', 'substage', ''), 
 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade') , '0', '', '', '', 'review grade', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_comment', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review comment', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_primaries', 'review_diagnosis', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review diagnosis', '');
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'review_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade') , '0', '', '', '', 'review grade', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'review_comment', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review comment', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'review_diagnosis', 'textarea',  NULL , '0', 'rows=2,cols=20', '', '', 'review diagnosis', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='clinical_history' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical history' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='clinical_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='clinical_history' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical history' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='clinical_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_surgery_date'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_recurrence_date'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='progression_free_time_months'), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_surgery_date'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='initial_recurrence_date'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='progression_free_time_months'), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='stage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '20', 'staging', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='substage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='substage' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='stage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_stage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '20', 'staging', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='substage' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_substage')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='substage' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='review grade' AND `language_tag`=''), '3', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_comment' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review comment' AND `language_tag`=''), '3', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
-((SELECT id FROM structures WHERE alias='ovcare_dx_primaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_primaries' AND `field`='review_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review diagnosis' AND `language_tag`=''), '3', '40', 'review', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='review_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_review_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='review grade' AND `language_tag`=''), '3', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='review_comment' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review comment' AND `language_tag`=''), '3', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='review_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=20' AND `default`='' AND `language_help`='' AND `language_label`='review diagnosis' AND `language_tag`=''), '3', '40', 'review', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 INSERT INTO i18n (id,en) VALUES 
 ('clinical diagnosis','Clinical Diagnosis'),

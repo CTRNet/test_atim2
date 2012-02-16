@@ -32,8 +32,12 @@ function postMetastasisRead(Model $m){
 function preMetastasisWrite(Model $m){
 	$m->values['Metastisis'] = (strtolower($m->values['Metastisis']) == 'yes')? '': 'Metastisis : '.$m->values['Metastisis'].'.';
 	
-	$m->values['primary_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
-	$m->values['parent_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
+	$m->values['primary_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'];
+	$m->values['parent_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'];
+	
+	if(Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] != Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id']) {
+		Config::$summary_msg['@@WARNING@@']['Metastasis #1'][] = 'Created a new metastasis dx where a ovcare secondary has already been created: Please confirm. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+	}
 	
 	return true;
 }

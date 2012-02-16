@@ -241,15 +241,6 @@ INSERT INTO i18n (id,en) VALUES
 
 UPDATE structure_fields SET setting = 'size=25' WHERE tablename = 'ovcare_ed_lab_experimental_results';
 
-
-
-
-
-
-
-
-
-
 ALTER TABLE `ovcare_ed_lab_experimental_results`
   MODIFY `brca1_germline_nuc_acid` varchar(250) DEFAULT NULL,
   MODIFY `brca1_germline_amino_acid` varchar(250) DEFAULT NULL,
@@ -715,54 +706,129 @@ INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `u
 VALUES 
 ('other', 'Other', '', 1, @cont_id, @id, NOW());
 
+
+
+
+
+
+
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='-' WHERE model='DiagnosisDetail' AND tablename='ovcare_dxd_ovaries' AND field='substage' AND `type`='select';
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images') 
+AND (structure_field_id = (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_gross_images' AND `field`='file_name' AND `language_label`='file name' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0')
+OR structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='OvcareFunctionManagement' AND `tablename`='' AND `field`='file_input' AND `language_label`='image' AND `language_tag`='' AND `type`='file' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0')
+OR  structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='OvcareFunctionManagement' AND `tablename`='' AND `field`='file_link' AND `language_label`='image' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Inventorymanagement' AND `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_gross_images' AND `field`='file_name' AND `language_label`='file name' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0';
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='OvcareFunctionManagement' AND `tablename`='' AND `field`='file_input' AND `language_label`='image' AND `language_tag`='' AND `type`='file' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0';
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='OvcareFunctionManagement' AND `tablename`='' AND `field`='file_link' AND `language_label`='image' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0';
+
+ALTER TABLE ovcare_spr_tissue_gross_images
+  DROP COLUMN file_name,
+  DROP COLUMN file_type;
+ALTER TABLE ovcare_spr_tissue_gross_images_revs
+  DROP COLUMN file_name,
+  DROP COLUMN file_type;
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='file name' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_spr_tissue_gross_images') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'who code (morphology)', `language_heading` = ''
+WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_primary') AND structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' AND field = 'morphology');
+INSERT IGNORE INTO i18n (id,en) VALUES ('who code (morphology)', 'WHO Code (Morphology)');
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'primary', 'other', 1, 'diagnosismasters,dx_primary', 'dxd_primaries', 0, 'primary|other', 0);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'secondary', 'ovcare', 1, 'diagnosismasters,dx_secondary,ovcare_dx_ovaries', 'ovcare_dxd_ovaries', 0, 'secondary|ovcare', 0);
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'secondary', 'other', 1, 'diagnosismasters,dx_secondary', 'dxd_secondaries', 0, 'secondary|other', 0);
+UPDATE diagnosis_controls SET flag_active = 0 WHERE category = 'secondary' AND controls_type = 'undetailed';
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `field`='review_code'), 'isUnique', '', '');
+
+INSERT INTO i18n (id,en) VALUES ('you are not allowed to add a secondary ovcare to a primary ovcare', "You are not allowed to add an 'OvCaRe' secondary  to an 'OvCaRe' primary!");
+
+UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'who code (morphology)', `language_heading` = ''
+WHERE structure_id = (SELECT id FROM structures WHERE alias = 'dx_secondary') AND structure_field_id = (SELECT id FROM structure_fields WHERE model = 'DiagnosisMaster' AND field = 'morphology');
+
+UPDATE structure_formats SET `flag_override_help`='0', `language_help`='', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '11', '', '0', '', '0', '', '1', 'ovcare_help_survival', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- TODO
 
-SELECT 'DATABASE VALIDATION REQUIRED!' as msg;
+SELECT 'revoir le calcul des datetime... dans diagnosis si on deplace le tout' as dev_msg;
 
-SELECT 'Notes on Outcome will be recorded into Participant note. Please confirm!' as Questions_For_OvCaRe
-UNION
-SELECT 'All participant will have an obtained consent. Please confirm!' as Questions_For_OvCaRe
-UNION
-SELECT 'All clinical fields Diagnosis, histo, WHO Code, etc will be recorded into Ovcare Primary: Please confirm!' as Questions_For_OvCaRe
-UNION 
-SELECT 'What about Ovcare Primary having diagnosis review = metastasis. Should we change primary to scondary. See VOA#442' as Questions_For_OvCaRe
-UNION 
-SELECT 'All patient will have an Ovcare Primary: Please confirm!'
-UNION 
-SELECT 'If date of recurrence is not empty or recurent disease = yes then create recurrence linked to primary. Please confirm!' as Questions_For_OvCaRe
-UNION 
-SELECT 'If metastatsis is not empty and metastatsis != {no, unable to determine, unknown} then create secondary linked to primary. Please confirm!' as Questions_For_OvCaRe
-UNION 
-SELECT 'VOA#757: The date of recurrence = 1900-01-05. Please confirm!' as Questions_For_OvCaRe
-UNION 
-SELECT 'If chemotherapy is not empty and chemotherapy not in {no,nBo,radiotherapy,unknown} then create chemo linked to primary: Please confirm' as Questions_For_OvCaRe
-UNION 
-SELECT 'What should be done with chemotherapy value in {unable to determine, radiotherapy}?' as Questions_For_OvCaRe
-UNION 
-SELECT 'Start date accuracy to set for chemo of voa 1082' as Questions_For_OvCaRe
-UNION 
-SELECT 'Please confrim chemo reponse match: ["Yes" => "complete", "Yes (see note)" => "complete", "Partial" => "partial", "Unknown" => "unknown", "No" => "progressive disease"]' as Questions_For_OvCaRe
-UNION 
-SELECT 'Should we delete these fields from experimental results form: tro_clid_hsq004393, tro_clid_hsq006530, wdr72_clid_hsq009730, tma_blocks?' as Questions_For_OvCaRe
-UNION
-SELECT 'What about Gross Image? Are we gonna get Weight, height into excel?' as Questions_For_OvCaRe
-UNION 
-SELECT 'Pre Post surgical Issues: Should specimen include into pre or post surgery collection? Same question for buffy coat?' as Questions_For_OvCaRe
-UNION 
+SELECT '
+VOA#757: The date of recurrence = 1900-01-05. Please confirm!
+Start date accuracy to set for chemo of voa 1082.
+Clean up should be done on specimen type because endometrium is written in many ways...
+' as MSG;
+
+SELECT '
+DATABASE VALIDATION REQUIRED!
+
+Create OVCARE secondary and secondary when review = metastasis.
+
+Add Field to define primary when secondary.
+
+n/a aliquot label... not displayed in all lines when added in batch.
+
+Track URL and not picture.
+
+Associate collection to recurrence when surgeyr date > recurrence date.
+
+Don t migrate chemo answer.
+
+No weight, etc.
+
+vial and block linked to specimen.... don't create if 2 specimens. Just add to comment.
+' as TODO_DEV;
+
+SELECT '
+DATABASE VALIDATION REQUIRED!
+
+Validate unexported fields from excel.
+' as TODO_END;
+
+
+
+
 SELECT 'Parafin blocks are linked to specimen 1 or 2? same question for vial frozen' as Questions_For_OvCaRe 
 UNION 
 SELECT 'Specimen type list: What about tissue source values coming from specimen type' as Questions_For_OvCaRe
 UNION 
 SELECT 'Clean up should be done on specimen type because endometrium is written in many ways...' as Questions_For_OvCaRe
-UNION 
-SELECT 'Do we want tissue nature field: tumoral, etc' as Questions_For_OvCaRe
-UNION 
-SELECT 'Validate unexported fields of Excel' as Questions_For_OvCaRe;
 
 
 
 
 
-
-
-
+  
