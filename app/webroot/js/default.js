@@ -1030,11 +1030,6 @@ function initActions(){
 			loadStorageHistory(document.URL);
 			loadRealiquotedParent(document.URL);
 		}
-		if(document.URL.match(/InventoryManagement\/Collections\/contentTreeView\/([0-9]+)/)){
-			//when in collection tree view, show collection details and open the first node right away
-			$("a.ajax.collection.icon16").click();
-			$(".icon16.reveal:first").click();
-		}
 	}
 
 	function globalInit(scope){

@@ -83,6 +83,19 @@ class CollectionsController extends InventoryManagementAppController {
 		$templates = $template_model->getAddFromTemplateMenu($collection_id);
 		$this->set('templates', $templates);
 		
+		if(!$is_from_tree_view){
+			$this->Structures->set('sample_masters_for_collection_tree_view', 'sample_masters_for_collection_tree_view');
+			$sample_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => 0));
+			foreach($sample_data as $unit){
+				$ids[] = $unit['SampleMaster']['id'];
+			}
+			$ids = array_flip($this->SampleMaster->hasChild($ids));//array_key_exists is faster than in_array
+			foreach($sample_data as &$unit){
+				$unit['children'] = array_key_exists($unit['SampleMaster']['id'], $ids);
+			}
+			$this->set('sample_data', $sample_data);
+		}
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$hook_link = $this->hook('format');
@@ -362,27 +375,6 @@ class CollectionsController extends InventoryManagementAppController {
 		if($to_begin_msg){
 			AppController::addInfoMsg(__('to begin, click submit'));
 		}
-	}
-	
-	function contentTreeView($collection_id){
-		$this->request->data[] = $this->Collection->getOrRedirect($collection_id);
-		if($this->Collection->hasChild(array($collection_id))){
-			$this->request->data[0]['children'] = true;
-		}
-		
-		$atim_structure = array();
-		$atim_structure['Collection']	= $this->Structures->get('form','collections_for_collection_tree_view');
-		$this->set('atim_structure', $atim_structure);
-		
-		// Set menu variables
-		$this->set('atim_menu_variables', array('Collection.id' => $collection_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
-		}
-		
 	}
 }
 
