@@ -10,7 +10,9 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("add identifier", "Add identifier", "Ajouter identifiant"),
 ("batch edit", "Batch edit", "Modification en lot"),
 ("you need to at least update a value", "You need to at least update a value.", "Vous devez mettre à jour au moins une valeur."),
-("you are about to edit %d element(s)", "You are about to edit %d element(s).", "Vous êtes sur le point de mettre %s élément(s) à jour."); 
+("you are about to edit %d element(s)", "You are about to edit %d element(s).", "Vous êtes sur le point de mettre %s élément(s) à jour."),
+("collection details", "Collection details", "Détails de la collection"),
+("collection content", "Collection content", "Contenu de la collection"); 
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -527,7 +529,7 @@ UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields
 DELETE FROM structure_fields WHERE field='identifier_name' AND model='MiscIdentifier';
 
 UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2222');
-UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2233');
+UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_22233');
 
 UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_values') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='in_stock_detail' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') AND `flag_confidential`='0');
@@ -538,3 +540,17 @@ UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id 
 INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, flag_active) VALUES
 ((SELECT id FROM datamart_structures WHERE model='ViewAliquot'), 'edit', 'InventoryManagement/AliquotMasters/editInBatch/', 1);
 
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE field='creation_site' AND model='DerivativeDetail' AND tablename='derivative_details') WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='creation_site' AND model='DerivativeDetail' AND tablename='');
+DELETE FROM structure_fields WHERE field='creation_site' AND model='DerivativeDetail' AND tablename='';
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE field='creation_by' AND model='DerivativeDetail' AND tablename='derivative_details') WHERE structure_field_id=(SELECT id FROM structure_fields WHERE field='creation_by' AND model='DerivativeDetail' AND tablename='');
+DELETE FROM structure_fields WHERE field='creation_by' AND model='DerivativeDetail' AND tablename='';
+UPDATE structure_fields SET tablename='derivative_details' WHERE model='DerivativeDetail';
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_21');
+UPDATE menus SET parent_id='inv_CAN_1' WHERE parent_id='inv_CAN_21';

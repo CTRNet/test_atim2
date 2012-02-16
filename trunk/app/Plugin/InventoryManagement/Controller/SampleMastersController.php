@@ -1096,6 +1096,9 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 				//save
 				$child_ids = array();
+				$this->SampleMaster->addWritableField(array('parent_id', 'sample_control_id', 'collection_id', 'initial_specimen_sample_id', 'initial_specimen_sample_type', 'parent_sample_type'));
+				$this->DerivativeDetail->addWritableField(array('sync_with_lab_book', 'lab_book_master_id', 'sample_master_id'));
+				$this->SourceAliquot->addWritableField(array('sample_master_id', 'aliquot_master_id', 'used_volume'));
 				foreach($prev_data as $parent_id => &$children){
 					unset($children['ViewSample']);
 					unset($children['StorageMaster']);
@@ -1163,6 +1166,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewSample'),
 						'flag_tmp' => true
 					));
+					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
 					$this->flash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
