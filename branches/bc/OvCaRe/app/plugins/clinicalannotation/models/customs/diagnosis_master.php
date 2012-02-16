@@ -11,10 +11,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			$this->data = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $this->id), 'recursive' => '0'));
 		}
 		if($this->id != $this->data['DiagnosisMaster']['id']) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		if(($this->data['DiagnosisControl']['category'] == 'recurrence') && ($this->data['DiagnosisMaster']['primary_id'] == $this->data['DiagnosisMaster']['parent_id'])) {	
+		if($this->data['DiagnosisControl']['category'] == 'recurrence') {	
 			// *** SET DATA FOR DIAGNOSES UPDATE ***
-			// (User is deleting a primary reccurrence)
-			$this->data['OvcareDiagFunctionManagement']['primary_id_of_reccurrence'] = $this->data['DiagnosisMaster']['primary_id'];
+			// (User is deleting a reccurrence)
+			$this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'] = $this->data['DiagnosisMaster']['parent_id'];
 		}
 		
 		$this->ovcareIsDxDeletion = true;
@@ -28,27 +28,25 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			// User just clicked on submit button of diagnosis form (don't run follwing code when save is launched from other model)
 			
 			$diagnosis_control_data = array();
-			$primary_id = null;
+			
 			$parent_id = null;
 			if(array_key_exists('participant_id', $this->data['DiagnosisMaster'])) {
 				// Diagnosis is just being created
 				$diagnosis_control_model = AppModel::getInstance("Clinicalannotation", "DiagnosisControl", true);
 				$diagnosis_control_data = $diagnosis_control_model->find('first', array('conditions' => array ('DiagnosisControl.id' => $this->data['DiagnosisMaster']['diagnosis_control_id'])));				
-				$primary_id = $this->data['DiagnosisMaster']['primary_id']; 
 				$parent_id = $this->data['DiagnosisMaster']['parent_id'];
 			} else {
 				// Diagnosis is being updated
 				$previous_diagnosis_data = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $this->id), 'recursive' => '0'));
 				if(empty($previous_diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				$diagnosis_control_data['DiagnosisControl'] = $previous_diagnosis_data['DiagnosisControl'];	
-				$primary_id = $previous_diagnosis_data['DiagnosisMaster']['primary_id']; 
 				$parent_id = $previous_diagnosis_data['DiagnosisMaster']['parent_id'];
 			}
 			if(empty($diagnosis_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			
-			if(($diagnosis_control_data['DiagnosisControl']['category'] == 'recurrence') && ($primary_id == $parent_id)) {	
+			if($diagnosis_control_data['DiagnosisControl']['category'] == 'recurrence') {	
 				// *** SET DATA FOR DIAGNOSES UPDATE ***
-				$this->data['OvcareDiagFunctionManagement']['primary_id_of_reccurrence'] = $primary_id;
+				$this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'] = $parent_id;
 			}
 		}
 				
@@ -61,9 +59,9 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			$tmp_id = $this->id;
 			$tmp_data = $this->data;
 			
-			$primary_id_of_reccurrence = $this->data['OvcareDiagFunctionManagement']['primary_id_of_reccurrence'];
-			unset($this->data['OvcareDiagFunctionManagement']['primary_id_of_reccurrence']);
-			$this->setInitialRecurrenceDate($primary_id_of_reccurrence);
+			$parent_id_of_reccurrence = $this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'];
+			unset($this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence']);
+			$this->setInitialRecurrenceDate($parent_id_of_reccurrence);
 			
 			$this->id = $tmp_id;
 			$this->data = $tmp_data;
@@ -71,12 +69,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	}
 
 	function setInitialRecurrenceDate($diagnosis_master_id) {
-		if(empty($diagnosis_master_id)) return;
-
 		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
 		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		if(($diagnosis_data['DiagnosisControl']['category'] == 'primary') && ($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare')) {
+		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
             
 			// *** SET INITIAL DIAGNOSIS RECURRENCE DATE ***
 			
@@ -84,7 +80,6 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			$initial_recurrence_date_accuracy = $diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy'];
 			
 			$conditions =  array (
-				'DiagnosisMaster.primary_id' => $diagnosis_master_id,
 				'DiagnosisMaster.parent_id' => $diagnosis_master_id,
 				'DiagnosisControl.category' => 'recurrence',
 				"DiagnosisMaster.dx_date != ''",
@@ -140,7 +135,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
 		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		if(($diagnosis_data['DiagnosisControl']['category'] == 'primary') && ($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare')) {
+		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
 			
 			// *** SET INITIAL DIAGNOSIS SURGERY DATE ***
 			
@@ -208,7 +203,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		$participant_data = $participant_model->find('first', array('conditions' => array ('Participant.id' => $participant_id), 'recursive' => '-1'));
 		if(empty($participant_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$diagnoses_list = $this->find('all',array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.controls_type' => 'ovcare'), 'recursive' => '0'));
+		$diagnoses_list = $this->find('all',array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.controls_type' => 'ovcare'), 'recursive' => '0'));
 		foreach($diagnoses_list as $new_diagnosis) $this->updateSurvivalTime($new_diagnosis['DiagnosisMaster']['id'], true, $new_diagnosis, $participant_data);
 	}	
 	
@@ -216,7 +211,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		if(empty($diagnosis_data)) $diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
 		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		if(($diagnosis_data['DiagnosisControl']['category'] == 'primary') && ($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare')) {
+		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
 			if(empty($participant_data)) {
 				$participant_model = AppModel::getInstance("Clinicalannotation", "Participant", true);
 				$participant_data = $participant_model->find('first', array('conditions' => array ('Participant.id' => $diagnosis_data['DiagnosisMaster']['participant_id']), 'recursive' => '-1'));
@@ -226,8 +221,8 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			$previous_survival_time_months = $diagnosis_data['DiagnosisMaster']['survival_time_months'];
 			$survival_time_months = '';
 			if(!empty($participant_data['Participant']['ovcare_last_followup_date']) && !empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date'])) {
-				if(in_array($participant_data['Participant']['ovcare_last_followup_date_accuracy'], array('d','c')) 
-				&& in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c'))) {
+				if((in_array($participant_data['Participant']['ovcare_last_followup_date_accuracy'], array('d','c')) || empty($participant_data['Participant']['ovcare_last_followup_date_accuracy'])) 
+				&& (in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy']))) {
 					$initialSurgeryDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_surgery_date']);
 					$lastFollDateObj = new DateTime($participant_data['Participant']['ovcare_last_followup_date']);
 					$interval = $initialSurgeryDateObj->diff($lastFollDateObj);
@@ -263,13 +258,13 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
 		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		if(($diagnosis_data['DiagnosisControl']['category'] == 'primary') && ($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare')) {
+		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
 			$previous_progression_free_time_months = $diagnosis_data['DiagnosisDetail']['progression_free_time_months'];
 			
 			$new_progression_free_time_months = '';
 			if(!empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date']) && !empty($diagnosis_data['DiagnosisDetail']['initial_recurrence_date'])) {
-				if(in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c')) 
-				&& in_array($diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy'], array('d','c'))) {
+				if((in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'])) 
+				&& (in_array($diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy']))) {
 					$initialSurgeryDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_surgery_date']);
 					$initialRecurrenceDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_recurrence_date']);
 					$interval = $initialSurgeryDateObj->diff($initialRecurrenceDateObj);

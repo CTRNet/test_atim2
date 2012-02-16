@@ -40,8 +40,8 @@ function preRecurrenceWrite(Model $m){
 		$m->values['Recurrent Disease'] = '';
 	}
 	
-	$m->values['primary_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
-	$m->values['parent_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
+	$m->values['primary_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'];
+	$m->values['parent_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'];
 	
 	return true;
 }

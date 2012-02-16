@@ -51,8 +51,10 @@ Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
 	Config::$current_voa_nbr = $m->values['VOA Number'];
-	Config::$participant_ids_from_voa[Config::$current_voa_nbr] = array();
-	Config::$current_voa_comments_for_collection = $m->values['Comments'];
+	Config::$record_ids_from_voa[Config::$current_voa_nbr] = array();
+	Config::$notes_from_voa[Config::$current_voa_nbr] = array();
+	
+	Config::$notes_from_voa['collection_additional_notes'][Config::$current_voa_nbr] = $m->values['Comments'];
 	
 	excelDateFix($m);
 	
@@ -60,5 +62,5 @@ function postParticipantRead(Model $m){
 }
 
 function postParticipantWrite(Model $m){
-	Config::$participant_ids_from_voa[Config::$current_voa_nbr]['participant_id'] = $m->last_id;
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['participant_id'] = $m->last_id;
 }

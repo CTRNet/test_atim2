@@ -9,13 +9,13 @@ $master_fields = array(
 	"finish_date" => "Date Chemo End",
 	"notes" => "Chemotherapy");
 $detail_fields = array(
-	"response" => array("Response to Chemotherapy" => array(
-		"" => "",
-		"Yes" => "complete",
-		"Yes (see note)" => "complete",
-		"Partial" => "partial",
-		"Unknown" => "unknown",
-		"No" => "progressive disease")),
+//	"response" => array("Response to Chemotherapy" => array(
+//		"" => "",
+//		"Yes" => "complete",
+//		"Yes (see note)" => "complete",
+//		"Partial" => "partial",
+//		"Unknown" => "unknown",
+//		"No" => "progressive disease")),
 	"ovcare_neoadjuvant" => array("Neoadjuvant Chemotherapy" => array(
 		"" => "",
 		"y" => "y",
@@ -45,7 +45,7 @@ function postChemotherapyRead(Model $m){
 	
 	if(in_array($m->values['Response to Chemotherapy'], array('Not Recommended','Declined Treatment'))) {
 		Config::$summary_msg['@@MESSAGE@@']['Chemo Reponse #1'][] = 'Chemo reponse ['.$m->values['Response to Chemotherapy'].'] wont be imported, info will be added to profile note. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
-		Config::$participant_additional_comments_from_voa[$m->values['VOA Number']] = 'Chemotherapy detail : '.$m->values['Response to Chemotherapy'].'.';
+		Config::$notes_from_voa['additional_participant_notes'][$m->values['VOA Number']] = 'Chemotherapy detail : '.$m->values['Response to Chemotherapy'].'.';
 		$m->values['Response to Chemotherapy'] = '';		
 	}
 	
@@ -106,7 +106,7 @@ function preChemotherapyWrite(Model $m){
 			$m->values['Neoadjuvant Chemotherapy'] = '';
 	}
 
-	$m->values['diagnosis_master_id'] = Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'];
+	$m->values['diagnosis_master_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'];
 	
 	return true;	
 }

@@ -235,7 +235,7 @@ $detail_fields = array(
 	);
 	
 //see the Model class definition for more info
-$model = new MasterDetailModel(4, $pkey, $child, false, "participant_id", $pkey, 'event_masters', $master_fields, 'ovcare_ed_lab_experimental_results', 'event_master_id', $detail_fields);
+$model = new MasterDetailModel(3, $pkey, $child, false, "participant_id", $pkey, 'event_masters', $master_fields, 'ovcare_ed_lab_experimental_results', 'event_master_id', $detail_fields);
 
 //we can then attach post read/write functions
 $model->custom_data = array();

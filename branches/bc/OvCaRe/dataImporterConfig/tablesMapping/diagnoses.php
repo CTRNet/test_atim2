@@ -2,7 +2,7 @@
 $pkey = "VOA Number";
 $child = array();
 $master_fields = array(
-	"diagnosis_control_id" => "@20",
+	"diagnosis_control_id" => "#diagnosis_control_id",
 	"participant_id" => $pkey,
 	"morphology" => "Clinical WHO Code",
 	"notes" => "#notes");
@@ -33,7 +33,7 @@ $detail_fields = array(
 	);
 	
 //see the Model class definition for more info
-$model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'diagnosis_masters', $master_fields, 'ovcare_dxd_primaries', 'diagnosis_master_id', $detail_fields);
+$model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'diagnosis_masters', $master_fields, 'ovcare_dxd_ovaries', 'diagnosis_master_id', $detail_fields);
 
 //we can then attach post read/write functions
 $model->custom_data = array();
@@ -49,6 +49,9 @@ function postDiagnosisRead(Model $m){
 }
 
 function preDiagnosisWrite(Model $m){
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = null;
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'] = null;	
+	
 	$m->values['notes'] = '';
 	
 	// Substage
@@ -101,7 +104,67 @@ function preDiagnosisWrite(Model $m){
 	empty($m->values['Review Diagnosis']) &&
 	empty($m->values['Review Comment']) &&
 	empty($m->values['Review Grade'])) {
-		Config::$summary_msg['@@WARNING@@']['OVCARE Primary Diagnosis #1'][] = 'Created an empty Primanry Diagnosis. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+		Config::$summary_msg['@@WARNING@@']['OVCARE Primary Diagnosis #1'][] = 'Created an empty Primary Diagnosis. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+	}
+	
+	// Primary vs Secondary
+	
+	preg_match('/(metastasis|metastatic)/', strtolower($m->values['Review Diagnosis']), $matches);
+	if($matches) {
+		
+		// SECONDARY-OVCARE
+		
+		global $connection;
+		
+		//1- Unknown Primary: master
+		
+		$created = array(
+			"created"		=> "NOW()", 
+			"created_by"	=> Config::$db_created_id, 
+			"modified"		=> "NOW()",
+			"modified_by"	=> Config::$db_created_id
+		);
+		
+		$insert_arr = array(
+			"icd10_code" 			=> "'D489'", 
+			"participant_id"		=> Config::$record_ids_from_voa[Config::$current_voa_nbr]['participant_id'], 
+			"diagnosis_control_id"	=> "15"
+		);
+		$main_insert_arr = array_merge($insert_arr, $created);
+		$query = "INSERT INTO diagnosis_masters (".implode(", ", array_keys($main_insert_arr)).") VALUES (".implode(", ", array_values($main_insert_arr)).")";
+		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$unknown_primary_id = mysqli_insert_id($connection);
+		$query = "UPDATE diagnosis_masters SET primary_id = $unknown_primary_id WHERE id = $unknown_primary_id;";
+		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$rev_insert_arr = array_merge($insert_arr, array('id' => "$unknown_primary_id", 'primary_id' => "$unknown_primary_id", 'version_created' => "NOW()"));
+		$query = "INSERT INTO diagnosis_masters_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
+		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+		//2- Unknown Primary: detail
+		
+		$insert_arr = array(
+			"diagnosis_master_id"	=> "$unknown_primary_id"
+		);
+		$query = "INSERT INTO dxd_primaries (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
+		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$detail_id = mysqli_insert_id($connection);
+		$rev_insert_arr = array_merge($insert_arr, array('id' => "$detail_id", 'version_created' => "NOW()"));
+		$query = "INSERT INTO dxd_primaries_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
+		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+		Config::$summary_msg['@@MESSAGE@@']['Unknown primary #1'][] = "A review defined ovcare diagnosis as secondary (see 'Review Diagnosis'): created an unknown primary. [VOA#: ".Config::$current_voa_nbr.' / line: '.$m->line.']';
+		
+		//2- Set data for scondary
+		
+		$m->values['diagnosis_control_id'] = "22";
+		
+		Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = $unknown_primary_id;
+	
+	} else {
+		
+		// PRIMARY-OVCARE
+		
+		$m->values['diagnosis_control_id'] = "20";
 	}
 	
 	return true;
@@ -109,13 +172,23 @@ function preDiagnosisWrite(Model $m){
 
 function postDiagnosisWrite(Model $m){
 	global $connection;
-
-	$primary_diagnosis_master_id = $m->last_id;
 	
-	$query = "UPDATE diagnosis_masters SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE diagnosis_masters_revs SET primary_id = $primary_diagnosis_master_id WHERE id = $primary_diagnosis_master_id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$ovcare_diagnosis_id = $m->last_id;
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'] = $ovcare_diagnosis_id;
 	
-	Config::$participant_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_master_id'] = $primary_diagnosis_master_id;
+	$update_strg = "";
+	if(empty(Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'])) {
+		// OVCARE Diagnosis is a primary
+		Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = $ovcare_diagnosis_id;	
+	} else {
+		// OVCARE Diagnosis is a secondary
+		$update_strg .= 'parent_id = '.Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'].', ';
+	}
+	
+	$update_strg .= "primary_id = ".Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'];
+	
+	$query = "UPDATE diagnosis_masters SET $update_strg WHERE id = $ovcare_diagnosis_id;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters_revs SET $update_strg WHERE id = $ovcare_diagnosis_id;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 }
