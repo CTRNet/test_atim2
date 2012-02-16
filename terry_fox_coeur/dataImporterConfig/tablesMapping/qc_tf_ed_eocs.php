@@ -27,6 +27,10 @@ function edAfterRead(Model $m){
 	excelDateFix($m);
 	$m->values['Event Type'] = strtolower($m->values['Event Type']);
 
+	if($m->values['Event Type'] == 'chimiotherapy'){
+		$m->values['Event Type'] = 'chemotherapy';
+	}
+	
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){
 		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
 	}

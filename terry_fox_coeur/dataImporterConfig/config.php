@@ -7,15 +7,15 @@ class Config{
 	//db config
 	static $db_ip			= "127.0.0.1";
 	
-//	static $db_port 		= "8889";
-//	static $db_user 		= "root";
-//	static $db_pwd			= "root";
-//	static $db_schema		= "atim_tf_coeur";
-	
-	static $db_port 		= "3306";
+	static $db_port 		= "8889";
 	static $db_user 		= "root";
-	static $db_pwd			= "";
-	static $db_schema		= "tfri";
+	static $db_pwd			= "root";
+	static $db_schema		= "atim_tf_coeur";
+	
+// 	static $db_port 		= "3306";
+// 	static $db_user 		= "root";
+// 	static $db_pwd			= "";
+// 	static $db_schema		= "tfri";
 	
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
@@ -26,26 +26,9 @@ class Config{
 	
 	//if reading excel file
 	
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/test.xls";
-	
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUM-COEUR-clinical data-v0.1.15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/CHUS-COEUR v1-15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/McGill-COEUR- v1-15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CBCF-1.15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-CHUQ-clinical data v4-1.15_reviewed.xls";
-	//static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TFRI-COEUR-OVCare v0-1.15_reviewed.xls";
-	static $xls_file_path = "/Documents and Settings/u703617/Desktop/tfri_coeur/TTR-COEUR-clinical v1.15_reviewed.xls";
-	
-// 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/DEMO.xls";
-// 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/CHUM-COEUR-clinical data-v0.1.15.xls";
-// 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/CHUS-COEUR v0.1-15.xls";
-// 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TTR-COEUR-clinical data-v0.1.15.xls";
-// 	static $xls_file_path = "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/McGill-COEUR- v0-1.15.xls";
-	//header row =1 -> static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/OHRI-COEUR.xls";//file to read
-// 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-CBCF-1.15.xls";//file to read
-// 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-OVCare v0-1.15.xls";//file to read
-// 	static $xls_file_path	= "/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/TFRI-COEUR-CHUQ-clinical data v4-1.15.xls";//file to read
-
+// 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/CHUS#3-COEUR template-v2.0 (2011-10-05).xls';
+//	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/McGill#2-COEUR-clinical data_mcgill_july2011.xls';
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/TFRI-COEUR CBCF#2-v2.0 (2011-08-29).xls';
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -116,33 +99,20 @@ Config::$parent_models[] = "participants";
 Config::$parent_models[] = "collections";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/participants.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_eocs.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_no_site.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site1.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site2.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site_ca125.php';
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_primary_cancers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_progression.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_eocs.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_eocs.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_other.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/terry_fox_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_other.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM//terry_fox_coeur/dataImporterConfig/tablesMapping/collections.php';
-
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/participants.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_eocs.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_no_site.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site1.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site2.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_progression_site_ca125.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_primary_cancers.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_dxd_other_progression.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_eocs.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_eocs.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_ed_other.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/qc_tf_tx_other.php';
-// Config::$config_files[] = '../atim_tf_coeur/dataImporterConfig/tablesMapping/collections.php';
+$relative_path = '../atim_tf_coeur/dataImporterConfig/tablesMapping/';
+Config::$config_files[] = $relative_path.'participants.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eocs.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_no_site.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site1.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site2.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site_ca125.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_other_primary_cancers.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_other_progression.php';
+Config::$config_files[] = $relative_path.'qc_tf_ed_eocs.php';
+Config::$config_files[] = $relative_path.'qc_tf_tx_eocs.php';
+Config::$config_files[] = $relative_path.'qc_tf_ed_other.php';
+Config::$config_files[] = $relative_path.'qc_tf_tx_other.php';
+Config::$config_files[] = $relative_path.'collections.php';
 
 
 function mainDxCondition(Model $m){
