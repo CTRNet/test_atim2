@@ -97,7 +97,9 @@ function postCollectionWrite(Model $m){
 	
 		if(strlen($m->values['Tissue Precision Flash Frozen Tissues  Volume']) > 0){
 			$volume = is_numeric($m->values['Tissue Precision Flash Frozen Tissues  Volume']) ? $m->values['Tissue Precision Flash Frozen Tissues  Volume'] : "NULL";
-			if($volume == "NULL") echo "WARNING: Wrong numeric value for volume [",$m->values['Tissue Precision Flash Frozen Tissues  Volume'],"] at line [".$m->line."]\n";
+			if($volume == "NULL"){
+				echo "WARNING: Wrong numeric value for [Tissue Precision Flash Frozen Tissues  Volume] -> [",$m->values['Tissue Precision Flash Frozen Tissues  Volume'],"] at line [".$m->line."]\n";
+			}
 			
 			$tubes_nbr = 1;
 			$master_insert = array(
@@ -572,7 +574,7 @@ function postCollectionWrite(Model $m){
 		}
 		
 	}else{
-		die("Invalid collected specimen type");
+		die("Invalid collected specimen type [".$m->values['Collected Specimen Type']."] at line [".$m->line."]");
 	}
 	
 	// Update acquisition_label
