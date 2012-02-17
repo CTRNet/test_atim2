@@ -951,7 +951,6 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @see Model::find()
 	 */
 	function find($type = 'first', $query = array()) {
-		pr($query);
 		if((!isset($query['recursive']) || $query['recursive'] > -1)){
 			//Order by directive. Since the ATiM field model is "0" it doesn't work automatically.
 			if(isset($query['extra']['sort']) && $query['extra']['sort'] == '0.empty_spaces'){
