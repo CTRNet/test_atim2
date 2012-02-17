@@ -20,7 +20,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		if($from_layout_page){
 			$top_row_storage_id = $this->request->data['current_storage_id'];
 			unset($this->request->data['current_storage_id']);
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/StorageLayout/StorageMasters/search', false, 21);
+			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search', false, 21);
 			if(count($this->request->data) > 20){
 				$this->request->data = array();
 				$this->set('overflow', true);
@@ -40,10 +40,10 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 			}
 		}else{
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters', '/StorageLayout/StorageMasters/search');
+			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search');
 		}
-		
 		$this->set('from_layout_page', $from_layout_page);
+		$this->Structures->set('storagemasters,storage_w_spaces');
 		
 		//find all storage control types to build add button
 		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
