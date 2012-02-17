@@ -178,6 +178,7 @@ function postDiagnosisWrite(Model $m){
 	
 	$ovcare_diagnosis_id = $m->last_id;
 	Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'] = $ovcare_diagnosis_id;
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['collection_diagnosis_id'] = $ovcare_diagnosis_id;
 	
 	$update_strg = "";
 	if(empty(Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'])) {

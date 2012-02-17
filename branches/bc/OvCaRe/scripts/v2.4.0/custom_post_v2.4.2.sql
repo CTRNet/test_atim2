@@ -770,6 +770,16 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare collection types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('surgical', 'Surgical', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('surgical', 'Surgical', '', 1, @cont_id, @id, NOW());
 
 
 
@@ -779,7 +789,6 @@ UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FRO
 
 -- TODO
 
-SELECT 'revoir le calcul des datetime... dans diagnosis si on deplace le tout' as dev_msg;
 
 SELECT '
 VOA#757: The date of recurrence = 1900-01-05. Please confirm!
@@ -790,19 +799,8 @@ Clean up should be done on specimen type because endometrium is written in many 
 SELECT '
 DATABASE VALIDATION REQUIRED!
 
-Create OVCARE secondary and secondary when review = metastasis.
 
-Add Field to define primary when secondary.
 
-n/a aliquot label... not displayed in all lines when added in batch.
-
-Track URL and not picture.
-
-Associate collection to recurrence when surgeyr date > recurrence date.
-
-Don t migrate chemo answer.
-
-No weight, etc.
 
 vial and block linked to specimen.... don't create if 2 specimens. Just add to comment.
 ' as TODO_DEV;

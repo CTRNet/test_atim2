@@ -9,13 +9,6 @@ $master_fields = array(
 	"finish_date" => "Date Chemo End",
 	"notes" => "Chemotherapy");
 $detail_fields = array(
-//	"response" => array("Response to Chemotherapy" => array(
-//		"" => "",
-//		"Yes" => "complete",
-//		"Yes (see note)" => "complete",
-//		"Partial" => "partial",
-//		"Unknown" => "unknown",
-//		"No" => "progressive disease")),
 	"ovcare_neoadjuvant" => array("Neoadjuvant Chemotherapy" => array(
 		"" => "",
 		"y" => "y",
@@ -43,24 +36,10 @@ function postChemotherapyRead(Model $m){
 	$m->values['Date Chemo End'] = str_replace('none', '', $m->values['Date Chemo End']);
 	$m->values['Neoadjuvant Chemotherapy'] = str_replace('n/a', '', $m->values['Neoadjuvant Chemotherapy']);
 	
-	if(in_array($m->values['Response to Chemotherapy'], array('Not Recommended','Declined Treatment'))) {
-		Config::$summary_msg['@@MESSAGE@@']['Chemo Reponse #1'][] = 'Chemo reponse ['.$m->values['Response to Chemotherapy'].'] wont be imported, info will be added to profile note. [VOA#: '.$m->values['VOA Number'].' / line: '.$m->line.']';
-		Config::$notes_from_voa['additional_participant_notes'][$m->values['VOA Number']] = 'Chemotherapy detail : '.$m->values['Response to Chemotherapy'].'.';
-		$m->values['Response to Chemotherapy'] = '';		
-	}
-	
 	if(empty($m->values['Chemotherapy']) && empty($m->values['Date Chemo Start']) && (empty($m->values['Date Chemo End']))) {
 		$dont_import = true;
 		$msg = '';
 		
-		if(!empty($m->values['Response to Chemotherapy'])) {
-			if(in_array(strtolower($m->values['Response to Chemotherapy']), array('no','unknown'))) {
-				$msg .= 'Chemo reponse exists ['.$m->values['Response to Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
-			} else {
-				$msg .= 'Chemo reponse exists ['.$m->values['Response to Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
-				$dont_import = false;
-			}
-		}
 		if(!empty($m->values['Neoadjuvant Chemotherapy'])) {
 			if($m->values['Neoadjuvant Chemotherapy'] == 'no') {
 				$msg .= 'Chemo neoadjuvant exists ['.$m->values['Neoadjuvant Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';

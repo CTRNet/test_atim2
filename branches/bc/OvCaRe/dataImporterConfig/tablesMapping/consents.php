@@ -15,6 +15,7 @@ $model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey,
 //we can then attach post read/write functions
 $model->post_read_function = 'postConsentRead';
 $model->insert_condition_function = 'preConsentWrite';
+$model->post_write_function = 'postConsentWrite';
 $model->custom_data = array(
 	"date_fields" => array(
 		$master_fields["status_date"] => null,
@@ -33,4 +34,8 @@ function postConsentRead(Model $m){
 function preConsentWrite(Model $m){
 	$m->values['status'] = "obtained";
 	return true;
+}
+
+function postConsentWrite(Model $m){
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['consent_id'] = $m->last_id;
 }

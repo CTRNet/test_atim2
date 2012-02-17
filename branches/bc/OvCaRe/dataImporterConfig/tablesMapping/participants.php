@@ -11,7 +11,9 @@ $child = array(
 	'Chemotherapy',
 	'Surgery',
 	'ExperimentalResuls',
-	'Collection'
+	'SurgicalCollection',
+	'PreSurgicalCollection',
+	'PostSurgicalCollection'
 );
 $fields = array(
 	"participant_identifier" => $pkey, 
@@ -52,9 +54,9 @@ Config::$models['Participant'] = $model;
 function postParticipantRead(Model $m){
 	Config::$current_voa_nbr = $m->values['VOA Number'];
 	Config::$record_ids_from_voa[Config::$current_voa_nbr] = array();
-	Config::$notes_from_voa[Config::$current_voa_nbr] = array();
+	Config::$current_patient_session_data = array();
 	
-	Config::$notes_from_voa['collection_additional_notes'][Config::$current_voa_nbr] = $m->values['Comments'];
+	Config::$current_patient_session_data['collection_additional_notes'] = $m->values['Comments'];
 	
 	excelDateFix($m);
 	

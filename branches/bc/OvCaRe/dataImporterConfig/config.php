@@ -51,10 +51,10 @@ class Config{
 	static $dx_who_codes = array();
 	
 	static $current_voa_nbr = null;	
+	static $current_patient_session_data = array();
 	static $record_ids_from_voa = array();
-	static $notes_from_voa = array();
 	
-	static $current_voa_comments_for_collection = null;	
+	static $sample_code_counter = 0;	
 		
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
@@ -88,7 +88,9 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/collections.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgical_collections.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/pre_surgical_collections.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/post_surgical_collections.php'; 
 
 function addonFunctionStart(){
 	
@@ -146,15 +148,6 @@ function addonFunctionEnd(){
 	$query = "UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date LIKE '%0000%';";
 	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 
-	// ADD ADDITIONAL PARTICIPANT COMMENTS
-	
-	foreach(Config::$notes_from_voa['additional_participant_notes'] as $voa => $msg) {
-		$query = "UPDATE participants SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
-		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$query = "UPDATE participants_revs SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
-		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	}
-	
 	// POPULATE PARTICIPANT CALCULATED FIELDS
 	
 	$query = "UPDATE participants SET ovcare_last_followup_date_accuracy = 'c' WHERE ovcare_last_followup_date NOT LIKE '';";
@@ -296,7 +289,10 @@ function addonFunctionEnd(){
 	
 	// INVENTORY COMPLETION
 		
-//TODO revs table	
+	$query = "UPDATE sample_masters SET sample_code=id;";
+	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE sample_masters_revs SET sample_code=id;";
+	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 	
 	// WARNING DISPLAY
 	
@@ -375,12 +371,11 @@ function setStaticDataForCollection() {
 }
 
 function completeInventoryRevsTable() {
-	
+	die('sadsaasdsadadsdsa');
 	global $connection;
 	
 	if(Config::$insert_revs){
-		$revs_tables = array(
-			'clinical_collection_links',	
+		$revs_tables = array(	
 			'collections',	
 	
 			'sample_masters',

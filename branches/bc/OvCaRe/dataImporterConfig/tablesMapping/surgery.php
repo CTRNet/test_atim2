@@ -51,8 +51,22 @@ function preSurgeryWrite(Model $m){
 		default:
 			$m->values['Macroscopic Residual'] = '';
 	}
-
-	$m->values['diagnosis_master_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'];
+	
+	$surgery_diagnosis_master_id = Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'];
+	if(isset(Config::$record_ids_from_voa[Config::$current_voa_nbr]['recurrence_diagnosis_id'])) {
+		if(!empty(Config::$current_patient_session_data['date_of_reccurrence']) && !empty($m->values['Date of Surgery'])) {
+			$date_of_reccurrence = Config::$current_patient_session_data['date_of_reccurrence'];
+			$date_of_surgery = $m->values['Date of Surgery'];
+			
+			if(str_replace('-','',$date_of_reccurrence) < str_replace('-','',$date_of_surgery)) {
+				Config::$summary_msg['@@WARNING@@']['Reccurence Surgery #1'][] = "Surgery done after recurrence. Both collection and surgery will be linked to recurrence. Progression free time, survival won't probably be calculated! [VOA#: ".Config::$current_voa_nbr.' / line: '.$m->line.']';
+				$surgery_diagnosis_master_id = Config::$record_ids_from_voa[Config::$current_voa_nbr]['recurrence_diagnosis_id'];
+				Config::$record_ids_from_voa[Config::$current_voa_nbr]['collection_diagnosis_id'] = Config::$record_ids_from_voa[Config::$current_voa_nbr]['recurrence_diagnosis_id'];
+			}
+		}
+	}
+	
+	$m->values['diagnosis_master_id'] = $surgery_diagnosis_master_id;
 	
 	return true;	
 }

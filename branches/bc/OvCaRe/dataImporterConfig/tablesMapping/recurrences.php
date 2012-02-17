@@ -22,6 +22,7 @@ $model->custom_data = array(
 );
 $model->post_read_function = 'postRecurrenceRead';
 $model->insert_condition_function = 'preRecurrenceWrite';
+$model->post_write_function = 'postRecurrenceWrite';
 
 //adding this model to the config
 Config::$models['Recurrence'] = $model;
@@ -45,3 +46,10 @@ function preRecurrenceWrite(Model $m){
 	
 	return true;
 }
+
+function postRecurrenceWrite(Model $m){
+	Config::$record_ids_from_voa[Config::$current_voa_nbr]['recurrence_diagnosis_id'] = $m->last_id;
+	Config::$current_patient_session_data['date_of_reccurrence'] = $m->values['Date of Recurrence'];
+}
+
+
