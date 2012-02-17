@@ -12,7 +12,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("you need to at least update a value", "You need to at least update a value.", "Vous devez mettre à jour au moins une valeur."),
 ("you are about to edit %d element(s)", "You are about to edit %d element(s).", "Vous êtes sur le point de mettre %s élément(s) à jour."),
 ("collection details", "Collection details", "Détails de la collection"),
-("collection content", "Collection content", "Contenu de la collection"); 
+("collection content", "Collection content", "Contenu de la collection"),
+("empty spaces", "Empty spaces", "Emplacements vides"); 
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -554,3 +555,21 @@ UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id 
 
 UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_21');
 UPDATE menus SET parent_id='inv_CAN_1' WHERE parent_id='inv_CAN_21';
+
+INSERT INTO structures(`alias`) VALUES ('storage_w_spaces');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', '0', '', 'empty_spaces', 'integer_positive',  NULL , '0', '', '', '', 'empty spaces', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_w_spaces'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='empty_spaces' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='empty spaces' AND `language_tag`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+UPDATE storage_controls SET form_alias=CONCAT(form_alias, ',storage_w_spaces') WHERE coord_x_size IS NOT NULL OR coord_y_size IS NOT NULL;
+
+CREATE VIEW view_storage_masters AS SELECT sm.*, IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(am.id) - COUNT(ts.id) - COUNT(smc.id)) AS empty_spaces FROM storage_masters AS sm
+INNER JOIN storage_controls AS sc ON sm.storage_control_id=sc.id
+LEFT JOIN aliquot_masters AS am ON am.storage_master_id=sm.id AND am.deleted=0
+LEFT JOIN tma_slides AS ts ON ts.storage_master_id=sm.id AND ts.deleted=0
+LEFT JOIN storage_masters AS smc ON smc.parent_id=sm.id AND smc.deleted=0
+WHERE sm.deleted=0 GROUP BY sm.id;
+
+
+
