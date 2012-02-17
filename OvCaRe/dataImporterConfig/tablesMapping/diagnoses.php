@@ -45,6 +45,9 @@ $model->post_write_function = 'postDiagnosisWrite';
 Config::$models['DiagnosisMaster'] = $model;
 	
 function postDiagnosisRead(Model $m){
+	$m->values['Clinical Diagnosis'] = utf8_encode($m->values['Clinical Diagnosis']);
+	$m->values['Clinical History'] = utf8_encode($m->values['Clinical History']);
+	
 	return true;
 }
 

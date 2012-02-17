@@ -19,7 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/FullDataDump_20120123.xls";
+//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/FullDataDump_20120123.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/ShortDataDump_20120123.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -48,10 +49,12 @@ class Config{
 
 	static $sample_aliquot_controls = array();
 	static $dx_who_codes = array();
+	
 	static $current_voa_nbr = null;	
+	static $record_ids_from_voa = array();
+	static $notes_from_voa = array();
+	
 	static $current_voa_comments_for_collection = null;	
-	static $participant_ids_from_voa = array();
-	static $participant_additional_comments_from_voa = array();
 		
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
@@ -145,7 +148,7 @@ function addonFunctionEnd(){
 
 	// ADD ADDITIONAL PARTICIPANT COMMENTS
 	
-	foreach(Config::$participant_additional_comments_from_voa as $voa => $msg) {
+	foreach(Config::$notes_from_voa['additional_participant_notes'] as $voa => $msg) {
 		$query = "UPDATE participants SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
 		mysqli_query($connection, $query) or die("add participant notes [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$query = "UPDATE participants_revs SET notes = CONCAT(notes, ' ', '$msg') WHERE participant_identifier = '$voa';";
@@ -153,7 +156,22 @@ function addonFunctionEnd(){
 	}
 	
 	// POPULATE PARTICIPANT CALCULATED FIELDS
-
+	
+	$query = "UPDATE participants SET ovcare_last_followup_date_accuracy = 'c' WHERE ovcare_last_followup_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE participants_revs SET ovcare_last_followup_date_accuracy = 'c' WHERE ovcare_last_followup_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters_revs SET dx_date_accuracy = 'c' WHERE dx_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		
+	$query = "UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE treatment_masters_revs SET start_date_accuracy = 'c' WHERE start_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
 	$query = "	SELECT 
 		part.participant_identifier AS voa_nbr,
 		
@@ -168,7 +186,7 @@ function addonFunctionEnd(){
 		rec.dx_date AS recurence_date
 		
 		FROM participants AS part 
-		LEFT JOIN diagnosis_masters AS diag ON part.id = diag.participant_id AND diag.diagnosis_control_id = '20'
+		LEFT JOIN diagnosis_masters AS diag ON part.id = diag.participant_id AND diag.diagnosis_control_id IN ('20','22')
 		LEFT JOIN diagnosis_masters AS rec ON diag.id = rec.parent_id AND rec.diagnosis_control_id= '19'
 		LEFT JOIN treatment_masters AS surg ON diag.id = surg.diagnosis_master_id AND surg.treatment_control_id = '7';";
 	
@@ -259,12 +277,22 @@ function addonFunctionEnd(){
 				$set_string .= $separator.$field." = '".$field_value."'";
 				$separator = ', ';
 			}
-			$query = "UPDATE ovcare_dxd_primaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
+			$query = "UPDATE ovcare_dxd_ovaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
 			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$query = "UPDATE ovcare_dxd_primaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
+			$query = "UPDATE ovcare_dxd_ovaries_revs SET $set_string WHERE diagnosis_master_id = '$diag_id';";
 			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 		}
 	}
+	
+	$query = "UPDATE ovcare_dxd_ovaries SET initial_surgery_date_accuracy = 'c' WHERE initial_surgery_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE ovcare_dxd_ovaries_revs SET initial_surgery_date_accuracy = 'c' WHERE initial_surgery_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE ovcare_dxd_ovaries SET initial_recurrence_date_accuracy = 'c' WHERE initial_recurrence_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE ovcare_dxd_ovaries_revs SET initial_recurrence_date_accuracy = 'c' WHERE initial_recurrence_date NOT LIKE '';";
+	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 	// INVENTORY COMPLETION
 		
