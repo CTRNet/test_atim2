@@ -951,6 +951,7 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @see Model::find()
 	 */
 	function find($type = 'first', $query = array()) {
+		pr($query);
 		if((!isset($query['recursive']) || $query['recursive'] > -1)){
 			//Order by directive. Since the ATiM field model is "0" it doesn't work automatically.
 			if(isset($query['extra']['sort']) && $query['extra']['sort'] == '0.empty_spaces'){
@@ -981,17 +982,15 @@ class StorageMaster extends StorageLayoutAppModel {
 			}
 			
 			//no conditions on empty_spaces, use storage_masters.
-			if($type != 'count'){
-				//it's not a count, add the empty_spaces field
+			if($type != 'count' && !isset($query['fields'])){
+				//it's not a count and fields are not specified
 				$query['joins'] = array(
 						array('table' => 'aliquot_masters', 'alias' => 'AliquotMaster', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = AliquotMaster.storage_master_id', 'AliquotMaster.deleted = 0')),
 						array('table' => 'tma_slides', 'alias' => 'TmaSlide', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = TmaSlide.storage_master_id', 'TmaSlide.deleted = 0')),
 						array('table' => 'storage_masters', 'alias' => 'StorageMasterChild', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = StorageMasterChild.parent_id', 'StorageMasterChild.deleted = 0'))
 				);
-				if(!isset($query['field'])){
-					$query['fields'] = array('StorageMaster.*', 'StorageControl.*');
-				}
-				$query['fields'][] = 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces';
+			
+				$query['fields'] = array('StorageMaster.*', 'StorageControl.*', 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces');
 				$query['group'] = array('StorageMaster.id');
 			}
 		}
