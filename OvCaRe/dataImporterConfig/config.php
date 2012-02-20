@@ -55,11 +55,13 @@ class Config{
 	static $record_ids_from_voa = array();
 	
 	static $sample_code_counter = 0;	
+	
+	static $tissue_source_and_laterality = array();
 		
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
 		'@@WARNING@@' => array(),  
-		'@@MESSAGE@@' => array());
+		'@@MESSAGE@@' => array());	
 }
 
 //add you start queries here
@@ -328,7 +330,14 @@ function addonFunctionEnd(){
 	
 	echo "<br>";
 	
-//	completeInventoryRevsTable();	
+	echo "<br><b> ** VALIDATE FOLLOWING TISSUE DEFINITION ** </b>:<br><br>";
+	
+	foreach(Config::$tissue_source_and_laterality as $key => $new_def) {
+		echo "$key => type = ".$new_def['sample_type']." | source = ".$new_def['source']." (".$new_def['source_precision'].") | laterality = '".$new_def['laterality']."'<br>";
+	}
+	
+	echo "<br>";
+		
 }
 
 //=========================================================================================================

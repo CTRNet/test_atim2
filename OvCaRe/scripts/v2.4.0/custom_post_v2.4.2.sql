@@ -781,6 +781,42 @@ INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `u
 VALUES 
 ('surgical', 'Surgical', '', 1, @cont_id, @id, NOW());
 
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare tissue sources');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('uterus', 'Uterus', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('uterus', 'Uterus', '', 1, @cont_id, @id, NOW());	
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('fallopian tube', 'Fallopian Tube', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('fallopian tube', 'Fallopian Tube', '', 1, @cont_id, @id, NOW());
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) VALUES 
+('pelvic mass', 'Pelvic Mass', '', 1, @cont_id);
+SET @id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`value`, `en`, `fr`, `use_as_input`, `control_id`,`id`, `version_created`) 
+VALUES 
+('pelvic mass', 'Pelvic Mass', '', 1, @cont_id, @id, NOW());
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("bilateral", "bilateral");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="tissue_laterality"),  (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "0", "1");
+
+ALTER TABLE sd_spe_tissues
+	ADD COLUMN ovcare_tissue_source_precision varchar(250) DEFAULT NULL AFTER tissue_source;
+ALTER TABLE sd_spe_tissues_revs
+	ADD COLUMN ovcare_tissue_source_precision varchar(250) DEFAULT NULL AFTER tissue_source;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_tissue_source_precision', 'input',  NULL , '0', 'size=30', '', '', '', 'tissue source precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_tissue_source_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tissue source precision'), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO i18n (id,en) VALUES ('tissue source precision', 'Precision');
+
+
 
 
 
