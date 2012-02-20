@@ -1760,45 +1760,7 @@ class StructuresHelper extends Helper {
 						if(isset($options['dropdown_options'][$model_dot_field])){
 							$dropdown_result['defined'] = $options['dropdown_options'][$model_dot_field]; 
 						}else if(count($sfs['StructureValueDomain']) > 0){
-							if(strlen($sfs['StructureValueDomain']['source']) > 0){
-								//load source
-								$tmp_dropdown_result = StructuresComponent::getPulldownFromSource($sfs['StructureValueDomain']['source']);
-								if(array_key_exists('defined', $tmp_dropdown_result)){
-									$dropdown_result['defined'] += $tmp_dropdown_result['defined'];
-									if(array_key_exists('previously_defined', $tmp_dropdown_result)){
-										$dropdown_result['previously_defined'] += $tmp_dropdown_result['previously_defined'];
-									}
-								}else{
-									$dropdown_result['defined'] += $tmp_dropdown_result;
-								}
-							}else{
-								$this->StructureValueDomain->cacheQueries = true;
-								$tmp_dropdown_result = $this->StructureValueDomain->find('first', array(
-									'recursive' => 2, //cakephp has a memory leak when recursive = 2
-									'conditions' => array('StructureValueDomain.id' => $sfs['StructureValueDomain']['id'])));
-
-								if(count($tmp_dropdown_result['StructurePermissibleValue']) > 0){
-									$tmp_result = array('defined' => array(), 'previously_defined' => array());
-									//sort based on flag and on order
-									foreach($tmp_dropdown_result['StructurePermissibleValue'] as $tmp_entry){
-										if($tmp_entry['flag_active']){
-											if($tmp_entry['use_as_input']){
-												$tmp_result['defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
-											}else{
-												$tmp_result['previously_defined'][$tmp_entry['value']] = sprintf("%04d", $tmp_entry['display_order']).__($tmp_entry['language_alias'], true);
-											}
-										}
-									}
-									asort($tmp_result['defined']);
-									asort($tmp_result['previously_defined']);
-									$substr4_func = create_function('$str', 'return substr($str, 4);');
-									$tmp_result['defined'] = array_map($substr4_func, $tmp_result['defined']);
-									$tmp_result['previously_defined'] = array_map($substr4_func, $tmp_result['previously_defined']);
-		
-									$dropdown_result['defined'] += $tmp_result['defined'];//merging arrays and keeping numeric keys intact
-									$dropdown_result['previously_defined'] += $tmp_result['previously_defined'];
-								}
-							}
+							$this->StructureValueDomain->updateDropdownResult($sfs['StructureValueDomain'],$dropdown_result);
 						}else if($sfs['type'] == "checkbox"){
 							//provide yes/no as default for checkboxes
 							$dropdown_result['defined'] = array(0 => __("no", true), 1 => __("yes", true));
