@@ -1646,7 +1646,7 @@ div.wrapper table.structure td .databrowser td .info td{
 
 /* active painting */
 .databrowser td.h-line.active, .databrowser tr:nth-child(1) td:nth-child(1){ background-position: -127px 0; }
-.databrowser td.v-line.active { background-position: -127px -20; }
+.databrowser td.v-line.active { background-position: -127px -20px; }
 .databrowser td.corner.active { background-position: -127px -40px; }
 .databrowser td.arrow.active_straight { background-position: -127px -60px; }
 .databrowser td.arrow.active { background-position: -127px -80px; }
