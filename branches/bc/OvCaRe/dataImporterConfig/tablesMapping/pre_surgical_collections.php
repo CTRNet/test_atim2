@@ -20,6 +20,7 @@ $model->post_read_function = 'postPreSurgicalCollectionRead';
 $model->insert_condition_function = 'prePreSurgicalCollectionWrite';
 
 function postPreSurgicalCollectionRead(Model $m){
+	if(empty($m->values['Tissue Receipt::PreSurgical Plasma']) && empty($m->values['Tissue Receipt::PreSurgical Serum']) && empty($m->values['Tissue Receipt::Buffy Coat'])) return false;
 	return true;
 
 }

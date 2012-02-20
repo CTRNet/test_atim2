@@ -20,6 +20,7 @@ $model->post_read_function = 'postPostSurgicalCollectionRead';
 $model->insert_condition_function = 'prePostSurgicalCollectionWrite';
 
 function postPostSurgicalCollectionRead(Model $m){
+	if(empty($m->values['Tissue Receipt::PostSurgical Serum'])) return false;
 	return true;
 
 }
