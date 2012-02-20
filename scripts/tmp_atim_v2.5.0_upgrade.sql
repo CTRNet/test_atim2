@@ -13,7 +13,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("you are about to edit %d element(s)", "You are about to edit %d element(s).", "Vous êtes sur le point de mettre %s élément(s) à jour."),
 ("collection details", "Collection details", "Détails de la collection"),
 ("collection content", "Collection content", "Contenu de la collection"),
-("empty spaces", "Empty spaces", "Emplacements vides"); 
+("empty spaces", "Empty Spaces", "Emplacements Vides"); 
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -571,5 +571,32 @@ LEFT JOIN tma_slides AS ts ON ts.storage_master_id=sm.id AND ts.deleted=0
 LEFT JOIN storage_masters AS smc ON smc.parent_id=sm.id AND smc.deleted=0
 WHERE sm.deleted=0 GROUP BY sm.id;
 
+ALTER TABLE datamart_structures
+ ADD COLUMN adv_search_structure_alias VARCHAR(255) DEFAULT NULL AFTER structure_id, 
+ ADD FOREIGN KEY (adv_search_structure_alias) REFERENCES structures(alias);
+ALTER TABLE datamart_browsing_results
+ CHANGE parent_node_id parent_id INT UNSIGNED DEFAULT NULL,
+ ADD lft INT UNSIGNED DEFAULT NULL,
+ ADD rght INT UNSIGNED DEFAULT NULL;
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("adv_coll_datetime", "", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= TreatmentMaster.start_date", ">= TreatmentMaster.start_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.start_date" AND language_alias=">= TreatmentMaster.start_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.start_date", "<= TreatmentMaster.start_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= TreatmentMaster.start_date" AND language_alias="<= TreatmentMaster.start_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= TreatmentMaster.finish_date", ">= TreatmentMaster.finish_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.finish_date" AND language_alias=">= TreatmentMaster.finish_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.finish_date", "<= TreatmentMaster.finish_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= TreatmentMaster.finish_date" AND language_alias="<= TreatmentMaster.finish_date"), "1", "1");
 
+INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= EventMaster.event_date", "<= EventMaster.event_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= EventMaster.event_date" AND language_alias=">= EventMaster.event_date"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= EventMaster.event_date", "<= EventMaster.event_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= EventMaster.event_date" AND language_alias="<= EventMaster.event_date"), "2", "1");
+
+INSERT INTO structures(`alias`) VALUES ('collections_adv_search');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', 'view_collections', 'collection_datetime', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='adv_coll_datetime') , '0', 'noCtrl=', '', '', 'collection datetime', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_adv_search'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='collection_datetime' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='adv_coll_datetime')  AND `flag_confidential`='0' AND `setting`='noCtrl=' AND `default`='' AND `language_help`='' AND `language_label`='collection datetime' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE datamart_structures SET adv_search_structure_alias='collections_adv_search' WHERE model='ViewCollection';
+
+UPDATE datamart_browsing_controls SET use_field=SUBSTR(use_field, LOCATE('.', use_field) + 1);

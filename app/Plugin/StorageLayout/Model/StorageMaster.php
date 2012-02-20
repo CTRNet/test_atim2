@@ -965,7 +965,6 @@ class StorageMaster extends StorageLayoutAppModel {
 						$query['conditions'][substr($key, 2)] = $val;
 						unset($query['conditions'][$key]);
 						$empty_space_condition = true;
-						break;
 					}
 				}
 				
