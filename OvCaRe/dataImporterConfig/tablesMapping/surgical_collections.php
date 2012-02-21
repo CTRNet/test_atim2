@@ -72,7 +72,7 @@ function createCollection(Model $m, $collection_type) {
 				"sample_control_id"				=> Config::$sample_aliquot_controls['blood']['sample_control_id'], 
 				"initial_specimen_sample_id"	=> "NULL", 
 				"initial_specimen_sample_type"	=> "'blood'", 
-				"collection_id"					=> "'".$collection_id."'", 
+				"collection_id"					=> $collection_id, 
 				"parent_id"						=> "NULL",
 				"notes"							=> "''" 
 			);
@@ -92,7 +92,6 @@ function createCollection(Model $m, $collection_type) {
 			if(!empty($m->values['Tissue Receipt::PreSurgical Plasma'])) $blood_derivatives[] = array('type' => 'plasma', 'aliquot_nbr' => $m->values['Tissue Receipt::PreSurgical Plasma']);
 			if(!empty($m->values['Tissue Receipt::PostSurgical Serum'])) $blood_derivatives[] = array('type' => 'serum', 'aliquot_nbr' => $m->values['Tissue Receipt::PostSurgical Serum']);
 
-			
 			$master_data_arr = array(
 				"initial_specimen_sample_id"	=> $blood_sample_master_id, 
 				"initial_specimen_sample_type"	=> "'blood'", 
@@ -107,7 +106,7 @@ function createCollection(Model $m, $collection_type) {
 						$derivative_sample_master_id = insertCollectionElement(array_merge($master_data_arr, array('sample_code' => "'tmp_".(Config::$sample_code_counter++)."'", 'sample_control_id' => Config::$sample_aliquot_controls[$new_der['type']]['sample_control_id'])), 'sample_masters');
 						insertCollectionElement(array("sample_master_id" => $derivative_sample_master_id), Config::$sample_aliquot_controls[$new_der['type']]['detail_tablename'], true);
 						insertCollectionElement(array("sample_master_id" => $derivative_sample_master_id), 'derivative_details');
-						createAliquot($collection_id, $derivative_sample_master_id, $new_der['type'], 'tube', $new_der['aliquot_nbr'], '', $initial_storage_date);
+						createAliquot($collection_id, $derivative_sample_master_id, $new_der['type'], 'tube', $new_der['aliquot_nbr'], $initial_storage_date);
 					} else {
 						Config::$summary_msg['@@ERROR@@']['Blood Derivative #1'][] = 'The '.$new_der['type'].' is not a numerical value ('.$new_der['aliquot_nbr'].'). [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 					}
@@ -134,22 +133,60 @@ function createCollection(Model $m, $collection_type) {
 			if(!preg_match('/^([0-9]*)$/', $vials_nbr, $matches)) Config::$summary_msg['@@ERROR@@']['Vials Nbr #1'][] = 'The number of vials '.$vials_nbr.' is not a numerical value. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 			
 			$sample_notes = '';
-			$aliquot_notes = '';
 			if(sizeof($specimens) == 2) {
-				Config::$summary_msg['@@WARNING@@']['Aliquot Creation #1'][] = 'Both Specimens 1 & 2 have been defined: The aliquots creation by migration process is too complexe. Information will be added to sample notes. Migration completion has to be done manually. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+				Config::$summary_msg['@@WARNING@@']['Aliquot Creation #1'][] = 'Both Specimens 1 & 2 have been defined ['.$m->values['Tissue Receipt::Specimen Type 1'].' / '.$m->values['Tissue Receipt::Specimen Type 2'].']. The aliquots creation by migration process is too complexe. Information will be added to sample notes. Migration completion has to be done manually. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 				if(!empty($blocks_nbr)) $sample_notes .= "[Nbr of blocks = $blocks_nbr] ";
 				if(!empty($vials_nbr)) $sample_notes .= "[Nbr of vials = $vials_nbr] ";
-				$sample_notes .= $comments;
 				$blocks_nbr = 0;
 				$vials_nbr = 0;
-			} else {
-				$aliquot_notes = $comments;		
+			} else if($blocks_nbr+$vials_nbr == 0) {
+				Config::$summary_msg['@@MESSAGE@@']['Aliquot Creation #2'][] = 'Sample has been created but no aliquot has been defined into file. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 			}
+			$sample_notes .= $comments;
 			
 			foreach($specimens as $new_specimen) {
 				switch($new_specimen['sample_type']) {
 					case 'ascite':
-						//TODO
+						$data_arr = array(
+							"sample_code" 					=> "'tmp_".(Config::$sample_code_counter++)."'", 
+							"sample_control_id"				=> Config::$sample_aliquot_controls['ascite']['sample_control_id'], 
+							"initial_specimen_sample_id"	=> "NULL", 
+							"initial_specimen_sample_type"	=> "'ascite'",
+							"collection_id"					=> $collection_id, 
+							"parent_id"						=> "NULL",
+							"notes"							=> (($new_specimen['source_precision'] == '***cell***')? "''" :"'$sample_notes'")
+						);
+						$ascite_sample_master_id = insertCollectionElement($data_arr, 'sample_masters');
+						insertCollectionElement(array("sample_master_id"	=> $ascite_sample_master_id), Config::$sample_aliquot_controls['ascite']['detail_tablename'], true);
+						insertCollectionElement(array("sample_master_id"	=> $ascite_sample_master_id), 'specimen_details');
+						
+						$aliquot_sample_master_id = $ascite_sample_master_id;
+						$aliquot_sample_type = 'ascite';
+						if($new_specimen['source_precision'] == '***cell***') {
+							$master_data_arr = array(
+								"sample_code" 					=> "'tmp_".(Config::$sample_code_counter++)."'", 
+								"sample_control_id"				=> Config::$sample_aliquot_controls['ascite cell']['sample_control_id'], 
+								"initial_specimen_sample_id"	=> $ascite_sample_master_id, 
+								"initial_specimen_sample_type"	=> "'ascite'",
+								"collection_id"					=> $collection_id, 
+								"parent_id"						=> $ascite_sample_master_id,
+								"parent_sample_type"			=> "'ascite'",
+								"notes"							=> "'$sample_notes'" 
+							);
+	
+							$ascite_cell_sample_master_id = insertCollectionElement($master_data_arr, 'sample_masters');
+							insertCollectionElement(array("sample_master_id" => $ascite_cell_sample_master_id), Config::$sample_aliquot_controls['ascite cell']['detail_tablename'], true);
+							insertCollectionElement(array("sample_master_id" => $ascite_cell_sample_master_id), 'derivative_details');
+							
+							$aliquot_sample_master_id = $ascite_cell_sample_master_id;
+							$aliquot_sample_type = 'ascite cell';
+							
+							Config::$summary_msg['@@WARNING@@']['Special Derivative Creation #1'][] = 'An Ascite cell derivative has been created for ['.$m->values['Tissue Receipt::Specimen Type 1'].' / '.$m->values['Tissue Receipt::Specimen Type 2'].'].  [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+						} 
+										
+						createAliquot($collection_id, $aliquot_sample_master_id, $aliquot_sample_type, 'block', $blocks_nbr, $initial_storage_date);
+						createAliquot($collection_id, $aliquot_sample_master_id, $aliquot_sample_type, 'tube', $vials_nbr, $initial_storage_date);
+						
 						break;
 						
 					case 'tissue':
@@ -158,23 +195,42 @@ function createCollection(Model $m, $collection_type) {
 							"sample_control_id"				=> Config::$sample_aliquot_controls['tissue']['sample_control_id'], 
 							"initial_specimen_sample_id"	=> "NULL", 
 							"initial_specimen_sample_type"	=> "'tissue'",
-//TODO pourquoi le  initial_specimen_sample_type n'est pas créé $query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-							"collection_id"					=> "'".$collection_id."'", 
+							"collection_id"					=> $collection_id, 
 							"parent_id"						=> "NULL",
-							"notes"							=> "'$sample_notes'" 
+							"notes"							=> (($new_specimen['source_precision'] == '***culture***')? "''" : "'$sample_notes'") 
 						);
 						$tissue_sample_master_id = insertCollectionElement($data_arr, 'sample_masters');
 						$data_arr = array(
 							"sample_master_id"	=> $tissue_sample_master_id,
 							"tissue_source" => "'".$new_specimen['source']."'",
-							"ovcare_tissue_source_precision" => "'".$new_specimen['source_precision']."'",
+							"ovcare_tissue_source_precision" => (($new_specimen['source_precision'] == '***culture***')? "''" : "'".$new_specimen['source_precision']."'"),
 							"tissue_laterality" => "'".$new_specimen['laterality']."'"
 						);
 						insertCollectionElement($data_arr, Config::$sample_aliquot_controls['tissue']['detail_tablename'], true);
 						insertCollectionElement(array("sample_master_id"	=> $tissue_sample_master_id), 'specimen_details');
 						
-						createAliquot($collection_id, $tissue_sample_master_id, 'tissue', 'block', $blocks_nbr, $aliquot_notes, $initial_storage_date);
-						createAliquot($collection_id, $tissue_sample_master_id, 'tissue', 'tube', $vials_nbr, $aliquot_notes, $initial_storage_date);
+						if($new_specimen['source_precision'] != '***culture***') {
+							createAliquot($collection_id, $tissue_sample_master_id, 'tissue', 'block', $blocks_nbr, $initial_storage_date);
+							createAliquot($collection_id, $tissue_sample_master_id, 'tissue', 'tube', $vials_nbr, $initial_storage_date);
+						
+						} else {
+							$master_data_arr = array(
+								"sample_code" 					=> "'tmp_".(Config::$sample_code_counter++)."'", 
+								"sample_control_id"				=> Config::$sample_aliquot_controls['cell culture']['sample_control_id'], 
+								"initial_specimen_sample_id"	=> $tissue_sample_master_id, 
+								"initial_specimen_sample_type"	=> "'tissue'",
+								"collection_id"					=> $collection_id, 
+								"parent_id"						=> $tissue_sample_master_id,
+								"parent_sample_type"			=> "'tissue'",
+								"notes"							=> "'$sample_notes'" 
+							);
+	
+							$cell_culture_sample_master_id = insertCollectionElement($master_data_arr, 'sample_masters');
+							insertCollectionElement(array("sample_master_id" => $cell_culture_sample_master_id), Config::$sample_aliquot_controls['cell culture']['detail_tablename'], true);
+							insertCollectionElement(array("sample_master_id" => $cell_culture_sample_master_id), 'derivative_details');
+							
+							Config::$summary_msg['@@WARNING@@']['Special Derivative Creation #1'][] = 'An Tissue cell culture derivative has been created for ['.$m->values['Tissue Receipt::Specimen Type 1'].' / '.$m->values['Tissue Receipt::Specimen Type 2'].'].  [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
+						}
 												
 						break;
 						
@@ -211,11 +267,11 @@ function getTissueSourceAndLaterality($specimen_type = '') {
 	
 	switch($specimen_type_lowercase) {
 		case 'ascites cells':
-			$specimen_data['source_precision'] = 'cell';
 		case 'acites':
 		case 'ascites':
 			$specimen_data['sample_type'] = 'ascite';	
-			$specimen_data['source'] = 'ascite';			
+			$specimen_data['source'] = 'ascite';
+			$specimen_data['source_precision'] = ($specimen_type_lowercase == 'ascites cells')? '***cell***':'';
 			break;
 			
 		case 'endomertrium':
@@ -273,7 +329,10 @@ function getTissueSourceAndLaterality($specimen_type = '') {
 			break;
 			
 		case 'right fallopian tube-culture':
-				die('ERR 876388383 : support right fallopian tube-culture');
+			$specimen_data['sample_type'] = 'tissue';	
+			$specimen_data['source'] = 'fallopian tube';
+			$specimen_data['source_precision'] = '***culture***';
+			break;
 			
 		case 'uterine fibroid':
 		case 'uterine mass':
@@ -295,16 +354,27 @@ function getTissueSourceAndLaterality($specimen_type = '') {
 			$specimen_data['source'] = 'other';
 			break;
 	}		
-
+	
+	//Precision clean up
+	
+	$source_precision = $specimen_data['source_precision'];
+	$source_precision = preg_replace("/".$specimen_data['source']."/i", '', $source_precision);
+	$source_precision = preg_replace("/".$specimen_data['laterality']."/i", '', $source_precision);
+	$source_precision = str_replace(' ', '', $source_precision);
+	if(empty($source_precision)) $specimen_data['source_precision'] = '';
+	
 	Config::$tissue_source_and_laterality[$specimen_type_lowercase] = $specimen_data;
 				
 	return $specimen_data;		
 }
 
-function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot_type, $nbr_of_aliquots, $aliquot_notes, $initial_storage_date = null) {
-	$nbr_of_aliquots = empty($nbr_of_aliquots)? 0 : $nbr_of_aliquots;
+function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot_type, $nbr_of_aliquots, $initial_storage_date = null) {
+	if(empty($nbr_of_aliquots)) return;
 	if(!is_numeric($nbr_of_aliquots)) die('ERR998738: Nbr of Aliquot should be numeric'.$nbr_of_aliquots);
-	
+	if(!isset(Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type])) {
+		pr(Config::$sample_aliquot_controls);
+		die('Missing Aliquot Control : '.$sample_type.' - '.$aliquot_type);
+	}
 	$aliquot_control_id = Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['aliquot_control_id'];
 	$detail_table = Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['detail_tablename'];
 	
@@ -313,8 +383,7 @@ function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot
 		"in_stock" => "'yes - available'",
 		"collection_id" => $collection_id,
 		"sample_master_id" => $sample_master_id,
-		"aliquot_label" => "'n/a'",
-		"notes" => "'".$aliquot_notes."'"
+		"aliquot_label" => "'n/a'"
 	);   
 	if($initial_storage_date) { 
 		$master_insert['storage_datetime'] = "'".$initial_storage_date."'";
@@ -344,7 +413,7 @@ function insertCollectionElement($data_arr, $table_name, $is_detail_table = fals
 	$insert_arr = array_merge($data_arr, $created);
 	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
 	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-pr($query."<br>");	
+	
 	$record_id = mysqli_insert_id($connection);
 	
 	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));

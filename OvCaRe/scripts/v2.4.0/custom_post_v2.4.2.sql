@@ -816,48 +816,23 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUES ('tissue source precision', 'Precision');
 
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'ascite cell' ), 'block', NULL, 'aliquot_masters,ad_der_ascite_cell_blocks', 'ad_blocks', NULL, 1, 'Ascite cell block', 0, 'block');
 
+INSERT INTO structures(`alias`) VALUES ('ad_der_ascite_cell_blocks');
 
-
-
-
-
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_blocks'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_blocks'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 -- TODO
 
-
 SELECT '
 VOA#757: The date of recurrence = 1900-01-05. Please confirm!
-Start date accuracy to set for chemo of voa 1082.
-Clean up should be done on specimen type because endometrium is written in many ways...
+VOA#1082: Start date accuracy to set for chemo.
 ' as MSG;
 
 SELECT '
 DATABASE VALIDATION REQUIRED!
-
-
-
-
-vial and block linked to specimen.... don't create if 2 specimens. Just add to comment.
-' as TODO_DEV;
-
-SELECT '
-DATABASE VALIDATION REQUIRED!
-
 Validate unexported fields from excel.
-' as TODO_END;
-
-
-
-
-SELECT 'Parafin blocks are linked to specimen 1 or 2? same question for vial frozen' as Questions_For_OvCaRe 
-UNION 
-SELECT 'Specimen type list: What about tissue source values coming from specimen type' as Questions_For_OvCaRe
-UNION 
-SELECT 'Clean up should be done on specimen type because endometrium is written in many ways...' as Questions_For_OvCaRe
-
-
-
-
-
-  
+' as TODO_DEV;

@@ -42,9 +42,9 @@ function postChemotherapyRead(Model $m){
 		
 		if(!empty($m->values['Neoadjuvant Chemotherapy'])) {
 			if($m->values['Neoadjuvant Chemotherapy'] == 'no') {
-				$msg .= 'Chemo neoadjuvant exists ['.$m->values['Neoadjuvant Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
+				$msg .= 'Chemo neoadjuvant value exists ['.$m->values['Neoadjuvant Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
 			} else {
-				$msg .= 'Chemo neoadjuvant exists ['.$m->values['Neoadjuvant Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
+				$msg .= 'Chemo neoadjuvant value exists ['.$m->values['Neoadjuvant Chemotherapy'].'] but no chemo data is defined (start,end and chemo fields). ';
 				$dont_import = false;
 			}
 		}
