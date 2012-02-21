@@ -19,8 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/FullDataDump_20120123.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/ShortDataDump_20120123.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/FullDataDump_20120123.xls";
+//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/ShortDataDump_20120123.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -296,6 +296,16 @@ function addonFunctionEnd(){
 	$query = "UPDATE sample_masters_revs SET sample_code=id;";
 	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 	
+	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	
+	$query = "UPDATE aliquot_masters SET barcode=id;";
+	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
+	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	
 	// WARNING DISPLAY
 	
 	echo "<br><FONT COLOR=\"red\" >
@@ -332,10 +342,19 @@ function addonFunctionEnd(){
 	
 	echo "<br><b> ** VALIDATE FOLLOWING TISSUE DEFINITION ** </b>:<br><br>";
 	
+	$tmp = array();
 	foreach(Config::$tissue_source_and_laterality as $key => $new_def) {
-		echo "$key => type = ".$new_def['sample_type']." | source = ".$new_def['source']." (".$new_def['source_precision'].") | laterality = '".$new_def['laterality']."'<br>";
+		$tmp[$new_def['source']][$key] = $new_def;
 	}
 	
+	echo "<TABLE BORDER=\"1\"><TR><TH>Specimen Type</TH><TH>Sample Type</TH><TH>Source</TH><TH>Laterality</TH><TH>Precision</TH></TR>";
+	foreach($tmp as $tmp_source) {
+		foreach($tmp_source as $key => $new_def) {
+			echo "<TR><TH>$key</TH><TD>".$new_def['sample_type']."</TD><TD>".$new_def['source']."</TD><TD>".(empty($new_def['laterality'])? '&nbsp;' : $new_def['laterality'])."</TD><TD>".(empty($new_def['source_precision'])? '&nbsp;' : $new_def['source_precision'])."</TD></TR>";
+		}
+	}
+	echo "</TABLE>";
+
 	echo "<br>";
 		
 }
@@ -377,114 +396,6 @@ function setStaticDataForCollection() {
 		Config::$dx_who_codes[$row['id']] = $row['id'];
 	}		
 	
-}
-
-function completeInventoryRevsTable() {
-	die('sadsaasdsadadsdsa');
-	global $connection;
-	
-	if(Config::$insert_revs){
-		$revs_tables = array(	
-			'collections',	
-	
-			'sample_masters',
-			'specimen_details',
-			'derivative_details',
-			'sd_der_ascite_cells',
-			'sd_der_ascite_sups',
-			'sd_der_blood_cells',
-			'sd_der_cell_cultures',
-			'sd_der_dnas',
-			'sd_der_rnas',
-			'sd_spe_ascites',
-			'sd_der_serums',
-			'sd_der_plasmas',
-			'sd_spe_bloods',
-			'sd_spe_peritoneal_washes',
-			'sd_spe_tissues',
-			
-			'aliquot_masters',
-			'ad_blocks',
-			'ad_tubes',
-			
-			'storage_masters',
-			'std_boxs');		
-		
-		foreach ($revs_tables as $table_name) {
-			$query = '';
-			switch($table_name) {
-				case 'clinical_collection_links':
-					$query = "INSERT INTO ".$table_name."_revs (id, collection_id, participant_id, version_created) "
-						."SELECT id, collection_id, participant_id, NOW() FROM ".$table_name;
-					break;		
-					
-				case 'collections':	
-					$query = "INSERT INTO ".$table_name."_revs (id, acquisition_label, bank_id, collection_notes, collection_property, version_created) "
-						."SELECT id, acquisition_label, bank_id, collection_notes, collection_property, NOW() FROM ".$table_name;
-					break;
-					
-				case 'sample_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, version_created) "
-						."SELECT id, sample_code, sample_control_id, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, NOW() FROM ".$table_name;
-					break;					
-					
-					
-				case 'specimen_details':
-				case 'derivative_details':
-
-				case 'sd_der_ascite_cells':
-				case 'sd_der_ascite_sups':
-				case 'sd_der_blood_cells':
-				case 'sd_der_cell_cultures':
-				case 'sd_der_dnas':
-				case 'sd_der_rnas':
-				case 'sd_spe_ascites':
-				case 'sd_der_serums':
-				case 'sd_der_plasmas':
-				case 'sd_spe_bloods':
-				case 'sd_spe_peritoneal_washes':
-				
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, version_created) "
-						."SELECT id, sample_master_id, NOW() FROM ".$table_name;
-					break;	
-				
-					
-				case 'sd_spe_tissues':
-				
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, chuq_tissue_code, tissue_nature, tissue_source, tissue_laterality, version_created) "
-						."SELECT id, sample_master_id, chuq_tissue_code, tissue_nature, tissue_source, tissue_laterality, NOW() FROM ".$table_name;
-					break;	
-
-				case 'aliquot_masters':		
-					$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, version_created) "
-						."SELECT id, sample_master_id, aliquot_control_id, in_stock, collection_id, aliquot_label, storage_master_id, NOW() FROM ".$table_name;
-					break;	
-
-				case 'ad_blocks':
-					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, block_type, version_created) "
-						."SELECT id, aliquot_master_id, block_type, NOW() FROM ".$table_name;
-					break;	
-			
-				case 'ad_tubes':
-					$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, chuq_blood_solution, chuq_blood_cell_stored_into_rlt, version_created) "
-						."SELECT id, aliquot_master_id, chuq_blood_solution, chuq_blood_cell_stored_into_rlt, NOW() FROM ".$table_name;
-					break;	
-			
-				case 'storage_masters':
-					$query = "INSERT INTO ".$table_name."_revs (id, code, storage_control_id, rght, lft, selection_label, short_label, version_created) "
-						."SELECT id, code, storage_control_id, rght, lft, selection_label, short_label, NOW() FROM ".$table_name;
-					break;					
-				case 'std_boxs':	
-					$query = "INSERT INTO ".$table_name."_revs (id, storage_master_id, version_created) "
-						."SELECT id, storage_master_id, NOW() FROM ".$table_name;
-					break;				
-				
-				default:
-					die("ERR 007 : ".$table_name);	
-			}
-			mysqli_query($connection, $query) or die("inventroy revs table completion [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
-		}	
-	}
 }
 
 ?>
