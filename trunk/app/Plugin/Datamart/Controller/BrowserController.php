@@ -118,16 +118,17 @@ class BrowserController extends DatamartAppController {
 
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 			if(isset($this->request->data[$parent['DatamartStructure']['model']]) && isset($this->request->data['Browser'])){
+				$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
 				//save selected subset if parent model found and from a checklist 
 				$ids = array();
-				if(count($this->request->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]) == 1 
-					&& strpos($this->request->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']], ",") !== false
+				if(count($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]) == 1 
+					&& strpos($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey], ",") !== false
 				){
 					//all ids in one field
-					$ids = explode(",", $this->request->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']]);
+					$ids = explode(",", $this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
 				}else{
 					//ids in n fields
-					foreach($this->request->data[$parent['DatamartStructure']['model']][$parent['DatamartStructure']['use_key']] as $id){
+					foreach($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey] as $id){
 						if($id != 0){
 							$ids[] = $id;
 						}
@@ -171,8 +172,6 @@ class BrowserController extends DatamartAppController {
 			}
 			$result_structure = null;
 			$browsing = null;
-			$model_name_to_search = null;
-			$model_key_name = null;
 			$use_sub_model = null;
 			$first_iteration = true;
 			
@@ -180,22 +179,24 @@ class BrowserController extends DatamartAppController {
 			foreach($direct_id_arr as $control_id){
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $control_id)));
 				if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+					echo $browsing['DatamartStructure']['index_link'];
 					$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
 					return;
 				}
 				
+				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+				
 				if(isset($sub_structure_id)//there is a sub id 
-					&& strlen($browsing['DatamartStructure']['control_model']) > 0//a sub model exists
+					&& ($ctrl_model = $this->ModelToSearch->getControlName())//a sub model exists
 					&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
 					&& $check_list//this is a checklist
 				){
 					//sub structure
-					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
+					$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_master_model'], true);
+					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $ctrl_model, $sub_structure_id);
 					$alternate_alias = $alternate_info['form_alias'];
 					$result_structure = $this->Structures->get('form', $alternate_alias);
 					$model_to_import = $browsing['DatamartStructure']['control_master_model'];
-					$model_name_to_search = $browsing['DatamartStructure']['control_master_model'];
-					$model_key_name = "id";
 					$use_sub_model = true;
 					
 					//add detail tablename to result_structure (use to parse search parameters) where needed
@@ -214,19 +215,16 @@ class BrowserController extends DatamartAppController {
 						}
 					}
 				}else{
-					$model_to_import = $browsing['DatamartStructure']['model'];
-					$model_name_to_search = $browsing['DatamartStructure']['model'];
 					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
-					$model_key_name = $browsing['DatamartStructure']['use_key'];
 					$use_sub_model = false;
 				}
 				
-				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $model_to_import, true);
+				
 				$search_conditions = $this->Structures->parseSearchConditions($result_structure);
-				$select_key = $model_to_import.".".$model_key_name;
+				$select_key = $this->ModelToSearch->name.".".$this->ModelToSearch->primaryKey;
 				if($use_sub_model){
 					//adding filtering search condition
-					$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$browsing['DatamartStructure']['control_field']] = $sub_structure_id;
+					$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$this->ModelToSearch->getControlForeign()] = $sub_structure_id;
 				}
 				
 				$org_search_conditions['search_conditions'] = $search_conditions;
@@ -237,7 +235,7 @@ class BrowserController extends DatamartAppController {
 					//this is not the first node, search based on parents
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
-					$this->ParentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
+					$this->ParentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?: $parent['DatamartStructure']['model'], true);
 					if(!empty($control_data)){
 						$joins[] = array(
 							'table'		=> $this->ParentModel->table,
@@ -331,11 +329,13 @@ class BrowserController extends DatamartAppController {
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			}
 			
+			$browsing_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+			
 			$this->set('top', "/Datamart/Browser/browse/".$node_id."/");
 			$this->set('node_id', $node_id);
 			$this->set('type', "checklist");
 			$this->set('checklist_key', $this->Browser->checklist_model->name.".".$this->Browser->checklist_use_key);
-			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key']);
+			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing_model->primaryKey);
 			
 			$dropdown_options = $this->Browser->getDropdownOptions(
 				$browsing['DatamartStructure']['id'], 
@@ -344,7 +344,7 @@ class BrowserController extends DatamartAppController {
 				$this->Browser->checklist_model->name,
 				$browsing['DatamartStructure']['model'],
 				$this->Browser->checklist_use_key,
-				$browsing['DatamartStructure']['use_key'], 
+				$browsing_model->primaryKey, 
 				$this->Browser->checklist_sub_models_id_filter
 			);
 			foreach($dropdown_options as $key => $option){
@@ -372,7 +372,7 @@ class BrowserController extends DatamartAppController {
 					$browsing['DatamartStructure']['model'], 
 					$this->Browser->checklist_model->name,
 					str_replace(
-						$browsing['DatamartStructure']['model'].".".$browsing['DatamartStructure']['use_key'], 
+						$browsing['DatamartStructure']['model'].".".$browsing_model->primaryKey, 
 						$this->Browser->checklist_model->name.".".$this->Browser->checklist_use_key, 
 						$browsing['DatamartStructure']['index_link']
 					)
@@ -399,14 +399,15 @@ class BrowserController extends DatamartAppController {
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			}
 			//search screen
-			if(isset($sub_structure_id) && strlen($browsing['DatamartStructure']['control_model']) > 0){
-				$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_model'], $sub_structure_id);
+			$tmp_model = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
+			if(isset($sub_structure_id) && $ctrl_name = $tmp_model->getControlName()){
+				$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $ctrl_name, $sub_structure_id);
 				$alternate_alias = $alternate_info['form_alias'];
 				
 				//get the structure and remove fields from the control table
 				$structure = $this->Structures->get('form', $alternate_alias);
 				foreach($structure['Sfs'] as $key => $field){
-						if($field['model'] == $browsing['DatamartStructure']['control_model']){
+						if($field['model'] == $ctrl_name){
 							unset($structure['Sfs'][$key]);
 						}
 				}
@@ -479,15 +480,15 @@ class BrowserController extends DatamartAppController {
 			$this->redirect( '/Pages/err_internal?p[]=model+not+found', NULL, TRUE );
 		}
 		
-		$ids = array();
+		$model = null;
 		if(array_key_exists($dm_structure['DatamartStructure']['model'], $this->request->data)){
-			$ids = $this->request->data[$dm_structure['DatamartStructure']['model']][$dm_structure['DatamartStructure']['use_key']];
+			$model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['model'], true);
 		}else if(array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->request->data)){
-			$ids = $this->request->data[$dm_structure['DatamartStructure']['control_master_model']]['id'];
+			$model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['control_master_model'], true);
 		}else{
 			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
 		}
-		
+		$ids = $this->request->data[$model->name][$model->primaryKey];
 		$ids = array_filter($ids);
 
 		if(empty($ids)){
@@ -555,7 +556,7 @@ class BrowserController extends DatamartAppController {
 			
 			//fetch the used parent keys
 			$parent_key_used_data = $parent_model->find('all', array(
-				'fields' => array($parent_model->name.'.'.$datamart_structure['use_key']),
+				'fields' => array($parent_model->name.'.'.$parent_model->primaryKey),
 				'conditions' => array($parent_model->name.'.'.$control['BrowsingControl']['use_field'] => explode(',', $child_data['BrowsingResult']['id_csv']))
 			));
 		}else{
@@ -567,7 +568,7 @@ class BrowserController extends DatamartAppController {
 			//fetch the used parent keys
 			$parent_key_used_data = $child_model->find('all', array(
 				'fields' => array($child_model->name.'.'.$control['BrowsingControl']['use_field']),
-				'conditions' => array($child_model->name.'.'.$datamart_structure['use_key'] => explode(',', $child_data['BrowsingResult']['id_csv'])) 
+				'conditions' => array($child_model->name.'.'.$child_model->primaryKey => explode(',', $child_data['BrowsingResult']['id_csv'])) 
 			));
 		}
 		

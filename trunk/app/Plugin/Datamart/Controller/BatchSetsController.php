@@ -102,15 +102,15 @@ class BatchSetsController extends DatamartAppController {
 			$batch_set['BatchSet']['model'] = $datamart_structure['DatamartStructure']['model'];
 			$atim_structure_for_results = $this->Structures->getFormById($datamart_structure['DatamartStructure']['structure_id']);
 			$batch_set['BatchSet']['form_links_for_results'] = $datamart_structure['DatamartStructure']['index_link'];
-			$batch_set['BatchSet']['lookup_key_name'] = $datamart_structure['DatamartStructure']['use_key'];
+			
 			$batch_set['DatamartStructure'] = $datamart_structure['DatamartStructure'];
 		}else{
 			$batch_set['BatchSet']['plugin'] = $batch_set['Adhoc']['plugin'];
 			$batch_set['BatchSet']['model'] = $batch_set['Adhoc']['model'];
-			$batch_set['BatchSet']['lookup_key_name'] = 'id';
 			$atim_structure_for_results = $this->Structures->get( 'form', $batch_set['Adhoc']['form_alias_for_results']);
 		}
 		$this->ModelToSearch = AppModel::getInstance($batch_set['BatchSet']['plugin'], $batch_set['BatchSet']['model'], true);
+		$batch_set['BatchSet']['lookup_key_name'] = $this->ModelToSearch->primaryKey;
 		
 		$lookup_model_name = $batch_set['BatchSet']['model'];
 		$lookup_key_name = $batch_set['BatchSet']['lookup_key_name'];
@@ -153,20 +153,20 @@ class BatchSetsController extends DatamartAppController {
     		$batch_set['0']['query_type'] = __('generic');
     		if($batch_set['DatamartStructure']['control_master_model']){
     			$datamart_structure = $batch_set['DatamartStructure'];
-				$results = $this->ModelToSearch->find( 'all', array('fields' => array($datamart_structure['control_field']), 'conditions'=>$criteria, 'recursive' => 0, 'group' => $datamart_structure['control_field']) );
+				$results = $this->ModelToSearch->find( 'all', array('fields' => array($this->ModelToSearch->getControlForeign()), 'conditions'=>$criteria, 'recursive' => 0, 'group' => $this->ModelToSearch->getControlForeign()) );
 				if(count($results) == 1){
 					//unique control, load detailed version
 					AppModel::getInstance("Datamart", "Browser", true);
-					$alternate_info = Browser::getAlternateStructureInfo($datamart_structure['plugin'], $datamart_structure['control_model'], $results[0][$datamart_structure['model']][$datamart_structure['control_field']]);
+					$alternate_info = Browser::getAlternateStructureInfo($datamart_structure['plugin'], $this->ModelToSearch->getControlName(), $results[0][$datamart_structure['model']][$this->ModelToSearch->getControlForeign()]);
 
 					$criteria = array($datamart_structure['control_master_model'].".id IN ('".implode("', '", $lookup_ids)."')");
 					//add the control_id to the search conditions to benefit from direct inner join on detail
-					$criteria[$datamart_structure['control_master_model'].".".$datamart_structure['control_field']] = $results[0][$datamart_structure['model']][$datamart_structure['control_field']];
+					$criteria[$datamart_structure['control_master_model'].".".$this->ModelToSearch->getControlForeign()] = $results[0][$datamart_structure['model']][$this->ModelToSearch->getControlForeign()];
 					
 					$batch_set['BatchSet']['model'] = $datamart_structure['control_master_model'];
 					$this->ModelToSearch = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
 					$atim_structure_for_results = $this->Structures->get('form', $alternate_info['form_alias']);
-					$batch_set['BatchSet']['form_links_for_results'] = Browser::updateIndexLink($batch_set['BatchSet']['form_links_for_results'], $datamart_structure['model'], $datamart_structure['control_master_model'], $datamart_structure['use_key'], "id");
+					$batch_set['BatchSet']['form_links_for_results'] = Browser::updateIndexLink($batch_set['BatchSet']['form_links_for_results'], $datamart_structure['model'], $datamart_structure['control_master_model'], $this->ModelToSearch->primaryKey, "id");
 					$batch_set['BatchSet']['form_links_for_results'] = substr($batch_set['BatchSet']['form_links_for_results'], strpos($batch_set['BatchSet']['form_links_for_results'], '/'));
 					$batch_set['BatchSet']['lookup_key_name'] = 'id';
 				}
@@ -311,9 +311,10 @@ class BatchSetsController extends DatamartAppController {
 			}
 			
 			// save hidden MODEL value as new BATCH SET
-			$this->request->data['BatchSet']['user_id'] = $_SESSION['Auth']['User']['id'];
-			$this->request->data['BatchSet']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+			$this->request->data['BatchSet']['user_id'] = $this->Session->read('Auth.User.id');
+			$this->request->data['BatchSet']['group_id'] = $this->Session->read('Auth.User.group_id');
 			$this->request->data['BatchSet']['sharing_status'] = 'user';
+			$this->BatchSet->addWritableField(array('user_id', 'group_id', 'sharing_status', 'datamart_structure_id'));
 			$this->BatchSet->save( $this->request->data['BatchSet'] );
 			
 			// get new SET id, and save
@@ -339,16 +340,19 @@ class BatchSetsController extends DatamartAppController {
 			if($datamart_structure['control_master_model']){
 				$batch_set['BatchSet']['model'] = $datamart_structure['control_master_model'];
 				if(isset($this->request->data[$datamart_structure['model']])){
+					$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
 					$model = $datamart_structure['model'];
-					$lookup_key_name = $datamart_structure['use_key'];
+					$lookup_key_name = $model_instance->primaryKey;
 				}else{
+					$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
 					$model = $datamart_structure['control_master_model'];
-					$lookup_key_name = 'id';
+					$lookup_key_name = $model_instance->primaryKey;
 				}
 				
 			}else{
+				$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
 				$batch_set['BatchSet']['model'] = $datamart_structure['model'];
-				$lookup_key_name = $datamart_structure['use_key'];
+				$lookup_key_name = $model_instance->primaryKey;
 			}
 			$batch_set['BatchSet']['plugin'] = $batch_set['DatamartStructure']['plugin'];
 		}else{
@@ -356,7 +360,7 @@ class BatchSetsController extends DatamartAppController {
 			$lookup_key_name = "id";
 			//try to switch to a datamart_structure instead of adhoc
 			if(!$batch_set['Adhoc']['flag_use_control_for_results']){
-				$datamart_structure = $this->DatamartStructure->find('first', array('conditions' => array('control_master_model' => $batch_set['BatchSet']['model']), 'fields' => array('model', 'use_key'), 'recursive' => -1));
+				$datamart_structure = $this->DatamartStructure->find('first', array('conditions' => array('control_master_model' => $batch_set['BatchSet']['model']), 'fields' => array('model'), 'recursive' => -1));
 				if(!empty($datamart_structure) && isset($this->request->data[$datamart_structure['DatamartStructure']['model']])){
 					$batch_set['BatchSet']['datamart_structure_id'] = $datamart_structure['DatamartStructure']['id'];
 					$batch_set['BatchSet']['datamart_adhoc_id'] = null;
@@ -487,22 +491,19 @@ class BatchSetsController extends DatamartAppController {
 				
 		// set function variables, makes script readable :)
 		$batch_set_id = $batch_set['BatchSet']['id'];
-		$batch_set_model = null;
-		$lookup_key_name = null;
+		$batch_set_model_instance = null;
 		if($batch_set['BatchSet']['datamart_structure_id']){
 			$datamart_structure = $this->DatamartStructure->findById($batch_set['BatchSet']['datamart_structure_id']);
 			$datamart_structure = $datamart_structure['DatamartStructure'];
-			$batch_set_model = $datamart_structure['model'];
-			$lookup_key_name = $datamart_structure['use_key'];
+			$batch_set_model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
 		}else{
-			$batch_set_model = $batch_set['Adhoc']['model'];
-			$lookup_key_name = 'id';
+			$batch_set_model_instance = AppModel::getInstance($batch_set['Adhoc']['plugin'], $batch_set['Adhoc']['model'], true);
 		}
 		
-		if (count($this->request->data[$batch_set_model][$lookup_key_name])) {
+		if (count($this->request->data[$batch_set_model_instance->name][$batch_set_model_instance->primaryKey])) {
 			// START findall criteria
 			$criteria = 'set_id="'.$batch_set_id.'" '		
-				.'AND ( lookup_id="'.implode( '" OR lookup_id="', $this->request->data[$batch_set_model][$lookup_key_name] ).'" )';
+				.'AND ( lookup_id="'.implode( '" OR lookup_id="', $this->request->data[$batch_set_model_instance->name][$batch_set_model_instance->primaryKey] ).'" )';
 			
 			// get BatchId ROWS and remove from SAVED batch set
 			$results = $this->BatchId->find( 'all', array( 'conditions'=>$criteria ) );

@@ -5,7 +5,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster', 
-		'ClinicalAnnotation.TreatmentExtend',
 		'ClinicalAnnotation.TreatmentControl', 
 		'ClinicalAnnotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
@@ -159,7 +158,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		
 		// set DIAGANOSES radio list form
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
-		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias']); 			
+		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias'], 'atim_structure', array('model_table_assoc' => array('TreatmentDetail' => $tx_control_data['TreatmentControl']['detail_tablename']))); 			
 		$this->Structures->Set('empty', 'empty_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -171,6 +170,8 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		if ( !empty($this->request->data) ) {
 			$this->request->data['TreatmentMaster']['participant_id'] = $participant_id;
 			$this->request->data['TreatmentMaster']['treatment_control_id'] = $tx_control_id;
+			$this->TreatmentMaster->addWritableField(array('participant_id', 'treatment_control_id', 'diagnosis_master_id'));
+			$this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS	
 			$submitted_data_validates = true;

@@ -134,8 +134,9 @@ class Browser extends DatamartAppModel {
 					'class' => $data_unit['DatamartStructure']['display_name'],
 					'action' => 'Datamart/Browser/browse/'.$node_id.'/',
 					);
-					if(strlen($data_unit['DatamartStructure']['control_model']) > 0){
-						$ids = isset($sub_models_id_filter[$data_unit['DatamartStructure']['control_model']]) ? $sub_models_id_filter[$data_unit['DatamartStructure']['control_model']] : array(); 
+					$tmp_model = AppModel::getInstance($data_unit['DatamartStructure']['plugin'], $data_unit['DatamartStructure']['model'], true);
+					if($ctrl_name = $tmp_model->getControlName()){
+						$ids = isset($sub_models_id_filter[$ctrl_name]) ? $sub_models_id_filter[$ctrl_name] : array(); 
 						$children = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id'], $ids);
 						if(!empty($children)){
 							$tmp_result['children'] = $children;
@@ -177,8 +178,9 @@ class Browser extends DatamartAppModel {
 									'value' => $result['value']."/true/",
 									'default' => __('no filter'))
 								);
-				if(strlen($browsing_structures[$current_id]['control_model']) > 0){
-					$id_filter = isset($sub_models_id_filter[$browsing_structures[$current_id]['control_model']]) ? $sub_models_id_filter[$browsing_structures[$current_id]['control_model']] : null;
+				$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
+				if($control_name = $browsing_model->getControlName()){
+					$id_filter = isset($sub_models_id_filter[$control_name]) ? $sub_models_id_filter[$control_name] : null;
 					$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
 				}
 			}
@@ -216,9 +218,10 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getSubModels(array $main_model_info, $prepend_value, array $ids_filter = null){
 		//we need to fetch the controls
-		$control_model = AppModel::getInstance($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['control_model'], true);
+		$main_model = AppModel::getInstance($main_model_info['DatamartStructure']['plugin'], $main_model_info['DatamartStructure']['model'], true);
+		$control_model = AppModel::getInstance($main_model_info['DatamartStructure']['plugin'], $main_model->getControlName(), true);
 		$conditions = array();
-		if($main_model_info['DatamartStructure']['control_model'] == "SampleControl"){
+		if($main_model->getControlName() == "SampleControl"){
 			//hardcoded SampleControl filtering
 			$parentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
 			$tmp_ids = $parentToDerivativeSampleControl->getActiveSamples();
@@ -231,17 +234,17 @@ class Browser extends DatamartAppModel {
 		
 		if($ids_filter != null){
 			$ids_filter[] = 0;
-			$conditions[] = $main_model_info['DatamartStructure']['control_model'].'.id IN('.implode(", ", $ids_filter).')';
+			$conditions[] = $control_model->name.'.id IN('.implode(", ", $ids_filter).')';
 		}
 		if(isset($control_model->_schema['flag_active'])){
-			$conditions[$main_model_info['DatamartStructure']['control_model'].'.flag_active'] = 1;
+			$conditions[$control_model->name.'.flag_active'] = 1;
 		}
-		$children_data = $control_model->find('all', array('order' => $main_model_info['DatamartStructure']['control_model'].'.databrowser_label', 'conditions' => $conditions, 'recursive' => 0));
+		$children_data = $control_model->find('all', array('order' => $control_model->name.'.databrowser_label', 'conditions' => $conditions, 'recursive' => 0));
 		$children_arr = array();
 		foreach($children_data as $child_data){
-			$label = self::getTranslatedDatabrowserLabel($child_data[$main_model_info['DatamartStructure']['control_model']]['databrowser_label']);
+			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);
 			$children_arr[] = array(
-				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$main_model_info['DatamartStructure']['control_model']]['id'],
+				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$control_model->name]['id'],
 				'default' => $label
 			);
 		}
@@ -481,6 +484,7 @@ class Browser extends DatamartAppModel {
 					$pad --;
 				}
 				if(is_array($cell)){
+					$cell_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
 					$class = '';
 					if($cell['active']){
 						$class .= " active ";
@@ -496,16 +500,17 @@ class Browser extends DatamartAppModel {
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
 						if(count($search['search_conditions'])){
 							$structure = null;
-							if(strlen($cell['DatamartStructure']['control_model']) > 0 && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
+							if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
-								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_model'], $cell['BrowsingResult']['browsing_structures_sub_id']);
+								$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
+								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $tmp_model->getControlName(), $cell['BrowsingResult']['browsing_structures_sub_id']);
 								$alternate_alias = $alternate_alias['form_alias'];
 								$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
 							 	//unset the serialization on the sub model since it's already in the title
-							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$cell['DatamartStructure']['control_field']]);
+							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$tmp_model->getControlForeign()]);
 							 	$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
-							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($cell['DatamartStructure']['control_model'].".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
-							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$cell['DatamartStructure']['control_model']]['databrowser_label']);
+							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($tmp_model->getControlName().".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
+							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$tmp_model->getControlName()]['databrowser_label']);
 							}else{
 								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 							}
@@ -998,15 +1003,14 @@ class Browser extends DatamartAppModel {
 		//building the relationship logic between nodes
 		foreach($nodes_to_fetch as $node){
 			$current_browsing = self::$browsing_result_model->findById($node);
-			$this->browsing_cache[$node_id] = $current_browsing;
 			$current_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['model'], true);
 			$ids = explode(",", $current_browsing['BrowsingResult']['id_csv']);
 			$ids[] = 0;
 			
 			$control_id = empty($current_browsing['DatamartStructure']['control_master_model']) ? false : $current_model->find('all', array(
-				'fields' => array($current_browsing['DatamartStructure']['control_field']),
-				'conditions' => array($current_browsing['DatamartStructure']['model'].".".$current_browsing['DatamartStructure']['use_key'] => $ids),
-				'group' => array($current_browsing['DatamartStructure']['control_field']), 
+				'fields' => array($current_model->getControlForeign()),
+				'conditions' => array($current_browsing['DatamartStructure']['model'].".".$current_model->primaryKey => $ids),
+				'group' => array($current_model->getControlForeign()), 
 				'limit' => 2));
 			
 			$structure = null;
@@ -1016,11 +1020,11 @@ class Browser extends DatamartAppModel {
 				//we can use the specific structure
 				
 				//load the structure
-				$control_id = $control_id[0][$current_browsing['DatamartStructure']['model']][$current_browsing['DatamartStructure']['control_field']]; 
-				$control_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_model'], true);
+				$control_id = $control_id[0][$current_browsing['DatamartStructure']['model']][$current_model->getControlForeign()]; 
+				$control_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_model->getControlName(), true);
 				$control_model_data = $control_model->find('first', array(
 					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'), 
-					'conditions' => array($current_browsing['DatamartStructure']['control_model'].".id" => $control_id))
+					'conditions' => array($control_model->name.".id" => $control_id))
 				);
 				
 				$header_sub_type = " > ".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
@@ -1030,7 +1034,7 @@ class Browser extends DatamartAppModel {
 				$structure_alias = $structure['Structure']['alias'];
 				AppController::buildDetailBinding(
 					$current_model, 
-					array($current_model->name.'.'.$current_browsing['DatamartStructure']['control_field'] => $control_id), 
+					array($current_model->name.'.'.$current_model->getControlForeign() => $control_id), 
 					&$structure_alias
 				);
 				
@@ -1043,7 +1047,7 @@ class Browser extends DatamartAppModel {
 			
 			if($this->checklist_model == null){
 				$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
-				$this->checklist_use_key = $current_browsing['DatamartStructure']['use_key'];
+				$this->checklist_use_key = $current_model->primaryKey;
 				$this->checklist_model = $current_model;
 			}
 
@@ -1077,13 +1081,13 @@ class Browser extends DatamartAppModel {
 			}
 			
 			//update header
-			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$current_browsing['DatamartStructure']['use_key'] => $ids)));
+			$count = $current_model->find('count', array('conditions' => array($current_model->name.".".$current_model->primaryKey => $ids)));
 			$header[] = __($current_browsing['DatamartStructure']['display_name']).$header_sub_type."(".$count.")";
 			$this->nodes[] = array(
 				self::NODE_ID => $node, 
 				self::IDS => $ids, 
 				self::MODEL => $current_model, 
-				self::USE_KEY => $current_browsing['DatamartStructure']['use_key'],
+				self::USE_KEY => $current_model->primaryKey,
 				self::ANCESTOR_IS_CHILD => $ancestor_is_child,
 				self::JOIN_FIELD => $join_field
 			);
@@ -1225,7 +1229,7 @@ class Browser extends DatamartAppModel {
 			$joined_models[$join['alias']] = null;
 		}
 		foreach($params['adv_struct']['Sfs'] as $field){
-			if($params['data'][$field['model']][$field['field']]){
+			if(isset($params['data'][$field['model']][$field['field']]) && $params['data'][$field['model']][$field['field']]){
 				$matches = array();
 				preg_match(self::ADV_SEARCH_REG_EXP, $params['data'][$field['model']][$field['field']], $matches);
 				if(!array_key_exists($matches[2], $joined_models)){

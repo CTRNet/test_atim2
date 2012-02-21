@@ -3,6 +3,7 @@
 class ViewCollection extends InventoryManagementAppModel {
 	
 	var $base_model = "Collection";
+	var $base_plugin = 'InventoryManagement';
 	var $primaryKey = 'collection_id';
 
 	function summary($variables=array()) {

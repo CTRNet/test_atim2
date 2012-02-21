@@ -491,9 +491,14 @@ ALTER TABLE participants_revs
  ADD COLUMN last_modification DATETIME NOT NULL DEFAULT '2001-01-01 00:00:00' AFTER last_chart_checked_date_accuracy,
  ADD COLUMN last_modification_ds_is INT UNSIGNED NOT NULL DEFAULT 1 AFTER last_modification;
  
-INSERT INTO datamart_structures(plugin, model, structure_id, display_name, use_key, control_model, control_master_model, control_field, index_link, batch_edit_link) VALUES
-('ClinicalAnnotation', 'ParticipantContact', 30, 'participant contacts', 'id', '', '', '', '/ClinicalAnnotation/ParticipantContacts/detail/%%ParticipantContact.participant_id%%/%%ParticipantContact.id%%', ''), 
-('ClinicalAnnotation', 'ReproductiveHistory', 110, 'reproductive histories', 'id', '', '', '', '/ClinicalAnnotation/ReproductiveHistories/detail/%%ReproductiveHistory.participant_id%%/%%ReproductiveHistory.id%%', '');
+ALTER TABLE datamart_structures
+ DROP COLUMN use_key,
+ DROP COLUMN control_model,
+ DROP COLUMN control_field;
+ 
+INSERT INTO datamart_structures(plugin, model, structure_id, display_name, control_master_model, index_link, batch_edit_link) VALUES
+('ClinicalAnnotation', 'ParticipantContact', 30, 'participant contacts', '', '/ClinicalAnnotation/ParticipantContacts/detail/%%ParticipantContact.participant_id%%/%%ParticipantContact.id%%', ''), 
+('ClinicalAnnotation', 'ReproductiveHistory', 110, 'reproductive histories', '', '/ClinicalAnnotation/ReproductiveHistories/detail/%%ReproductiveHistory.participant_id%%/%%ReproductiveHistory.id%%', '');
 
 INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
 (18, 4, 1, 1, 'ParticipantContact.participant_id'), 
@@ -581,12 +586,15 @@ ALTER TABLE datamart_browsing_results
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("adv_coll_datetime", "", "", "");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= TreatmentMaster.start_date", ">= TreatmentMaster.start_date");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.start_date" AND language_alias=">= TreatmentMaster.start_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.start_date", "<= TreatmentMaster.start_date");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= TreatmentMaster.start_date" AND language_alias="<= TreatmentMaster.start_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= TreatmentMaster.finish_date", ">= TreatmentMaster.finish_date");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.finish_date" AND language_alias=">= TreatmentMaster.finish_date"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.finish_date", "<= TreatmentMaster.finish_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.start_date" AND language_alias=">= TreatmentMaster.start_date"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.start_date", "<= TreatmentMaster.start_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= TreatmentMaster.start_date" AND language_alias="<= TreatmentMaster.start_date"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= TreatmentMaster.finish_date", ">= TreatmentMaster.finish_date");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= TreatmentMaster.finish_date" AND language_alias=">= TreatmentMaster.finish_date"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= TreatmentMaster.finish_date", "<= TreatmentMaster.finish_date");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= TreatmentMaster.finish_date" AND language_alias="<= TreatmentMaster.finish_date"), "1", "1");
 
-INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= EventMaster.event_date", "<= EventMaster.event_date");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES(">= EventMaster.event_date", ">= EventMaster.event_date");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value=">= EventMaster.event_date" AND language_alias=">= EventMaster.event_date"), "2", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("<= EventMaster.event_date", "<= EventMaster.event_date");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="adv_coll_datetime"), (SELECT id FROM structure_permissible_values WHERE value="<= EventMaster.event_date" AND language_alias="<= EventMaster.event_date"), "2", "1");
@@ -600,3 +608,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE datamart_structures SET adv_search_structure_alias='collections_adv_search' WHERE model='ViewCollection';
 
 UPDATE datamart_browsing_controls SET use_field=SUBSTR(use_field, LOCATE('.', use_field) + 1);
+
+UPDATE datamart_structures SET index_link='/ClinicalAnnotation/participants/profile/%%MiscIdentifier.participant_id%%' WHERE model='MiscIdentifier';
+
