@@ -2,10 +2,10 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/DiagnosisMasters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
+			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'add diagnosis' => null,
 			'add event' => null,
 			'redefine unknown primary' => '/underdevelopment/',
-			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/'
 		)
 	);

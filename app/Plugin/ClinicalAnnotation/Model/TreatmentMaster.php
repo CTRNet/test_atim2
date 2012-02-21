@@ -48,7 +48,8 @@ class TreatmentMaster extends ClinicalAnnotationAppModel {
 			$data = $this->data;
 		}
 		if(!empty($data['TreatmentControl']['extend_tablename'])) {
-			$treatment_extend_model = new TreatmentExtend( false, $data['TreatmentControl']['extend_tablename']);
+			$treatment_extend_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtend', true);
+			$treatment_extend_model = AppModel::atimInstantiateExtend($treatment_extend_model, $data['TreatmentControl']['extend_tablename']);
 			$nbr_extends = $treatment_extend_model->find('count', array('conditions'=>array('TreatmentExtend.treatment_master_id'=>$tx_master_id), 'recursive' => '-1'));
 			if ($nbr_extends > 0) { 
 				return array('allow_deletion' => false, 'msg' => 'at least one drug is defined as treatment component'); 

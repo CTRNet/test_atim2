@@ -97,6 +97,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		
 		if ( !empty($this->request->data) ) {
 			$this->request->data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
+			echo $this->TreatmentExtend->addWritableField('treatment_master_id');
 			
 			$submitted_data_validates = true;
 			

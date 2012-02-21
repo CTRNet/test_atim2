@@ -191,10 +191,10 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		} else {
 			$this->set( 'atim_menu_variables', $atim_menu_variables);
 			$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/DiagnosisMasters/listall/') );
-		}	
+		}
 		$this->set('origin', $parent_id == 0 ? 'primary' : 'secondary');
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
-		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias'].",".($parent_id == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"));
+		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias'].",".($parent_id == 0 ? "dx_origin_primary" : "dx_origin_wo_primary"), 'atim_structure', array('model_table_assoc' => array('DiagnosisDetail' => $dx_control_data['DiagnosisControl']['detail_tablename'])));
 		$this->Structures->set('empty', 'empty_structure');
 
 		$this->set( 'dx_ctrl', $dx_ctrl);
@@ -212,6 +212,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			
 			$this->request->data['DiagnosisMaster']['parent_id'] = $parent_id == 0 ? null : $parent_id;
 			$this->request->data['DiagnosisMaster']['primary_id'] = $parent_id == 0 ? null : (empty($parent_dx['DiagnosisMaster']['primary_id'])? $parent_dx['DiagnosisMaster']['id'] : $parent_dx['DiagnosisMaster']['primary_id']);
+			
+			$this->DiagnosisMaster->addWritableField(array('participant_id', 'diagnosis_control_id', 'parent_id', 'primary_id'));
+			$this->DiagnosisMaster->addWritableField('diagnosis_master_id', $dx_control_data['DiagnosisControl']['detail_tablename']);
 			
 			$submitted_data_validates = true;
 			// ... special validations
@@ -321,10 +324,6 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 	}
 
 	function delete( $participant_id, $diagnosis_master_id ) {
-		if (( !$participant_id ) && ( !$diagnosis_master_id )) { 
-			$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
-		}
-	
 		// MANAGE DATA
 		$diagnosis_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 		if (empty($diagnosis_master_data)) {
@@ -335,7 +334,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		// CUSTOM CODE		
 		$hook_link = $this->hook('delete');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atimDelete( $diagnosis_master_id ) ) {

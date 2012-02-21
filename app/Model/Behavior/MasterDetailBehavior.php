@@ -182,8 +182,8 @@ class MasterDetailBehavior extends ModelBehavior {
 		extract($this->__settings[$model->alias]);
 		
 		if ( $is_master_model ) {
-			
 			// get DETAIL table name and create DETAIL model object
+			$prev_data  = $model->data;
 			$associated = $model->read();
 			$detail_model = new AppModel( array('table'=>$associated[$control_class][$detail_field], 'name'=>$detail_class, 'alias'=> $detail_class) );
 			$detail_model->Behaviors->Revision->setup($detail_model);
@@ -195,11 +195,27 @@ class MasterDetailBehavior extends ModelBehavior {
 			// delete detail DATA
 			$result = $detail_model->atimDelete($detail_model->id);
 			
+			$model->data = $prev_data;
+					
 			return $result;
 			
 		}
 		
 		return true;
+	}
+	
+	function getControlName(Model $model){
+		if(isset($model->base_model)){
+			$model = AppModel::getInstance($model->base_plugin, $model->base_model, true);
+		}
+		return isset($this->__settings[$model->alias]['control_class']) ? $this->__settings[$model->alias]['control_class'] : null;
+	}
+	
+	function getControlForeign($model){
+		if(isset($model->base_model)){
+			$model = AppModel::getInstance($model->base_plugin, $model->base_model, true);
+		}
+		return isset($this->__settings[$model->alias]['control_foreign']) ? $this->__settings[$model->alias]['control_foreign'] : null;
 	}
 }
 

@@ -17,7 +17,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	const PLUGIN = 13;
 	const USE_DATETIME_ACCU = 14;
 	
-	var $base_model = "AliquotUse";
+	var $base_model = "AliquotInternalUse";
+	var $base_plugin = 'InventoryManagement';
 	
 	static protected $models_details = null;
 	

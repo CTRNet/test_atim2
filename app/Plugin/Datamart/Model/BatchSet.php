@@ -156,7 +156,7 @@ class BatchSet extends DatamartAppModel {
 		}
 		
 		if(!$allowed){
-			AppController::getInstance()->atimFlash('your are not allowed to work on this batchset', 'javascript:history.back()', 5);
+			AppController::getInstance()->atimFlash('you are not allowed to work on this batchset', 'javascript:history.back()', 5);
 			return false;
 		}
 		

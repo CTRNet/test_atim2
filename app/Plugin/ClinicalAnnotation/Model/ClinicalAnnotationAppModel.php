@@ -25,6 +25,10 @@ class ClinicalAnnotationAppModel extends AppModel {
 			$participant_id = null;
 			if(isset($this->data[$this->name]['participant_id'])){
 				$participant_id = $this->data[$this->name]['participant_id'];
+			}else if($this->name == 'TreatmentExtend'){
+				$treatment_master = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
+				$tx_data = $treatment_master->find('first', array('conditions' => array('TreatmentMaster.id' => $this->data['TreatmentExtend']['treatment_master_id']), 'fields' => array('TreatmentMaster.participant_id')));
+				$participant_id = $tx_data['TreatmentMaster']['participant_id'];
 			}else{
 				$prev_data = $this->data;
 				$curr_data = $this->findById($this->id);
