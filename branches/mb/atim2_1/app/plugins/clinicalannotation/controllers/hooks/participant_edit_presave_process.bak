@@ -1,0 +1,21 @@
+<?php
+         $end_date=   $participant_data['Participant']['date_of_death'];  
+         echo $end_date;
+
+         $start_date= $participant_data['Participant']['date_of_birth'];
+         echo $start_date;
+
+         $start_year = substr($start_date,0,4);
+         echo $start_year;
+
+         $end_year = substr($end_date,0,4);
+         echo $end_year;
+
+         $diff_in_yrs = ($end_year - $start_year);
+         echo $diff_in_yrs;
+
+         if ($diff_in_yrs > 0){
+         $this->data['Participant']['time_to_death'] =$diff_in_yrs;
+         }
+ 	
+?>

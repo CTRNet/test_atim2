@@ -1,0 +1,1 @@
+a:1:{s:15:"TreatmentExtend";a:2:{s:18:"othertx_start_date";a:1:{i:0;a:4:{s:4:"rule";s:4:"date";s:10:"allowEmpty";b:1;s:8:"required";b:0;s:7:"message";s:18:"this is not a date";}}s:16:"othertx_end_date";a:1:{i:0;a:4:{s:4:"rule";s:4:"date";s:10:"allowEmpty";b:1;s:8:"required";b:0;s:7:"message";s:18:"this is not a date";}}}}

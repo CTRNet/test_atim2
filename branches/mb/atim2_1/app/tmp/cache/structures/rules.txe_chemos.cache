@@ -1,0 +1,1 @@
+a:1:{s:15:"TreatmentExtend";a:1:{s:7:"drug_id";a:1:{i:0;a:4:{s:4:"rule";s:8:"notEmpty";s:10:"allowEmpty";b:0;s:8:"required";b:0;s:7:"message";s:17:"value is required";}}}}
