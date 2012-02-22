@@ -825,6 +825,98 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_blocks'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ad_der_ascite_cell_blocks'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
+-- EXPERIMENTAL RESULTS REBUILD ----------------------------------------------------------------------------------------
+
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('ovcare', 'lab', 'experimental tests', 1, 'eventmasters,ovcare_ed_lab_experimental_tests', 'ovcare_ed_lab_experimental_tests', 0, 'lab|ovcare|experimental tests');
+INSERT INTO i18n (id,en) VALUEs ('experimental tests', 'Experimental Tests');
+
+CREATE TABLE IF NOT EXISTS `ovcare_ed_lab_experimental_tests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `test` varchar(250) DEFAULT NULL,
+  `result` varchar(250) DEFAULT NULL,
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `ovcare_ed_lab_experimental_tests_revs` (
+  `id` int(11) NOT NULL,
+  
+  `test` varchar(250) DEFAULT NULL,
+  `result` varchar(250) DEFAULT NULL,
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ovcare_ed_lab_experimental_tests`
+  ADD CONSTRAINT `ovcare_ed_lab_experimental_tests_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('ovcare_ed_lab_experimental_tests');
+
+INSERT INTO `structure_permissible_values_custom_controls` VALUES (null,'experimental tests',1,250);
+INSERT INTO `structure_value_domains` VALUES (null,'ovcare_experimental_tests','open','','StructurePermissibleValuesCustom::getCustomDropdown(\'experimental tests\')');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ovcare_ed_lab_experimental_tests', 'test', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name = 'ovcare_experimental_tests') , '0', '', '', '', 'experimental test', ''), 
+('Clinicalannotation', 'EventDetail', 'ovcare_ed_lab_experimental_tests', 'result', 'input',  NULL , '0', 'size=50', '', '', '', '='); 
+SET @structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_lab_experimental_tests');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+(@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='test'), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+(@structure_id, (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='result'), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'); 
+
+INSERT INTO `structure_validations` (`id`, `structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
+(null, (SELECT id FROM structure_fields WHERE `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='test'), 'notEmpty', '', '');
+
+SET @cont_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'experimental tests');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+(SELECT sf.language_label, i18n.en, '', 1, @cont_id FROM structure_fields AS sf INNER JOIN i18n ON i18n.id = sf.language_label WHERE sf.tablename = 'ovcare_ed_lab_experimental_results' ORDER BY i18n.en ASC);
+
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+('experimental test','Test'),
+('in batch', 'In Batch'),
+('experimental test result can not be empty', 'Experimental test result can not be empty!'),
+('at least one test result has to be completed','At least one test result has to be completed!');
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='test' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_experimental_tests') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='result' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '2', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='test' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_experimental_tests') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_lab_experimental_tests' AND `field`='result' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+DROP TABLE ovcare_ed_lab_experimental_results;
+DROP TABLE ovcare_ed_lab_experimental_results_revs;
+
+DELETE FROM i18n WHERE id IN (SELECT sf.language_label FROM structure_fields AS sf WHERE sf.tablename = 'ovcare_ed_lab_experimental_results');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_lab_experimental_results');
+DELETE FROM structures WHERE alias = 'ovcare_ed_lab_experimental_results';
+DELETE FROM structure_fields WHERE tablename = 'ovcare_ed_lab_experimental_results';
+
+DELETE FROM event_controls WHERE detail_tablename LIKE '%ovcare_ed_lab_experimental_results%';
+
+UPDATE structure_fields SET  `language_label`='result',  `language_tag`='' WHERE model='EventDetail' AND tablename='ovcare_ed_lab_experimental_tests' AND field='result' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- EXPERIMENTAL RESULTS END
+
+
+
+
+
+
+
+
 -- TODO
 
 SELECT '
