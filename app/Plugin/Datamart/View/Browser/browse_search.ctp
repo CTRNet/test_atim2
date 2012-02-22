@@ -32,7 +32,9 @@
 		$dropdown_options = array();
 		
 		foreach($advanced_structure['Sfs'] as $sfs){
-			$dropdown_options[$sfs['model'].'.'.$sfs['field']] = $sfs['filtered_options'];
+			if(isset($sfs['filtered_options'])){
+				$dropdown_options[$sfs['model'].'.'.$sfs['field']] = $sfs['filtered_options'];
+			}
 		}
 		
 		$this->Structures->build($advanced_structure, array(
