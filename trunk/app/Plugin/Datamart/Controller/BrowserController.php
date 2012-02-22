@@ -250,6 +250,8 @@ class BrowserController extends DatamartAppController {
 					}
 				}
 				
+				$browsing_filter = array();
+				
 				if($browsing['DatamartStructure']['adv_search_structure_alias']){
 					//TODO: remove parents with non unique entries (eg.: more than a tx per participant), create drill down and warn
 					//TODO: date accuracy
@@ -264,10 +266,50 @@ class BrowserController extends DatamartAppController {
 						'browsing'		=> $browsing,
 						'browsing_model'=> $this->ModelToSearch
 					));
+					
+					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter'])){
+						$browsing_filter = $this->ModelToSearch->browsing_filter[$this->data[$this->ModelToSearch->name]['browsing_filter'][0]];
+					}
+				}
+				$save_ids = $this->ModelToSearch->find('all', array(
+					'conditions'	=> $search_conditions, 
+					'fields'		=> array("CONCAT('', ".$select_key.") AS ids"), 
+					'recursive'		=> 0, 
+					'joins'			=> $joins,
+					'order'			=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey)
+				));
+				
+				if($browsing_filter && $save_ids){
+					$temporary_table = 'browsing_tmp_table';
+					$save_ids = array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
+					$query = sprintf('CREATE TEMPORARY TABLE %1$s (SELECT %2$s, %3$s(%4$s) AS %4$s FROM %5$s WHERE %6$s GROUP BY %2$s)',
+							$temporary_table,
+							$browsing_filter['group by'],
+							$browsing_filter['attribute'],
+							$browsing_filter['field'],
+							$this->ModelToSearch->table,
+							$this->ModelToSearch->primaryKey.' IN('.implode(', ', $save_ids).')'
+					);
+					$this->ModelToSearch->query($query);
+					$joins = array(array(
+						'table'	=> $temporary_table,
+							'alias'	=> 'TmpTable',
+							'type'	=> 'INNER',
+							'conditions' => array(
+									sprintf('TmpTable.%1$s = %2$s.%1$s', $browsing_filter['group by'], $this->ModelToSearch->name),
+									sprintf('TmpTable.%1$s = %2$s.%1$s', $browsing_filter['field'], $this->ModelToSearch->name)
+								)	
+					));
+					$save_ids = $this->ModelToSearch->find('all', array(
+							'conditions'	=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey => $save_ids),
+							'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
+							'recursive'		=> 0,
+							'joins'			=> $joins,
+							'order'			=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey)
+					));
+					$this->ModelToSearch->query('DROP TEMPORARY TABLE '.$temporary_table);
 				}
 				
-				$save_ids = $this->ModelToSearch->find('all', array('conditions' => $search_conditions, 'fields' => array("CONCAT('', ".$select_key.") AS ids"), "recursive" => 0, 'joins' => $joins));
-				sort($save_ids);
 				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],

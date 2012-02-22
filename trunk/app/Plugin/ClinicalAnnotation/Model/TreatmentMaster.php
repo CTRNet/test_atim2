@@ -8,6 +8,11 @@ class TreatmentMaster extends ClinicalAnnotationAppModel {
 		'foreignKey'    => 'treatment_control_id'     
 		)    
 	); 
+    
+    var $browsing_filter = array(
+    	1	=> array('lang' => 'keep entries with the most recent start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MAX'),
+    	2	=> array('lang' => 'keep entries oldest start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MIN')
+    );
 	
 	function summary( $variables=array() ) {
 		$return = false;
@@ -59,7 +64,13 @@ class TreatmentMaster extends ClinicalAnnotationAppModel {
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 	
-	
+	function getBrowsingFilter(){
+		$result = array();
+		foreach($this->browsing_filter as $key => $details){
+			$result[$key] = __($details['lang']);
+		}
+		return $result;
+	}
 }
 
 ?>

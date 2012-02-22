@@ -1164,11 +1164,13 @@ class Browser extends DatamartAppModel {
 		$encoutered_models = array();
 		
 		//fetch the current parents and stop if we encouter a node with the same model as the current one
-		while($parent = array_pop($parents)){
-			if($parent['DatamartStructure']['id'] == $stop_structure_id){
-				break;
+		if($parents){
+			while($parent = array_pop($parents)){
+				if($parent['DatamartStructure']['id'] == $stop_structure_id){
+					break;
+				}
+				$encoutered_models[$parent['DatamartStructure']['model']] = null;
 			}
-			$encoutered_models[$parent['DatamartStructure']['model']] = null;
 		}
 		
 		
@@ -1181,6 +1183,9 @@ class Browser extends DatamartAppModel {
 		$sid_model_field_lang = array();
 		//foreach field of the advanced structure
 		foreach($sfs['Sfs'] as &$row){
+			if($row['field'] == 'browsing_filter'){
+				continue;
+			}
 			//fetch the value domain
 			$dropdown_results = array('defined' => array("" => ""), 'previously_defined' => array());
 			$structure_value_domain_model->updateDropdownResult($row['StructureValueDomain'], $dropdown_results);
@@ -1229,7 +1234,10 @@ class Browser extends DatamartAppModel {
 			$joined_models[$join['alias']] = null;
 		}
 		foreach($params['adv_struct']['Sfs'] as $field){
-			if(isset($params['data'][$field['model']][$field['field']]) && $params['data'][$field['model']][$field['field']]){
+			if($field['field'] != 'browsing_filter' 
+				&& isset($params['data'][$field['model']][$field['field']]) 
+				&& $params['data'][$field['model']][$field['field']]
+			){
 				$matches = array();
 				preg_match(self::ADV_SEARCH_REG_EXP, $params['data'][$field['model']][$field['field']], $matches);
 				if(!array_key_exists($matches[2], $joined_models)){
