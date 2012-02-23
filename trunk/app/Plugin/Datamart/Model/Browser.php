@@ -978,7 +978,7 @@ class Browser extends DatamartAppModel {
 		$node_id = $browsing['BrowsingResult']['id'];
 		$main_data = array();//$this->checklist_data;
 		$descending = null;
-		$result_structure = array('Structure' => array());
+		$result_structure = array('Structure' => array(), 'Sfs' => array(), 'Accuracy' => array());
 		$header = array();
 		self::$browsing_control_model = AppModel::getInstance("Datamart", "BrowsingControl", true);
 		self::$browsing_result_model = AppModel::getInstance("Datamart", "BrowsingResult", true);
@@ -1056,13 +1056,20 @@ class Browser extends DatamartAppModel {
 				$sfs['display_column'] += 100 * $iteration_count;
 				$result_structure['Sfs'][] = $sfs;
 			}
+			//copy accuracy settings
+			foreach($structure['Accuracy'] as $model => $fields){
+				if(isset($result_structure['Accuracy'][$model])){
+					$result_structure['Accuracy'][$model] = array_merge($fields, $result_structure['Accuracy'][$model]);
+				}else{
+					$result_structure['Accuracy'][$model] = $fields;
+				}
+			}
 			
 			//arrange Structure to be able to print structure alias when in debug mode
 			if(!array_key_exists(0, $structure['Structure'])){
 				$structure['Structure'] = array($structure['Structure']);
 			}
 			$result_structure['Structure'] = array_merge($result_structure['Structure'], $structure['Structure']);
-			
 			
 			$ancestor_is_child = false;
 			$join_field = null;
