@@ -161,3 +161,82 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderlines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderLine' AND `tablename`='order_lines' AND `field`='date_required' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 DELETE FROM structure_formats WHERE structure_id IN(222,223) AND structure_field_id=372;
+
+
+-- ------------------------------------------------------------------
+-- Already executed on server on 2012-02-13
+-- ------------------------------------------------------------------
+
+INSERT INTO `datamart_reports` (`name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`) VALUES
+('participant identifications list', 'report_participant_id_list_desc', 'report_participant_id_list_search', 'report_participant_id_list_result', 'index', 'participantIdentificationsList', 1);
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'bank_identifier_name_list_from_id', 'open', '', 'Clinicalannotation.MiscIdentifierControl::getIcmBankIdentifierNamesFromId');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='report_participant_id_list_search');
+DELETE FROM structure_fields WHERE field IN ('no_labo_misc_identifier_control_id','no_labo_value');
+DELETE FROM structures WHERE alias='report_participant_id_list_search';
+
+INSERT INTO structures(`alias`) VALUES ('report_participant_id_list_search');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'no_labo_misc_identifier_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='bank_identifier_name_list_from_id') , '0', '', '', 'participant_with_no_labo_help', 'participant having', ''),
+('Datamart', '0', '', 'no_labo_value', 'integer', NULL , '0', 'size=20', '', '', 'no labo', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_id_list_search'), (SELECT id FROM structure_fields WHERE `model`='0' AND `field`='no_labo_misc_identifier_control_id'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_id_list_search'), (SELECT id FROM structure_fields WHERE `model`='0' AND `field`='no_labo_value'), '0', '2', '', '0', '', '0', '', '0', '', '1', 'integer', '1', 'size=20', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('no labo', "'No Labo'", "'No Labo'"), 
+('participant identifications list','Participant Identifications List','Liste des identifiants de participants'),
+('report_participant_id_list_desc', 
+"List all participant identifiers (RAMQ, 'No Labo', Hospital Numbers, etc).", 
+"Liste tous les identifiants de participants (RAMQ, 'No Labo', numéro d''hôpital, etc).");
+
+INSERT INTO i18n (id,en,fr) VALUES ('participant having', 'Participant Having', 'Participant ayant un'),
+('participant_with_no_labo_help',"Will list only participants having the selected 'No labo' type.", "Listera seulement les participantts ayant le type de 'No labo' sélectionné.");
+
+INSERT INTO structures(`alias`) VALUES ('report_participant_id_list_result');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'first_name', 'input',  NULL , '0', '', '', '', 'first name', ''),
+('Datamart', '0', '', 'last_name', 'input',  NULL , '0', '', '', '', 'last name', ''),
+('Datamart', '0', '', 'breast_bank_no_lab', 'input',  NULL , '0', '', '', '', 'breast bank no lab', ''),
+('Datamart', '0', '', 'prostate_bank_no_lab', 'input',  NULL , '0', '', '', '', 'prostate bank no lab', ''),
+('Datamart', '0', '', 'head_and_neck_bank_no_lab', 'input',  NULL , '0', '', '', '', 'head and neck bank no lab', ''),
+('Datamart', '0', '', 'kidney_bank_no_lab', 'input',  NULL , '0', '', '', '', 'kidney bank no lab', ''),
+('Datamart', '0', '', 'ovary_bank_no_lab', 'input',  NULL , '0', '', '', '', 'ovary bank no lab', ''),
+('Datamart', '0', '', 'hotel_dieu_id_nbr', 'input',  NULL , '0', '', '', '', 'hotel-dieu id nbr', ''),
+('Datamart', '0', '', 'notre_dame_id_nbr', 'input',  NULL , '0', '', '', '', 'notre-dame id nbr', ''),
+('Datamart', '0', '', 'other_center_id_nbr', 'input',  NULL , '0', '', '', '', 'other center id nbr', ''),
+('Datamart', '0', '', 'saint_luc_id_nbr', 'input',  NULL , '0', '', '', '', 'saint-luc id nbr', ''),
+('Datamart', '0', '', 'ramq_nbr', 'input',  NULL , '0', '', '', '', 'ramq nbr', ''),
+('Datamart', '0', '', 'code_barre', 'input',  NULL , '0', '', '', '', 'code-barre', ''),
+('Datamart', '0', '', 'old_bank_no_lab', 'input',  NULL , '0', '', '', '', 'old bank no lab', ''),
+('Datamart', '0', '', 'participant_patho_identifier', 'input',  NULL , '0', '', '', '', 'participant patho identifier', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'first_name'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'last_name'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'breast_bank_no_lab'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'prostate_bank_no_lab'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'head_and_neck_bank_no_lab'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'kidney_bank_no_lab'), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'ovary_bank_no_lab'), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'hotel_dieu_id_nbr'), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'notre_dame_id_nbr'), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'other_center_id_nbr'), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'saint_luc_id_nbr'), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'ramq_nbr'), '0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'code_barre'), '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'old_bank_no_lab'), '0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_id_list_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'participant_patho_identifier'), '0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('no labo should be a numeric value',"'No Labo' should be a numeric value!","'No Labo' doit être un numérique!"),
+('a no labo type should be selected',"A 'No Labo' type should be selected!","Un 'No Labo' doit être sélectionné!");
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('more than 3000 records are returned by the query - please redefine search criteria',
+'More than 3000 records are returned by the query! Please redefine search criteria!',
+'Plus de 3000 enregistrements sont retournés par la requête! Veuillez redéfinir vos paramêtres de recherche!');

@@ -714,6 +714,7 @@ class SardoToAtim{
 						}else{
 							//warn
 							printf("CONFLICT: Cannot update field [%s] from line [%d]. DB value [%s]. File value [%s].\n", $full_field_name, $line_number, $row[$full_field_name], $value);
+							$query = "INSERT INTO qc_nd_sardo_conflicts (table_n_field, ref_id, new_value) VALUES(?, ?, ?)";
 						}
 						$stmt->free_result();
 						$stmt->close();
@@ -784,7 +785,7 @@ class SardoToAtim{
 	}
 	
 	static private function validateTopo(){
-		$query = 'SELECT icd10_code FROM diagnosis_masters WHERE icd10_code NOT IN (SELECT id FROM coding_icd10_who)';
+		$query = 'SELECT icd10_code FROM diagnosis_masters WHERE icd10_code NOT IN (SELECT id FROM coding_icd10_ca)';
 		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$invalid_topo = array();
 		while($row = $result->fetch_assoc()){
@@ -798,42 +799,17 @@ class SardoToAtim{
 	}
 	
 	static private function validateMorpho(){
-		$morpho_domain_id = 391;
-		$query = 'SELECT spv.value, spv.language_alias
-					FROM structure_value_domains_permissible_values AS svdpv
-					INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id
-					WHERE svdpv.structure_value_domain_id='.$morpho_domain_id.' AND spv.value IN("'.implode('", "', array_keys(self::$morpho_codes)).'")';
+		$query = 'SELECT morphology FROM diagnosis_masters WHERE morphology NOT IN (SELECT id FROM coding_icd_o_3_morphology)';
 		$result = self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		$invalid_morpho = array();
 		while($row = $result->fetch_assoc()){
-			if($row['language_alias'] != self::$morpho_codes[$row['value']]){
-				printf("WARNING: Different morpho definition for code [%s] in file [%s] and database [%s].\n", $row['value'], self::$morpho_codes[$row['value']], $row['language_alias']);
-			}
-			unset(self::$morpho_codes[$row['value']]);
+			$invalid_morpho[] = $row['morphology'];
+		}
+		if($invalid_morpho){
+			$invalid_morpho = array_unique(array_filter($invalid_morpho));
+			printf("ERROR: The following topography codes (morphology) are invalid [".implode(', ', $invalid_morpho)."].\n");
 		}
 		$result->free();
-		
-		if(self::$morpho_codes){
-			$query = "INSERT INTO structure_permissible_values (value, language_alias) VALUES(?, ?)";
-			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-			$ids = array();
-			foreach(self::$morpho_codes as $value => $language_alias){
-				$stmt->bind_param('ss', $value, $language_alias);
-				$stmt->execute();
-				$ids[] = $stmt->insert_id;
-				self::printStmtWarnings($stmt, -1, $query);
-				printf("INSERT NEW MORPHO [%s]:[%s]\n", $value, $language_alias);
-			}
-			$stmt->close();
-				
-			$query = "INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES (?, ?)";
-			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-			foreach($ids as $id){
-				$stmt->bind_param('ii', $morpho_domain_id, $id);
-				$stmt->execute();
-				self::printStmtWarnings($stmt, -1, $query);
-			}
-			$stmt->close();
-		}
 	}
 	
 	static private function checkValueDomain($table_name, $field, $domain_name){
