@@ -57,7 +57,9 @@ class Config{
 	static $sample_code_counter = 0;	
 	
 	static $tissue_source_and_laterality = array();
-		
+
+	static $experimental_tests_list = array();
+	
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
 		'@@WARNING@@' => array(),  
@@ -88,7 +90,8 @@ Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporter
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_tests.php'; 
 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgical_collections.php'; 
 Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/pre_surgical_collections.php'; 
@@ -394,8 +397,37 @@ function setStaticDataForCollection() {
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$dx_who_codes[$row['id']] = $row['id'];
-	}		
+	}
 	
+	// ** Experimental tests **
+	
+	$query = "SELECT val.value FROM structure_permissible_values_customs AS val INNER JOIN structure_permissible_values_custom_controls AS ctrl ON ctrl.id = val.control_id WHERE ctrl.name = 'experimental tests';";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$experimental_tests_list[] = $row['value'];
+	}
+}
+
+function insertCustomOvcareRecord($data_arr, $table_name, $is_detail_table = false) {
+	global $connection;
+	$created = $is_detail_table? array() : array(
+		"created"		=> "NOW()", 
+		"created_by"	=> Config::$db_created_id, 
+		"modified"		=> "NOW()",
+		"modified_by"	=> Config::$db_created_id
+	);
+	
+	$insert_arr = array_merge($data_arr, $created);
+	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
+	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$record_id = mysqli_insert_id($connection);
+	
+	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));
+	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
+	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	return $record_id;	
 }
 
 ?>

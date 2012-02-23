@@ -10,7 +10,8 @@ $child = array(
 	'Metastasis',
 	'Chemotherapy',
 	'Surgery',
-	'ExperimentalResuls',
+//	'ExperimentalResuls',
+	'ExperimentalTests',
 	'SurgicalCollection',
 	'PreSurgicalCollection',
 	'PostSurgicalCollection'
