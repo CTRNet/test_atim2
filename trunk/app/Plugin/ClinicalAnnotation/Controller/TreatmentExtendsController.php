@@ -12,38 +12,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
 	
-	function listall($participant_id, $tx_master_id) {
-		// Get treatment Master data
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		
-		if(empty($tx_master_data)) {
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
-			$this->flash( 'no additional data has to be defined for this type of treatment', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
-			return;
-		}	
-				
-		if(!empty($tx_master_data['TreatmentControl']['extended_data_import_process'])) { 
-			$this->set('extended_data_import_process', $tx_master_data['TreatmentControl']['extended_data_import_process']); 
-		}
-		 
-		// Set Extend tablename to use
-		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
-		
-		// List trt extends
-		$this->request->data = $this->paginate($this->TreatmentExtend, array('TreatmentExtend.treatment_master_id'=>$tx_master_id));
-		
-		// Set forms and menu data
-		$this->Structures->set( $tx_master_data['TreatmentControl']['extend_form_alias'] );
-		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}	
-	}
-
 	function detail($participant_id, $tx_master_id, $tx_extend_id) {
 		// Get treatment data
 		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));

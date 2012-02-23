@@ -5,6 +5,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster', 
+		'ClinicalAnnotation.TreatmentExtend', 
 		'ClinicalAnnotation.TreatmentControl', 
 		'ClinicalAnnotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
@@ -49,7 +50,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}		
 		$this->request->data = $treatment_master_data;
-
+		
 		$this->set('diagnosis_data', $this->DiagnosisMaster->getRelatedDiagnosisEvents($this->request->data['TreatmentMaster']['diagnosis_master_id']));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -59,6 +60,15 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
 		$this->set('is_ajax', $is_ajax);
+		
+		if($treatment_master_data['TreatmentControl']['extend_tablename']){
+			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $treatment_master_data['TreatmentControl']['extend_tablename']);
+			$this->set('tx_extend_data', $this->TreatmentExtend->find('all', array('conditions' => array('TreatmentExtend.treatment_master_id' => $tx_master_id))));
+			$this->Structures->set($treatment_master_data['TreatmentControl']['extend_form_alias'], 'extend_form_alias');
+			if(!empty($treatment_master_data['TreatmentControl']['extended_data_import_process'])) {
+				$this->set('extended_data_import_process', $treatment_master_data['TreatmentControl']['extended_data_import_process']);
+			}
+		}
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
