@@ -59,7 +59,7 @@ function createCollection(Model $m, $collection_type) {
 		"collection_notes" => "'".	Config::$current_patient_session_data['collection_additional_notes']."'",
 		"collection_property" => "'participant collection'"
 	);
-	$collection_id = insertCollectionElement($data_arr, 'collections');
+	$collection_id = insertCustomOvcareRecord($data_arr, 'collections');
 	
 	switch($collection_type) {
 		case 'pre-surgical':
@@ -76,13 +76,13 @@ function createCollection(Model $m, $collection_type) {
 				"parent_id"						=> "NULL",
 				"notes"							=> "''" 
 			);
-			$blood_sample_master_id = insertCollectionElement($data_arr, 'sample_masters');
+			$blood_sample_master_id = insertCustomOvcareRecord($data_arr, 'sample_masters');
 		
 			$data_arr = array(
 				"sample_master_id"	=> $blood_sample_master_id,
 			);
-			insertCollectionElement($data_arr, Config::$sample_aliquot_controls['blood']['detail_tablename'], true);
-			insertCollectionElement($data_arr, 'specimen_details');
+			insertCustomOvcareRecord($data_arr, Config::$sample_aliquot_controls['blood']['detail_tablename'], true);
+			insertCustomOvcareRecord($data_arr, 'specimen_details');
 						
 			// BLOOD Derivative
 			
@@ -103,9 +103,9 @@ function createCollection(Model $m, $collection_type) {
 			if(!empty($blood_derivatives)) {
 				foreach($blood_derivatives as $new_der) {
 					if(preg_match('/^([0-9]+)$/', $new_der['aliquot_nbr'], $matches)) {
-						$derivative_sample_master_id = insertCollectionElement(array_merge($master_data_arr, array('sample_code' => "'tmp_".(Config::$sample_code_counter++)."'", 'sample_control_id' => Config::$sample_aliquot_controls[$new_der['type']]['sample_control_id'])), 'sample_masters');
-						insertCollectionElement(array("sample_master_id" => $derivative_sample_master_id), Config::$sample_aliquot_controls[$new_der['type']]['detail_tablename'], true);
-						insertCollectionElement(array("sample_master_id" => $derivative_sample_master_id), 'derivative_details');
+						$derivative_sample_master_id = insertCustomOvcareRecord(array_merge($master_data_arr, array('sample_code' => "'tmp_".(Config::$sample_code_counter++)."'", 'sample_control_id' => Config::$sample_aliquot_controls[$new_der['type']]['sample_control_id'])), 'sample_masters');
+						insertCustomOvcareRecord(array("sample_master_id" => $derivative_sample_master_id), Config::$sample_aliquot_controls[$new_der['type']]['detail_tablename'], true);
+						insertCustomOvcareRecord(array("sample_master_id" => $derivative_sample_master_id), 'derivative_details');
 						createAliquot($collection_id, $derivative_sample_master_id, $new_der['type'], 'tube', $new_der['aliquot_nbr'], $initial_storage_date);
 					} else {
 						Config::$summary_msg['@@ERROR@@']['Blood Derivative #1'][] = 'The '.$new_der['type'].' is not a numerical value ('.$new_der['aliquot_nbr'].'). [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
@@ -156,9 +156,9 @@ function createCollection(Model $m, $collection_type) {
 							"parent_id"						=> "NULL",
 							"notes"							=> (($new_specimen['source_precision'] == '***cell***')? "''" :"'$sample_notes'")
 						);
-						$ascite_sample_master_id = insertCollectionElement($data_arr, 'sample_masters');
-						insertCollectionElement(array("sample_master_id"	=> $ascite_sample_master_id), Config::$sample_aliquot_controls['ascite']['detail_tablename'], true);
-						insertCollectionElement(array("sample_master_id"	=> $ascite_sample_master_id), 'specimen_details');
+						$ascite_sample_master_id = insertCustomOvcareRecord($data_arr, 'sample_masters');
+						insertCustomOvcareRecord(array("sample_master_id"	=> $ascite_sample_master_id), Config::$sample_aliquot_controls['ascite']['detail_tablename'], true);
+						insertCustomOvcareRecord(array("sample_master_id"	=> $ascite_sample_master_id), 'specimen_details');
 						
 						$aliquot_sample_master_id = $ascite_sample_master_id;
 						$aliquot_sample_type = 'ascite';
@@ -174,9 +174,9 @@ function createCollection(Model $m, $collection_type) {
 								"notes"							=> "'$sample_notes'" 
 							);
 	
-							$ascite_cell_sample_master_id = insertCollectionElement($master_data_arr, 'sample_masters');
-							insertCollectionElement(array("sample_master_id" => $ascite_cell_sample_master_id), Config::$sample_aliquot_controls['ascite cell']['detail_tablename'], true);
-							insertCollectionElement(array("sample_master_id" => $ascite_cell_sample_master_id), 'derivative_details');
+							$ascite_cell_sample_master_id = insertCustomOvcareRecord($master_data_arr, 'sample_masters');
+							insertCustomOvcareRecord(array("sample_master_id" => $ascite_cell_sample_master_id), Config::$sample_aliquot_controls['ascite cell']['detail_tablename'], true);
+							insertCustomOvcareRecord(array("sample_master_id" => $ascite_cell_sample_master_id), 'derivative_details');
 							
 							$aliquot_sample_master_id = $ascite_cell_sample_master_id;
 							$aliquot_sample_type = 'ascite cell';
@@ -199,15 +199,15 @@ function createCollection(Model $m, $collection_type) {
 							"parent_id"						=> "NULL",
 							"notes"							=> (($new_specimen['source_precision'] == '***culture***')? "''" : "'$sample_notes'") 
 						);
-						$tissue_sample_master_id = insertCollectionElement($data_arr, 'sample_masters');
+						$tissue_sample_master_id = insertCustomOvcareRecord($data_arr, 'sample_masters');
 						$data_arr = array(
 							"sample_master_id"	=> $tissue_sample_master_id,
 							"tissue_source" => "'".$new_specimen['source']."'",
 							"ovcare_tissue_source_precision" => (($new_specimen['source_precision'] == '***culture***')? "''" : "'".$new_specimen['source_precision']."'"),
 							"tissue_laterality" => "'".$new_specimen['laterality']."'"
 						);
-						insertCollectionElement($data_arr, Config::$sample_aliquot_controls['tissue']['detail_tablename'], true);
-						insertCollectionElement(array("sample_master_id"	=> $tissue_sample_master_id), 'specimen_details');
+						insertCustomOvcareRecord($data_arr, Config::$sample_aliquot_controls['tissue']['detail_tablename'], true);
+						insertCustomOvcareRecord(array("sample_master_id"	=> $tissue_sample_master_id), 'specimen_details');
 						
 						if($new_specimen['source_precision'] != '***culture***') {
 							createAliquot($collection_id, $tissue_sample_master_id, 'tissue', 'block', $blocks_nbr, $initial_storage_date);
@@ -225,9 +225,9 @@ function createCollection(Model $m, $collection_type) {
 								"notes"							=> "'$sample_notes'" 
 							);
 	
-							$cell_culture_sample_master_id = insertCollectionElement($master_data_arr, 'sample_masters');
-							insertCollectionElement(array("sample_master_id" => $cell_culture_sample_master_id), Config::$sample_aliquot_controls['cell culture']['detail_tablename'], true);
-							insertCollectionElement(array("sample_master_id" => $cell_culture_sample_master_id), 'derivative_details');
+							$cell_culture_sample_master_id = insertCustomOvcareRecord($master_data_arr, 'sample_masters');
+							insertCustomOvcareRecord(array("sample_master_id" => $cell_culture_sample_master_id), Config::$sample_aliquot_controls['cell culture']['detail_tablename'], true);
+							insertCustomOvcareRecord(array("sample_master_id" => $cell_culture_sample_master_id), 'derivative_details');
 							
 							Config::$summary_msg['@@WARNING@@']['Special Derivative Creation #1'][] = 'An Tissue cell culture derivative has been created for ['.$m->values['Tissue Receipt::Specimen Type 1'].' / '.$m->values['Tissue Receipt::Specimen Type 2'].'].  [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
 						}
@@ -395,30 +395,8 @@ function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot
 	while($nbr_of_aliquots) {
 		$nbr_of_aliquots--;
 		
-		$aliquot_master_id = insertCollectionElement($master_insert, 'aliquot_masters');
+		$aliquot_master_id = insertCustomOvcareRecord($master_insert, 'aliquot_masters');
 		$detail_insert['aliquot_master_id'] = $aliquot_master_id;
-		insertCollectionElement($detail_insert, $detail_table, true);
+		insertCustomOvcareRecord($detail_insert, $detail_table, true);
 	}
-}
-
-function insertCollectionElement($data_arr, $table_name, $is_detail_table = false) {
-	global $connection;
-	$created = $is_detail_table? array() : array(
-		"created"		=> "NOW()", 
-		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
-		"modified_by"	=> Config::$db_created_id
-	);
-	
-	$insert_arr = array_merge($data_arr, $created);
-	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$record_id = mysqli_insert_id($connection);
-	
-	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));
-	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	return $record_id;	
 }
