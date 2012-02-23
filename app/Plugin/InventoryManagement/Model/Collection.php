@@ -20,6 +20,11 @@ class Collection extends InventoryManagementAppModel {
 		)
 	);
 	
+	var $browsing_filter = array(
+		1	=> array('lang' => 'keep entries with the most recent date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MAX'),
+		2	=> array('lang' => 'keep entries with the oldest date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MIN')
+	);
+	
 	function summary($variables=array()) {
 		$return = false;
 		

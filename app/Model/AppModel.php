@@ -27,6 +27,8 @@ class AppModel extends Model {
 	 */
 	var $previous_model = null;
 	
+	const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
+	
 	/**
 	 * @desc If $base_model_name and $detail_table are not null, a new hasOne relationship is created before calling the parent constructor.
 	 * This is convenient for search based on master/detail detail table.
@@ -958,6 +960,29 @@ class AppModel extends Model {
 	
 	public function removeWritableField($field, $tablename = null){
 		$this->updateWritableField($field, $tablename, false);
+	}
+	
+	function getBrowsingFilter(){
+		$result = array();
+		if(isset($this->browsing_filter)){
+			foreach($this->browsing_filter as $key => $details){
+				$result[$key] = __($details['lang']);
+			}
+		}
+		return $result;
+	}
+	
+	function getBrowsingFilterArray(){
+		if(isset($this->browsing_filter)){
+			return $this->browsing_filter;
+		}
+		if(isset($this->base_model)){
+			$base_model = AppModel::getInstance($this->base_plugin, $this->base_model, true);
+			if(isset($base_model->browsing_filter)){
+				return $base_model->browsing_filter;
+			}
+		}
+		return null;
 	}
 }
 
